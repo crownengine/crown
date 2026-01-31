@@ -276,6 +276,11 @@ struct WindowAndroid : public Window
 		return s_android_device->_window;
 	}
 
+	void *native_handle_type() override
+	{
+		return (void *)(uintptr_t)bgfx::NativeWindowHandleType::Default;
+	}
+
 	void *native_display() override
 	{
 		return NULL;

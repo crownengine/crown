@@ -33,11 +33,65 @@
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-compose.h>
+#include <sys/mman.h> // mmap
+#include <linux/input-event-codes.h>
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
 #include <signal.h>
 #include <errno.h>
+#include <stdio.h>
+
+struct wl_display;
+struct wl_proxy;
+struct wl_interface;
+
+#define WAYLAND_IMPORT()                                                                                                                                   \
+	DL_IMPORT_FUNC(wl_display_connect,          struct wl_display *, (const char *name));                                                                  \
+	DL_IMPORT_FUNC(wl_display_dispatch,         int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_display_roundtrip,        int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_proxy_add_listener,       int,                 (struct wl_proxy *, void (**implementation)(void), void *));                          \
+	DL_IMPORT_FUNC(wl_proxy_get_version,        uint32_t,            (struct wl_proxy *));                                                                 \
+	DL_IMPORT_FUNC(wl_proxy_marshal_flags,      struct wl_proxy *,   (struct wl_proxy *, uint32_t, const struct wl_interface *, uint32_t, uint32_t, ...)); \
+	DL_IMPORT_FUNC(wl_display_dispatch_pending, int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_display_get_fd,           int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_display_read_events,      int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_display_prepare_read,     int,                 (struct wl_display *));                                                               \
+	DL_IMPORT_FUNC(wl_display_flush,            int,                 (struct wl_display *));
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	extern PROTO_ ## func_name crown_ ## func_name
+
+extern "C"
+{
+WAYLAND_IMPORT();
+}
+
+#undef DL_IMPORT_FUNC
+
+#define wl_display_connect (*crown_wl_display_connect)
+#define wl_display_dispatch (*crown_wl_display_dispatch)
+#define wl_display_roundtrip (*crown_wl_display_roundtrip)
+#define wl_proxy_add_listener (*crown_wl_proxy_add_listener)
+#define wl_proxy_get_version (*crown_wl_proxy_get_version)
+#define wl_proxy_marshal_flags (*crown_wl_proxy_marshal_flags)
+#define wl_display_dispatch_pending (*crown_wl_display_dispatch_pending)
+#define wl_display_get_fd (*crown_wl_display_get_fd)
+#define wl_display_read_events (*crown_wl_display_read_events)
+#define wl_display_prepare_read (*crown_wl_display_prepare_read)
+#define wl_display_flush (*crown_wl_display_flush)
+
+#include "wayland/wayland-client-protocol.h"
+#include "wayland/wayland-client-protocol.c"
+#include "wayland/xdg-shell-client-protocol.h"
+#include "wayland/xdg-shell-client-protocol.c"
+#include "wayland/relative-pointer-unstable-v1-client-protocol.h"
+#include "wayland/relative-pointer-unstable-v1-client-protocol.c"
+#include "wayland/pointer-constraints-unstable-v1-client-protocol.h"
+#include "wayland/pointer-constraints-unstable-v1-client-protocol.c"
 
 namespace crown
 {
@@ -144,6 +198,102 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	case 'y':             return KeyboardButton::Y;
 	case 'z':             return KeyboardButton::Z;
 	default:              return KeyboardButton::COUNT;
+	}
+}
+
+static KeyboardButton::Enum evdev_translate_key(uint32_t key)
+{
+	switch (key) {
+	case KEY_BACKSPACE:  return KeyboardButton::BACKSPACE;
+	case KEY_TAB:        return KeyboardButton::TAB;
+	case KEY_SPACE:      return KeyboardButton::SPACE;
+	case KEY_ESC:        return KeyboardButton::ESCAPE;
+	case KEY_ENTER:      return KeyboardButton::ENTER;
+	case KEY_F1:         return KeyboardButton::F1;
+	case KEY_F2:         return KeyboardButton::F2;
+	case KEY_F3:         return KeyboardButton::F3;
+	case KEY_F4:         return KeyboardButton::F4;
+	case KEY_F5:         return KeyboardButton::F5;
+	case KEY_F6:         return KeyboardButton::F6;
+	case KEY_F7:         return KeyboardButton::F7;
+	case KEY_F8:         return KeyboardButton::F8;
+	case KEY_F9:         return KeyboardButton::F9;
+	case KEY_F10:        return KeyboardButton::F10;
+	case KEY_F11:        return KeyboardButton::F11;
+	case KEY_F12:        return KeyboardButton::F12;
+	case KEY_HOME:       return KeyboardButton::HOME;
+	case KEY_LEFT:       return KeyboardButton::LEFT;
+	case KEY_UP:         return KeyboardButton::UP;
+	case KEY_RIGHT:      return KeyboardButton::RIGHT;
+	case KEY_DOWN:       return KeyboardButton::DOWN;
+	case KEY_PAGEUP:     return KeyboardButton::PAGE_UP;
+	case KEY_PAGEDOWN:   return KeyboardButton::PAGE_DOWN;
+	case KEY_INSERT:     return KeyboardButton::INS;
+	case KEY_DELETE:     return KeyboardButton::DEL;
+	case KEY_END:        return KeyboardButton::END;
+	case KEY_LEFTSHIFT:  return KeyboardButton::SHIFT_LEFT;
+	case KEY_RIGHTSHIFT: return KeyboardButton::SHIFT_RIGHT;
+	case KEY_LEFTCTRL:   return KeyboardButton::CTRL_LEFT;
+	case KEY_RIGHTCTRL:  return KeyboardButton::CTRL_RIGHT;
+	case KEY_CAPSLOCK:   return KeyboardButton::CAPS_LOCK;
+	case KEY_LEFTALT:    return KeyboardButton::ALT_LEFT;
+	case KEY_RIGHTALT:   return KeyboardButton::ALT_RIGHT;
+	case KEY_LEFTMETA:   return KeyboardButton::SUPER_LEFT;
+	case KEY_RIGHTMETA:  return KeyboardButton::SUPER_RIGHT;
+	case KEY_NUMLOCK:    return KeyboardButton::NUM_LOCK;
+	case KEY_KPENTER:    return KeyboardButton::NUMPAD_ENTER;
+	case KEY_KPDOT:      return KeyboardButton::NUMPAD_DELETE;
+	case KEY_KPASTERISK: return KeyboardButton::NUMPAD_MULTIPLY;
+	case KEY_KPPLUS:     return KeyboardButton::NUMPAD_ADD;
+	case KEY_KPMINUS:    return KeyboardButton::NUMPAD_SUBTRACT;
+	case KEY_KPSLASH:    return KeyboardButton::NUMPAD_DIVIDE;
+	case KEY_KP0:        return KeyboardButton::NUMPAD_0;
+	case KEY_KP1:        return KeyboardButton::NUMPAD_1;
+	case KEY_KP2:        return KeyboardButton::NUMPAD_2;
+	case KEY_KP3:        return KeyboardButton::NUMPAD_3;
+	case KEY_KP4:        return KeyboardButton::NUMPAD_4;
+	case KEY_KP5:        return KeyboardButton::NUMPAD_5;
+	case KEY_KP6:        return KeyboardButton::NUMPAD_6;
+	case KEY_KP7:        return KeyboardButton::NUMPAD_7;
+	case KEY_KP8:        return KeyboardButton::NUMPAD_8;
+	case KEY_KP9:        return KeyboardButton::NUMPAD_9;
+	case KEY_0:          return KeyboardButton::NUMBER_0;
+	case KEY_1:          return KeyboardButton::NUMBER_1;
+	case KEY_2:          return KeyboardButton::NUMBER_2;
+	case KEY_3:          return KeyboardButton::NUMBER_3;
+	case KEY_4:          return KeyboardButton::NUMBER_4;
+	case KEY_5:          return KeyboardButton::NUMBER_5;
+	case KEY_6:          return KeyboardButton::NUMBER_6;
+	case KEY_7:          return KeyboardButton::NUMBER_7;
+	case KEY_8:          return KeyboardButton::NUMBER_8;
+	case KEY_9:          return KeyboardButton::NUMBER_9;
+	case KEY_A:          return KeyboardButton::A;
+	case KEY_B:          return KeyboardButton::B;
+	case KEY_C:          return KeyboardButton::C;
+	case KEY_D:          return KeyboardButton::D;
+	case KEY_E:          return KeyboardButton::E;
+	case KEY_F:          return KeyboardButton::F;
+	case KEY_G:          return KeyboardButton::G;
+	case KEY_H:          return KeyboardButton::H;
+	case KEY_I:          return KeyboardButton::I;
+	case KEY_J:          return KeyboardButton::J;
+	case KEY_K:          return KeyboardButton::K;
+	case KEY_L:          return KeyboardButton::L;
+	case KEY_M:          return KeyboardButton::M;
+	case KEY_N:          return KeyboardButton::N;
+	case KEY_O:          return KeyboardButton::O;
+	case KEY_P:          return KeyboardButton::P;
+	case KEY_Q:          return KeyboardButton::Q;
+	case KEY_R:          return KeyboardButton::R;
+	case KEY_S:          return KeyboardButton::S;
+	case KEY_T:          return KeyboardButton::T;
+	case KEY_U:          return KeyboardButton::U;
+	case KEY_V:          return KeyboardButton::V;
+	case KEY_W:          return KeyboardButton::W;
+	case KEY_X:          return KeyboardButton::X;
+	case KEY_Y:          return KeyboardButton::Y;
+	case KEY_Z:          return KeyboardButton::Z;
+	default:             return KeyboardButton::COUNT;
 	}
 }
 
@@ -306,7 +456,6 @@ struct Joypad
 
 static bool s_exit = false;
 static int exit_pipe[2];
-static Cursor _x11_cursors[MouseCursor::COUNT];
 static bool push_event(const OsEvent &ev);
 
 #define X11_IMPORT()                                                                                                                                                                                          \
@@ -371,67 +520,651 @@ XRR_IMPORT();
 
 #undef DL_IMPORT_FUNC
 
-struct LinuxDevice
-{
-	::Display *_x11_display;
-	void *_x11_lib;
-	void *_xrandr_lib;
-	Atom _wm_delete_window;
-	Atom _net_wm_state;
-	Atom _net_wm_state_maximized_horz;
-	Atom _net_wm_state_maximized_vert;
-	Atom _net_wm_state_fullscreen;
-	Cursor _x11_hidden_cursor;
-	bool _x11_detectable_autorepeat;
-	XRRScreenConfiguration *_screen_config;
-	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
-	DeviceEventQueue _queue;
-	Joypad _joypad;
-	::Window _x11_window;
-	s16 _mouse_last_x;
-	s16 _mouse_last_y;
-	CursorMode::Enum _cursor_mode;
+#define WAYLAND_EGL_IMPORT()                                                                        \
+	DL_IMPORT_FUNC(wl_egl_window_create,  struct wl_egl_window *, (struct wl_surface *, int, int)); \
+	DL_IMPORT_FUNC(wl_egl_window_destroy, void,                   (struct wl_egl_window *))
 
-	explicit LinuxDevice(Allocator &a)
-		: _x11_display(NULL)
-		, _x11_lib(NULL)
-		, _xrandr_lib(NULL)
-		, _wm_delete_window(None)
-		, _net_wm_state(None)
-		, _net_wm_state_maximized_horz(None)
-		, _net_wm_state_maximized_vert(None)
-		, _net_wm_state_fullscreen(None)
-		, _x11_hidden_cursor(None)
-		, _x11_detectable_autorepeat(false)
-		, _screen_config(NULL)
-		, _events(a)
-		, _queue(push_event)
-		, _joypad(_queue)
-		, _x11_window(None)
-		, _mouse_last_x(INT16_MAX)
-		, _mouse_last_y(INT16_MAX)
-		, _cursor_mode(CursorMode::NORMAL)
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+WAYLAND_EGL_IMPORT();
+#undef DL_IMPORT_FUNC
+
+#define XKBCOMMON_IMPORT()                                                                                                                                                                   \
+	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags flags));                                                                                        \
+	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *context, const char *string, enum xkb_keymap_format format, enum xkb_keymap_compile_flags flags)); \
+	DL_IMPORT_FUNC(xkb_keymap_unref,           void,                 (struct xkb_keymap *keymap));                                                                                           \
+	DL_IMPORT_FUNC(xkb_state_key_get_one_sym,  xkb_keysym_t,         (struct xkb_state *state, xkb_keycode_t key));                                                                          \
+	DL_IMPORT_FUNC(xkb_state_new,              struct xkb_state *,   (struct xkb_keymap *keymap));                                                                                           \
+	DL_IMPORT_FUNC(xkb_state_unref,            void,                 (struct xkb_state *state));                                                                                             \
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+XKBCOMMON_IMPORT();
+#undef DL_IMPORT_FUNC
+
+static void registry_handle_global(void *data, wl_registry *registry, uint name, const char *iface, uint ver);
+static void registry_handle_global_remove(void *user_data, struct wl_registry *registry, uint32_t name);
+
+static const wl_registry_listener _wl_registry_listener =
+{
+	registry_handle_global,
+	registry_handle_global_remove
+};
+
+static void surface_handle_enter(void *user_data, struct wl_surface *surface, struct wl_output *output);
+static void surface_handle_leave(void *user_data, struct wl_surface *surface, struct wl_output *output);
+
+static const struct wl_surface_listener surface_listener =
+{
+	surface_handle_enter,
+	surface_handle_leave
+};
+
+static void xdg_toplevel_handle_configure(void *user_data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, wl_array *states);
+static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *toplevel);
+
+static const struct xdg_toplevel_listener toplevel_listener =
+{
+	xdg_toplevel_handle_configure,
+	xdg_toplevel_handle_close
+};
+
+static void xdg_surface_handle_configure(void *user_data, struct xdg_surface *surface, uint32_t serial);
+
+static const xdg_surface_listener xdg_surface_listener =
+{
+	xdg_surface_handle_configure,
+};
+
+struct WindowSystem
+{
+	enum Enum
+	{
+		X11,
+		WAYLAND,
+
+		COUNT
+	};
+};
+
+struct System
+{
+	/// Returns the connection file descriptor or < 0 on error.
+	virtual int init() = 0;
+
+	///
+	virtual void shutdown() = 0;
+
+	/// Call when events are pending on the connection.
+	virtual void handle_events() = 0;
+};
+
+struct SystemWayland : public System
+{
+	void *wl_lib;
+	void *egl_lib;
+	wl_display *display;
+	wl_registry *registry;
+	wl_compositor *compositor;
+	wl_seat *seat;
+	xdg_wm_base *wm_base;
+	wl_keyboard *keyboard;
+	wl_pointer *pointer;
+	zwp_relative_pointer_manager_v1 *relative_pointer_manager;
+	zwp_relative_pointer_v1 *relative_pointer;
+	zwp_pointer_constraints_v1 *pointer_constraints;
+	zwp_locked_pointer_v1 *locked_pointer;
+	CursorMode::Enum cursor_mode;
+	struct wl_surface *surface;
+	struct xdg_surface *xdg_surface;
+	struct xdg_toplevel *xdg_toplevel;
+	struct wl_egl_window *egl_window;
+	DeviceEventQueue *queue;
+
+	struct
+	{
+		void *lib;
+		struct xkb_context *context;
+		struct xkb_keymap *keymap;
+		struct xkb_state *state;
+	} xkb;
+
+	SystemWayland(DeviceEventQueue &event_queue)
+		: wl_lib(NULL)
+		, egl_lib(NULL)
+		, display(NULL)
+		, registry(NULL)
+		, compositor(NULL)
+		, seat(NULL)
+		, wm_base(NULL)
+		, keyboard(NULL)
+		, pointer(NULL)
+		, cursor_mode(CursorMode::NORMAL)
+		, queue(&event_queue)
 	{
 	}
 
-	int run(DeviceOptions *opts)
+	virtual ~SystemWayland()
 	{
-		int err = pipe(exit_pipe);
-		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
-		CE_UNUSED(err);
+	}
 
-		_x11_lib = os::library_open("libX11.so.6");
-#define DL_IMPORT_FUNC(func_name, return_type, params)                          \
-	func_name = (PROTO_ ## func_name)os::library_symbol(_x11_lib, # func_name); \
+	int init() override
+	{
+		wl_lib = os::library_open("libwayland-client.so");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                                    \
+	::crown_ ## func_name = (PROTO_ ## func_name)os::library_symbol(wl_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+		WAYLAND_IMPORT();
+#undef DL_IMPORT_FUNC
+		for (int i = 0; i < countof(xdg_shell_types); ++i) {
+			if (xdg_shell_types[i] == (void *)1)
+				xdg_shell_types[i] = &wl_surface_interface;
+			if (xdg_shell_types[i] == (void *)2)
+				xdg_shell_types[i] = &wl_seat_interface;
+			if (xdg_shell_types[i] == (void *)3)
+				xdg_shell_types[i] = &wl_output_interface;
+		}
+
+		egl_lib = os::library_open("libwayland-egl.so");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                         \
+	func_name = (PROTO_ ## func_name)os::library_symbol(egl_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+		WAYLAND_EGL_IMPORT();
+#undef DL_IMPORT_FUNC
+
+		xkb.lib = os::library_open("libxkbcommon.so");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                         \
+	func_name = (PROTO_ ## func_name)os::library_symbol(xkb.lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+		XKBCOMMON_IMPORT();
+#undef DL_IMPORT_FUNC
+
+		xkb.context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+		CE_ASSERT(xkb.context != NULL, "xkb_context_new: error");
+
+		display = wl_display_connect(NULL);
+		CE_ASSERT(display != NULL, "wl_display_connect: error");
+
+		registry = (wl_registry *)wl_proxy_marshal_flags((wl_proxy *)display
+			, WL_DISPLAY_GET_REGISTRY
+			, &wl_registry_interface
+			, wl_proxy_get_version((wl_proxy *)display)
+			, 0
+			, NULL
+			);
+		wl_proxy_add_listener((wl_proxy *)registry, (void (* *)(void))&_wl_registry_listener, this);
+		wl_display_roundtrip(display);
+		CE_ENSURE(display != NULL);
+		CE_ENSURE(compositor != NULL);
+		CE_ENSURE(seat != NULL);
+		CE_ENSURE(wm_base != NULL);
+
+		surface = wl_compositor_create_surface(compositor);
+		CE_ENSURE(surface != NULL);
+
+		wl_proxy_add_listener((struct wl_proxy *)surface
+			, (void (* *)(void))&surface_listener
+			, NULL
+			);
+
+		xdg_surface = xdg_wm_base_get_xdg_surface(wm_base, surface);
+		CE_ENSURE(xdg_surface != NULL);
+
+		wl_proxy_add_listener((wl_proxy *)xdg_surface
+			, (void (* *)(void))&xdg_surface_listener
+			, NULL
+			);
+
+		xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+		CE_ENSURE(xdg_toplevel != NULL);
+
+		wl_proxy_add_listener((wl_proxy *)xdg_toplevel
+			, (void (* *)(void))&toplevel_listener
+			, NULL
+			);
+
+		wl_surface_commit(surface);
+		wl_display_roundtrip(display);
+
+		return wl_display_get_fd(display);
+	}
+
+	void shutdown()
+	{
+		if (relative_pointer_manager)
+			zwp_relative_pointer_manager_v1_destroy(relative_pointer_manager);
+		if (pointer_constraints)
+			zwp_pointer_constraints_v1_destroy(pointer_constraints);
+	}
+
+	void handle_events()
+	{
+		if (wl_display_prepare_read(display) < 0) {
+			wl_display_dispatch_pending(display);
+			return;
+		}
+
+		if (wl_display_read_events(display) < 0)
+			return; // Connection error.
+
+		wl_display_dispatch(display);
+	}
+};
+
+static SystemWayland *_wl;
+
+static void keyboard_handle_keymap(void *user_data
+	, wl_keyboard *keyboard
+	, uint32_t format
+	, int fd
+	, uint32_t size
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+
+	char *str = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (str == MAP_FAILED) {
+		close(fd);
+		return;
+	}
+
+	wl->xkb.keymap = xkb_keymap_new_from_string(wl->xkb.context
+		, str
+		, XKB_KEYMAP_FORMAT_TEXT_V1
+		, XKB_KEYMAP_COMPILE_NO_FLAGS
+		);
+	CE_ENSURE(wl->xkb.keymap != NULL);
+	munmap(str, size);
+	close(fd);
+
+	wl->xkb.state = xkb_state_new(wl->xkb.keymap);
+	if (!wl->xkb.state) {
+		CE_FATAL("xkb_state_new: error");
+		xkb_keymap_unref(wl->xkb.keymap);
+		return;
+	}
+
+	xkb_keymap_unref(wl->xkb.keymap);
+	xkb_state_unref(wl->xkb.state);
+}
+
+static void keyboard_handle_enter(void *user_data
+	, struct wl_keyboard *keyboard
+	, uint32_t serial
+	, struct wl_surface *surface
+	, struct wl_array *keys
+	)
+{
+}
+
+static void keyboard_handle_leave(void *user_data
+	, struct wl_keyboard *keyboard
+	, uint32_t serial
+	, struct wl_surface *surface
+	)
+{
+}
+
+static void keyboard_handle_key(void *user_data
+	, wl_keyboard *keyboard
+	, uint32_t serial
+	, uint32_t time
+	, uint32_t key
+	, uint32_t state
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+
+	const KeyboardButton::Enum kb = evdev_translate_key(key);
+	if (kb != KeyboardButton::COUNT) {
+		queue.push_button_event(InputDeviceType::KEYBOARD
+			, 0
+			, kb
+			, state == WL_KEYBOARD_KEY_STATE_PRESSED
+			);
+	}
+}
+
+static void keyboard_handle_modifiers(void *user_data
+	, struct wl_keyboard *keyboard
+	, uint32_t serial
+	, uint32_t mods_depressed
+	, uint32_t mods_latched
+	, uint32_t mods_locked
+	, uint32_t group
+	)
+{
+}
+
+static const struct wl_keyboard_listener keyboard_listener =
+{
+	keyboard_handle_keymap,
+	keyboard_handle_enter,
+	keyboard_handle_leave,
+	keyboard_handle_key,
+	keyboard_handle_modifiers,
+};
+
+static void pointer_handle_enter(void *user_data
+	, struct wl_pointer *pointer
+	, uint32_t serial
+	, struct wl_surface *surface
+	, wl_fixed_t surface_x
+	, wl_fixed_t surface_y
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+	const s32 mx = wl_fixed_to_int(surface_x);
+	const s32 my = wl_fixed_to_int(surface_y);
+
+	wl->queue->push_axis_event(InputDeviceType::MOUSE
+		, 0
+		, MouseAxis::CURSOR
+		, (s16)mx
+		, (s16)my
+		, 0
+		);
+}
+
+static void pointer_handle_leave(void *user_data
+	, struct wl_pointer *pointer
+	, uint32_t serial
+	, struct wl_surface *surface
+	)
+{
+}
+
+static void pointer_handle_motion(void *user_data
+	, struct wl_pointer *pointer
+	, uint32_t time
+	, wl_fixed_t surface_x
+	, wl_fixed_t surface_y
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+
+	const s32 mx = wl_fixed_to_int(surface_x);
+	const s32 my = wl_fixed_to_int(surface_y);
+
+	queue.push_axis_event(InputDeviceType::MOUSE
+		, 0
+		, MouseAxis::CURSOR
+		, (s16)mx
+		, (s16)my
+		, 0
+		);
+}
+
+static void pointer_handle_button(void *user_data
+	, struct wl_pointer *pointer
+	, uint32_t serial
+	, uint32_t time
+	, uint32_t button
+	, uint32_t state
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+
+	MouseButton::Enum mb;
+	switch (button) {
+	case BTN_LEFT: mb = MouseButton::LEFT; break;
+	case BTN_RIGHT: mb = MouseButton::RIGHT; break;
+	case BTN_MIDDLE: mb = MouseButton::MIDDLE; break;
+	default: mb = MouseButton::COUNT; break;
+	}
+
+	if (mb != MouseButton::COUNT) {
+		queue.push_button_event(InputDeviceType::MOUSE
+			, 0
+			, mb
+			, state == WL_POINTER_BUTTON_STATE_PRESSED
+			);
+	}
+}
+
+static void pointer_handle_axis(void *user_data
+	, struct wl_pointer *pointer
+	, uint32_t time
+	, uint32_t axis
+	, wl_fixed_t value
+	)
+{
+}
+
+static const struct wl_pointer_listener pointer_listener =
+{
+	pointer_handle_enter,
+	pointer_handle_leave,
+	pointer_handle_motion,
+	pointer_handle_button,
+	pointer_handle_axis,
+};
+
+static void relative_pointer_handle_relative_motion(void *user_data
+	, struct zwp_relative_pointer_v1 *pointer
+	, uint32_t time_hi
+	, uint32_t time_lo
+	, wl_fixed_t dx
+	, wl_fixed_t dy
+	, wl_fixed_t dx_unaccel
+	, wl_fixed_t dy_unaccel
+	)
+{
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+
+	queue.push_axis_event(InputDeviceType::MOUSE
+		, 0
+		, MouseAxis::CURSOR_DELTA
+		, wl_fixed_to_int(dx_unaccel)
+		, wl_fixed_to_int(dy_unaccel)
+		, 0
+		);
+}
+
+static const struct zwp_relative_pointer_v1_listener relative_pointer_listener =
+{
+	relative_pointer_handle_relative_motion
+};
+
+static void locked_pointer_handle_locked(void *data
+	, struct zwp_locked_pointer_v1 *locked_pointer
+	)
+{
+}
+
+static void locked_pointer_handle_unlocked(void *data
+	, struct zwp_locked_pointer_v1 *locked_pointer
+	)
+{
+}
+
+static const struct zwp_locked_pointer_v1_listener locked_pointer_listener =
+{
+	locked_pointer_handle_locked,
+	locked_pointer_handle_unlocked
+};
+
+static void seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps)
+{
+	SystemWayland *wl = (SystemWayland *)data;
+
+	if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
+		wl->keyboard = wl_seat_get_keyboard(seat);
+		wl_proxy_add_listener((wl_proxy *)wl->keyboard
+			, (void (* *)(void))&keyboard_listener
+			, wl
+			);
+	}
+
+	if (caps & WL_SEAT_CAPABILITY_POINTER) {
+		wl->pointer = wl_seat_get_pointer(seat);
+		wl_proxy_add_listener((wl_proxy *)wl->pointer
+			, (void (* *)(void))&pointer_listener
+			, wl
+			);
+	}
+}
+
+static void seat_handle_name(void *user_data
+	, struct wl_seat *seat
+	, const char *name
+	)
+{
+}
+
+static const wl_seat_listener seat_listener =
+{
+	seat_handle_capabilities,
+	seat_handle_name,
+};
+
+static void wm_base_handle_ping(void *user_data, struct xdg_wm_base *wm_base, uint32_t serial)
+{
+	xdg_wm_base_pong(wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener wm_base_listener =
+{
+	wm_base_handle_ping
+};
+
+static void registry_handle_global(void *data, wl_registry *registry, uint name, const char *iface, uint ver)
+{
+	CE_UNUSED(ver);
+
+	SystemWayland *wl = (SystemWayland *)data;
+
+	if (strcmp(iface, wl_compositor_interface.name) == 0) {
+		wl->compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
+	} else if (strcmp(iface, wl_seat_interface.name) == 0) {
+		wl->seat = (wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
+		wl_proxy_add_listener((wl_proxy *)wl->seat, (void (* *)(void))&seat_listener, wl);
+	} else if (strcmp(iface, xdg_wm_base_interface.name) == 0) {
+		wl->wm_base = (xdg_wm_base *)wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
+		wl_proxy_add_listener((wl_proxy *)wl->wm_base, (void (* *)(void))&wm_base_listener, wl);
+	} else if (strcmp(iface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
+		wl->relative_pointer_manager = (zwp_relative_pointer_manager_v1 *)wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
+	} else if (strcmp(iface, zwp_pointer_constraints_v1_interface.name) == 0) {
+		wl->pointer_constraints = (zwp_pointer_constraints_v1 *)wl_registry_bind(registry, name, &zwp_pointer_constraints_v1_interface, 1);
+	}
+}
+
+static void registry_handle_global_remove(void *user_data
+	, struct wl_registry *registry
+	, uint32_t name
+	)
+{
+}
+
+static void surface_handle_enter(void *user_data
+	, struct wl_surface *surface
+	, struct wl_output *output
+	)
+{
+}
+
+static void surface_handle_leave(void *user_data
+	, struct wl_surface *surface
+	, struct wl_output *output
+	)
+{
+}
+
+static void xdg_surface_handle_configure(void *user_data
+	, struct xdg_surface *surface
+	, uint32_t serial
+	)
+{
+	CE_UNUSED(user_data);
+
+	wl_proxy_get_version((wl_proxy *)surface);
+}
+
+static void xdg_toplevel_handle_configure(void *user_data
+	, struct xdg_toplevel *toplevel
+	, int32_t width
+	, int32_t height
+	, wl_array *states
+	)
+{
+}
+
+static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *toplevel)
+{
+}
+
+struct SystemX11 : public System
+{
+	void *x11_lib;
+	void *xrandr_lib;
+	::Display *display;
+	Atom wm_delete_window;
+	Atom net_wm_state;
+	Atom net_wm_state_maximized_horz;
+	Atom net_wm_state_maximized_vert;
+	Atom net_wm_state_fullscreen;
+	Cursor hidden_cursor;
+	Cursor cursors[MouseCursor::COUNT];
+	bool detectable_autorepeat;
+	XRRScreenConfiguration *screen_config;
+	::Window window;
+	Pixmap bitmap;
+	XIM im;
+	XIC ic;
+	Rotation rr_old_rot;
+	SizeID rr_old_sizeid;
+	::Window root_window;
+	s16 mouse_last_x;
+	s16 mouse_last_y;
+	CursorMode::Enum cursor_mode;
+	DeviceEventQueue &queue;
+
+	SystemX11(DeviceEventQueue &event_queue)
+		: x11_lib(NULL)
+		, xrandr_lib(NULL)
+		, display(NULL)
+		, wm_delete_window(None)
+		, net_wm_state(None)
+		, net_wm_state_maximized_horz(None)
+		, net_wm_state_maximized_vert(None)
+		, net_wm_state_fullscreen(None)
+		, hidden_cursor(None)
+		, detectable_autorepeat(false)
+		, screen_config(NULL)
+		, window(None)
+		, mouse_last_x(INT16_MAX)
+		, mouse_last_y(INT16_MAX)
+		, cursor_mode(CursorMode::NORMAL)
+		, queue(event_queue)
+	{
+	}
+
+	virtual ~SystemX11()
+	{
+	}
+
+	int init() override
+	{
+		x11_lib = os::library_open("libX11.so.6");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                         \
+	func_name = (PROTO_ ## func_name)os::library_symbol(x11_lib, # func_name); \
 	CE_ENSURE(func_name != NULL);
 
 		X11_IMPORT();
 
 #undef DL_IMPORT_FUNC
 
-		_xrandr_lib = os::library_open("libXrandr.so.2");
-#define DL_IMPORT_FUNC(func_name, return_type, params)                             \
-	func_name = (PROTO_ ## func_name)os::library_symbol(_xrandr_lib, # func_name); \
+		xrandr_lib = os::library_open("libXrandr.so.2");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                            \
+	func_name = (PROTO_ ## func_name)os::library_symbol(xrandr_lib, # func_name); \
 	CE_ENSURE(func_name != NULL);
 
 		XRR_IMPORT();
@@ -443,32 +1176,29 @@ struct LinuxDevice
 		CE_ASSERT(xs != 0, "XInitThreads: error");
 		CE_UNUSED(xs);
 
-		_x11_display = XOpenDisplay(NULL);
-		CE_ASSERT(_x11_display != NULL, "XOpenDisplay: error");
+		display = XOpenDisplay(NULL);
+		CE_ASSERT(display != NULL, "XOpenDisplay: error");
 
-		::Window root_window = RootWindow(_x11_display, DefaultScreen(_x11_display));
+		root_window = RootWindow(display, DefaultScreen(display));
 
 		// Do we have detectable autorepeat?
 		Bool detectable;
-		_x11_detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(_x11_display, true, &detectable);
+		detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(display, true, &detectable);
 
-		_wm_delete_window = XInternAtom(_x11_display, "WM_DELETE_WINDOW", False);
-		_net_wm_state = XInternAtom(_x11_display, "_NET_WM_STATE", False);
-		_net_wm_state_maximized_horz = XInternAtom(_x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-		_net_wm_state_maximized_vert = XInternAtom(_x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-		_net_wm_state_fullscreen = XInternAtom(_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+		wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", False);
+		net_wm_state = XInternAtom(display, "_NET_WM_STATE", False);
+		net_wm_state_maximized_horz = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+		net_wm_state_maximized_vert = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+		net_wm_state_fullscreen = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
 
 		// Save screen configuration
-		_screen_config = XRRGetScreenInfo(_x11_display, root_window);
+		screen_config = XRRGetScreenInfo(display, root_window);
 
-		Rotation rr_old_rot;
-		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_old_rot);
+		rr_old_sizeid = XRRConfigCurrentConfiguration(screen_config, &rr_old_rot);
 
-		XIM im;
-		im = XOpenIM(_x11_display, NULL, NULL, NULL);
+		im = XOpenIM(display, NULL, NULL, NULL);
 		CE_ASSERT(im != NULL, "XOpenIM: error");
 
-		XIC ic;
 		ic = XCreateIC(im
 			, XNInputStyle
 			, 0
@@ -481,23 +1211,276 @@ struct LinuxDevice
 		CE_ASSERT(ic != NULL, "XCreateIC: error");
 
 		// Create hidden cursor
-		Pixmap bitmap;
 		const char data[8] = { 0 };
 		XColor dummy;
-		bitmap = XCreateBitmapFromData(_x11_display, root_window, data, 8, 8);
-		_x11_hidden_cursor = XCreatePixmapCursor(_x11_display, bitmap, bitmap, &dummy, &dummy, 0, 0);
+		bitmap = XCreateBitmapFromData(display, root_window, data, 8, 8);
+		hidden_cursor = XCreatePixmapCursor(display, bitmap, bitmap, &dummy, &dummy, 0, 0);
 
 		// Create standard cursors
-		_x11_cursors[MouseCursor::ARROW]               = XCreateFontCursor(_x11_display, XC_top_left_arrow);
-		_x11_cursors[MouseCursor::HAND]                = XCreateFontCursor(_x11_display, XC_hand2);
-		_x11_cursors[MouseCursor::TEXT_INPUT]          = XCreateFontCursor(_x11_display, XC_xterm);
-		_x11_cursors[MouseCursor::CORNER_TOP_LEFT]     = XCreateFontCursor(_x11_display, XC_top_left_corner);
-		_x11_cursors[MouseCursor::CORNER_TOP_RIGHT]    = XCreateFontCursor(_x11_display, XC_top_right_corner);
-		_x11_cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = XCreateFontCursor(_x11_display, XC_bottom_left_corner);
-		_x11_cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = XCreateFontCursor(_x11_display, XC_bottom_right_corner);
-		_x11_cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(_x11_display, XC_sb_h_double_arrow);
-		_x11_cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(_x11_display, XC_sb_v_double_arrow);
-		_x11_cursors[MouseCursor::WAIT]                = XCreateFontCursor(_x11_display, XC_watch);
+		cursors[MouseCursor::ARROW]               = XCreateFontCursor(display, XC_top_left_arrow);
+		cursors[MouseCursor::HAND]                = XCreateFontCursor(display, XC_hand2);
+		cursors[MouseCursor::TEXT_INPUT]          = XCreateFontCursor(display, XC_xterm);
+		cursors[MouseCursor::CORNER_TOP_LEFT]     = XCreateFontCursor(display, XC_top_left_corner);
+		cursors[MouseCursor::CORNER_TOP_RIGHT]    = XCreateFontCursor(display, XC_top_right_corner);
+		cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = XCreateFontCursor(display, XC_bottom_left_corner);
+		cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = XCreateFontCursor(display, XC_bottom_right_corner);
+		cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(display, XC_sb_h_double_arrow);
+		cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(display, XC_sb_v_double_arrow);
+		cursors[MouseCursor::WAIT]                = XCreateFontCursor(display, XC_watch);
+
+		return ConnectionNumber(display);
+	}
+
+	void shutdown() override
+	{
+		// Free standard cursors
+		XFreeCursor(display, cursors[MouseCursor::WAIT]);
+		XFreeCursor(display, cursors[MouseCursor::SIZE_VERTICAL]);
+		XFreeCursor(display, cursors[MouseCursor::SIZE_HORIZONTAL]);
+		XFreeCursor(display, cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
+		XFreeCursor(display, cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
+		XFreeCursor(display, cursors[MouseCursor::CORNER_TOP_RIGHT]);
+		XFreeCursor(display, cursors[MouseCursor::CORNER_TOP_LEFT]);
+		XFreeCursor(display, cursors[MouseCursor::TEXT_INPUT]);
+		XFreeCursor(display, cursors[MouseCursor::HAND]);
+		XFreeCursor(display, cursors[MouseCursor::ARROW]);
+
+		// Free hidden cursor
+		XFreeCursor(display, hidden_cursor);
+		XFreePixmap(display, bitmap);
+
+		XDestroyIC(ic);
+		XCloseIM(im);
+
+		// Restore previous screen configuration
+		Rotation rr_rot;
+		const SizeID rr_sizeid = XRRConfigCurrentConfiguration(screen_config, &rr_rot);
+
+		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid) {
+			XRRSetScreenConfig(display
+				, screen_config
+				, root_window
+				, rr_old_sizeid
+				, rr_old_rot
+				, CurrentTime
+				);
+		}
+		XRRFreeScreenConfigInfo(screen_config);
+
+		XCloseDisplay(display);
+
+		os::library_close(xrandr_lib);
+		os::library_close(x11_lib);
+	}
+
+	void handle_events() override
+	{
+		while (XEventsQueued(display, QueuedAfterFlush) > 0) {
+			XEvent event;
+			XNextEvent(display, &event);
+
+			switch (event.type) {
+			case EnterNotify:
+				mouse_last_x = (s16)event.xcrossing.x;
+				mouse_last_y = (s16)event.xcrossing.y;
+				queue.push_axis_event(InputDeviceType::MOUSE
+					, 0
+					, MouseAxis::CURSOR
+					, event.xcrossing.x
+					, event.xcrossing.y
+					, 0
+					);
+				break;
+
+			case ClientMessage:
+				if ((Atom)event.xclient.data.l[0] == wm_delete_window)
+					queue.push_exit_event();
+				break;
+
+			case ConfigureNotify:
+				queue.push_resolution_event(event.xconfigure.width
+					, event.xconfigure.height
+					);
+				break;
+
+			case ButtonPress:
+			case ButtonRelease: {
+				if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
+					queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::WHEEL
+						, 0
+						, event.xbutton.button == Button4 ? 1 : -1
+						, 0
+						);
+					break;
+				}
+
+				MouseButton::Enum mb;
+				switch (event.xbutton.button) {
+				case Button1: mb = MouseButton::LEFT; break;
+				case Button2: mb = MouseButton::MIDDLE; break;
+				case Button3: mb = MouseButton::RIGHT; break;
+				default: mb = MouseButton::COUNT; break;
+				}
+
+				if (mb != MouseButton::COUNT) {
+					queue.push_button_event(InputDeviceType::MOUSE
+						, 0
+						, mb
+						, event.type == ButtonPress
+						);
+				}
+				break;
+			}
+
+			case MotionNotify: {
+				const s32 mx = event.xmotion.x;
+				const s32 my = event.xmotion.y;
+				s16 deltax = mx - mouse_last_x;
+				s16 deltay = my - mouse_last_y;
+				if (cursor_mode == CursorMode::DISABLED) {
+					XWindowAttributes window_attribs;
+					XGetWindowAttributes(display, window, &window_attribs);
+					unsigned width = window_attribs.width;
+					unsigned height = window_attribs.height;
+					if (mx != (s32)width/2 || my != (s32)height/2) {
+						queue.push_axis_event(InputDeviceType::MOUSE
+							, 0
+							, MouseAxis::CURSOR_DELTA
+							, deltax
+							, deltay
+							, 0
+							);
+						XWarpPointer(display
+							, None
+							, window
+							, 0
+							, 0
+							, 0
+							, 0
+							, width/2
+							, height/2
+							);
+						XFlush(display);
+					}
+				} else if (cursor_mode == CursorMode::NORMAL) {
+					queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::CURSOR_DELTA
+						, deltax
+						, deltay
+						, 0
+						);
+				}
+				queue.push_axis_event(InputDeviceType::MOUSE
+					, 0
+					, MouseAxis::CURSOR
+					, (s16)mx
+					, (s16)my
+					, 0
+					);
+				mouse_last_x = (s16)mx;
+				mouse_last_y = (s16)my;
+				break;
+			}
+
+			case KeyPress:
+			case KeyRelease: {
+				KeySym keysym = XLookupKeysym(&event.xkey, 0);
+
+				KeyboardButton::Enum kb = x11_translate_key(keysym);
+				if (kb != KeyboardButton::COUNT) {
+					queue.push_button_event(InputDeviceType::KEYBOARD
+						, 0
+						, kb
+						, event.type == KeyPress
+						);
+				}
+
+				if (event.type == KeyPress) {
+					Status status = 0;
+					u8 utf8[4] = { 0 };
+					int len = Xutf8LookupString(ic
+						, &event.xkey
+						, (char *)utf8
+						, sizeof(utf8)
+						, NULL
+						, &status
+						);
+
+					if (status == XLookupChars || status == XLookupBoth) {
+						if (len)
+							queue.push_text_event(len, utf8);
+					}
+				}
+				break;
+			}
+			case KeymapNotify:
+				XRefreshKeyboardMapping(&event.xmapping);
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+};
+
+static SystemX11 *_x11;
+
+struct LinuxDevice
+{
+	Allocator *_allocator;
+	DeviceOptions *_options;
+	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
+	DeviceEventQueue _queue;
+	Joypad _joypad;
+	System *_system;
+	WindowSystem::Enum window_system;
+
+	explicit LinuxDevice(Allocator &a)
+		: _allocator(&a)
+		, _events(a)
+		, _queue(push_event)
+		, _joypad(_queue)
+		, window_system(WindowSystem::COUNT)
+	{
+	}
+
+	int run(DeviceOptions *opts)
+	{
+		int system_fd = -1;
+		const char *display = NULL;
+		bool disable_wayland = true;
+
+		if (system_fd < 0 && !disable_wayland
+			&& (display = getenv("WAYLAND_DISPLAY")) != NULL
+			&& strlen32(display) != 0) {
+			_system = CE_NEW(*_allocator, SystemWayland)(_queue);
+
+			if ((system_fd = _system->init()) >= 0) {
+				_wl = (SystemWayland *)_system;
+				window_system = WindowSystem::WAYLAND;
+			}
+		}
+
+		if (system_fd < 0
+			&& (display = getenv("DISPLAY")) != NULL
+			&& strlen32(display) != 0) {
+			_system = CE_NEW(*_allocator, SystemX11)(_queue);
+
+			if ((system_fd = _system->init()) >= 0) {
+				_x11 = (SystemX11 *)_system;
+				window_system = WindowSystem::X11;
+			}
+		}
+
+		_options = opts;
+
+		int err = pipe(exit_pipe);
+		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
+		CE_UNUSED(err);
 
 		// Start main thread
 		Thread main_thread;
@@ -515,13 +1498,12 @@ struct LinuxDevice
 
 		// Input events loop.
 		fd_set fdset;
-		int x11_fd = ConnectionNumber(_x11_display);
 
 		while (!s_exit) {
 			FD_ZERO(&fdset);
-			FD_SET(x11_fd, &fdset);
+			FD_SET(system_fd, &fdset);
 			FD_SET(exit_pipe[0], &fdset);
-			int maxfd = max(x11_fd, exit_pipe[0]);
+			int maxfd = max(system_fd, exit_pipe[0]);
 
 			for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 				if (_joypad._fd[i] != -1) {
@@ -535,156 +1517,8 @@ struct LinuxDevice
 
 			if (FD_ISSET(exit_pipe[0], &fdset)) {
 				break;
-			} else if (FD_ISSET(x11_fd, &fdset)) {
-				while (XEventsQueued(_x11_display, QueuedAfterFlush) > 0) {
-					XEvent event;
-					XNextEvent(_x11_display, &event);
-
-					switch (event.type) {
-					case EnterNotify:
-						_mouse_last_x = (s16)event.xcrossing.x;
-						_mouse_last_y = (s16)event.xcrossing.y;
-						_queue.push_axis_event(InputDeviceType::MOUSE
-							, 0
-							, MouseAxis::CURSOR
-							, event.xcrossing.x
-							, event.xcrossing.y
-							, 0
-							);
-						break;
-
-					case ClientMessage:
-						if ((Atom)event.xclient.data.l[0] == _wm_delete_window)
-							_queue.push_exit_event();
-						break;
-
-					case ConfigureNotify:
-						_queue.push_resolution_event(event.xconfigure.width
-							, event.xconfigure.height
-							);
-						break;
-
-					case ButtonPress:
-					case ButtonRelease: {
-						if (event.xbutton.button == Button4 || event.xbutton.button == Button5) {
-							_queue.push_axis_event(InputDeviceType::MOUSE
-								, 0
-								, MouseAxis::WHEEL
-								, 0
-								, event.xbutton.button == Button4 ? 1 : -1
-								, 0
-								);
-							break;
-						}
-
-						MouseButton::Enum mb;
-						switch (event.xbutton.button) {
-						case Button1: mb = MouseButton::LEFT; break;
-						case Button2: mb = MouseButton::MIDDLE; break;
-						case Button3: mb = MouseButton::RIGHT; break;
-						default: mb = MouseButton::COUNT; break;
-						}
-
-						if (mb != MouseButton::COUNT) {
-							_queue.push_button_event(InputDeviceType::MOUSE
-								, 0
-								, mb
-								, event.type == ButtonPress
-								);
-						}
-						break;
-					}
-
-					case MotionNotify: {
-						const s32 mx = event.xmotion.x;
-						const s32 my = event.xmotion.y;
-						s16 deltax = mx - _mouse_last_x;
-						s16 deltay = my - _mouse_last_y;
-						if (_cursor_mode == CursorMode::DISABLED) {
-							XWindowAttributes window_attribs;
-							XGetWindowAttributes(_x11_display, _x11_window, &window_attribs);
-							unsigned width = window_attribs.width;
-							unsigned height = window_attribs.height;
-							if (mx != (s32)width/2 || my != (s32)height/2) {
-								_queue.push_axis_event(InputDeviceType::MOUSE
-									, 0
-									, MouseAxis::CURSOR_DELTA
-									, deltax
-									, deltay
-									, 0
-									);
-								XWarpPointer(_x11_display
-									, None
-									, _x11_window
-									, 0
-									, 0
-									, 0
-									, 0
-									, width/2
-									, height/2
-									);
-								XFlush(_x11_display);
-							}
-						} else if (_cursor_mode == CursorMode::NORMAL) {
-							_queue.push_axis_event(InputDeviceType::MOUSE
-								, 0
-								, MouseAxis::CURSOR_DELTA
-								, deltax
-								, deltay
-								, 0
-								);
-						}
-						_queue.push_axis_event(InputDeviceType::MOUSE
-							, 0
-							, MouseAxis::CURSOR
-							, (s16)mx
-							, (s16)my
-							, 0
-							);
-						_mouse_last_x = (s16)mx;
-						_mouse_last_y = (s16)my;
-						break;
-					}
-
-					case KeyPress:
-					case KeyRelease: {
-						KeySym keysym = XLookupKeysym(&event.xkey, 0);
-
-						KeyboardButton::Enum kb = x11_translate_key(keysym);
-						if (kb != KeyboardButton::COUNT) {
-							_queue.push_button_event(InputDeviceType::KEYBOARD
-								, 0
-								, kb
-								, event.type == KeyPress
-								);
-						}
-
-						if (event.type == KeyPress) {
-							Status status = 0;
-							u8 utf8[4] = { 0 };
-							int len = Xutf8LookupString(ic
-								, &event.xkey
-								, (char *)utf8
-								, sizeof(utf8)
-								, NULL
-								, &status
-								);
-
-							if (status == XLookupChars || status == XLookupBoth) {
-								if (len)
-									_queue.push_text_event(len, utf8);
-							}
-						}
-						break;
-					}
-					case KeymapNotify:
-						XRefreshKeyboardMapping(&event.xmapping);
-						break;
-
-					default:
-						break;
-					}
-				}
+			} else if (FD_ISSET(system_fd, &fdset)) {
+				_system->handle_events();
 			} else {
 				_joypad.update(&fdset);
 			}
@@ -694,44 +1528,8 @@ struct LinuxDevice
 
 		main_thread.stop();
 
-		// Free standard cursors
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::WAIT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::SIZE_VERTICAL]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::SIZE_HORIZONTAL]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_TOP_RIGHT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::CORNER_TOP_LEFT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::TEXT_INPUT]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::HAND]);
-		XFreeCursor(_x11_display, _x11_cursors[MouseCursor::ARROW]);
-
-		// Free hidden cursor
-		XFreeCursor(_x11_display, _x11_hidden_cursor);
-		XFreePixmap(_x11_display, bitmap);
-
-		XDestroyIC(ic);
-		XCloseIM(im);
-
-		// Restore previous screen configuration
-		Rotation rr_rot;
-		const SizeID rr_sizeid = XRRConfigCurrentConfiguration(_screen_config, &rr_rot);
-
-		if (rr_rot != rr_old_rot || rr_sizeid != rr_old_sizeid) {
-			XRRSetScreenConfig(_x11_display
-				, _screen_config
-				, root_window
-				, rr_old_sizeid
-				, rr_old_rot
-				, CurrentTime
-				);
-		}
-		XRRFreeScreenConfigInfo(_screen_config);
-
-		XCloseDisplay(_x11_display);
-
-		os::library_close(_xrandr_lib);
-		os::library_close(_x11_lib);
+		_system->shutdown();
+		CE_DELETE(*_allocator, _system);
 
 		::close(exit_pipe[0]);
 		::close(exit_pipe[1]);
@@ -749,8 +1547,8 @@ struct WindowX11 : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
-		int screen = DefaultScreen(s_linux_device->_x11_display);
-		::Window root_window = RootWindow(s_linux_device->_x11_display, screen);
+		int screen = DefaultScreen(_x11->display);
+		::Window root_window = RootWindow(_x11->display, screen);
 		::Window parent_window = (parent == 0) ? root_window : (::Window)parent;
 
 		// Create main window
@@ -771,7 +1569,7 @@ struct WindowX11 : public Window
 				;
 		}
 
-		s_linux_device->_x11_window = XCreateWindow(s_linux_device->_x11_display
+		_x11->window = XCreateWindow(_x11->display
 			, parent_window
 			, x
 			, y
@@ -784,49 +1582,49 @@ struct WindowX11 : public Window
 			, CWBorderPixel | CWEventMask
 			, &win_attribs
 			);
-		CE_ASSERT(s_linux_device->_x11_window != None, "XCreateWindow: error");
+		CE_ASSERT(_x11->window != None, "XCreateWindow: error");
 
-		XSetWMProtocols(s_linux_device->_x11_display, s_linux_device->_x11_window, &s_linux_device->_wm_delete_window, 1);
+		XSetWMProtocols(_x11->display, _x11->window, &_x11->wm_delete_window, 1);
 	}
 
 	void close() override
 	{
-		XDestroyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
+		XDestroyWindow(_x11->display, _x11->window);
 	}
 
 	void show() override
 	{
-		XMapRaised(s_linux_device->_x11_display, s_linux_device->_x11_window);
+		XMapRaised(_x11->display, _x11->window);
 	}
 
 	void hide() override
 	{
-		XUnmapWindow(s_linux_device->_x11_display, s_linux_device->_x11_window);
+		XUnmapWindow(_x11->display, _x11->window);
 	}
 
 	void resize(u16 width, u16 height) override
 	{
-		XResizeWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, width, height);
-		XFlush(s_linux_device->_x11_display);
+		XResizeWindow(_x11->display, _x11->window, width, height);
+		XFlush(_x11->display);
 	}
 
 	void move(u16 x, u16 y) override
 	{
-		XMoveWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, x, y);
+		XMoveWindow(_x11->display, _x11->window, x, y);
 	}
 
 	void maximize_or_restore(bool maximize)
 	{
 		XEvent xev;
 		xev.type = ClientMessage;
-		xev.xclient.window = s_linux_device->_x11_window;
-		xev.xclient.message_type = s_linux_device->_net_wm_state;
+		xev.xclient.window = _x11->window;
+		xev.xclient.message_type = _x11->net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = maximize ? 1 : 0; // 0 = remove property, 1 = set property
-		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_maximized_horz;
-		xev.xclient.data.l[2] = s_linux_device->_net_wm_state_maximized_vert;
-		XSendEvent(s_linux_device->_x11_display
-			, DefaultRootWindow(s_linux_device->_x11_display)
+		xev.xclient.data.l[1] = _x11->net_wm_state_maximized_horz;
+		xev.xclient.data.l[2] = _x11->net_wm_state_maximized_vert;
+		XSendEvent(_x11->display
+			, DefaultRootWindow(_x11->display)
 			, False
 			, SubstructureNotifyMask | SubstructureRedirectMask
 			, &xev
@@ -835,7 +1633,7 @@ struct WindowX11 : public Window
 
 	void minimize() override
 	{
-		XIconifyWindow(s_linux_device->_x11_display, s_linux_device->_x11_window, DefaultScreen(s_linux_device->_x11_display));
+		XIconifyWindow(_x11->display, _x11->window, DefaultScreen(_x11->display));
 	}
 
 	void maximize() override
@@ -853,7 +1651,7 @@ struct WindowX11 : public Window
 		static char buf[512];
 		memset(buf, 0, sizeof(buf));
 		char *name;
-		XFetchName(s_linux_device->_x11_display, s_linux_device->_x11_window, &name);
+		XFetchName(_x11->display, _x11->window, &name);
 		strncpy(buf, name, sizeof(buf) - 1);
 		XFree(name);
 		return buf;
@@ -861,14 +1659,14 @@ struct WindowX11 : public Window
 
 	void set_title(const char *title) override
 	{
-		XStoreName(s_linux_device->_x11_display, s_linux_device->_x11_window, title);
+		XStoreName(_x11->display, _x11->window, title);
 	}
 
 	void show_cursor(bool show) override
 	{
-		XDefineCursor(s_linux_device->_x11_display
-			, s_linux_device->_x11_window
-			, show ? None : s_linux_device->_x11_hidden_cursor
+		XDefineCursor(_x11->display
+			, _x11->window
+			, show ? None : _x11->hidden_cursor
 			);
 	}
 
@@ -876,38 +1674,38 @@ struct WindowX11 : public Window
 	{
 		XEvent xev;
 		xev.xclient.type = ClientMessage;
-		xev.xclient.window = s_linux_device->_x11_window;
-		xev.xclient.message_type = s_linux_device->_net_wm_state;
+		xev.xclient.window = _x11->window;
+		xev.xclient.message_type = _x11->net_wm_state;
 		xev.xclient.format = 32;
 		xev.xclient.data.l[0] = full ? 1 : 0;
-		xev.xclient.data.l[1] = s_linux_device->_net_wm_state_fullscreen;
-		XSendEvent(s_linux_device->_x11_display, DefaultRootWindow(s_linux_device->_x11_display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
-		XFlush(s_linux_device->_x11_display);
+		xev.xclient.data.l[1] = _x11->net_wm_state_fullscreen;
+		XSendEvent(_x11->display, DefaultRootWindow(_x11->display), False, SubstructureNotifyMask | SubstructureRedirectMask, &xev);
+		XFlush(_x11->display);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
 	{
-		XDefineCursor(s_linux_device->_x11_display, s_linux_device->_x11_window, _x11_cursors[cursor]);
+		XDefineCursor(_x11->display, _x11->window, _x11->cursors[cursor]);
 	}
 
 	void set_cursor_mode(CursorMode::Enum mode) override
 	{
-		if (mode == s_linux_device->_cursor_mode)
+		if (mode == _x11->cursor_mode)
 			return;
 
-		s_linux_device->_cursor_mode = mode;
+		_x11->cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
 			XWindowAttributes window_attribs;
-			XGetWindowAttributes(s_linux_device->_x11_display, s_linux_device->_x11_window, &window_attribs);
+			XGetWindowAttributes(_x11->display, _x11->window, &window_attribs);
 			unsigned width = window_attribs.width;
 			unsigned height = window_attribs.height;
-			s_linux_device->_mouse_last_x = width/2;
-			s_linux_device->_mouse_last_y = height/2;
+			_x11->mouse_last_x = width/2;
+			_x11->mouse_last_y = height/2;
 
-			XWarpPointer(s_linux_device->_x11_display
+			XWarpPointer(_x11->display
 				, None
-				, s_linux_device->_x11_window
+				, _x11->window
 				, 0
 				, 0
 				, 0
@@ -915,31 +1713,158 @@ struct WindowX11 : public Window
 				, width/2
 				, height/2
 				);
-			XGrabPointer(s_linux_device->_x11_display
-				, s_linux_device->_x11_window
+			XGrabPointer(_x11->display
+				, _x11->window
 				, True
 				, ButtonPressMask | ButtonReleaseMask | PointerMotionMask
 				, GrabModeAsync
 				, GrabModeAsync
-				, s_linux_device->_x11_window
-				, s_linux_device->_x11_hidden_cursor
+				, _x11->window
+				, _x11->hidden_cursor
 				, CurrentTime
 				);
-			XFlush(s_linux_device->_x11_display);
+			XFlush(_x11->display);
 		} else if (mode == CursorMode::NORMAL) {
-			XUngrabPointer(s_linux_device->_x11_display, CurrentTime);
-			XFlush(s_linux_device->_x11_display);
+			XUngrabPointer(_x11->display, CurrentTime);
+			XFlush(_x11->display);
 		}
 	}
 
 	void *native_handle() override
 	{
-		return (void *)(uintptr_t)s_linux_device->_x11_window;
+		return (void *)(uintptr_t)_x11->window;
+	}
+
+	void *native_handle_type() override
+	{
+		return (void *)(uintptr_t)bgfx::NativeWindowHandleType::Default;
 	}
 
 	void *native_display() override
 	{
-		return s_linux_device->_x11_display;
+		return _x11->display;
+	}
+};
+
+struct WindowWayland : public Window
+{
+	WindowWayland()
+	{
+	}
+
+	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
+	{
+		_wl->egl_window = wl_egl_window_create(_wl->surface, width, height);
+	}
+
+	void close() override
+	{
+	}
+
+	void show() override
+	{
+	}
+
+	void hide() override
+	{
+	}
+
+	void resize(u16 width, u16 height) override
+	{
+	}
+
+	void move(u16 x, u16 y) override
+	{
+	}
+
+	void maximize_or_restore(bool maximize)
+	{
+	}
+
+	void minimize() override
+	{
+	}
+
+	void maximize() override
+	{
+		maximize_or_restore(true);
+	}
+
+	void restore() override
+	{
+		maximize_or_restore(false);
+	}
+
+	const char *title() override
+	{
+		return "";
+	}
+
+	void set_title(const char *title) override
+	{
+	}
+
+	void show_cursor(bool show) override
+	{
+	}
+
+	void set_fullscreen(bool full) override
+	{
+	}
+
+	void set_cursor(MouseCursor::Enum cursor) override
+	{
+	}
+
+	void set_cursor_mode(CursorMode::Enum mode) override
+	{
+		if (mode == _wl->cursor_mode)
+			return;
+
+		_wl->cursor_mode = mode;
+
+		if (mode == CursorMode::DISABLED) {
+			if (!_wl->relative_pointer_manager)
+				return;
+
+			if (!_wl->pointer_constraints)
+				return;
+
+			_wl->relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(_wl->relative_pointer_manager, _wl->pointer);
+			zwp_relative_pointer_v1_add_listener(_wl->relative_pointer, &relative_pointer_listener, _wl);
+
+			_wl->locked_pointer = zwp_pointer_constraints_v1_lock_pointer(_wl->pointer_constraints
+				, _wl->surface
+				, _wl->pointer
+				, NULL
+				, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT
+				);
+			zwp_locked_pointer_v1_add_listener(_wl->locked_pointer
+				, &locked_pointer_listener
+				, _wl
+				);
+		} else if (mode == CursorMode::NORMAL) {
+			zwp_relative_pointer_v1_destroy(_wl->relative_pointer);
+			_wl->relative_pointer = NULL;
+
+			zwp_locked_pointer_v1_destroy(_wl->locked_pointer);
+			_wl->locked_pointer = NULL;
+		}
+	}
+
+	void *native_handle() override
+	{
+		return (void *)(uintptr_t)_wl->surface;
+	}
+
+	void *native_handle_type() override
+	{
+		return (void *)(uintptr_t)bgfx::NativeWindowHandleType::Wayland;
+	}
+
+	void *native_display() override
+	{
+		return _wl->display;
 	}
 };
 
@@ -947,7 +1872,10 @@ namespace window
 {
 	Window *create(Allocator &a)
 	{
-		return CE_NEW(a, WindowX11)();
+		if (s_linux_device->window_system == WindowSystem::X11)
+			return CE_NEW(a, WindowX11)();
+		else
+			return CE_NEW(a, WindowWayland)();
 	}
 
 	void destroy(Allocator &a, Window &w)
@@ -962,7 +1890,7 @@ struct DisplayXRandr : public Display
 	void modes(Array<DisplayMode> &modes) override
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(_x11->screen_config, &num);
 
 		if (!sizes)
 			return;
@@ -979,14 +1907,14 @@ struct DisplayXRandr : public Display
 	void set_mode(u32 id) override
 	{
 		int num = 0;
-		XRRScreenSize *sizes = XRRConfigSizes(s_linux_device->_screen_config, &num);
+		XRRScreenSize *sizes = XRRConfigSizes(_x11->screen_config, &num);
 
 		if (!sizes || (int)id >= num)
 			return;
 
-		XRRSetScreenConfig(s_linux_device->_x11_display
-			, s_linux_device->_screen_config
-			, RootWindow(s_linux_device->_x11_display, DefaultScreen(s_linux_device->_x11_display))
+		XRRSetScreenConfig(_x11->display
+			, _x11->screen_config
+			, RootWindow(_x11->display, DefaultScreen(_x11->display))
 			, (int)id
 			, RR_Rotate_0
 			, CurrentTime
@@ -994,11 +1922,25 @@ struct DisplayXRandr : public Display
 	}
 };
 
+struct DisplayWayland : public Display
+{
+	void modes(Array<DisplayMode> &modes) override
+	{
+	}
+
+	void set_mode(u32 id) override
+	{
+	}
+};
+
 namespace display
 {
 	Display *create(Allocator &a)
 	{
-		return CE_NEW(a, DisplayXRandr)();
+		if (s_linux_device->window_system == WindowSystem::X11)
+			return CE_NEW(a, DisplayXRandr)();
+		else
+			return CE_NEW(a, DisplayWayland)();
 	}
 
 	void destroy(Allocator &a, Display &d)

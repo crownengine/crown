@@ -668,6 +668,7 @@ int Device::main_loop()
 	init.allocator = _bgfx_allocator;
 	init.platformData.ndt = _window->native_display();
 	init.platformData.nwh = _window->native_handle();
+	init.platformData.type = (bgfx::NativeWindowHandleType::Enum)(uintptr_t)_window->native_handle_type();
 	init.vendorId = BGFX_PCI_ID_NONE;
 #if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
 	init.type = bgfx::RendererType::OpenGLES;
