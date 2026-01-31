@@ -692,6 +692,23 @@ update_lz4 () {
 	git commit -m "3rdparty: update lz4"
 }
 
+wayland_scanner () {
+	local filename
+	local protocol="$1"
+	filename=$(basename "$protocol")
+	local header="${filename%.*}"
+
+	wayland-scanner client-header "$1" 3rdparty/wayland/include/wayland/"$header"-client-protocol.h
+	wayland-scanner private-code "$1" 3rdparty/wayland/include/wayland/"$header"-client-protocol.c
+}
+
+update_wayland () {
+	wayland_scanner /usr/share/wayland/wayland.xml
+	wayland_scanner /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+	wayland_scanner /usr/share/wayland-protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml
+	wayland_scanner /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml
+}
+
 print_help () {
 	echo "Usage: scripts/upgrade.sh <dependency-name>"
 }
@@ -748,6 +765,10 @@ while true; do
 		;;
 	lz4)
 		update_lz4
+		exit $?
+		;;
+	wayland)
+		update_wayland
 		exit $?
 		;;
 	*)
