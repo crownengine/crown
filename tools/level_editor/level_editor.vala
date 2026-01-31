@@ -2230,13 +2230,16 @@ public class LevelEditorApplication : Gtk.Application
 		this.active_window.title = CROWN_EDITOR_NAME;
 	}
 
-	public void do_close_project()
+	public void do_close_project(bool quit = false)
 	{
 		reset_project();
 
 		stop_backend.begin((obj, res) => {
 				stop_backend.end(res);
-				show_panel(PANEL_PROJECTS_LIST);
+				if (quit)
+					this.quit();
+				else
+					show_panel(PANEL_PROJECTS_LIST);
 			});
 	}
 
@@ -2257,25 +2260,15 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void stop_backend_and_quit()
-	{
-		reset_project();
-
-		stop_backend.begin((obj, res) => {
-				stop_backend.end(res);
-				this.quit();
-			});
-	}
-
 	public void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
-			stop_backend_and_quit();
+			do_close_project(true);
 		} else {
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						stop_backend_and_quit();
+						do_close_project(true);
 					else if (response_id == Gtk.ResponseType.YES)
 						save("quit");
 					dlg.destroy();
