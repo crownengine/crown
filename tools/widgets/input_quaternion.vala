@@ -77,6 +77,7 @@ public class InputQuaternion : InputField
 		_z.value_changed.connect(on_value_changed);
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+		_box.homogeneous = true;
 		_box.pack_start(_x, true);
 		_box.pack_start(_y, true);
 		_box.pack_start(_z, true);

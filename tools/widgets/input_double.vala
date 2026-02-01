@@ -20,7 +20,11 @@ public class InputDouble : InputField
 	public int _preview_decimals;
 	public int _edit_decimals;
 	public Gtk.Entry _entry;
+	public Gtk.Label _label;
+	public Gtk.EventBox _event_box;
+	public Gtk.Stack _stack;
 	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 
 	public override void set_inconsistent(bool inconsistent)
@@ -75,6 +79,18 @@ public class InputDouble : InputField
 		_entry.focus_in_event.connect(on_focus_in);
 		_entry.focus_out_event.connect(on_focus_out);
 
+		_label = new Gtk.Label(_entry.text);
+		_label.halign = Gtk.Align.FILL;
+		_label.get_style_context().add_class("label-button");
+
+		_event_box = new Gtk.EventBox();
+		_event_box.add(_label);
+
+		_stack = new Gtk.Stack();
+		_stack.add_named(_event_box, "label");
+		_stack.add_named(_entry, "entry");
+		_stack.set_visible_child_name("label");
+
 		_inconsistent = false;
 		_min = min;
 		_max = max;
@@ -83,7 +99,12 @@ public class InputDouble : InputField
 
 		set_value_safe(val);
 
-		_gesture_click = new Gtk.GestureMultiPress(_entry);
+		_controller_motion = new Gtk.EventControllerMotion(_event_box);
+		_controller_motion.enter.connect(on_enter);
+		_controller_motion.leave.connect(on_leave);
+		_controller_motion.motion.connect(on_motion);
+
+		_gesture_click = new Gtk.GestureMultiPress(_event_box);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 
@@ -101,16 +122,38 @@ public class InputDouble : InputField
 			});
 #endif
 
-		this.add(_entry);
+		this.add(_stack);
 	}
+
+	bool _pressed = false;
+	bool _dragging = false;
+	double _drag_start_x = 0.0;
+	double _drag_start_y = 0.0;
+	double _drag_start_value = 0.0;
 
 	public void on_button_pressed(int n_press, double x, double y)
 	{
-		_entry.grab_focus();
+		_pressed = true;
+		_dragging = false;
+		_drag_start_x = x;
+		_drag_start_y = y;
+		_drag_start_value = _value;
 	}
 
 	public void on_button_released(int n_press, double x, double y)
 	{
+		logi("button released");
+		_pressed = false;
+
+		if (_dragging) {
+			logi("was dragging");
+			_dragging = false;
+			return;
+		}
+
+		_stack.set_visible_child_name("entry");
+		_entry.grab_focus();
+
 		uint button = _gesture_click.get_current_button();
 
 		if (button == Gdk.BUTTON_PRIMARY && _entry.has_focus) {
@@ -127,6 +170,40 @@ public class InputDouble : InputField
 		}
 	}
 
+	public void on_enter()
+	{
+		Gdk.Display display = Gdk.Display.get_default();
+		Gdk.Cursor col_resize = new Gdk.Cursor.from_name(display, "col-resize");
+		_event_box.get_window().set_cursor(col_resize);
+	}
+
+	public void on_leave()
+	{
+		Gdk.Display display = Gdk.Display.get_default();
+		Gdk.Cursor deffault = new Gdk.Cursor.from_name(display, "default");
+		_event_box.get_window().set_cursor(deffault);
+	}
+
+	public void on_motion(double x, double y)
+	{
+		if (!_pressed) {
+			logi("motion ignored");
+			return;
+		}
+
+		const double ACTIVATION_MARGIN = 5.0;
+		double dx = x - _drag_start_x;
+
+		if (!_dragging) {
+			if (dx.abs() > ACTIVATION_MARGIN)
+				_dragging = true;
+		} else {
+			double scale = 0.01;
+			double adjust = dx > 0 ? -ACTIVATION_MARGIN : ACTIVATION_MARGIN;
+			set_value_safe(_drag_start_value + (dx + adjust)*scale);
+		}
+	}
+
 	public void on_activate()
 	{
 		_entry.select_region(0, 0);
@@ -136,6 +213,8 @@ public class InputDouble : InputField
 			set_value_safe(string_to_double(_entry.text, _value));
 		else
 			_entry.text = format_value(_value, _preview_decimals);
+
+		_label.set_text(_entry.text);
 	}
 
 	public bool on_focus_in(Gdk.EventFocus ev)
@@ -173,6 +252,7 @@ public class InputDouble : InputField
 		}
 
 		_entry.select_region(0, 0);
+		_stack.set_visible_child_name("label");
 
 		return Gdk.EVENT_PROPAGATE;
 	}
@@ -183,6 +263,7 @@ public class InputDouble : InputField
 
 		// Convert to text for displaying.
 		_entry.text = format_value(clamped, _preview_decimals);
+		_label.set_text(_entry.text);
 
 		_inconsistent = false;
 
