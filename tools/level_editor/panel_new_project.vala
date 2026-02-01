@@ -40,20 +40,24 @@ public class NewProject : Gtk.Box
 		_new_project_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">New Project</span>");
 
 		_name_label = new Gtk.Label("Name");
+		_name_label.set_tooltip_text("Name of the project.");
 		_name_label.xalign = 1;
 		_entry_name = new InputString();
 
 		_location_label = new Gtk.Label("Location");
+		_location_label.set_tooltip_text("Directory where to create the project.");
 		_location_label.xalign = 1;
 		_file_chooser_button_location = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_file_chooser_button_location.value = _documents_dir.get_path();
 
 		_create_folder_label = new Gtk.Label("Create Project Folder");
+		_create_folder_label.set_tooltip_text("Create a new folder with the same name as the project's.");
 		_create_folder_label.xalign = 1;
 		_create_folder = new Gtk.CheckButton();
 		_create_folder.active = true;
 
 		_template_label = new Gtk.Label("Template");
+		_template_label.set_tooltip_text("Create a new project by copying this template.");
 		_template_label.xalign = 1;
 		_combo_box_map_template = new InputEnum();
 		_combo_box_map_template.hexpand = true;
@@ -67,6 +71,7 @@ public class NewProject : Gtk.Box
 		_button_back.action_name = "app.open-projects-list";
 
 		_button_create = new Gtk.Button.with_label("Create");
+		_button_create.set_tooltip_text("Create the project.");
 		_button_create.get_style_context().add_class("suggested-action");
 		_button_create.clicked.connect(() => {
 				if (_entry_name.value == "") {
