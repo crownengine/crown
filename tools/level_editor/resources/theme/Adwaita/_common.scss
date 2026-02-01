@@ -578,6 +578,19 @@ $_dot_color: if($variant=='light', $selected_bg_color,
   }
 }
 
+.label-button {
+	min-height: 22px;
+	min-width: 16px;
+	padding: $_btn_pad;
+	border: 1px solid;
+	border-radius: $button_radius;
+	transition: $button_transition;
+
+	@include button(normal);
+
+	box-shadow: none; // It's slow AF.
+}
+
 %button,
 button {
   @at-root %button_basic, & {
