@@ -4418,6 +4418,31 @@ public static bool is_directory_empty(string path)
 	return false;
 }
 
+public static void copy_tree(GLib.File dst, GLib.File src, GLib.FileCopyFlags flags = GLib.FileCopyFlags.NONE)
+{
+	try {
+		GLib.FileType src_type = src.query_file_type(GLib.FileQueryInfoFlags.NONE);
+		if (src_type == GLib.FileType.DIRECTORY) {
+			if (dst.query_exists() == false)
+				dst.make_directory();
+
+			string dst_path = dst.get_path();
+			string src_path = src.get_path();
+			GLib.FileEnumerator enum = src.enumerate_children(GLib.FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE);
+			for (GLib.FileInfo? info = enum.next_file(); info != null; info = enum.next_file()) {
+				copy_tree(GLib.File.new_for_path(GLib.Path.build_filename(dst_path, info.get_name()))
+					, GLib.File.new_for_path(GLib.Path.build_filename(src_path, info.get_name()))
+					, flags
+					);
+			}
+		} else if (src_type == GLib.FileType.REGULAR) {
+			src.copy(dst, flags);
+		}
+	} catch (Error e) {
+		loge(e.message);
+	}
+}
+
 public void device_frame_delayed(uint delay_ms, RuntimeInstance runtime)
 {
 	// FIXME: find a way to time exactly when it is effective to queue a redraw.
