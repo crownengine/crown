@@ -177,36 +177,11 @@ public class NewProject : Gtk.Box
 		}
 	}
 
-	public void copy_recursive(GLib.File dst, GLib.File src, GLib.FileCopyFlags flags = GLib.FileCopyFlags.NONE)
-	{
-		try {
-			GLib.FileType src_type = src.query_file_type(GLib.FileQueryInfoFlags.NONE);
-			if (src_type == GLib.FileType.DIRECTORY) {
-				if (dst.query_exists() == false)
-					dst.make_directory();
-
-				string dst_path = dst.get_path();
-				string src_path = src.get_path();
-				GLib.FileEnumerator enum = src.enumerate_children(GLib.FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE);
-				for (GLib.FileInfo? info = enum.next_file(); info != null; info = enum.next_file()) {
-					copy_recursive(GLib.File.new_for_path(GLib.Path.build_filename(dst_path, info.get_name()))
-						, GLib.File.new_for_path(GLib.Path.build_filename(src_path, info.get_name()))
-						, flags
-						);
-				}
-			} else if (src_type == GLib.FileType.REGULAR) {
-				src.copy(dst, flags);
-			}
-		} catch (Error e) {
-			loge(e.message);
-		}
-	}
-
 	public void copy_template_to_source_dir(string source_dir, string template_dir)
 	{
 		GLib.File dst = GLib.File.new_for_path(source_dir);
 		GLib.File src = GLib.File.new_for_path(template_dir);
-		copy_recursive(dst, src);
+		copy_tree(dst, src);
 	}
 }
 
