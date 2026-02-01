@@ -14,6 +14,12 @@ public enum ImportResult
 
 public delegate void Import(ImportResult result);
 
+public enum ProjectFlags
+{
+	NONE      = 0,
+	TEMPORARY = 1 << 0,
+}
+
 public class Project
 {
 	public const string LEVEL_EDITOR_TEST_NAME = "_level_editor_test";
@@ -80,6 +86,7 @@ public class Project
 	public Gee.ArrayList<ImporterData?> _importers;
 	public bool _data_compiled;
 	public Hashtable _data_index;
+	public int _flags;
 
 	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
 	public signal void file_changed(string type, string name, uint64 size, uint64 mtime);
@@ -140,11 +147,17 @@ public class Project
 
 		reset_files();
 		_source_dir = null;
+		_flags = ProjectFlags.NONE;
 	}
 
 	public bool is_loaded()
 	{
 		return _source_dir != null;
+	}
+
+	public bool is_temporary()
+	{
+		return (_flags & ProjectFlags.TEMPORARY) != 0;
 	}
 
 	public int load(string source_dir)
@@ -316,6 +329,25 @@ public class Project
 			FileStream fs = FileStream.open(path, "wb");
 			if (fs != null)
 				fs.write(text.data);
+		}
+	}
+
+	/// Creates a new temporary project.
+	public static async string? create_temporary()
+	{
+		try {
+			string template = "crown_project_XXXXXXX";
+#if 0
+			GLib.File f = yield GLib.File.new_tmp_dir_async(template); // Requires gio-2.0 >= 2.74
+#else
+			GLib.File f = GLib.File.new_for_path(GLib.DirUtils.make_tmp(template));
+#endif
+			string source_dir = f.get_path();
+			Project.create_initial_files(source_dir);
+			return source_dir;
+		} catch (GLib.Error e) {
+			loge(e.message);
+			return null;
 		}
 	}
 

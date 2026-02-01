@@ -126,6 +126,22 @@ public class User
 				return true;
 			});
 	}
+
+	public int num_projects()
+	{
+		int num = 0;
+
+		_data.foreach((ee) => {
+				if (ee.key == "recent_projects") {
+					num = (ee.value as Gee.ArrayList<Value?>).size;
+					return false; // break
+				}
+
+				return true;
+			});
+
+		return num;
+	}
 }
 
 } /* namespace Crown */

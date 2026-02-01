@@ -76,7 +76,7 @@ public class ProjectRow : Gtk.ListBoxRow
 	public void on_open_button_clicked()
 	{
 		GLib.Application.get_default().activate_action("open-project"
-			, new GLib.Variant.tuple({this.get_data<string>("source_dir"), LEVEL_NONE})
+			, new GLib.Variant.tuple({this.get_data<string>("source_dir"), LEVEL_NONE, ProjectFlags.NONE})
 			);
 	}
 }

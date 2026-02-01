@@ -455,7 +455,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "new-project",        on_new_project,        null,    null },
 		{ "add-project",        on_add_project,        null,    null },
 		{ "remove-project",     on_remove_project,     "s",     null },
-		{ "open-project",       on_open_project,       "(ss)",  null },
+		{ "open-project",       on_open_project,       "(ssi)", null },
 		{ "open-project-null",  on_open_project,       null,    null },
 		{ "open-projects-list", on_open_projects_list, null,    null },
 		{ "save",               on_save,               null,    null },
@@ -1081,7 +1081,21 @@ public class LevelEditorApplication : Gtk.Application
 				);
 
 			if (_source_dir == null) {
-				show_panel(PANEL_PROJECTS_LIST);
+				if (_user.num_projects() == 0) {
+					Project.create_temporary.begin((obj, res) => {
+							string temp_source_dir = Project.create_temporary.end(res);
+
+							if (temp_source_dir != null) {
+								GLib.Application.get_default().activate_action("open-project"
+									, new GLib.Variant.tuple({temp_source_dir, LEVEL_NONE, ProjectFlags.TEMPORARY})
+									);
+							} else {
+								show_panel(PANEL_PROJECTS_LIST);
+							}
+						});
+				} else {
+					show_panel(PANEL_PROJECTS_LIST);
+				}
 			} else {
 				show_panel(PANEL_EDITOR);
 				restart_backend.begin();
@@ -1922,7 +1936,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void do_open_project(string source_dir, string? level_name)
+	public void do_open_project(string source_dir, string? level_name, int flags)
 	{
 		if (_project.source_dir() == source_dir) {
 			logi("Project `%s` is open already.".printf(source_dir));
@@ -1944,10 +1958,12 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		this.show_panel(PANEL_EDITOR, Gtk.StackTransitionType.NONE);
-		_user.add_or_touch_recent_project(source_dir, source_dir);
-		_console_view.reset();
+		_project._flags = flags;
 
+		this.show_panel(PANEL_EDITOR, Gtk.StackTransitionType.NONE);
+		if (!_project.is_temporary())
+			_user.add_or_touch_recent_project(source_dir, source_dir);
+		_console_view.reset();
 		logi("Project `%s` loaded.".printf(source_dir));
 
 		if (level_name == null)
@@ -1958,15 +1974,15 @@ public class LevelEditorApplication : Gtk.Application
 		restart_backend.begin();
 	}
 
-	public void open_project(string source_dir, string? level_name = null)
+	public void open_project(string source_dir, string? level_name = null, int flags = ProjectFlags.NONE)
 	{
 		if (source_dir != "") {
-			do_open_project(source_dir, level_name);
+			do_open_project(source_dir, level_name, flags);
 		} else {
 			Gtk.FileChooserDialog dlg = new_open_project_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT)
-						do_open_project(dlg.get_file().get_path(), level_name);
+						do_open_project(dlg.get_file().get_path(), level_name, flags);
 					dlg.destroy();
 				});
 			dlg.show_all();
@@ -1977,21 +1993,23 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		string source_dir = "";
 		string level_name = LEVEL_EMPTY;
+		int flags = ProjectFlags.NONE;
 
 		if (param != null) {
 			source_dir = (string)param.get_child_value(0);
 			level_name = (string)param.get_child_value(1);
+			flags      = (int)param.get_child_value(2);
 		}
 
 		if (!_database.changed()) {
-			open_project(source_dir);
+			open_project(source_dir, null, flags);
 		} else {
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						open_project(source_dir, level_name);
+						open_project(source_dir, level_name, ProjectFlags.NONE);
 					else if (response_id == Gtk.ResponseType.YES)
-						save("open-project", new GLib.Variant.tuple({source_dir, level_name}));
+						save("open-project", new GLib.Variant.tuple({source_dir, level_name, ProjectFlags.NONE}));
 					dlg.destroy();
 				});
 			dlg.show_all();
@@ -2230,7 +2248,36 @@ public class LevelEditorApplication : Gtk.Application
 		this.active_window.title = CROWN_EDITOR_NAME;
 	}
 
-	public void do_close_project(bool quit = false)
+	public Gtk.Dialog new_save_project_dialog(Gtk.Window? parent)
+	{
+		Gtk.MessageDialog md = new Gtk.MessageDialog(parent
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.WARNING
+			, Gtk.ButtonsType.NONE
+			, "Save the project before closing?\n\nThis is a *temporary* project and will be gone if not saved now."
+			);
+		Gtk.Widget btn;
+		btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
+		btn.get_style_context().add_class("destructive-action");
+		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
+		md.add_button("_Save", Gtk.ResponseType.YES);
+		md.set_default_response(Gtk.ResponseType.YES);
+		return md;
+	}
+
+	public Gtk.FileChooserDialog new_select_project_folder_dialog(Gtk.Window? parent)
+	{
+		return new Gtk.FileChooserDialog("Select a folder where the project will be saved..."
+			, parent
+			, Gtk.FileChooserAction.SELECT_FOLDER
+			, "Cancel"
+			, Gtk.ResponseType.CANCEL
+			, "Save Project Here"
+			, Gtk.ResponseType.ACCEPT
+			);
+	}
+
+	public void do_close_project(bool quit)
 	{
 		reset_project();
 
@@ -2243,15 +2290,96 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
+	public int do_save_project(GLib.File destination_dir, string? new_project_name = null)
+	{
+		string name = new_project_name != null
+			? new_project_name
+			: _project.name()
+			;
+		string new_source_dir = Path.build_path(Path.DIR_SEPARATOR_S
+			, destination_dir.get_path()
+			, name
+			);
+
+		if (!GLib.File.new_for_path(new_source_dir).make_directory(null))
+			return -1;
+
+		if (copy_tree(GLib.File.new_for_path(new_source_dir), GLib.File.new_for_path(_project.source_dir())) != 0)
+			return -1;
+
+		_user.add_or_touch_recent_project(new_source_dir, name);
+		return 0;
+	}
+
+	public void save_project(bool quit)
+	{
+		assert(_project.is_temporary());
+
+		Gtk.FileChooserDialog dlg = new_select_project_folder_dialog(this.active_window);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.ACCEPT) {
+					GLib.File dest_dir = dlg.get_file();
+
+					if (!is_directory_empty(dest_dir.get_path())) {
+						Gtk.MessageDialog md = new Gtk.MessageDialog(dlg
+							, Gtk.DialogFlags.MODAL
+							, Gtk.MessageType.ERROR
+							, Gtk.ButtonsType.NONE
+							, "The destination directory must be empty"
+							);
+						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.set_default_response(Gtk.ResponseType.OK);
+						md.response.connect(() => { md.destroy(); });
+						md.show_all();
+						return;
+					}
+
+					if (do_save_project(dest_dir) != 0) {
+						Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+							, Gtk.DialogFlags.MODAL
+							, Gtk.MessageType.ERROR
+							, Gtk.ButtonsType.NONE
+							, "Failed to save project in " + dest_dir.get_path()
+							);
+						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.set_default_response(Gtk.ResponseType.OK);
+						md.response.connect(() => { md.destroy(); });
+						md.show_all();
+					} else {
+						do_close_project(quit);
+					}
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
+	}
+
+	public void close_project(bool quit = false)
+	{
+		if (_project.is_temporary()) {
+			Gtk.Dialog dlg = new_save_project_dialog(this.active_window);
+			dlg.response.connect((response_id) => {
+					if (response_id == Gtk.ResponseType.NO)
+						do_close_project(quit);
+					else if (response_id == Gtk.ResponseType.YES)
+						save_project(quit);
+					dlg.destroy();
+				});
+			dlg.show_all();
+		} else {
+			do_close_project(quit);
+		}
+	}
+
 	public void on_close_project(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
-			do_close_project();
+			close_project();
 		} else {
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						do_close_project();
+						close_project();
 					else if (response_id == Gtk.ResponseType.YES)
 						save("close-project");
 					dlg.destroy();
@@ -2263,12 +2391,12 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_quit(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (!_database.changed()) {
-			do_close_project(true);
+			close_project(true);
 		} else {
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						do_close_project(true);
+						close_project(true);
 					else if (response_id == Gtk.ResponseType.YES)
 						save("quit");
 					dlg.destroy();
@@ -4250,12 +4378,14 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_project.is_loaded())
 			return;
 
-		// Save per-project data.
-		try {
-			string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
-			SJSON.save(_project_store.encode(), path);
-		} catch (JsonWriteError e) {
-			loge(e.message);
+		if (!_project.is_temporary()) {
+			// Save per-project data.
+			try {
+				string path = GLib.Path.build_filename(_project.user_dir(), "project_store.sjson");
+				SJSON.save(_project_store.encode(), path);
+			} catch (JsonWriteError e) {
+				loge(e.message);
+			}
 		}
 
 		// Destroy dialogs.
