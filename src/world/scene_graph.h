@@ -52,10 +52,10 @@ struct SceneGraph
 		UnitId *unit;
 		Matrix4x4 *world;
 		Pose *local;
-		TransformInstance *parent;
-		TransformInstance *first_child;
-		TransformInstance *next_sibling;
-		TransformInstance *prev_sibling;
+		TransformId *parent;
+		TransformId *first_child;
+		TransformId *next_sibling;
+		TransformId *prev_sibling;
 		bool *changed;
 	};
 
@@ -85,58 +85,58 @@ struct SceneGraph
 		);
 
 	/// Creates a new transform instance for the @a unit.
-	TransformInstance create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale);
+	TransformId create(UnitId unit, const Vector3 &pos, const Quaternion &rot, const Vector3 &scale);
 
 	/// Destroys the @a transform.
-	void destroy(TransformInstance transform);
+	void destroy(TransformId transform);
 
 	/// Returns the ID of the transform owned by the *unit*.
-	TransformInstance instance(UnitId unit);
+	TransformId instance(UnitId unit);
 
 	/// Returns the unit that owns @a transform.
-	UnitId owner(TransformInstance transform);
+	UnitId owner(TransformId transform);
 
 	/// Returns whether the @a unit has a transform.
 	bool has(UnitId unit);
 
 	/// Sets the local position, rotation, scale or pose of the @a transform.
-	void set_local_position(TransformInstance transform, const Vector3 &pos);
+	void set_local_position(TransformId transform, const Vector3 &pos);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_rotation(TransformInstance transform, const Quaternion &rot);
+	void set_local_rotation(TransformId transform, const Quaternion &rot);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_scale(TransformInstance transform, const Vector3 &scale);
+	void set_local_scale(TransformId transform, const Vector3 &scale);
 
 	/// @copydoc SceneGraph::set_local_position()
-	void set_local_pose(TransformInstance transform, const Matrix4x4 &pose);
+	void set_local_pose(TransformId transform, const Matrix4x4 &pose);
 
 	/// Returns the local position, rotation or pose of the @a transform.
-	Vector3 local_position(TransformInstance transform);
+	Vector3 local_position(TransformId transform);
 
 	/// @copydoc SceneGraph::local_position()
-	Quaternion local_rotation(TransformInstance transform);
+	Quaternion local_rotation(TransformId transform);
 
 	/// @copydoc SceneGraph::local_position()
-	Vector3 local_scale(TransformInstance transform);
+	Vector3 local_scale(TransformId transform);
 
 	/// @copydoc SceneGraph::local_position()
-	Matrix4x4 local_pose(TransformInstance transform);
+	Matrix4x4 local_pose(TransformId transform);
 
 	/// Returns the world position, rotation or pose of the @a transform.
-	Vector3 world_position(TransformInstance transform);
+	Vector3 world_position(TransformId transform);
 
 	/// @copydoc SceneGraph::world_position()
-	Quaternion world_rotation(TransformInstance transform);
+	Quaternion world_rotation(TransformId transform);
 
 	/// @copydoc SceneGraph::world_position()
-	Matrix4x4 world_pose(TransformInstance transform);
+	Matrix4x4 world_pose(TransformId transform);
 
 	///
-	void set_world_pose(TransformInstance transform, const Matrix4x4 &pose);
+	void set_world_pose(TransformId transform, const Matrix4x4 &pose);
 
 	///
-	void set_world_pose_and_rescale(TransformInstance transform, const Matrix4x4 &pose);
+	void set_world_pose_and_rescale(TransformId transform, const Matrix4x4 &pose);
 
 	/// Returns the number of nodes in the graph.
 	u32 num_nodes() const;
@@ -145,8 +145,8 @@ struct SceneGraph
 	/// parent. Set child_local_* to modify the child position after it has been
 	/// linked to the parent, otherwise che child will be positioned at the
 	/// location of its parent.
-	void link(TransformInstance parent
-		, TransformInstance child
+	void link(TransformId parent
+		, TransformId child
 		, const Vector3 &child_local_position = VECTOR3_ZERO
 		, const Quaternion &child_local_rotation = QUATERNION_IDENTITY
 		, const Vector3 &child_local_scale = VECTOR3_ONE
@@ -154,30 +154,30 @@ struct SceneGraph
 
 	/// Unlinks @a child from its parent if it has any. After unlinking, the local
 	/// pose of the @a child is set to its previous world pose.
-	void unlink(TransformInstance child);
+	void unlink(TransformId child);
 
 	/// Returns the parent of the instance @a child or an invalid
 	/// instance if @a child has no parent.
-	TransformInstance parent(TransformInstance child);
+	TransformId parent(TransformId child);
 
 	/// Returns the first child of the instance @a parent or an invalid
 	/// instance if @a parent has no children.
-	TransformInstance first_child(TransformInstance parent);
+	TransformId first_child(TransformId parent);
 
 	/// Returns the next sibling of the instance @a child or an invalid
 	/// instance if @a child has no sibling.
-	TransformInstance next_sibling(TransformInstance child);
+	TransformId next_sibling(TransformId child);
 
 	/// Adds all the world transforms in the graph to @a debug_line.
 	void debug_draw(DebugLine &debug_line);
 
 	void clear_changed();
 	void get_changed(Array<UnitId> &units, Array<Matrix4x4> &world_poses);
-	void set_local(TransformInstance transform);
-	void transform(const Matrix4x4 &parent, TransformInstance transform);
+	void set_local(TransformId transform);
+	void transform(const Matrix4x4 &parent, TransformId transform);
 	void grow();
 	void allocate(u32 num);
-	TransformInstance make_instance(u32 i);
+	TransformId make_instance(u32 i);
 	void unit_destroyed_callback(UnitId unit);
 };
 

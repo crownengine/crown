@@ -820,7 +820,7 @@ void Device::resolution(u16 &width, u16 &height)
 
 void Device::render(World &world, UnitId camera_unit)
 {
-	CameraInstance camera = world.camera_instance(camera_unit);
+	CameraId camera = world.camera_instance(camera_unit);
 
 	const f32 aspect_ratio = (_boot_config.aspect_ratio == -1.0f
 		? (f32)_width/(f32)_height

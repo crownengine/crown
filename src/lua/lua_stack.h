@@ -212,40 +212,40 @@ struct LuaStack
 	UnitId get_unit(int i);
 
 	///
-	CameraInstance get_camera_instance(int i);
+	CameraId get_camera_instance(int i);
 
 	///
-	TransformInstance get_transform_instance(int i);
+	TransformId get_transform_instance(int i);
 
 	///
-	MeshInstance get_mesh_instance(int i);
+	MeshId get_mesh_instance(int i);
 
 	///
-	SpriteInstance get_sprite_instance(int i);
+	SpriteId get_sprite_instance(int i);
 
 	///
-	LightInstance get_light_instance(int i);
+	LightId get_light_instance(int i);
 
 	///
-	FogInstance get_fog_instance(int i);
+	FogId get_fog_instance(int i);
 
 	///
-	StateMachineInstance get_state_machine_instance(int i);
+	StateMachineId get_state_machine_instance(int i);
 
 	///
 	Material *get_material(int i);
 
 	///
-	ActorInstance get_actor_instance(int i);
+	ActorId get_actor_instance(int i);
 
 	///
-	MoverInstance get_mover_instance(int i);
+	MoverId get_mover_instance(int i);
 
 	///
 	SoundInstanceId get_sound_instance_id(int i);
 
 	///
-	ScriptInstance get_script_instance(int i);
+	ScriptId get_script_instance(int i);
 
 	///
 	Vector2 get_vector2(int i);

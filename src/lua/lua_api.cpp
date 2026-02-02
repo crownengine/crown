@@ -1539,7 +1539,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("World", "camera_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			CameraInstance inst = stack.get_world(1)->camera_instance(stack.get_unit(2));
+			CameraId inst = stack.get_world(1)->camera_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -1784,7 +1784,7 @@ void load_api(LuaEnvironment &env)
 			SceneGraph *sg = stack.get_scene_graph(1);
 			UnitId unit = stack.get_unit(2);
 			LUA_ASSERT(!sg->has(unit), stack, "Unit already has transform");
-			TransformInstance ti = sg->create(unit
+			TransformId ti = sg->create(unit
 				, stack.get_vector3(3)
 				, stack.get_quaternion(4)
 				, stack.get_vector3(5)
@@ -1799,7 +1799,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("SceneGraph", "instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			TransformInstance inst = stack.get_scene_graph(1)->instance(stack.get_unit(2));
+			TransformId inst = stack.get_scene_graph(1)->instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -1871,8 +1871,8 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L);
 			const int nargs = stack.num_args();
 
-			const TransformInstance parent_ti = stack.get_transform_instance(2);
-			const TransformInstance child_ti  = stack.get_transform_instance(3);
+			const TransformId parent_ti = stack.get_transform_instance(2);
+			const TransformId child_ti  = stack.get_transform_instance(3);
 			const Vector3 &pos                = nargs > 3 ? stack.get_vector3(4)    : VECTOR3_ZERO;
 			const Quaternion &rot             = nargs > 4 ? stack.get_quaternion(5) : QUATERNION_IDENTITY;
 			const Vector3 &scl                = nargs > 5 ? stack.get_vector3(6)    : VECTOR3_ONE;
@@ -1887,7 +1887,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("SceneGraph", "parent", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			TransformInstance inst = stack.get_scene_graph(1)->parent(stack.get_transform_instance(2));
+			TransformId inst = stack.get_scene_graph(1)->parent(stack.get_transform_instance(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -1896,7 +1896,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("SceneGraph", "first_child", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			TransformInstance inst = stack.get_scene_graph(1)->first_child(stack.get_transform_instance(2));
+			TransformId inst = stack.get_scene_graph(1)->first_child(stack.get_transform_instance(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -1905,7 +1905,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("SceneGraph", "next_sibling", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			TransformInstance inst = stack.get_scene_graph(1)->next_sibling(stack.get_transform_instance(2));
+			TransformId inst = stack.get_scene_graph(1)->next_sibling(stack.get_transform_instance(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -1952,7 +1952,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "mesh_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			MeshInstance inst = stack.get_render_world(1)->mesh_instance(stack.get_unit(2));
+			MeshId inst = stack.get_render_world(1)->mesh_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2026,7 +2026,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "sprite_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			SpriteInstance inst = stack.get_render_world(1)->sprite_instance(stack.get_unit(2));
+			SpriteId inst = stack.get_render_world(1)->sprite_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2126,7 +2126,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "light_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			LightInstance inst = stack.get_render_world(1)->light_instance(stack.get_unit(2));
+			LightId inst = stack.get_render_world(1)->light_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2222,7 +2222,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "fog_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			FogInstance inst = stack.get_render_world(1)->fog_instance(stack.get_unit(2));
+			FogId inst = stack.get_render_world(1)->fog_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2272,7 +2272,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "global_lighting_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			GlobalLightingInstance inst = stack.get_render_world(1)->global_lighting_instance(stack.get_unit(2));
+			GlobalLightingId inst = stack.get_render_world(1)->global_lighting_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2307,7 +2307,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "bloom_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			BloomInstance inst = stack.get_render_world(1)->bloom_instance(stack.get_unit(2));
+			BloomId inst = stack.get_render_world(1)->bloom_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2347,7 +2347,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "tonemap_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			TonemapInstance inst = stack.get_render_world(1)->tonemap_instance(stack.get_unit(2));
+			TonemapId inst = stack.get_render_world(1)->tonemap_instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2382,7 +2382,7 @@ void load_api(LuaEnvironment &env)
 
 	env.add_module_function("PhysicsWorld", "actor_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			ActorInstance inst = stack.get_physics_world(1)->actor(stack.get_unit(2));
+			ActorId inst = stack.get_physics_world(1)->actor(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2564,7 +2564,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("PhysicsWorld", "mover_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			MoverInstance inst = stack.get_physics_world(1)->mover(stack.get_unit(2));
+			MoverId inst = stack.get_physics_world(1)->mover(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else
@@ -2856,7 +2856,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("AnimationStateMachine", "instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			StateMachineInstance inst = stack.get_animation_state_machine(1)->instance(stack.get_unit(2));
+			StateMachineId inst = stack.get_animation_state_machine(1)->instance(stack.get_unit(2));
 			if (is_valid(inst))
 				stack.push_id(inst.i);
 			else

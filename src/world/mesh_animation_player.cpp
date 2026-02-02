@@ -141,11 +141,11 @@ namespace mesh_animation_player
 
 			if (track->keys[0].h.type == AnimationKeyHeader::Type::POSITION) {
 				Vector3 pos = lerp(track->keys[0].p.value, track->keys[1].p.value, t);
-				TransformInstance ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
+				TransformId ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
 				scene_graph.set_local_position(ti, pos);
 			} else if (track->keys[0].h.type == AnimationKeyHeader::Type::ROTATION) {
 				Quaternion rot = lerp(track->keys[0].r.value, track->keys[1].r.value, t);
-				TransformInstance ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
+				TransformId ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
 				scene_graph.set_local_rotation(ti, rot);
 			} else {
 				CE_FATAL("Unknown key type %u in track %u", track->keys[0].h.type, track_id);

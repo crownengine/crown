@@ -37,135 +37,135 @@ struct RenderWorld
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
-	MeshInstance mesh_create(UnitId unit, const MeshRendererDesc &mrd);
+	MeshId mesh_create(UnitId unit, const MeshRendererDesc &mrd);
 
 	/// Destroys the @a mesh.
-	void mesh_destroy(MeshInstance mesh);
+	void mesh_destroy(MeshId mesh);
 
 	/// Returns the ID of the mesh owned by the *unit*.
-	MeshInstance mesh_instance(UnitId unit);
+	MeshId mesh_instance(UnitId unit);
 
 	/// Sets the @a geometry of the @a mesh. @a geometry must be a valid geometry name inside @a
 	/// mesh_resource.
-	void mesh_set_geometry(MeshInstance mesh, StringId64 mesh_resource, StringId32 geometry);
+	void mesh_set_geometry(MeshId mesh, StringId64 mesh_resource, StringId32 geometry);
 
 	///
-	void mesh_set_skeleton(MeshInstance mesh, const AnimationSkeletonInstance *bones);
+	void mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *bones);
 
 	/// Returns the material of the @a mesh.
-	Material *mesh_material(MeshInstance mesh);
+	Material *mesh_material(MeshId mesh);
 
 	/// Sets the material @a id of the @a mesh.
-	void mesh_set_material(MeshInstance mesh, StringId64 id);
+	void mesh_set_material(MeshId mesh, StringId64 id);
 
 	/// Sets whether the @a mesh is @a visible.
-	void mesh_set_visible(MeshInstance mesh, bool visible);
+	void mesh_set_visible(MeshId mesh, bool visible);
 
 	/// Sets whether the @a mesh casts shadows.
-	void mesh_set_cast_shadows(MeshInstance mesh, bool cast_shadows);
+	void mesh_set_cast_shadows(MeshId mesh, bool cast_shadows);
 
 	/// Returns the OBB of the @a mesh.
-	OBB mesh_obb(MeshInstance mesh);
+	OBB mesh_obb(MeshId mesh);
 
 	/// Returns the distance along ray (from, dir) to intersection point with @a mesh
 	/// or -1.0 if no intersection.
-	f32 mesh_cast_ray(MeshInstance mesh, const Vector3 &from, const Vector3 &dir);
+	f32 mesh_cast_ray(MeshId mesh, const Vector3 &from, const Vector3 &dir);
 
 	/// Creates a new sprite instance.
-	SpriteInstance sprite_create(UnitId unit, const SpriteRendererDesc &srd);
+	SpriteId sprite_create(UnitId unit, const SpriteRendererDesc &srd);
 
 	/// Destroys the sprite @a i.
-	void sprite_destroy(SpriteInstance sprite);
+	void sprite_destroy(SpriteId sprite);
 
 	/// Returns the ID of the sprite owned by the *unit*.
-	SpriteInstance sprite_instance(UnitId unit);
+	SpriteId sprite_instance(UnitId unit);
 
 	/// Sets the @a sprite_resource of the @a sprite.
-	void sprite_set_sprite(SpriteInstance sprite, StringId64 sprite_resource_name);
+	void sprite_set_sprite(SpriteId sprite, StringId64 sprite_resource_name);
 
 	/// Returns the material of the @a sprite.
-	Material *sprite_material(SpriteInstance sprite);
+	Material *sprite_material(SpriteId sprite);
 
 	/// Sets the material @a id of the @a sprite.
-	void sprite_set_material(SpriteInstance sprite, StringId64 id);
+	void sprite_set_material(SpriteId sprite, StringId64 id);
 
 	/// Sets the frame @a index of the @a sprite.
 	/// The @a index automatically wraps if it greater than
 	/// the total number of frames in the @a sprite.
-	void sprite_set_frame(SpriteInstance sprite, u32 index);
+	void sprite_set_frame(SpriteId sprite, u32 index);
 
 	/// Sets whether the @a sprite is @a visible.
-	void sprite_set_visible(SpriteInstance sprite, bool visible);
+	void sprite_set_visible(SpriteId sprite, bool visible);
 
 	/// Sets whether to flip the @a sprite on the x-axis.
-	void sprite_flip_x(SpriteInstance sprite, bool flip);
+	void sprite_flip_x(SpriteId sprite, bool flip);
 
 	/// Sets whether to flip the @a sprite on the y-axis.
-	void sprite_flip_y(SpriteInstance sprite, bool flip);
+	void sprite_flip_y(SpriteId sprite, bool flip);
 
 	/// Sets the layer of the @a sprite.
-	void sprite_set_layer(SpriteInstance sprite, u32 layer);
+	void sprite_set_layer(SpriteId sprite, u32 layer);
 
 	/// Sets the depth of the @a sprite.
-	void sprite_set_depth(SpriteInstance sprite, u32 depth);
+	void sprite_set_depth(SpriteId sprite, u32 depth);
 
 	/// Returns the OBB of the @a sprite.
-	OBB sprite_obb(SpriteInstance sprite);
+	OBB sprite_obb(SpriteId sprite);
 
 	/// Returns the distance along ray (from, dir) to intersection point with
 	/// @a sprite or -1.0 if no intersection.
-	f32 sprite_cast_ray(SpriteInstance sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth);
+	f32 sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth);
 
 	/// Creates a new light instance.
-	LightInstance light_create(UnitId unit, const LightDesc &ld);
+	LightId light_create(UnitId unit, const LightDesc &ld);
 
 	/// Destroys the @a light.
-	void light_destroy(LightInstance light);
+	void light_destroy(LightId light);
 
 	/// Returns the ID of the light owned by the *unit*.
-	LightInstance light_instance(UnitId unit);
+	LightId light_instance(UnitId unit);
 
 	/// Returns the type of the @a light.
-	LightType::Enum light_type(LightInstance light);
+	LightType::Enum light_type(LightId light);
 
 	/// Returns the color of the @a light.
-	Color4 light_color(LightInstance light);
+	Color4 light_color(LightId light);
 
 	/// Returns the range of the @a light.
-	f32 light_range(LightInstance light);
+	f32 light_range(LightId light);
 
 	/// Returns the intensity of the @a light.
-	f32 light_intensity(LightInstance light);
+	f32 light_intensity(LightId light);
 
 	/// Returns the spot angle of the @a light.
-	f32 light_spot_angle(LightInstance light);
+	f32 light_spot_angle(LightId light);
 
 	/// Returns the shadow bias of the @a light.
-	f32 light_shadow_bias(LightInstance light);
+	f32 light_shadow_bias(LightId light);
 
 	/// Sets the @a type of the @a light.
-	void light_set_type(LightInstance light, LightType::Enum type);
+	void light_set_type(LightId light, LightType::Enum type);
 
 	/// Sets the @a color of the @a light.
-	void light_set_color(LightInstance light, const Color4 &color);
+	void light_set_color(LightId light, const Color4 &color);
 
 	/// Sets the @a range of the @a light.
-	void light_set_range(LightInstance light, f32 range);
+	void light_set_range(LightId light, f32 range);
 
 	/// Sets the @a intensity of the @a light.
-	void light_set_intensity(LightInstance light, f32 intensity);
+	void light_set_intensity(LightId light, f32 intensity);
 
 	/// Sets the spot @a angle of the @a light.
-	void light_set_spot_angle(LightInstance light, f32 angle);
+	void light_set_spot_angle(LightId light, f32 angle);
 
 	/// Sets the shadow @a bias of the @a light.
-	void light_set_shadow_bias(LightInstance light, f32 bias);
+	void light_set_shadow_bias(LightId light, f32 bias);
 
 	/// Sets whether the @a light casts shadows.
-	void light_set_cast_shadows(LightInstance light, bool cast_shadows);
+	void light_set_cast_shadows(LightId light, bool cast_shadows);
 
 	/// Fills @a dl with debug lines from the @a light.
-	void light_debug_draw(LightInstance light, DebugLine &dl);
+	void light_debug_draw(LightId light, DebugLine &dl);
 
 	///
 	void fog_create_instances(const void *components_data
@@ -178,31 +178,31 @@ struct RenderWorld
 	/// Note that the fog component is limited to one instance per
 	/// World. Every call to this function will overwrite any
 	/// previously created fog instance.
-	FogInstance fog_create(UnitId unit, const FogDesc &desc);
+	FogId fog_create(UnitId unit, const FogDesc &desc);
 
 	/// Destroys the @a fog instance.
-	void fog_destroy(FogInstance fog);
+	void fog_destroy(FogId fog);
 
 	/// Returns the ID of the fog owned by the @a unit.
-	FogInstance fog_instance(UnitId unit);
+	FogId fog_instance(UnitId unit);
 
 	/// Sets the @a color of the @a fog.
-	void fog_set_color(FogInstance fog, Vector3 color);
+	void fog_set_color(FogId fog, Vector3 color);
 
 	/// Sets the @a density of the @a fog.
-	void fog_set_density(FogInstance fog, float density);
+	void fog_set_density(FogId fog, float density);
 
 	/// Sets the minimum @a range of the @a fog.
-	void fog_set_range_min(FogInstance fog, float range);
+	void fog_set_range_min(FogId fog, float range);
 
 	/// Sets the maximum @a range of the @a fog.
-	void fog_set_range_max(FogInstance fog, float range);
+	void fog_set_range_max(FogId fog, float range);
 
 	/// Sets the sun @a blend of the @a fog.
-	void fog_set_sun_blend(FogInstance fog, float sun_blend);
+	void fog_set_sun_blend(FogId fog, float sun_blend);
 
 	/// Sets whether the @a fog is @a enabled.
-	void fog_set_enabled(FogInstance fog, bool enable);
+	void fog_set_enabled(FogId fog, bool enable);
 
 	///
 	void global_lighting_create_instances(const void *components_data
@@ -212,13 +212,13 @@ struct RenderWorld
 		);
 
 	/// Creates a new global lighting instance for @a unit and returns its id.
-	GlobalLightingInstance global_lighting_create(UnitId unit, const GlobalLightingDesc &desc);
+	GlobalLightingId global_lighting_create(UnitId unit, const GlobalLightingDesc &desc);
 
 	///
 	void global_lighting_destroy(u32 global_lighting);
 
 	///
-	GlobalLightingInstance global_lighting_instance(UnitId unit);
+	GlobalLightingId global_lighting_instance(UnitId unit);
 
 	///
 	void global_lighting_set_skydome_map(StringId64 texture_name);
@@ -237,13 +237,13 @@ struct RenderWorld
 		);
 
 	/// Creates a new bloom instance for @a unit and returns its id.
-	BloomInstance bloom_create(UnitId unit, const BloomDesc &desc);
+	BloomId bloom_create(UnitId unit, const BloomDesc &desc);
 
 	///
 	void bloom_destroy(u32 bloom);
 
 	///
-	BloomInstance bloom_instance(UnitId unit);
+	BloomId bloom_instance(UnitId unit);
 
 	///
 	void bloom_set_enabled(bool enabled);
@@ -265,13 +265,13 @@ struct RenderWorld
 		);
 
 	///
-	TonemapInstance tonemap_create(UnitId unit, const TonemapDesc &desc);
+	TonemapId tonemap_create(UnitId unit, const TonemapDesc &desc);
 
 	///
 	void tonemap_destroy(u32 tonemap);
 
 	///
-	TonemapInstance tonemap_instance(UnitId unit);
+	TonemapId tonemap_instance(UnitId unit);
 
 	///
 	void tonemap_set_type(TonemapType::Enum type);
@@ -356,19 +356,19 @@ struct RenderWorld
 			);
 
 		///
-		void destroy(MeshInstance mesh);
+		void destroy(MeshId mesh);
 
 		///
 		bool has(UnitId unit);
 
 		///
-		void set_geometry(MeshInstance mesh, const MeshResource *mr, StringId32 geometry);
+		void set_geometry(MeshId mesh, const MeshResource *mr, StringId32 geometry);
 
 		///
-		void set_visible(MeshInstance mesh, bool visible);
+		void set_visible(MeshId mesh, bool visible);
 
 		///
-		MeshInstance mesh(UnitId unit);
+		MeshId mesh(UnitId unit);
 
 		///
 		void destroy();
@@ -389,9 +389,9 @@ struct RenderWorld
 		void draw_selected(u8 view, SceneGraph &scene_graph);
 
 		///
-		MeshInstance make_instance(u32 i)
+		MeshId make_instance(u32 i)
 		{
-			MeshInstance inst = { i }; return inst;
+			MeshId inst = { i }; return inst;
 		}
 	};
 
@@ -442,16 +442,16 @@ struct RenderWorld
 			);
 
 		///
-		void destroy(SpriteInstance sprite);
+		void destroy(SpriteId sprite);
 
 		///
 		bool has(UnitId unit);
 
 		///
-		void set_visible(SpriteInstance sprite, bool visible);
+		void set_visible(SpriteId sprite, bool visible);
 
 		///
-		SpriteInstance sprite(UnitId unit);
+		SpriteId sprite(UnitId unit);
 
 		///
 		void allocate(u32 num);
@@ -475,9 +475,9 @@ struct RenderWorld
 		void draw_selected(u8 view);
 
 		///
-		SpriteInstance make_instance(u32 i)
+		SpriteId make_instance(u32 i)
 		{
-			SpriteInstance inst = { i }; return inst;
+			SpriteId inst = { i }; return inst;
 		}
 	};
 
@@ -546,13 +546,13 @@ struct RenderWorld
 			);
 
 		///
-		void destroy(LightInstance light);
+		void destroy(LightId light);
 
 		///
 		bool has(UnitId unit);
 
 		///
-		LightInstance light(UnitId unit);
+		LightId light(UnitId unit);
 
 		///
 		void debug_draw(u32 start_index, u32 num, DebugLine &dl);
@@ -567,9 +567,9 @@ struct RenderWorld
 		void destroy();
 
 		///
-		LightInstance make_instance(u32 i)
+		LightId make_instance(u32 i)
 		{
-			LightInstance inst = { i }; return inst;
+			LightId inst = { i }; return inst;
 		}
 	};
 
@@ -593,7 +593,7 @@ struct RenderWorld
 
 	// Fog.
 	UnitId _fog_unit;
-	FogInstance _fog;
+	FogId _fog;
 	FogDesc _fog_desc;
 
 	// Global lighting.

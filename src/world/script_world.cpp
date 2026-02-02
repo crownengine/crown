@@ -18,15 +18,15 @@ namespace crown
 {
 namespace script_world_internal
 {
-	static ScriptInstance make_instance(u32 i)
+	static ScriptId make_instance(u32 i)
 	{
-		ScriptInstance inst = { i };
+		ScriptId inst = { i };
 		return inst;
 	}
 
 	static void unit_destroyed_callback(ScriptWorld &sw, UnitId unit)
 	{
-		ScriptInstance inst = script_world::instance(sw, unit);
+		ScriptId inst = script_world::instance(sw, unit);
 		if (is_valid(inst))
 			script_world::destroy(sw, inst);
 	}
@@ -84,14 +84,14 @@ namespace script_world
 		}
 	}
 
-	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc)
+	ScriptId create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc)
 	{
 		u32 unit_index = 0;
 		create_instances(sw, &desc, 1, &unit, &unit_index);
 		return instance(sw, unit);
 	}
 
-	void destroy(ScriptWorld &sw, ScriptInstance inst)
+	void destroy(ScriptWorld &sw, ScriptId inst)
 	{
 		const u32 last_i  = array::size(sw._data) - 1;
 		const UnitId unit = sw._data[inst.i].unit;
@@ -104,7 +104,7 @@ namespace script_world
 		hash_map::remove(sw._map, unit);
 	}
 
-	ScriptInstance instance(ScriptWorld &sw, UnitId unit)
+	ScriptId instance(ScriptWorld &sw, UnitId unit)
 	{
 		return script_world_internal::make_instance(hash_map::get(sw._map, unit, UINT32_MAX));
 	}
@@ -175,7 +175,7 @@ namespace script_world
 	///
 	void unicast(ScriptWorld &sw
 		, const char *function_name
-		, ScriptInstance script_inst
+		, ScriptId script_inst
 		, const ArgType::Enum *arg_types
 		, const Arg *args
 		, u32 num_args
