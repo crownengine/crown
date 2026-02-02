@@ -15,6 +15,7 @@ Changelog
 * Tools: added the ability to show all files (w/ or w/o extension) as well as mapped directories in the Project Browser.
 * Tools: added the ability to choose which external tool to use for opening models, sounds and fonts.
 * Tools: added the ability to reset properties to default by right-clicking on them.
+* Tools: the Level Editor will now automatically open a new temporary project when the Projects List is empty.
 * Runtime: Linux: switched to Vulkan for rendering.
 * Runtime: added support to stencil testing in shaders.
 * Data Compile: resource packages are now LZ4-compressed.
