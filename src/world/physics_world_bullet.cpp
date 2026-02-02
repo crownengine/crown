@@ -999,7 +999,7 @@ struct PhysicsWorldImpl
 
 		for (u32 i = 0; i < num; ++i) {
 			UnitId unit = unit_lookup[unit_index[i]];
-			const TransformInstance ti = _scene_graph->instance(unit_lookup[unit_index[i]]);
+			const TransformId ti = _scene_graph->instance(unit_lookup[unit_index[i]]);
 			const Matrix4x4 tm = _scene_graph->world_pose(ti);
 
 			btTriangleIndexVertexArray *vertex_array = NULL;
@@ -1081,7 +1081,7 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	void collider_destroy(ColliderInstance collider)
+	void collider_destroy(ColliderId collider)
 	{
 		CE_ASSERT(collider.i < array::size(_collider), "Index out of bounds");
 
@@ -1101,7 +1101,7 @@ struct PhysicsWorldImpl
 		hash_map::remove(_collider_map, u);
 	}
 
-	ColliderInstance collider_instance(UnitId unit)
+	ColliderId collider_instance(UnitId unit)
 	{
 		return make_collider_instance(hash_map::get(_collider_map, unit, UINT32_MAX));
 	}
@@ -1118,7 +1118,7 @@ struct PhysicsWorldImpl
 			UnitId unit = unit_lookup[unit_index[i]];
 			CE_ASSERT(!hash_map::has(_actor_map, unit), "Unit already has an actor component");
 
-			TransformInstance ti = _scene_graph->instance(unit);
+			TransformId ti = _scene_graph->instance(unit);
 			Matrix4x4 tm = _scene_graph->world_pose(ti);
 			Matrix4x4 tm_noscale = from_quaternion_translation(rotation(tm), translation(tm));
 
@@ -1138,7 +1138,7 @@ struct PhysicsWorldImpl
 			const f32 mass = is_dynamic ? actors[i].mass : 0.0f;
 
 			// Create compound shape
-			ColliderInstance ci = collider_instance(unit);
+			ColliderId ci = collider_instance(unit);
 			btCollisionShape *shape = _collider[ci.i].shape;
 
 			// Create motion state
@@ -1200,7 +1200,7 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	void actor_destroy(ActorInstance actor)
+	void actor_destroy(ActorId actor)
 	{
 		const u32 last      = array::size(_actor) - 1;
 		const UnitId u      = _actor[actor.i].unit;
@@ -1219,41 +1219,41 @@ struct PhysicsWorldImpl
 		hash_map::remove(_actor_map, u);
 	}
 
-	ActorInstance actor(UnitId unit)
+	ActorId actor(UnitId unit)
 	{
 		return make_actor_instance(hash_map::get(_actor_map, unit, UINT32_MAX));
 	}
 
-	Vector3 actor_world_position(ActorInstance actor) const
+	Vector3 actor_world_position(ActorId actor) const
 	{
 		return to_vector3(_actor[actor.i].body->getCenterOfMassPosition());
 	}
 
-	Quaternion actor_world_rotation(ActorInstance actor) const
+	Quaternion actor_world_rotation(ActorId actor) const
 	{
 		return to_quaternion(_actor[actor.i].body->getOrientation());
 	}
 
-	Matrix4x4 actor_world_pose(ActorInstance actor) const
+	Matrix4x4 actor_world_pose(ActorId actor) const
 	{
 		return to_matrix4x4(_actor[actor.i].body->getCenterOfMassTransform());
 	}
 
-	void actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
+	void actor_teleport_world_position(ActorId actor, const Vector3 &p)
 	{
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
 		pose.m_origin = to_btVector3(p);
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
-	void actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r)
+	void actor_teleport_world_rotation(ActorId actor, const Quaternion &r)
 	{
 		btTransform pose = _actor[actor.i].body->getCenterOfMassTransform();
 		pose.setRotation(to_btQuaternion(r));
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
-	void actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m)
+	void actor_teleport_world_pose(ActorId actor, const Matrix4x4 &m)
 	{
 		const Quaternion rot = rotation(m);
 		const Vector3 pos = translation(m);
@@ -1264,26 +1264,26 @@ struct PhysicsWorldImpl
 		_actor[actor.i].body->setCenterOfMassTransform(pose);
 	}
 
-	Vector3 actor_center_of_mass(ActorInstance actor) const
+	Vector3 actor_center_of_mass(ActorId actor) const
 	{
 		return to_vector3(_actor[actor.i].body->getCenterOfMassTransform().m_origin);
 	}
 
-	void actor_enable_gravity(ActorInstance actor)
+	void actor_enable_gravity(ActorId actor)
 	{
 		btRigidBody *body = _actor[actor.i].body;
 		body->m_rigidbodyFlags = (body->m_rigidbodyFlags & ~BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(_dynamics_world->getGravity());
 	}
 
-	void actor_disable_gravity(ActorInstance actor)
+	void actor_disable_gravity(ActorId actor)
 	{
 		btRigidBody *body = _actor[actor.i].body;
 		body->m_rigidbodyFlags = (body->m_rigidbodyFlags | BT_DISABLE_WORLD_GRAVITY);
 		body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	}
 
-	void actor_enable_collision(ActorInstance actor)
+	void actor_enable_collision(ActorId actor)
 	{
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
@@ -1294,7 +1294,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
-	void actor_disable_collision(ActorInstance actor)
+	void actor_disable_collision(ActorId actor)
 	{
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
@@ -1306,7 +1306,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->addRigidBody(a.body, f->me, 0);
 	}
 
-	void actor_set_collision_filter(ActorInstance actor, StringId32 filter)
+	void actor_set_collision_filter(ActorId actor, StringId32 filter)
 	{
 		ActorInstanceData &a = _actor[actor.i];
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
@@ -1317,7 +1317,7 @@ struct PhysicsWorldImpl
 		_dynamics_world->addRigidBody(a.body, f->me, f->mask);
 	}
 
-	void actor_set_kinematic(ActorInstance actor, bool kinematic)
+	void actor_set_kinematic(ActorId actor, bool kinematic)
 	{
 		btRigidBody *body = _actor[actor.i].body;
 		int flags = body->m_collisionFlags;
@@ -1331,12 +1331,12 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	bool actor_is_static(ActorInstance actor) const
+	bool actor_is_static(ActorId actor) const
 	{
 		return _actor[actor.i].body->m_collisionFlags & btCollisionObject::CF_STATIC_OBJECT;
 	}
 
-	bool actor_is_dynamic(ActorInstance actor) const
+	bool actor_is_dynamic(ActorId actor) const
 	{
 		const int flags = _actor[actor.i].body->m_collisionFlags;
 		return !(flags & btCollisionObject::CF_STATIC_OBJECT)
@@ -1344,106 +1344,106 @@ struct PhysicsWorldImpl
 			;
 	}
 
-	bool actor_is_kinematic(ActorInstance actor) const
+	bool actor_is_kinematic(ActorId actor) const
 	{
 		const int flags = _actor[actor.i].body->m_collisionFlags;
 		return (flags & (btCollisionObject::CF_KINEMATIC_OBJECT)) != 0;
 	}
 
-	bool actor_is_nonkinematic(ActorInstance actor) const
+	bool actor_is_nonkinematic(ActorId actor) const
 	{
 		return actor_is_dynamic(actor) && !actor_is_kinematic(actor);
 	}
 
-	f32 actor_linear_damping(ActorInstance actor) const
+	f32 actor_linear_damping(ActorId actor) const
 	{
 		return _actor[actor.i].body->m_linearDamping;
 	}
 
-	void actor_set_linear_damping(ActorInstance actor, f32 rate)
+	void actor_set_linear_damping(ActorId actor, f32 rate)
 	{
 		_actor[actor.i].body->setDamping(rate, _actor[actor.i].body->m_angularDamping);
 	}
 
-	f32 actor_angular_damping(ActorInstance actor) const
+	f32 actor_angular_damping(ActorId actor) const
 	{
 		return _actor[actor.i].body->m_angularDamping;
 	}
 
-	void actor_set_angular_damping(ActorInstance actor, f32 rate)
+	void actor_set_angular_damping(ActorId actor, f32 rate)
 	{
 		_actor[actor.i].body->setDamping(_actor[actor.i].body->m_linearDamping, rate);
 	}
 
-	Vector3 actor_linear_velocity(ActorInstance actor) const
+	Vector3 actor_linear_velocity(ActorId actor) const
 	{
 		btVector3 v = _actor[actor.i].body->m_linearVelocity;
 		return to_vector3(v);
 	}
 
-	void actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel)
+	void actor_set_linear_velocity(ActorId actor, const Vector3 &vel)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->setLinearVelocity(to_btVector3(vel));
 	}
 
-	Vector3 actor_angular_velocity(ActorInstance actor) const
+	Vector3 actor_angular_velocity(ActorId actor) const
 	{
 		btVector3 v = _actor[actor.i].body->m_angularVelocity;
 		return to_vector3(v);
 	}
 
-	void actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel)
+	void actor_set_angular_velocity(ActorId actor, const Vector3 &vel)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->setAngularVelocity(to_btVector3(vel));
 	}
 
-	void actor_add_impulse(ActorInstance actor, const Vector3 &impulse)
+	void actor_add_impulse(ActorId actor, const Vector3 &impulse)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->applyCentralImpulse(to_btVector3(impulse));
 	}
 
-	void actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos)
+	void actor_add_impulse_at(ActorId actor, const Vector3 &impulse, const Vector3 &pos)
 	{
 		_actor[actor.i].body->activate();
 		_actor[actor.i].body->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
 	}
 
-	void actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp)
+	void actor_add_torque_impulse(ActorId actor, const Vector3 &imp)
 	{
 		_actor[actor.i].body->applyTorqueImpulse(to_btVector3(imp));
 	}
 
-	void actor_push(ActorInstance actor, const Vector3 &vel, f32 mass)
+	void actor_push(ActorId actor, const Vector3 &vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
 		_actor[actor.i].body->applyCentralForce(to_btVector3(f));
 	}
 
-	void actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
+	void actor_push_at(ActorId actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 	{
 		const Vector3 f = vel * mass;
 		_actor[actor.i].body->applyForce(to_btVector3(f), to_btVector3(pos));
 	}
 
-	bool actor_is_sleeping(ActorInstance actor)
+	bool actor_is_sleeping(ActorId actor)
 	{
 		return !_actor[actor.i].body->isActive();
 	}
 
-	void actor_wake_up(ActorInstance actor)
+	void actor_wake_up(ActorId actor)
 	{
 		_actor[actor.i].body->activate(true);
 	}
 
-	void actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color)
+	void actor_debug_draw(ActorId actor, DebugLine *lines, const Color4 &color)
 	{
 		collision_object_debug_draw(lines, _actor[actor.i].body, color);
 	}
 
-	MoverInstance mover_create(UnitId unit, const MoverDesc *desc)
+	MoverId mover_create(UnitId unit, const MoverDesc *desc)
 	{
 		u32 unit_index = 0;
 		mover_create_instances(desc, 1, &unit, &unit_index);
@@ -1460,7 +1460,7 @@ struct PhysicsWorldImpl
 			UnitId unit = unit_lookup[unit_index[i]];
 			CE_ASSERT(!hash_map::has(_mover_map, unit), "Unit already has a mover component");
 
-			TransformInstance ti = _scene_graph->instance(unit);
+			TransformId ti = _scene_graph->instance(unit);
 			Matrix4x4 tm = _scene_graph->world_pose(ti);
 
 			u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, movers[i].collision_filter);
@@ -1499,7 +1499,7 @@ struct PhysicsWorldImpl
 		}
 	}
 
-	void mover_destroy(MoverInstance mover)
+	void mover_destroy(MoverId mover)
 	{
 		const u32 last      = array::size(_mover) - 1;
 		const UnitId u      = _mover[mover.i].unit;
@@ -1517,42 +1517,42 @@ struct PhysicsWorldImpl
 		hash_map::remove(_mover_map, u);
 	}
 
-	MoverInstance mover(UnitId unit)
+	MoverId mover(UnitId unit)
 	{
 		return make_mover_instance(hash_map::get(_mover_map, unit, UINT32_MAX));
 	}
 
-	void mover_set_height(MoverInstance mover, float height)
+	void mover_set_height(MoverId mover, float height)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->set_height(_shapes_pool, height);
 	}
 
-	f32 mover_radius(MoverInstance mover)
+	f32 mover_radius(MoverId mover)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->radius();
 	}
 
-	void mover_set_radius(MoverInstance mover, float radius)
+	void mover_set_radius(MoverId mover, float radius)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->set_radius(_shapes_pool, radius);
 	}
 
-	f32 mover_max_slope_angle(MoverInstance mover)
+	f32 mover_max_slope_angle(MoverId mover)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->max_slope();
 	}
 
-	void mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+	void mover_set_max_slope_angle(MoverId mover, f32 angle)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->set_max_slope(angle);
 	}
 
-	void mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+	void mover_set_collision_filter(MoverId mover, StringId32 filter)
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 
@@ -1564,53 +1564,53 @@ struct PhysicsWorldImpl
 		_dynamics_world->addCollisionObject(_mover[mover.i].ghost, f->me, f->mask);
 	}
 
-	Vector3 mover_position(MoverInstance mover)
+	Vector3 mover_position(MoverId mover)
 	{
 		return to_vector3(_mover[mover.i].mover->_current_position);
 	}
 
-	void mover_set_position(MoverInstance mover, const Vector3 &position)
+	void mover_set_position(MoverId mover, const Vector3 &position)
 	{
 		_mover[mover.i].mover->reset();
 		_mover[mover.i].mover->set_position(to_btVector3(position));
 	}
 
-	Vector3 mover_center(MoverInstance mover)
+	Vector3 mover_center(MoverId mover)
 	{
 		return to_vector3(_mover[mover.i].mover->_center);
 	}
 
-	void mover_set_center(MoverInstance mover, const Vector3 &center)
+	void mover_set_center(MoverId mover, const Vector3 &center)
 	{
 		_mover[mover.i].mover->set_center(to_btVector3(center));
 	}
 
-	void mover_move(MoverInstance mover, const Vector3 &delta)
+	void mover_move(MoverId mover, const Vector3 &delta)
 	{
 		_mover[mover.i].mover->move(to_btVector3(delta));
 	}
 
-	bool mover_collides_sides(MoverInstance mover)
+	bool mover_collides_sides(MoverId mover)
 	{
 		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_SIDES) != 0;
 	}
 
-	bool mover_collides_up(MoverInstance mover)
+	bool mover_collides_up(MoverId mover)
 	{
 		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_UP) != 0;
 	}
 
-	bool mover_collides_down(MoverInstance mover)
+	bool mover_collides_down(MoverId mover)
 	{
 		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_DOWN) != 0;
 	}
 
-	void mover_debug_draw(MoverInstance mover, DebugLine *lines, const Color4 &color)
+	void mover_debug_draw(MoverId mover, DebugLine *lines, const Color4 &color)
 	{
 		collision_object_debug_draw(lines, _mover[mover.i].mover->_ghost, color);
 	}
 
-	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
+	JointId joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
 	{
 		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
 		const btVector3 anchor_1 = to_btVector3(jd.anchor_1);
@@ -1672,7 +1672,7 @@ struct PhysicsWorldImpl
 		return make_joint_instance(UINT32_MAX);
 	}
 
-	void joint_destroy(JointInstance /*i*/)
+	void joint_destroy(JointId /*i*/)
 	{
 		CE_FATAL("Not implemented yet");
 	}
@@ -1909,8 +1909,8 @@ struct PhysicsWorldImpl
 
 			const btCollisionObject *obj_a = manifold->getBody0();
 			const btCollisionObject *obj_b = manifold->getBody1();
-			const ActorInstance a0 = make_actor_instance((u32)(uintptr_t)obj_a->m_userObjectPointer);
-			const ActorInstance a1 = make_actor_instance((u32)(uintptr_t)obj_b->m_userObjectPointer);
+			const ActorId a0 = make_actor_instance((u32)(uintptr_t)obj_a->m_userObjectPointer);
+			const ActorId a1 = make_actor_instance((u32)(uintptr_t)obj_b->m_userObjectPointer);
 			if (!is_valid(a0) || !is_valid(a1))
 				continue;
 
@@ -1977,8 +1977,8 @@ struct PhysicsWorldImpl
 				UnitId unit_a;
 				UnitId unit_b;
 				decode_pair(unit_a, unit_b, *cur);
-				ActorInstance actor_a = actor(unit_a);
-				ActorInstance actor_b = actor(unit_b);
+				ActorId actor_a = actor(unit_a);
+				ActorId actor_b = actor(unit_b);
 
 				// If either A or B is a trigger, only generate a trigger event for the trigger unit.
 				// Otherwise generate a regular collision event.
@@ -2007,19 +2007,19 @@ struct PhysicsWorldImpl
 	void unit_destroyed_callback(UnitId unit)
 	{
 		{
-			ActorInstance first = actor(unit);
+			ActorId first = actor(unit);
 			if (is_valid(first))
 				actor_destroy(first);
 		}
 
 		{
-			ColliderInstance ci = collider_instance(unit);
+			ColliderId ci = collider_instance(unit);
 			if (is_valid(ci))
 				collider_destroy(ci);
 		}
 
 		{
-			MoverInstance mi = mover(unit);
+			MoverId mi = mover(unit);
 			if (is_valid(mi))
 				mover_destroy(mi);
 		}
@@ -2036,24 +2036,24 @@ struct PhysicsWorldImpl
 		static_cast<PhysicsWorldImpl *>(user_ptr)->unit_destroyed_callback(unit);
 	}
 
-	static ColliderInstance make_collider_instance(u32 i)
+	static ColliderId make_collider_instance(u32 i)
 	{
-		ColliderInstance inst = { i }; return inst;
+		ColliderId inst = { i }; return inst;
 	}
 
-	static ActorInstance make_actor_instance(u32 i)
+	static ActorId make_actor_instance(u32 i)
 	{
-		ActorInstance inst = { i }; return inst;
+		ActorId inst = { i }; return inst;
 	}
 
-	static MoverInstance make_mover_instance(u32 i)
+	static MoverId make_mover_instance(u32 i)
 	{
-		MoverInstance inst = { i }; return inst;
+		MoverId inst = { i }; return inst;
 	}
 
-	static JointInstance make_joint_instance(u32 i)
+	static JointId make_joint_instance(u32 i)
 	{
-		JointInstance inst = { i }; return inst;
+		JointId inst = { i }; return inst;
 	}
 
 	void collision_object_debug_draw(DebugLine *lines, const btCollisionObject *object, const Color4 &color)
@@ -2087,12 +2087,12 @@ void PhysicsWorld::collider_create_instances(const void *components_data, u32 nu
 	_impl->collider_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
-void PhysicsWorld::collider_destroy(ColliderInstance collider)
+void PhysicsWorld::collider_destroy(ColliderId collider)
 {
 	_impl->collider_destroy(collider);
 }
 
-ColliderInstance PhysicsWorld::collider_instance(UnitId unit)
+ColliderId PhysicsWorld::collider_instance(UnitId unit)
 {
 	return _impl->collider_instance(unit);
 }
@@ -2102,177 +2102,177 @@ void PhysicsWorld::actor_create_instances(const void *components_data, u32 num, 
 	_impl->actor_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
-void PhysicsWorld::actor_destroy(ActorInstance actor)
+void PhysicsWorld::actor_destroy(ActorId actor)
 {
 	_impl->actor_destroy(actor);
 }
 
-ActorInstance PhysicsWorld::actor(UnitId unit)
+ActorId PhysicsWorld::actor(UnitId unit)
 {
 	return _impl->actor(unit);
 }
 
-Vector3 PhysicsWorld::actor_world_position(ActorInstance actor) const
+Vector3 PhysicsWorld::actor_world_position(ActorId actor) const
 {
 	return _impl->actor_world_position(actor);
 }
 
-Quaternion PhysicsWorld::actor_world_rotation(ActorInstance actor) const
+Quaternion PhysicsWorld::actor_world_rotation(ActorId actor) const
 {
 	return _impl->actor_world_rotation(actor);
 }
 
-Matrix4x4 PhysicsWorld::actor_world_pose(ActorInstance actor) const
+Matrix4x4 PhysicsWorld::actor_world_pose(ActorId actor) const
 {
 	return _impl->actor_world_pose(actor);
 }
 
-void PhysicsWorld::actor_teleport_world_position(ActorInstance actor, const Vector3 &p)
+void PhysicsWorld::actor_teleport_world_position(ActorId actor, const Vector3 &p)
 {
 	_impl->actor_teleport_world_position(actor, p);
 }
 
-void PhysicsWorld::actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r)
+void PhysicsWorld::actor_teleport_world_rotation(ActorId actor, const Quaternion &r)
 {
 	_impl->actor_teleport_world_rotation(actor, r);
 }
 
-void PhysicsWorld::actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m)
+void PhysicsWorld::actor_teleport_world_pose(ActorId actor, const Matrix4x4 &m)
 {
 	_impl->actor_teleport_world_pose(actor, m);
 }
 
-Vector3 PhysicsWorld::actor_center_of_mass(ActorInstance actor) const
+Vector3 PhysicsWorld::actor_center_of_mass(ActorId actor) const
 {
 	return _impl->actor_center_of_mass(actor);
 }
 
-void PhysicsWorld::actor_enable_gravity(ActorInstance actor)
+void PhysicsWorld::actor_enable_gravity(ActorId actor)
 {
 	_impl->actor_enable_gravity(actor);
 }
 
-void PhysicsWorld::actor_disable_gravity(ActorInstance actor)
+void PhysicsWorld::actor_disable_gravity(ActorId actor)
 {
 	_impl->actor_disable_gravity(actor);
 }
 
-void PhysicsWorld::actor_enable_collision(ActorInstance actor)
+void PhysicsWorld::actor_enable_collision(ActorId actor)
 {
 	_impl->actor_enable_collision(actor);
 }
 
-void PhysicsWorld::actor_disable_collision(ActorInstance actor)
+void PhysicsWorld::actor_disable_collision(ActorId actor)
 {
 	_impl->actor_disable_collision(actor);
 }
 
-void PhysicsWorld::actor_set_collision_filter(ActorInstance actor, StringId32 filter)
+void PhysicsWorld::actor_set_collision_filter(ActorId actor, StringId32 filter)
 {
 	_impl->actor_set_collision_filter(actor, filter);
 }
 
-void PhysicsWorld::actor_set_kinematic(ActorInstance actor, bool kinematic)
+void PhysicsWorld::actor_set_kinematic(ActorId actor, bool kinematic)
 {
 	_impl->actor_set_kinematic(actor, kinematic);
 }
 
-bool PhysicsWorld::actor_is_static(ActorInstance actor) const
+bool PhysicsWorld::actor_is_static(ActorId actor) const
 {
 	return _impl->actor_is_static(actor);
 }
 
-bool PhysicsWorld::actor_is_dynamic(ActorInstance actor) const
+bool PhysicsWorld::actor_is_dynamic(ActorId actor) const
 {
 	return _impl->actor_is_dynamic(actor);
 }
 
-bool PhysicsWorld::actor_is_kinematic(ActorInstance actor) const
+bool PhysicsWorld::actor_is_kinematic(ActorId actor) const
 {
 	return _impl->actor_is_kinematic(actor);
 }
 
-bool PhysicsWorld::actor_is_nonkinematic(ActorInstance actor) const
+bool PhysicsWorld::actor_is_nonkinematic(ActorId actor) const
 {
 	return _impl->actor_is_nonkinematic(actor);
 }
 
-f32 PhysicsWorld::actor_linear_damping(ActorInstance actor) const
+f32 PhysicsWorld::actor_linear_damping(ActorId actor) const
 {
 	return _impl->actor_linear_damping(actor);
 }
 
-void PhysicsWorld::actor_set_linear_damping(ActorInstance actor, f32 rate)
+void PhysicsWorld::actor_set_linear_damping(ActorId actor, f32 rate)
 {
 	_impl->actor_set_linear_damping(actor, rate);
 }
 
-f32 PhysicsWorld::actor_angular_damping(ActorInstance actor) const
+f32 PhysicsWorld::actor_angular_damping(ActorId actor) const
 {
 	return _impl->actor_angular_damping(actor);
 }
 
-void PhysicsWorld::actor_set_angular_damping(ActorInstance actor, f32 rate)
+void PhysicsWorld::actor_set_angular_damping(ActorId actor, f32 rate)
 {
 	_impl->actor_set_angular_damping(actor, rate);
 }
 
-Vector3 PhysicsWorld::actor_linear_velocity(ActorInstance actor) const
+Vector3 PhysicsWorld::actor_linear_velocity(ActorId actor) const
 {
 	return _impl->actor_linear_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel)
+void PhysicsWorld::actor_set_linear_velocity(ActorId actor, const Vector3 &vel)
 {
 	_impl->actor_set_linear_velocity(actor, vel);
 }
 
-Vector3 PhysicsWorld::actor_angular_velocity(ActorInstance actor) const
+Vector3 PhysicsWorld::actor_angular_velocity(ActorId actor) const
 {
 	return _impl->actor_angular_velocity(actor);
 }
 
-void PhysicsWorld::actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel)
+void PhysicsWorld::actor_set_angular_velocity(ActorId actor, const Vector3 &vel)
 {
 	_impl->actor_set_angular_velocity(actor, vel);
 }
 
-void PhysicsWorld::actor_add_impulse(ActorInstance actor, const Vector3 &impulse)
+void PhysicsWorld::actor_add_impulse(ActorId actor, const Vector3 &impulse)
 {
 	_impl->actor_add_impulse(actor, impulse);
 }
 
-void PhysicsWorld::actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos)
+void PhysicsWorld::actor_add_impulse_at(ActorId actor, const Vector3 &impulse, const Vector3 &pos)
 {
 	_impl->actor_add_impulse_at(actor, impulse, pos);
 }
 
-void PhysicsWorld::actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp)
+void PhysicsWorld::actor_add_torque_impulse(ActorId actor, const Vector3 &imp)
 {
 	_impl->actor_add_torque_impulse(actor, imp);
 }
 
-void PhysicsWorld::actor_push(ActorInstance actor, const Vector3 &vel, f32 mass)
+void PhysicsWorld::actor_push(ActorId actor, const Vector3 &vel, f32 mass)
 {
 	_impl->actor_push(actor, vel, mass);
 }
 
-void PhysicsWorld::actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
+void PhysicsWorld::actor_push_at(ActorId actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 {
 	_impl->actor_push_at(actor, vel, mass, pos);
 }
 
-bool PhysicsWorld::actor_is_sleeping(ActorInstance actor)
+bool PhysicsWorld::actor_is_sleeping(ActorId actor)
 {
 	return _impl->actor_is_sleeping(actor);
 }
 
-void PhysicsWorld::actor_wake_up(ActorInstance actor)
+void PhysicsWorld::actor_wake_up(ActorId actor)
 {
 	_impl->actor_wake_up(actor);
 }
 
-void PhysicsWorld::actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color)
+void PhysicsWorld::actor_debug_draw(ActorId actor, DebugLine *lines, const Color4 &color)
 {
 	_impl->actor_debug_draw(actor, lines, color);
 }
@@ -2282,102 +2282,102 @@ void PhysicsWorld::mover_create_instances(const void *components_data, u32 num, 
 	_impl->mover_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
-MoverInstance PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc)
+MoverId PhysicsWorld::mover_create(UnitId unit, const MoverDesc *desc)
 {
 	return _impl->mover_create(unit, desc);
 }
 
-void PhysicsWorld::mover_destroy(MoverInstance actor)
+void PhysicsWorld::mover_destroy(MoverId actor)
 {
 	_impl->mover_destroy(actor);
 }
 
-MoverInstance PhysicsWorld::mover(UnitId unit)
+MoverId PhysicsWorld::mover(UnitId unit)
 {
 	return _impl->mover(unit);
 }
 
-void PhysicsWorld::mover_set_height(MoverInstance mover, float height)
+void PhysicsWorld::mover_set_height(MoverId mover, float height)
 {
 	_impl->mover_set_height(mover, height);
 }
 
-f32 PhysicsWorld::mover_radius(MoverInstance mover)
+f32 PhysicsWorld::mover_radius(MoverId mover)
 {
 	return _impl->mover_radius(mover);
 }
 
-void PhysicsWorld::mover_set_radius(MoverInstance mover, float radius)
+void PhysicsWorld::mover_set_radius(MoverId mover, float radius)
 {
 	_impl->mover_set_radius(mover, radius);
 }
 
-f32 PhysicsWorld::mover_max_slope_angle(MoverInstance mover)
+f32 PhysicsWorld::mover_max_slope_angle(MoverId mover)
 {
 	return _impl->mover_max_slope_angle(mover);
 }
 
-void PhysicsWorld::mover_set_max_slope_angle(MoverInstance mover, f32 angle)
+void PhysicsWorld::mover_set_max_slope_angle(MoverId mover, f32 angle)
 {
 	_impl->mover_set_max_slope_angle(mover, angle);
 }
 
-void PhysicsWorld::mover_set_collision_filter(MoverInstance mover, StringId32 filter)
+void PhysicsWorld::mover_set_collision_filter(MoverId mover, StringId32 filter)
 {
 	_impl->mover_set_collision_filter(mover, filter);
 }
 
-Vector3 PhysicsWorld::mover_position(MoverInstance mover)
+Vector3 PhysicsWorld::mover_position(MoverId mover)
 {
 	return _impl->mover_position(mover);
 }
 
-void PhysicsWorld::mover_set_position(MoverInstance mover, const Vector3 &position)
+void PhysicsWorld::mover_set_position(MoverId mover, const Vector3 &position)
 {
 	return _impl->mover_set_position(mover, position);
 }
 
-Vector3 PhysicsWorld::mover_center(MoverInstance mover)
+Vector3 PhysicsWorld::mover_center(MoverId mover)
 {
 	return _impl->mover_center(mover);
 }
 
-void PhysicsWorld::mover_set_center(MoverInstance mover, const Vector3 &center)
+void PhysicsWorld::mover_set_center(MoverId mover, const Vector3 &center)
 {
 	_impl->mover_set_center(mover, center);
 }
 
-void PhysicsWorld::mover_move(MoverInstance mover, const Vector3 &delta)
+void PhysicsWorld::mover_move(MoverId mover, const Vector3 &delta)
 {
 	_impl->mover_move(mover, delta);
 }
 
-bool PhysicsWorld::mover_collides_sides(MoverInstance mover)
+bool PhysicsWorld::mover_collides_sides(MoverId mover)
 {
 	return _impl->mover_collides_sides(mover);
 }
 
-bool PhysicsWorld::mover_collides_up(MoverInstance mover)
+bool PhysicsWorld::mover_collides_up(MoverId mover)
 {
 	return _impl->mover_collides_up(mover);
 }
 
-bool PhysicsWorld::mover_collides_down(MoverInstance mover)
+bool PhysicsWorld::mover_collides_down(MoverId mover)
 {
 	return _impl->mover_collides_down(mover);
 }
 
-void PhysicsWorld::mover_debug_draw(MoverInstance mover, DebugLine *lines, const Color4 &color)
+void PhysicsWorld::mover_debug_draw(MoverId mover, DebugLine *lines, const Color4 &color)
 {
 	_impl->mover_debug_draw(mover, lines, color);
 }
 
-JointInstance PhysicsWorld::joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd)
+JointId PhysicsWorld::joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
 {
 	return _impl->joint_create(a0, a1, jd);
 }
 
-void PhysicsWorld::joint_destroy(JointInstance i)
+void PhysicsWorld::joint_destroy(JointId i)
 {
 	_impl->joint_destroy(i);
 }

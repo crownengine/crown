@@ -106,8 +106,8 @@ static void collect_units(Array<UnitId> *unit_lookup, SceneGraph *scene_graph, U
 {
 	array::push_back(*unit_lookup, root);
 
-	TransformInstance transform = scene_graph->instance(root);
-	TransformInstance cur = scene_graph->first_child(transform);
+	TransformId transform = scene_graph->instance(root);
+	TransformId cur = scene_graph->first_child(transform);
 
 	while (is_valid(cur)) {
 		UnitId u = scene_graph->owner(cur);
@@ -330,7 +330,7 @@ void World::update_scene(f32 dt)
 			switch (eh->type) {
 			case 0: {
 				const SpriteFrameChangeEvent &ptev = *(SpriteFrameChangeEvent *)data;
-				const SpriteInstance si = _render_world->sprite_instance(ptev.unit);
+				const SpriteId si = _render_world->sprite_instance(ptev.unit);
 				_render_world->sprite_set_frame(si, ptev.frame_num);
 				break;
 			}
@@ -366,7 +366,7 @@ void World::update_scene(f32 dt)
 			switch (eh->type) {
 			case EventType::PHYSICS_TRANSFORM: {
 				const PhysicsTransformEvent &ptev = *(PhysicsTransformEvent *)data;
-				const TransformInstance ti = _scene_graph->instance(ptev.unit_id);
+				const TransformId ti = _scene_graph->instance(ptev.unit_id);
 				if (is_valid(ti)) // User code may have destroyed the actor
 					_scene_graph->set_world_pose_and_rescale(ti, ptev.world);
 				break;
@@ -415,7 +415,7 @@ void World::update_scene(f32 dt)
 				const u32 nargs[] = { 8, 8, 3 };
 
 				for (u32 i = 0; i < 2; ++i) {
-					ScriptInstance inst = script_world::instance(*_script_world, ev.units[i]);
+					ScriptId inst = script_world::instance(*_script_world, ev.units[i]);
 
 					if (is_valid(inst)) {
 						ArgType::Enum arg_types[8] =
@@ -450,7 +450,7 @@ void World::update_scene(f32 dt)
 			case EventType::PHYSICS_TRIGGER: {
 				const PhysicsTriggerEvent &ev = *(PhysicsTriggerEvent *)data;
 				const char *funcs[] = { "trigger_enter", "trigger_leave" };
-				ScriptInstance inst = script_world::instance(*_script_world, ev.trigger_unit);
+				ScriptId inst = script_world::instance(*_script_world, ev.trigger_unit);
 
 				if (is_valid(inst)) {
 					ArgType::Enum arg_types[3] =
@@ -524,14 +524,14 @@ void World::camera_create_instances(const void *data, u32 num, const UnitId *uni
 	}
 }
 
-CameraInstance World::camera_create(UnitId unit, const CameraDesc &cd)
+CameraId World::camera_create(UnitId unit, const CameraDesc &cd)
 {
 	u32 unit_lookup = 0;
 	camera_create_instances(&cd, 1, &unit, &unit_lookup);
 	return camera_instance(unit);
 }
 
-void World::camera_destroy(CameraInstance camera)
+void World::camera_destroy(CameraId camera)
 {
 	const u32 last = array::size(_camera) - 1;
 	const UnitId u = _camera[camera.i].unit;
@@ -544,22 +544,22 @@ void World::camera_destroy(CameraInstance camera)
 	hash_map::remove(_camera_map, u);
 }
 
-CameraInstance World::camera_instance(UnitId unit)
+CameraId World::camera_instance(UnitId unit)
 {
 	return camera_make_instance(hash_map::get(_camera_map, unit, UINT32_MAX));
 }
 
-void World::camera_set_projection_type(CameraInstance camera, ProjectionType::Enum type)
+void World::camera_set_projection_type(CameraId camera, ProjectionType::Enum type)
 {
 	_camera[camera.i].projection_type = type;
 }
 
-ProjectionType::Enum World::camera_projection_type(CameraInstance camera)
+ProjectionType::Enum World::camera_projection_type(CameraId camera)
 {
 	return _camera[camera.i].projection_type;
 }
 
-Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_ratio, ProjectionType::Enum projection_type)
+Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type)
 {
 	Camera &cam = _camera[camera.i];
 
@@ -604,9 +604,9 @@ Matrix4x4 World::camera_projection_matrix(CameraInstance camera, f32 aspect_rati
 	return from_array(bx_proj);
 }
 
-Matrix4x4 World::camera_view_matrix(CameraInstance camera)
+Matrix4x4 World::camera_view_matrix(CameraId camera)
 {
-	TransformInstance ti = _scene_graph->instance(_camera[camera.i].unit);
+	TransformId ti = _scene_graph->instance(_camera[camera.i].unit);
 	Matrix4x4 view = _scene_graph->world_pose(ti);
 	Matrix4x4 rotate_x_90 = from_matrix3x3(from_x_axis_angle(frad(90.0f)));
 
@@ -615,42 +615,42 @@ Matrix4x4 World::camera_view_matrix(CameraInstance camera)
 	return view;
 }
 
-f32 World::camera_fov(CameraInstance camera)
+f32 World::camera_fov(CameraId camera)
 {
 	return _camera[camera.i].fov;
 }
 
-void World::camera_set_fov(CameraInstance camera, f32 fov)
+void World::camera_set_fov(CameraId camera, f32 fov)
 {
 	_camera[camera.i].fov = fov;
 }
 
-f32 World::camera_near_clip_distance(CameraInstance camera)
+f32 World::camera_near_clip_distance(CameraId camera)
 {
 	return _camera[camera.i].near_range;
 }
 
-void World::camera_set_near_clip_distance(CameraInstance camera, f32 near)
+void World::camera_set_near_clip_distance(CameraId camera, f32 near)
 {
 	_camera[camera.i].near_range = near;
 }
 
-f32 World::camera_far_clip_distance(CameraInstance camera)
+f32 World::camera_far_clip_distance(CameraId camera)
 {
 	return _camera[camera.i].far_range;
 }
 
-void World::camera_set_far_clip_distance(CameraInstance camera, f32 far)
+void World::camera_set_far_clip_distance(CameraId camera, f32 far)
 {
 	_camera[camera.i].far_range = far;
 }
 
-void World::camera_set_orthographic_size(CameraInstance camera, f32 half_size)
+void World::camera_set_orthographic_size(CameraId camera, f32 half_size)
 {
 	_camera[camera.i].half_size = half_size;
 }
 
-Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
+Vector3 World::camera_screen_to_world(CameraId camera, const Vector3 &pos)
 {
 	u16 view_width;
 	u16 view_height;
@@ -677,7 +677,7 @@ Vector3 World::camera_screen_to_world(CameraInstance camera, const Vector3 &pos)
 	return { tmp.x, tmp.y, tmp.z };
 }
 
-Vector3 World::camera_world_to_screen(CameraInstance camera, const Vector3 &pos)
+Vector3 World::camera_world_to_screen(CameraId camera, const Vector3 &pos)
 {
 	u16 view_width;
 	u16 view_height;
@@ -900,7 +900,7 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 			Vector3 pos = VECTOR3_ZERO;
 			Quaternion rot = QUATERNION_IDENTITY;
 			Vector3 scl = VECTOR3_ONE;
-			TransformInstance ti = _scene_graph->instance(_units[i]);
+			TransformId ti = _scene_graph->instance(_units[i]);
 
 			if (is_valid(ti)) {
 				pos = _scene_graph->local_position(ti);
@@ -953,7 +953,7 @@ void World::reload_units(const UnitResource *old_unit, const UnitResource *new_u
 
 void World::unit_destroyed_callback(UnitId unit)
 {
-	CameraInstance inst = camera_instance(unit);
+	CameraId inst = camera_instance(unit);
 	if (is_valid(inst))
 		camera_destroy(inst);
 }

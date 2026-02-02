@@ -33,9 +33,9 @@ static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	((AnimationStateMachine *)user_ptr)->unit_destroyed_callback(unit);
 }
 
-static StateMachineInstance make_instance(u32 i)
+static StateMachineId make_instance(u32 i)
 {
-	StateMachineInstance inst = { i }; return inst;
+	StateMachineId inst = { i }; return inst;
 }
 
 AnimationStateMachine::AnimationStateMachine(Allocator &a
@@ -78,14 +78,14 @@ static void mesh_set_skeleton_recursively(UnitId unit, AnimationSkeletonInstance
 {
 	// Set skeleton in this unit and all its children.
 	UnitId child_id = unit;
-	MeshInstance mesh = render_world.mesh_instance(child_id);
+	MeshId mesh = render_world.mesh_instance(child_id);
 	if (is_valid(mesh)) {
 		render_world.mesh_set_skeleton(mesh, skeleton);
 	}
 
-	TransformInstance transform = scene_graph.instance(unit);
+	TransformId transform = scene_graph.instance(unit);
 	if (is_valid(transform)) {
-		TransformInstance cur_child = scene_graph.first_child(transform);
+		TransformId cur_child = scene_graph.first_child(transform);
 		while (is_valid(cur_child)) {
 			child_id = scene_graph.owner(cur_child);
 			mesh_set_skeleton_recursively(child_id, skeleton, scene_graph, render_world);
@@ -135,13 +135,13 @@ void AnimationStateMachine::allocate(Machine &m, UnitId unit, const StateMachine
 		RenderWorld &render_world = *_world->_render_world;
 
 		for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
-			TransformInstance ti = scene_graph.create(skeleton->bone_lookup[i]
+			TransformId ti = scene_graph.create(skeleton->bone_lookup[i]
 				, local_transforms[i].position
 				, local_transforms[i].rotation
 				, local_transforms[i].scale
 				);
 			if (parents[i] != UINT16_MAX) {
-				TransformInstance parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
+				TransformId parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
 				scene_graph.link(parent_ti
 					, ti
 					, local_transforms[i].position
@@ -183,7 +183,7 @@ void AnimationStateMachine::create_instances(const void *components_data
 	}
 }
 
-StateMachineInstance AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc &desc)
+StateMachineId AnimationStateMachine::create(UnitId unit, const AnimationStateMachineDesc &desc)
 {
 	u32 unit_index = 0;
 	create_instances(&desc, 1, &unit, &unit_index);
@@ -202,7 +202,7 @@ void AnimationStateMachine::deallocate(Machine &m)
 	default_allocator().deallocate(m.variables);
 }
 
-void AnimationStateMachine::destroy(StateMachineInstance state_machine)
+void AnimationStateMachine::destroy(StateMachineId state_machine)
 {
 	const u32 last_i = array::size(_machines) - 1;
 	const UnitId u = _machines[state_machine.i].unit;
@@ -216,7 +216,7 @@ void AnimationStateMachine::destroy(StateMachineInstance state_machine)
 	hash_map::remove(_map, u);
 }
 
-StateMachineInstance AnimationStateMachine::instance(UnitId unit)
+StateMachineId AnimationStateMachine::instance(UnitId unit)
 {
 	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
 }
@@ -226,25 +226,25 @@ bool AnimationStateMachine::has(UnitId unit)
 	return hash_map::has(_map, unit);
 }
 
-u32 AnimationStateMachine::variable_id(StateMachineInstance state_machine, StringId32 name)
+u32 AnimationStateMachine::variable_id(StateMachineId state_machine, StringId32 name)
 {
 	const u32 index = state_machine::variable_index(_machines[state_machine.i].state_machine, name);
 	return index;
 }
 
-f32 AnimationStateMachine::variable(StateMachineInstance state_machine, u32 variable_id)
+f32 AnimationStateMachine::variable(StateMachineId state_machine, u32 variable_id)
 {
 	CE_ENSURE(variable_id != UINT32_MAX);
 	return _machines[state_machine.i].variables[variable_id];
 }
 
-void AnimationStateMachine::set_variable(StateMachineInstance state_machine, u32 variable_id, f32 value)
+void AnimationStateMachine::set_variable(StateMachineId state_machine, u32 variable_id, f32 value)
 {
 	CE_ENSURE(variable_id != UINT32_MAX);
 	_machines[state_machine.i].variables[variable_id] = value;
 }
 
-void AnimationStateMachine::trigger(StateMachineInstance state_machine, StringId32 event)
+void AnimationStateMachine::trigger(StateMachineId state_machine, StringId32 event)
 {
 	const Transition *transition;
 	const State *s = state_machine::trigger(_machines[state_machine.i].state_machine
@@ -381,7 +381,7 @@ void AnimationStateMachine::reload(const StateMachineResource *old_resource, con
 	}
 }
 
-void AnimationStateMachine::set_state_machine(StateMachineInstance state_machine, const StateMachineResource *state_machine_resource)
+void AnimationStateMachine::set_state_machine(StateMachineId state_machine, const StateMachineResource *state_machine_resource)
 {
 	Machine &machine = _machines[state_machine.i];
 
@@ -389,14 +389,14 @@ void AnimationStateMachine::set_state_machine(StateMachineInstance state_machine
 	allocate(machine, machine.unit, state_machine_resource);
 }
 
-void AnimationStateMachine::set_state_machine(StateMachineInstance state_machine, const StringId64 state_machine_name)
+void AnimationStateMachine::set_state_machine(StateMachineId state_machine, const StringId64 state_machine_name)
 {
 	set_state_machine(state_machine, (StateMachineResource *)_resource_manager->get(RESOURCE_TYPE_STATE_MACHINE, state_machine_name));
 }
 
 void AnimationStateMachine::unit_destroyed_callback(UnitId unit)
 {
-	StateMachineInstance inst = instance(unit);
+	StateMachineId inst = instance(unit);
 	if (is_valid(inst))
 		destroy(inst);
 }

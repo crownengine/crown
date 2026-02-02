@@ -43,10 +43,10 @@ struct PhysicsWorld
 		);
 
 	///
-	void collider_destroy(ColliderInstance collider);
+	void collider_destroy(ColliderId collider);
 
 	///
-	ColliderInstance collider_instance(UnitId unit);
+	ColliderId collider_instance(UnitId unit);
 
 	///
 	void actor_create_instances(const void *components_data
@@ -56,117 +56,117 @@ struct PhysicsWorld
 		);
 
 	/// Destroys the @a actor.
-	void actor_destroy(ActorInstance actor);
+	void actor_destroy(ActorId actor);
 
 	/// Returns the ID of the actor owned by the *unit*.
-	ActorInstance actor(UnitId unit);
+	ActorId actor(UnitId unit);
 
 	/// Returns the world position of the @a actor.
-	Vector3 actor_world_position(ActorInstance actor) const;
+	Vector3 actor_world_position(ActorId actor) const;
 
 	/// Returns the world rotation of the @a actor.
-	Quaternion actor_world_rotation(ActorInstance actor) const;
+	Quaternion actor_world_rotation(ActorId actor) const;
 
 	/// Returns the world pose of the @a actor.
-	Matrix4x4 actor_world_pose(ActorInstance actor) const;
+	Matrix4x4 actor_world_pose(ActorId actor) const;
 
 	/// Teleports the @a actor to the given world position.
-	void actor_teleport_world_position(ActorInstance actor, const Vector3 &p);
+	void actor_teleport_world_position(ActorId actor, const Vector3 &p);
 
 	/// Teleports the @a actor to the given world rotation.
-	void actor_teleport_world_rotation(ActorInstance actor, const Quaternion &r);
+	void actor_teleport_world_rotation(ActorId actor, const Quaternion &r);
 
 	/// Teleports the @a actor to the given world pose.
-	void actor_teleport_world_pose(ActorInstance actor, const Matrix4x4 &m);
+	void actor_teleport_world_pose(ActorId actor, const Matrix4x4 &m);
 
 	/// Returns the center of mass of the @a actor.
-	Vector3 actor_center_of_mass(ActorInstance actor) const;
+	Vector3 actor_center_of_mass(ActorId actor) const;
 
 	/// Enables gravity for the @a actor.
-	void actor_enable_gravity(ActorInstance actor);
+	void actor_enable_gravity(ActorId actor);
 
 	/// Disables gravity for the @a actor.
-	void actor_disable_gravity(ActorInstance actor);
+	void actor_disable_gravity(ActorId actor);
 
 	/// Enables collision detection for the @a actor.
-	void actor_enable_collision(ActorInstance actor);
+	void actor_enable_collision(ActorId actor);
 
 	/// Disables collision detection for the @a actor.
-	void actor_disable_collision(ActorInstance actor);
+	void actor_disable_collision(ActorId actor);
 
 	/// Sets the collision filter of the @a actor.
-	void actor_set_collision_filter(ActorInstance actor, StringId32 filter);
+	void actor_set_collision_filter(ActorId actor, StringId32 filter);
 
 	/// Sets whether the @a actor is kinematic or not.
 	/// @note This call has no effect on static actors.
-	void actor_set_kinematic(ActorInstance actor, bool kinematic);
+	void actor_set_kinematic(ActorId actor, bool kinematic);
 
 	/// Returns whether the @a actor is static.
-	bool actor_is_static(ActorInstance actor) const;
+	bool actor_is_static(ActorId actor) const;
 
 	/// Returns whether the @a actor is dynamic.
-	bool actor_is_dynamic(ActorInstance actor) const;
+	bool actor_is_dynamic(ActorId actor) const;
 
 	/// Returns whether the @a actor is kinematic (keyframed).
-	bool actor_is_kinematic(ActorInstance actor) const;
+	bool actor_is_kinematic(ActorId actor) const;
 
 	/// Returns whether the @a actor is nonkinematic (i.e. dynamic and not kinematic).
-	bool actor_is_nonkinematic(ActorInstance actor) const;
+	bool actor_is_nonkinematic(ActorId actor) const;
 
 	/// Returns the linear damping of the @a actor.
-	f32 actor_linear_damping(ActorInstance actor) const;
+	f32 actor_linear_damping(ActorId actor) const;
 
 	/// Sets the linear damping of the @a actor.
-	void actor_set_linear_damping(ActorInstance actor, f32 rate);
+	void actor_set_linear_damping(ActorId actor, f32 rate);
 
 	/// Returns the angular damping of the @a actor.
-	f32 actor_angular_damping(ActorInstance actor) const;
+	f32 actor_angular_damping(ActorId actor) const;
 
 	/// Sets the angular damping of the @a actor.
-	void actor_set_angular_damping(ActorInstance actor, f32 rate);
+	void actor_set_angular_damping(ActorId actor, f32 rate);
 
 	/// Returns the linear velocity of the @a actor.
-	Vector3 actor_linear_velocity(ActorInstance actor) const;
+	Vector3 actor_linear_velocity(ActorId actor) const;
 
 	/// Sets the linear velocity of the @a actor.
 	/// @note This call only affects nonkinematic actors.
-	void actor_set_linear_velocity(ActorInstance actor, const Vector3 &vel);
+	void actor_set_linear_velocity(ActorId actor, const Vector3 &vel);
 
 	/// Returns the angular velocity of the @a actor.
-	Vector3 actor_angular_velocity(ActorInstance actor) const;
+	Vector3 actor_angular_velocity(ActorId actor) const;
 
 	/// Sets the angular velocity of the @a actor.
 	/// @note This call only affects nonkinematic actors.
-	void actor_set_angular_velocity(ActorInstance actor, const Vector3 &vel);
+	void actor_set_angular_velocity(ActorId actor, const Vector3 &vel);
 
 	/// Adds a linear impulse (acting along the center of mass) to the @a actor.
 	/// @note This call only affects nonkinematic actors.
-	void actor_add_impulse(ActorInstance actor, const Vector3 &impulse);
+	void actor_add_impulse(ActorId actor, const Vector3 &impulse);
 
 	/// Adds a linear impulse (acting along the world position @a pos) to the @a actor.
 	/// @note This call only affects nonkinematic actors.
-	void actor_add_impulse_at(ActorInstance actor, const Vector3 &impulse, const Vector3 &pos);
+	void actor_add_impulse_at(ActorId actor, const Vector3 &impulse, const Vector3 &pos);
 
 	/// Adds a torque impulse to the @a actor.
-	void actor_add_torque_impulse(ActorInstance actor, const Vector3 &imp);
+	void actor_add_torque_impulse(ActorId actor, const Vector3 &imp);
 
 	/// Pushes the @a actor as if it was hit by a point object with the given @a mass
 	/// travelling at the given @a velocity.
 	/// @note This call only affects nonkinematic actors.
-	void actor_push(ActorInstance actor, const Vector3 &vel, f32 mass);
+	void actor_push(ActorId actor, const Vector3 &vel, f32 mass);
 
 	/// Like push() but applies the force at the world position @a pos.
 	/// @note This call only affects nonkinematic actors.
-	void actor_push_at(ActorInstance actor, const Vector3 &vel, f32 mass, const Vector3 &pos);
+	void actor_push_at(ActorId actor, const Vector3 &vel, f32 mass, const Vector3 &pos);
 
 	/// Returns whether the @a actor is sleeping.
-	bool actor_is_sleeping(ActorInstance actor);
+	bool actor_is_sleeping(ActorId actor);
 
 	/// Wakes the @a actor up.
-	void actor_wake_up(ActorInstance actor);
+	void actor_wake_up(ActorId actor);
 
 	/// Adds the @a actor's debug geometry to @a lines.
-	void actor_debug_draw(ActorInstance actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
+	void actor_debug_draw(ActorId actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
 
 	///
 	void mover_create_instances(const void *components_data
@@ -176,65 +176,65 @@ struct PhysicsWorld
 		);
 
 	/// Creates a new mover instance for the @a unit.
-	MoverInstance mover_create(UnitId unit, const MoverDesc *desc);
+	MoverId mover_create(UnitId unit, const MoverDesc *desc);
 
 	/// Destroys the @a mover.
-	void mover_destroy(MoverInstance mover);
+	void mover_destroy(MoverId mover);
 
 	/// Returns the ID of the mover owned by the *unit*.
-	MoverInstance mover(UnitId unit);
+	MoverId mover(UnitId unit);
 
 	/// Sets the @a height of the @a mover capsule.
-	void mover_set_height(MoverInstance mover, float height);
+	void mover_set_height(MoverId mover, float height);
 
 	/// Returns the radius of the @a mover capsule.
-	f32 mover_radius(MoverInstance mover);
+	f32 mover_radius(MoverId mover);
 
 	/// Sets the @a radius of the @a mover capsule.
-	void mover_set_radius(MoverInstance mover, float radius);
+	void mover_set_radius(MoverId mover, float radius);
 
 	/// Returns the max slope angle of the @a mover.
-	f32 mover_max_slope_angle(MoverInstance mover);
+	f32 mover_max_slope_angle(MoverId mover);
 
 	/// Sets the max slope @a angle of the @a mover.
-	void mover_set_max_slope_angle(MoverInstance mover, f32 angle);
+	void mover_set_max_slope_angle(MoverId mover, f32 angle);
 
 	/// Sets the collision @a filter of the @a mover.
-	void mover_set_collision_filter(MoverInstance mover, StringId32 filter);
+	void mover_set_collision_filter(MoverId mover, StringId32 filter);
 
 	/// Returns the position of the @a mover.
-	Vector3 mover_position(MoverInstance mover);
+	Vector3 mover_position(MoverId mover);
 
 	/// Teleports the @a mover to the specified @a position.
-	void mover_set_position(MoverInstance mover, const Vector3 &position);
+	void mover_set_position(MoverId mover, const Vector3 &position);
 
 	/// Returns the center of the *mover* relative to the transform's position.
-	Vector3 mover_center(MoverInstance mover);
+	Vector3 mover_center(MoverId mover);
 
 	/// Sets the center of the *mover* relative to the transform's position.
-	void mover_set_center(MoverInstance mover, const Vector3 &center);
+	void mover_set_center(MoverId mover, const Vector3 &center);
 
 	/// Attempts to move the @a mover by the specified @a delta vector.
 	/// The @a mover will slide against physical actors.
-	void mover_move(MoverInstance mover, const Vector3 &delta);
+	void mover_move(MoverId mover, const Vector3 &delta);
 
 	/// Returns whether the @a mover collides sideways.
-	bool mover_collides_sides(MoverInstance mover);
+	bool mover_collides_sides(MoverId mover);
 
 	/// Returns whether the @a mover collides upwards.
-	bool mover_collides_up(MoverInstance mover);
+	bool mover_collides_up(MoverId mover);
 
 	/// Returns whether the @a mover collides downwards.
-	bool mover_collides_down(MoverInstance mover);
+	bool mover_collides_down(MoverId mover);
 
 	/// Adds the @a mover's debug geometry to @a lines.
-	void mover_debug_draw(MoverInstance actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
+	void mover_debug_draw(MoverId actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
 
 	/// Creates joint
-	JointInstance joint_create(ActorInstance a0, ActorInstance a1, const JointDesc &jd);
+	JointId joint_create(ActorId a0, ActorId a1, const JointDesc &jd);
 
 	/// Destroys the @a joint.
-	void joint_destroy(JointInstance joint);
+	void joint_destroy(JointId joint);
 
 	/// Casts a ray into the physics world and returns info about the closest collision if any.
 	bool cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len);

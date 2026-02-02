@@ -57,13 +57,13 @@ namespace script_world
 		);
 
 	/// Creates a new component for the @a unit and returns its id.
-	ScriptInstance create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc);
+	ScriptId create(ScriptWorld &sw, UnitId unit, const ScriptDesc &desc);
 
 	/// Destroys the component for the @a unit.
-	void destroy(ScriptWorld &sw, ScriptInstance i);
+	void destroy(ScriptWorld &sw, ScriptId i);
 
 	/// Returns the component id for the @a unit.
-	ScriptInstance instance(ScriptWorld &sw, UnitId unit);
+	ScriptId instance(ScriptWorld &sw, UnitId unit);
 
 	struct Index
 	{
@@ -93,7 +93,7 @@ namespace script_world
 	///
 	void unicast(ScriptWorld &sw
 		, const char *function_name
-		, ScriptInstance script_inst
+		, ScriptId script_inst
 		, const ArgType::Enum *arg_types = NULL
 		, const Arg *args = NULL
 		, u32 num_args = 0

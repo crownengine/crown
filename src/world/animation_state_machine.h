@@ -70,34 +70,34 @@ struct AnimationStateMachine
 		);
 
 	/// Creates a new state machine instance for the @a unit.
-	StateMachineInstance create(UnitId unit, const AnimationStateMachineDesc &desc);
+	StateMachineId create(UnitId unit, const AnimationStateMachineDesc &desc);
 
 	/// Destroys the @a state_machine.
-	void destroy(StateMachineInstance state_machine);
+	void destroy(StateMachineId state_machine);
 
 	/// Returns the ID of the state machine owned by the *unit*.
-	StateMachineInstance instance(UnitId unit);
+	StateMachineId instance(UnitId unit);
 
 	/// Returns whether the @a unit has the state machine.
 	bool has(UnitId unit);
 
 	/// Returns the ID of the variable @a name in the @a state_machine.
-	u32 variable_id(StateMachineInstance state_machine, StringId32 name);
+	u32 variable_id(StateMachineId state_machine, StringId32 name);
 
 	/// Returns the value of the @a variable_id in the @a state_machine.
-	f32 variable(StateMachineInstance state_machine, u32 variable_id);
+	f32 variable(StateMachineId state_machine, u32 variable_id);
 
 	/// Sets the @a value of the @a variable_id in the @a state_machine.
-	void set_variable(StateMachineInstance state_machine, u32 variable_id, f32 value);
+	void set_variable(StateMachineId state_machine, u32 variable_id, f32 value);
 
 	// Triggers the @a event in the @a state_machine.
-	void trigger(StateMachineInstance state_machine, StringId32 event);
+	void trigger(StateMachineId state_machine, StringId32 event);
 
 	/// Sets the @a state_machine_resource of @a state_machine.
-	void set_state_machine(StateMachineInstance state_machine, const StateMachineResource *state_machine_resource);
+	void set_state_machine(StateMachineId state_machine, const StateMachineResource *state_machine_resource);
 
 	/// Sets the @a state_machine_resource of @a state_machine.
-	void set_state_machine(StateMachineInstance state_machine, StringId64 state_machine_name);
+	void set_state_machine(StateMachineId state_machine, StringId64 state_machine_name);
 
 	///
 	void update(float dt, SceneGraph &scene_graph);

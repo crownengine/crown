@@ -77,9 +77,9 @@ struct World
 	Array<const UnitResource *> _unit_resources;
 #endif
 
-	CameraInstance camera_make_instance(u32 i)
+	CameraId camera_make_instance(u32 i)
 	{
-		CameraInstance inst = { i }; return inst;
+		CameraId inst = { i }; return inst;
 	}
 
 	///
@@ -135,53 +135,53 @@ struct World
 	void camera_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index);
 
 	/// Creates a new camera.
-	CameraInstance camera_create(UnitId unit, const CameraDesc &cd);
+	CameraId camera_create(UnitId unit, const CameraDesc &cd);
 
 	/// Destroys the camera instance @a i.
-	void camera_destroy(CameraInstance camera);
+	void camera_destroy(CameraId camera);
 
 	/// Returns the ID of the camera owned by the *unit*.
-	CameraInstance camera_instance(UnitId unit);
+	CameraId camera_instance(UnitId unit);
 
 	/// Sets the projection type of the @a camera.
-	void camera_set_projection_type(CameraInstance camera, ProjectionType::Enum type);
+	void camera_set_projection_type(CameraId camera, ProjectionType::Enum type);
 
 	/// Returns the projection type of the @a camera.
-	ProjectionType::Enum camera_projection_type(CameraInstance camera);
+	ProjectionType::Enum camera_projection_type(CameraId camera);
 
 	/// Returns the projection matrix of the @a camera.
-	Matrix4x4 camera_projection_matrix(CameraInstance camera, f32 aspect_ratio, ProjectionType::Enum projection_type = ProjectionType::COUNT);
+	Matrix4x4 camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type = ProjectionType::COUNT);
 
 	/// Returns the view matrix of the @a camera.
-	Matrix4x4 camera_view_matrix(CameraInstance camera);
+	Matrix4x4 camera_view_matrix(CameraId camera);
 
 	/// Returns the field-of-view of the @a camera in degrees.
-	f32 camera_fov(CameraInstance camera);
+	f32 camera_fov(CameraId camera);
 
 	/// Sets the field-of-view of the @a camera in degrees.
-	void camera_set_fov(CameraInstance camera, f32 fov);
+	void camera_set_fov(CameraId camera, f32 fov);
 
 	/// Returns the near clip distance of the @a camera.
-	f32 camera_near_clip_distance(CameraInstance camera);
+	f32 camera_near_clip_distance(CameraId camera);
 
 	/// Sets the near clip distance of the @a camera.
-	void camera_set_near_clip_distance(CameraInstance camera, f32 near);
+	void camera_set_near_clip_distance(CameraId camera, f32 near);
 
 	/// Returns the far clip distance of the @a camera.
-	f32 camera_far_clip_distance(CameraInstance camera);
+	f32 camera_far_clip_distance(CameraId camera);
 
 	/// Sets the far clip distance of the @a camera.
-	void camera_set_far_clip_distance(CameraInstance camera, f32 far);
+	void camera_set_far_clip_distance(CameraId camera, f32 far);
 
 	/// Sets the vertical *half_size* of the orthographic view volume.
 	/// The horizontal size is proportional to the viewport's aspect ratio.
-	void camera_set_orthographic_size(CameraInstance camera, f32 half_size);
+	void camera_set_orthographic_size(CameraId camera, f32 half_size);
 
 	/// Returns @a pos from screen-space to world-space coordinates.
-	Vector3 camera_screen_to_world(CameraInstance camera, const Vector3 &pos);
+	Vector3 camera_screen_to_world(CameraId camera, const Vector3 &pos);
 
 	/// Returns @a pos from world-space to screen-space coordinates.
-	Vector3 camera_world_to_screen(CameraInstance camera, const Vector3 &pos);
+	Vector3 camera_world_to_screen(CameraId camera, const Vector3 &pos);
 
 	/// Update all animations with @a dt.
 	void update_animations(f32 dt);

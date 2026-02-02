@@ -284,45 +284,45 @@ inline UnitId LuaStack::get_unit(int i)
 	return unit;
 }
 
-inline CameraInstance LuaStack::get_camera_instance(int i)
+inline CameraId LuaStack::get_camera_instance(int i)
 {
-	CameraInstance inst = { get_id(i) };
+	CameraId inst = { get_id(i) };
 	return inst;
 }
 
-inline TransformInstance LuaStack::get_transform_instance(int i)
+inline TransformId LuaStack::get_transform_instance(int i)
 {
-	TransformInstance inst = { get_id(i) };
+	TransformId inst = { get_id(i) };
 	return inst;
 }
 
-inline MeshInstance LuaStack::get_mesh_instance(int i)
+inline MeshId LuaStack::get_mesh_instance(int i)
 {
-	MeshInstance inst = { get_id(i) };
+	MeshId inst = { get_id(i) };
 	return inst;
 }
 
-inline SpriteInstance LuaStack::get_sprite_instance(int i)
+inline SpriteId LuaStack::get_sprite_instance(int i)
 {
-	SpriteInstance inst = { get_id(i) };
+	SpriteId inst = { get_id(i) };
 	return inst;
 }
 
-inline LightInstance LuaStack::get_light_instance(int i)
+inline LightId LuaStack::get_light_instance(int i)
 {
-	LightInstance inst = { get_id(i) };
+	LightId inst = { get_id(i) };
 	return inst;
 }
 
-inline FogInstance LuaStack::get_fog_instance(int i)
+inline FogId LuaStack::get_fog_instance(int i)
 {
-	FogInstance inst = { get_id(i) };
+	FogId inst = { get_id(i) };
 	return inst;
 }
 
-inline StateMachineInstance LuaStack::get_state_machine_instance(int i)
+inline StateMachineId LuaStack::get_state_machine_instance(int i)
 {
-	StateMachineInstance inst = { get_id(i) };
+	StateMachineId inst = { get_id(i) };
 	return inst;
 }
 
@@ -331,15 +331,15 @@ inline Material *LuaStack::get_material(int i)
 	return (Material *)get_pointer(i);
 }
 
-inline ActorInstance LuaStack::get_actor_instance(int i)
+inline ActorId LuaStack::get_actor_instance(int i)
 {
-	ActorInstance inst = { get_id(i) };
+	ActorId inst = { get_id(i) };
 	return inst;
 }
 
-inline MoverInstance LuaStack::get_mover_instance(int i)
+inline MoverId LuaStack::get_mover_instance(int i)
 {
-	MoverInstance inst = { get_id(i) };
+	MoverId inst = { get_id(i) };
 	return inst;
 }
 
@@ -348,9 +348,9 @@ inline SoundInstanceId LuaStack::get_sound_instance_id(int i)
 	return get_id(i);
 }
 
-inline ScriptInstance LuaStack::get_script_instance(int i)
+inline ScriptId LuaStack::get_script_instance(int i)
 {
-	ScriptInstance inst = { get_id(i) };
+	ScriptId inst = { get_id(i) };
 	return inst;
 }
 

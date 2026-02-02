@@ -323,21 +323,21 @@ struct UnitDestroyCallback
 		return inst.i != UINT32_MAX; \
 	}
 
-INSTANCE_ID(TransformInstance)
-INSTANCE_ID(CameraInstance)
-INSTANCE_ID(MeshInstance)
-INSTANCE_ID(SpriteInstance)
-INSTANCE_ID(LightInstance)
-INSTANCE_ID(FogInstance)
-INSTANCE_ID(GlobalLightingInstance)
-INSTANCE_ID(BloomInstance)
-INSTANCE_ID(TonemapInstance)
-INSTANCE_ID(ColliderInstance)
-INSTANCE_ID(ActorInstance)
-INSTANCE_ID(MoverInstance)
-INSTANCE_ID(JointInstance)
-INSTANCE_ID(ScriptInstance)
-INSTANCE_ID(StateMachineInstance)
+INSTANCE_ID(TransformId)
+INSTANCE_ID(CameraId)
+INSTANCE_ID(MeshId)
+INSTANCE_ID(SpriteId)
+INSTANCE_ID(LightId)
+INSTANCE_ID(FogId)
+INSTANCE_ID(GlobalLightingId)
+INSTANCE_ID(BloomId)
+INSTANCE_ID(TonemapId)
+INSTANCE_ID(ColliderId)
+INSTANCE_ID(ActorId)
+INSTANCE_ID(MoverId)
+INSTANCE_ID(JointId)
+INSTANCE_ID(ScriptId)
+INSTANCE_ID(StateMachineId)
 
 #undef INSTANCE_ID
 
@@ -565,7 +565,7 @@ struct RaycastHit
 	Vector3 normal;      ///< In world-space.
 	f32 time;            ///< Time of impact in [0..1].
 	UnitId unit;         ///< The unit that was hit.
-	ActorInstance actor; ///< The actor that was hit.
+	ActorId actor; ///< The actor that was hit.
 };
 
 struct UnitSpawnedEvent
@@ -586,7 +586,7 @@ struct PhysicsCollisionEvent
 {
 	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
 	UnitId units[2];         ///<
-	ActorInstance actors[2]; ///<
+	ActorId actors[2]; ///<
 	Vector3 position;        ///< In world-space.
 	Vector3 normal;          ///< In world-space.
 	float distance;          ///< Separation distance
