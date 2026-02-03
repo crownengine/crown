@@ -156,6 +156,7 @@ static void lookup_default_shaders(Pipeline &pl)
 
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
+	, _color_sdr(BGFX_INVALID_HANDLE)
 	, _depth_texture(BGFX_INVALID_HANDLE)
 	, _color_map(BGFX_INVALID_HANDLE)
 	, _depth_map(BGFX_INVALID_HANDLE)
@@ -381,6 +382,9 @@ void Pipeline::destroy()
 		_colors[i] = BGFX_INVALID_HANDLE;
 	}
 
+	bgfx::destroy(_color_sdr);
+	_color_sdr = BGFX_INVALID_HANDLE;
+
 	bgfx::destroy(_depth_texture);
 	_depth_texture = BGFX_INVALID_HANDLE;
 
@@ -433,6 +437,22 @@ void Pipeline::reset(u16 width, u16 height)
 			bgfx::destroy(_colors[i]);
 		_colors[i] = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
 	}
+
+	// Create SDR frame buffer.
+	const bgfx::TextureHandle sdr_attach[] =
+	{
+		bgfx::createTexture2D(width
+			, height
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA8
+			, color_texture_flags
+			),
+		_depth_texture
+	};
+	if (bgfx::isValid(_color_sdr))
+		bgfx::destroy(_color_sdr);
+	_color_sdr = bgfx::createFrameBuffer(countof(sdr_attach), sdr_attach, true);
 
 	// Create selection frame buffer.
 	if (bgfx::isValid(_selection_texture))
@@ -527,7 +547,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::CASCADE_CLEAR) {
 			view_name = "sm_cascade_clear";
@@ -647,7 +667,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::SELECTION) {
 			view_name = "selection";
@@ -676,7 +696,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			view_name = "debug";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::SCREEN_GUI) {
 			view_name = "screen_gui";
@@ -696,7 +716,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::GRAPH) {
 			view_name = "graph";
@@ -714,7 +734,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 				);
 			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
 			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::BLIT) {
 			view_name = "blit";
@@ -815,10 +835,10 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	}
 
 	// Tonemapping.
-	bgfx::setViewFrameBuffer(View::TONEMAP, _colors[0]);
+	bgfx::setViewFrameBuffer(View::TONEMAP, _color_sdr);
 	bgfx::setViewTransform(View::TONEMAP, NULL, ortho);
 	bgfx::setViewRect(View::TONEMAP, 0, 0, width, height);
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_tonemap_shader.state);
@@ -836,7 +856,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setState(_outline_shader.state);
 	bgfx::submit(View::OUTLINE, _outline_shader.program);
 
-	bgfx::setViewFrameBuffer(View::OUTLINE_BLIT, _colors[0]);
+	bgfx::setViewFrameBuffer(View::OUTLINE_BLIT, _color_sdr);
 	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
 	bgfx::setViewRect(View::OUTLINE_BLIT, 0, 0, width, height);
 	bgfx::setViewTransform(View::OUTLINE_BLIT, NULL, ortho);
@@ -849,7 +869,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setViewFrameBuffer(View::BLIT, BGFX_INVALID_HANDLE);
 	bgfx::setViewRect(View::BLIT, 0, 0, width, height);
 	bgfx::setViewTransform(View::BLIT, NULL, ortho);
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
 	bgfx::submit(View::BLIT, _blit_shader.program);
