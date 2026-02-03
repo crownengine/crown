@@ -44,7 +44,10 @@ struct View
 		BLOOM_COMBINE,
 		DUMMY_BLIT,
 		TONEMAP,
-		SPRITE_0,
+
+		SDR, // SDR rendering below.
+
+		SPRITE_0              = SDR,
 		SPRITE_LAST           = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
 		WORLD_GUI             = SPRITE_LAST,
 		SELECTION,
@@ -71,6 +74,7 @@ struct Pipeline
 	RenderSettings _render_settings;
 
 	// Main output color/depth handles.
+	bgfx::FrameBufferHandle _color_sdr;
 	bgfx::TextureHandle _color_textures[2];
 	bgfx::TextureHandle _depth_texture;
 	bgfx::FrameBufferHandle _colors[2];
