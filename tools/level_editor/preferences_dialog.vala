@@ -7,7 +7,7 @@ namespace Crown
 {
 public class PreferencesDialog : Gtk.Window
 {
-	public RuntimeInstance _editor;
+	public RuntimeInstance? _editor;
 
 	// Document page.
 	public InputColor3 _grid_color_button;
@@ -46,6 +46,8 @@ public class PreferencesDialog : Gtk.Window
 	{
 		this.title = "Preferences";
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
+
+		_editor = null;
 
 		// Widgets
 		_document_set = new PropertyGridSet();
@@ -179,6 +181,9 @@ public class PreferencesDialog : Gtk.Window
 
 	public void on_color_set()
 	{
+		if (_editor == null)
+			return;
+
 		_editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
 		_editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
 		_editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value));
@@ -190,6 +195,9 @@ public class PreferencesDialog : Gtk.Window
 
 	public void on_gizmo_size_value_changed()
 	{
+		if (_editor == null)
+			return;
+
 		_editor.send_script("Gizmo.size = %f".printf(_gizmo_size_spin_button.value));
 		_editor.send(DeviceApi.frame());
 	}
