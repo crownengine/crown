@@ -1001,7 +1001,6 @@ public class ProjectBrowser : Gtk.Box
 			, null
 			);
 #endif /* if 0 */
-		_tree_view.model = _tree_sort;
 		_tree_view.headers_visible = false;
 
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
@@ -1118,12 +1117,6 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view_content.pack_start(_scrolled_window, true, true);
 
 		// Setup sort menu button popover.
-		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-
-		Gtk.RadioButton? button = null;
-		for (int i = 0; i < SortMode.COUNT; ++i)
-			button = add_sort_item(button, (SortMode)i);
-
 		_show_all_files = new Gtk.CheckButton.with_label("Show all files");
 		_show_all_files.set_tooltip_text("Show all files, not just resource files.");
 		_show_all_files.set_active(false);
@@ -1139,11 +1132,7 @@ public class ProjectBrowser : Gtk.Box
 		_show_mapped_dirs.set_active(false);
 		_show_mapped_dirs.toggled.connect(on_show_mapped_dirs_toggled);
 
-		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
-		_sort_items_box.pack_start(_show_all_files, false, false);
-		_sort_items_box.pack_start(_show_files_extension, false, false);
-		_sort_items_box.show_all();
-
+		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
@@ -1153,6 +1142,15 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
 		_sort_items.set_popover(_sort_items_popover);
+
+		Gtk.RadioButton? button = null;
+		for (int i = 0; i < SortMode.COUNT; ++i)
+			button = add_sort_item(button, (SortMode)i);
+
+		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
+		_sort_items_box.pack_start(_show_all_files, false, false);
+		_sort_items_box.pack_start(_show_files_extension, false, false);
+		_sort_items_box.show_all();
 
 		bool _show_icon_view = true;
 		_toggle_icon_view_image = new Gtk.Image.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
@@ -1296,6 +1294,7 @@ public class ProjectBrowser : Gtk.Box
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 
+		_tree_view.model = _tree_sort;
 		this.pack_start(_paned);
 		this.show.connect(on_show);
 	}

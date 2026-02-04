@@ -153,12 +153,6 @@ public class ObjectTree : Gtk.Box
 
 		// Setup sort menu button popover.
 		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-
-		Gtk.RadioButton? button = null;
-		for (int i = 0; i < SortMode.COUNT; ++i)
-			button = add_sort_item(button, (SortMode)i);
-
-		_sort_items_box.show_all();
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
@@ -168,6 +162,11 @@ public class ObjectTree : Gtk.Box
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
 		_sort_items.set_popover(_sort_items_popover);
+
+		Gtk.RadioButton? button = null;
+		for (int i = 0; i < SortMode.COUNT; ++i)
+			button = add_sort_item(button, (SortMode)i);
+		_sort_items_box.show_all();
 
 		var tree_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		tree_control.pack_start(_filter_entry, true, true);
