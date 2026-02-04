@@ -178,8 +178,11 @@ public enum TargetArch
 
 public class RuntimeInstance
 {
+	public const int QUIT_TIMEOUT_MS = 4000;
+
 	public string _name;
 	public uint32 _process_id;
+	public bool _stuck;
 	public uint _revision;
 	public GLib.SourceFunc _stop_callback;
 	public GLib.SourceFunc _refresh_callback;
@@ -195,6 +198,7 @@ public class RuntimeInstance
 	{
 		_name = name;
 		_process_id = uint32.MAX;
+		_stuck = false;
 		_revision = 0;
 		_stop_callback = null;
 		_refresh_callback = null;
@@ -269,14 +273,32 @@ public class RuntimeInstance
 			if (_client.is_connected()) {
 				_stop_callback = stop.callback;
 				_client.send(RuntimeApi.quit());
+
+				// Call it stuck if not disconnected before a while.
+				GLib.Timeout.add_full(GLib.Priority.HIGH, QUIT_TIMEOUT_MS, () => {
+						if (_stop_callback != null) {
+							_stuck = true;
+							_stop_callback();
+						}
+
+						return GLib.Source.REMOVE;
+					});
+
 				yield; // Wait for _client to disconnect.
 				_stop_callback = null;
 			}
 		}
 
 		try {
-			if (_process_id != uint32.MAX)
+			if (_process_id != uint32.MAX) {
+				if (_stuck) {
+					_subprocess_launcher.kill(_process_id);
+					_stuck = false;
+					logw("Process %u took more than %d ms to quit: killed".printf(_process_id, QUIT_TIMEOUT_MS));
+				}
+
 				_subprocess_launcher.wait(_process_id);
+			}
 			_process_id = uint32.MAX;
 		} catch (GLib.Error e) {
 			loge(e.message);
