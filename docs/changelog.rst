@@ -16,6 +16,7 @@ Changelog
 * Tools: added the ability to choose which external tool to use for opening models, sounds and fonts.
 * Tools: added the ability to reset properties to default by right-clicking on them.
 * Tools: the Level Editor will now automatically open a new temporary project when the Projects List is empty.
+* Tools: the game will now be killed if it takes to long to exit when testing it from the Level Editor.
 * Runtime: Linux: switched to Vulkan for rendering.
 * Runtime: added support to stencil testing in shaders.
 * Data Compile: resource packages are now LZ4-compressed.

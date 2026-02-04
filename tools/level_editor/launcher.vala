@@ -48,23 +48,18 @@ public class SubprocessLauncherServer : Object
 	/// Waits for @a process_id to terminate and returns its exit status.
 	public int wait(uint32 process_id) throws GLib.Error
 	{
-		int ii;
-		for (ii = 0; ii < subprocesses.size; ++ii) {
-			uint32 id = subprocesses[ii].get_data<uint32>("id");
-			if (id == process_id)
-				break;
-		}
+		int ind = subprocess_index(process_id);
 
-		if (ii == subprocesses.size)
+		if (ind == subprocesses.size)
 			throw new SubprocessLauncherError.SUBPROCESS_NOT_FOUND("Process ID %u not found".printf(process_id));
 
 		try {
-			if (!subprocesses[ii].wait())
+			if (!subprocesses[ind].wait())
 				throw new SubprocessLauncherError.SUBPROCESS_CANCELLED("Process ID %u was cancelled".printf(process_id));
 
-			if (subprocesses[ii].get_if_exited()) {
-				int exit_status = subprocesses[ii].get_exit_status();
-				subprocesses.remove_at(ii);
+			if (subprocesses[ind].get_if_exited()) {
+				int exit_status = subprocesses[ind].get_exit_status();
+				subprocesses.remove_at(ind);
 				return exit_status;
 			}
 		} catch (GLib.Error e) {
@@ -73,6 +68,29 @@ public class SubprocessLauncherServer : Object
 
 		return int.MAX;
 	}
+
+	/// Kills the process identified by @a process_id.
+	public void kill(uint32 process_id) throws GLib.Error
+	{
+		int ind = subprocess_index(process_id);
+
+		if (ind == subprocesses.size)
+			throw new SubprocessLauncherError.SUBPROCESS_NOT_FOUND("Process ID %u not found".printf(process_id));
+
+		subprocesses[ind].force_exit();
+	}
+
+	public int subprocess_index(uint32 process_id)
+	{
+		int ind;
+		for (ind = 0; ind < subprocesses.size; ++ind) {
+			uint32 id = subprocesses[ind].get_data<uint32>("id");
+			if (id == process_id)
+				break;
+		}
+
+		return ind;
+	}
 }
 
 [DBus (name = "org.crownengine.SubprocessLauncher")]
@@ -80,6 +98,7 @@ public interface SubprocessLauncher : Object
 {
 	public abstract uint32 spawnv_async(GLib.SubprocessFlags flags, string[] argv, string working_dir) throws GLib.SpawnError, GLib.Error;
 	public abstract int wait(uint32 process_id) throws GLib.Error;
+	public abstract void kill(uint32 process_id) throws GLib.Error;
 }
 
 public static void on_bus_acquired(GLib.DBusConnection conn)
