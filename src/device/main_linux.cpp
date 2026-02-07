@@ -520,17 +520,6 @@ XRR_IMPORT();
 
 #undef DL_IMPORT_FUNC
 
-#define WAYLAND_EGL_IMPORT()                                                                        \
-	DL_IMPORT_FUNC(wl_egl_window_create,  struct wl_egl_window *, (struct wl_surface *, int, int)); \
-	DL_IMPORT_FUNC(wl_egl_window_destroy, void,                   (struct wl_egl_window *))
-
-#define DL_IMPORT_FUNC(func_name, return_type, params) \
-	typedef return_type (*PROTO_ ## func_name)params;  \
-	static PROTO_ ## func_name func_name
-
-WAYLAND_EGL_IMPORT();
-#undef DL_IMPORT_FUNC
-
 #define XKBCOMMON_IMPORT()                                                                                                                                                                   \
 	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags flags));                                                                                        \
 	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *context, const char *string, enum xkb_keymap_format format, enum xkb_keymap_compile_flags flags)); \
@@ -606,7 +595,6 @@ struct System
 struct SystemWayland : public System
 {
 	void *wl_lib;
-	void *egl_lib;
 	wl_display *display;
 	wl_registry *registry;
 	wl_compositor *compositor;
@@ -622,7 +610,6 @@ struct SystemWayland : public System
 	struct wl_surface *surface;
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *xdg_toplevel;
-	struct wl_egl_window *egl_window;
 	DeviceEventQueue *queue;
 
 	struct
@@ -635,7 +622,6 @@ struct SystemWayland : public System
 
 	explicit SystemWayland(DeviceEventQueue &event_queue)
 		: wl_lib(NULL)
-		, egl_lib(NULL)
 		, display(NULL)
 		, registry(NULL)
 		, compositor(NULL)
@@ -668,13 +654,6 @@ struct SystemWayland : public System
 			if (xdg_shell_types[i] == (void *)3)
 				xdg_shell_types[i] = &wl_output_interface;
 		}
-
-		egl_lib = os::library_open("libwayland-egl.so");
-#define DL_IMPORT_FUNC(func_name, return_type, params)                         \
-	func_name = (PROTO_ ## func_name)os::library_symbol(egl_lib, # func_name); \
-	CE_ENSURE(func_name != NULL);
-		WAYLAND_EGL_IMPORT();
-#undef DL_IMPORT_FUNC
 
 		xkb.lib = os::library_open("libxkbcommon.so");
 #define DL_IMPORT_FUNC(func_name, return_type, params)                         \
@@ -715,7 +694,6 @@ struct SystemWayland : public System
 
 		os::library_close(xkb.lib);
 		os::library_close(wl_lib);
-		os::library_close(egl_lib);
 	}
 
 	void handle_events()
@@ -1754,13 +1732,10 @@ struct WindowWayland : public Window
 
 		wl_surface_commit(_wl->surface);
 		wl_display_roundtrip(_wl->display);
-
-		_wl->egl_window = wl_egl_window_create(_wl->surface, width, height);
 	}
 
 	void close() override
 	{
-		wl_egl_window_destroy(_wl->egl_window);
 		wl_surface_destroy(_wl->surface);
 	}
 
