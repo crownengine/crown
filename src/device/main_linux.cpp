@@ -633,7 +633,7 @@ struct SystemWayland : public System
 		struct xkb_state *state;
 	} xkb;
 
-	SystemWayland(DeviceEventQueue &event_queue)
+	explicit SystemWayland(DeviceEventQueue &event_queue)
 		: wl_lib(NULL)
 		, egl_lib(NULL)
 		, display(NULL)
@@ -703,33 +703,6 @@ struct SystemWayland : public System
 		CE_ENSURE(seat != NULL);
 		CE_ENSURE(wm_base != NULL);
 
-		surface = wl_compositor_create_surface(compositor);
-		CE_ENSURE(surface != NULL);
-
-		wl_proxy_add_listener((struct wl_proxy *)surface
-			, (void (* *)(void))&surface_listener
-			, NULL
-			);
-
-		xdg_surface = xdg_wm_base_get_xdg_surface(wm_base, surface);
-		CE_ENSURE(xdg_surface != NULL);
-
-		wl_proxy_add_listener((wl_proxy *)xdg_surface
-			, (void (* *)(void))&xdg_surface_listener
-			, NULL
-			);
-
-		xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
-		CE_ENSURE(xdg_toplevel != NULL);
-
-		wl_proxy_add_listener((wl_proxy *)xdg_toplevel
-			, (void (* *)(void))&toplevel_listener
-			, NULL
-			);
-
-		wl_surface_commit(surface);
-		wl_display_roundtrip(display);
-
 		return wl_display_get_fd(display);
 	}
 
@@ -739,6 +712,10 @@ struct SystemWayland : public System
 			zwp_relative_pointer_manager_v1_destroy(relative_pointer_manager);
 		if (pointer_constraints)
 			zwp_pointer_constraints_v1_destroy(pointer_constraints);
+
+		os::library_close(xkb.lib);
+		os::library_close(wl_lib);
+		os::library_close(egl_lib);
 	}
 
 	void handle_events()
@@ -1085,7 +1062,7 @@ static void xdg_surface_handle_configure(void *user_data
 {
 	CE_UNUSED(user_data);
 
-	wl_proxy_get_version((wl_proxy *)surface);
+	xdg_surface_ack_configure(surface, serial);
 }
 
 static void xdg_toplevel_handle_configure(void *user_data
@@ -1095,10 +1072,15 @@ static void xdg_toplevel_handle_configure(void *user_data
 	, wl_array *states
 	)
 {
+	SystemWayland *wl = (SystemWayland *)user_data;
 }
 
 static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *toplevel)
 {
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+
+	queue.push_exit_event();
 }
 
 struct SystemX11 : public System
@@ -1746,11 +1728,40 @@ struct WindowWayland : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
+		_wl->surface = wl_compositor_create_surface(_wl->compositor);
+		CE_ENSURE(_wl->surface != NULL);
+
+		wl_proxy_add_listener((struct wl_proxy *)_wl->surface
+			, (void (* *)(void))&surface_listener
+			, _wl
+			);
+
+		_wl->xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, _wl->surface);
+		CE_ENSURE(_wl->xdg_surface != NULL);
+
+		wl_proxy_add_listener((wl_proxy *)_wl->xdg_surface
+			, (void (* *)(void))&xdg_surface_listener
+			, _wl
+			);
+
+		_wl->xdg_toplevel = xdg_surface_get_toplevel(_wl->xdg_surface);
+		CE_ENSURE(_wl->xdg_toplevel != NULL);
+
+		wl_proxy_add_listener((wl_proxy *)_wl->xdg_toplevel
+			, (void (* *)(void))&toplevel_listener
+			, _wl
+			);
+
+		wl_surface_commit(_wl->surface);
+		wl_display_roundtrip(_wl->display);
+
 		_wl->egl_window = wl_egl_window_create(_wl->surface, width, height);
 	}
 
 	void close() override
 	{
+		wl_egl_window_destroy(_wl->egl_window);
+		wl_surface_destroy(_wl->surface);
 	}
 
 	void show() override
