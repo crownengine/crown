@@ -1127,7 +1127,7 @@ struct SystemX11 : public System
 	CursorMode::Enum cursor_mode;
 	DeviceEventQueue &queue;
 
-	SystemX11(DeviceEventQueue &event_queue)
+	explicit SystemX11(DeviceEventQueue &event_queue)
 		: x11_lib(NULL)
 		, xrandr_lib(NULL)
 		, display(NULL)
@@ -1233,19 +1233,11 @@ struct SystemX11 : public System
 
 	void shutdown() override
 	{
-		// Free standard cursors
-		XFreeCursor(display, cursors[MouseCursor::WAIT]);
-		XFreeCursor(display, cursors[MouseCursor::SIZE_VERTICAL]);
-		XFreeCursor(display, cursors[MouseCursor::SIZE_HORIZONTAL]);
-		XFreeCursor(display, cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
-		XFreeCursor(display, cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
-		XFreeCursor(display, cursors[MouseCursor::CORNER_TOP_RIGHT]);
-		XFreeCursor(display, cursors[MouseCursor::CORNER_TOP_LEFT]);
-		XFreeCursor(display, cursors[MouseCursor::TEXT_INPUT]);
-		XFreeCursor(display, cursors[MouseCursor::HAND]);
-		XFreeCursor(display, cursors[MouseCursor::ARROW]);
+		// Free standard cursors.
+		for (s32 i = 0; i < countof(cursors); ++i)
+			XFreeCursor(display, cursors[i]);
 
-		// Free hidden cursor
+		// Free hidden cursor.
 		XFreeCursor(display, hidden_cursor);
 		XFreePixmap(display, bitmap);
 
