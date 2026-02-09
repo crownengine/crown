@@ -668,14 +668,9 @@ struct SystemWayland : public System
 		display = wl_display_connect(NULL);
 		CE_ASSERT(display != NULL, "wl_display_connect: error");
 
-		registry = (wl_registry *)wl_proxy_marshal_flags((wl_proxy *)display
-			, WL_DISPLAY_GET_REGISTRY
-			, &wl_registry_interface
-			, wl_proxy_get_version((wl_proxy *)display)
-			, 0
-			, NULL
-			);
-		wl_proxy_add_listener((wl_proxy *)registry, (void (* *)(void))&_wl_registry_listener, this);
+		registry = wl_display_get_registry(display);
+		wl_registry_add_listener(registry, &_wl_registry_listener, this);
+
 		wl_display_roundtrip(display);
 		CE_ENSURE(display != NULL);
 		CE_ENSURE(compositor != NULL);
@@ -953,18 +948,12 @@ static void seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps)
 
 	if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
 		wl->keyboard = wl_seat_get_keyboard(seat);
-		wl_proxy_add_listener((wl_proxy *)wl->keyboard
-			, (void (* *)(void))&keyboard_listener
-			, wl
-			);
+		wl_keyboard_add_listener(wl->keyboard, &keyboard_listener, wl);
 	}
 
 	if (caps & WL_SEAT_CAPABILITY_POINTER) {
 		wl->pointer = wl_seat_get_pointer(seat);
-		wl_proxy_add_listener((wl_proxy *)wl->pointer
-			, (void (* *)(void))&pointer_listener
-			, wl
-			);
+		wl_pointer_add_listener(wl->pointer, &pointer_listener, wl);
 	}
 }
 
@@ -1001,10 +990,10 @@ static void registry_handle_global(void *data, wl_registry *registry, uint name,
 		wl->compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
 	} else if (strcmp(iface, wl_seat_interface.name) == 0) {
 		wl->seat = (wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
-		wl_proxy_add_listener((wl_proxy *)wl->seat, (void (* *)(void))&seat_listener, wl);
+		wl_seat_add_listener(wl->seat, &seat_listener, wl);
 	} else if (strcmp(iface, xdg_wm_base_interface.name) == 0) {
 		wl->wm_base = (xdg_wm_base *)wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
-		wl_proxy_add_listener((wl_proxy *)wl->wm_base, (void (* *)(void))&wm_base_listener, wl);
+		xdg_wm_base_add_listener(wl->wm_base, &wm_base_listener, wl);
 	} else if (strcmp(iface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
 		wl->relative_pointer_manager = (zwp_relative_pointer_manager_v1 *)wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
 	} else if (strcmp(iface, zwp_pointer_constraints_v1_interface.name) == 0) {
@@ -1709,26 +1698,16 @@ struct WindowWayland : public Window
 		_wl->surface = wl_compositor_create_surface(_wl->compositor);
 		CE_ENSURE(_wl->surface != NULL);
 
-		wl_proxy_add_listener((struct wl_proxy *)_wl->surface
-			, (void (* *)(void))&surface_listener
-			, _wl
-			);
+		wl_surface_add_listener(_wl->surface, &surface_listener, _wl);
 
 		_wl->xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, _wl->surface);
 		CE_ENSURE(_wl->xdg_surface != NULL);
-
-		wl_proxy_add_listener((wl_proxy *)_wl->xdg_surface
-			, (void (* *)(void))&xdg_surface_listener
-			, _wl
-			);
+		xdg_surface_add_listener(_wl->xdg_surface, &xdg_surface_listener, _wl);
 
 		_wl->xdg_toplevel = xdg_surface_get_toplevel(_wl->xdg_surface);
 		CE_ENSURE(_wl->xdg_toplevel != NULL);
 
-		wl_proxy_add_listener((wl_proxy *)_wl->xdg_toplevel
-			, (void (* *)(void))&toplevel_listener
-			, _wl
-			);
+		xdg_toplevel_add_listener(_wl->xdg_toplevel, &toplevel_listener, _wl);
 
 		wl_surface_commit(_wl->surface);
 		wl_display_roundtrip(_wl->display);
