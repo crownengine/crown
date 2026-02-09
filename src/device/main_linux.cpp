@@ -589,7 +589,10 @@ struct System
 	virtual void shutdown() = 0;
 
 	/// Call when events are pending on the connection.
-	virtual void handle_events() = 0;
+	virtual void handle_events(fd_set *fdset) = 0;
+
+	///
+	virtual int set_fds(fd_set *fdset, int max_fd) = 0;
 };
 
 struct SystemWayland : public System
@@ -611,6 +614,7 @@ struct SystemWayland : public System
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *xdg_toplevel;
 	DeviceEventQueue *queue;
+	int display_fd;
 
 	struct
 	{
@@ -633,6 +637,7 @@ struct SystemWayland : public System
 		, queue(&event_queue)
 		, xdg_surface(NULL)
 		, xdg_toplevel(NULL)
+		, display_fd(-1)
 	{
 	}
 
@@ -669,6 +674,7 @@ struct SystemWayland : public System
 
 		display = wl_display_connect(NULL);
 		CE_ASSERT(display != NULL, "wl_display_connect: error");
+		display_fd = wl_display_get_fd(display);
 
 		registry = wl_display_get_registry(display);
 		wl_registry_add_listener(registry, &_wl_registry_listener, this);
@@ -678,8 +684,7 @@ struct SystemWayland : public System
 		CE_ENSURE(compositor != NULL);
 		CE_ENSURE(seat != NULL);
 		CE_ENSURE(wm_base != NULL);
-
-		return wl_display_get_fd(display);
+		return 0;
 	}
 
 	void shutdown()
@@ -693,17 +698,25 @@ struct SystemWayland : public System
 		os::library_close(wl_lib);
 	}
 
-	void handle_events()
+	void handle_events(fd_set *fdset) override
 	{
-		if (wl_display_prepare_read(display) < 0) {
-			wl_display_dispatch_pending(display);
-			return;
+		if (FD_ISSET(display_fd, fdset)) {
+			if (wl_display_prepare_read(display) < 0) {
+				wl_display_dispatch_pending(display);
+				return;
+			}
+
+			if (wl_display_read_events(display) < 0)
+				return; // Connection error.
+
+			wl_display_dispatch(display);
 		}
+	}
 
-		if (wl_display_read_events(display) < 0)
-			return; // Connection error.
-
-		wl_display_dispatch(display);
+	int set_fds(fd_set *fdset, int max_fd)
+	{
+		FD_SET(display_fd, fdset);
+		return max(max_fd, max(display_fd, max_fd));
 	}
 };
 
@@ -1057,6 +1070,7 @@ struct SystemX11 : public System
 	void *x11_lib;
 	void *xrandr_lib;
 	::Display *display;
+	int display_fd;
 	Atom wm_delete_window;
 	Atom net_wm_state;
 	Atom net_wm_state_maximized_horz;
@@ -1082,6 +1096,7 @@ struct SystemX11 : public System
 		: x11_lib(NULL)
 		, xrandr_lib(NULL)
 		, display(NULL)
+		, display_fd(-1)
 		, wm_delete_window(None)
 		, net_wm_state(None)
 		, net_wm_state_maximized_horz(None)
@@ -1129,6 +1144,7 @@ struct SystemX11 : public System
 
 		display = XOpenDisplay(NULL);
 		CE_ASSERT(display != NULL, "XOpenDisplay: error");
+		display_fd = ConnectionNumber(display);
 
 		root_window = RootWindow(display, DefaultScreen(display));
 
@@ -1179,7 +1195,7 @@ struct SystemX11 : public System
 		cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(display, XC_sb_v_double_arrow);
 		cursors[MouseCursor::WAIT]                = XCreateFontCursor(display, XC_watch);
 
-		return ConnectionNumber(display);
+		return 0;
 	}
 
 	void shutdown() override
@@ -1216,8 +1232,11 @@ struct SystemX11 : public System
 		os::library_close(x11_lib);
 	}
 
-	void handle_events() override
+	void handle_events(fd_set *fdset) override
 	{
+		if (!FD_ISSET(display_fd, fdset))
+			return;
+
 		while (XEventsQueued(display, QueuedAfterFlush) > 0) {
 			XEvent event;
 			XNextEvent(display, &event);
@@ -1368,6 +1387,12 @@ struct SystemX11 : public System
 			}
 		}
 	}
+
+	int set_fds(fd_set *fdset, int max_fd) override
+	{
+		FD_SET(display_fd, fdset);
+		return max(display_fd, max_fd);
+	}
 };
 
 static SystemX11 *_x11;
@@ -1393,27 +1418,27 @@ struct LinuxDevice
 
 	int run(DeviceOptions *opts)
 	{
-		int system_fd = -1;
+		int init_ret = -1;
 		const char *display = NULL;
 		bool disable_wayland = true;
 
-		if (system_fd < 0 && !disable_wayland
+		if (init_ret != 0 && !disable_wayland
 			&& (display = getenv("WAYLAND_DISPLAY")) != NULL
 			&& strlen32(display) != 0) {
 			_system = CE_NEW(*_allocator, SystemWayland)(_queue);
 
-			if ((system_fd = _system->init()) >= 0) {
+			if ((init_ret = _system->init()) == 0) {
 				_wl = (SystemWayland *)_system;
 				window_system = WindowSystem::WAYLAND;
 			}
 		}
 
-		if (system_fd < 0
+		if (init_ret != 0
 			&& (display = getenv("DISPLAY")) != NULL
 			&& strlen32(display) != 0) {
 			_system = CE_NEW(*_allocator, SystemX11)(_queue);
 
-			if ((system_fd = _system->init()) >= 0) {
+			if ((init_ret = _system->init()) == 0) {
 				_x11 = (SystemX11 *)_system;
 				window_system = WindowSystem::X11;
 			}
@@ -1444,9 +1469,8 @@ struct LinuxDevice
 
 		while (!s_exit) {
 			FD_ZERO(&fdset);
-			FD_SET(system_fd, &fdset);
 			FD_SET(exit_pipe[0], &fdset);
-			int maxfd = max(system_fd, exit_pipe[0]);
+			int maxfd = _system->set_fds(&fdset, exit_pipe[0]);
 
 			for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
 				if (_joypad._fd[i] != -1) {
@@ -1460,9 +1484,8 @@ struct LinuxDevice
 
 			if (FD_ISSET(exit_pipe[0], &fdset)) {
 				break;
-			} else if (FD_ISSET(system_fd, &fdset)) {
-				_system->handle_events();
 			} else {
+				_system->handle_events(&fdset);
 				_joypad.update(&fdset);
 			}
 		}
