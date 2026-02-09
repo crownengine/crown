@@ -631,6 +631,8 @@ struct SystemWayland : public System
 		, pointer(NULL)
 		, cursor_mode(CursorMode::NORMAL)
 		, queue(&event_queue)
+		, xdg_surface(NULL)
+		, xdg_toplevel(NULL)
 	{
 	}
 
@@ -1699,18 +1701,6 @@ struct WindowWayland : public Window
 		CE_ENSURE(_wl->surface != NULL);
 
 		wl_surface_add_listener(_wl->surface, &surface_listener, _wl);
-
-		_wl->xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, _wl->surface);
-		CE_ENSURE(_wl->xdg_surface != NULL);
-		xdg_surface_add_listener(_wl->xdg_surface, &xdg_surface_listener, _wl);
-
-		_wl->xdg_toplevel = xdg_surface_get_toplevel(_wl->xdg_surface);
-		CE_ENSURE(_wl->xdg_toplevel != NULL);
-
-		xdg_toplevel_add_listener(_wl->xdg_toplevel, &toplevel_listener, _wl);
-
-		wl_surface_commit(_wl->surface);
-		wl_display_roundtrip(_wl->display);
 	}
 
 	void close() override
@@ -1720,10 +1710,12 @@ struct WindowWayland : public Window
 
 	void show() override
 	{
+		get_toplevel_objects();
 	}
 
 	void hide() override
 	{
+		destroy_toplevel_objects();
 	}
 
 	void resize(u16 width, u16 height) override
@@ -1822,6 +1814,41 @@ struct WindowWayland : public Window
 	void *native_display() override
 	{
 		return _wl->display;
+	}
+
+	void get_toplevel_objects()
+	{
+		if (_wl->xdg_surface == NULL) {
+			_wl->xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, _wl->surface);
+			CE_ENSURE(_wl->xdg_surface != NULL);
+			xdg_surface_add_listener(_wl->xdg_surface, &xdg_surface_listener, _wl);
+		}
+
+		if (_wl->xdg_toplevel == NULL) {
+			_wl->xdg_toplevel = xdg_surface_get_toplevel(_wl->xdg_surface);
+			CE_ENSURE(_wl->xdg_toplevel != NULL);
+			xdg_toplevel_add_listener(_wl->xdg_toplevel, &toplevel_listener, _wl);
+		}
+
+		wl_surface_commit(_wl->surface);
+		wl_display_roundtrip(_wl->display);
+	}
+
+	void destroy_toplevel_objects()
+	{
+		if (_wl->xdg_toplevel) {
+			xdg_toplevel_destroy(_wl->xdg_toplevel);
+			_wl->xdg_toplevel = NULL;
+		}
+
+		if (_wl->xdg_surface) {
+			xdg_surface_destroy(_wl->xdg_surface);
+			_wl->xdg_surface = NULL;
+		}
+
+		wl_surface_attach(_wl->surface, NULL, 0, 0);
+		wl_surface_commit(_wl->surface);
+		wl_display_roundtrip(_wl->display);
 	}
 };
 
