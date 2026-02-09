@@ -433,6 +433,18 @@ struct Joypad
 		}
 	}
 
+	int set_fds(fd_set *fdset, int max_fd)
+	{
+		for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
+			if (_fd[i] != -1) {
+				FD_SET(_fd[i], fdset);
+				max_fd = max(max_fd, _fd[i]);
+			}
+		}
+
+		return max_fd;
+	}
+
 	void update(fd_set *fdset)
 	{
 		for (u8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
@@ -1471,13 +1483,7 @@ struct LinuxDevice
 			FD_ZERO(&fdset);
 			FD_SET(exit_pipe[0], &fdset);
 			int maxfd = _system->set_fds(&fdset, exit_pipe[0]);
-
-			for (int i = 0; i < CROWN_MAX_JOYPADS; ++i) {
-				if (_joypad._fd[i] != -1) {
-					FD_SET(_joypad._fd[i], &fdset);
-					maxfd = max(maxfd, _joypad._fd[i]);
-				}
-			}
+			maxfd = _joypad.set_fds(&fdset, maxfd);
 
 			if (select(maxfd + 1, &fdset, NULL, NULL, NULL) <= 0)
 				continue;
