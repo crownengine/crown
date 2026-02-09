@@ -651,11 +651,6 @@ int Device::main_loop()
 		, _height
 		, _options._parent_window
 		);
-	_window->set_title(_boot_config.window_title.c_str());
-	_window->set_fullscreen(_boot_config.fullscreen);
-
-	if (!_options._hidden)
-		_window->show();
 
 	_bgfx_allocator = CE_NEW(_allocator, BgfxAllocator)(default_allocator());
 	_bgfx_callback  = CE_NEW(_allocator, BgfxCallback)(default_allocator());
@@ -705,6 +700,11 @@ int Device::main_loop()
 		_allocator.clear();
 		return EXIT_FAILURE;
 	}
+
+	_window->set_title(_boot_config.window_title.c_str());
+	_window->set_fullscreen(_boot_config.fullscreen);
+	if (!_options._hidden)
+		_window->show();
 
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
