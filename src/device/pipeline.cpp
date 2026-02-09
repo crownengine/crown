@@ -445,7 +445,7 @@ void Pipeline::reset(u16 width, u16 height)
 			, height
 			, false
 			, 1
-			, bgfx::TextureFormat::RGB8
+			, bgfx::TextureFormat::RGBA8
 			, color_texture_flags
 			),
 		_depth_texture
