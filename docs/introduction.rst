@@ -65,9 +65,9 @@ design principles:
 	any work.
 
 * Lightweight Codebase and Runtime
-	The whole engine (runtime + tools) consist of fewer than 100K lines of code.
-	Written in high-performance native languages only, it is easily understood
-	and extensible by anyone.
+	The whole engine (runtime + tools) consists of fewer than 100K lines of
+	code. Written in high-performance native languages only, it is easily
+	understood and extensible by anyone.
 
 Features
 --------
