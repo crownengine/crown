@@ -17,7 +17,7 @@ To close the temporary project, choose ``File`` -> ``Close Project``:
 .. image:: images/temp_project_close.png
 
 You will be asked whether to save or discard the temporary project. Choose
-``Save`` to keep your work (the project will then appear in the Project
+``Save`` to keep your work (the project will then appear in the Projects
 List), or ``Close without Saving`` to discard it. After closing the temporary
 project, Crown opens the Projects List, where you can :ref:`create a new
 project <create_new_project>`.
