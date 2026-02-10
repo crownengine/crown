@@ -12,7 +12,8 @@ Crown Engine
 [Crown](https://docs.crownengine.org/html/latest/introduction.html) is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations.
 
 ## Download
-  * [Prebuilt Binaries](https://crownengine.org/download)
+  * [Stable Releases](https://crownengine.org/download)
+  * [Nightly Builds](https://cd.crownengine.org/download/crown-unstable)
   
 ## Development
   * User Manual ([latest](https://docs.crownengine.org/html/latest) or [unstable](https://docs.crownengine.org/html/master))
