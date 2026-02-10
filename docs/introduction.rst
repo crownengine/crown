@@ -83,8 +83,9 @@ Features
 	* Undo/redo everywhere, light/dark theme, customizable launchers and much, much more...
 
 * Graphics
+	* D3D11, Vulkan and GLES 3.0 render backends.
 	* High-level 3D & 2D objects (meshes, cameras, lights and sprites).
-	* Physically-based rendering pipeline.
+	* Physically-based rendering pipeline with metallic workflow.
 	* GLSL-like shader programming language.
 	* 3D skeletal animation.
 	* Animation state machine with events, variables and blending with simple expressions evaluator.
@@ -93,7 +94,6 @@ Features
 	* Flipbook sprite animation.
 	* FBX and custom mesh formats.
 	* DDS, EXR, JPG, KTX, PNG, PVR and TGA texture formats.
-	* D3D11, Vulkan and GLES 2.0 render backends.
 
 * Physics
 	* Static, dynamic and keyframed rigid bodies with multiple colliders.
