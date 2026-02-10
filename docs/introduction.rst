@@ -7,8 +7,8 @@ What is it?
 
 Crown is a complete and cross-platform game engine designed for flexibility,
 performance, and fast-iterations. It isn't tied to any specific game type or
-genre; instead, it provides versatile tools and primitives for building a wide
-range of 3D and 2D games.
+genre; instead, it provides versatile tools and general primitives suitable for
+building a wide range of 3D and 2D games.
 
 .. image:: shots/level-editor.png
 
