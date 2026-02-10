@@ -216,7 +216,7 @@ function Game.update(dt)
 		end
 
 		delta.z = Game.vertical_speed
-		PhysicsWorld.mover_move(Game.physics_world, mover, delta*(1/120))
+		PhysicsWorld.mover_move(Game.physics_world, mover, delta*dt)
 
 		-- Copy mover position to character position.
 		local mover_pos = PhysicsWorld.mover_position(Game.physics_world, mover)
