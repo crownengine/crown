@@ -4,6 +4,12 @@
 Creating a new project
 ======================
 
+After closing a project, or whenever starting the Editor, Crown displays the
+Projects List. From here, you can open/manage existing projects or create new
+ones:
+
+.. image:: images/empty_projects_list.png
+
 Click the ``Create New`` button to start creating a New Project:
 
 .. image:: images/new_project.png
