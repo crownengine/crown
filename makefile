@@ -355,6 +355,10 @@ clean-samples:
 	-@rm -rf samples/02-animation_*
 	-@rm -rf samples/03-joypad_*
 
+.PHONY: clean-docs
+clean-docs:
+	-@rm -rf build/docs
+
 .PHONY: codespell
 codespell:
 	@codespell docs src tools \
