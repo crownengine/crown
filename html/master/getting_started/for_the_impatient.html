@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-27T16:23:47+00:00" /><meta property="og:title" content="Level Editor" />
+    <meta property="article:modified_time" content="2026-02-10T18:33:34+00:00" /><meta property="og:title" content="For the Impatient" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/getting_started/level_editor.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/getting_started/for_the_impatient.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="After opening a Project the Level Editor starts compiling resources and when it’s done it will look similar to the image below: The Level Editor is split into several panels:,,, Number, Name, Description,,, 1, Project Browser, Shows the current project’s contents. Here you can..." />
-<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/editor_overview.png" />
+<meta property="og:description" content="When you first launch the Crown Editor and no projects exist, Crown automatically generates a temporary project and opens it. This lets you explore the editor immediately without any extra steps. At this point you can either jump straight into the Level Editor overview basics ..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/temp_project.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="After opening a Project the Level Editor starts compiling resources and when it’s done it will look similar to the image below: The Level Editor is split into several panels:,,, Number, Name, Description,,, 1, Project Browser, Shows the current project’s contents. Here you can..." />
+<meta name="description" content="When you first launch the Crown Editor and no projects exist, Crown automatically generates a temporary project and opens it. This lets you explore the editor immediately without any extra steps. At this point you can either jump straight into the Level Editor overview basics ..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Level Editor &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>For the Impatient &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/getting_started/level_editor.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/getting_started/for_the_impatient.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -31,8 +31,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Basic Concepts" href="basic_concepts.html" />
-    <link rel="prev" title="Importing an existing project" href="import_existing_project.html" /> 
+    <link rel="next" title="Creating a new project" href="create_new_project.html" />
+    <link rel="prev" title="Getting Started" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,12 +59,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Getting Started</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">For the Impatient</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_new_project.html">Creating a new project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="import_existing_project.html">Importing an existing project</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Level Editor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic_concepts.html">Basic Concepts</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
@@ -90,9 +91,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">Getting Started</a> &raquo;</li>
-      <li>Level Editor</li>
+      <li>For the Impatient</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/getting_started/level_editor.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/getting_started/for_the_impatient.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -100,62 +101,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="level-editor">
-<span id="id1"></span><h1>Level Editor<a class="headerlink" href="#level-editor" title="Permalink to this headline">¶</a></h1>
-<p>After opening a <a class="reference internal" href="basic_concepts.html#project"><span class="std std-ref">Project</span></a> the Level Editor starts compiling resources and
-when it’s done it will look similar to the image below:</p>
-<img alt="../_images/editor_overview.png" src="../_images/editor_overview.png" />
-<p>The Level Editor is split into several panels:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 3%" />
-<col style="width: 9%" />
-<col style="width: 88%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Number</p></th>
-<th class="head"><p>Name</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>1</p></td>
-<td><p>Project Browser</p></td>
-<td><p>Shows the current project’s contents. Here you can create, import and search for resources, create/delete folders etc.</p></td>
-</tr>
-<tr class="row-odd"><td><p>2</p></td>
-<td><p>Console</p></td>
-<td><p>Displays logs coming from the Level Editor and Runtime instances. You can use it to send <a class="reference internal" href="../reference/console_commands.html#console-commands"><span class="std std-ref">Console commands</span></a> and Lua strings to any connected Runtime.</p></td>
-</tr>
-<tr class="row-even"><td><p>3</p></td>
-<td><p>Inspector</p></td>
-<td><p>Shows the current selected object’s properties.</p></td>
-</tr>
-<tr class="row-odd"><td><p>4</p></td>
-<td><p>Level Tree</p></td>
-<td><p>Displays a hierarchical view of all the objects in the Level.</p></td>
-</tr>
-<tr class="row-even"><td><p>5</p></td>
-<td><p>Level Viewport</p></td>
-<td><p>Displays the Level being edited.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="for-the-impatient">
+<h1>For the Impatient<a class="headerlink" href="#for-the-impatient" title="Permalink to this headline">¶</a></h1>
+<p>When you first launch the Crown Editor and no projects exist, Crown
+automatically generates a temporary project and opens it. This lets you
+explore the editor immediately without any extra steps.</p>
+<img alt="../_images/temp_project.png" src="../_images/temp_project.png" />
+<p>At this point you can either jump straight into the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor overview</span></a> basics
+to get a feel for the editor’s features, or close the temporary project and
+create a new one yourself, for example, starting from a featureful template.</p>
+<p>To close the temporary project, choose <code class="docutils literal notranslate"><span class="pre">File</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Close</span> <span class="pre">Project</span></code>:</p>
+<img alt="../_images/temp_project_close.png" src="../_images/temp_project_close.png" />
+<p>You will be asked whether to save or discard the temporary project. Choose
+<code class="docutils literal notranslate"><span class="pre">Save</span></code> to keep your work (the project will then appear in the Projects
+List), or <code class="docutils literal notranslate"><span class="pre">Close</span> <span class="pre">without</span> <span class="pre">Saving</span></code> to discard it. After closing the temporary
+project, Crown opens the Projects List, where you can <a class="reference internal" href="create_new_project.html#create-new-project"><span class="std std-ref">create a new
+project</span></a>.</p>
+<img alt="../_images/temp_project_close_confirmation.png" src="../_images/temp_project_close_confirmation.png" />
+<p>Tip: If you plan to continue working on what you created during this session,
+save the temporary project before closing. If you were just experimenting,
+discarding it is fine; you can always start a new project from a template
+later.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="import_existing_project.html" class="btn btn-neutral float-left" title="Importing an existing project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="basic_concepts.html" class="btn btn-neutral float-right" title="Basic Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="create_new_project.html" class="btn btn-neutral float-right" title="Creating a new project" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 27, 2025.
+      <span class="lastupdated">Last updated on Feb 10, 2026.
       </span></p>
   </div>
 

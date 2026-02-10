@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-12T14:37:37+00:00" /><meta property="og:title" content="Hardware Requirements" />
+    <meta property="article:modified_time" content="2026-02-10T15:28:57+00:00" /><meta property="og:title" content="Hardware Requirements" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/installing_crown/hardware_requirements.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="Please be sure to have at least the following on your machine: 64-bit dual-core CPU or higher, Vulkan 1.0/Direct3D 11 capable graphics card with 512 MB of RAM, 1 GB recommended, 4 GB of RAM, 8 GB recommended, 1366x768 display resolution, 1920x1080 recommended, Three-button mouse." />
-<meta name="description" content="Please be sure to have at least the following on your machine: 64-bit dual-core CPU or higher, Vulkan 1.0/Direct3D 11 capable graphics card with 512 MB of RAM, 1 GB recommended, 4 GB of RAM, 8 GB recommended, 1366x768 display resolution, 1920x1080 recommended, Three-button mouse." />
+<meta property="og:description" content="Crown is designed to minimize resource usage and conserve battery life whenever possible. It reduces unnecessary background activity and adapts performance to the current workload to avoid wasting power. The following requirements are intended as a baseline for a smooth editor..." />
+<meta name="description" content="Crown is designed to minimize resource usage and conserve battery life whenever possible. It reduces unnecessary background activity and adapts performance to the current workload to avoid wasting power. The following requirements are intended as a baseline for a smooth editor..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hardware Requirements &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -56,12 +56,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Installing Crown</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Hardware Requirements</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Hardware Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minimum">Minimum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recommended">Recommended</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="installing_on_linux.html">Installing on Linux</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installing_on_windows.html">Installing on Windows</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
@@ -99,16 +104,35 @@
              
   <section id="hardware-requirements">
 <h1>Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Permalink to this headline">¶</a></h1>
-<p>Please be sure to have at least the following on your machine:</p>
+<p>Crown is designed to minimize resource usage and conserve battery life
+whenever possible. It reduces unnecessary background activity and adapts
+performance to the current workload to avoid wasting power.</p>
+<p>The following requirements are intended as a baseline for a smooth editor
+experience. Hardware requirements for running games built with Crown depend
+on each game’s complexity and can often be significantly reduced through
+careful optimization/tuning.</p>
+<section id="minimum">
+<h2>Minimum<a class="headerlink" href="#minimum" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><ul class="simple">
-<li><p>64-bit dual-core CPU or higher</p></li>
-<li><p>Vulkan 1.0/Direct3D 11 capable graphics card with 512 MB of RAM, 1 GB recommended</p></li>
-<li><p>4 GB of RAM, 8 GB recommended</p></li>
-<li><p>1366x768 display resolution, 1920x1080 recommended</p></li>
+<li><p>64-bit, dual-core CPU</p></li>
+<li><p>Graphics card with Vulkan 1.0 or Direct3D 11 support and 2 GB VRAM</p></li>
+<li><p>4 GB system RAM</p></li>
+<li><p>1920x1080 display resolution</p></li>
 <li><p>Three-button mouse</p></li>
 </ul>
 </div></blockquote>
+</section>
+<section id="recommended">
+<h2>Recommended<a class="headerlink" href="#recommended" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Quad-core CPU or better</p></li>
+<li><p>Graphics card with Vulkan 1.0 or Direct3D 11 support and 4 GB+ VRAM</p></li>
+<li><p>8 GB+ system RAM</p></li>
+</ul>
+</div></blockquote>
+</section>
 </section>
 
 
@@ -123,7 +147,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 12, 2025.
+      <span class="lastupdated">Last updated on Feb 10, 2026.
       </span></p>
   </div>
 

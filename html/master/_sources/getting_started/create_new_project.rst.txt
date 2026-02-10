@@ -1,9 +1,12 @@
+.. _create_new_project:
+
 ======================
 Creating a new project
 ======================
 
-When you first launch the Crown Editor, you will be presented with an empty list
-of Projects:
+After closing a project, or whenever starting the Editor, Crown displays the
+Projects List. From here, you can open/manage existing projects or create new
+ones:
 
 .. image:: images/empty_projects_list.png
 
