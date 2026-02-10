@@ -361,9 +361,17 @@ clean-docs:
 
 .PHONY: codespell
 codespell:
-	@codespell docs src tools \
+	@codespell docs src tools                           \
 		--ignore-words=scripts/codespell-dictionary.txt \
-		--skip "*.ttf.h,*.png,*.css,docs/_themes,tools/level_editor/resources/theme/Adwaita" \
+		--skip                                          \
+		"*.ttf.h,                                       \
+		*.css,                                          \
+		*.jpg,                                          \
+		*.png,                                          \
+		*.xcf,                                          \
+		docs/_extensions,                               \
+		docs/_themes,                                   \
+		tools/level_editor/resources/theme/Adwaita"     \
 		-q4 # 4: omit warnings about automatic fixes that were disabled in the dictionary.
 
 .PHONY: cppcheck
