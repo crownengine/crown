@@ -4,9 +4,9 @@
 Level Editor overview
 =====================
 
-After opening a :ref:`project` the Crown will immediately start compiling
-resources and when it's done it will open the Level Editor, which will look
-similar to the image below:
+After opening a :ref:`project` Crown immediately starts compiling the
+resources it contains. Once the process is complete, the Level Editor is
+launched and should look similar to the image below:
 
 .. image:: images/editor_overview.png
 
