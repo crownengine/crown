@@ -4,13 +4,13 @@ For the Impatient
 
 When you first launch the Crown Editor and no projects exist, Crown
 automatically generates a temporary project and opens it. This lets you
-explore the editor immediately without any extra steps.
+explore the graphical interface immediately without any extra steps.
 
 .. image:: images/temp_project.png
 
-At this point you can either jump straight into the :ref:`level_editor` basics
-to get a feel for the editor’s features, or close the temporary project and
-create a new one yourself, for example, starting from a featureful template.
+At this point you can either jump straight into the :ref:`level_editor` to get
+a feel for its features, or close the temporary project and create a new one
+yourself, for example, starting from a featureful template.
 
 To close the temporary project, choose ``File`` -> ``Close Project``:
 

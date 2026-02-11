@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-10T14:48:18+00:00" /><meta property="og:title" content="Introduction" />
+    <meta property="article:modified_time" content="2026-02-10T23:35:42+00:00" /><meta property="og:title" content="Introduction" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/introduction.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="What is it?: Crown is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations. It isn’t tied to any specific game type or genre; instead, it provides versatile tools and primitives for building a wide range of 3D and 2D games. Licen..." />
+<meta property="og:description" content="What is it?: Crown is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations. It isn’t tied to any specific game type or genre; instead, it provides versatile tools and general primitives suitable for building a wide range of 3D an..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/level-editor.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="What is it?: Crown is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations. It isn’t tied to any specific game type or genre; instead, it provides versatile tools and primitives for building a wide range of 3D and 2D games. Licen..." />
+<meta name="description" content="What is it?: Crown is a complete and cross-platform game engine designed for flexibility, performance, and fast-iterations. It isn’t tied to any specific game type or genre; instead, it provides versatile tools and general primitives suitable for building a wide range of 3D an..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Introduction &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -107,8 +107,8 @@
 <h2>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this headline">¶</a></h2>
 <p>Crown is a complete and cross-platform game engine designed for flexibility,
 performance, and fast-iterations. It isn’t tied to any specific game type or
-genre; instead, it provides versatile tools and primitives for building a wide
-range of 3D and 2D games.</p>
+genre; instead, it provides versatile tools and general primitives suitable for
+building a wide range of 3D and 2D games.</p>
 <img alt="_images/level-editor.png" src="_images/level-editor.png" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -179,9 +179,9 @@ any work.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Lightweight Codebase and Runtime</dt><dd><p>The whole engine (runtime + tools) consist of fewer than 100K lines of code.
-Written in high-performance native languages only, it is easily understood
-and extensible by anyone.</p>
+<dt>Lightweight Codebase and Runtime</dt><dd><p>The whole engine (runtime + tools) consists of fewer than 100K lines of
+code. Written in high-performance native languages only, it is easily
+understood and extensible by anyone.</p>
 </dd>
 </dl>
 </li>
@@ -206,8 +206,9 @@ and extensible by anyone.</p>
 </li>
 <li><dl class="simple">
 <dt>Graphics</dt><dd><ul>
+<li><p>D3D11, Vulkan and GLES 3.0 render backends.</p></li>
 <li><p>High-level 3D &amp; 2D objects (meshes, cameras, lights and sprites).</p></li>
-<li><p>Physically-based rendering pipeline.</p></li>
+<li><p>Physically-based rendering pipeline with metallic workflow.</p></li>
 <li><p>GLSL-like shader programming language.</p></li>
 <li><p>3D skeletal animation.</p></li>
 <li><p>Animation state machine with events, variables and blending with simple expressions evaluator.</p></li>
@@ -216,7 +217,6 @@ and extensible by anyone.</p>
 <li><p>Flipbook sprite animation.</p></li>
 <li><p>FBX and custom mesh formats.</p></li>
 <li><p>DDS, EXR, JPG, KTX, PNG, PVR and TGA texture formats.</p></li>
-<li><p>D3D11, Vulkan and GLES 2.0 render backends.</p></li>
 </ul>
 </dd>
 </dl>
