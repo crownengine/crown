@@ -10,6 +10,7 @@ for use in Levels, Units, and other project content.
 .. toctree::
 	:maxdepth: 2
 
+	importing_resources
 	importing_meshes
 	importing_clips
 	importing_textures
