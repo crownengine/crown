@@ -3,18 +3,22 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-27T16:23:47+00:00" /><meta property="og:title" content="Importing Clips" />
+    <meta property="article:modified_time" content="2026-02-12T17:30:36+00:00" /><meta property="og:title" content="Importing resources" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_clips.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_resources.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="Drag-and-drop: The quickest way to import assets into a Crown project is to drag-and-drop files from your file manager into the Project Browser. Crown will detect the resource types automatically and open an appropriate importer dialog so you can fine-tune import options. Impo..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/project_browser_right_click_import.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="Drag-and-drop: The quickest way to import assets into a Crown project is to drag-and-drop files from your file manager into the Project Browser. Crown will detect the resource types automatically and open an appropriate importer dialog so you can fine-tune import options. Impo..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Importing Clips &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>Importing resources &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/importing_resources/importing_clips.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/importing_resources/importing_resources.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -27,8 +31,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Importing Textures" href="importing_textures.html" />
-    <link rel="prev" title="Importing Meshes" href="importing_meshes.html" /> 
+    <link rel="next" title="Importing Scenes" href="importing_scenes.html" />
+    <link rel="prev" title="Importing Resources" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,8 +61,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Importing Resources</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="importing_meshes.html">Importing Meshes</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing Clips</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#drag-and-drop">Drag-and-drop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#import-via-project-browser">Import via Project Browser</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_textures.html">Importing Textures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_sounds.html">Importing Sounds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
@@ -89,9 +97,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">Importing Resources</a> &raquo;</li>
-      <li>Importing Clips</li>
+      <li>Importing resources</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/importing_resources/importing_clips.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/importing_resources/importing_resources.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -99,23 +107,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="importing-clips">
-<h1>Importing Clips<a class="headerlink" href="#importing-clips" title="Permalink to this headline">¶</a></h1>
+  <section id="importing-resources">
+<span id="id1"></span><h1>Importing resources<a class="headerlink" href="#importing-resources" title="Permalink to this headline">¶</a></h1>
+<section id="drag-and-drop">
+<h2>Drag-and-drop<a class="headerlink" href="#drag-and-drop" title="Permalink to this headline">¶</a></h2>
+<p>The quickest way to import assets into a Crown project is to drag-and-drop
+files from your file manager into the Project Browser. Crown will detect the
+resource types automatically and open an appropriate importer dialog so you
+can fine-tune import options.</p>
+</section>
+<section id="import-via-project-browser">
+<h2>Import via Project Browser<a class="headerlink" href="#import-via-project-browser" title="Permalink to this headline">¶</a></h2>
+<img alt="../_images/project_browser_right_click_import.png" src="../_images/project_browser_right_click_import.png" />
+<p>You can also import files from the Project Browser. Navigate to the target
+folder, right-click the folder, and choose <code class="docutils literal notranslate"><span class="pre">Import...</span></code> from the context
+menu. Crown will present a file picker:</p>
+<img alt="../_images/import_dialog.png" src="../_images/import_dialog.png" />
+<p>This method is useful when you want more control: the Import dialog lets you
+choose how Crown should process the selected files. That matters because the
+same file extension can sometimes map to different resource types
+(for example, <code class="docutils literal notranslate"><span class="pre">.png</span></code> files can be imported as textures or as sprites). Use
+the resource-type selector to pick the desired resource:</p>
+<img alt="../_images/import_dialog_select_resource_type.png" src="../_images/import_dialog_select_resource_type.png" />
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="importing_meshes.html" class="btn btn-neutral float-left" title="Importing Meshes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="importing_textures.html" class="btn btn-neutral float-right" title="Importing Textures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Importing Resources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="importing_scenes.html" class="btn btn-neutral float-right" title="Importing Scenes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 27, 2025.
+      <span class="lastupdated">Last updated on Feb 12, 2026.
       </span></p>
   </div>
 
