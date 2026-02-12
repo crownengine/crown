@@ -11,8 +11,7 @@ for use in Levels, Units, and other project content.
 	:maxdepth: 2
 
 	importing_resources
-	importing_meshes
-	importing_clips
+	importing_scenes
 	importing_textures
 	importing_sounds
 	importing_sprites
