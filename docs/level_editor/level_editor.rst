@@ -1,8 +1,8 @@
 .. _level_editor:
 
-=====================
-Level Editor overview
-=====================
+===============
+Editor overview
+===============
 
 After opening a :ref:`project` Crown immediately starts compiling the
 resources it contains. Once the process is complete, the Level Editor is

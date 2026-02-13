@@ -14,3 +14,4 @@ Console.
 	:maxdepth: 2
 
 	level_editor
+	level_viewport
