@@ -24,11 +24,11 @@ For more controlled camera adjustments, combine keyboard modifiers with mouse
 actions.
 
 * Hold ``Left Alt`` while dragging with the ``Left Mouse Button`` to rotate
-	around the interest point;
+  around the interest point;
 * Hold ``Left Alt`` and drag with the ``Middle Mouse Button`` to pan the view
-	horizontally and vertically;
+  horizontally and vertically;
 * Hold ``Left Alt`` and drag with the ``Right Mouse Button`` to zoom in and
-	out.
+  out.
 
 Flythrough navigation
 =====================
@@ -127,24 +127,24 @@ Move gizmo
 
 * Left-click and drag an axis handle to move the object along that axis.
 * Drag the small red, green, or blue rectangles to move the object constrained
-	to the XY, YZ, or ZX plane respectively.
+  to the XY, YZ, or ZX plane respectively.
 * Drag the small gray circle at the gizmo origin to move the object on the
-	plane parallel to the camera view.
+  plane parallel to the camera view.
 
 Rotate gizmo
 ------------
 
 * Drag any red, green, or blue arc to rotate the object around the X, Y, or Z
-	axis.
+  axis.
 * Drag the large gray circle to rotate the object around the axis that is
-	perpendicular to the camera view plane.
+  perpendicular to the camera view plane.
 
 Scale gizmo
 -----------
 
 * Drag an axis handle to scale the object along that axis.
 * Drag the colored rectangles (for example red-green to scale on the XY plane)
-	to scale across the respective plane.
+  to scale across the respective plane.
 * Drag the large gray circle to scale uniformly on all axes at once.
 
 Local and World axis
