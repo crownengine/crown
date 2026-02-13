@@ -20,7 +20,7 @@ You can also import files from the Project Browser. Navigate to the target
 folder, right-click the folder, and choose ``Import...`` from the context
 menu. Crown will present a file picker:
 
-.. image:: images/import_dialog.png
+.. image:: images/import_dialog.svg
 
 This method is useful when you want more control: the Import dialog lets you
 choose how Crown should process the selected files. That matters because the
@@ -28,4 +28,4 @@ same file extension can sometimes map to different resource types
 (for example, ``.png`` files can be imported as textures or as sprites). Use
 the resource-type selector to pick the desired resource:
 
-.. image:: images/import_dialog_select_resource_type.png
+.. image:: images/import_dialog_select_resource_type.svg
