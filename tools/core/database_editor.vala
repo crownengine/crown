@@ -9,11 +9,12 @@ public class DatabaseEditor
 {
 	public const GLib.ActionEntry[] actions =
 	{
-		{ "undo",      on_undo,      null,   null },
-		{ "redo",      on_redo,      null,   null },
-		{ "duplicate", on_duplicate, null,   null },
-		{ "delete",    on_delete,    null,   null },
-		{ "add",       on_add,       "(ss)", null },
+		{ "undo",        on_undo,        null,   null },
+		{ "redo",        on_redo,        null,   null },
+		{ "duplicate",   on_duplicate,   null,   null },
+		{ "delete",      on_delete,      null,   null },
+		{ "add",         on_add,         "(ss)", null },
+		{ "select_none", on_select_none, null,   null },
 	};
 
 	public UndoRedo _undo_redo;
@@ -106,6 +107,11 @@ public class DatabaseEditor
 			_database.add_to_set(object_id, properties[i].name, new_obj);
 			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_obj });
 		}
+	}
+
+	public void on_select_none(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		clear_selection();
 	}
 
 	public void clear_selection()

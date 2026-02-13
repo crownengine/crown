@@ -225,6 +225,10 @@ public GLib.Menu make_database_editor_menu()
 	mi.set_detailed_action("database.delete");
 	ms.append_item(mi);
 
+	mi = new GLib.MenuItem("Select None", null);
+	mi.set_detailed_action("database.select_none");
+	ms.append_item(mi);
+
 	menu.append_section(null, ms);
 
 	return menu;
