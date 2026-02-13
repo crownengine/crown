@@ -14,9 +14,10 @@ FBX import dialog
 
 The FBX import dialog is divided into two main sections:
 
-* **Units**: import geometry, lights, cameras, materials and any associated textures.
-* **Animation**: import skeleton and animation clips. If your scene contains no
-	animations, you can ignore this section.
+* Units: import geometry, lights, cameras, materials and any associated
+  textures.
+* Animation: import skeleton and animation clips. If your scene contains no
+  animations, you can ignore this section.
 
 One FBX per clip
 ----------------
