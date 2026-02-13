@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-12T18:42:30+00:00" /><meta property="og:title" content="Importing Scenes" />
+    <meta property="article:modified_time" content="2026-02-13T16:45:00+00:00" /><meta property="og:title" content="Importing Scenes" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_scenes.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
@@ -121,8 +121,9 @@ options and choose which parts of the scene to bring into your project:</p>
 <h2>FBX import dialog<a class="headerlink" href="#fbx-import-dialog" title="Permalink to this headline">¶</a></h2>
 <p>The FBX import dialog is divided into two main sections:</p>
 <ul class="simple">
-<li><p><strong>Units</strong>: import geometry, lights, cameras, materials and any associated textures.</p></li>
-<li><p><strong>Animation</strong>: import skeleton and animation clips. If your scene contains no
+<li><p>Units: import geometry, lights, cameras, materials and any associated
+textures.</p></li>
+<li><p>Animation: import skeleton and animation clips. If your scene contains no
 animations, you can ignore this section.</p></li>
 </ul>
 </section>
@@ -138,12 +139,10 @@ simplifies asset management and make faster iterations possible.</p>
 <p>Start by importing the FBX that contains the geometry and skeleton. In the
 Project Browser create or select the target folder, make sure <code class="docutils literal notranslate"><span class="pre">Import</span>
 <span class="pre">Animations</span></code> is unchecked, then click <code class="docutils literal notranslate"><span class="pre">Import</span></code> to begin:</p>
-<img alt="../_images/import_fbx_unchecked_animations.png" src="../_images/import_fbx_unchecked_animations.png" />
-<p>When the import completes, the unit (geometry), the skeleton, and any other
+<img alt="../_images/import_fbx_unchecked_animations.svg" src="../_images/import_fbx_unchecked_animations.svg" /><p>When the import completes, the unit (geometry), the skeleton, and any other
 objects you selected in the Unit section will appear as separate items in the
 Project Browser:</p>
-<img alt="../_images/project_browser_import_clips_unit_and_skeleton.png" src="../_images/project_browser_import_clips_unit_and_skeleton.png" />
-</section>
+<img alt="../_images/project_browser_import_clips_unit_and_skeleton.svg" src="../_images/project_browser_import_clips_unit_and_skeleton.svg" /></section>
 <section id="importing-animation-clips">
 <h3>2) Importing animation clips<a class="headerlink" href="#importing-animation-clips" title="Permalink to this headline">¶</a></h3>
 <p>After importing geometry and skeleton, import the FBX files that contain the
@@ -155,12 +154,10 @@ dialog:</p>
 <li><p>Uncheck <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Skeleton</span></code> to indicate that the skeleton already exists.</p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">Target</span> <span class="pre">Skeleton</span></code> to the skeleton you imported in the previous step.</p></li>
 </ul>
-<img alt="../_images/import_fbx_select_skeleton.png" src="../_images/import_fbx_select_skeleton.png" />
-<p>When the importer finishes, it creates an <code class="docutils literal notranslate"><span class="pre">animations</span></code> folder and places the
+<img alt="../_images/import_fbx_select_skeleton.svg" src="../_images/import_fbx_select_skeleton.svg" /><p>When the importer finishes, it creates an <code class="docutils literal notranslate"><span class="pre">animations</span></code> folder and places the
 imported clips inside it, with correct references to the existing skeleton and
 geometry:</p>
-<img alt="../_images/project_browser_imported_clips.png" src="../_images/project_browser_imported_clips.png" />
-</section>
+<img alt="../_images/project_browser_imported_clips.svg" src="../_images/project_browser_imported_clips.svg" /></section>
 </section>
 </section>
 
@@ -176,7 +173,7 @@ geometry:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 12, 2026.
+      <span class="lastupdated">Last updated on Feb 13, 2026.
       </span></p>
   </div>
 

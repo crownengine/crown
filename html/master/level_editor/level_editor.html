@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-10T23:51:56+00:00" /><meta property="og:title" content="Level Editor overview" />
+    <meta property="article:modified_time" content="2026-02-13T17:54:54+00:00" /><meta property="og:title" content="Editor overview" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/level_editor.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
 <meta property="og:description" content="After opening a Project Crown immediately starts compiling the resources it contains. Once the process is complete, the Level Editor is launched and should look similar to the image below: The Level Editor is split into several panels:,,, Number, Name, What it shows,,, 1, Proj..." />
-<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/editor_overview.png" />
-<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
 <meta name="description" content="After opening a Project Crown immediately starts compiling the resources it contains. Once the process is complete, the Level Editor is launched and should look similar to the image below: The Level Editor is split into several panels:,,, Number, Name, What it shows,,, 1, Proj..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Level Editor overview &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>Editor overview &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -31,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Importing Resources" href="../importing_resources/index.html" />
+    <link rel="next" title="Level Viewport" href="level_viewport.html" />
     <link rel="prev" title="The Level Editor" href="index.html" /> 
 </head>
 
@@ -60,7 +58,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">The Level Editor</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Level Editor overview</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Editor overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_viewport.html">Level Viewport</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
@@ -88,7 +87,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">The Level Editor</a> &raquo;</li>
-      <li>Level Editor overview</li>
+      <li>Editor overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/level_editor/level_editor.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -98,18 +97,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="level-editor-overview">
-<span id="level-editor"></span><h1>Level Editor overview<a class="headerlink" href="#level-editor-overview" title="Permalink to this headline">¶</a></h1>
+  <section id="editor-overview">
+<span id="level-editor"></span><h1>Editor overview<a class="headerlink" href="#editor-overview" title="Permalink to this headline">¶</a></h1>
 <p>After opening a <a class="reference internal" href="../getting_started/basic_concepts.html#project"><span class="std std-ref">Project</span></a> Crown immediately starts compiling the
 resources it contains. Once the process is complete, the Level Editor is
 launched and should look similar to the image below:</p>
-<img alt="../_images/editor_overview.png" src="../_images/editor_overview.png" />
-<p>The Level Editor is split into several panels:</p>
+<img alt="../_images/editor_overview.svg" src="../_images/editor_overview.svg" /><p>The Level Editor is split into several panels:</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 7%" />
-<col style="width: 19%" />
-<col style="width: 74%" />
+<col style="width: 25%" />
+<col style="width: 68%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Number</p></th>
@@ -135,8 +133,20 @@ launched and should look similar to the image below:</p>
 <td><p>A hierarchical view of all the objects in the Level.</p></td>
 </tr>
 <tr class="row-even"><td><p>5</p></td>
-<td><p>Level Viewport</p></td>
+<td><p><a class="reference internal" href="level_viewport.html#level-viewport"><span class="std std-ref">Level Viewport</span></a></p></td>
 <td><p>The Level being edited.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Menubar</p></td>
+<td><p>Common commands for editing / debugging / opening editors etc.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>Toolbar</p></td>
+<td><p>Tools and common options for editing.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>Statusbar</p></td>
+<td><p>Contextual info and small self-contained messages.</p></td>
 </tr>
 </tbody>
 </table>
@@ -147,14 +157,14 @@ launched and should look similar to the image below:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="The Level Editor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../importing_resources/index.html" class="btn btn-neutral float-right" title="Importing Resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="level_viewport.html" class="btn btn-neutral float-right" title="Level Viewport" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 10, 2026.
+      <span class="lastupdated">Last updated on Feb 13, 2026.
       </span></p>
   </div>
 
