@@ -775,6 +775,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("database.redo", new string[] { "<Shift><Primary>Z" });
 		this.set_accels_for_action("database.duplicate", new string[] { "<Primary>D" });
 		this.set_accels_for_action("database.delete", new string[] { "Delete" });
+		this.set_accels_for_action("database.select_none", new string[] { "<Shift><Primary>A" });
 
 		this.set_accels_for_action("app.tool(0)", new string[] { "Q" });
 		this.set_accels_for_action("app.tool(1)", new string[] { "W" });
