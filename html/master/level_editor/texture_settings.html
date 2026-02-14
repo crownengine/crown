@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-14T15:18:11+00:00" /><meta property="og:title" content="Texture Settings" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/texture_settings.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="The Texture Settings dialog lets you customize how Crown processes a texture for each target platform. To open it, double-click a texture in the Project Browser; Crown will display a dialog similar to this: Overview: On the left, the Target Platform list shows the platforms yo..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/texture_settings_dialog.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="The Texture Settings dialog lets you customize how Crown processes a texture for each target platform. To open it, double-click a texture in the Project Browser; Crown will display a dialog similar to this: Overview: On the left, the Target Platform list shows the platforms yo..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texture Settings &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/texture_settings.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Importing Resources" href="../importing_resources/index.html" />
+    <link rel="prev" title="Level Viewport" href="level_viewport.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">The Level Editor</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="level_editor.html">Editor overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_viewport.html">Level Viewport</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Texture Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#format">Format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mip-mapping">Mip-mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-flags">Other flags</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#saving-changes">Saving changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">The Level Editor</a> &raquo;</li>
+      <li>Texture Settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/level_editor/texture_settings.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="texture-settings">
+<h1>Texture Settings<a class="headerlink" href="#texture-settings" title="Permalink to this headline">¶</a></h1>
+<p>The Texture Settings dialog lets you customize how Crown processes a texture
+for each target platform. To open it, double-click a texture in the
+<span class="xref std std-ref">Project Browser</span>; Crown will display a dialog similar to this:</p>
+<img alt="../_images/texture_settings_dialog.png" src="../_images/texture_settings_dialog.png" />
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>On the left, the <code class="docutils literal notranslate"><span class="pre">Target</span> <span class="pre">Platform</span></code> list shows the platforms you can
+configure. Select one or more platforms to edit their settings
+simultaneously. Use <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Ctrl</span></code> to select or deselect multiple entries.</p>
+<p>After selecting platforms, the settings on the right update to reflect the
+current values. If the selected platforms have different values for a given
+option, a dash symbol (—) appears to indicate the inconsistency:</p>
+<img alt="../_images/texture_settings_inconsistent_format.svg" src="../_images/texture_settings_inconsistent_format.svg" /></section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p>Output settings control how Crown processes the source image into GPU-ready
+assets. These settings are applied per platform so you can accommodate each
+platform’s performance and form-factor constraints.</p>
+<section id="format">
+<h3>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h3>
+<p>Choose the output format appropriate for the texture type and platform:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BC1</span></code>: RGB color with 1-bit alpha; good for opaque color maps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC2</span></code>: RGB color with 4-bits alpha.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC3</span></code>: RGB color with full alpha.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC4</span></code>: Single-channel (grayscale); useful for heightmaps, font atlases etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC5</span></code>: Two-channel BC4 useful for tangent-space normal maps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PTC14</span></code>: RGB compressed format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RGB8</span></code>: Uncompressed RGB (8-bits per channel).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RGBA8</span></code>: Uncompressed RGBA (8-bits per channel).</p></li>
+</ul>
+<p>For a technical reference on BCn formats, see <a class="reference external" href="https://web.archive.org/web/20260120185114/https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/">Understanding BCn Texture Compression Formats</a>.</p>
+</section>
+<section id="mip-mapping">
+<h3>Mip-mapping<a class="headerlink" href="#mip-mapping" title="Permalink to this headline">¶</a></h3>
+<p>Control mipmap generation with these options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Generate</span> <span class="pre">Mips</span></code>: enable or disable automatic mipmap generation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Skip</span> <span class="pre">Smallest</span> <span class="pre">Mips</span></code>: skip generation of the N smallest mip levels to save space.</p></li>
+</ul>
+</section>
+<section id="other-flags">
+<h3>Other flags<a class="headerlink" href="#other-flags" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Normal</span> <span class="pre">Map</span></code>: mark the texture as a normal map. This implies linear color
+processing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Linear</span></code>: treat the source as linear data. By default textures are
+interpreted as sRGB and are converted to linear space during processing;
+enable <code class="docutils literal notranslate"><span class="pre">Linear</span></code> for data textures such as normal maps, LUTs etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Premultiply</span> <span class="pre">Alpha</span></code> - premultiply RGB by alpha before encoding. See
+<a class="reference external" href="https://web.archive.org/web/20260110150156/https://shawnhargreaves.com/blog/premultiplied-alpha.html">here</a>
+and <a class="reference external" href="https://web.archive.org/web/20260103191804/https://shawnhargreaves.com/blog/premultiplied-alpha-and-image-composition.html">here</a>
+for details.</p></li>
+</ul>
+</section>
+</section>
+<section id="saving-changes">
+<h2>Saving changes<a class="headerlink" href="#saving-changes" title="Permalink to this headline">¶</a></h2>
+<p>When you are finished, click the <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">&amp;</span> <span class="pre">Reload</span></code> button at the top right.
+Crown saves the <code class="docutils literal notranslate"><span class="pre">.texture</span></code> resource, compiles it for the affected
+platforms, and reloads the texture in all viewports and in the running game
+if any.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="level_viewport.html" class="btn btn-neutral float-left" title="Level Viewport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../importing_resources/index.html" class="btn btn-neutral float-right" title="Importing Resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 14, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

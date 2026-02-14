@@ -12,7 +12,7 @@ for use in Levels, Units, and other project content.
 
 	importing_resources
 	importing_scenes
+	importing_sprites
 	importing_textures
 	importing_sounds
-	importing_sprites
 	importing_fonts

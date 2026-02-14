@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-27T16:23:47+00:00" /><meta property="og:title" content="Importing Sprites" />
+    <meta property="article:modified_time" content="2026-02-14T15:16:47+00:00" /><meta property="og:title" content="Importing Sprites" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_sprites.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="Crown includes a dedicated spritesheet importer with slicing capabilities that let you quickly create Units from images containing sprites arranged in rows and columns. When importing a new spritesheet, it is recommended to create a dedicated target folder first. The importer ..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/import_sprite.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="Crown includes a dedicated spritesheet importer with slicing capabilities that let you quickly create Units from images containing sprites arranged in rows and columns. When importing a new spritesheet, it is recommended to create a dedicated target folder first. The importer ..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Importing Sprites &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -29,8 +31,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Importing Fonts" href="importing_fonts.html" />
-    <link rel="prev" title="Importing Sounds" href="importing_sounds.html" /> 
+    <link rel="next" title="Importing Textures" href="importing_textures.html" />
+    <link rel="prev" title="Importing Scenes" href="importing_scenes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -61,9 +63,15 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Importing Resources</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="importing_resources.html">Importing resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing Sprites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sprite-importer-overview">Sprite Importer overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#slicing-the-spritesheet">Slicing the spritesheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pivot-sprite-origin">Pivot (sprite origin)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#collision-and-physics">Collision and physics</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="importing_textures.html">Importing Textures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_sounds.html">Importing Sounds</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing Sprites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_fonts.html">Importing Fonts</a></li>
 </ul>
 </li>
@@ -103,22 +111,82 @@
              
   <section id="importing-sprites">
 <span id="id1"></span><h1>Importing Sprites<a class="headerlink" href="#importing-sprites" title="Permalink to this headline">¶</a></h1>
+<p>Crown includes a dedicated spritesheet importer with slicing capabilities that
+let you quickly create Units from images containing sprites arranged in rows
+and columns. When importing a new spritesheet, it is recommended to create a
+dedicated target folder first. The importer generates multiple output files
+(sprites, units, materials etc.), so keeping them together makes the project
+easier to manage.</p>
 <img alt="../_images/import_sprite.png" src="../_images/import_sprite.png" />
+<section id="sprite-importer-overview">
+<h2>Sprite Importer overview<a class="headerlink" href="#sprite-importer-overview" title="Permalink to this headline">¶</a></h2>
+<p>The importer window is split into a preview area, a slicing view, and a panel
+with import options:</p>
+<p>The top-left corner contains two tabs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Preview</span></code>: shows how the sprite will look after import.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Slices</span></code>: displays a grid view to help you choose slicing parameters.</p></li>
+</ul>
+<p>The panel on the right holds slicing parameters and options for rendering and
+phyisics. Most of these settings can be changed after import, so you do not
+need to get everything perfect on the first pass.</p>
+</section>
+<section id="slicing-the-spritesheet">
+<h2>Slicing the spritesheet<a class="headerlink" href="#slicing-the-spritesheet" title="Permalink to this headline">¶</a></h2>
+<p>Slicing defines how the image is split into individual sprite cells.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Cells</span></code>: set the number of columns (X) and rows (Y). This creates an X by
+Y grid of equally sized cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Auto</span> <span class="pre">Size</span></code>: when checked, Crown computes the cell size automatically.
+Uncheck it to enter cell width and height manually.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Offset</span></code>: shift the entire grid horizontally and vertically when cells are
+not aligned to the image origin.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Spacing</span></code>: add horizontal and vertical spacing between cells when the
+spritesheet contains padding.</p></li>
+</ul>
+<p>Adjust the grid in the <code class="docutils literal notranslate"><span class="pre">Slices</span></code> tab and verify results in the <code class="docutils literal notranslate"><span class="pre">Preview</span></code>
+tab before importing.</p>
+</section>
+<section id="pivot-sprite-origin">
+<h2>Pivot (sprite origin)<a class="headerlink" href="#pivot-sprite-origin" title="Permalink to this headline">¶</a></h2>
+<p>Choose the sprite origin with the <code class="docutils literal notranslate"><span class="pre">Pivot</span></code> combobox. The preview area shows
+the pivot position so you can pick the point that makes placement and
+rotation easier.</p>
+<img alt="../_images/sprite_pivot.svg" src="../_images/sprite_pivot.svg" /></section>
+<section id="collision-and-physics">
+<h2>Collision and physics<a class="headerlink" href="#collision-and-physics" title="Permalink to this headline">¶</a></h2>
+<p>By default Crown generates a collider and physics parameters every time you
+import a sprite. Disable collision generation by unchecking the <code class="docutils literal notranslate"><span class="pre">Collision</span></code>
+option if you only need a visual unit.</p>
+<p>Crown supports three collider shapes for sprites:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Square</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Circle</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Capsule</span></code></p></li>
+</ul>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">Shape</span> <span class="pre">Type</span></code> buttons to switch between them. By default the collider
+is fitted to the cell rectangle determined during slicing. To customize the
+collider:</p>
+<ul class="simple">
+<li><p>Uncheck <code class="docutils literal notranslate"><span class="pre">Mirror</span> <span class="pre">Cell</span></code> to stop the collider from mirroring the cell bounds.</p></li>
+<li><p>Edit <code class="docutils literal notranslate"><span class="pre">Shape</span> <span class="pre">Data</span></code> to input collider sizes manually.</p></li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="importing_sounds.html" class="btn btn-neutral float-left" title="Importing Sounds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="importing_fonts.html" class="btn btn-neutral float-right" title="Importing Fonts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="importing_scenes.html" class="btn btn-neutral float-left" title="Importing Scenes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="importing_textures.html" class="btn btn-neutral float-right" title="Importing Textures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 27, 2025.
+      <span class="lastupdated">Last updated on Feb 14, 2026.
       </span></p>
   </div>
 
