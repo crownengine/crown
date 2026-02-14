@@ -15,3 +15,4 @@ Console.
 
 	level_editor
 	level_viewport
+	texture_settings
