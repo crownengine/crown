@@ -2620,13 +2620,13 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_console_notebook.is_visible()) {
-			if (_console_view._entry._entry.has_focus)
+			if (_console_view._entry.has_focus)
 				_console_notebook.hide();
 			else
-				_console_view._entry._entry.grab_focus_without_selecting();
+				_console_view._entry.grab_focus_without_selecting();
 		} else {
 			_console_notebook.show_all();
-			_console_view._entry._entry.grab_focus_without_selecting();
+			_console_view._entry.grab_focus_without_selecting();
 		}
 	}
 
