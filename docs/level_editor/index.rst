@@ -15,5 +15,6 @@ Console.
 
 	level_editor
 	project_browser
+	console
 	level_viewport
 	texture_settings
