@@ -14,5 +14,6 @@ Console.
 	:maxdepth: 2
 
 	level_editor
+	project_browser
 	level_viewport
 	texture_settings
