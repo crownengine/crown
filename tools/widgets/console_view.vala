@@ -133,7 +133,7 @@ public class ConsoleView : Gtk.Box
 	public Gtk.EventControllerMotion _text_view_controller_motion;
 	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
-	public InputString _entry;
+	public Gtk.Entry _entry;
 	public Gtk.EventControllerKey _entry_controller_key;
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
@@ -192,9 +192,11 @@ public class ConsoleView : Gtk.Box
 		_text_view_overlay.add(_scrolled_window);
 		_text_view_overlay.add_overlay(clear_button);
 
-		_entry = new InputString();
-		_entry.value_changed.connect(on_entry_activated);
-		_entry._entry.set_placeholder_text("Enter Command or Lua expression");
+		_entry = new Gtk.Entry();
+		_entry.activate.connect(on_entry_activated);
+		_entry.focus_in_event.connect(on_entry_focus_in);
+		_entry.focus_out_event.connect(on_entry_focus_out);
+		_entry.set_placeholder_text("Enter Command or Lua expression");
 
 		_entry_controller_key = new Gtk.EventControllerKey(_entry);
 		_entry_controller_key.key_pressed.connect(on_entry_key_pressed);
@@ -239,7 +241,7 @@ public class ConsoleView : Gtk.Box
 
 	public void on_entry_activated()
 	{
-		string text = _entry.value;
+		string text = _entry.text;
 		text = text.strip();
 
 		if (text.length > 0) {
@@ -266,7 +268,21 @@ public class ConsoleView : Gtk.Box
 			}
 		}
 
-		_entry.value = "";
+		_entry.text = "";
+	}
+
+	public bool on_entry_focus_in(Gdk.EventFocus ev)
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_in(_entry);
+		return Gdk.EVENT_PROPAGATE;
+	}
+
+	public bool on_entry_focus_out(Gdk.EventFocus ef)
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_out(_entry);
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
@@ -274,20 +290,20 @@ public class ConsoleView : Gtk.Box
 		if (keyval == Gdk.Key.Down) {
 			if (_distance > 1) {
 				--_distance;
-				_entry.value = _entry_history.element(_distance);
+				_entry.text = _entry_history.element(_distance);
 			} else {
-				_entry.value = "";
+				_entry.text = "";
 			}
 
-			_entry._entry.set_position(_entry.value.length);
+			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;
 		} else if (keyval == Gdk.Key.Up) {
 			if (_distance < _entry_history._size) {
 				++_distance;
-				_entry.value = _entry_history.element(_distance);
+				_entry.text = _entry_history.element(_distance);
 			}
 
-			_entry._entry.set_position(_entry.value.length);
+			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;
 		}
 
