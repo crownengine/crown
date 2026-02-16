@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-15T01:23:55+00:00" /><meta property="og:title" content="Console" />
+    <meta property="article:modified_time" content="2026-02-16T00:34:52+00:00" /><meta property="og:title" content="Inspector" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/console.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/inspector.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. Runtime connections: Each engine runtime spawned..." />
-<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/console.png" />
+<meta property="og:description" content="The Inspector lets you view and modify the properties of selected objects in the Level Viewport. Select one or more objects to display their components and editable fields. Changes made in the Inspector are applied immediately and reflected in the Level Viewport. The Inspector..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/inspector.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. Runtime connections: Each engine runtime spawned..." />
+<meta name="description" content="The Inspector lets you view and modify the properties of selected objects in the Level Viewport. Select one or more objects to display their components and editable fields. Changes made in the Inspector are applied immediately and reflected in the Level Viewport. The Inspector..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Console &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>Inspector &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/console.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/inspector.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -31,8 +31,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Inspector" href="inspector.html" />
-    <link rel="prev" title="Project Browser" href="project_browser.html" /> 
+    <link rel="next" title="Level Tree" href="level_tree.html" />
+    <link rel="prev" title="Console" href="console.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -62,15 +62,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">The Level Editor</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="level_editor.html">Editor overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_browser.html">Project Browser</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Console</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#runtime-connections">Runtime connections</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#commands">Commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#lua-expressions">Lua expressions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#history-navigation">History navigation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#resource-id-lookup">Resource ID lookup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="console.html">Console</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Inspector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#expression-evaluator">Expression evaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#revealing-resources">Revealing resources</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="inspector.html">Inspector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="level_tree.html">Level Tree</a></li>
 <li class="toctree-l2"><a class="reference internal" href="level_viewport.html">Level Viewport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="texture_settings.html">Texture Settings</a></li>
@@ -101,9 +98,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">The Level Editor</a> &raquo;</li>
-      <li>Console</li>
+      <li>Inspector</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/level_editor/console.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/level_editor/inspector.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -111,66 +108,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="console">
-<h1>Console<a class="headerlink" href="#console" title="Permalink to this headline">¶</a></h1>
-<p>The Console displays information, warnings, errors, and debug output from the
-Level Editor, the running game, and other engine components. It also lets you
-interact with runtime instances by sending commands and Lua expressions.</p>
-<img alt="../_images/console.png" src="../_images/console.png" />
-<section id="runtime-connections">
-<h2>Runtime connections<a class="headerlink" href="#runtime-connections" title="Permalink to this headline">¶</a></h2>
-<p>Each engine runtime spawned by the Level Editor is connected via TCP/IP, and
-the Console is the main UI for communicating with those instances. By default
-the Console is set to communicate with the editor runtime itself. When you
-start the game from the Level Editor, Crown switches the Console to
-communicate with the game runtime. You can also select manually which runtime
-the Console talks to using the runtime selector:</p>
-<img alt="../_images/console_runtime_selector.svg" src="../_images/console_runtime_selector.svg" /></section>
-<section id="commands">
-<h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
-<p>You can type both commands and Lua expressions in the Command Bar. Use
-commands for low-level testing, profiling, or engine configuration. Commands
-must be prefixed with a colon (<code class="docutils literal notranslate"><span class="pre">:</span></code>) so they are distinguished from Lua
-expressions. Type <code class="docutils literal notranslate"><span class="pre">:help</span></code> in the Command Bar to see the available commands.</p>
-<p>See <a class="reference internal" href="../reference/console_commands.html#console-commands"><span class="std std-ref">Console commands</span></a> for full documentation.</p>
+  <section id="inspector">
+<h1>Inspector<a class="headerlink" href="#inspector" title="Permalink to this headline">¶</a></h1>
+<p>The Inspector lets you view and modify the properties of selected objects in
+the <a class="reference internal" href="level_viewport.html#level-viewport"><span class="std std-ref">Level Viewport</span></a>. Select one or more objects to display their
+components and editable fields. Changes made in the Inspector are applied
+immediately and reflected in the Level Viewport.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/inspector.png" src="../_images/inspector.png" />
+<figcaption>
+<p><span class="caption-text">The Inspector showing the properties of a Unit.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="expression-evaluator">
+<h2>Expression evaluator<a class="headerlink" href="#expression-evaluator" title="Permalink to this headline">¶</a></h2>
+<p>Numeric entries in the Inspector can evaluate simple mathematical expressions,
+which is handy for precise adjustments. Type an expression and press
+<code class="docutils literal notranslate"><span class="pre">Enter</span></code> to evaluate it. The special variable <code class="docutils literal notranslate"><span class="pre">x</span></code> represents the current
+value in the field. For example, if a field contains <code class="docutils literal notranslate"><span class="pre">2</span></code>, entering <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">+</span>
+<span class="pre">1</span></code> changes it to <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/inspector_entry_expression.png" src="../_images/inspector_entry_expression.png" />
+<figcaption>
+<p><span class="caption-text">A simple expression in a numeric entry.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="lua-expressions">
-<h2>Lua expressions<a class="headerlink" href="#lua-expressions" title="Permalink to this headline">¶</a></h2>
-<p>You can send arbitrary Lua expressions to the connected runtime. Enter a Lua
-expression in the Command Bar and press <code class="docutils literal notranslate"><span class="pre">Enter</span></code>. The runtime evaluates the
-expression and prints the result back to the Console. This is useful for
-inspecting state, calling engine APIs, or invoking game code while the game
-is running.</p>
-<img alt="../_images/console_lua_expression.svg" src="../_images/console_lua_expression.svg" /></section>
-<section id="history-navigation">
-<h2>History navigation<a class="headerlink" href="#history-navigation" title="Permalink to this headline">¶</a></h2>
-<p>The Console keeps a history of executed commands and expressions. Use the <code class="docutils literal notranslate"><span class="pre">Up</span>
-<span class="pre">Arrow</span></code> and <code class="docutils literal notranslate"><span class="pre">Down</span> <span class="pre">Arrow</span></code> keys to navigate backward and forward through
-recent entries. The maximum history size is configurable from Preferences
-dialog.</p>
+<section id="revealing-resources">
+<h2>Revealing resources<a class="headerlink" href="#revealing-resources" title="Permalink to this headline">¶</a></h2>
+<p>Properties that reference resources include a <code class="docutils literal notranslate"><span class="pre">Reveal</span></code> shortcut that opens
+the <a class="reference internal" href="project_browser.html#project-browser"><span class="std std-ref">Project Browser</span></a> and highlights the referenced resource. The reveal
+action attempts to locate the resource even when the resource type is hidden
+or when the file resides in a mapped source directory that is not shown.</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/inspector_reveal_resource.svg" src="../_images/inspector_reveal_resource.svg" /><figcaption>
+<p><span class="caption-text">The <code class="docutils literal notranslate"><span class="pre">Reveal</span></code> button.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="resource-id-lookup">
-<h2>Resource ID lookup<a class="headerlink" href="#resource-id-lookup" title="Permalink to this headline">¶</a></h2>
-<p>For efficiency, Crown runtimes in most cases use hashed numeric identifiers
-instead of plain-text strings. When the Console detects such numeric IDs, it
-attempts to resolve them back to readable names so logs are easier to
-understand:</p>
-<img alt="../_images/console_id_lookup.svg" src="../_images/console_id_lookup.svg" /></section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="project_browser.html" class="btn btn-neutral float-left" title="Project Browser" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="inspector.html" class="btn btn-neutral float-right" title="Inspector" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="console.html" class="btn btn-neutral float-left" title="Console" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="level_tree.html" class="btn btn-neutral float-right" title="Level Tree" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 15, 2026.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 

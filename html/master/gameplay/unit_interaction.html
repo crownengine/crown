@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-10-16T08:33:32+00:00" /><meta property="og:title" content="Interacting with Units" />
+    <meta property="article:modified_time" content="2026-02-16T00:35:33+00:00" /><meta property="og:title" content="Interacting with Units" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/gameplay/unit_interaction.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
@@ -111,7 +111,7 @@
 manipulate their properties, be notified of particular events and make them do
 something interesting.</p>
 <section id="getting-unit-handles">
-<h2>Getting Unit handles<a class="headerlink" href="#getting-unit-handles" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Getting Unit handles<a class="headerlink" href="#getting-unit-handles" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way of getting a handle to a unit is to spawn it directly from a
 script:</p>
 <div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">player</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/player/player&quot;</span><span class="p">)</span>
@@ -127,8 +127,7 @@ spawned in a world this way:</p>
 <span class="kr">end</span>
 </pre></div>
 </div>
-<p>To obtain a specific Unit by name (its name as set in the Level Editor, <em>not</em>
-the unit name itself):</p>
+<p>To obtain a specific Unit by name (its name as set in the <span class="xref std std-ref">Level Editor</span>, <em>not</em> the unit name itself):</p>
 <div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">door</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">unit_by_name</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;main_door&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -243,7 +242,7 @@ receive regular collision events, instead, they will receive trigger events:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 16, 2025.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 
