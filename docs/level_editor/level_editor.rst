@@ -18,7 +18,7 @@ Number Name                    What it shows
 1      :ref:`Project Browser`  The current project's contents.
 2      :ref:`Console`          Messages from the Level Editor, the Game and other Runtimes.
 3      :ref:`Inspector`        The properties of the currently selected object.
-4      Level Tree              A hierarchical view of all the objects in the Level.
+4      :ref:`Level Tree`       A hierarchical view of all the objects in the Level.
 5      :ref:`Level Viewport`   The Level being edited.
 6      Menubar                 Common commands for editing / debugging / opening editors etc.
 7      Toolbar                 Tools and common options for editing.

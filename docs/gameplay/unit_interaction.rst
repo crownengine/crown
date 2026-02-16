@@ -6,6 +6,8 @@ At some point you will probably need to reference units from the Lua scripts to
 manipulate their properties, be notified of particular events and make them do
 something interesting.
 
+.. _getting_unit_handles:
+
 Getting Unit handles
 --------------------
 
@@ -28,8 +30,8 @@ spawned in a world this way:
 		-- Do something with Unit u.
 	end
 
-To obtain a specific Unit by name (its name as set in the Level Editor, *not*
-the unit name itself):
+To obtain a specific Unit by name (its name as set in the :ref:`Level Editor
+<renaming_objects>`, *not* the unit name itself):
 
 .. code:: lua
 
