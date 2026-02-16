@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2025-11-27T16:23:47+00:00" /><meta property="og:title" content="Importing Sounds" />
+    <meta property="article:modified_time" content="2026-02-16T23:04:08+00:00" /><meta property="og:title" content="Importing Sounds" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_sounds.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="Crown supports importing both short sound effects and longer music tracks. Importing any supported audio file produces a.sound resource in the project alongside the original audio file. Audio streaming: During project compilation Crown inspects the audio file and chooses an ap..." />
+<meta name="description" content="Crown supports importing both short sound effects and longer music tracks. Importing any supported audio file produces a.sound resource in the project alongside the original audio file. Audio streaming: During project compilation Crown inspects the audio file and chooses an ap..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Importing Sounds &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -61,7 +63,10 @@
 <li class="toctree-l2"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="importing_textures.html">Importing Textures</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing Sounds</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing Sounds</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#audio-streaming">Audio streaming</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="importing_fonts.html">Importing Fonts</a></li>
 </ul>
 </li>
@@ -101,6 +106,20 @@
              
   <section id="importing-sounds">
 <h1>Importing Sounds<a class="headerlink" href="#importing-sounds" title="Permalink to this headline">¶</a></h1>
+<p>Crown supports importing both short sound effects and longer music tracks.
+Importing any supported audio file produces a <code class="docutils literal notranslate"><span class="pre">.sound</span></code> resource in the
+project alongside the original audio file.</p>
+<section id="audio-streaming">
+<h2>Audio streaming<a class="headerlink" href="#audio-streaming" title="Permalink to this headline">¶</a></h2>
+<p>During project compilation Crown inspects the audio file and chooses an
+appropriate processing strategy:</p>
+<ul class="simple">
+<li><p>Short sound effects are typically preloaded into memory so playback can
+start with no delay.</p></li>
+<li><p>Long music tracks use the original file compression and are streamed in at
+runtime to reduce memory usage.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -115,7 +134,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Nov 27, 2025.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 
