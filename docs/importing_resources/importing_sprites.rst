@@ -11,7 +11,10 @@ dedicated target folder first. The importer generates multiple output files
 (sprites, units, materials etc.), so keeping them together makes the project
 easier to manage.
 
-.. image:: images/import_sprite.png
+.. figure:: images/import_sprite.png
+   :align: center
+
+   The Sprite Importer window.
 
 Sprite Importer overview
 ------------------------
@@ -52,7 +55,10 @@ Choose the sprite origin with the ``Pivot`` combobox. The preview area shows
 the pivot position so you can pick the point that makes placement and
 rotation easier.
 
-.. image:: images/sprite_pivot.svg
+.. figure:: images/sprite_pivot.svg
+   :align: center
+
+   The sprite pivot in the preview area.
 
 Collision and physics
 ---------------------

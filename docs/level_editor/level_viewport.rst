@@ -52,13 +52,19 @@ Selecting objects is the primary way to focus edits and transformations on
 specific objects in the scene. Left-click an object to select it; a dim
 orange outline will be drawn around selected objects in the viewport:
 
-.. image:: images/selected_cube.png
+.. figure:: images/selected_cube.png
+   :align: center
+
+   A selected cube highlighted in the Level Viewport.
 
 If a selected object is occluded by unselected ones, Crown still highlights it
 with a slightly dimmed orange outline so you can keep working with it even
 when it is not fully visible:
 
-.. image:: images/selected_sphere_occluded.png
+.. figure:: images/selected_sphere_occluded.png
+   :align: center
+
+   A selected sphere with dimmed highlighting where occluded.
 
 To clear the current selection, just left-click an empty area or press
 ``Shift + Ctrl + A``.
@@ -73,7 +79,10 @@ remove it from the selection.
 To select multiple objects by area, left-click and drag to draw a selection
 rectangle; any object that intersects that rectangle will be selected.
 
-.. image:: images/box_selection.png
+.. figure:: images/box_selection.png
+   :align: center
+
+   Box selection in the Level Viewport.
 
 Framing objects
 ===============
@@ -120,7 +129,10 @@ When one or more objects are selected, Crown displays a transform gizmo at the
 origin of the selection. The gizmo provides axis handles, planar handles and
 a camera-aligned handle. Interact with the gizmo using left-click and drag.
 
-.. image:: images/move_rotate_scale.png
+.. figure:: images/move_rotate_scale.png
+   :align: center
+
+   Move, rotate, and scale gizmos in the Level Viewport.
 
 Move gizmo
 ----------
@@ -161,7 +173,10 @@ coordinate system regardless of the selected object's local transformations.
 
 Toggle axis mode using the Local/World Axis control in the toolbar:
 
-.. image:: images/local_world_axis.svg
+.. figure:: images/local_world_axis.svg
+   :align: center
+
+   Toggling between local and world axis modes.
 
 Snapping
 ========
@@ -171,7 +186,10 @@ precision, enable grid and angle snapping to constrain transforms to fixed
 increments. Toggle snapping by clicking the ``Snap To Grid`` button on the
 toolbar:
 
-.. image:: images/toolbar_snap_to_grid.svg
+.. figure:: images/toolbar_snap_to_grid.svg
+   :align: center
+
+   The Snap To Grid control in the toolbar.
 
 With snapping enabled, movement and rotation will snap to the configured grid
 size and snap angle. Hold ``Left Ctrl`` while performing a transform to
@@ -181,7 +199,10 @@ Change the grid cell size or the snap angle with ``Ctrl+G`` and ``Ctrl+H``
 respectively. These shortcuts open dialogs where you can type exact numeric
 values for the grid spacing and angle increment:
 
-.. image:: images/grid_size_dialog.png
+.. figure:: images/grid_size_dialog.png
+   :align: center
+
+   Configuring grid size and snap angle.
 
 Relative and Absolute snapping
 ------------------------------
@@ -197,4 +218,7 @@ which is useful for aligning multiple objects to a common global grid.
 Switch between the two modes using the ``Relative Snap`` and ``Absolute Snap``
 toolbar buttons.
 
-.. image:: images/relative_absolute_snap.svg
+.. figure:: images/relative_absolute_snap.svg
+   :align: center
+
+   Relative and absolute snapping controls.
