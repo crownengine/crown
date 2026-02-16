@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-13T16:45:00+00:00" /><meta property="og:title" content="Importing Scenes" />
+    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Importing Scenes" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_scenes.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="Crown can import most useful elements from 3D scenes saved in FBX format. When you import an FBX file, Crown opens a dialog where you can select import options and choose which parts of the scene to bring into your project: FBX import dialog: The FBX import dialog is divided i..." />
+<meta property="og:description" content="Crown can import most useful elements from 3D scenes saved in FBX format. When you import an FBX file, Crown opens a dialog where you can select import options and choose which parts of the scene to bring into your project: The FBX import dialog., FBX import dialog: The FBX im..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/import_fbx.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="Crown can import most useful elements from 3D scenes saved in FBX format. When you import an FBX file, Crown opens a dialog where you can select import options and choose which parts of the scene to bring into your project: FBX import dialog: The FBX import dialog is divided i..." />
+<meta name="description" content="Crown can import most useful elements from 3D scenes saved in FBX format. When you import an FBX file, Crown opens a dialog where you can select import options and choose which parts of the scene to bring into your project: The FBX import dialog., FBX import dialog: The FBX im..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Importing Scenes &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -116,7 +116,12 @@
 <p>Crown can import most useful elements from 3D scenes saved in FBX format. When
 you import an FBX file, Crown opens a dialog where you can select import
 options and choose which parts of the scene to bring into your project:</p>
+<figure class="align-center" id="id2">
 <img alt="../_images/import_fbx.png" src="../_images/import_fbx.png" />
+<figcaption>
+<p><span class="caption-text">The FBX import dialog.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <section id="fbx-import-dialog">
 <h2>FBX import dialog<a class="headerlink" href="#fbx-import-dialog" title="Permalink to this headline">¶</a></h2>
 <p>The FBX import dialog is divided into two main sections:</p>
@@ -139,10 +144,20 @@ simplifies asset management and make faster iterations possible.</p>
 <p>Start by importing the FBX that contains the geometry and skeleton. In the
 Project Browser create or select the target folder, make sure <code class="docutils literal notranslate"><span class="pre">Import</span>
 <span class="pre">Animations</span></code> is unchecked, then click <code class="docutils literal notranslate"><span class="pre">Import</span></code> to begin:</p>
-<img alt="../_images/import_fbx_unchecked_animations.svg" src="../_images/import_fbx_unchecked_animations.svg" /><p>When the import completes, the unit (geometry), the skeleton, and any other
+<figure class="align-center" id="id3">
+<img alt="../_images/import_fbx_unchecked_animations.svg" src="../_images/import_fbx_unchecked_animations.svg" /><figcaption>
+<p><span class="caption-text">Disabling animation import when importing geometry and skeleton.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>When the import completes, the unit (geometry), the skeleton, and any other
 objects you selected in the Unit section will appear as separate items in the
 Project Browser:</p>
-<img alt="../_images/project_browser_import_clips_unit_and_skeleton.svg" src="../_images/project_browser_import_clips_unit_and_skeleton.svg" /></section>
+<figure class="align-center" id="id4">
+<img alt="../_images/project_browser_import_clips_unit_and_skeleton.svg" src="../_images/project_browser_import_clips_unit_and_skeleton.svg" /><figcaption>
+<p><span class="caption-text">Imported unit, skeleton, and related resources in the Project Browser.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 <section id="importing-animation-clips">
 <h3>2) Importing animation clips<a class="headerlink" href="#importing-animation-clips" title="Permalink to this headline">¶</a></h3>
 <p>After importing geometry and skeleton, import the FBX files that contain the
@@ -154,10 +169,20 @@ dialog:</p>
 <li><p>Uncheck <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Skeleton</span></code> to indicate that the skeleton already exists.</p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">Target</span> <span class="pre">Skeleton</span></code> to the skeleton you imported in the previous step.</p></li>
 </ul>
-<img alt="../_images/import_fbx_select_skeleton.svg" src="../_images/import_fbx_select_skeleton.svg" /><p>When the importer finishes, it creates an <code class="docutils literal notranslate"><span class="pre">animations</span></code> folder and places the
+<figure class="align-center" id="id5">
+<img alt="../_images/import_fbx_select_skeleton.svg" src="../_images/import_fbx_select_skeleton.svg" /><figcaption>
+<p><span class="caption-text">Selecting the target skeleton when importing animation clips.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>When the importer finishes, it creates an <code class="docutils literal notranslate"><span class="pre">animations</span></code> folder and places the
 imported clips inside it, with correct references to the existing skeleton and
 geometry:</p>
-<img alt="../_images/project_browser_imported_clips.svg" src="../_images/project_browser_imported_clips.svg" /></section>
+<figure class="align-center" id="id6">
+<img alt="../_images/project_browser_imported_clips.svg" src="../_images/project_browser_imported_clips.svg" /><figcaption>
+<p><span class="caption-text">Imported animation clips in the dedicated <code class="docutils literal notranslate"><span class="pre">animations</span></code> folder.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 </section>
 
@@ -173,7 +198,7 @@ geometry:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 13, 2026.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 

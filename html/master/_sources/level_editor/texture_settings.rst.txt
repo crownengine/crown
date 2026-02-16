@@ -6,7 +6,10 @@ The Texture Settings dialog lets you customize how Crown processes a texture
 for each target platform. To open it, double-click a texture in the
 :ref:`Project Browser`; Crown will display a dialog similar to this:
 
-.. image:: images/texture_settings_dialog.png
+.. figure:: images/texture_settings_dialog.png
+   :align: center
+
+   The Texture Settings dialog.
 
 Overview
 --------
@@ -19,7 +22,10 @@ After selecting platforms, the settings on the right update to reflect the
 current values. If the selected platforms have different values for a given
 option, a dash symbol (—) appears to indicate the inconsistency:
 
-.. image:: images/texture_settings_inconsistent_format.svg
+.. figure:: images/texture_settings_inconsistent_format.svg
+   :align: center
+
+   Inconsistent format values indicated by a dash symbol.
 
 Output
 ------

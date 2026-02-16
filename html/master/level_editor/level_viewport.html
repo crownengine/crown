@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-13T17:50:11+00:00" /><meta property="og:title" content="Level Viewport" />
+    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Level Viewport" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/level_viewport.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
@@ -173,11 +173,21 @@ or checking level flow at player height.</p>
 <p>Selecting objects is the primary way to focus edits and transformations on
 specific objects in the scene. Left-click an object to select it; a dim
 orange outline will be drawn around selected objects in the viewport:</p>
+<figure class="align-center" id="id1">
 <img alt="../_images/selected_cube.png" src="../_images/selected_cube.png" />
+<figcaption>
+<p><span class="caption-text">A selected cube highlighted in the Level Viewport.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>If a selected object is occluded by unselected ones, Crown still highlights it
 with a slightly dimmed orange outline so you can keep working with it even
 when it is not fully visible:</p>
+<figure class="align-center" id="id2">
 <img alt="../_images/selected_sphere_occluded.png" src="../_images/selected_sphere_occluded.png" />
+<figcaption>
+<p><span class="caption-text">A selected sphere with dimmed highlighting where occluded.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>To clear the current selection, just left-click an empty area or press
 <code class="docutils literal notranslate"><span class="pre">Shift</span> <span class="pre">+</span> <span class="pre">Ctrl</span> <span class="pre">+</span> <span class="pre">A</span></code>.</p>
 <section id="multiple-selection">
@@ -187,7 +197,12 @@ current selection. Conversely, left-click an already selected object to
 remove it from the selection.</p>
 <p>To select multiple objects by area, left-click and drag to draw a selection
 rectangle; any object that intersects that rectangle will be selected.</p>
+<figure class="align-center" id="id3">
 <img alt="../_images/box_selection.png" src="../_images/box_selection.png" />
+<figcaption>
+<p><span class="caption-text">Box selection in the Level Viewport.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 <section id="framing-objects">
@@ -225,7 +240,12 @@ Move, Rotate, and Scale modes respectively.</p>
 <p>When one or more objects are selected, Crown displays a transform gizmo at the
 origin of the selection. The gizmo provides axis handles, planar handles and
 a camera-aligned handle. Interact with the gizmo using left-click and drag.</p>
+<figure class="align-center" id="id4">
 <img alt="../_images/move_rotate_scale.png" src="../_images/move_rotate_scale.png" />
+<figcaption>
+<p><span class="caption-text">Move, rotate, and scale gizmos in the Level Viewport.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <section id="move-gizmo">
 <h3>Move gizmo<a class="headerlink" href="#move-gizmo" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
@@ -264,7 +284,12 @@ edits that must align to the scene or the world origin.</p>
 <p>Switching to the <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Axis</span></code> mode forces all gizmos to align to the world
 coordinate system regardless of the selected object’s local transformations.</p>
 <p>Toggle axis mode using the Local/World Axis control in the toolbar:</p>
-<img alt="../_images/local_world_axis.svg" src="../_images/local_world_axis.svg" /></section>
+<figure class="align-center" id="id5">
+<img alt="../_images/local_world_axis.svg" src="../_images/local_world_axis.svg" /><figcaption>
+<p><span class="caption-text">Toggling between local and world axis modes.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 <section id="snapping">
 <h2>Snapping<a class="headerlink" href="#snapping" title="Permalink to this headline">¶</a></h2>
@@ -272,13 +297,23 @@ coordinate system regardless of the selected object’s local transformations.</
 precision, enable grid and angle snapping to constrain transforms to fixed
 increments. Toggle snapping by clicking the <code class="docutils literal notranslate"><span class="pre">Snap</span> <span class="pre">To</span> <span class="pre">Grid</span></code> button on the
 toolbar:</p>
-<img alt="../_images/toolbar_snap_to_grid.svg" src="../_images/toolbar_snap_to_grid.svg" /><p>With snapping enabled, movement and rotation will snap to the configured grid
+<figure class="align-center" id="id6">
+<img alt="../_images/toolbar_snap_to_grid.svg" src="../_images/toolbar_snap_to_grid.svg" /><figcaption>
+<p><span class="caption-text">The Snap To Grid control in the toolbar.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>With snapping enabled, movement and rotation will snap to the configured grid
 size and snap angle. Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Ctrl</span></code> while performing a transform to
 temporarily disable snapping and make a single free adjustment.</p>
 <p>Change the grid cell size or the snap angle with <code class="docutils literal notranslate"><span class="pre">Ctrl+G</span></code> and <code class="docutils literal notranslate"><span class="pre">Ctrl+H</span></code>
 respectively. These shortcuts open dialogs where you can type exact numeric
 values for the grid spacing and angle increment:</p>
+<figure class="align-center" id="id7">
 <img alt="../_images/grid_size_dialog.png" src="../_images/grid_size_dialog.png" />
+<figcaption>
+<p><span class="caption-text">Configuring grid size and snap angle.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <section id="relative-and-absolute-snapping">
 <h3>Relative and Absolute snapping<a class="headerlink" href="#relative-and-absolute-snapping" title="Permalink to this headline">¶</a></h3>
 <p>Crown offers two snapping coordinate modes. In Relative Snapping mode the
@@ -289,7 +324,12 @@ convenient for local adjustments.</p>
 which is useful for aligning multiple objects to a common global grid.</p>
 <p>Switch between the two modes using the <code class="docutils literal notranslate"><span class="pre">Relative</span> <span class="pre">Snap</span></code> and <code class="docutils literal notranslate"><span class="pre">Absolute</span> <span class="pre">Snap</span></code>
 toolbar buttons.</p>
-<img alt="../_images/relative_absolute_snap.svg" src="../_images/relative_absolute_snap.svg" /></section>
+<figure class="align-center" id="id8">
+<img alt="../_images/relative_absolute_snap.svg" src="../_images/relative_absolute_snap.svg" /><figcaption>
+<p><span class="caption-text">Relative and absolute snapping controls.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 </section>
 
@@ -305,7 +345,7 @@ toolbar buttons.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 13, 2026.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 

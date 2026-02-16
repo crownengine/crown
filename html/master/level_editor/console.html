@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-15T01:23:55+00:00" /><meta property="og:title" content="Console" />
+    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Console" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/console.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. Runtime connections: Each engine runtime spawned..." />
+<meta property="og:description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. The Console displaying messages from the editor ..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/console.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. Runtime connections: Each engine runtime spawned..." />
+<meta name="description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. The Console displaying messages from the editor ..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Console &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -116,7 +116,12 @@
 <p>The Console displays information, warnings, errors, and debug output from the
 Level Editor, the running game, and other engine components. It also lets you
 interact with runtime instances by sending commands and Lua expressions.</p>
+<figure class="align-center" id="id1">
 <img alt="../_images/console.png" src="../_images/console.png" />
+<figcaption>
+<p><span class="caption-text">The Console displaying messages from the editor and runtimes.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <section id="runtime-connections">
 <h2>Runtime connections<a class="headerlink" href="#runtime-connections" title="Permalink to this headline">¶</a></h2>
 <p>Each engine runtime spawned by the Level Editor is connected via TCP/IP, and
@@ -125,7 +130,12 @@ the Console is set to communicate with the editor runtime itself. When you
 start the game from the Level Editor, Crown switches the Console to
 communicate with the game runtime. You can also select manually which runtime
 the Console talks to using the runtime selector:</p>
-<img alt="../_images/console_runtime_selector.svg" src="../_images/console_runtime_selector.svg" /></section>
+<figure class="align-center" id="id2">
+<img alt="../_images/console_runtime_selector.svg" src="../_images/console_runtime_selector.svg" /><figcaption>
+<p><span class="caption-text">The runtime selector in the Console.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 <section id="commands">
 <h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
 <p>You can type both commands and Lua expressions in the Command Bar. Use
@@ -141,7 +151,12 @@ expression in the Command Bar and press <code class="docutils literal notranslat
 expression and prints the result back to the Console. This is useful for
 inspecting state, calling engine APIs, or invoking game code while the game
 is running.</p>
-<img alt="../_images/console_lua_expression.svg" src="../_images/console_lua_expression.svg" /></section>
+<figure class="align-center" id="id3">
+<img alt="../_images/console_lua_expression.svg" src="../_images/console_lua_expression.svg" /><figcaption>
+<p><span class="caption-text">Evaluating a Lua expression in the Console.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 <section id="history-navigation">
 <h2>History navigation<a class="headerlink" href="#history-navigation" title="Permalink to this headline">¶</a></h2>
 <p>The Console keeps a history of executed commands and expressions. Use the <code class="docutils literal notranslate"><span class="pre">Up</span>
@@ -155,7 +170,12 @@ dialog.</p>
 instead of plain-text strings. When the Console detects such numeric IDs, it
 attempts to resolve them back to readable names so logs are easier to
 understand:</p>
-<img alt="../_images/console_id_lookup.svg" src="../_images/console_id_lookup.svg" /></section>
+<figure class="align-center" id="id4">
+<img alt="../_images/console_id_lookup.svg" src="../_images/console_id_lookup.svg" /><figcaption>
+<p><span class="caption-text">Automatic resource ID lookup in the Console.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 
 
@@ -170,7 +190,7 @@ understand:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 15, 2026.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
       </span></p>
   </div>
 

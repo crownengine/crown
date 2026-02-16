@@ -6,7 +6,10 @@ The Project Browser is where you view and manage the files and resources that
 make up your project. From here you can create or import new resources, open
 them, organize folders, and pin favorites for quick access.
 
-.. image:: images/project_browser.png
+.. figure:: images/project_browser.png
+   :align: center
+
+   The Project Browser showing folders and resources.
 
 Overview
 ========
@@ -18,7 +21,10 @@ displays the contents of the currently selected folder.
 If you prefer a single unified view that shows files and folders together,
 click the small tree icon at the top-right to toggle the layout mode:
 
-.. image:: images/project_browser_tree_view.svg
+.. figure:: images/project_browser_tree_view.svg
+   :align: center
+
+   The layout toggle in the Project Browser.
 
 Folder View
 ===========
@@ -27,13 +33,19 @@ The Folder View presents the resources inside the selected folder. You can
 switch between a icon view and a compact list view using the button at the
 top-right of the Folder View:
 
-.. image:: images/project_browser_icon_list_view.svg
+.. figure:: images/project_browser_icon_list_view.svg
+   :align: center
+
+   Switching between icon and list views in the Folder View.
 
 Resources such as units, materials, textures and other graphical content use
 thumbnails that show how they will appear at runtime. Other resource types
 use a simple icon.
 
-.. image:: images/project_browser_thumbnails.png
+.. figure:: images/project_browser_thumbnails.png
+   :align: center
+
+   Thumbnail previews for graphical resources in the Project Browser.
 
 Thumbnails generated in Crown are saved in a dedicated OS location so they can
 be used by other programs such as the file manager.
@@ -50,7 +62,10 @@ texture resource on disk consists of the original image file plus a generated
 When you need to inspect the actual files on disk use the button immediately
 to the right of the Search Bar to toggle visibility options:
 
-.. image:: images/project_browser_sorting_filtering.svg
+.. figure:: images/project_browser_sorting_filtering.svg
+   :align: center
+
+   The visibility and sorting controls in the Project Browser.
 
 With the same popup you can also control how the items should be sorted.
 

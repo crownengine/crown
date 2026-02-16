@@ -7,7 +7,10 @@ The following are commands that can be typed in the Console tab. In order for a
 command to be interpreted as such, you must prefix it with a colon symbol when
 entering it in the command prompt:
 
-.. image:: images/console_command.png
+.. figure:: images/console_command.png
+   :align: center
+
+   Typing a console command with the ``:`` prefix.
 
 crash
 -----
