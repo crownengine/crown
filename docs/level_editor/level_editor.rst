@@ -8,7 +8,10 @@ After opening a :ref:`project` Crown immediately starts compiling the
 resources it contains. Once the process is complete, the Level Editor is
 launched and should look similar to the image below:
 
-.. image:: images/editor_overview.svg
+.. figure:: images/editor_overview.svg
+   :align: center
+
+   The Level Editor interface in its default configuration.
 
 The Level Editor is split into several panels:
 

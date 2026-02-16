@@ -7,7 +7,10 @@ Crown can import most useful elements from 3D scenes saved in FBX format. When
 you import an FBX file, Crown opens a dialog where you can select import
 options and choose which parts of the scene to bring into your project:
 
-.. image:: images/import_fbx.png
+.. figure:: images/import_fbx.png
+   :align: center
+
+   The FBX import dialog.
 
 FBX import dialog
 -----------------
@@ -36,13 +39,19 @@ Start by importing the FBX that contains the geometry and skeleton. In the
 Project Browser create or select the target folder, make sure ``Import
 Animations`` is unchecked, then click ``Import`` to begin:
 
-.. image:: images/import_fbx_unchecked_animations.svg
+.. figure:: images/import_fbx_unchecked_animations.svg
+   :align: center
+
+   Disabling animation import when importing geometry and skeleton.
 
 When the import completes, the unit (geometry), the skeleton, and any other
 objects you selected in the Unit section will appear as separate items in the
 Project Browser:
 
-.. image:: images/project_browser_import_clips_unit_and_skeleton.svg
+.. figure:: images/project_browser_import_clips_unit_and_skeleton.svg
+   :align: center
+
+   Imported unit, skeleton, and related resources in the Project Browser.
 
 2) Importing animation clips
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,10 +65,16 @@ dialog:
 * Uncheck ``New Skeleton`` to indicate that the skeleton already exists.
 * Set ``Target Skeleton`` to the skeleton you imported in the previous step.
 
-.. image:: images/import_fbx_select_skeleton.svg
+.. figure:: images/import_fbx_select_skeleton.svg
+   :align: center
+
+   Selecting the target skeleton when importing animation clips.
 
 When the importer finishes, it creates an ``animations`` folder and places the
 imported clips inside it, with correct references to the existing skeleton and
 geometry:
 
-.. image:: images/project_browser_imported_clips.svg
+.. figure:: images/project_browser_imported_clips.svg
+   :align: center
+
+   Imported animation clips in the dedicated ``animations`` folder.

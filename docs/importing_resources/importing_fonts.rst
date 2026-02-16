@@ -1,4 +1,7 @@
 Importing Fonts
 ===============
 
-.. image:: images/import_font.png
+.. figure:: images/import_font.png
+   :align: center
+
+   The font import dialog.

@@ -6,7 +6,10 @@ The Console displays information, warnings, errors, and debug output from the
 Level Editor, the running game, and other engine components. It also lets you
 interact with runtime instances by sending commands and Lua expressions.
 
-.. image:: images/console.png
+.. figure:: images/console.png
+   :align: center
+
+   The Console displaying messages from the editor and runtimes.
 
 Runtime connections
 ===================
@@ -18,7 +21,10 @@ start the game from the Level Editor, Crown switches the Console to
 communicate with the game runtime. You can also select manually which runtime
 the Console talks to using the runtime selector:
 
-.. image:: images/console_runtime_selector.svg
+.. figure:: images/console_runtime_selector.svg
+   :align: center
+
+   The runtime selector in the Console.
 
 Commands
 ========
@@ -39,7 +45,10 @@ expression and prints the result back to the Console. This is useful for
 inspecting state, calling engine APIs, or invoking game code while the game
 is running.
 
-.. image:: images/console_lua_expression.svg
+.. figure:: images/console_lua_expression.svg
+   :align: center
+
+   Evaluating a Lua expression in the Console.
 
 History navigation
 ==================
@@ -57,4 +66,7 @@ instead of plain-text strings. When the Console detects such numeric IDs, it
 attempts to resolve them back to readable names so logs are easier to
 understand:
 
-.. image:: images/console_id_lookup.svg
+.. figure:: images/console_id_lookup.svg
+   :align: center
+
+   Automatic resource ID lookup in the Console.
