@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Editor overview" />
+    <meta property="article:modified_time" content="2026-02-17T17:01:58+00:00" /><meta property="og:title" content="Editor overview" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/level_editor.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
@@ -58,7 +58,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">The Level Editor</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Editor overview</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Editor overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#layout-customization">Layout customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-game">Running the game</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="project_browser.html">Project Browser</a></li>
 <li class="toctree-l2"><a class="reference internal" href="console.html">Console</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inspector.html">Inspector</a></li>
@@ -158,8 +162,32 @@ launched and should look similar to the image below:</p>
 <td><p>Statusbar</p></td>
 <td><p>Contextual info and small self-contained messages.</p></td>
 </tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>Titlebar</p></td>
+<td><p>Start/Stop Level button, current level name and edit status.</p></td>
+</tr>
 </tbody>
 </table>
+<section id="layout-customization">
+<h2>Layout customization<a class="headerlink" href="#layout-customization" title="Permalink to this headline">¶</a></h2>
+<p>Most panels are optional and can be toggled from the <code class="docutils literal notranslate"><span class="pre">View</span></code> menu in the
+Menubar.</p>
+<p>The Console can be shown or hidden quickly with the <code class="docutils literal notranslate"><span class="pre">Ctrl+`</span></code> shortcut. Use
+the same shortcut to jump to the Command Bar in the Console.</p>
+</section>
+<section id="running-the-game">
+<h2>Running the game<a class="headerlink" href="#running-the-game" title="Permalink to this headline">¶</a></h2>
+<p>Press <code class="docutils literal notranslate"><span class="pre">F5</span></code> to play the currently edited level. Crown saves a copy of the
+level you are editing and launches it in a separate window. When the level is
+running, the Console automatically connects to the game’s runtime and
+switches to communicate with it.</p>
+<p>To stop the playtest, close the game window or press the Stop Level button on
+the Titlebar. If the runtime takes too long to stop, it will be forcibly
+terminated. At exit the Console will switch back to communicating with the
+editor’s runtime.</p>
+<p>To run the full game, choose <code class="docutils literal notranslate"><span class="pre">Debug</span> <span class="pre">-&gt;</span> <span class="pre">Run</span> <span class="pre">Game</span></code> from the Menubar. In this
+mode Crown launches the game as it would run for an end user.</p>
+</section>
 </section>
 
 
@@ -174,7 +202,7 @@ launched and should look similar to the image below:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 16, 2026.
+      <span class="lastupdated">Last updated on Feb 17, 2026.
       </span></p>
   </div>
 
