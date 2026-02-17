@@ -26,4 +26,5 @@ Number Name                    What it shows
 6      Menubar                 Common commands for editing / debugging / opening editors etc.
 7      Toolbar                 Tools and common options for editing.
 8      Statusbar               Contextual info and small self-contained messages.
+9      Titlebar                Test level button, current level name and edit status.
 ====== ======================= =============
