@@ -8,6 +8,11 @@ Units
 Units are the basic building block in Crown. A Unit represents a single
 logical object in the game world: a character, a light, a prop, and so on.
 
+.. figure:: images/units.png
+   :align: center
+
+   A unit imported from a scene, a camera unit, and a unit representing a sprite.
+
 At the most fundamental level, Units are just numeric IDs that identify a
 specific object in a World. Units on their own are empty. You add Components
 to a Unit to give it behaviour and appearance.
@@ -18,6 +23,11 @@ Components
 Contrary to some other engines, in Crown all Unit Components are optional,
 even the Transform Component can be omitted. This way you can have purely
 functional Units with no runtime cost.
+
+.. figure:: images/components.png
+   :align: center
+
+   A "light" unit with its transform component displayed in the Inspector.
 
 Units can have any number of components attached to them, but only one
 component per type is allowed.
