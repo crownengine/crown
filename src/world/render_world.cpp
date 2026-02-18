@@ -1047,7 +1047,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 						};
 
 						*(&shader.atlas_u.x + side) = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
-#if CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_WINDOWS || CROWN_PLATFORM_LINUX
 						*(&shader.atlas_v.x + side) = rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 #else
 						*(&shader.atlas_v.x + side) = 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x);
