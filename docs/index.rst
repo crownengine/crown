@@ -10,6 +10,7 @@ Crown |version| Manual
     getting_started/index
     level_editor/index
     importing_resources/index
+    units/index
     gameplay/index
     deploying/index
     reference/index
