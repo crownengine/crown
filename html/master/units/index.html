@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-14T22:30:44+00:00" /><meta property="og:title" content="Engine Hackers" />
+    <meta property="article:modified_time" content="2026-02-18T11:16:10+00:00" /><meta property="og:title" content="Units" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/index.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/units/index.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="This section of the manual is intended for those who want to understand the low-level engine structure in order to modify/extend it. Building- Getting Source, Prerequisites, Build., Console API- TCP protocol, JSON messages, Execute Lua scripts.." />
-<meta name="description" content="This section of the manual is intended for those who want to understand the low-level engine structure in order to modify/extend it. Building- Getting Source, Prerequisites, Build., Console API- TCP protocol, JSON messages, Execute Lua scripts.." />
+<meta property="og:description" content="This section explains what Units are, how they work, how they can be created, saved, used, extended etc. Introduction- Units, Components, Hierarchies, Prefabs., Creating Units- Overview, From the Level Editor, From the Project Browser, From imported resources, Spawning Units.." />
+<meta name="description" content="This section explains what Units are, how they work, how they can be created, saved, used, extended etc. Introduction- Units, Components, Hierarchies, Prefabs., Creating Units- Overview, From the Level Editor, From the Project Browser, From imported resources, Spawning Units.." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Engine Hackers &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>Units &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/hackers/index.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/units/index.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -29,8 +29,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Building" href="building.html" />
-    <link rel="prev" title="License" href="../copyright.html" /> 
+    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="prev" title="Importing Fonts" href="../importing_resources/importing_fonts.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,18 +59,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html">Creating Units</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Engine Hackers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html">Console API</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
 </ul>
 
         </div>
@@ -87,9 +87,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Engine Hackers</li>
+      <li>Units</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/hackers/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/units/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -97,22 +97,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="engine-hackers">
-<h1>Engine Hackers<a class="headerlink" href="#engine-hackers" title="Permalink to this headline">¶</a></h1>
-<p>This section of the manual is intended for those who want to understand
-the low-level engine structure in order to modify/extend it.</p>
+  <section id="units">
+<h1>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h1>
+<p>This section explains what Units are, how they work, how they can be created, saved, used, extended etc.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="building.html">Building</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="building.html#getting-source">Getting Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="building.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="building.html#build">Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#components">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#hierarchies">Hierarchies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#prefabs">Prefabs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="console_api.html">Console API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#tcp-protocol">TCP protocol</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#json-messages">JSON messages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#execute-lua-scripts">Execute Lua scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_units.html">Creating Units</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html#from-the-level-editor">From the Level Editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html#from-the-project-browser">From the Project Browser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html#from-imported-resources">From imported resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating_units.html#spawning-units">Spawning Units</a></li>
 </ul>
 </li>
 </ul>
@@ -123,15 +125,15 @@ the low-level engine structure in order to modify/extend it.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../copyright.html" class="btn btn-neutral float-left" title="License" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="building.html" class="btn btn-neutral float-right" title="Building" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../importing_resources/importing_fonts.html" class="btn btn-neutral float-left" title="Importing Fonts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 14, 2026.
+      <span class="lastupdated">Last updated on Feb 18, 2026.
       </span></p>
   </div>
 

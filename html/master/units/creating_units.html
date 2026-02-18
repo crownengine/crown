@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-18T11:16:10+00:00" /><meta property="og:title" content="Creating Units" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/units/creating_units.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="Overview: There are two distinct concepts you need to keep in mind: Unit prefab: a.unit resource stored in your project that describes a Unit hierarchy and all its components and properties., Unit instance: a concrete instance of that prefab that exists in a running World.. Yo..." />
+<meta name="description" content="Overview: There are two distinct concepts you need to keep in mind: Unit prefab: a.unit resource stored in your project that describes a Unit hierarchy and all its components and properties., Unit instance: a concrete instance of that prefab that exists in a running World.. Yo..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creating Units &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/units/creating_units.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Writing Gameplay" href="../gameplay/index.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Units</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating Units</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-the-level-editor">From the Level Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-the-project-browser">From the Project Browser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-imported-resources">From imported resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spawning-units">Spawning Units</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Units</a> &raquo;</li>
+      <li>Creating Units</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/units/creating_units.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-units">
+<h1>Creating Units<a class="headerlink" href="#creating-units" title="Permalink to this headline">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>There are two distinct concepts you need to keep in mind:</p>
+<ul class="simple">
+<li><p>Unit <strong>prefab</strong>: a <code class="docutils literal notranslate"><span class="pre">.unit</span></code> resource stored in your project that describes
+a Unit hierarchy and all its components and properties.</p></li>
+<li><p>Unit <strong>instance</strong>: a concrete instance of that prefab that exists in a
+running World.</p></li>
+</ul>
+<p>You author and edit prefabs in the tools (Level Editor, Unit Editor and
+importers). At runtime you instantiate prefabs from Lua and manipulate the
+resulting Unit instances.</p>
+<p>You do <em>not</em> write <code class="docutils literal notranslate"><span class="pre">.unit</span></code> files from Lua, and you do <em>not</em> author prefabs
+directly from gameplay code.</p>
+</section>
+<section id="from-the-level-editor">
+<h2>From the Level Editor<a class="headerlink" href="#from-the-level-editor" title="Permalink to this headline">¶</a></h2>
+<p>Prefabs can be created in a number of ways. Arguably the simplest way  to
+create new Units is to use the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor</span></a> and then
+save what you have built as a prefab.</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><strong>Open or create a Level</strong></dt><dd><ul class="simple">
+<li><p>Open an existing Level from the <a class="reference internal" href="../level_editor/project_browser.html"><span class="doc">Project Browser</span></a>, or</p></li>
+<li><p>create a new one with <code class="docutils literal notranslate"><span class="pre">File</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Level</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Place a Unit in the Level</strong></dt><dd><ul class="simple">
+<li><p>Place a new unit with <code class="docutils literal notranslate"><span class="pre">Spawn</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Primitives</span></code>, or drag an existing
+Unit prefab from the Project Browser into
+the <a class="reference internal" href="../level_editor/level_viewport.html"><span class="doc">Level Viewport</span></a></p></li>
+<li><p>Use the <a class="reference internal" href="../level_editor/inspector.html"><span class="doc">Inspector</span></a> to add or remove components and
+to fine‑tune their properties</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Save the Unit as prefab</strong></dt><dd><ul class="simple">
+<li><p>In the <a class="reference internal" href="../level_editor/level_tree.html"><span class="doc">Level Tree</span></a>, right‑click the Unit you want
+to turn into a prefab</p></li>
+<li><p>Choose <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">as</span> <span class="pre">Prefab...</span></code></p></li>
+<li><p>In the file dialog, pick a target folder and a unique name, then click
+<code class="docutils literal notranslate"><span class="pre">Save</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<p>The editor will:</p>
+<ul class="simple">
+<li><p>create a new <code class="docutils literal notranslate"><span class="pre">.unit</span></code> resource at the chosen location</p></li>
+<li><p>automatically replace the Unit in the Level with an instance of the newly
+created prefab</p></li>
+</ul>
+<p>From now on:</p>
+<ul class="simple">
+<li><p>editing the prefab will update all instances that use it unless they
+explicitly override properties or children</p></li>
+<li><p>editing the instance in the Level will create per‑instance overrides</p></li>
+</ul>
+</section>
+<section id="from-the-project-browser">
+<h2>From the Project Browser<a class="headerlink" href="#from-the-project-browser" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes you want to start from a blank prefab instead of capturing an
+existing Unit from a Level. You can do this directly from the
+<a class="reference internal" href="../level_editor/project_browser.html"><span class="doc">Project Browser</span></a>:</p>
+<ol class="arabic simple">
+<li><p>Right‑click the folder where you want to create the prefab</p></li>
+<li><p>Choose <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Unit...</span></code></p></li>
+<li><p>Enter a name for the prefab and confirm</p></li>
+</ol>
+<p>This creates an empty <code class="docutils literal notranslate"><span class="pre">.unit</span></code> resource that you can then edit:</p>
+<ul class="simple">
+<li><p>by opening it in the Unit Editor, or</p></li>
+<li><p>by selecting any instance that uses the prefab in a Level and clicking
+<code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">Prefab</span></code> in the <a class="reference internal" href="../level_editor/inspector.html"><span class="doc">Inspector</span></a>.</p></li>
+</ul>
+</section>
+<section id="from-imported-resources">
+<h2>From imported resources<a class="headerlink" href="#from-imported-resources" title="Permalink to this headline">¶</a></h2>
+<p>Some importers generate Units automatically as part of their workflow:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../importing_resources/importing_scenes.html"><span class="doc">Importing Scenes</span></a> generates Units for each
+geometry, light and camera in a FBX file.</p></li>
+<li><p><a class="reference internal" href="../importing_resources/importing_sprites.html"><span class="doc">Importing Sprites</span></a> generates a Unit prefab,
+materials and other resources from a spritesheet.</p></li>
+</ul>
+<p>These generated Units appear in the Project Browser like any other <code class="docutils literal notranslate"><span class="pre">.unit</span></code>
+resource and can be:</p>
+<ul class="simple">
+<li><p>placed in Levels</p></li>
+<li><p>opened and modified in the Unit Editor</p></li>
+<li><p>used as base prefabs for derived units</p></li>
+</ul>
+</section>
+<section id="spawning-units">
+<h2>Spawning Units<a class="headerlink" href="#spawning-units" title="Permalink to this headline">¶</a></h2>
+<p>Lua gameplay code never creates new <code class="docutils literal notranslate"><span class="pre">.unit</span></code> resources. Instead, it creates
+instances of existing prefabs inside a World. The act of creating unit
+instances at runtime is called <strong>spawning</strong>.</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="n">player</span> <span class="o">=</span> <span class="n">World</span><span class="p">.</span><span class="n">spawn_unit</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s2">&quot;units/player/player&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This:</p>
+<ul class="simple">
+<li><p>instantiates the unit <code class="docutils literal notranslate"><span class="pre">units/player/player</span></code> into the specified <code class="docutils literal notranslate"><span class="pre">world</span></code></p></li>
+<li><p>returns a Unit handle you can store and use from Lua</p></li>
+</ul>
+<p>See <a class="reference internal" href="../gameplay/unit_interaction.html"><span class="doc">Interacting with Units</span></a> for a detailed walkthrough of unit
+handles, Script Component and callbacks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../gameplay/index.html" class="btn btn-neutral float-right" title="Writing Gameplay" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 18, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
