@@ -31,7 +31,7 @@ spawned in a world this way:
 	end
 
 To obtain a specific Unit by name (its name as set in the :ref:`Level Editor
-<renaming_objects>`, *not* the unit name itself):
+<Renaming objects>`, *not* the unit name itself):
 
 .. code:: lua
 

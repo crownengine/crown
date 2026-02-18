@@ -63,8 +63,8 @@ components and hierarchy. Changes to a prefab are automatically propagated to
 every instance of that prefab.
 
 Unit Prefabs are created by saving existing units inside
-the :ref:`level_editor`, or, more commonly, by importing them from
-a :ref:`meshes <importing_meshes>` or :ref:`sprites <importing_sprites>`.
+the :ref:`level_editor`, or, more commonly, by importing them
+from :ref:`scenes <importing_scenes>` or :ref:`sprites <importing_sprites>`.
 
 World
 -----
