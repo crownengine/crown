@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-18T11:16:10+00:00" /><meta property="og:title" content="Introduction" />
+    <meta property="article:modified_time" content="2026-02-18T13:11:11+00:00" /><meta property="og:title" content="Introduction" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/units/introduction.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="Units: Units are the basic building block in Crown. A Unit represents a single logical object in the game world: a character, a light, a prop, and so on. At the most fundamental level, Units are just numeric IDs that identify a specific object in a World. Units on their own ar..." />
-<meta name="description" content="Units: Units are the basic building block in Crown. A Unit represents a single logical object in the game world: a character, a light, a prop, and so on. At the most fundamental level, Units are just numeric IDs that identify a specific object in a World. Units on their own ar..." />
+<meta property="og:description" content="Units: Units are the basic building block in Crown. A Unit represents a single logical object in the game world: a character, a light, a prop, and so on. A unit imported from a scene, a camera unit, and a unit representing a sprite., At the most fundamental level, Units are ju..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/units.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="Units: Units are the basic building block in Crown. A Unit represents a single logical object in the game world: a character, a light, a prop, and so on. A unit imported from a scene, a camera unit, and a unit representing a sprite., At the most fundamental level, Units are ju..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Introduction &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -110,6 +112,12 @@
 <h2>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h2>
 <p>Units are the basic building block in Crown. A Unit represents a single
 logical object in the game world: a character, a light, a prop, and so on.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/units.png" src="../_images/units.png" />
+<figcaption>
+<p><span class="caption-text">A unit imported from a scene, a camera unit, and a unit representing a sprite.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>At the most fundamental level, Units are just numeric IDs that identify a
 specific object in a World. Units on their own are empty. You add Components
 to a Unit to give it behaviour and appearance.</p>
@@ -119,6 +127,12 @@ to a Unit to give it behaviour and appearance.</p>
 <p>Contrary to some other engines, in Crown all Unit Components are optional,
 even the Transform Component can be omitted. This way you can have purely
 functional Units with no runtime cost.</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/components.png" src="../_images/components.png" />
+<figcaption>
+<p><span class="caption-text">A “light” unit with its transform component displayed in the Inspector.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>Units can have any number of components attached to them, but only one
 component per type is allowed.</p>
 </section>
