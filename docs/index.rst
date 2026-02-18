@@ -11,6 +11,7 @@ Crown |version| Manual
     level_editor/index
     importing_resources/index
     units/index
+    rendering/index
     gameplay/index
     deploying/index
     reference/index
