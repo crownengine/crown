@@ -13,7 +13,8 @@ Directional light
 A directional light illuminates objects from a uniform direction; The
 brightest directional light in a Level (the one with the highest
 ``Intensity``) is considered the sun. The sun typically renders shadows for
-the entire level using Cascaded Shadow Maps.
+the entire level using Cascaded Shadow Maps. Crown adds a default sun unit to
+new levels created from the :ref:`Level Editor <level_editor>`.
 
 .. figure:: images/lights_directional.png
    :align: center
