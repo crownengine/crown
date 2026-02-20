@@ -12,6 +12,7 @@ Crown |version| Manual
     importing_resources/index
     units/index
     rendering/index
+    physics/index
     gameplay/index
     deploying/index
     reference/index
