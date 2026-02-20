@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-18T11:21:18+00:00" /><meta property="og:title" content="Rendering" />
+    <meta property="article:modified_time" content="2026-02-20T16:01:57+00:00" /><meta property="og:title" content="Rendering" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/rendering/index.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="Introduction- Lights, Shadows.." />
-<meta name="description" content="Introduction- Lights, Shadows.." />
+<meta property="og:description" content="Lighting- Directional light, Local lights, Shadows, Skydome.." />
+<meta name="description" content="Lighting- Directional light, Local lights, Shadows, Skydome.." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rendering &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="next" title="Lighting" href="lighting.html" />
     <link rel="prev" title="Creating Units" href="../units/creating_units.html" /> 
 </head>
 
@@ -57,11 +57,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Rendering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lighting.html">Lighting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
@@ -101,9 +101,11 @@
 <h1>Rendering<a class="headerlink" href="#rendering" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#lights">Lights</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#shadows">Shadows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lighting.html">Lighting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lighting.html#directional-light">Directional light</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lighting.html#local-lights">Local lights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lighting.html#shadows">Shadows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lighting.html#skydome">Skydome</a></li>
 </ul>
 </li>
 </ul>
@@ -115,14 +117,14 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../units/creating_units.html" class="btn btn-neutral float-left" title="Creating Units" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="lighting.html" class="btn btn-neutral float-right" title="Lighting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 18, 2026.
+      <span class="lastupdated">Last updated on Feb 20, 2026.
       </span></p>
   </div>
 

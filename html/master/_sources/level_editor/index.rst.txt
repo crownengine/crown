@@ -1,6 +1,6 @@
-================
-The Level Editor
-================
+============
+Level Editor
+============
 
 The Level Editor is the first editor you encounter when starting Crown, and it
 is where you will spend most of your time when working on Crown projects. As
@@ -11,12 +11,12 @@ start your game, hot-reload any resources and communicate with it via the
 Console.
 
 .. toctree::
-	:maxdepth: 2
+    :maxdepth: 2
 
-	level_editor
-	project_browser
-	console
-	inspector
-	level_tree
-	level_viewport
-	texture_settings
+    level_editor
+    project_browser
+    console
+    inspector
+    level_tree
+    level_viewport
+    texture_settings

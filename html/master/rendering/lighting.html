@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-18T11:21:18+00:00" /><meta property="og:title" content="Introduction" />
+    <meta property="article:modified_time" content="2026-02-20T16:19:54+00:00" /><meta property="og:title" content="Lighting" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/rendering/introduction.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/rendering/lighting.html" />
 <meta property="og:site_name" content="Crown 0.60.0 Manual" />
-<meta property="og:description" content="Rendering is a core part of any game engine. Crown supports both 3D and 2D rendering with dynamic lighting and shadows, and exposes high-level objects and modern post-processing features to achieve good visual results. Lights: Crown provides three light types: directional, omn..." />
+<meta property="og:description" content="Crown provides three light types: directional, omni, and spot. Lights are regular Units with a Light Component attached; the component’s Type property selects the light type. Add a light to the level using Spawn-&gt; Light in the Menubar. Directional light: A directional light..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/lights_directional.png" />
 <meta property="og:image:alt" content="Crown 0.60.0 Manual" />
-<meta name="description" content="Rendering is a core part of any game engine. Crown supports both 3D and 2D rendering with dynamic lighting and shadows, and exposes high-level objects and modern post-processing features to achieve good visual results. Lights: Crown provides three light types: directional, omn..." />
+<meta name="description" content="Crown provides three light types: directional, omni, and spot. Lights are regular Units with a Light Component attached; the component’s Type property selects the light type. Add a light to the level using Spawn-&gt; Light in the Menubar. Directional light: A directional light..." />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+  <title>Lighting &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/rendering/introduction.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/rendering/lighting.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -59,17 +59,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">The Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Rendering</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#lights">Lights</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#directional-light">Directional light</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#local-lights">Local lights</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lighting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#directional-light">Directional light</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local-lights">Local lights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#omni-light">Omni light</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spot-light">Spot light</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#shadows">Shadows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#skydome">Skydome</a></li>
 </ul>
 </li>
 </ul>
@@ -98,9 +100,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">Rendering</a> &raquo;</li>
-      <li>Introduction</li>
+      <li>Lighting</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/rendering/introduction.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/rendering/lighting.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -108,59 +110,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>Rendering is a core part of any game engine. Crown supports both 3D and 2D
-rendering with dynamic lighting and shadows, and exposes high-level objects
-and modern post-processing features to achieve good visual results.</p>
-<section id="lights">
-<h2>Lights<a class="headerlink" href="#lights" title="Permalink to this headline">¶</a></h2>
+  <section id="lighting">
+<h1>Lighting<a class="headerlink" href="#lighting" title="Permalink to this headline">¶</a></h1>
 <p>Crown provides three light types: directional, omni, and spot. Lights are
 regular <a class="reference internal" href="../units/introduction.html#units"><span class="std std-ref">Units</span></a> with a Light Component attached; the component’s
 <code class="docutils literal notranslate"><span class="pre">Type</span></code> property selects the light type. Add a light to the level using
 <code class="docutils literal notranslate"><span class="pre">Spawn</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Light</span></code> in the <a class="reference internal" href="../level_editor/level_editor.html#editor-overview"><span class="std std-ref">Menubar</span></a>.</p>
 <section id="directional-light">
-<h3>Directional light<a class="headerlink" href="#directional-light" title="Permalink to this headline">¶</a></h3>
+<h2>Directional light<a class="headerlink" href="#directional-light" title="Permalink to this headline">¶</a></h2>
 <p>A directional light illuminates objects from a uniform direction; The
 brightest directional light in a Level (the one with the highest
 <code class="docutils literal notranslate"><span class="pre">Intensity</span></code>) is considered the sun. The sun typically renders shadows for
-the entire level using Cascaded Shadow Maps.</p>
+the entire level using Cascaded Shadow Maps. Crown adds a default sun unit to
+new levels created from the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor</span></a>.</p>
 <figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="../_images/lights_directional.png"><img alt="../_images/lights_directional.png" src="../_images/lights_directional.png" style="width: 564.0px; height: 474.40000000000003px;" /></a>
+<img alt="../_images/lights_directional.png" src="../_images/lights_directional.png" />
 <figcaption>
 <p><span class="caption-text">A directional light illuminating objects in the Level Viewport.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="local-lights">
-<h3>Local lights<a class="headerlink" href="#local-lights" title="Permalink to this headline">¶</a></h3>
+<h2>Local lights<a class="headerlink" href="#local-lights" title="Permalink to this headline">¶</a></h2>
 <p>Local lights affect only nearby objects. They expose a maximum range property
 to limit their influence. Keep ranges reasonably small to reduce performance
 cost and to avoid shadowing artifacts; very large ranges can make shadows and
 lighting harder to tune.</p>
 <section id="omni-light">
-<h4>Omni light<a class="headerlink" href="#omni-light" title="Permalink to this headline">¶</a></h4>
+<h3>Omni light<a class="headerlink" href="#omni-light" title="Permalink to this headline">¶</a></h3>
 <p>Omni lights emit in all directions and are suitable for simulating point light
 sources such as light bulbs, fireplaces and so on.</p>
 <figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="../_images/lights_omni.png"><img alt="../_images/lights_omni.png" src="../_images/lights_omni.png" style="width: 564.0px; height: 552.0px;" /></a>
+<img alt="../_images/lights_omni.png" src="../_images/lights_omni.png" />
 <figcaption>
 <p><span class="caption-text">An omni light illuminating objects in the Level Viewport.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="spot-light">
-<h4>Spot light<a class="headerlink" href="#spot-light" title="Permalink to this headline">¶</a></h4>
+<h3>Spot light<a class="headerlink" href="#spot-light" title="Permalink to this headline">¶</a></h3>
 <p>Spot lights emit light inside a cone. Use the Light Component’s <code class="docutils literal notranslate"><span class="pre">Spot</span> <span class="pre">Angle</span></code>
 and <code class="docutils literal notranslate"><span class="pre">Range</span></code> to shape the cone. Spot lights are appropriate for torches,
 street lights and similar sources.</p>
 <figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="../_images/lights_spot.png"><img alt="../_images/lights_spot.png" src="../_images/lights_spot.png" style="width: 564.0px; height: 509.6px;" /></a>
+<img alt="../_images/lights_spot.png" src="../_images/lights_spot.png" />
 <figcaption>
 <p><span class="caption-text">A spot light illuminating objects in the Level Viewport.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-</section>
 </section>
 </section>
 <section id="shadows">
@@ -179,11 +176,19 @@ shadow acne; higher bias values reduce acne but can cause noticeable
 separation between casting objects and their shadows (peter-panning). Adjust
 bias incrementally to find the best compromise for your Level.</p>
 <figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="../_images/shadow_artifacts.png"><img alt="../_images/shadow_artifacts.png" src="../_images/shadow_artifacts.png" style="width: 2844.0px; height: 1132.0px;" /></a>
+<img alt="../_images/shadow_artifacts.png" src="../_images/shadow_artifacts.png" />
 <figcaption>
 <p><span class="caption-text">Left: shadow acne (low bias). Right: peter-panning (high bias).</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
+</section>
+<section id="skydome">
+<h2>Skydome<a class="headerlink" href="#skydome" title="Permalink to this headline">¶</a></h2>
+<p>Crown automatically adds an implicit skydome Unit to every new Level created
+with the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor</span></a>. It is rendered on the current
+camera’s far plane and is always centered to it, so it appears infinitely
+distant and does not shift as the camera moves. Its texture and intensity are
+configured via the <span class="xref std std-ref">Shading Environment</span>.</p>
 </section>
 </section>
 
@@ -199,7 +204,7 @@ bias incrementally to find the best compromise for your Level.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 18, 2026.
+      <span class="lastupdated">Last updated on Feb 20, 2026.
       </span></p>
   </div>
 
