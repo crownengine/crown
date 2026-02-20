@@ -838,7 +838,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setViewFrameBuffer(View::TONEMAP, _color_sdr);
 	bgfx::setViewTransform(View::TONEMAP, NULL, ortho);
 	bgfx::setViewRect(View::TONEMAP, 0, 0, width, height);
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
 	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_tonemap_shader.state);
