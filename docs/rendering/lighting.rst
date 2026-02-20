@@ -75,3 +75,12 @@ bias incrementally to find the best compromise for your Level.
    :align: center
 
    Left: shadow acne (low bias). Right: peter-panning (high bias).
+
+Skydome
+=======
+
+Crown automatically adds an implicit skydome Unit to every new Level created
+with the :ref:`Level Editor <level_editor>`. It is rendered on the current
+camera's far plane and is always centered to it, so it appears infinitely
+distant and does not shift as the camera moves. Its texture and intensity are
+configured via the :ref:`Shading Environment`.
