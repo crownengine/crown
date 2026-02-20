@@ -1,13 +1,6 @@
-============
-Introduction
-============
-
-Rendering is a core part of any game engine. Crown supports both 3D and 2D
-rendering with dynamic lighting and shadows, and exposes high-level objects
-and modern post-processing features to achieve good visual results.
-
-Lights
-======
+========
+Lighting
+========
 
 Crown provides three light types: directional, omni, and spot. Lights are
 regular :ref:`Units` with a Light Component attached; the component's
@@ -15,7 +8,7 @@ regular :ref:`Units` with a Light Component attached; the component's
 ``Spawn`` -> ``Light`` in the :ref:`Menubar <Editor overview>`.
 
 Directional light
------------------
+=================
 
 A directional light illuminates objects from a uniform direction; The
 brightest directional light in a Level (the one with the highest
@@ -24,12 +17,11 @@ the entire level using Cascaded Shadow Maps.
 
 .. figure:: images/lights_directional.png
    :align: center
-   :scale: 80 %
 
    A directional light illuminating objects in the Level Viewport.
 
 Local lights
-------------
+============
 
 Local lights affect only nearby objects. They expose a maximum range property
 to limit their influence. Keep ranges reasonably small to reduce performance
@@ -37,19 +29,18 @@ cost and to avoid shadowing artifacts; very large ranges can make shadows and
 lighting harder to tune.
 
 Omni light
-~~~~~~~~~~
+----------
 
 Omni lights emit in all directions and are suitable for simulating point light
 sources such as light bulbs, fireplaces and so on.
 
 .. figure:: images/lights_omni.png
    :align: center
-   :scale: 80 %
 
    An omni light illuminating objects in the Level Viewport.
 
 Spot light
-~~~~~~~~~~
+----------
 
 Spot lights emit light inside a cone. Use the Light Component's ``Spot Angle``
 and ``Range`` to shape the cone. Spot lights are appropriate for torches,
@@ -57,7 +48,6 @@ street lights and similar sources.
 
 .. figure:: images/lights_spot.png
    :align: center
-   :scale: 80 %
 
    A spot light illuminating objects in the Level Viewport.
 
@@ -82,6 +72,5 @@ bias incrementally to find the best compromise for your Level.
 
 .. figure:: images/shadow_artifacts.png
    :align: center
-   :scale: 200 %
 
    Left: shadow acne (low bias). Right: peter-panning (high bias).
