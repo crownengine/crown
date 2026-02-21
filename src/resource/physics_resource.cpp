@@ -493,6 +493,7 @@ namespace physics_config_resource_internal
 			JsonObject obj(ta);
 			RETURN_IF_ERROR(sjson::parse(obj, json), _opts);
 
+			// Assign group to filter name.
 			auto cur = json_object::begin(obj);
 			auto end = json_object::end(obj);
 			for (; cur != end; ++cur) {
@@ -504,6 +505,7 @@ namespace physics_config_resource_internal
 				hash_map::set(_filter_map, id, new_filter_mask());
 			}
 
+			// Build masks.
 			cur = json_object::begin(obj);
 			end = json_object::end(obj);
 			for (; cur != end; ++cur) {
@@ -517,16 +519,30 @@ namespace physics_config_resource_internal
 				JsonObject filter(ta);
 				RETURN_IF_ERROR(sjson::parse_object(filter, value), _opts);
 
-				JsonArray collides_with(ta);
-				RETURN_IF_ERROR(sjson::parse_array(collides_with, filter["collides_with"]), _opts);
-
 				u32 mask = 0;
-				for (u32 i = 0; i < array::size(collides_with); ++i) {
-					const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(collides_with[i]), _opts);
-					mask |= filter_to_mask(fi);
+
+				if (json_object::has(filter, "collides_with")) {
+					JsonArray include(ta);
+					RETURN_IF_ERROR(sjson::parse_array(include, filter["collides_with"]), _opts);
+
+					for (u32 i = 0; i < array::size(include); ++i) {
+						const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(include[i]), _opts);
+						mask |= filter_to_mask(fi);
+					}
 				}
 
-				// Build mask
+				if (json_object::has(filter, "collides_with_all_except")) {
+					mask = UINT32_MAX;
+
+					JsonArray exclude(ta);
+					RETURN_IF_ERROR(sjson::parse_array(exclude, filter["collides_with_all_except"]), _opts);
+
+					for (u32 i = 0; i < array::size(exclude); ++i) {
+						const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(exclude[i]), _opts);
+						mask &= ~filter_to_mask(fi);
+					}
+				}
+
 				PhysicsCollisionFilter pcf;
 				pcf.name = id;
 				pcf.me   = filter_to_mask(id);

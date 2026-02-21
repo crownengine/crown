@@ -20,7 +20,9 @@ Changelog
 * Tools: added the ability to unselect all objects with ``Shift+Ctrl+A`` keyboard shortcut.
 * Runtime: Linux: switched to Vulkan for rendering.
 * Runtime: added support to stencil testing in shaders.
-* Data Compile: resource packages are now LZ4-compressed.
+* Runtime: changed the semantic of collision filters. See :ref:`Global Physics Config` for details.
+* Runtime: added a new ``collides_with_all_except`` field to the ``collision_filters`` object in the :ref:`Global Physics Config`.
+* Data Compiler: resource packages are now LZ4-compressed.
 
 0.60.0 --- 30 Dec 2025
 ----------------------

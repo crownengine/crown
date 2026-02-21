@@ -259,7 +259,7 @@ public class Project
 				+ "\n"
 				+ "\ncollision_filters = {"
 				+ "\n	no_collision = { collides_with = [] }"
-				+ "\n	default = { collides_with = [ \"default\" ] }"
+				+ "\n	default = { collides_with_all_except = [ \"no_collision\" ] }"
 				+ "\n}"
 				+ "\n"
 				+ "\nactors = {"

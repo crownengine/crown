@@ -4,7 +4,7 @@ materials = {
 
 collision_filters = {
 	no_collision = { collides_with = [] }
-	default = { collides_with = [ "default" ] }
+	default = { collides_with_all_except = [ "no_collision" ] }
 }
 
 actors = {
