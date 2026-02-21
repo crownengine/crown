@@ -301,6 +301,13 @@ public:
 
 		return ClosestConvexResultCallback::addSingleResult(convex_result, normal_in_world_space);
 	}
+
+	virtual bool needsCollision(btBroadphaseProxy *proxy0) const
+	{
+		bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+		collides = collides || (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+		return collides;
+	}
 };
 
 struct MoverFlags
