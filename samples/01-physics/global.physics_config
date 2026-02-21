@@ -5,10 +5,10 @@ materials = {
 
 collision_filters = {
 	no_collision = { collides_with = [] }
-	default = { collides_with = [ "default", "mover" "player" "bullet" ] }
-	mover = { collides_with = [ "default" ] }
-	player = { collides_with = [ "default" ] }
-	bullet = { collides_with = [ "default" "bullet" ] }
+	default = { collides_with_all_except = [ "no_collision" ] }
+	mover = {}
+	player = {}
+	bullet = { collides_with = [ "bullet" ] }
 }
 
 actors = {

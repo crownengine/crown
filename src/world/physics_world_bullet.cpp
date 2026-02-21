@@ -262,7 +262,7 @@ struct MyFilterCallback : public btOverlapFilterCallback
 	bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const override
 	{
 		bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
-		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+		collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
 		return collides;
 	}
 };
@@ -482,7 +482,7 @@ struct Mover
 	bool needs_collision(const btCollisionObject *body0, const btCollisionObject *body1)
 	{
 		bool collides = (body0->m_broadphaseHandle->m_collisionFilterGroup & body1->m_broadphaseHandle->m_collisionFilterMask) != 0;
-		collides = collides && (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask);
+		collides = collides || (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask);
 		return collides;
 	}
 
