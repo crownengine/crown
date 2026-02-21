@@ -267,32 +267,6 @@ struct MyFilterCallback : public btOverlapFilterCallback
 	}
 };
 
-/// @todo Interact with dynamic objects,
-/// Ride kinematicly animated platforms properly
-/// More realistic (or maybe just a config option) falling
-/// -> Should integrate falling velocity manually and use that in stepDown()
-/// Support jumping
-/// Support ducking
-class btKinematicClosestNotMeRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
-{
-public:
-	btCollisionObject *_me;
-
-	btKinematicClosestNotMeRayResultCallback(btCollisionObject *me)
-		: btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
-	{
-		_me = me;
-	}
-
-	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult &ray_result, bool normal_in_world_space)
-	{
-		if (ray_result.m_collisionObject == _me)
-			return 1.0;
-
-		return ClosestRayResultCallback::addSingleResult(ray_result, normal_in_world_space);
-	}
-};
-
 class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
 public:
