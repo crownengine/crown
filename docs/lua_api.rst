@@ -1491,10 +1491,13 @@ Window
 	``corner_bottom_left``, ``corner_bottom_right``, ``size_horizontal``,
 	``size_vertical`` or ``wait``.
 
-**set_cursor_mode** (mode)
-	Sets the mouse cursor *mode* on this window.  Mode can be either ``normal``
-	or ``disabled``.  Setting the mode to ``disabled`` hides the cursor and
-	automatically re-centers it every time it is moved.
+**set_cursor_mode** (mode) : bool
+    Sets the mouse cursor *mode* on this window and returns true if successful.
+    Mode can be either ``normal`` or ``disabled``.  Setting the mode to
+    ``disabled`` hides the cursor and automatically re-centers it every time it
+    is moved. On some platforms or backends disabling the cursor is not allowed
+    or only possible under specific circumnstances (e.g. when the cursor is
+    inside the window rectangle).
 
 World
 =====

@@ -3456,12 +3456,12 @@ void load_api(LuaEnvironment &env)
 			return 0;
 		});
 	env.add_module_function("Window", "set_cursor_mode", [](lua_State *L) {
-			LuaStack stack(L);
+			LuaStack stack(L, +1);
 			const char *name = stack.get_string(1);
 			const CursorMode::Enum cm = name_to_cursor_mode(name);
 			LUA_ASSERT(cm != CursorMode::COUNT, stack, "Unknown cursor mode: '%s'", name);
-			device()->_window->set_cursor_mode(cm);
-			return 0;
+			stack.push_bool(device()->_window->set_cursor_mode(cm));
+			return 1;
 		});
 
 	env.add_module_function("Input", "events", [](lua_State *L) {

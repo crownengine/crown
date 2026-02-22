@@ -101,7 +101,7 @@ struct Window
 	/// Sets the mouse cursor @a mode on this window.
 	/// CursorMode::DISABLED hides the cursor and automatically re-centers it
 	/// every time it is moved.
-	virtual void set_cursor_mode(CursorMode::Enum mode) = 0;
+	virtual bool set_cursor_mode(CursorMode::Enum mode) = 0;
 
 	/// Returns the native window handle or NULL if the platform does not support it.
 	virtual void *native_handle() = 0;

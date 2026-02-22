@@ -23,6 +23,7 @@ Changelog
 * Runtime: changed the semantic of collision filters. See :ref:`Global Physics Config` for details.
 * Runtime: added a new ``collides_with_all_except`` field to the ``collision_filters`` object in the :ref:`Global Physics Config`.
 * Data Compiler: resource packages are now LZ4-compressed.
+* Lua: ``Window.set_cursor_mode()`` will now return a boolean value to indicate if the operation succeeded.
 
 0.60.0 --- 30 Dec 2025
 ----------------------
