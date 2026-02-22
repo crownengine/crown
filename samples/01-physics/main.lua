@@ -82,14 +82,12 @@ function Game.update(dt)
 	if Keyboard.any_pressed() then
 		if Keyboard.pressed(Keyboard.button_id("escape")) then
 			if Game.cursor_disabled then
-				Window.set_cursor_mode("normal")
-				Game.cursor_disabled = false
+				Game.cursor_disabled = not Window.set_cursor_mode("normal")
 			else
 				Device.quit()
 			end
 		else
-			Window.set_cursor_mode("disabled")
-			Game.cursor_disabled = true
+			Game.cursor_disabled = Window.set_cursor_mode("disabled")
 		end
 	end
 
