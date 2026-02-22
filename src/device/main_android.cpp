@@ -266,9 +266,10 @@ struct WindowAndroid : public Window
 		CE_UNUSED(cursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode) override
+	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		CE_UNUSED(mode);
+		return true;
 	}
 
 	void *native_handle() override

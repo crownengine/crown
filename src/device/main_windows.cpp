@@ -868,10 +868,10 @@ struct WindowWin : public Window
 		SetCursor(s_windows_device->_hcursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode) override
+	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == s_windows_device->_cursor_mode)
-			return;
+			return true;
 		s_windows_device->_cursor_mode = mode;
 
 		if (mode == CursorMode::DISABLED) {
@@ -892,6 +892,8 @@ struct WindowWin : public Window
 			show_cursor(true);
 			ClipCursor(NULL);
 		}
+
+		return true;
 	}
 
 	void *native_handle() override

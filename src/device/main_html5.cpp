@@ -129,13 +129,15 @@ struct WindowEmscripten : public Window
 		CE_UNUSED(cursor);
 	}
 
-	void set_cursor_mode(CursorMode::Enum mode) override
+	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == CursorMode::DISABLED) {
 			crown_js_request_pointer_lock();
 		} else if (mode == CursorMode::NORMAL) {
 			crown_js_exit_pointer_lock();
 		}
+
+		return true;
 	}
 
 	void *native_handle() override
