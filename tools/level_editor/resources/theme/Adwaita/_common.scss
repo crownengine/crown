@@ -6,7 +6,7 @@ $ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 $asset_suffix: if($variant=='dark', '-dark', '');
 $backdrop_transition: 200ms ease-out;
 $button_transition: all 200ms $ease-out-quad;
-$button_radius: 5px;
+$button_radius: 3px;
 $menu_radius: 5px;
 $window_radius: $button_radius + 3;
 $popover_radius: $button_radius + 4;
@@ -15,9 +15,9 @@ $popover_radius: $button_radius + 4;
 $_sizevariant: 'default'; //compact otherwise
 $_headerbar_height: if($_sizevariant=='default', 46px, 40px);
 $_entry_height: if($_sizevariant=='default', 32px, 28px);
-$_btn_pad: if($_sizevariant=='default', 4px 9px, 2px 6px);
+$_btn_pad: if($_sizevariant=='default', 0px 2px, 0px 2px);
 $_hb_btn_pad: if($_sizevariant=='default', 6px, 5px);
-$_img_btn_pad: if($_sizevariant=='default', 5px, 2px);
+$_img_btn_pad: if($_sizevariant=='default', 0px, 0px);
 $_sel_menu_pad: if($_sizevariant=='default', 6px 10px, 4px 10px);
 $_circ_btn_pad: if($_sizevariant=='default', 4px, 2px);
 $_switch_margin: if($_sizevariant=='default', 10px, 7px);
@@ -582,7 +582,7 @@ $_dot_color: if($variant=='light', $selected_bg_color,
 button {
   @at-root %button_basic, & {
 
-    min-height: 24px;
+    min-height: 22px;
     min-width: 16px;
     padding: $_btn_pad;
     border: 1px solid;
@@ -650,7 +650,7 @@ button {
     }
 
     &.image-button {
-      min-width: 24px;
+      min-width: 22px;
       padding-left: $_img_btn_pad;
       padding-right: $_img_btn_pad;
     }
@@ -1139,7 +1139,7 @@ modelbutton.flat arrow {
 }
 
 button.color {
-  padding: 4px;
+  padding: 0px;
 
   colorswatch:only-child {
     &, overlay { border-radius: 0; }

@@ -9,22 +9,6 @@ entry {
 	padding-right: 4px;
 }
 
-button {
-	border-radius: 3px;
-	min-height: 22px;
-	padding: 0px 6px;
-}
-
-button.image-button {
-	min-width: 22px;
-	padding-left: 0px;
-	padding-right: 0px;
-}
-
-button.color {
-	padding: 0px;
-}
-
 notebook > header tab {
 	min-height: 24px;
 	min-width: 24px;
@@ -78,10 +62,6 @@ notebook > header tab {
 
 .properties-view #expander2.inherited .header > label {
 	color: rgb(150, 100, 0);
-}
-
-button.compact {
-	padding: 0px 2px 0px 2px;
 }
 
 .colorfast-link link {
