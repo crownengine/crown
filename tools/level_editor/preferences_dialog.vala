@@ -163,6 +163,7 @@ public class PreferencesDialog : Gtk.Window
 		_controller_key = new Gtk.EventControllerKey(this);
 		_controller_key.key_pressed.connect(on_key_pressed);
 
+		this.set_size_request(600, 470);
 		this.add(_notebook);
 	}
 
