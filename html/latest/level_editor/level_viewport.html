@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Level Viewport" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/level_viewport.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="This section describes how to navigate the Level Viewport so you can inspect, edit, and compose scenes comfortably. The viewport supports both quick, mouse-only navigation for casual inspection and more precise, keyboard-plus- mouse controls for editing and layout work. Basic ..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/selected_cube.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="This section describes how to navigate the Level Viewport so you can inspect, edit, and compose scenes comfortably. The viewport supports both quick, mouse-only navigation for casual inspection and more precise, keyboard-plus- mouse controls for editing and layout work. Basic ..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level Viewport &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/level_viewport.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Texture Settings" href="texture_settings.html" />
+    <link rel="prev" title="Level Tree" href="level_tree.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Level Editor</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="level_editor.html">Editor overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_browser.html">Project Browser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="console.html">Console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inspector.html">Inspector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_tree.html">Level Tree</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Level Viewport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-mouse-navigation">Basic mouse navigation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keyboard-mouse-navigation">Keyboard + mouse navigation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flythrough-navigation">Flythrough navigation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selecting-objects">Selecting objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#multiple-selection">Multiple selection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#framing-objects">Framing objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placing-objects">Placing objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moving-rotating-and-scaling-objects">Moving, rotating, and scaling objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#move-gizmo">Move gizmo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rotate-gizmo">Rotate gizmo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scale-gizmo">Scale gizmo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#local-and-world-axis">Local and World axis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#snapping">Snapping</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#relative-and-absolute-snapping">Relative and Absolute snapping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="texture_settings.html">Texture Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Level Editor</a> &raquo;</li>
+      <li>Level Viewport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/level_editor/level_viewport.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="level-viewport">
+<h1>Level Viewport<a class="headerlink" href="#level-viewport" title="Permalink to this headline">¶</a></h1>
+<p>This section describes how to navigate the Level Viewport so you can inspect,
+edit, and compose scenes comfortably. The viewport supports both quick,
+mouse-only navigation for casual inspection and more precise, keyboard-plus-
+mouse controls for editing and layout work.</p>
+<section id="basic-mouse-navigation">
+<h2>Basic mouse navigation<a class="headerlink" href="#basic-mouse-navigation" title="Permalink to this headline">¶</a></h2>
+<p>If you only need a quick look around, the mouse provides simple and immediate
+controls. Rolling the mouse wheel zooms the camera in and out. Clicking and
+dragging the <code class="docutils literal notranslate"><span class="pre">Middle</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> orbits the view around the current
+interest point. The orbit center typically coincides with the last framed
+selection, so framing an object first (see the <a class="reference internal" href="#framing-objects"><span class="std std-ref">Framing objects</span></a>
+section) gives you a predictable pivot for orbiting.</p>
+</section>
+<section id="keyboard-mouse-navigation">
+<h2>Keyboard + mouse navigation<a class="headerlink" href="#keyboard-mouse-navigation" title="Permalink to this headline">¶</a></h2>
+<p>For more controlled camera adjustments, combine keyboard modifiers with mouse
+actions.</p>
+<ul class="simple">
+<li><p>Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Alt</span></code> while dragging with the <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> to rotate
+around the interest point;</p></li>
+<li><p>Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Alt</span></code> and drag with the <code class="docutils literal notranslate"><span class="pre">Middle</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> to pan the view
+horizontally and vertically;</p></li>
+<li><p>Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Alt</span></code> and drag with the <code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> to zoom in and
+out.</p></li>
+</ul>
+</section>
+<section id="flythrough-navigation">
+<h2>Flythrough navigation<a class="headerlink" href="#flythrough-navigation" title="Permalink to this headline">¶</a></h2>
+<p>When you need to traverse the level at speed, use flythrough mode. Hold the
+<code class="docutils literal notranslate"><span class="pre">Right</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> to control the camera orientation with the mouse, then
+use the keyboard to move the camera as if you were playing a first-person
+game:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">W</span></code> / <code class="docutils literal notranslate"><span class="pre">S</span></code> to move forward and backward;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> / <code class="docutils literal notranslate"><span class="pre">D</span></code> to strafe left and right;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Q</span></code> / <code class="docutils literal notranslate"><span class="pre">E</span></code> to move the camera up and down.</p></li>
+</ul>
+<p>Flythrough mode is handy for scanning large environments, testing sightlines,
+or checking level flow at player height.</p>
+</section>
+<section id="selecting-objects">
+<h2>Selecting objects<a class="headerlink" href="#selecting-objects" title="Permalink to this headline">¶</a></h2>
+<p>Selecting objects is the primary way to focus edits and transformations on
+specific objects in the scene. Left-click an object to select it; a dim
+orange outline will be drawn around selected objects in the viewport:</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/selected_cube.png" src="../_images/selected_cube.png" />
+<figcaption>
+<p><span class="caption-text">A selected cube highlighted in the Level Viewport.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>If a selected object is occluded by unselected ones, Crown still highlights it
+with a slightly dimmed orange outline so you can keep working with it even
+when it is not fully visible:</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/selected_sphere_occluded.png" src="../_images/selected_sphere_occluded.png" />
+<figcaption>
+<p><span class="caption-text">A selected sphere with dimmed highlighting where occluded.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>To clear the current selection, just left-click an empty area or press
+<code class="docutils literal notranslate"><span class="pre">Shift</span> <span class="pre">+</span> <span class="pre">Ctrl</span> <span class="pre">+</span> <span class="pre">A</span></code>.</p>
+<section id="multiple-selection">
+<h3>Multiple selection<a class="headerlink" href="#multiple-selection" title="Permalink to this headline">¶</a></h3>
+<p>Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Shift</span></code> while left-clicking to add unselected objects to the
+current selection. Conversely, left-click an already selected object to
+remove it from the selection.</p>
+<p>To select multiple objects by area, left-click and drag to draw a selection
+rectangle; any object that intersects that rectangle will be selected.</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/box_selection.png" src="../_images/box_selection.png" />
+<figcaption>
+<p><span class="caption-text">Box selection in the Level Viewport.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="framing-objects">
+<h2>Framing objects<a class="headerlink" href="#framing-objects" title="Permalink to this headline">¶</a></h2>
+<p>Framing centers and zooms the camera on selected objects so you can work on
+them with a consistent viewpoint.</p>
+<p>Select one or more objects and press <code class="docutils literal notranslate"><span class="pre">F</span></code> to frame the current selection; the
+camera will pan and zoom so the selected objects fill the viewport
+comfortably. Press <code class="docutils literal notranslate"><span class="pre">A</span></code> to frame the entire scene.</p>
+<p>Framing is especially useful before orbiting or when you want to set a stable
+interest point for subsequent camera manipulations.</p>
+</section>
+<section id="placing-objects">
+<h2>Placing objects<a class="headerlink" href="#placing-objects" title="Permalink to this headline">¶</a></h2>
+<p>Place content into the scene by entering place mode or by dragging units from
+the Project Browser.</p>
+<p>Press <code class="docutils literal notranslate"><span class="pre">Q</span></code> to enter place mode; the cursor then becomes a placement tool and
+a chosen unit can be spawned with a mouse click. If no unit is selected for
+spawning, clicks have no effect. At any time, press <code class="docutils literal notranslate"><span class="pre">Esc</span></code> to exit placing
+mode: Crown will enter the tool that was active before entering place mode.</p>
+<p>Dragging a Unit directly from the Project Browser into the Level Viewport
+automatically selects the Spawn tool and sets the dragged unit as the current
+spawn candidate.</p>
+<p>Click the <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Mouse</span> <span class="pre">Button</span></code> to place the unit. By default Crown raycasts
+from the camera origin through the mouse cursor to determine the Z height
+where the unit should be positioned. If you click and hold the <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Mouse</span>
+<span class="pre">Button</span></code>, then move the mouse, Crown will place the unit at any XY location
+on the horizontal plane defined by the height where you first clicked. This
+lets you position objects precisely along a fixed elevation.</p>
+</section>
+<section id="moving-rotating-and-scaling-objects">
+<h2>Moving, rotating, and scaling objects<a class="headerlink" href="#moving-rotating-and-scaling-objects" title="Permalink to this headline">¶</a></h2>
+<p>Transform objects with the standard <code class="docutils literal notranslate"><span class="pre">W</span></code>, <code class="docutils literal notranslate"><span class="pre">E</span></code>, and <code class="docutils literal notranslate"><span class="pre">R</span></code> keys to enter
+Move, Rotate, and Scale modes respectively.</p>
+<p>When one or more objects are selected, Crown displays a transform gizmo at the
+origin of the selection. The gizmo provides axis handles, planar handles and
+a camera-aligned handle. Interact with the gizmo using left-click and drag.</p>
+<figure class="align-center" id="id4">
+<img alt="../_images/move_rotate_scale.png" src="../_images/move_rotate_scale.png" />
+<figcaption>
+<p><span class="caption-text">Move, rotate, and scale gizmos in the Level Viewport.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="move-gizmo">
+<h3>Move gizmo<a class="headerlink" href="#move-gizmo" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Left-click and drag an axis handle to move the object along that axis.</p></li>
+<li><p>Drag the small red, green, or blue rectangles to move the object constrained
+to the XY, YZ, or ZX plane respectively.</p></li>
+<li><p>Drag the small gray circle at the gizmo origin to move the object on the
+plane parallel to the camera view.</p></li>
+</ul>
+</section>
+<section id="rotate-gizmo">
+<h3>Rotate gizmo<a class="headerlink" href="#rotate-gizmo" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Drag any red, green, or blue arc to rotate the object around the X, Y, or Z
+axis.</p></li>
+<li><p>Drag the large gray circle to rotate the object around the axis that is
+perpendicular to the camera view plane.</p></li>
+</ul>
+</section>
+<section id="scale-gizmo">
+<h3>Scale gizmo<a class="headerlink" href="#scale-gizmo" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Drag an axis handle to scale the object along that axis.</p></li>
+<li><p>Drag the colored rectangles (for example red-green to scale on the XY plane)
+to scale across the respective plane.</p></li>
+<li><p>Drag the large gray circle to scale uniformly on all axes at once.</p></li>
+</ul>
+</section>
+<section id="local-and-world-axis">
+<h3>Local and World axis<a class="headerlink" href="#local-and-world-axis" title="Permalink to this headline">¶</a></h3>
+<p>Normally, gizmo axes are aligned to the local coordinate system of the
+selected object. That makes transforms intuitive when you want to move,
+rotate, or scale an object relative to its own orientation. However, when an
+object is rotated inconveniently, local axes can make it difficult to perform
+edits that must align to the scene or the world origin.</p>
+<p>Switching to the <code class="docutils literal notranslate"><span class="pre">World</span> <span class="pre">Axis</span></code> mode forces all gizmos to align to the world
+coordinate system regardless of the selected object’s local transformations.</p>
+<p>Toggle axis mode using the Local/World Axis control in the toolbar:</p>
+<figure class="align-center" id="id5">
+<img alt="../_images/local_world_axis.svg" src="../_images/local_world_axis.svg" /><figcaption>
+<p><span class="caption-text">Toggling between local and world axis modes.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="snapping">
+<h2>Snapping<a class="headerlink" href="#snapping" title="Permalink to this headline">¶</a></h2>
+<p>By default Crown lets you position and rotate objects freely. When you require
+precision, enable grid and angle snapping to constrain transforms to fixed
+increments. Toggle snapping by clicking the <code class="docutils literal notranslate"><span class="pre">Snap</span> <span class="pre">To</span> <span class="pre">Grid</span></code> button on the
+toolbar:</p>
+<figure class="align-center" id="id6">
+<img alt="../_images/toolbar_snap_to_grid.svg" src="../_images/toolbar_snap_to_grid.svg" /><figcaption>
+<p><span class="caption-text">The Snap To Grid control in the toolbar.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>With snapping enabled, movement and rotation will snap to the configured grid
+size and snap angle. Hold <code class="docutils literal notranslate"><span class="pre">Left</span> <span class="pre">Ctrl</span></code> while performing a transform to
+temporarily disable snapping and make a single free adjustment.</p>
+<p>Change the grid cell size or the snap angle with <code class="docutils literal notranslate"><span class="pre">Ctrl+G</span></code> and <code class="docutils literal notranslate"><span class="pre">Ctrl+H</span></code>
+respectively. These shortcuts open dialogs where you can type exact numeric
+values for the grid spacing and angle increment:</p>
+<figure class="align-center" id="id7">
+<img alt="../_images/grid_size_dialog.png" src="../_images/grid_size_dialog.png" />
+<figcaption>
+<p><span class="caption-text">Configuring grid size and snap angle.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="relative-and-absolute-snapping">
+<h3>Relative and Absolute snapping<a class="headerlink" href="#relative-and-absolute-snapping" title="Permalink to this headline">¶</a></h3>
+<p>Crown offers two snapping coordinate modes. In Relative Snapping mode the
+snapping grid origin is aligned to the origin of the object being
+transformed; this makes the grid move together with the object and is
+convenient for local adjustments.</p>
+<p>In Absolute Snapping mode the snapping grid is fixed at the world origin,
+which is useful for aligning multiple objects to a common global grid.</p>
+<p>Switch between the two modes using the <code class="docutils literal notranslate"><span class="pre">Relative</span> <span class="pre">Snap</span></code> and <code class="docutils literal notranslate"><span class="pre">Absolute</span> <span class="pre">Snap</span></code>
+toolbar buttons.</p>
+<figure class="align-center" id="id8">
+<img alt="../_images/relative_absolute_snap.svg" src="../_images/relative_absolute_snap.svg" /><figcaption>
+<p><span class="caption-text">Relative and absolute snapping controls.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="level_tree.html" class="btn btn-neutral float-left" title="Level Tree" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="texture_settings.html" class="btn btn-neutral float-right" title="Texture Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

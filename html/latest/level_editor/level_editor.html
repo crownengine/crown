@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-17T17:01:58+00:00" /><meta property="og:title" content="Editor overview" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/level_editor.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="After opening a Project Crown immediately starts compiling the resources it contains. Once the process is complete, the Level Editor is launched and should look similar to the image below: The Level Editor interface in its default configuration., The Level Editor is split into..." />
+<meta name="description" content="After opening a Project Crown immediately starts compiling the resources it contains. Once the process is complete, the Level Editor is launched and should look similar to the image below: The Level Editor interface in its default configuration., The Level Editor is split into..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor overview &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/level_editor.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Project Browser" href="project_browser.html" />
+    <link rel="prev" title="Level Editor" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Level Editor</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Editor overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#layout-customization">Layout customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-game">Running the game</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project_browser.html">Project Browser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="console.html">Console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inspector.html">Inspector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_tree.html">Level Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_viewport.html">Level Viewport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="texture_settings.html">Texture Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Level Editor</a> &raquo;</li>
+      <li>Editor overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/level_editor/level_editor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="editor-overview">
+<span id="level-editor"></span><h1>Editor overview<a class="headerlink" href="#editor-overview" title="Permalink to this headline">¶</a></h1>
+<p>After opening a <a class="reference internal" href="../getting_started/basic_concepts.html#project"><span class="std std-ref">Project</span></a> Crown immediately starts compiling the
+resources it contains. Once the process is complete, the Level Editor is
+launched and should look similar to the image below:</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/editor_overview.svg" src="../_images/editor_overview.svg" /><figcaption>
+<p><span class="caption-text">The Level Editor interface in its default configuration.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The Level Editor is split into several panels:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 25%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Number</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>What it shows</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><a class="reference internal" href="project_browser.html#project-browser"><span class="std std-ref">Project Browser</span></a></p></td>
+<td><p>The current project’s contents.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><a class="reference internal" href="console.html#console"><span class="std std-ref">Console</span></a></p></td>
+<td><p>Messages from the Level Editor, the Game and other Runtimes.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><a class="reference internal" href="inspector.html#inspector"><span class="std std-ref">Inspector</span></a></p></td>
+<td><p>The properties of the currently selected object.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p><a class="reference internal" href="level_tree.html#level-tree"><span class="std std-ref">Level Tree</span></a></p></td>
+<td><p>A hierarchical view of all the objects in the Level.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p><a class="reference internal" href="level_viewport.html#level-viewport"><span class="std std-ref">Level Viewport</span></a></p></td>
+<td><p>The Level being edited.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Menubar</p></td>
+<td><p>Common commands for editing / debugging / opening editors etc.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>Toolbar</p></td>
+<td><p>Tools and common options for editing.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>Statusbar</p></td>
+<td><p>Contextual info and small self-contained messages.</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>Titlebar</p></td>
+<td><p>Start/Stop Level button, current level name and edit status.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="layout-customization">
+<h2>Layout customization<a class="headerlink" href="#layout-customization" title="Permalink to this headline">¶</a></h2>
+<p>Most panels are optional and can be toggled from the <code class="docutils literal notranslate"><span class="pre">View</span></code> menu in the
+Menubar.</p>
+<p>The Console can be shown or hidden quickly with the <code class="docutils literal notranslate"><span class="pre">Ctrl+`</span></code> shortcut. Use
+the same shortcut to jump to the Command Bar in the Console.</p>
+</section>
+<section id="running-the-game">
+<h2>Running the game<a class="headerlink" href="#running-the-game" title="Permalink to this headline">¶</a></h2>
+<p>Press <code class="docutils literal notranslate"><span class="pre">F5</span></code> to play the currently edited level. Crown saves a copy of the
+level you are editing and launches it in a separate window. When the level is
+running, the Console automatically connects to the game’s runtime and
+switches to communicate with it.</p>
+<p>To stop the playtest, close the game window or press the Stop Level button on
+the Titlebar. If the runtime takes too long to stop, it will be forcibly
+terminated. At exit the Console will switch back to communicating with the
+editor’s runtime.</p>
+<p>To run the full game, choose <code class="docutils literal notranslate"><span class="pre">Debug</span> <span class="pre">-&gt;</span> <span class="pre">Run</span> <span class="pre">Game</span></code> from the Menubar. In this
+mode Crown launches the game as it would run for an end user.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Level Editor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="project_browser.html" class="btn btn-neutral float-right" title="Project Browser" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 17, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

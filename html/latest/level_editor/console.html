@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Console" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/console.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. The Console displaying messages from the editor ..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/console.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="The Console displays information, warnings, errors, and debug output from the Level Editor, the running game, and other engine components. It also lets you interact with runtime instances by sending commands and Lua expressions. The Console displaying messages from the editor ..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Console &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/level_editor/console.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Inspector" href="inspector.html" />
+    <link rel="prev" title="Project Browser" href="project_browser.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Level Editor</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="level_editor.html">Editor overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_browser.html">Project Browser</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Console</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-connections">Runtime connections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commands">Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lua-expressions">Lua expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#history-navigation">History navigation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resource-id-lookup">Resource ID lookup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="inspector.html">Inspector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_tree.html">Level Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="level_viewport.html">Level Viewport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="texture_settings.html">Texture Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Level Editor</a> &raquo;</li>
+      <li>Console</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/level_editor/console.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="console">
+<h1>Console<a class="headerlink" href="#console" title="Permalink to this headline">¶</a></h1>
+<p>The Console displays information, warnings, errors, and debug output from the
+Level Editor, the running game, and other engine components. It also lets you
+interact with runtime instances by sending commands and Lua expressions.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/console.png" src="../_images/console.png" />
+<figcaption>
+<p><span class="caption-text">The Console displaying messages from the editor and runtimes.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="runtime-connections">
+<h2>Runtime connections<a class="headerlink" href="#runtime-connections" title="Permalink to this headline">¶</a></h2>
+<p>Each engine runtime spawned by the Level Editor is connected via TCP/IP, and
+the Console is the main UI for communicating with those instances. By default
+the Console is set to communicate with the editor runtime itself. When you
+start the game from the Level Editor, Crown switches the Console to
+communicate with the game runtime. You can also select manually which runtime
+the Console talks to using the runtime selector:</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/console_runtime_selector.svg" src="../_images/console_runtime_selector.svg" /><figcaption>
+<p><span class="caption-text">The runtime selector in the Console.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="commands">
+<h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<p>You can type both commands and Lua expressions in the Command Bar. Use
+commands for low-level testing, profiling, or engine configuration. Commands
+must be prefixed with a colon (<code class="docutils literal notranslate"><span class="pre">:</span></code>) so they are distinguished from Lua
+expressions. Type <code class="docutils literal notranslate"><span class="pre">:help</span></code> in the Command Bar to see the available commands.</p>
+<p>See <a class="reference internal" href="../reference/console_commands.html#console-commands"><span class="std std-ref">Console commands</span></a> for full documentation.</p>
+</section>
+<section id="lua-expressions">
+<h2>Lua expressions<a class="headerlink" href="#lua-expressions" title="Permalink to this headline">¶</a></h2>
+<p>You can send arbitrary Lua expressions to the connected runtime. Enter a Lua
+expression in the Command Bar and press <code class="docutils literal notranslate"><span class="pre">Enter</span></code>. The runtime evaluates the
+expression and prints the result back to the Console. This is useful for
+inspecting state, calling engine APIs, or invoking game code while the game
+is running.</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/console_lua_expression.svg" src="../_images/console_lua_expression.svg" /><figcaption>
+<p><span class="caption-text">Evaluating a Lua expression in the Console.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="history-navigation">
+<h2>History navigation<a class="headerlink" href="#history-navigation" title="Permalink to this headline">¶</a></h2>
+<p>The Console keeps a history of executed commands and expressions. Use the <code class="docutils literal notranslate"><span class="pre">Up</span>
+<span class="pre">Arrow</span></code> and <code class="docutils literal notranslate"><span class="pre">Down</span> <span class="pre">Arrow</span></code> keys to navigate backward and forward through
+recent entries. The maximum history size is configurable from Preferences
+dialog.</p>
+</section>
+<section id="resource-id-lookup">
+<h2>Resource ID lookup<a class="headerlink" href="#resource-id-lookup" title="Permalink to this headline">¶</a></h2>
+<p>For efficiency, Crown runtimes in most cases use hashed numeric identifiers
+instead of plain-text strings. When the Console detects such numeric IDs, it
+attempts to resolve them back to readable names so logs are easier to
+understand:</p>
+<figure class="align-center" id="id4">
+<img alt="../_images/console_id_lookup.svg" src="../_images/console_id_lookup.svg" /><figcaption>
+<p><span class="caption-text">Automatic resource ID lookup in the Console.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="project_browser.html" class="btn btn-neutral float-left" title="Project Browser" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inspector.html" class="btn btn-neutral float-right" title="Inspector" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 16, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

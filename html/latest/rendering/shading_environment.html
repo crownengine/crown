@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-20T16:56:59+00:00" /><meta property="og:title" content="Shading Environment" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/rendering/shading_environment.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="The shading environment is a regular unit that groups components controlling global rendering features. Crown uses the properties defined in this unit to drive many aspects of scene rendering. The Shading Environment unit with some of its components shown in the Inspector., Cu..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/shading_environment.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="The shading environment is a regular unit that groups components controlling global rendering features. Crown uses the properties defined in this unit to drive many aspects of scene rendering. The Shading Environment unit with some of its components shown in the Inspector., Cu..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shading Environment &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/rendering/shading_environment.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Physics" href="../physics/index.html" />
+    <link rel="prev" title="Materials" href="materials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Rendering</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="lighting.html">Lighting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="materials.html">Materials</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Shading Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-shading-environment">Custom Shading Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#default-components">Default components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#global-lighting">Global Lighting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fog">Fog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bloom">Bloom</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tonemap">Tonemap</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Rendering</a> &raquo;</li>
+      <li>Shading Environment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/rendering/shading_environment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="shading-environment">
+<h1>Shading Environment<a class="headerlink" href="#shading-environment" title="Permalink to this headline">¶</a></h1>
+<p>The shading environment is a regular <a class="reference internal" href="../units/introduction.html#units"><span class="std std-ref">unit</span></a> that groups
+components controlling global rendering features. Crown uses the properties
+defined in this unit to drive many aspects of scene rendering.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/shading_environment.png" src="../_images/shading_environment.png" />
+<figcaption>
+<p><span class="caption-text">The Shading Environment unit with some of its components shown in the Inspector.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="custom-shading-environment">
+<h2>Custom Shading Environment<a class="headerlink" href="#custom-shading-environment" title="Permalink to this headline">¶</a></h2>
+<p>Every level must contain exactly one shading environment unit named
+<code class="docutils literal notranslate"><span class="pre">shading_environment</span></code>. When you create a new level with the <a class="reference internal" href="../level_editor/index.html#level-editor"><span class="std std-ref">Level Editor</span></a>, Crown inserts a default shading environment unit for that level.</p>
+<p>Because the shading environment is a Unit, you can edit its components in the
+Inspector and <a class="reference internal" href="../units/creating_units.html#from-the-level-editor"><span class="std std-ref">save the unit as a prefab</span></a> for
+reuse in other levels.</p>
+</section>
+<section id="default-components">
+<h2>Default components<a class="headerlink" href="#default-components" title="Permalink to this headline">¶</a></h2>
+<p>Crown provides a set of components commonly attached to the shading
+environment. These components establish the scene base look and control
+post-processing effects.</p>
+<section id="global-lighting">
+<h3>Global Lighting<a class="headerlink" href="#global-lighting" title="Permalink to this headline">¶</a></h3>
+<p>The Global Lighting component controls the <a class="reference internal" href="lighting.html#skydome"><span class="std std-ref">Skydome</span></a> and ambient light
+contribution:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Skydome</span> <span class="pre">Map</span></code>: equirectangular projection texture used to render the skydome</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Skydome</span> <span class="pre">Intensity</span></code>: multiplier applied to the skydome texture to boost or
+soften its contribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ambient</span> <span class="pre">Color</span></code>: base color added to objects when direct lighting is
+absent</p></li>
+</ul>
+</section>
+<section id="fog">
+<h3>Fog<a class="headerlink" href="#fog" title="Permalink to this headline">¶</a></h3>
+<p>The Fog component simulates atmospheric scattering between the camera and
+shaded objects:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Color</span></code>: fog base color</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Density</span></code>: overall fog strength; higher values make distant objects appear
+foggier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Range</span> <span class="pre">Min</span></code> / <code class="docutils literal notranslate"><span class="pre">Range</span> <span class="pre">Max</span></code>: distances from the camera where fog starts
+and ends</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sun</span> <span class="pre">Blend</span></code>: mixes the <a class="reference internal" href="lighting.html#directional-light"><span class="std std-ref">sun</span></a> color into the fog
+(0 = no sun influence, 1 = fog color replaced by sun color)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Enabled</span></code>: toggle the fog simulation</p></li>
+</ul>
+</section>
+<section id="bloom">
+<h3>Bloom<a class="headerlink" href="#bloom" title="Permalink to this headline">¶</a></h3>
+<p>The Bloom component adds glow around very bright parts of the image.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Weight</span></code>: blending weight of the bloom contribution (0 = no bloom contribution, 1 = image is replaced by bloom)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Intensity</span></code>: bloom brightness</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Enabled</span></code>: toggle the effect</p></li>
+</ul>
+</section>
+<section id="tonemap">
+<h3>Tonemap<a class="headerlink" href="#tonemap" title="Permalink to this headline">¶</a></h3>
+<p>The Tonemap component maps the renderer’s HDR output to the displayable color
+range of the monitor.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Gamma</span></code>: no complex tonemapping, only gamma correction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reinhard</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Filmic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ACES</span></code></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="materials.html" class="btn btn-neutral float-left" title="Materials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../physics/index.html" class="btn btn-neutral float-right" title="Physics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 20, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>

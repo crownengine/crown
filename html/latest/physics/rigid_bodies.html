@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-20T16:57:51+00:00" /><meta property="og:title" content="Rigid Bodies" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/physics/rigid_bodies.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="Crown provides rigid body simulation through the Actor Component. Actors are the core objects that participate in the physics simulation, giving realistic physical behaviour. The Actor Component shown in the Inspector., Colliders: Colliders define an Actor’s physical shape. Th..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/actor_component.png" />
+<meta property="og:image:alt" content="Crown 0.60.0 Manual" />
+<meta name="description" content="Crown provides rigid body simulation through the Actor Component. Actors are the core objects that participate in the physics simulation, giving realistic physical behaviour. The Actor Component shown in the Inspector., Colliders: Colliders define an Actor’s physical shape. Th..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rigid Bodies &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/physics/rigid_bodies.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Global Physics Config" href="global_physics_config.html" />
+    <link rel="prev" title="Physics" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Physics</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Rigid Bodies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#colliders">Colliders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actors">Actors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#actor-class">Actor Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#collision-filter">Collision Filter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#material">Material</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#movers">Movers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="global_physics_config.html">Global Physics Config</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Physics</a> &raquo;</li>
+      <li>Rigid Bodies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/physics/rigid_bodies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rigid-bodies">
+<h1>Rigid Bodies<a class="headerlink" href="#rigid-bodies" title="Permalink to this headline">¶</a></h1>
+<p>Crown provides rigid body simulation through the Actor Component. Actors are
+the core objects that participate in the physics simulation, giving realistic
+physical behaviour.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/actor_component.png" src="../_images/actor_component.png" />
+<figcaption>
+<p><span class="caption-text">The Actor Component shown in the Inspector.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="colliders">
+<h2>Colliders<a class="headerlink" href="#colliders" title="Permalink to this headline">¶</a></h2>
+<p>Colliders define an Actor’s physical shape. The shape can be derived from mesh
+geometry or specified manually. When using a mesh as the source you can
+choose between fast analytic shapes (<code class="docutils literal notranslate"><span class="pre">sphere</span></code>, <code class="docutils literal notranslate"><span class="pre">capsule</span></code> or <code class="docutils literal notranslate"><span class="pre">box</span></code>) or
+more accurate representations such as <code class="docutils literal notranslate"><span class="pre">convex_hull</span></code> or <code class="docutils literal notranslate"><span class="pre">mesh</span></code>.</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/collider_component.png" src="../_images/collider_component.png" />
+<figcaption>
+<p><span class="caption-text">The Collider Component shown in the Inspector.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Analytic shapes are much cheaper to simulate and are recommended whenever they
+provide acceptable results; use convex or full mesh shapes only when you need
+precise collision geometry.</p>
+<p>Only analytic shapes can be specified manually.</p>
+</section>
+<section id="actors">
+<h2>Actors<a class="headerlink" href="#actors" title="Permalink to this headline">¶</a></h2>
+<p>Actors provide physical behaviour to the Unit they are attached to. An Actor
+defines the physical object’s <a class="reference internal" href="global_physics_config.html#actor-classes"><span class="std std-ref">class</span></a>,
+its <a class="reference internal" href="global_physics_config.html#physics-materials"><span class="std std-ref">material</span></a>, <a class="reference internal" href="#collision-filter"><span class="std std-ref">collision filter</span></a>, mass, and other simulation properties.</p>
+<section id="actor-class">
+<h3>Actor Class<a class="headerlink" href="#actor-class" title="Permalink to this headline">¶</a></h3>
+<p>A project defines a set of global actor classes. The default classes are
+described below:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">static</span></code>: immovable actors, they just collide.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic</span></code>: fully simulated actors affected by forces and collisions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keyframed</span></code>: actors driven by animation or code; they push away dynamic
+actors but are not influenced by them.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trigger</span></code>: non-blocking actors used to detect overlap events.</p></li>
+</ul>
+<p>You can define additional classes and tune class behavior in the <a class="reference internal" href="global_physics_config.html#global-physics-config"><span class="std std-ref">Global Physics Config</span></a>.</p>
+</section>
+<section id="collision-filter">
+<h3>Collision Filter<a class="headerlink" href="#collision-filter" title="Permalink to this headline">¶</a></h3>
+<p>Collision filters control which actors interact with which. The <code class="docutils literal notranslate"><span class="pre">default</span></code>
+filter applied to new actors allows interaction with other actors using the
+same <code class="docutils literal notranslate"><span class="pre">default</span></code> filter. A <code class="docutils literal notranslate"><span class="pre">no_collision</span></code> filter is available to make
+actors ignore collisions entirely.</p>
+<p>Custom, arbitrarily complex filters can be added and configured via
+the <a class="reference internal" href="global_physics_config.html#global-physics-config"><span class="std std-ref">Global Physics Config</span></a>.</p>
+</section>
+<section id="material">
+<h3>Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h3>
+<p>Materials specify the physical properties of actors. Create new materials in
+the <a class="reference internal" href="global_physics_config.html#global-physics-config"><span class="std std-ref">Global Physics Config</span></a>.</p>
+</section>
+</section>
+<section id="movers">
+<h2>Movers<a class="headerlink" href="#movers" title="Permalink to this headline">¶</a></h2>
+<p>The Mover Component is a specialized kinematic actor that implements classic
+collide-and-slide behavior and is better suited for character controllers and
+NPCs that require deterministic movement under direct control of the player
+or scripts.</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/mover_component.png" src="../_images/mover_component.png" />
+<figcaption>
+<p><span class="caption-text">The Mover Component shown in the Inspector.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The Mover uses a configurable capsule collider aligned vertically to the world
+Z axis. It supports configurable maximum slope angle to limit climbing and
+adjustable center point.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Physics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_physics_config.html" class="btn btn-neutral float-right" title="Global Physics Config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 20, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
