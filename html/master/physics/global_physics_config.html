@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-02-20T16:57:51+00:00" /><meta property="og:title" content="Global Physics Config" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/physics/global_physics_config.html" />
+<meta property="og:site_name" content="Crown 0.60.0 Manual" />
+<meta property="og:description" content="The global.physics_config resource defines physics materials, collision filters, and actor classes used by Crown’s physics simulation. The file is stored in SJSON format and must be edited manually. Example: Materials: Physics materials define surface response parameters for a..." />
+<meta name="description" content="The global.physics_config resource defines physics materials, collision filters, and actor classes used by Crown’s physics simulation. The file is stored in SJSON format and must be edited manually. Example: Materials: Physics materials define surface response parameters for a..." />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Physics Config &mdash; Crown 0.60.0 Manual 0.61.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/physics/global_physics_config.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Writing Gameplay" href="../gameplay/index.html" />
+    <link rel="prev" title="Rigid Bodies" href="rigid_bodies.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                Crown 0.60.0 Manual
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Physics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rigid_bodies.html">Rigid Bodies</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Global Physics Config</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials">Materials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#collision-filters">Collision filters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#collision-rule">Collision rule</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#actor-classes">Actor classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.60.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Physics</a> &raquo;</li>
+      <li>Global Physics Config</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/physics/global_physics_config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="global-physics-config">
+<h1>Global Physics Config<a class="headerlink" href="#global-physics-config" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">global.physics_config</span></code> resource defines physics materials, collision
+filters, and actor classes used by Crown’s physics simulation. The file is
+stored in SJSON format and must be edited manually.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">materials</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="p">{</span> <span class="n">friction</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="n">restitution</span> <span class="o">=</span> <span class="mf">0.81</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">collision_filters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">no_collision</span> <span class="o">=</span> <span class="p">{</span> <span class="n">collides_with</span> <span class="o">=</span> <span class="p">[]</span> <span class="p">}</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="p">{</span> <span class="n">collides_with_all_except</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;no_collision&quot;</span> <span class="p">]</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">actors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">static</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">false</span> <span class="p">}</span>
+    <span class="n">dynamic</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+    <span class="n">keyframed</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">true</span> <span class="n">kinematic</span> <span class="o">=</span> <span class="n">true</span> <span class="n">disable_gravity</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+    <span class="n">trigger</span> <span class="o">=</span> <span class="p">{</span> <span class="n">trigger</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="materials">
+<span id="physics-materials"></span><h2>Materials<a class="headerlink" href="#materials" title="Permalink to this headline">¶</a></h2>
+<p>Physics materials define surface response parameters for <a class="reference internal" href="rigid_bodies.html#actors"><span class="std std-ref">actors</span></a>. Create a new material by adding an entry to the <code class="docutils literal notranslate"><span class="pre">materials</span></code>
+object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">materials</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">slippery</span> <span class="o">=</span> <span class="p">{</span> <span class="n">friction</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Common material properties:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">friction</span></code>: general contact friction; larger values increase resistance to
+sliding.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rolling_friction</span></code>: torsional friction orthogonal to the contact normal;
+helps stop spheres rolling forever.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spinning_friction</span></code>: torsional friction around the contact normal; useful
+for grasping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restitution</span></code>: coefficient of restitution; 1 = perfectly elastic
+collision, &lt; 1 = inelastic.</p></li>
+</ul>
+</section>
+<section id="collision-filters">
+<h2>Collision filters<a class="headerlink" href="#collision-filters" title="Permalink to this headline">¶</a></h2>
+<p>Collision filters control which <a class="reference internal" href="rigid_bodies.html#actors"><span class="std std-ref">actors</span></a> interact with which. Define a
+filter by adding an entry to the <code class="docutils literal notranslate"><span class="pre">collision_filters</span></code> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">collision_filters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="n">wall</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">player</span> <span class="o">=</span> <span class="p">{</span> <span class="n">collides_with</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wall&quot;</span> <span class="p">]</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The filter name (for example <code class="docutils literal notranslate"><span class="pre">player</span></code>) can then be assigned to actors. Use
+<code class="docutils literal notranslate"><span class="pre">collides_with</span></code> to list specific filters this filter should collide with,
+or <code class="docutils literal notranslate"><span class="pre">collides_with_all_except</span></code> to collide with everything except the
+specified filters.</p>
+<section id="collision-rule">
+<h3>Collision rule<a class="headerlink" href="#collision-rule" title="Permalink to this headline">¶</a></h3>
+<p>Two actors A and B generate collisions if either of the following is true:</p>
+<ul class="simple">
+<li><p>A’s filter has B in its <code class="docutils literal notranslate"><span class="pre">collides_with</span></code> set, or</p></li>
+<li><p>B’s filter has A in its <code class="docutils literal notranslate"><span class="pre">collides_with</span></code> set.</p></li>
+</ul>
+</section>
+</section>
+<section id="actor-classes">
+<h2>Actor classes<a class="headerlink" href="#actor-classes" title="Permalink to this headline">¶</a></h2>
+<p>Actor classes are used to specify simulation properties to apply
+to <a class="reference internal" href="rigid_bodies.html#actors"><span class="std std-ref">Actors</span></a>. Define classes inside the <code class="docutils literal notranslate"><span class="pre">actors</span></code> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">actors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">static</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">false</span> <span class="p">}</span>
+    <span class="n">dynamic</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+    <span class="n">keyframed</span> <span class="o">=</span> <span class="p">{</span> <span class="n">dynamic</span> <span class="o">=</span> <span class="n">true</span> <span class="n">kinematic</span> <span class="o">=</span> <span class="n">true</span> <span class="n">disable_gravity</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+    <span class="n">trigger</span> <span class="o">=</span> <span class="p">{</span> <span class="n">trigger</span> <span class="o">=</span> <span class="n">true</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Common actor class properties:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">linear_damping</span></code>: resistance applied to linear motion; useful to slow down
+objects unaffected by friction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angular_damping</span></code>: resistance applied to angular motion.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic</span></code>: when true, the actor is simulated each frame by the physics
+engine. If false, the actor cannot move but just collide.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kinematic</span></code>: when true, the actor is driven externally (animation or code)
+rather than by physics. Kinematic objects push dynamic objects away but are
+unaffected by them.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">disable_gravity</span></code>: disables gravity for the actor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trigger</span></code>: actor does not produce collision responses but still generates
+overlap events.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rigid_bodies.html" class="btn btn-neutral float-left" title="Rigid Bodies" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../gameplay/index.html" class="btn btn-neutral float-right" title="Writing Gameplay" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Feb 20, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
