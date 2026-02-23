@@ -40,6 +40,7 @@ crown_set_version () {
 
 crown_docs_set_version () {
 	# Patch version string in docs
+	sed -i "s/project = 'Crown .* Manual/project = 'Crown ${1}.${2}.${3} Manual/g" docs/conf.py
 	sed -i "s/version = '.*/version = '${1}.${2}.${3}'/g" docs/conf.py
 	sed -i "s/release = '.*/release = '${1}.${2}.${3}'/g" docs/conf.py
 }
