@@ -6,6 +6,10 @@ Changelog
 :ref:`0.61.1 --- DD MMM YYYY <v0.61.1>`
 ---------------------------------------
 
+**Fixes**
+
+Tools: fix Delete key being disabled in entries.
+
 .. _v0.61.0:
 
 :ref:`0.61.0 --- 23 Feb 2026 <v0.61.0>`
