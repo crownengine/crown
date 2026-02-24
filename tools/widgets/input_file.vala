@@ -61,6 +61,7 @@ public class InputFile : InputField
 		_button = new Gtk.Button();
 		_button.add(_label);
 		_button.clicked.connect(on_selector_clicked);
+		_button.set_can_focus(false);
 
 		this.add(_button);
 	}
