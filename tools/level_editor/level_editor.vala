@@ -4310,37 +4310,22 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void set_conflicting_accels(bool on)
 	{
-		if (on) {
-			this.set_accels_for_action("app.tool(0)", _tool_place_accels);
-			this.set_accels_for_action("app.tool(1)", _tool_move_accels);
-			this.set_accels_for_action("app.tool(2)", _tool_rotate_accels);
-			this.set_accels_for_action("app.tool(3)", _tool_scale_accels);
-			this.set_accels_for_action("database.delete", _delete_accels);
-			this.set_accels_for_action("viewport.camera-view(0)", _camera_view_perspective_accels);
-			this.set_accels_for_action("viewport.camera-view(1)", _camera_view_front_accels);
-			this.set_accels_for_action("viewport.camera-view(2)", _camera_view_back_accels);
-			this.set_accels_for_action("viewport.camera-view(3)", _camera_view_right_accels);
-			this.set_accels_for_action("viewport.camera-view(4)", _camera_view_left_accels);
-			this.set_accels_for_action("viewport.camera-view(5)", _camera_view_top_accels);
-			this.set_accels_for_action("viewport.camera-view(6)", _camera_view_bottom_accels);
-			this.set_accels_for_action("viewport.camera-frame-selected", _camera_frame_selected_accels);
-			this.set_accels_for_action("app.camera-frame-all", _camera_frame_all_accels);
-		} else {
-			this.set_accels_for_action("app.tool(0)", {});
-			this.set_accels_for_action("app.tool(1)", {});
-			this.set_accels_for_action("app.tool(2)", {});
-			this.set_accels_for_action("app.tool(3)", {});
-			this.set_accels_for_action("database.delete", {});
-			this.set_accels_for_action("viewport.camera-view(0)", {});
-			this.set_accels_for_action("viewport.camera-view(1)", {});
-			this.set_accels_for_action("viewport.camera-view(2)", {});
-			this.set_accels_for_action("viewport.camera-view(3)", {});
-			this.set_accels_for_action("viewport.camera-view(4)", {});
-			this.set_accels_for_action("viewport.camera-view(5)", {});
-			this.set_accels_for_action("viewport.camera-view(6)", {});
-			this.set_accels_for_action("viewport.camera-frame-selected", {});
-			this.set_accels_for_action("app.camera-frame-all", {});
-		}
+		string[] no_accels = {};
+
+		this.set_accels_for_action("app.tool(0)", on ? _tool_place_accels : no_accels);
+		this.set_accels_for_action("app.tool(1)", on ? _tool_move_accels : no_accels);
+		this.set_accels_for_action("app.tool(2)", on ? _tool_rotate_accels : no_accels);
+		this.set_accels_for_action("app.tool(3)", on ? _tool_scale_accels : no_accels);
+		this.set_accels_for_action("database.delete", on ? _delete_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(0)", on ? _camera_view_perspective_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(1)", on ? _camera_view_front_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(2)", on ? _camera_view_back_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(3)", on ? _camera_view_right_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(4)", on ? _camera_view_left_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(5)", on ? _camera_view_top_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-view(6)", on ? _camera_view_bottom_accels : no_accels);
+		this.set_accels_for_action("viewport.camera-frame-selected", on ? _camera_frame_selected_accels : no_accels);
+		this.set_accels_for_action("app.camera-frame-all", on ? _camera_frame_all_accels : no_accels);
 	}
 
 	public void entry_any_focus_in(Gtk.Widget widget)
