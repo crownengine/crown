@@ -809,7 +809,7 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
 		_tool_rotate_accels = this.get_accels_for_action("app.tool(2)");
 		_tool_scale_accels = this.get_accels_for_action("app.tool(3)");
-		_delete_accels = this.get_accels_for_action("app.delete");
+		_delete_accels = this.get_accels_for_action("database.delete");
 		_camera_view_perspective_accels = this.get_accels_for_action("viewport.camera-view(0)");
 		_camera_view_front_accels = this.get_accels_for_action("viewport.camera-view(1)");
 		_camera_view_back_accels = this.get_accels_for_action("viewport.camera-view(2)");
@@ -4315,7 +4315,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool(1)", _tool_move_accels);
 			this.set_accels_for_action("app.tool(2)", _tool_rotate_accels);
 			this.set_accels_for_action("app.tool(3)", _tool_scale_accels);
-			this.set_accels_for_action("app.delete", _delete_accels);
+			this.set_accels_for_action("database.delete", _delete_accels);
 			this.set_accels_for_action("viewport.camera-view(0)", _camera_view_perspective_accels);
 			this.set_accels_for_action("viewport.camera-view(1)", _camera_view_front_accels);
 			this.set_accels_for_action("viewport.camera-view(2)", _camera_view_back_accels);
@@ -4330,7 +4330,7 @@ public class LevelEditorApplication : Gtk.Application
 			this.set_accels_for_action("app.tool(1)", {});
 			this.set_accels_for_action("app.tool(2)", {});
 			this.set_accels_for_action("app.tool(3)", {});
-			this.set_accels_for_action("app.delete", {});
+			this.set_accels_for_action("database.delete", {});
 			this.set_accels_for_action("viewport.camera-view(0)", {});
 			this.set_accels_for_action("viewport.camera-view(1)", {});
 			this.set_accels_for_action("viewport.camera-view(2)", {});
