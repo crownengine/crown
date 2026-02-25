@@ -36,6 +36,7 @@ struct MeshGeometry
 	bgfx::VertexBufferHandle vertex_buffer;
 	bgfx::IndexBufferHandle index_buffer;
 	OBB obb;
+	Sphere sphere;
 	VertexData vertices;
 	IndexData indices;
 };

@@ -15,6 +15,8 @@
 #   include "core/math/aabb.inl"
 #   include "core/math/constants.h"
 #   include "core/math/matrix4x4.inl"
+#   include "core/math/random.inl"
+#   include "core/math/sphere.inl"
 #   include "core/math/vector2.inl"
 #   include "core/math/vector3.inl"
 #   include "core/memory/temp_allocator.inl"
@@ -23,6 +25,7 @@
 #   include "resource/compile_options.inl"
 #   include "resource/data_compiler.h"
 #   include "resource/mesh.h"
+#   include "core/murmur.h"
 #   include "resource/mesh_fbx.h"
 #   include "resource/mesh_resource.h"
 #   include <bx/error.h>
@@ -287,6 +290,61 @@ namespace mesh
 		return obb;
 	}
 
+	// Finds the tightest bounding sphere by calling add_points() multiple times on the same
+	// randomly ordered positions. Uses a seed dependent on initial positions to guarantee stable
+	// reults.
+	static Sphere sphere(Geometry &g)
+	{
+		const u32 MAX_TRIES = 256;
+		Sphere sphere;
+		sphere::reset(sphere);
+
+		if (array::size(g._positions) != 0) {
+			const u16 seed = (u16)murmur64(array::begin(g._positions)
+				, array::size(g._positions)*sizeof(g._positions[0])
+				, 0u
+				);
+			Random random((s32)seed);
+
+			Array<f32> positions(default_allocator());
+			Array<u32> indices(default_allocator());
+			array::resize(positions, array::size(g._positions));
+			array::resize(indices, array::size(g._positions) / 3);
+
+			for (u32 j = 0; j < array::size(indices); ++j)
+				indices[j] = j;
+
+			Sphere s;
+			for (u32 i = 0; i < MAX_TRIES; ++i) {
+				sphere::reset(s);
+
+				// Shuffle index.
+				for (u32 i = 0; i < array::size(indices); ++i) {
+					s32 k = random.integer(array::size(indices));
+					exchange(indices[i], indices[k]);
+				}
+
+				// TODO: just add a sphere::add_points() that supports index buffers.
+				for (u32 i = 0; i < array::size(indices); ++i) {
+					positions[i*3 + 0] = g._positions[indices[i]*3 + 0];
+					positions[i*3 + 1] = g._positions[indices[i]*3 + 1];
+					positions[i*3 + 2] = g._positions[indices[i]*3 + 2];
+				}
+
+				sphere::add_points(s
+					, array::size(g._positions) / 3
+					, sizeof(g._positions[0]) * 3
+					, array::begin(positions)
+					);
+
+				if (sphere::volume(s) < sphere::volume(sphere) || i == 0)
+					sphere = s;
+			}
+		}
+
+		return sphere;
+	}
+
 	s32 write(Mesh &m, CompileOptions &opts)
 	{
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
@@ -310,11 +368,11 @@ namespace mesh
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
 			u32 stride = mesh::vertex_stride(*geo);
-			OBB bbox = mesh::obb(*geo);
 
 			BgfxWriter writer(opts._binary_writer);
 			bgfx::write(&writer, layout);
-			opts.write(bbox);
+			opts.write(mesh::obb(*geo));
+			opts.write(mesh::sphere(*geo));
 
 			opts.write(array::size(geo->_vertex_buffer) / stride);
 			opts.write(stride);

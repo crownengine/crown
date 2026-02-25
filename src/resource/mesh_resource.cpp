@@ -102,6 +102,9 @@ namespace mesh_resource_internal
 			OBB obb;
 			br.read(obb);
 
+			Sphere sphere;
+			br.read(sphere);
+
 			u32 num_verts;
 			br.read(num_verts);
 
@@ -118,6 +121,7 @@ namespace mesh_resource_internal
 
 			MeshGeometry *mg = (MeshGeometry *)a.allocate(size);
 			mg->obb             = obb;
+			mg->sphere          = sphere;
 			mg->layout          = layout;
 			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
 			mg->index_buffer    = BGFX_INVALID_HANDLE;
