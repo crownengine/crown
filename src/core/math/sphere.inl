@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/math/math.h"
+#include "core/math/matrix4x4.inl"
 #include "core/math/sphere.h"
 #include "core/math/vector3.inl"
 
@@ -27,6 +28,15 @@ namespace sphere
 	{
 		f32 dist = length_squared(p - s.c);
 		return dist < s.r*s.r;
+	}
+
+	inline void transform(Sphere &out, const Sphere &s, const Matrix4x4 &m)
+	{
+		const Vector3 scl = scale(m);
+		const f32 maxscl = max(max(scl.x, scl.y), scl.z);
+
+		out.c = s.c * m;
+		out.r = s.r * maxscl;
 	}
 
 } // namespace sphere
