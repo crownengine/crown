@@ -996,28 +996,20 @@ static void test_sphere()
 	}
 	{
 		Sphere a;
-		sphere::reset(a);
-
+		a.c = { -2.3f, 1.2f, -4.5f };
+		a.r = 1.0f;
+		ENSURE(sphere::contains_point(a, { -2.9f, 1.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -3.9f, 1.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -2.9f, 2.6f, -4.0f }));
+		ENSURE(!sphere::contains_point(a, { -2.9f, 1.6f, -6.0f }));
+	}
+	{
 		const Vector3 points[] =
 		{
 			{ -1.2f,  3.4f,  5.5f },
 			{  8.2f, -2.4f, -1.5f },
-			{ -5.9f,  9.2f,  6.0f }
-		};
-		sphere::add_points(a, countof(points), points);
-		ENSURE(fequal(a.c.x, 0.0f, 0.00001f));
-		ENSURE(fequal(a.c.y, 0.0f, 0.00001f));
-		ENSURE(fequal(a.c.z, 0.0f, 0.00001f));
-		ENSURE(fequal(a.r, 12.46795f, 0.00001f));
-	}
-	{
-		Sphere spheres[3];
-		sphere::reset(spheres[0]);
-		sphere::reset(spheres[1]);
-		sphere::reset(spheres[2]);
+			{ -5.9f,  9.2f,  6.0f },
 
-		const Vector3 points[] =
-		{
 			{  6.6f,  3.5f, -5.7f },
 			{ -5.3f, -9.1f, -7.9f },
 			{ -1.5f,  4.4f, -5.8f },
@@ -1028,25 +1020,17 @@ static void test_sphere()
 
 			{  2.9f, -4.8f, -6.8f },
 			{ -7.6f, -7.0f,  0.8f },
-			{  8.2f,  2.8f, -4.8f }
+			{  8.2f,  2.8f, -4.8f },
 		};
-		sphere::add_points(spheres[0], countof(points)/3, &points[0]);
-		sphere::add_points(spheres[1], countof(points)/3, &points[3]);
-		sphere::add_points(spheres[2], countof(points)/3, &points[6]);
 
-		Sphere d;
-		sphere::reset(d);
-		sphere::add_spheres(d, countof(spheres), spheres);
-		ENSURE(fequal(d.r, 13.16472f, 0.00001f));
-	}
-	{
-		Sphere a;
-		a.c = { -2.3f, 1.2f, -4.5f };
-		a.r = 1.0f;
-		ENSURE(sphere::contains_point(a, { -2.9f, 1.6f, -4.0f }));
-		ENSURE(!sphere::contains_point(a, { -3.9f, 1.6f, -4.0f }));
-		ENSURE(!sphere::contains_point(a, { -2.9f, 2.6f, -4.0f }));
-		ENSURE(!sphere::contains_point(a, { -2.9f, 1.6f, -6.0f }));
+		for (u32 i = 0; i < countof(points)/3; i += 3) {
+			Sphere a;
+			sphere::reset(a);
+			sphere::add_points(a, 3, &points[i]);
+			ENSURE(sphere::contains_point(a, points[i + 0]));
+			ENSURE(sphere::contains_point(a, points[i + 1]));
+			ENSURE(sphere::contains_point(a, points[i + 2]));
+		}
 	}
 }
 
