@@ -29,6 +29,9 @@ namespace sphere
 	/// Returns whether point @a p is contained into the sphere.
 	bool contains_point(const Sphere &s, const Vector3 &p);
 
+	///
+	void transform(Sphere &out, const Sphere &s, const Matrix4x4 &m);
+
 } // namespace sphere
 
 } // namespace crown
