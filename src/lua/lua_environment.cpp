@@ -7,6 +7,7 @@
 #include "core/error/error.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
+#include "core/math/random.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
