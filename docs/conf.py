@@ -185,3 +185,4 @@ sitemap_excludes = [
 ogp_site_url = html_baseurl
 ogp_description_length = 280
 ogp_use_first_image = True
+ogp_image = 'ogp_default_card.png'
