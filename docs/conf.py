@@ -186,3 +186,7 @@ ogp_site_url = html_baseurl
 ogp_description_length = 280
 ogp_use_first_image = True
 ogp_image = '_static/ogp_default_card.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta name="twitter:site" content="@crown_engine" />',
+]
