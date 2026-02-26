@@ -44,8 +44,8 @@ namespace profiler_globals
 namespace profiler
 {
 	enum { THREAD_BUFFER_SIZE = 4 * 1024 };
-	static char _thread_buffer[THREAD_BUFFER_SIZE];
-	static u32 _thread_buffer_size = 0;
+	static CE_THREAD_LOCAL char _thread_buffer[THREAD_BUFFER_SIZE];
+	static CE_THREAD_LOCAL u32 _thread_buffer_size = 0;
 	static Mutex _buffer_mutex;
 
 	static void flush_local_buffer()
