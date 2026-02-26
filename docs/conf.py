@@ -93,6 +93,8 @@ todo_include_todos = False
 #
 html_theme = 'sphinx_rtd_theme'
 
+html_title = project
+
 html_logo = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
 
 html_favicon = '../tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg'
