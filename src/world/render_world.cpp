@@ -725,6 +725,23 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	invert(inv_view);
 	const Vector3 camera_pos = translation(inv_view);
 
+	// Skydome.
+	if (skydome_unit.is_valid()) {
+		MeshId skydome_mesh = mesh_instance(skydome_unit);
+
+		// Copy camera pos to skydome.
+		_mesh_manager._data.world[skydome_mesh.i] = from_translation(camera_pos);
+
+		Material *skydome_material = mesh_material(skydome_mesh);
+		skydome_material->set_matrix4x4(STRING_ID_32("u_persp", UINT32_C(0x404ac2c2)), persp);
+
+		// Override skydome texture from global lighting.
+		if (_global_lighting_unit.is_valid()) {
+			skydome_material->set_texture(STRING_ID_32("u_skydome_map", UINT32_C(0x90e2fdaa)), _global_lighting_desc.skydome_map);
+			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
+		}
+	}
+
 	const f32 sy = caps->originBottomLeft ? 0.5f : -0.5f;
 	const f32 sz = caps->homogeneousDepth ? 0.5f :  1.0f;
 	const f32 tz = caps->homogeneousDepth ? 0.5f :  0.0f;
@@ -1094,23 +1111,6 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 		, bgfx::makeRef(array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData))
 		);
 	bgfx::touch(View::LIGHTS);
-
-	// Skydome.
-	if (skydome_unit.is_valid()) {
-		// Copy camera pos to skydome.
-		TransformId skydome_tr = _scene_graph->instance(skydome_unit);
-		_scene_graph->set_local_position(skydome_tr, camera_pos);
-
-		MeshId skydome_mesh = mesh_instance(skydome_unit);
-		Material *skydome_material = mesh_material(skydome_mesh);
-		skydome_material->set_matrix4x4(STRING_ID_32("u_persp", UINT32_C(0x404ac2c2)), persp);
-
-		// Override skydome texture from global lighting.
-		if (_global_lighting_unit.is_valid()) {
-			skydome_material->set_texture(STRING_ID_32("u_skydome_map", UINT32_C(0x90e2fdaa)), _global_lighting_desc.skydome_map);
-			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
-		}
-	}
 
 	_pipeline->_bloom = _bloom_desc;
 	_pipeline->_tonemap = _tonemap_desc;
