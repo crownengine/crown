@@ -20,6 +20,9 @@ namespace sphere
 	/// Returns the volume of the sphere @a s.
 	f32 volume(const Sphere &s);
 
+	/// Creates the minimum enclosing sphere of a cone.
+	Sphere from_cone(const Vector3 &tip, const Vector3 &dir, f32 range, f32 angle);
+
 	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
 	void add_points(Sphere &s, u32 num, u32 stride, const void *points);
 
