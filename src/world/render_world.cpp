@@ -1430,9 +1430,7 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 
 		bgfx::setTransform(skeleton->bones, skeleton->num_bones);
 	} else {
-		TransformId ti = scene_graph.instance(_data.unit[ii]);
-		Matrix4x4 world_pose = scene_graph.world_pose(ti);
-		bgfx::setTransform(to_float_ptr(world_pose));
+		bgfx::setTransform(to_float_ptr(_data.world[ii]));
 	}
 
 	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
