@@ -15,6 +15,7 @@ namespace crown
 #define PI            f32(3.14159265358979323846f)
 #define PI_TWO        f32(6.28318530717958647693f)
 #define PI_HALF       f32(1.57079632679489661923f)
+#define PI_FOURTH     f32(0.78539816339744830961f)
 #define FLOAT_EPSILON f32(1.0e-7f)
 
 /// Returns whether @a a and @a b are equal according to @a epsilon.

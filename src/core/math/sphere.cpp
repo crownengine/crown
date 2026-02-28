@@ -16,6 +16,25 @@ namespace sphere
 		s.r = 0.0f;
 	}
 
+	Sphere from_cone(const Vector3 &tip, const Vector3 &dir, f32 range, f32 angle)
+	{
+		const f32 sin_a = fsin(angle);
+		const f32 cos_a = fcos(angle);
+		const f32 slant = range / cos_a;
+		const f32 sotca = slant / (2.0f * cos_a);
+		Sphere s;
+
+		if (angle > PI_FOURTH) {
+			s.c = tip + dir * range;
+			s.r = sin_a * slant;
+		} else {
+			s.c = tip + dir * sotca;
+			s.r = sotca;
+		}
+
+		return s;
+	}
+
 	// Reference:
 	// https://web.archive.org/web/20170808221957/https://sharif.edu/~zarrabi/papers/cccg-06/meb.pdf
 	void add_points(Sphere &s, u32 num, u32 stride, const void *points)
