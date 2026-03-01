@@ -290,6 +290,7 @@ units = [
 			}
 			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
 				data = {
+					cast_shadows = false
 					visible = false
 				}
 			}
@@ -589,6 +590,7 @@ units = [
 			}
 			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
 				data = {
+					cast_shadows = false
 					visible = false
 				}
 			}
@@ -688,6 +690,7 @@ units = [
 			}
 			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
 				data = {
+					cast_shadows = false
 					visible = false
 				}
 			}
@@ -892,6 +895,7 @@ units = [
 			}
 			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
 				data = {
+					cast_shadows = false
 					visible = false
 				}
 			}
@@ -1333,6 +1337,7 @@ units = [
 			}
 			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
 				data = {
+					cast_shadows = false
 					visible = false
 				}
 			}
