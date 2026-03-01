@@ -18,6 +18,29 @@
 
 namespace crown
 {
+struct Cullable
+{
+	Matrix4x4 world; ///< World pose of the object.
+	Sphere sphere;   ///< Culling sphere of the object in local space.
+	u32 id;          ///< ID of the object.
+};
+
+struct CullingSet
+{
+	Array<Sphere> sphere_w;
+	Array<u32> id;
+	Array<u32> visible;
+	Array<u32> render;
+
+	explicit CullingSet(Allocator &a)
+		: sphere_w(a)
+		, id(a)
+		, visible(a)
+		, render(a)
+	{
+	}
+};
+
 /// Manages graphics objects in a World.
 ///
 /// @ingroup World
@@ -280,6 +303,9 @@ struct RenderWorld
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
+	void sync_cullable_sets();
+
+	///
 	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl);
 
 	/// Sets whether to @a enable debug drawing
@@ -312,8 +338,6 @@ struct RenderWorld
 			u32 capacity;
 			void *buffer;
 
-			u32 first_hidden;
-
 			UnitId *unit;
 			const MeshResource **resource;
 			const MeshGeometry **geometry;
@@ -321,8 +345,10 @@ struct RenderWorld
 			Material **material;
 			Matrix4x4 *world;
 			OBB *obb;
+			Sphere *sphere;
 			const AnimationSkeletonInstance **skeleton;
 			u32 *flags;
+			u32 *prev_flags;
 #if CROWN_CAN_RELOAD
 			const MaterialResource **material_resource;
 #endif
@@ -332,12 +358,14 @@ struct RenderWorld
 		RenderWorld *_render_world;
 		HashMap<UnitId, u32> _map;
 		MeshInstanceData _data;
+		bool _dirty;
 
 		///
 		MeshManager(Allocator &a, RenderWorld *rw)
 			: _allocator(&a)
 			, _render_world(rw)
 			, _map(a)
+			, _dirty(true)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
@@ -363,9 +391,6 @@ struct RenderWorld
 
 		///
 		void set_geometry(MeshId mesh, const MeshResource *mr, StringId32 geometry);
-
-		///
-		void set_visible(MeshId mesh, bool visible);
 
 		///
 		MeshId mesh(UnitId unit);
@@ -585,6 +610,9 @@ struct RenderWorld
 	MeshManager _mesh_manager;
 	SpriteManager _sprite_manager;
 	LightManager _light_manager;
+
+	CullingSet _cullable_objects;
+	CullingSet _cullable_shadow_casters;
 
 	UnitDestroyCallback _unit_destroy_callback;
 
