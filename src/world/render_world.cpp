@@ -13,7 +13,9 @@
 #include "core/math/frustum.inl"
 #include "core/math/intersection.h"
 #include "core/math/matrix4x4.inl"
+#include "core/math/sphere.inl"
 #include "core/strings/string_id.inl"
+#include "core/profiler.h"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/render_config_resource.h"
@@ -32,6 +34,136 @@
 
 namespace crown
 {
+namespace culling_set
+{
+	static u32 find_object(const CullingSet &set, u32 object_id)
+	{
+		u32 num_objects = array::size(set.id);
+
+		u32 i;
+		for (i = 0; i < num_objects; ++i) {
+			if (set.id[i] == object_id)
+				break;
+		}
+
+		if (i == num_objects)
+			return UINT32_MAX;
+		return i;
+	}
+
+	static void add(CullingSet &set, const Cullable &object)
+	{
+		Sphere sw;
+		sphere::transform(sw, object.sphere, object.world);
+
+		array::push_back(set.sphere_w, sw);
+		array::push_back(set.id, object.id);
+		array::push_back(set.visible, UINT32_MAX);
+	}
+
+	static void remove(CullingSet &set, u32 object_id)
+	{
+		u32 ind = find_object(set, object_id);
+		CE_ENSURE(ind != UINT32_MAX);
+
+		u32 last = array::size(set.id) - 1;
+
+		set.id[ind]       = set.id[last];
+		set.visible[ind]  = set.visible[last];
+		set.sphere_w[ind] = set.sphere_w[last];
+
+		array::pop_back(set.id);
+		array::pop_back(set.visible);
+		array::pop_back(set.sphere_w);
+	}
+
+	// Fix culling set indices when an instance at index inst is destroyed and the last instance is
+	// moved into its slot.
+	static void fixup(CullingSet &set, u32 inst, u32 last)
+	{
+		// Remove any entry that still points at the destroyed index.
+		culling_set::remove(set, inst);
+
+		// If we destroyed the last element, there is nothing else to fix.
+		if (inst == last)
+			return;
+
+		// Any entry that referred to the former last index must now point to inst.
+		const u32 num = array::size(set.id);
+		for (u32 i = 0; i < num; ++i) {
+			if (set.id[i] == last)
+				set.id[i] = inst;
+		}
+	}
+
+	static void update(CullingSet &set, u32 object_id, const Sphere &sphere, const Matrix4x4 &world)
+	{
+		u32 i;
+		u32 num_objects = array::size(set.id);
+		for (i = 0; i < num_objects; ++i) {
+			if (set.id[i] == object_id)
+				break;
+		}
+		if (i == num_objects) {
+			// Not found, add it.
+			add(set, { world, sphere, object_id });
+			return;
+		}
+
+		Sphere sw;
+		sphere::transform(sw, sphere, world);
+		set.sphere_w[i] = sw;
+	}
+
+	static void cull_spheres(CullingSet &set, const Frustum &view_frustum, u32 offset, u32 count)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+
+		const u32 num = offset + count;
+		for (u32 i = offset; i < num; ++i) {
+			Sphere &sphere_w = set.sphere_w[i];
+
+			u32 inside = UINT32_MAX;
+			for (u32 j = 0; j < 6; ++j) {
+				const Plane3 &plane = view_frustum.planes[j];
+
+				f32 n_dot_c = dot(plane.n, sphere_w.c);
+				inside &= u32(n_dot_c + sphere_w.r >= plane.d);
+			}
+
+			set.visible[i] = inside;
+		}
+
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	static void cull_none(CullingSet &set)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+
+		u32 num = array::size(set.id);
+		for (u32 i = 0; i < num; ++i)
+			set.visible[i] = UINT32_MAX;
+
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	/// Returns the number of objects that passed culling test.
+	static u32 remove_culled(CullingSet &set)
+	{
+		array::clear(set.render);
+		u32 num = array::size(set.id);
+
+		for (u32 i = 0; i < num; ++i) {
+			if (set.visible[i] != 0)
+				array::push_back(set.render, i);
+		}
+
+		return array::size(set.render);
+	}
+
+} // namespace culling_set
+
 static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 {
 	((RenderWorld *)user_ptr)->unit_destroyed_callback(unit);
@@ -56,6 +188,8 @@ RenderWorld::RenderWorld(Allocator &a
 	, _mesh_manager(a, this)
 	, _sprite_manager(a, this)
 	, _light_manager(a, this)
+	, _cullable_objects(a)
+	, _cullable_shadow_casters(a)
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
@@ -146,16 +280,37 @@ void RenderWorld::mesh_set_material(MeshId mesh, StringId64 id)
 void RenderWorld::mesh_set_visible(MeshId mesh, bool visible)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
-	_mesh_manager.set_visible(mesh, visible);
+
+	bool prev_visible = (_mesh_manager._data.flags[mesh.i] & RenderableFlags::VISIBLE) != 0;
+
+	if (prev_visible == visible)
+		return;
+
+	if (visible)
+		_mesh_manager._data.flags[mesh.i] |= RenderableFlags::VISIBLE;
+	else
+		_mesh_manager._data.flags[mesh.i] &= ~RenderableFlags::VISIBLE;
+
+	_mesh_manager._data.flags[mesh.i] |= RenderableFlags::DIRTY;
+	_mesh_manager._dirty = true;
 }
 
 void RenderWorld::mesh_set_cast_shadows(MeshId mesh, bool cast_shadows)
 {
 	CE_ASSERT(mesh.i < _mesh_manager._data.size, "Index out of bounds");
+
+	bool prev_cast_shadows = (_mesh_manager._data.flags[mesh.i] & RenderableFlags::SHADOW_CASTER) != 0;
+
+	if (prev_cast_shadows == cast_shadows)
+		return;
+
 	if (cast_shadows)
 		_mesh_manager._data.flags[mesh.i] |= RenderableFlags::SHADOW_CASTER;
 	else
 		_mesh_manager._data.flags[mesh.i] &= ~RenderableFlags::SHADOW_CASTER;
+
+	_mesh_manager._data.flags[mesh.i] |= RenderableFlags::DIRTY;
+	_mesh_manager._dirty = true;
 }
 
 OBB RenderWorld::mesh_obb(MeshId mesh)
@@ -663,6 +818,9 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 		if (_mesh_manager.has(*begin)) {
 			MeshId mesh = _mesh_manager.mesh(*begin);
 			mid.world[mesh.i] = *world;
+
+			_mesh_manager._data.flags[mesh.i] |= RenderableFlags::DIRTY;
+			_mesh_manager._dirty = true;
 		}
 
 		if (_sprite_manager.has(*begin)) {
@@ -715,10 +873,56 @@ static void mtxYawPitchRoll(f32 *_result
 	_result[15] = 1.0f;
 }
 
+void RenderWorld::sync_cullable_sets()
+{
+	ENTER_PROFILE_SCOPE(__func__);
+
+	if (_mesh_manager._dirty) {
+		_mesh_manager._dirty = false;
+		MeshManager::MeshInstanceData &idata = _mesh_manager._data;
+
+		for (u32 i = 0; i < idata.size; ++i) {
+			if ((idata.flags[i] & RenderableFlags::DIRTY) == 0)
+				continue;
+			idata.flags[i] &= ~RenderableFlags::DIRTY;
+
+			u32 changed = idata.flags[i] ^ idata.prev_flags[i];
+
+			if (changed) {
+				idata.prev_flags[i] = idata.flags[i];
+
+				if ((changed &RenderableFlags::VISIBLE) != 0) {
+					if ((idata.flags[i] & RenderableFlags::VISIBLE) != 0)
+						culling_set::add(_cullable_objects, { idata.world[i], idata.sphere[i], i });
+					else
+						culling_set::remove(_cullable_objects, i);
+				}
+
+				if ((changed &RenderableFlags::SHADOW_CASTER) != 0) {
+					if ((idata.flags[i] & RenderableFlags::SHADOW_CASTER) != 0) {
+						culling_set::add(_cullable_shadow_casters, { idata.world[i], idata.sphere[i], i });
+					} else {
+						culling_set::remove(_cullable_shadow_casters, i);
+					}
+				}
+			} else {
+				if ((idata.flags[i] & RenderableFlags::VISIBLE) != 0)
+					culling_set::update(_cullable_objects, i, idata.sphere[i], idata.world[i]);
+				if ((idata.flags[i] & RenderableFlags::SHADOW_CASTER) != 0)
+					culling_set::update(_cullable_shadow_casters, i, idata.sphere[i], idata.world[i]);
+			}
+		}
+	}
+
+	LEAVE_PROFILE_SCOPE();
+}
+
 void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
+
+	sync_cullable_sets();
 
 	const bgfx::Caps *caps = bgfx::getCaps();
 	Matrix4x4 inv_view = view;
@@ -731,6 +935,11 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 		// Copy camera pos to skydome.
 		_mesh_manager._data.world[skydome_mesh.i] = from_translation(camera_pos);
+		culling_set::update(_cullable_objects
+			, skydome_mesh.i
+			, _mesh_manager._data.sphere[skydome_mesh.i]
+			, _mesh_manager._data.world[skydome_mesh.i]
+			);
 
 		Material *skydome_material = mesh_material(skydome_mesh);
 		skydome_material->set_matrix4x4(STRING_ID_32("u_persp", UINT32_C(0x404ac2c2)), persp);
@@ -741,6 +950,13 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 			skydome_material->set_float(STRING_ID_32("u_skydome_intensity", UINT32_C(0x539e93b8)), _global_lighting_desc.skydome_intensity);
 		}
 	}
+
+	Frustum view_frustum;
+	frustum::from_matrix(view_frustum, view * proj, caps->homogeneousDepth, bx::Handedness::Right);
+
+	// Frustum culling of visible objects.
+	culling_set::cull_spheres(_cullable_objects, view_frustum, 0, array::size(_cullable_objects.id));
+	culling_set::remove_culled(_cullable_objects);
 
 	const f32 sy = caps->originBottomLeft ? 0.5f : -0.5f;
 	const f32 sz = caps->homogeneousDepth ? 0.5f :  1.0f;
@@ -885,6 +1101,8 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
 				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
 
+				culling_set::cull_none(_cullable_shadow_casters);
+				culling_set::remove_culled(_cullable_shadow_casters);
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
 		}
@@ -1133,8 +1351,13 @@ void RenderWorld::debug_draw(DebugLine &dl)
 
 	for (u32 i = 0; i < mid.size; ++i) {
 		const OBB &obb = mid.obb[i];
+		const Sphere &sphere = mid.sphere[i];
 		const Matrix4x4 &world = mid.world[i];
 		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
+
+		Sphere out;
+		sphere::transform(out, sphere, world);
+		dl.add_sphere(out.c, out.r, COLOR4_YELLOW);
 	}
 
 	_light_manager.debug_draw(0, _light_manager._data.size, dl);
@@ -1202,7 +1425,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(Material *) + alignof(Material *)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
+		+ num*sizeof(Sphere) + alignof(Sphere)
 		+ num*sizeof(AnimationSkeletonInstance *) + alignof(AnimationSkeletonInstance *)
+		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 #if CROWN_CAN_RELOAD
 		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
@@ -1214,7 +1439,6 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
-	new_data.first_hidden = _data.first_hidden;
 
 	new_data.unit          = (UnitId *             )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource      = (const MeshResource **)memory::align_top(new_data.unit + num,     alignof(MeshResource *));
@@ -1223,10 +1447,12 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.material      = (Material **          )memory::align_top(new_data.mesh + num,     alignof(Material *));
 	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
-	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.obb + num, alignof(AnimationSkeletonInstance *));
+	new_data.sphere        = (Sphere *             )memory::align_top(new_data.obb + num,      alignof(Sphere));
+	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.sphere + num, alignof(AnimationSkeletonInstance *));
 	new_data.flags         = (u32 *                )memory::align_top(new_data.skeleton + num, alignof(u32));
+	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
 #if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.flags + num, alignof(MaterialResource *));
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.prev_flags + num, alignof(MaterialResource *));
 #endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
@@ -1236,8 +1462,10 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.material, _data.material, _data.size * sizeof(Material *));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
+	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
 	memcpy(new_data.skeleton, _data.skeleton, _data.size * sizeof(AnimationSkeletonInstance *));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
+	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
 #if CROWN_CAN_RELOAD
 	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
 #endif
@@ -1285,26 +1513,17 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		_data.material[last] = _render_world->_material_manager->get(mat_res);
 		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
 		_data.obb[last]      = mg->obb;
+		_data.sphere[last]   = mg->sphere;
 		_data.skeleton[last] = NULL;
-		_data.flags[last]    = meshes[i].flags;
+		_data.flags[last]    = meshes[i].flags | RenderableFlags::DIRTY;
+		_data.prev_flags[last] = 0;
 #if CROWN_CAN_RELOAD
 		_data.material_resource[last] = mat_res;
 #endif
+		_dirty = true;
 
 		hash_map::set(_map, unit, last);
 		++_data.size;
-
-		if (meshes[i].flags & RenderableFlags::VISIBLE) {
-			if (last >= _data.first_hidden) {
-				// _data now contains a visible item in its hidden partition.
-				swap(last, _data.first_hidden);
-				++_data.first_hidden;
-				continue;
-			}
-			++_data.first_hidden;
-		}
-
-		CE_ENSURE(last >= _data.first_hidden);
 	}
 }
 
@@ -1316,6 +1535,9 @@ void RenderWorld::MeshManager::destroy(MeshId inst)
 	const UnitId u      = _data.unit[inst.i];
 	const UnitId last_u = _data.unit[last];
 
+	culling_set::fixup(_render_world->_cullable_objects, inst.i, last);
+	culling_set::fixup(_render_world->_cullable_shadow_casters, inst.i, last);
+
 	_data.unit[inst.i]     = _data.unit[last];
 	_data.resource[inst.i] = _data.resource[last];
 	_data.geometry[inst.i] = _data.geometry[last];
@@ -1324,8 +1546,10 @@ void RenderWorld::MeshManager::destroy(MeshId inst)
 	_data.material[inst.i] = _data.material[last];
 	_data.world[inst.i]    = _data.world[last];
 	_data.obb[inst.i]      = _data.obb[last];
+	_data.sphere[inst.i]   = _data.sphere[last];
 	_data.skeleton[inst.i] = _data.skeleton[last];
 	_data.flags[inst.i]    = _data.flags[last];
+	_data.prev_flags[inst.i] = _data.prev_flags[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[inst.i] = _data.material_resource[last];
 #endif
@@ -1333,16 +1557,6 @@ void RenderWorld::MeshManager::destroy(MeshId inst)
 	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
 	--_data.size;
-
-	// If item was hidden.
-	if (inst.i >= _data.first_hidden)
-		return;
-
-	// If item was visible *and* last item was hidden.
-	if (last >= _data.first_hidden)
-		swap(inst.i, _data.first_hidden - 1);
-
-	--_data.first_hidden;
 }
 
 void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
@@ -1360,8 +1574,10 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.material[inst_a], _data.material[inst_b]);
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
+	exchange(_data.sphere[inst_a],   _data.sphere[inst_b]);
 	exchange(_data.skeleton[inst_a], _data.skeleton[inst_b]);
 	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
+	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
 #endif
@@ -1385,23 +1601,7 @@ void RenderWorld::MeshManager::set_geometry(MeshId mesh, const MeshResource *mr,
 	_data.mesh[mesh.i].vbh = mg->vertex_buffer;
 	_data.mesh[mesh.i].ibh = mg->index_buffer;
 	_data.obb[mesh.i]      = mg->obb;
-}
-
-void RenderWorld::MeshManager::set_visible(MeshId inst, bool visible)
-{
-	if (visible) {
-		if (inst.i < _data.first_hidden)
-			return; // Already visible.
-
-		swap(inst.i, _data.first_hidden);
-		++_data.first_hidden;
-	} else {
-		if (inst.i >= _data.first_hidden)
-			return; // Already hidden.
-
-		swap(inst.i, _data.first_hidden - 1);
-		--_data.first_hidden;
-	}
+	_data.sphere[mesh.i]   = mg->sphere;
 }
 
 MeshId RenderWorld::MeshManager::mesh(UnitId unit)
@@ -1439,13 +1639,14 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 
 void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph, u32 stencil)
 {
-	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		if ((_data.flags[ii] & RenderableFlags::SHADOW_CASTER) == 0) // FIXME: put in a separate list.
-			continue;
+	u32 num = array::size(_render_world->_cullable_shadow_casters.render);
 
-		set_instance_data(ii, scene_graph);
+	for (u32 ii = 0; ii < num; ++ii) {
+		u32 mesh_id = _render_world->_cullable_shadow_casters.id[_render_world->_cullable_shadow_casters.render[ii]];
 
-		ShaderData sd = _data.skeleton[ii] != NULL
+		set_instance_data(mesh_id, scene_graph);
+
+		ShaderData sd = _data.skeleton[mesh_id] != NULL
 			? _render_world->_pipeline->_shadow_skinning_shader
 			: _render_world->_pipeline->_shadow_shader
 			;
@@ -1465,7 +1666,11 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 		1.0f/_render_world->_pipeline->_render_settings.local_lights_shadow_map_size.y
 	};
 
-	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
+	u32 num = array::size(_render_world->_cullable_objects.render);
+
+	for (u32 ii = 0; ii < num; ++ii) {
+		u32 mesh_id = _render_world->_cullable_objects.id[_render_world->_cullable_objects.render[ii]];
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 		bgfx::setTexture(0, _render_world->_pipeline->_html5_default_sampler, _render_world->_pipeline->_html5_default_texture);
 #endif
@@ -1480,8 +1685,8 @@ void RenderWorld::MeshManager::draw_visibles(u8 view_id, SceneGraph &scene_graph
 
 		bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, _render_world->_pipeline->_u_local_lights_shadow_map, _render_world->_pipeline->_local_lights_shadow_map_texture);
 
-		set_instance_data(ii, scene_graph);
-		_data.material[ii]->bind(view_id);
+		set_instance_data(mesh_id, scene_graph);
+		_data.material[mesh_id]->bind(view_id);
 	}
 }
 
@@ -1493,16 +1698,20 @@ void RenderWorld::MeshManager::draw_selected(u8 view_id, SceneGraph &scene_graph
 		f32 f;
 	} u2f;
 
-	for (u32 ii = 0; ii < _data.size; ++ii) {
-		UnitId unit_id = _data.unit[ii];
-		if (!hash_set::has(_render_world->_selection, unit_id)) // FIXME: put selected objects in a separate list.
+	u32 num = array::size(_render_world->_cullable_objects.render);
+
+	for (u32 ii = 0; ii < num; ++ii) {
+		u32 mesh_id = _render_world->_cullable_objects.id[_render_world->_cullable_objects.render[ii]];
+
+		UnitId unit_id = _data.unit[mesh_id];
+		if (!hash_set::has(_render_world->_selection, unit_id))
 			continue;
 
 		u2f.u = unit_id._idx;
 		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
 		bgfx::setUniform(_render_world->_pipeline->_unit_id, &data);
 
-		set_instance_data(ii, scene_graph);
+		set_instance_data(mesh_id, scene_graph);
 		bgfx::setState(_render_world->_pipeline->_selection_shader.state);
 		bgfx::submit(view_id, _render_world->_pipeline->_selection_shader.program);
 	}

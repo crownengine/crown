@@ -10,6 +10,7 @@ Changelog
 
 Tools: fix Delete key being disabled in entries.
 Runtime: fixed a crash in the Graph subsystem.
+Runtime: meshes can now be set to cast shadows while being invisible.
 
 .. _v0.61.0:
 

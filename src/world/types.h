@@ -186,7 +186,9 @@ struct RenderableFlags
 	enum Enum : u32
 	{
 		VISIBLE       = u32(1) << 0,
-		SHADOW_CASTER = u32(1) << 1
+		SHADOW_CASTER = u32(1) << 1,
+
+		DIRTY         = u32(1) << 31,
 	};
 };
 
