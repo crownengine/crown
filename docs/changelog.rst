@@ -10,6 +10,7 @@ Changelog
 
 Tools: fix Delete key being disabled in entries.
 Tools: fixed a crash in projects containing resources with particular filenames.
+Tools: fixed favorites entries disappearing when saved from some external applications.
 Runtime: fixed a crash in the Graph subsystem.
 
 .. _v0.61.0:
