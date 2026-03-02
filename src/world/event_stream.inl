@@ -24,15 +24,25 @@ struct EventHeader
 /// @ingroup Containers
 namespace event_stream
 {
-	/// Appends the @a event of the given @a type and @a size to the stream @a s.
-	inline void write(EventStream &s, u32 type, u32 size, const void *event)
+	inline void write_header(EventStream &s, u32 type, u32 size)
 	{
 		EventHeader eh;
 		eh.type = type;
 		eh.size = size;
 
 		array::push(s, (char *)&eh, sizeof(eh));
+	}
+
+	inline void write_event(EventStream &s, u32 size, const void *event)
+	{
 		array::push(s, (char *)event, size);
+	}
+
+	/// Appends the @a event of the given @a type and @a size to the stream @a s.
+	inline void write(EventStream &s, u32 type, u32 size, const void *event)
+	{
+		write_header(s, type, size);
+		write_event(s, size, event);
 	}
 
 	/// Appends the @a event of the given @a type to the stream @a s
