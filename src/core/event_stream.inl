@@ -6,7 +6,7 @@
 #pragma once
 
 #include "core/containers/array.inl"
-#include "world/event_stream.h"
+#include "core/event_stream.h"
 
 namespace crown
 {
