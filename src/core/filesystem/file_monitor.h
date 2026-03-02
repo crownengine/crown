@@ -26,7 +26,7 @@ struct FileMonitorEvent
 	};
 };
 
-typedef void (*FileMonitorFunction)(void *user_data, FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_modified);
+typedef void (*FileMonitorFunction)(const char *begin, const char *end, void *user_data);
 
 struct FileMonitorImpl;
 

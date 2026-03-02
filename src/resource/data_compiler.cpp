@@ -1421,7 +1421,7 @@ static void resource_path_to_resource_name(DynamicString &resource_name, const D
 	}
 }
 
-void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_renamed)
+void DataCompiler::file_monitor_callback_single(FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_renamed)
 {
 	TempAllocator512 ta;
 	DynamicString source_dir(ta);
@@ -1507,9 +1507,56 @@ void DataCompiler::file_monitor_callback(FileMonitorEvent::Enum fme, bool is_dir
 	}
 }
 
-void DataCompiler::file_monitor_callback(void *thiz, FileMonitorEvent::Enum fme, bool is_dir, const char *path_original, const char *path_modified)
+void DataCompiler::file_monitor_callback(const char *begin, const char *end)
 {
-	((DataCompiler *)thiz)->file_monitor_callback(fme, is_dir, path_original, path_modified);
+	for (const char *cur = begin; cur != end;) {
+		const char *path = NULL;
+		const char *path_renamed = NULL;
+
+		u32 type = *(u32 *)cur;
+		cur += 4;
+		u32 size = *(u32 *)cur;
+		cur += 4;
+		bool is_dir = *(bool *)cur;
+		cur += 1;
+		path = (const char *)cur;
+		cur += strlen32(path) + 1;
+		if (type == FileMonitorEvent::RENAMED) {
+			path_renamed = (const char *)cur;
+			cur += strlen32(path_renamed) + 1;
+		}
+
+		// logi(DATA_COMPILER, "%u path %s renamed %s", type, path, path_renamed ? path_renamed : "(NULL)");
+
+		// Skip consecutive [DELETED(A), CREATED(A)] or [RENAMED(A, B), CREATED(A)] pairs.
+		// Some programs delete and immediately recreate files when saving. Ignore such cases to
+		// avoid confusing downstream systems.
+		if (type == FileMonitorEvent::DELETED || type == FileMonitorEvent::RENAMED) {
+			if (cur + 9 < end) {
+				const char *cur1 = cur;
+				u32 type1 = *(u32 *)cur1;
+				cur1 += 4;
+				u32 size1 = *(u32 *)cur1;
+				cur1 += 4;
+				bool is_dir1 = *(bool *)cur1;
+				cur1 += 1;
+
+				if (type1 == FileMonitorEvent::CREATED && is_dir1 == is_dir) {
+					if (strcmp(path, (const char *)cur1) == 0) {
+						cur += 8 + size1; // Ignore next CREATED event.
+						continue;         // Ignore this DELETED/RENAMED event.
+					}
+				}
+			}
+		}
+
+		file_monitor_callback_single((FileMonitorEvent::Enum)type, is_dir, path, path_renamed);
+	}
+}
+
+void DataCompiler::file_monitor_callback(const char *begin, const char *end, void *thiz)
+{
+	((DataCompiler *)thiz)->file_monitor_callback(begin, end);
 }
 
 #define RESOURCE_TYPE(type_name)              \
