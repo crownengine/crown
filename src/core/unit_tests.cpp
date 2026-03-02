@@ -1805,10 +1805,12 @@ static void test_file_monitor()
 #if !CROWN_PLATFORM_EMSCRIPTEN
 	struct UserData
 	{
+		typedef void (*CheckFunction)(void *user_data, FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_modified);
+
 		bool done;
 		Mutex m;
 		ConditionVariable cv;
-		FileMonitorFunction check;
+		CheckFunction check;
 
 		UserData()
 			: done(false)
@@ -1827,11 +1829,31 @@ static void test_file_monitor()
 			ENSURE(done);
 		}
 
-		static void callback(void *user_data, FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_modified)
+		static void callback(const char *begin, const char *end, void *user_data)
 		{
 			UserData *ud = (UserData *)user_data;
 			ud->done = false;
-			ud->check(user_data, fme, is_dir, path, path_modified);
+
+			for (const char *cur = begin; cur != end;) {
+				const char *path = NULL;
+				const char *path_modified = NULL;
+
+				u32 type = *(u32 *)cur;
+				cur += 4;
+				CE_UNUSED(*(u32 *)cur);
+				cur += 4;
+				bool is_dir = *(bool *)cur;
+				cur += 1;
+				path = (const char *)cur;
+				cur += strlen32(path) + 1;
+				if (type == FileMonitorEvent::RENAMED) {
+					path_modified = (const char *)cur;
+					cur += strlen32(path_modified) + 1;
+				}
+
+				ud->check(user_data, (FileMonitorEvent::Enum)type, is_dir, path, path_modified);
+			}
+
 			ud->done = true;
 			ud->cv.signal();
 		}
