@@ -429,15 +429,15 @@ struct RenderWorld
 			u32 capacity;
 			void *buffer;
 
-			u32 first_hidden;
-
 			UnitId *unit;
 			const SpriteResource **resource;
 			Material **material;
 			u32 *frame;
 			Matrix4x4 *world;
 			AABB *aabb;
+			Sphere *sphere;
 			u32 *flags;
+			u32 *prev_flags;
 			u32 *layer;
 			u32 *depth;
 #if CROWN_CAN_RELOAD
@@ -449,12 +449,14 @@ struct RenderWorld
 		RenderWorld *_render_world;
 		HashMap<UnitId, u32> _map;
 		SpriteInstanceData _data;
+		bool _dirty;
 
 		///
 		SpriteManager(Allocator &a, RenderWorld *rw)
 			: _allocator(&a)
 			, _render_world(rw)
 			, _map(a)
+			, _dirty(true)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
@@ -473,9 +475,6 @@ struct RenderWorld
 		bool has(UnitId unit);
 
 		///
-		void set_visible(SpriteId sprite, bool visible);
-
-		///
 		SpriteId sprite(UnitId unit);
 
 		///
@@ -491,7 +490,7 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
-		void set_instance_data(f32 **vdata, u16 **idata, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 ii);
+		void set_instance_data(f32 **vdata, u16 **idata, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 sprite_id, u32 slot);
 
 		///
 		void draw_visibles(u8 view);
@@ -613,6 +612,7 @@ struct RenderWorld
 
 	CullingSet _cullable_objects;
 	CullingSet _cullable_shadow_casters;
+	CullingSet _cullable_sprites;
 
 	UnitDestroyCallback _unit_destroy_callback;
 
