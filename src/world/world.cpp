@@ -5,6 +5,7 @@
 
 #include "core/containers/hash_map.inl"
 #include "core/error/error.h"
+#include "core/event_stream.inl"
 #include "core/list.inl"
 #include "core/math/matrix4x4.inl"
 #include "core/math/vector3.inl"
@@ -19,7 +20,6 @@
 #include "resource/unit_resource.inl"
 #include "world/animation_state_machine.h"
 #include "world/debug_line.h"
-#include "world/event_stream.inl"
 #include "world/gui.h"
 #include "world/level.h"
 #include "world/physics_world.h"
