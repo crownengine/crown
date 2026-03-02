@@ -7,12 +7,14 @@
 
 #if CROWN_PLATFORM_LINUX
 #include "core/containers/hash_map.inl"
+#include "core/event_stream.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
+#include "core/time.h"
 #include <dirent.h> // opendir, readdir
 #include <errno.h>
 #include <limits.h> // NAME_MAX
@@ -33,6 +35,8 @@ struct FileMonitorImpl
 	bool _recursive;
 	FileMonitorFunction _function;
 	void *_user_data;
+	EventStream _events;
+	s64 _last_send_time;
 
 	explicit FileMonitorImpl(Allocator &a)
 		: _allocator(&a)
@@ -43,6 +47,8 @@ struct FileMonitorImpl
 		, _recursive(false)
 		, _function(NULL)
 		, _user_data(NULL)
+		, _events(a)
+		, _last_send_time(0)
 	{
 	}
 
@@ -94,8 +100,7 @@ struct FileMonitorImpl
 				path::join(str, path, dname);
 
 				if (generate_create_event) {
-					_function(_user_data
-						, FileMonitorEvent::CREATED
+					write(FileMonitorEvent::CREATED
 						, entry->d_type == DT_DIR // FIXME: some filesystems do not support DT_DIR.
 						, str.c_str()
 						, NULL
@@ -154,78 +159,143 @@ struct FileMonitorImpl
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 32*1000;
 
+			int select_ret;
 			// select returns 0 if timeout, 1 if input available, -1 if error.
-			if (select(FD_SETSIZE, &set, NULL, NULL, &timeout) == 0)
-				continue;
-
+			if ((select_ret = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) == 1) {
 #define BUF_LEN sizeof(struct inotify_event) + NAME_MAX + 1
-			char buf[BUF_LEN*16];
+				char buf[BUF_LEN*16];
 #undef BUF_LEN
-			ssize_t len = read(_fd, buf, sizeof(buf));
-			if (len == 0)
-				return 0;
-			if (len == -1)
-				return -1;
+				ssize_t len = read(_fd, buf, sizeof(buf));
+				if (len == 0)
+					return 0;
+				if (len == -1)
+					return -1;
 
-			for (char *p = buf; p < buf + len;) {
-				inotify_event *ev = (inotify_event *)p;
+				for (char *p = buf; p < buf + len;) {
+					inotify_event *ev = (inotify_event *)p;
 
-				if (ev->mask & IN_IGNORED) {
-					// Watch was removed explicitly (inotify_rm_watch(2)) or
-					// automatically (file was deleted, or filesystem was
-					// unmounted).
-					hash_map::remove(_watches, ev->wd);
+					if (ev->mask & IN_IGNORED) {
+						// Watch was removed explicitly (inotify_rm_watch(2)) or
+						// automatically (file was deleted, or filesystem was
+						// unmounted).
+						hash_map::remove(_watches, ev->wd);
+					}
+					if (ev->mask & IN_CREATE) {
+						DynamicString path(ta);
+						full_path(path, ev->wd, ev->name);
+
+						write(FileMonitorEvent::CREATED
+							, ev->mask & IN_ISDIR
+							, path.c_str()
+							, NULL
+							);
+
+						// From INOTIFY(7), Limitations and caveats:
+						// If monitoring an entire directory subtree, and a new subdirectory
+						// is created in that tree or an existing directory is renamed into
+						// that tree, be aware that by the time you create a watch for the
+						// new subdirectory, new files (and subdirectories) may already exist
+						// inside the subdirectory.  Therefore, you may want to scan the
+						// contents of the subdirectory immediately after adding the watch
+						// (and, if desired, recursively add watches for any subdirectories
+						// that it contains).
+						if (ev->mask & IN_ISDIR)
+							add_watch(path.c_str(), _recursive, true);
+					}
+					if (ev->mask & IN_DELETE) {
+						DynamicString path(ta);
+						full_path(path, ev->wd, ev->name);
+
+						write(FileMonitorEvent::DELETED
+							, ev->mask & IN_ISDIR
+							, path.c_str()
+							, NULL
+							);
+					}
+					if (ev->mask & IN_MODIFY || ev->mask & IN_ATTRIB) {
+						DynamicString path(ta);
+						full_path(path, ev->wd, ev->name);
+
+						write(FileMonitorEvent::CHANGED
+							, ev->mask & IN_ISDIR
+							, path.c_str()
+							, NULL
+							);
+					}
+					if (ev->mask & IN_MOVED_FROM) {
+						// Two consecutive IN_MOVED_FROM
+						if (cookie != 0) {
+							write(FileMonitorEvent::DELETED
+								, cookie_mask & IN_ISDIR
+								, cookie_path.c_str()
+								, NULL
+								);
+
+							u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
+							hash_map::remove(_watches_reverse, cookie_path);
+							inotify_rm_watch(_fd, wd);
+
+							cookie = 0;
+							cookie_mask = 0;
+						} else {
+							DynamicString path(ta);
+							full_path(path, ev->wd, ev->name);
+
+							cookie = ev->cookie;
+							cookie_mask = ev->mask;
+							cookie_path = path;
+						}
+					}
+					if (ev->mask & IN_MOVED_TO) {
+						if (cookie == ev->cookie) {
+							// File or directory has been renamed
+							DynamicString path(ta);
+							full_path(path, ev->wd, ev->name);
+
+							write(FileMonitorEvent::RENAMED
+								, ev->mask & IN_ISDIR
+								, cookie_path.c_str()
+								, path.c_str()
+								);
+
+							cookie = 0;
+							cookie_mask = 0;
+
+							if (ev->mask & IN_ISDIR) {
+								u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
+								hash_map::remove(_watches_reverse, cookie_path);
+								inotify_rm_watch(_fd, wd);
+
+								add_watch(path.c_str(), _recursive, true);
+							}
+						} else {
+							// File or directory was moved to this folder
+							DynamicString path(ta);
+							full_path(path, ev->wd, ev->name);
+
+							write(FileMonitorEvent::CREATED
+								, ev->mask & IN_ISDIR
+								, path.c_str()
+								, NULL
+								);
+
+							cookie = 0;
+							cookie_mask = 0;
+
+							if (ev->mask & IN_ISDIR)
+								add_watch(path.c_str(), _recursive, true);
+						}
+					}
+
+					p += sizeof(inotify_event) + ev->len;
 				}
-				if (ev->mask & IN_CREATE) {
-					DynamicString path(ta);
-					full_path(path, ev->wd, ev->name);
 
-					_function(_user_data
-						, FileMonitorEvent::CREATED
-						, ev->mask & IN_ISDIR
-						, path.c_str()
-						, NULL
-						);
-
-					// From INOTIFY(7), Limitations and caveats:
-					// If monitoring an entire directory subtree, and a new subdirectory
-					// is created in that tree or an existing directory is renamed into
-					// that tree, be aware that by the time you create a watch for the
-					// new subdirectory, new files (and subdirectories) may already exist
-					// inside the subdirectory.  Therefore, you may want to scan the
-					// contents of the subdirectory immediately after adding the watch
-					// (and, if desired, recursively add watches for any subdirectories
-					// that it contains).
-					if (ev->mask & IN_ISDIR)
-						add_watch(path.c_str(), _recursive, true);
-				}
-				if (ev->mask & IN_DELETE) {
-					DynamicString path(ta);
-					full_path(path, ev->wd, ev->name);
-
-					_function(_user_data
-						, FileMonitorEvent::DELETED
-						, ev->mask & IN_ISDIR
-						, path.c_str()
-						, NULL
-						);
-				}
-				if (ev->mask & IN_MODIFY || ev->mask & IN_ATTRIB) {
-					DynamicString path(ta);
-					full_path(path, ev->wd, ev->name);
-
-					_function(_user_data
-						, FileMonitorEvent::CHANGED
-						, ev->mask & IN_ISDIR
-						, path.c_str()
-						, NULL
-						);
-				}
-				if (ev->mask & IN_MOVED_FROM) {
-					// Two consecutive IN_MOVED_FROM
-					if (cookie != 0) {
-						_function(_user_data
-							, FileMonitorEvent::DELETED
+				// Unpaired IN_MOVED_FROM: file deleted (moved out to non-monitored dir).
+				if (cookie != 0 && cookie_mask & IN_MOVED_FROM) {
+					Stat st;
+					os::stat(st, cookie_path.c_str());
+					if (st.file_type == Stat::NO_ENTRY) {
+						write(FileMonitorEvent::DELETED
 							, cookie_mask & IN_ISDIR
 							, cookie_path.c_str()
 							, NULL
@@ -234,83 +304,21 @@ struct FileMonitorImpl
 						u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
 						hash_map::remove(_watches_reverse, cookie_path);
 						inotify_rm_watch(_fd, wd);
+					}
 
-						cookie = 0;
-						cookie_mask = 0;
-					} else {
-						DynamicString path(ta);
-						full_path(path, ev->wd, ev->name);
-
-						cookie = ev->cookie;
-						cookie_mask = ev->mask;
-						cookie_path = path;
+					cookie = 0;
+					cookie_mask = 0;
+				}
+			} else if (select_ret == 0) { // Timeout.
+				if (array::size(_events) >= 1024 || time::seconds(time::now() - _last_send_time) >= 1.0/100.0f) {
+					if (array::size(_events) != 0) {
+						_function(array::begin(_events), array::end(_events), _user_data);
+						array::clear(_events);
+						_last_send_time = time::now();
 					}
 				}
-				if (ev->mask & IN_MOVED_TO) {
-					if (cookie == ev->cookie) {
-						// File or directory has been renamed
-						DynamicString path(ta);
-						full_path(path, ev->wd, ev->name);
-
-						_function(_user_data
-							, FileMonitorEvent::RENAMED
-							, ev->mask & IN_ISDIR
-							, cookie_path.c_str()
-							, path.c_str()
-							);
-
-						cookie = 0;
-						cookie_mask = 0;
-
-						if (ev->mask & IN_ISDIR) {
-							u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
-							hash_map::remove(_watches_reverse, cookie_path);
-							inotify_rm_watch(_fd, wd);
-
-							add_watch(path.c_str(), _recursive, true);
-						}
-					} else {
-						// File or directory was moved to this folder
-						DynamicString path(ta);
-						full_path(path, ev->wd, ev->name);
-
-						_function(_user_data
-							, FileMonitorEvent::CREATED
-							, ev->mask & IN_ISDIR
-							, path.c_str()
-							, NULL
-							);
-
-						cookie = 0;
-						cookie_mask = 0;
-
-						if (ev->mask & IN_ISDIR)
-							add_watch(path.c_str(), _recursive, true);
-					}
-				}
-
-				p += sizeof(inotify_event) + ev->len;
-			}
-
-			// Unpaired IN_MOVED_FROM: file deleted (moved out to non-monitored dir).
-			if (cookie != 0 && cookie_mask & IN_MOVED_FROM) {
-				Stat st;
-				os::stat(st, cookie_path.c_str());
-				if (st.file_type == Stat::NO_ENTRY) {
-					_function(_user_data
-						, FileMonitorEvent::DELETED
-						, cookie_mask & IN_ISDIR
-						, cookie_path.c_str()
-						, NULL
-						);
-
-					u32 wd = hash_map::get(_watches_reverse, cookie_path, INT32_MAX);
-					hash_map::remove(_watches_reverse, cookie_path);
-					inotify_rm_watch(_fd, wd);
-				}
-
-				cookie = 0;
-				cookie_mask = 0;
+			} else { // Error.
+				return -1;
 			}
 		}
 
@@ -323,6 +331,23 @@ struct FileMonitorImpl
 		DynamicString path_base(ta);
 		path_base = hash_map::get(_watches, wd, path_base);
 		path::join(path, path_base.c_str(), name);
+	}
+
+	void write(FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_renamed)
+	{
+		if (fme == FileMonitorEvent::RENAMED) {
+			event_stream::write_header(_events, fme, 1 + strlen32(path) + 1 + strlen(path_renamed) + 1);
+			event_stream::write_event(_events, 1, &is_dir);
+			event_stream::write_event(_events, strlen32(path), path);
+			event_stream::write_event(_events, 1, "\0");
+			event_stream::write_event(_events, strlen32(path_renamed), path_renamed);
+			event_stream::write_event(_events, 1, "\0");
+		} else {
+			event_stream::write_header(_events, fme, 1 + strlen32(path) + 1);
+			event_stream::write_event(_events, 1, &is_dir);
+			event_stream::write_event(_events, strlen32(path), path);
+			event_stream::write_event(_events, 1, "\0");
+		}
 	}
 };
 

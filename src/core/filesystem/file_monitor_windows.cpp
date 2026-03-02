@@ -7,12 +7,14 @@
 
 #if CROWN_PLATFORM_WINDOWS
 #include "core/containers/hash_map.inl"
+#include "core/event_stream.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/path.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/os.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/thread/thread.h"
+#include "core/time.h"
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
 #endif
@@ -53,6 +55,8 @@ struct FileMonitorImpl
 	FileMonitorFunction _function;
 	void *_user_data;
 	u32 _key;
+	EventStream _events;
+	s64 _last_send_time;
 
 	explicit FileMonitorImpl(Allocator &a)
 		: _allocator(&a)
@@ -63,6 +67,8 @@ struct FileMonitorImpl
 		, _function(NULL)
 		, _user_data(NULL)
 		, _key(1000)
+		, _events(a)
+		, _last_send_time(0)
 	{
 	}
 
@@ -130,8 +136,7 @@ struct FileMonitorImpl
 				DynamicString str(ta);
 				path::join(str, path, ffd.cFileName);
 
-				_function(_user_data
-					, FileMonitorEvent::CREATED
+				write(FileMonitorEvent::CREATED
 					, ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY
 					, str.c_str()
 					, NULL
@@ -188,99 +193,102 @@ struct FileMonitorImpl
 				, &bytes_transferred
 				, &key
 				, &ov
-				, INFINITE
+				, 32 // milliseconds.
 				);
-			if (ret == FALSE)
-				continue;
+			if (ret == TRUE) {
+				// Re-evaluate _exit
+				if (bytes_transferred == 0)
+					continue;
 
-			// Re-evaluate _exit
-			if (bytes_transferred == 0)
-				continue;
+				Watch *wh = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch *)NULL);
 
-			Watch *wh = hash_map::get(_watches, (u32)(uintptr_t)key, (Watch *)NULL);
+				// Read packets
+				DWORD last_action = -1;
+				DynamicString path_old_name(default_allocator());
+				char *cur = (char *)wh->_buffer;
+				for (;;) {
+					const FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *)cur;
 
-			// Read packets
-			DWORD last_action = -1;
-			DynamicString path_old_name(default_allocator());
-			char *cur = (char *)wh->_buffer;
-			for (;;) {
-				const FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *)cur;
+					TempAllocator512 ta;
+					DynamicString path(ta);
+					full_path(path, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
 
-				TempAllocator512 ta;
-				DynamicString path(ta);
-				full_path(path, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
-
-				if (fni->Action == FILE_ACTION_ADDED) {
-					Stat st;
-					os::stat(st, path.c_str());
-
-					_function(_user_data
-						, FileMonitorEvent::CREATED
-						, st.file_type == Stat::FileType::DIRECTORY
-						, path.c_str()
-						, NULL
-						);
-
-					if (st.file_type == Stat::FileType::DIRECTORY)
-						scan_subdirectories(path.c_str());
-				} else if (fni->Action == FILE_ACTION_REMOVED) {
-					_function(_user_data
-						, FileMonitorEvent::DELETED
-						, false // FIXME: add "unknown" type or always assume file and let client handle that?
-						, path.c_str()
-						, NULL
-						);
-				} else if (fni->Action == FILE_ACTION_MODIFIED) {
-					Stat st;
-					os::stat(st, path.c_str());
-
-					_function(_user_data
-						, FileMonitorEvent::CHANGED
-						, st.file_type == Stat::FileType::DIRECTORY
-						, path.c_str()
-						, NULL
-						);
-				} else if (fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-					last_action = fni->Action;
-					full_path(path_old_name, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
-				} else if (fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-					if (last_action == FILE_ACTION_RENAMED_OLD_NAME) {
-						last_action = -1;
-
+					if (fni->Action == FILE_ACTION_ADDED) {
 						Stat st;
 						os::stat(st, path.c_str());
 
-						_function(_user_data
-							, FileMonitorEvent::RENAMED
+						write(FileMonitorEvent::CREATED
 							, st.file_type == Stat::FileType::DIRECTORY
-							, path_old_name.c_str()
 							, path.c_str()
+							, NULL
 							);
 
 						if (st.file_type == Stat::FileType::DIRECTORY)
 							scan_subdirectories(path.c_str());
+					} else if (fni->Action == FILE_ACTION_REMOVED) {
+						write(FileMonitorEvent::DELETED
+							, false // FIXME: add "unknown" type or always assume file and let client handle that?
+							, path.c_str()
+							, NULL
+							);
+					} else if (fni->Action == FILE_ACTION_MODIFIED) {
+						Stat st;
+						os::stat(st, path.c_str());
+
+						write(FileMonitorEvent::CHANGED
+							, st.file_type == Stat::FileType::DIRECTORY
+							, path.c_str()
+							, NULL
+							);
+					} else if (fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
+						last_action = fni->Action;
+						full_path(path_old_name, (u32)(uintptr_t)key, fni->FileName, fni->FileNameLength);
+					} else if (fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
+						if (last_action == FILE_ACTION_RENAMED_OLD_NAME) {
+							last_action = -1;
+
+							Stat st;
+							os::stat(st, path.c_str());
+
+							write(FileMonitorEvent::RENAMED
+								, st.file_type == Stat::FileType::DIRECTORY
+								, path_old_name.c_str()
+								, path.c_str()
+								);
+
+							if (st.file_type == Stat::FileType::DIRECTORY)
+								scan_subdirectories(path.c_str());
+						}
 					}
+
+					// advance to next entry in buffer (variable length)
+					if (fni->NextEntryOffset == 0)
+						break;
+					cur += fni->NextEntryOffset;
 				}
 
-				// advance to next entry in buffer (variable length)
-				if (fni->NextEntryOffset == 0)
-					break;
-				cur += fni->NextEntryOffset;
+				BOOL rdc = ReadDirectoryChangesW(wh->_handle
+					, &wh->_buffer
+					, sizeof(wh->_buffer)
+					, _recursive
+					, FILE_NOTIFY_CHANGE_FILE_NAME
+					| FILE_NOTIFY_CHANGE_DIR_NAME
+					| FILE_NOTIFY_CHANGE_ATTRIBUTES
+					| FILE_NOTIFY_CHANGE_SIZE
+					, NULL
+					, &wh->_overlapped
+					, NULL
+					);
+				CE_ASSERT(rdc != 0, "ReadDirectoryChangesW: GetLastError: %d", GetLastError());
+			} else { // Timeout.
+				if (array::size(_events) >= 1024 || time::seconds(time::now() - _last_send_time) >= 1.0/100.0f) {
+					if (array::size(_events) != 0) {
+						_function(array::begin(_events), array::end(_events), _user_data);
+						array::clear(_events);
+						_last_send_time = time::now();
+					}
+				}
 			}
-
-			BOOL rdc = ReadDirectoryChangesW(wh->_handle
-				, &wh->_buffer
-				, sizeof(wh->_buffer)
-				, _recursive
-				, FILE_NOTIFY_CHANGE_FILE_NAME
-				| FILE_NOTIFY_CHANGE_DIR_NAME
-				| FILE_NOTIFY_CHANGE_ATTRIBUTES
-				| FILE_NOTIFY_CHANGE_SIZE
-				, NULL
-				, &wh->_overlapped
-				, NULL
-				);
-			CE_ASSERT(rdc != 0, "ReadDirectoryChangesW: GetLastError: %d", GetLastError());
 		}
 
 		return 0;
@@ -297,6 +305,23 @@ struct FileMonitorImpl
 		for (u32 ii = 0; ii < name_len/2; ++ii)
 			filename += (char)name[ii];
 		path::join(path, path_base.c_str(), filename.c_str());
+	}
+
+	void write(FileMonitorEvent::Enum fme, bool is_dir, const char *path, const char *path_renamed)
+	{
+		if (fme == FileMonitorEvent::RENAMED) {
+			event_stream::write_header(_events, fme, 1 + strlen32(path) + 1 + strlen(path_renamed) + 1);
+			event_stream::write_event(_events, 1, &is_dir);
+			event_stream::write_event(_events, strlen32(path), path);
+			event_stream::write_event(_events, 1, "\0");
+			event_stream::write_event(_events, strlen32(path_renamed), path_renamed);
+			event_stream::write_event(_events, 1, "\0");
+		} else {
+			event_stream::write_header(_events, fme, 1 + strlen32(path) + 1);
+			event_stream::write_event(_events, 1, &is_dir);
+			event_stream::write_event(_events, strlen32(path), path);
+			event_stream::write_event(_events, 1, "\0");
+		}
 	}
 };
 
