@@ -7,11 +7,11 @@
 
 #include "core/math/constants.h"
 #include "core/math/types.h"
+#include "core/event_stream.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
 #include "lua/types.h"
 #include "resource/types.h"
-#include "world/event_stream.h"
 #include "world/gui.h"
 #include "world/mesh_animation_player.h"
 #include "world/sprite_animation_player.h"

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "world/event_stream.inl"
+#include "core/event_stream.inl"
 #include "world/sprite_animation_player.h"
 
 namespace crown

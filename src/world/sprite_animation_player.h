@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include "core/event_stream.h"
 #include "resource/sprite_resource.h"
-#include "world/event_stream.h"
 #include "world/types.h"
 
 namespace crown
