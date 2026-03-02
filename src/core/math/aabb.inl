@@ -44,7 +44,7 @@ namespace aabb
 			;
 	}
 
-	inline AABB transformed(const AABB &b, const Matrix4x4 &m)
+	inline AABB transform(const AABB &b, const Matrix4x4 &m)
 	{
 		Vector3 vertices[8];
 		to_vertices(vertices, b);
