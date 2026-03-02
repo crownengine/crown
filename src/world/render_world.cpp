@@ -190,6 +190,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _light_manager(a, this)
 	, _cullable_objects(a)
 	, _cullable_shadow_casters(a)
+	, _cullable_sprites(a)
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
@@ -364,6 +365,11 @@ void RenderWorld::sprite_set_sprite(SpriteId sprite, StringId64 sprite_resource_
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	const SpriteResource *resource = (SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, sprite_resource_name);
 	_sprite_manager._data.resource[sprite.i] = resource;
+
+	_sprite_manager._data.aabb[sprite.i] = resource->aabb;
+	_sprite_manager._data.sphere[sprite.i] = resource->sphere;
+	_sprite_manager._data.flags[sprite.i] |= RenderableFlags::DIRTY;
+	_sprite_manager._dirty = true;
 }
 
 Material *RenderWorld::sprite_material(SpriteId sprite)
@@ -391,7 +397,19 @@ void RenderWorld::sprite_set_frame(SpriteId sprite, u32 index)
 void RenderWorld::sprite_set_visible(SpriteId sprite, bool visible)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
-	_sprite_manager.set_visible(sprite, visible);
+
+	bool prev_visible = (_sprite_manager._data.flags[sprite.i] & RenderableFlags::VISIBLE) != 0;
+
+	if (prev_visible == visible)
+		return;
+
+	if (visible)
+		_sprite_manager._data.flags[sprite.i] |= RenderableFlags::VISIBLE;
+	else
+		_sprite_manager._data.flags[sprite.i] &= ~RenderableFlags::VISIBLE;
+
+	_sprite_manager._data.flags[sprite.i] |= RenderableFlags::DIRTY;
+	_sprite_manager._dirty = true;
 }
 
 void RenderWorld::sprite_flip_x(SpriteId sprite, bool flip)
@@ -428,14 +446,14 @@ OBB RenderWorld::sprite_obb(SpriteId sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
-	const OBB &obb = _sprite_manager._data.resource[sprite.i]->obb;
+	const AABB &aabb = _sprite_manager._data.resource[sprite.i]->aabb;
 	const Matrix4x4 &world = _sprite_manager._data.world[sprite.i];
 
-	OBB o;
-	o.tm = obb.tm * world;
-	o.half_extents = obb.half_extents;
+	OBB obb;
+	obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb)) * world;
+	obb.half_extents = (aabb.max - aabb.min) * 0.5f;
 
-	return o;
+	return obb;
 }
 
 f32 RenderWorld::sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth)
@@ -826,6 +844,9 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 		if (_sprite_manager.has(*begin)) {
 			SpriteId sprite = _sprite_manager.sprite(*begin);
 			sid.world[sprite.i] = *world;
+
+			_sprite_manager._data.flags[sprite.i] |= RenderableFlags::DIRTY;
+			_sprite_manager._dirty = true;
 		}
 
 		if (_light_manager.has(*begin)) {
@@ -914,6 +935,33 @@ void RenderWorld::sync_cullable_sets()
 		}
 	}
 
+	if (_sprite_manager._dirty) {
+		_sprite_manager._dirty = false;
+		SpriteManager::SpriteInstanceData &idata = _sprite_manager._data;
+
+		for (u32 i = 0; i < idata.size; ++i) {
+			if ((idata.flags[i] & RenderableFlags::DIRTY) == 0)
+				continue;
+			idata.flags[i] &= ~RenderableFlags::DIRTY;
+
+			u32 changed = idata.flags[i] ^ idata.prev_flags[i];
+
+			if (changed) {
+				idata.prev_flags[i] = idata.flags[i];
+
+				if ((changed &RenderableFlags::VISIBLE) != 0) {
+					if ((idata.flags[i] & RenderableFlags::VISIBLE) != 0)
+						culling_set::add(_cullable_sprites, { idata.world[i], idata.sphere[i], i });
+					else
+						culling_set::remove(_cullable_sprites, i);
+				}
+			} else {
+				if ((idata.flags[i] & RenderableFlags::VISIBLE) != 0)
+					culling_set::update(_cullable_sprites, i, idata.sphere[i], idata.world[i]);
+			}
+		}
+	}
+
 	LEAVE_PROFILE_SCOPE();
 }
 
@@ -951,12 +999,15 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 		}
 	}
 
+	// Frustum culling of visible objects.
 	Frustum view_frustum;
 	frustum::from_matrix(view_frustum, view * proj, caps->homogeneousDepth, bx::Handedness::Right);
-
-	// Frustum culling of visible objects.
 	culling_set::cull_spheres(_cullable_objects, view_frustum, 0, array::size(_cullable_objects.id));
-	culling_set::remove_culled(_cullable_objects);
+	u32 visible_meshes = culling_set::remove_culled(_cullable_objects);
+	RECORD_FLOAT("world.visible_meshes", visible_meshes);
+	culling_set::cull_spheres(_cullable_sprites, view_frustum, 0, array::size(_cullable_sprites.id));
+	u32 visible_sprites = culling_set::remove_culled(_cullable_sprites);
+	RECORD_FLOAT("world.visible_sprites", visible_sprites);
 
 	const f32 sy = caps->originBottomLeft ? 0.5f : -0.5f;
 	const f32 sz = caps->homogeneousDepth ? 0.5f :  1.0f;
@@ -1360,6 +1411,19 @@ void RenderWorld::debug_draw(DebugLine &dl)
 		dl.add_sphere(out.c, out.r, COLOR4_YELLOW);
 	}
 
+	const SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
+
+	for (u32 i = 0; i < sid.size; ++i) {
+		const AABB &aabb = sid.aabb[i];
+		const Sphere &sphere = sid.sphere[i];
+		const Matrix4x4 &world = sid.world[i];
+		dl.add_aabb(aabb::transform(aabb, world), COLOR4_RED);
+
+		Sphere out;
+		sphere::transform(out, sphere, world);
+		dl.add_sphere(out.c, out.r, COLOR4_YELLOW);
+	}
+
 	_light_manager.debug_draw(0, _light_manager._data.size, dl);
 }
 
@@ -1728,6 +1792,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(AABB) + alignof(AABB)
+		+ num*sizeof(Sphere) + alignof(Sphere)
+		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
@@ -1741,7 +1807,6 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.size = _data.size;
 	new_data.capacity = num;
 	new_data.buffer = _allocator->allocate(bytes);
-	new_data.first_hidden = _data.first_hidden;
 
 	new_data.unit     = (UnitId *               )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource = (const SpriteResource **)memory::align_top(new_data.unit + num,     alignof(SpriteResource *));
@@ -1749,8 +1814,10 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.frame    = (u32 *                  )memory::align_top(new_data.material + num, alignof(u32));
 	new_data.world    = (Matrix4x4 *            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
 	new_data.aabb     = (AABB *                 )memory::align_top(new_data.world + num,    alignof(AABB));
-	new_data.flags    = (u32 *                  )memory::align_top(new_data.aabb + num,     alignof(u32));
-	new_data.layer    = (u32 *                  )memory::align_top(new_data.flags + num,    alignof(u32));
+	new_data.sphere   = (Sphere *               )memory::align_top(new_data.aabb + num,     alignof(Sphere));
+	new_data.flags    = (u32 *                  )memory::align_top(new_data.sphere + num,   alignof(u32));
+	new_data.prev_flags = (u32 *               )memory::align_top(new_data.flags + num,    alignof(u32));
+	new_data.layer    = (u32 *                  )memory::align_top(new_data.prev_flags + num, alignof(u32));
 	new_data.depth    = (u32 *                  )memory::align_top(new_data.layer + num,    alignof(u32));
 #if CROWN_CAN_RELOAD
 	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.depth + num, alignof(MaterialResource *));
@@ -1762,7 +1829,9 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
+	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
+	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
 	memcpy(new_data.layer, _data.layer, _data.size * sizeof(u32));
 	memcpy(new_data.depth, _data.depth, _data.size * sizeof(u32));
 #if CROWN_CAN_RELOAD
@@ -1802,33 +1871,24 @@ void RenderWorld::SpriteManager::create_instances(const void *components_data
 
 		const u32 last = _data.size;
 
-		_data.unit[last]     = unit;
-		_data.resource[last] = sr;
-		_data.material[last] = _render_world->_material_manager->get(mat_res);
-		_data.frame[last]    = 0;
-		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
-		_data.aabb[last]     = AABB();
-		_data.flags[last]    = sprites[i].flags;
-		_data.layer[last]    = sprites[i].layer;
-		_data.depth[last]    = sprites[i].depth;
+		_data.unit[last]       = unit;
+		_data.resource[last]   = sr;
+		_data.material[last]   = _render_world->_material_manager->get(mat_res);
+		_data.frame[last]      = 0;
+		_data.world[last]      = _render_world->_scene_graph->world_pose(ti);
+		_data.aabb[last]       = sr->aabb;
+		_data.sphere[last]     = sr->sphere;
+		_data.flags[last]      = sprites[i].flags | RenderableFlags::DIRTY;
+		_data.prev_flags[last] = 0;
+		_data.layer[last]      = sprites[i].layer;
+		_data.depth[last]      = sprites[i].depth;
 #if CROWN_CAN_RELOAD
 		_data.material_resource[last] = mat_res;
 #endif
 
 		hash_map::set(_map, unit, last);
 		++_data.size;
-
-		if (sprites[i].flags & RenderableFlags::VISIBLE) {
-			if (last >= _data.first_hidden) {
-				// _data now contains a visible item in its hidden partition.
-				swap(last, _data.first_hidden);
-				++_data.first_hidden;
-				continue;
-			}
-			++_data.first_hidden;
-		}
-
-		CE_ENSURE(last >= _data.first_hidden);
+		_dirty = true;
 	}
 }
 
@@ -1840,15 +1900,19 @@ void RenderWorld::SpriteManager::destroy(SpriteId inst)
 	const UnitId u      = _data.unit[inst.i];
 	const UnitId last_u = _data.unit[last];
 
-	_data.unit[inst.i]     = _data.unit[last];
-	_data.resource[inst.i] = _data.resource[last];
-	_data.material[inst.i] = _data.material[last];
-	_data.frame[inst.i]    = _data.frame[last];
-	_data.world[inst.i]    = _data.world[last];
-	_data.aabb[inst.i]     = _data.aabb[last];
-	_data.flags[inst.i]    = _data.flags[last];
-	_data.layer[inst.i]    = _data.layer[last];
-	_data.depth[inst.i]    = _data.depth[last];
+	culling_set::fixup(_render_world->_cullable_sprites, inst.i, last);
+
+	_data.unit[inst.i]       = _data.unit[last];
+	_data.resource[inst.i]   = _data.resource[last];
+	_data.material[inst.i]   = _data.material[last];
+	_data.frame[inst.i]      = _data.frame[last];
+	_data.world[inst.i]      = _data.world[last];
+	_data.aabb[inst.i]       = _data.aabb[last];
+	_data.sphere[inst.i]     = _data.sphere[last];
+	_data.flags[inst.i]      = _data.flags[last];
+	_data.prev_flags[inst.i] = _data.prev_flags[last];
+	_data.layer[inst.i]      = _data.layer[last];
+	_data.depth[inst.i]      = _data.depth[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[inst.i] = _data.material_resource[last];
 #endif
@@ -1856,16 +1920,6 @@ void RenderWorld::SpriteManager::destroy(SpriteId inst)
 	hash_map::set(_map, last_u, inst.i);
 	hash_map::remove(_map, u);
 	--_data.size;
-
-	// If item was hidden.
-	if (inst.i >= _data.first_hidden)
-		return;
-
-	// If item was visible *and* last item was hidden.
-	if (last >= _data.first_hidden)
-		swap(inst.i, _data.first_hidden - 1);
-
-	--_data.first_hidden;
 }
 
 void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
@@ -1876,15 +1930,17 @@ void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
 	const UnitId unit_a = _data.unit[inst_a];
 	const UnitId unit_b = _data.unit[inst_b];
 
-	exchange(_data.unit[inst_a],     _data.unit[inst_b]);
-	exchange(_data.resource[inst_a], _data.resource[inst_b]);
-	exchange(_data.material[inst_a], _data.material[inst_b]);
-	exchange(_data.frame[inst_a],    _data.frame[inst_b]);
-	exchange(_data.world[inst_a],    _data.world[inst_b]);
-	exchange(_data.aabb[inst_a],     _data.aabb[inst_b]);
-	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
-	exchange(_data.layer[inst_a],    _data.layer[inst_b]);
-	exchange(_data.depth[inst_a],    _data.depth[inst_b]);
+	exchange(_data.unit[inst_a],       _data.unit[inst_b]);
+	exchange(_data.resource[inst_a],   _data.resource[inst_b]);
+	exchange(_data.material[inst_a],   _data.material[inst_b]);
+	exchange(_data.frame[inst_a],      _data.frame[inst_b]);
+	exchange(_data.world[inst_a],      _data.world[inst_b]);
+	exchange(_data.aabb[inst_a],       _data.aabb[inst_b]);
+	exchange(_data.sphere[inst_a],     _data.sphere[inst_b]);
+	exchange(_data.flags[inst_a],      _data.flags[inst_b]);
+	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
+	exchange(_data.layer[inst_a],      _data.layer[inst_b]);
+	exchange(_data.depth[inst_a],      _data.depth[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
 #endif
@@ -1898,23 +1954,6 @@ bool RenderWorld::SpriteManager::has(UnitId unit)
 	return is_valid(sprite(unit));
 }
 
-void RenderWorld::SpriteManager::set_visible(SpriteId inst, bool visible)
-{
-	if (visible) {
-		if (inst.i < _data.first_hidden)
-			return; // Already visible.
-
-		swap(inst.i, _data.first_hidden);
-		++_data.first_hidden;
-	} else {
-		if (inst.i >= _data.first_hidden)
-			return; // Already hidden.
-
-		swap(inst.i, _data.first_hidden - 1);
-		--_data.first_hidden;
-	}
-}
-
 SpriteId RenderWorld::SpriteManager::sprite(UnitId unit)
 {
 	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
@@ -1925,13 +1964,13 @@ void RenderWorld::SpriteManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 ii)
+void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 sprite_id, u32 slot)
 {
 	f32 *vdata = *vdata_;
 	u16 *idata = *idata_;
 
-	const f32 *frame = sprite_resource::frame_data(_data.resource[ii]
-		, _data.frame[ii] % _data.resource[ii]->num_frames
+	const f32 *frame = sprite_resource::frame_data(_data.resource[sprite_id]
+		, _data.frame[sprite_id] % _data.resource[sprite_id]->num_frames
 		);
 
 	f32 u0 = frame[ 3]; // u
@@ -1946,13 +1985,13 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 	f32 u3 = frame[18]; // u
 	f32 v3 = frame[19]; // v
 
-	if ((_data.flags[ii] & SpriteFlags::FLIP_X) != 0) {
+	if ((_data.flags[sprite_id] & SpriteFlags::FLIP_X) != 0) {
 		f32 u;
 		u = u0; u0 = u1; u1 = u;
 		u = u2; u2 = u3; u3 = u;
 	}
 
-	if ((_data.flags[ii] & SpriteFlags::FLIP_Y) != 0) {
+	if ((_data.flags[sprite_id] & SpriteFlags::FLIP_Y) != 0) {
 		f32 v;
 		v = v0; v0 = v2; v2 = v;
 		v = v1; v1 = v3; v3 = v;
@@ -1984,22 +2023,24 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 
 	*vdata_ += 20;
 
-	idata[0] = ii*4 + 0;
-	idata[1] = ii*4 + 1;
-	idata[2] = ii*4 + 2;
-	idata[3] = ii*4 + 0;
-	idata[4] = ii*4 + 2;
-	idata[5] = ii*4 + 3;
+	idata[0] = slot*4 + 0;
+	idata[1] = slot*4 + 1;
+	idata[2] = slot*4 + 2;
+	idata[3] = slot*4 + 0;
+	idata[4] = slot*4 + 2;
+	idata[5] = slot*4 + 3;
 
 	*idata_ += 6;
 
-	bgfx::setTransform(to_float_ptr(_data.world[ii]));
+	bgfx::setTransform(to_float_ptr(_data.world[sprite_id]));
 	bgfx::setVertexBuffer(0, &tvb);
-	bgfx::setIndexBuffer(&tib, ii*6, 6);
+	bgfx::setIndexBuffer(&tib, slot*6, 6);
 }
 
 void RenderWorld::SpriteManager::draw_visibles(u8 view_id)
 {
+	u32 num = array::size(_render_world->_cullable_sprites.render);
+
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
@@ -2007,23 +2048,24 @@ void RenderWorld::SpriteManager::draw_visibles(u8 view_id)
 	u16 *idata;
 
 	// Allocate vertex and index buffers.
-	if (_data.first_hidden) {
+	if (num) {
 		layout.begin();
 		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
 		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
 		layout.end();
 
-		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.first_hidden, layout);
-		bgfx::allocTransientIndexBuffer(&tib, 6*_data.first_hidden);
+		bgfx::allocTransientVertexBuffer(&tvb, 4*num, layout);
+		bgfx::allocTransientIndexBuffer(&tib, 6*num);
 
 		vdata = (f32 *)tvb.data;
 		idata = (u16 *)tib.data;
 	}
 
 	// Render all sprites.
-	for (u32 ii = 0; ii < _data.first_hidden; ++ii) {
-		set_instance_data(&vdata, &idata, tvb, tib, ii);
-		_data.material[ii]->bind(_data.layer[ii] + view_id, _data.depth[ii]);
+	for (u32 ii = 0; ii < num; ++ii) {
+		u32 sprite_id = _render_world->_cullable_sprites.id[_render_world->_cullable_sprites.render[ii]];
+		set_instance_data(&vdata, &idata, tvb, tib, sprite_id, ii);
+		_data.material[sprite_id]->bind(_data.layer[sprite_id] + view_id, _data.depth[sprite_id]);
 	}
 }
 
@@ -2035,35 +2077,34 @@ void RenderWorld::SpriteManager::draw_selected(u8 view_id)
 		f32 f;
 	} u2f;
 
+	u32 num = array::size(_render_world->_cullable_sprites.render);
+
 	bgfx::VertexLayout layout;
 	bgfx::TransientVertexBuffer tvb;
 	bgfx::TransientIndexBuffer tib;
 	f32 *vdata;
 	u16 *idata;
 
-	// Allocate vertex and index buffers.
-	if (_data.size) {
+	if (num) {
 		layout.begin();
 		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
 		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
 		layout.end();
 
-		bgfx::allocTransientVertexBuffer(&tvb, 4*_data.size, layout);
-		bgfx::allocTransientIndexBuffer(&tib, 6*_data.size);
+		bgfx::allocTransientVertexBuffer(&tvb, 4*num, layout);
+		bgfx::allocTransientIndexBuffer(&tib, 6*num);
 
 		vdata = (f32 *)tvb.data;
 		idata = (u16 *)tib.data;
 	}
 
-	// Render all sprites.
-	for (u32 ii = 0; ii < _data.size; ++ii) {
-		set_instance_data(&vdata, &idata, tvb, tib, ii);
+	for (u32 ii = 0; ii < num; ++ii) {
+		u32 sprite_id = _render_world->_cullable_sprites.id[_render_world->_cullable_sprites.render[ii]];
+		set_instance_data(&vdata, &idata, tvb, tib, sprite_id, ii);
 
-		UnitId unit_id = _data.unit[ii];
-		if (!hash_set::has(_render_world->_selection, unit_id)) { // FIXME: put selected objects in a separate list.
-			bgfx::discard();
+		UnitId unit_id = _data.unit[sprite_id];
+		if (!hash_set::has(_render_world->_selection, unit_id))
 			continue;
-		}
 
 		u2f.u = unit_id._idx;
 		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };

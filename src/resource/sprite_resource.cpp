@@ -151,19 +151,17 @@ namespace sprite_resource_internal
 		aabb.min.z = -0.25f;
 		aabb.max.z =  0.25f;
 
-		OBB obb;
-		obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb));
-		obb.half_extents = (aabb.max - aabb.min) * 0.5f;
-
 		// Write
 		SpriteResource sr;
 		sr.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE);
-		sr.obb = obb;
+		sr.aabb = aabb;
+		sr.sphere = aabb::to_sphere(aabb);
 		sr.num_frames = num_frames;
 		sr.num_verts = num_vertices;
 
 		opts.write(sr.version);
-		opts.write(sr.obb);
+		opts.write(sr.aabb);
+		opts.write(sr.sphere);
 		opts.write(sr.num_frames);
 
 		opts.write(sr.num_verts);
