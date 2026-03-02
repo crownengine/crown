@@ -60,6 +60,9 @@ struct DebugLine
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Vector3 &center, const f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS);
 
+	/// Adds the axis-aligned bounding box @a aabb.
+	void add_aabb(const AABB &aabb, const Color4 &color);
+
 	/// Adds an orientd bounding box. @a tm describes the position and orientation of
 	/// the box. @a half_extents describes the size of the box along the axis.
 	void add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color);

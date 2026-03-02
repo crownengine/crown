@@ -168,6 +168,30 @@ void DebugLine::add_frustum(const Frustum &f, const Color4 &color)
 	add_line(pt[3], pt[7], color);
 }
 
+void DebugLine::add_aabb(const AABB &aabb, const Color4 &color)
+{
+	Vector3 vertices[8];
+	aabb::to_vertices(vertices, aabb);
+
+	// Bottom face.
+	add_line(vertices[0], vertices[1], color);
+	add_line(vertices[1], vertices[2], color);
+	add_line(vertices[2], vertices[3], color);
+	add_line(vertices[3], vertices[0], color);
+
+	// Top face.
+	add_line(vertices[4], vertices[5], color);
+	add_line(vertices[5], vertices[6], color);
+	add_line(vertices[6], vertices[7], color);
+	add_line(vertices[7], vertices[4], color);
+
+	// Connect faces.
+	add_line(vertices[0], vertices[4], color);
+	add_line(vertices[1], vertices[5], color);
+	add_line(vertices[2], vertices[6], color);
+	add_line(vertices[3], vertices[7], color);
+}
+
 void DebugLine::add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color)
 {
 	Vector3 vertices[8];
