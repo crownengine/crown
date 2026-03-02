@@ -42,7 +42,7 @@ namespace aabb
 	Vector3 vertex(const AABB &b, u32 index);
 
 	/// Returns the box enclosing @a b transformed by @a m.
-	AABB transformed(const AABB &b, const Matrix4x4 &m);
+	AABB transform(const AABB &b, const Matrix4x4 &m);
 
 	/// Returns the eight vertices of the box @a b.
 	void to_vertices(Vector3 vertices[8], const AABB &b);
