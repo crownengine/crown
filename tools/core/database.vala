@@ -687,9 +687,11 @@ public class Database
 			;
 	}
 
-	public static bool is_valid_key(string key)
+	public static bool is_valid_key(Guid object_id, string key)
 	{
-		return key.length > 0
+		return object_id == GUID_ZERO
+			? key.length > 0
+			: key.length > 0
 			&& !key.has_prefix(".")
 			&& !key.has_suffix(".")
 			;
@@ -1017,7 +1019,7 @@ public class Database
 	public void set(int dir, Guid id, string key, Value? value)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(value));
 
 		if (_debug)
@@ -1033,7 +1035,7 @@ public class Database
 	public void create_empty_set(Guid id, string key)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		ob[key] = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
@@ -1042,7 +1044,7 @@ public class Database
 	public void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
 
@@ -1068,7 +1070,7 @@ public class Database
 	public void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
 
 		if (_debug)
@@ -1225,7 +1227,7 @@ public class Database
 	public void set_null(Guid id, string key)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(null));
 
 		if (_undo_redo != null) {
@@ -1258,7 +1260,7 @@ public class Database
 	public void set_bool(Guid id, string key, bool val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1277,7 +1279,7 @@ public class Database
 	public void set_double(Guid id, string key, double val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1296,7 +1298,7 @@ public class Database
 	public void set_string(Guid id, string key, string val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1315,7 +1317,7 @@ public class Database
 	public void set_vector3(Guid id, string key, Vector3 val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1334,7 +1336,7 @@ public class Database
 	public void set_quaternion(Guid id, string key, Quaternion val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1353,7 +1355,7 @@ public class Database
 	public void set_resource(Guid id, string key, string? val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1373,7 +1375,7 @@ public class Database
 	public void set_reference(Guid id, string key, Guid val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
@@ -1414,7 +1416,7 @@ public class Database
 	public void add_to_set(Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
 
@@ -1429,7 +1431,7 @@ public class Database
 	public void remove_from_set(Guid id, string key, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
 
 		if (_undo_redo != null) {
@@ -1453,7 +1455,7 @@ public class Database
 	public Value? get_property(Guid id, string key, Value? val = null)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		Value? value = (ob.has_key(key) ? ob[key] : val);
@@ -1505,7 +1507,7 @@ public class Database
 	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
 	{
 		assert(has_object(id));
-		assert(is_valid_key(key));
+		assert(is_valid_key(id, key));
 
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		Gee.HashSet<Guid?> value;
@@ -1638,7 +1640,7 @@ public class Database
 	public void copy_to(Database db, string new_key)
 	{
 		assert(db != null);
-		assert(is_valid_key(new_key));
+		assert(is_valid_key(GUID_ZERO, new_key));
 
 		copy_deep(db, GUID_ZERO, new_key);
 	}
