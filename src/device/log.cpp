@@ -30,7 +30,7 @@ namespace log_internal
 	#define ANSI_YELLOW "\x1b[33m"
 	#define ANSI_RED    "\x1b[31m"
 
-		const char *stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED };
+		const char *stt[] = { ANSI_RESET, ANSI_YELLOW, ANSI_RED, ANSI_RESET };
 		CE_STATIC_ASSERT(countof(stt) == LogSeverity::COUNT);
 
 		stbsp_snprintf(buf, sizeof(buf), "%s%s: %s\n" ANSI_RESET, stt[sev], system.name, format);
@@ -49,7 +49,7 @@ namespace log_internal
 		if (!console_server())
 			return;
 
-		const char *severity_map[] = { "info", "warning", "error" };
+		const char *severity_map[] = { "info", "warning", "error", "debug" };
 		CE_STATIC_ASSERT(countof(severity_map) == LogSeverity::COUNT);
 
 		TempAllocator4096 ta;
