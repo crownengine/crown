@@ -3034,7 +3034,9 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("Device", "set_timestep_policy", [](lua_State *L) {
 			LuaStack stack(L);
 			StringId32 policy_name = stack.get_string_id_32(1);
-			device()->set_timestep_policy(name_to_timestep_policy(policy_name));
+			TimestepPolicy::Enum policy = name_to_timestep_policy(policy_name);
+			LUA_ASSERT(policy != TimestepPolicy::COUNT, stack, "Unknown timestep policy");
+			device()->set_timestep_policy(policy);
 			return 0;
 		});
 	env.add_module_function("Device", "set_timestep_smoothing", [](lua_State *L) {
