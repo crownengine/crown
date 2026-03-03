@@ -52,6 +52,7 @@ LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 #define CROWN_DATA_INDEX "data_index.sjson"
 #define CROWN_DATA_MTIMES "data_mtimes.sjson"
 #define CROWN_DATA_DEPENDENCIES "data_dependencies.sjson"
+#define CROWN_DATAIGNORE ".dataignore"
 
 namespace crown
 {
