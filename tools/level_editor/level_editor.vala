@@ -764,7 +764,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_unit, this);
 
 		this.set_accels_for_action("app.new-level", { "<Primary>N" });
-		this.set_accels_for_action("app.open-level", new string[] { "<Primary>O" });
+		this.set_accels_for_action("app.open-level(\"\")", new string[] { "<Primary>O" });
 		this.set_accels_for_action("app.save", new string[] { "<Primary>S" });
 		this.set_accels_for_action("app.save-as", new string[] { "<Shift><Primary>S" });
 		this.set_accels_for_action("app.import-null", new string[] { "<Primary>I" });
