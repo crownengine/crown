@@ -86,6 +86,7 @@ s32 ResourceLoader::run()
 		ResourceRequest rr;
 		while (!_exit && _requests.pop(rr)) {
 			ResourceId res_id = resource_id(rr.type, rr.name);
+			logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id);
 
 			TempAllocator128 ta;
 			DynamicString path(ta);
