@@ -952,42 +952,44 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		return false;
 	}
 
-	// Wait for all pending file changes up to .datafence creation are received.
-	_datafence_mutex.lock();
-	_datafence_created = false;
-	_datafence_mutex.unlock();
-
-	DynamicString empty(default_allocator());
-	_source_fs.set_prefix(hash_map::get(_source_dirs, empty, empty).c_str());
-	File *fence = _source_fs.open(CROWN_DATAFENCE, FileOpenMode::WRITE);
-	if (fence == NULL) {
-		loge(DATA_COMPILER, "Cannot create %s", CROWN_DATAFENCE);
-		return false;
-	} else {
-		_source_fs.close(*fence);
-	}
-
-	u32 wait_ms = 1000;
-	_datafence_mutex.lock();
-	while (_datafence_created != true && wait_ms != 0) {
-		s64 t0 = time::now();
-		_datafence_condition.wait(_datafence_mutex, wait_ms);
-		u32 elapsed_ms = time::seconds(time::now() - t0) * 1000.0;
-		if (wait_ms >= elapsed_ms)
-			wait_ms -= elapsed_ms;
-		else
-			wait_ms = 0;
-	}
-
-	_source_fs.delete_file(CROWN_DATAFENCE);
-
-	if (_datafence_created == false) {
-		loge(DATA_COMPILER, "Fence timeout");
+	if (_options->_server) {
+		// Wait for all pending file changes up to .datafence creation are received.
+		_datafence_mutex.lock();
+		_datafence_created = false;
 		_datafence_mutex.unlock();
-		return false;
+
+		DynamicString empty(default_allocator());
+		_source_fs.set_prefix(hash_map::get(_source_dirs, empty, empty).c_str());
+		File *fence = _source_fs.open(CROWN_DATAFENCE, FileOpenMode::WRITE);
+		if (fence == NULL) {
+			loge(DATA_COMPILER, "Cannot create %s", CROWN_DATAFENCE);
+			return false;
+		} else {
+			_source_fs.close(*fence);
+		}
+
+		u32 wait_ms = 1000;
+		_datafence_mutex.lock();
+		while (_datafence_created != true && wait_ms != 0) {
+			s64 t0 = time::now();
+			_datafence_condition.wait(_datafence_mutex, wait_ms);
+			u32 elapsed_ms = time::seconds(time::now() - t0) * 1000.0;
+			if (wait_ms >= elapsed_ms)
+				wait_ms -= elapsed_ms;
+			else
+				wait_ms = 0;
+		}
+
+		_source_fs.delete_file(CROWN_DATAFENCE);
+
+		if (_datafence_created == false) {
+			loge(DATA_COMPILER, "Fence timeout");
+			_datafence_mutex.unlock();
+			return false;
+		}
+		_datafence_created = false;
+		_datafence_mutex.unlock();
 	}
-	_datafence_created = false;
-	_datafence_mutex.unlock();
 
 	FilesystemDisk data_fs(default_allocator());
 	data_fs.set_prefix(data_dir);
