@@ -13,6 +13,7 @@ Tools: fixed a crash in projects containing resources with particular filenames.
 Tools: fixed favorites entries disappearing when saved from some external applications.
 Runtime: fixed a crash in the Graph subsystem.
 Runtime: meshes can now be set to cast shadows while being invisible.
+Data Compiler: fixed an issue that caused misdetected file changes before compilation.
 
 .. _v0.61.0:
 
