@@ -122,7 +122,7 @@ struct BgfxCallback : public bgfx::CallbackI
 		char buf[2048];
 		strncpy(buf, _format, sizeof(buf) - 1);
 		buf[strlen32(buf) - 1] = '\0'; // Remove trailing newline
-		vlogi(DEVICE, buf, _argList);
+		vlogd(DEVICE, buf, _argList);
 	}
 
 	virtual void profilerBegin(const char *_name, uint32_t _abgr, const char *_filePath, uint16_t _line) override
