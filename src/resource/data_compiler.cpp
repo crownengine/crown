@@ -1447,17 +1447,11 @@ void DataCompiler::file_monitor_callback_single(FileMonitorEvent::Enum fme, bool
 		path::join(resource_path, cur->first.c_str(), filename);
 		resource_path_to_resource_name(resource_name, resource_path);
 
-#if 0
-		static const char *fme_to_name[] = { "CREATED", "DELETED", "RENAMED", "CHANGED" };
-		CE_STATIC_ASSERT(countof(fme_to_name) == FileMonitorEvent::COUNT);
-		logi(DATA_COMPILER, "file_monitor_callback: event: %s %s", fme_to_name[fme], is_dir ? "dir" : "file");
-		logi(DATA_COMPILER, "  path         : %s", path);
-		if (fme == FileMonitorEvent::RENAMED)
-			logi(DATA_COMPILER, "  path_renamed : %s", path_renamed);
-		logi(DATA_COMPILER, "  source_dir   : %s", source_dir.c_str());
-		logi(DATA_COMPILER, "  resource_path: %s", resource_path.c_str());
-		logi(DATA_COMPILER, "  resource_name: %s", resource_name.c_str());
-#endif
+		logd(DATA_COMPILER, "file_monitor_callback_single:");
+		logd(DATA_COMPILER, "  source_dir   : %s", source_dir.c_str());
+		logd(DATA_COMPILER, "  filename     : %s", filename);
+		logd(DATA_COMPILER, "  resource_path: %s", resource_path.c_str());
+		logd(DATA_COMPILER, "  resource_name: %s", resource_name.c_str());
 
 		switch (fme) {
 		case FileMonitorEvent::CREATED:
@@ -1526,7 +1520,9 @@ void DataCompiler::file_monitor_callback(const char *begin, const char *end)
 			cur += strlen32(path_renamed) + 1;
 		}
 
-		// logi(DATA_COMPILER, "%u path %s renamed %s", type, path, path_renamed ? path_renamed : "(NULL)");
+		static const char *fme_to_name[] = { "CREATED", "DELETED", "RENAMED", "CHANGED" };
+		CE_STATIC_ASSERT(countof(fme_to_name) == FileMonitorEvent::COUNT);
+		logd(DATA_COMPILER, "file_monitor_callback: event %s dir %d path %s path_renamed %s", fme_to_name[type], (int)is_dir, path, path_renamed ? path_renamed : "(NULL)");
 
 		// Skip consecutive [DELETED(A), CREATED(A)] or [RENAMED(A, B), CREATED(A)] pairs.
 		// Some programs delete and immediately recreate files when saving. Ignore such cases to
@@ -1543,6 +1539,7 @@ void DataCompiler::file_monitor_callback(const char *begin, const char *end)
 
 				if (type1 == FileMonitorEvent::CREATED && is_dir1 == is_dir) {
 					if (strcmp(path, (const char *)cur1) == 0) {
+						logd(DATA_COMPILER, "Ignored DELETED/RENAMED|CREATED sequence, path %s", path);
 						cur += 8 + size1; // Ignore next CREATED event.
 						continue;         // Ignore this DELETED/RENAMED event.
 					}
