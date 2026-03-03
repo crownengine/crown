@@ -123,10 +123,6 @@
 	#define CROWN_TEMP_DIRECTORY "temp"
 #endif
 
-#ifndef CROWN_DATAIGNORE
-	#define CROWN_DATAIGNORE ".dataignore"
-#endif
-
 #ifndef CROWN_LAST_LOG
 	#define CROWN_LAST_LOG "last.log"
 #endif
