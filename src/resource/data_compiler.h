@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/thread/condition_variable.h"
 #include "core/containers/types.h"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/filesystem_disk.h"
@@ -67,6 +68,9 @@ struct DataCompiler
 	SourceIndex _source_index;
 	HashMap<StringId64, u32> _data_revisions;
 	u32 _revision;
+	bool _datafence_created;
+	Mutex _datafence_mutex;
+	ConditionVariable _datafence_condition;
 
 	void add_file(const char *path);
 	void remove_file(const char *path);
