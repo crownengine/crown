@@ -64,7 +64,8 @@ namespace culling_set
 	static void remove(CullingSet &set, u32 object_id)
 	{
 		u32 ind = find_object(set, object_id);
-		CE_ENSURE(ind != UINT32_MAX);
+		if (ind == UINT32_MAX)
+			return;
 
 		u32 last = array::size(set.id) - 1;
 
