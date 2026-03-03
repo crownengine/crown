@@ -174,6 +174,7 @@ public class ConsoleView : Gtk.Box
 		tb.tag_table.add(new Gtk.TextTag("info"));
 		tb.tag_table.add(new Gtk.TextTag("warning"));
 		tb.tag_table.add(new Gtk.TextTag("error"));
+		tb.tag_table.add(new Gtk.TextTag("debug"));
 		tb.tag_table.add(new Gtk.TextTag("time"));
 
 		this.style_updated.connect(update_style);
