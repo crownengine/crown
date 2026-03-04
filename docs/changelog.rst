@@ -17,6 +17,7 @@ Changelog
 * Tools: fixed favorites entries disappearing when saved from some external applications.
 * Tools: fixed ``Ctrl+O`` keyboard shortcut for opening levels.
 * Runtime: fixed a crash in the Graph subsystem.
+* Runtime: fixed ``smoothed`` timestep policy not honoring average_cap during the very first frames.
 * Data Compiler: fixed an issue that caused misdetected file changes before compilation.
 
 .. _v0.61.0:
