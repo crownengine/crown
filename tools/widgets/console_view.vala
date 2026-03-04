@@ -134,11 +134,19 @@ public class ConsoleView : Gtk.Box
 	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Entry _entry;
+	public Gtk.Popover _entry_suggestions_popover;
+	public Gtk.ScrolledWindow _entry_suggestions_scroller;
+	public Gtk.ListBox _entry_suggestions_list;
 	public Gtk.EventControllerKey _entry_controller_key;
 	public Gtk.Box _entry_hbox;
 	public Gtk.TextMark _scroll_mark;
 	public Gtk.TextMark _time_mark;
 	public GLib.Mutex _mutex;
+	public uint _completion_request_id;
+	public bool _completion_updating_entry;
+	public bool _completion_suppress_autofill_once;
+	public string _completion_query_text;
+	public bool _history_navigation_active;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
 	{
@@ -149,6 +157,10 @@ public class ConsoleView : Gtk.Box
 		_distance = 0;
 		_project = project;
 		_preferences_dialog = preferences_dialog;
+		_completion_updating_entry = false;
+		_completion_suppress_autofill_once = false;
+		_completion_query_text = "";
+		_history_navigation_active = false;
 
 		// Widgets
 		_text_cursor = new Gdk.Cursor.from_name(this.get_display(), "text");
@@ -195,9 +207,33 @@ public class ConsoleView : Gtk.Box
 
 		_entry = new Gtk.Entry();
 		_entry.activate.connect(on_entry_activated);
+		_entry.changed.connect(on_entry_changed);
 		_entry.focus_in_event.connect(on_entry_focus_in);
 		_entry.focus_out_event.connect(on_entry_focus_out);
 		_entry.set_placeholder_text("Enter Command or Lua expression");
+
+		_entry_suggestions_list = new Gtk.ListBox();
+		_entry_suggestions_list.selection_mode = Gtk.SelectionMode.SINGLE;
+		_entry_suggestions_list.set_sort_func((row1, row2) => {
+				string a = (string)row1.get_data<string>("suggestion");
+				string b = (string)row2.get_data<string>("suggestion");
+				return strcasecmp(a, b);
+			});
+		_entry_suggestions_list.row_activated.connect((row) => {
+				string? suggestion = row.get_data<string>("suggestion");
+				if (suggestion == null)
+					return;
+
+				set_entry_from_suggestion(suggestion);
+				hide_lua_suggestions();
+			});
+
+		_entry_suggestions_scroller = new Gtk.ScrolledWindow(null, null);
+		_entry_suggestions_scroller.hscrollbar_policy = Gtk.PolicyType.NEVER;
+		_entry_suggestions_scroller.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
+		_entry_suggestions_scroller.set_min_content_height(-1);
+		_entry_suggestions_scroller.set_max_content_height(500);
+		_entry_suggestions_scroller.add(_entry_suggestions_list);
 
 		_entry_controller_key = new Gtk.EventControllerKey(_entry);
 		_entry_controller_key.key_pressed.connect(on_entry_key_pressed);
@@ -205,6 +241,17 @@ public class ConsoleView : Gtk.Box
 		_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_entry_hbox.pack_start(combo, false, false);
 		_entry_hbox.pack_start(_entry, true, true);
+
+		_entry_suggestions_popover = new Gtk.Popover(_entry);
+		_entry_suggestions_popover.set_modal(false);
+		_entry_suggestions_popover.set_can_focus(false);
+		_entry_suggestions_popover.set_position(Gtk.PositionType.BOTTOM);
+		_entry_suggestions_popover.add(_entry_suggestions_scroller);
+		_entry_suggestions_popover.show_all();
+		_entry_suggestions_popover.popdown();
+		_entry_hbox.size_allocate.connect((allocation) => {
+				_entry_suggestions_popover.set_size_request(allocation.width, -1);
+			});
 
 		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		hbox.pack_start(_entry_hbox, true, true, 0);
@@ -226,6 +273,185 @@ public class ConsoleView : Gtk.Box
 		this.get_style_context().add_class("console-view");
 
 		_console_view_valid = true;
+	}
+
+	public void clear_lua_suggestions()
+	{
+		foreach (var child in _entry_suggestions_list.get_children())
+			_entry_suggestions_list.remove(child);
+	}
+
+	public void reset_lua_suggestions_state()
+	{
+		clear_lua_suggestions();
+		hide_lua_suggestions();
+		_completion_suppress_autofill_once = false;
+	}
+
+	public void hide_lua_suggestions()
+	{
+		_entry_suggestions_popover.popdown();
+	}
+
+	public void set_entry_from_suggestion(string suggestion)
+	{
+		_completion_updating_entry = true;
+		_entry.text = suggestion;
+		_entry.set_position(suggestion.length);
+		_completion_updating_entry = false;
+	}
+
+	public void apply_suggestion_row(Gtk.ListBoxRow row)
+	{
+		string? suggestion = row.get_data<string>("suggestion");
+		if (suggestion == null)
+			return;
+
+		set_entry_from_suggestion(suggestion);
+	}
+
+	public void navigate_suggestions(int delta)
+	{
+		var children = _entry_suggestions_list.get_children();
+		int count = (int)children.length();
+		if (count == 0)
+			return;
+
+		var selected = _entry_suggestions_list.get_selected_row();
+		int index = selected != null? selected.get_index() : (delta > 0 ? -1 : count);
+		int target_index = index + delta;
+		if (target_index < 0)
+			target_index = 0;
+
+		if (target_index >= count)
+			target_index = count - 1;
+
+		var row = _entry_suggestions_list.get_row_at_index(target_index);
+		if (row == null)
+			return;
+
+		_entry_suggestions_list.select_row(row);
+		apply_suggestion_row(row);
+
+		var adj = _entry_suggestions_scroller.get_vadjustment();
+		if (adj != null) {
+			Gtk.Allocation row_alloc;
+			row.get_allocation(out row_alloc);
+
+			double top = (double)row_alloc.y;
+			double bottom = top + (double)row_alloc.height;
+			double view_top = adj.value;
+			double view_bottom = adj.value + adj.page_size;
+
+			if (top < view_top)
+				adj.set_value(top);
+			else if (bottom > view_bottom)
+				adj.set_value(bottom - adj.page_size);
+		}
+	}
+
+	public bool has_prefix_case(string str, string prefix)
+	{
+		return str.down().has_prefix(prefix.down());
+	}
+
+	public int strcasecmp(string a, string b)
+	{
+		int cmp = strcmp(a.down(), b.down());
+		return cmp != 0 ? cmp : strcmp(a, b);
+	}
+
+	public string current_query_text()
+	{
+		int start_pos;
+		int end_pos;
+		if (_entry.get_selection_bounds(out start_pos, out end_pos)) {
+			int prefix_len = start_pos < end_pos ? start_pos : end_pos;
+			return _entry.text[0 : prefix_len];
+		}
+
+		return _entry.text;
+	}
+
+	public void on_entry_changed()
+	{
+		if (_completion_updating_entry || _history_navigation_active)
+			return;
+
+		string text = current_query_text();
+		_completion_query_text = text;
+		if (text.length == 0 || text[0] == ':') {
+			reset_lua_suggestions_state();
+			return;
+		}
+
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		RuntimeInstance? runtime = app.current_selected_runtime();
+		if (runtime == null || !runtime.is_connected()) {
+			reset_lua_suggestions_state();
+			return;
+		}
+
+		++_completion_request_id;
+		runtime.send(RuntimeApi.suggest(_completion_request_id, text));
+	}
+
+	public void set_lua_suggestions(uint request_id, Gee.ArrayList<Value?> items)
+	{
+		if (request_id != _completion_request_id)
+			return;
+
+		clear_lua_suggestions();
+
+		int suggestions_count = 0;
+		foreach (var item in items) {
+			string s = (string)item;
+
+			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+			Gtk.Label label = new Gtk.Label(s);
+			label.set_xalign(0.0f);
+			row.add(label);
+			row.set_data("suggestion", s);
+			_entry_suggestions_list.add(row);
+			++suggestions_count;
+		}
+		_entry_suggestions_list.invalidate_sort();
+		_entry_suggestions_list.show_all();
+
+		if (suggestions_count > 0) {
+			Gtk.ListBoxRow? first_row = _entry_suggestions_list.get_row_at_index(0);
+			string? first = first_row != null? first_row.get_data<string>("suggestion") : null;
+			int prefix_len = _completion_query_text.length;
+
+			if (first != null && !_completion_suppress_autofill_once && has_prefix_case(first, _completion_query_text)) {
+				_completion_updating_entry = true;
+				_entry.text = first;
+				_entry.set_position(prefix_len);
+				_entry.select_region(prefix_len, -1);
+				_completion_updating_entry = false;
+			}
+
+			Gtk.Allocation bar_alloc;
+			_entry_hbox.get_allocation(out bar_alloc);
+			int list_min_h = 0;
+			int list_nat_h = 0;
+			_entry_suggestions_list.get_preferred_height(out list_min_h, out list_nat_h);
+			int desired_h = list_nat_h + 8;
+			const int max_h = 500;
+			if (desired_h > max_h)
+				desired_h = max_h;
+			_entry_suggestions_scroller.set_max_content_height(max_h);
+			_entry_suggestions_scroller.set_min_content_height(desired_h);
+			_entry_suggestions_popover.set_size_request(bar_alloc.width, desired_h);
+			_entry_suggestions_popover.popup();
+			if (first_row != null)
+				_entry_suggestions_list.select_row(first_row);
+			_entry.grab_focus_without_selecting();
+		} else {
+			hide_lua_suggestions();
+		}
+
+		_completion_suppress_autofill_once = false;
 	}
 
 	public void reset()
@@ -283,26 +509,49 @@ public class ConsoleView : Gtk.Box
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);
+		hide_lua_suggestions();
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
+		if (keyval == Gdk.Key.Escape && _entry_suggestions_popover.get_visible()) {
+			hide_lua_suggestions();
+			return Gdk.EVENT_STOP;
+		}
+
+		if (keyval == Gdk.Key.BackSpace || keyval == Gdk.Key.Delete)
+			_completion_suppress_autofill_once = true;
+
 		if (keyval == Gdk.Key.Down) {
+			if (_entry_suggestions_popover.get_visible()) {
+				navigate_suggestions(+1);
+				return Gdk.EVENT_STOP;
+			}
+
+			_history_navigation_active = true;
 			if (_distance > 1) {
 				--_distance;
 				_entry.text = _entry_history.element(_distance);
 			} else {
 				_entry.text = "";
 			}
+			_history_navigation_active = false;
 
 			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;
 		} else if (keyval == Gdk.Key.Up) {
+			if (_entry_suggestions_popover.get_visible()) {
+				navigate_suggestions(-1);
+				return Gdk.EVENT_STOP;
+			}
+
+			_history_navigation_active = true;
 			if (_distance < _entry_history._size) {
 				++_distance;
 				_entry.text = _entry_history.element(_distance);
 			}
+			_history_navigation_active = false;
 
 			_entry.set_position(_entry.text.length);
 			return Gdk.EVENT_STOP;

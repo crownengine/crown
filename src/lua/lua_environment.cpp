@@ -10,6 +10,7 @@
 #include "core/math/random.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
@@ -635,10 +636,217 @@ static void console_command_REPL(ConsoleServer &cs, u32 client_id, const char *j
 	do_REPL((LuaEnvironment *)user_data, script.c_str());
 }
 
+static bool is_lua_identifier(const char *str)
+{
+	CE_ENSURE(NULL != str);
+
+	if (str[0] == '\0')
+		return false;
+
+	if (!(isalpha(str[0]) != 0 || str[0] == '_'))
+		return false;
+
+	for (const char *ch = str + 1; *ch; ++ch) {
+		if (isalnum(*ch) == 0 && *ch != '_')
+			return false;
+	}
+
+	return true;
+}
+
+static bool is_lua_identifier_char(char ch)
+{
+	return isalnum(ch) != 0
+		|| ch == '_'
+		|| ch == '.'
+		;
+}
+
+static void append_suggestion_item(StringStream &ss, bool &first, const char *table_prefix, const char *key, const char *child_key)
+{
+	if (!first)
+		ss << ",";
+	ss << "\"";
+	ss << table_prefix;
+	ss << key;
+	if (child_key != NULL) {
+		ss << ".";
+		ss << child_key;
+	}
+	ss << "\"";
+	first = false;
+}
+
+static bool resolve_lua_table(DynamicString &table_prefix, lua_State *L, const char *table_path)
+{
+	lua_getglobal(L, "_G");
+	table_prefix = "";
+	if (table_path[0] == '\0')
+		return true;
+
+	const char *segment = table_path;
+	const char *cursor = table_path;
+	for (;;) {
+		if (*cursor == '.' || *cursor == '\0') {
+			if (cursor == segment) {
+				lua_pop(L, 1);
+				return false;
+			}
+
+			char key[128];
+			const u32 key_len = u32(cursor - segment);
+			const u32 copy_len = key_len < countof(key) - 1 ? key_len : countof(key) - 1;
+			memcpy(key, segment, copy_len);
+			key[copy_len] = '\0';
+
+			lua_getfield(L, -1, key);
+			lua_remove(L, -2);
+			if (!lua_istable(L, -1)) {
+				lua_pop(L, 1);
+				return false;
+			}
+
+			table_prefix += key;
+			table_prefix += ".";
+
+			if (*cursor == '\0')
+				break;
+
+			segment = cursor + 1;
+		}
+		++cursor;
+	}
+
+	return true;
+}
+
+static void console_command_suggest(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	DynamicString expr(ta);
+	DynamicString token(ta);
+	DynamicString table_path(ta);
+	DynamicString key_prefix(ta);
+	DynamicString table_prefix(ta);
+	s32 request_id;
+	StringStream ss(ta);
+
+	sjson::parse(obj, json);
+	sjson::parse_verbatim(expr, obj["expr"]);
+	const s32 requested_limit = json_object::has(obj, "limit")
+		? sjson::parse_int(obj["limit"])
+		: 1000
+		;
+	const s32 max_emitted = max(0, requested_limit);
+	request_id = sjson::parse_int(obj["id"]);
+
+	// Extract the identifier token at the end of the typed expression.
+	const char *str = expr.c_str();
+	const u32 len = strlen32(str);
+	u32 token_start = len;
+	while (token_start > 0 && is_lua_identifier_char(str[token_start - 1]))
+		--token_start;
+
+	token = "";
+	table_path = "";
+	key_prefix = "";
+	if (token_start < len)
+		token += str + token_start;
+
+	// Split token into table path and key prefix for completion filtering.
+	if (token.length() > 0) {
+		const char *dot = strrchr(token.c_str(), '.');
+		if (dot != NULL) {
+			table_path.set(token.c_str(), u32(dot - token.c_str()));
+			key_prefix += dot + 1;
+		} else {
+			key_prefix += token.c_str();
+		}
+	}
+
+	// Start response and resolve the target table from the dotted path.
+	lua_State *L = ((LuaEnvironment *)user_data)->L;
+	ss << "{\"type\":\"expr_suggestions\",\"id\":";
+	ss << request_id;
+	ss << ",\"items\":[";
+	if (token.length() == 0 || !resolve_lua_table(table_prefix, L, table_path.c_str())) {
+		ss << "]}";
+		cs.send(client_id, string_stream::c_str(ss));
+		return;
+	}
+
+	bool first = true;
+	const char *prefix = key_prefix.c_str();
+	s32 emitted = 0;
+
+	// Enumerate table keys, keeping only identifier-like keys with requested prefix.
+	lua_pushnil(L);
+	while (emitted < max_emitted && lua_next(L, -2) != 0) {
+		if (lua_type(L, -2) != LUA_TSTRING) {
+			lua_pop(L, 1);
+			continue;
+		}
+
+		const char *key = lua_tostring(L, -2);
+		if (!is_lua_identifier(key)) {
+			lua_pop(L, 1);
+			continue;
+		}
+
+		if (!str_has_prefix_case(key, prefix)) {
+			lua_pop(L, 1);
+			continue;
+		}
+
+		if (!lua_istable(L, -1)) {
+			append_suggestion_item(ss, first, table_prefix.c_str(), key, NULL);
+			++emitted;
+			lua_pop(L, 1);
+			continue;
+		}
+
+		bool has_any_key = false;
+
+		// Expand first dotted sub-level for table symbols.
+		lua_pushnil(L);
+		while (emitted < max_emitted && lua_next(L, -2) != 0) {
+			has_any_key = true;
+			if (lua_type(L, -2) != LUA_TSTRING) {
+				lua_pop(L, 1);
+				continue;
+			}
+
+			const char *child_key = lua_tostring(L, -2);
+			if (!is_lua_identifier(child_key)) {
+				lua_pop(L, 1);
+				continue;
+			}
+
+			append_suggestion_item(ss, first, table_prefix.c_str(), key, child_key);
+			++emitted;
+			lua_pop(L, 1);
+		}
+
+		// If table is empty, keep the table symbol itself.
+		if (!has_any_key && emitted < max_emitted) {
+			append_suggestion_item(ss, first, table_prefix.c_str(), key, NULL);
+			++emitted;
+		}
+
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+	ss << "]}";
+
+	cs.send(client_id, string_stream::c_str(ss));
+}
+
 void LuaEnvironment::register_console_commands(ConsoleServer &cs)
 {
 	cs.register_message_type("script", console_command_script, this);
 	cs.register_message_type("repl", console_command_REPL, this);
+	cs.register_message_type("suggest", console_command_suggest, this);
 }
 
 } // namespace crown

@@ -37,6 +37,11 @@ namespace RuntimeApi
 		return "{\"type\":\"quit\"}";
 	}
 
+	public string suggest(uint request_id, string expr, uint limit = 1000)
+	{
+		return "{\"type\":\"suggest\",\"id\":%u,\"expr\":\"\"\"%s\"\"\",\"limit\":%u}".printf(request_id, expr, limit);
+	}
+
 } /* namespace RuntimeApi */
 
 namespace DataCompilerApi
