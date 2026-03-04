@@ -60,8 +60,8 @@ f32 DeltaTimeFilter::filter(s64 dt)
 	_history._head = (_history._head + 1) % _history._capacity;
 	_history._size = min(_history._size + 1, (u32)_history._capacity);
 
-	// Compute the new delta time based on historic data.
-	s64 avg = dt;
+	// Compute the new delta time based on currently available historic data.
+	s64 avg = 0;
 
 	if (_history._size > 2*_num_outliers) {
 		// Sort circular buffer data.
@@ -74,13 +74,21 @@ f32 DeltaTimeFilter::filter(s64 dt)
 		// Compute average excluding outliers.
 		const s64 *begin = _history._sorted + _num_outliers;
 		const s64 *end   = _history._sorted + _history._size - _num_outliers;
+		avg = *begin;
 		for (const s64 *cur = begin + 1; cur != end; ++cur)
 			avg += *cur;
 		avg /= s64(end - begin);
-
-		// Limit distance from previous average.
-		avg = lerp(f32(_previous_average), f32(avg), _average_cap);
+	} else {
+		for (u32 i = 0; i < _history._size; ++i) {
+			const u32 c = (_history._head - i - 1) % _history._capacity;
+			avg += _history._raw[c];
+		}
+		avg /= _history._size;
 	}
+
+	// Limit distance from previous average after at least one prior sample exists.
+	if (_history._size > 1)
+		avg = lerp(f32(_previous_average), f32(avg), _average_cap);
 
 	_previous_average = avg;
 
