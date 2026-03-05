@@ -150,6 +150,18 @@ static KeyboardButton::Enum android_translate_key(s32 keycode)
 	}
 }
 
+static MouseButton::Enum mouse_button(s32 button_mask)
+{
+	switch (button_mask) {
+	case AMOTION_EVENT_BUTTON_PRIMARY:   return MouseButton::LEFT;
+	case AMOTION_EVENT_BUTTON_SECONDARY: return MouseButton::RIGHT;
+	case AMOTION_EVENT_BUTTON_TERTIARY:  return MouseButton::MIDDLE;
+	case AMOTION_EVENT_BUTTON_BACK:      return MouseButton::EXTRA_1;
+	case AMOTION_EVENT_BUTTON_FORWARD:   return MouseButton::EXTRA_2;
+	default:                             return MouseButton::COUNT;
+	}
+}
+
 static bool push_event(const OsEvent &ev);
 
 struct AndroidDevice
@@ -157,18 +169,184 @@ struct AndroidDevice
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Thread _main_thread;
+	android_app *_app;
 	DeviceOptions *_opts;
 	ANativeWindow *_window;
+	CursorMode::Enum _cursor_mode;
+	s32 _mouse_button_state;
+	JavaVM *_jni_vm;
+	jobject _pointer_capture_view;
+	jmethodID _request_pointer_capture;
+	jmethodID _release_pointer_capture;
 
 	explicit AndroidDevice(Allocator &a)
 		: _events(a)
 		, _queue(push_event)
+		, _app(NULL)
 		, _opts(NULL)
+		, _cursor_mode(CursorMode::NORMAL)
+		, _mouse_button_state(0)
+		, _jni_vm(NULL)
+		, _pointer_capture_view(NULL)
+		, _request_pointer_capture(NULL)
+		, _release_pointer_capture(NULL)
 	{
+	}
+
+	void init_pointer_capture_api()
+	{
+		if (_app == NULL || _app->activity == NULL || _app->activity->vm == NULL || _app->activity->clazz == NULL)
+			return;
+		if (_pointer_capture_view != NULL && _request_pointer_capture != NULL && _release_pointer_capture != NULL)
+			return;
+
+		JavaVM *vm = _app->activity->vm;
+		JNIEnv *env = NULL;
+		bool detach_thread = false;
+		const s32 get_env = vm->GetEnv((void **)&env, JNI_VERSION_1_6);
+		if (get_env == JNI_EDETACHED) {
+			if (vm->AttachCurrentThread(&env, NULL) != JNI_OK)
+				return;
+			detach_thread = true;
+		} else if (get_env != JNI_OK) {
+			return;
+		}
+
+		_jni_vm = vm;
+
+		jclass activity_class = NULL;
+		jobject window = NULL;
+		jclass window_class = NULL;
+		jobject decor_view = NULL;
+		jclass view_class = NULL;
+		jmethodID get_window = NULL;
+		jmethodID get_decor_view = NULL;
+		jmethodID request_pointer_capture = NULL;
+		jmethodID release_pointer_capture = NULL;
+
+		activity_class = env->GetObjectClass(_app->activity->clazz);
+		if (activity_class == NULL)
+			goto fail_detach;
+
+		get_window = env->GetMethodID(activity_class, "getWindow", "()Landroid/view/Window;");
+		if (get_window == NULL)
+			goto fail_clear_exception;
+
+		window = env->CallObjectMethod(_app->activity->clazz, get_window);
+		if (window == NULL || env->ExceptionCheck())
+			goto fail_clear_exception;
+
+		window_class = env->GetObjectClass(window);
+		if (window_class == NULL)
+			goto fail_clear_exception;
+
+		get_decor_view = env->GetMethodID(window_class, "getDecorView", "()Landroid/view/View;");
+		if (get_decor_view == NULL)
+			goto fail_clear_exception;
+
+		decor_view = env->CallObjectMethod(window, get_decor_view);
+		if (decor_view == NULL || env->ExceptionCheck())
+			goto fail_clear_exception;
+
+		view_class = env->GetObjectClass(decor_view);
+		if (view_class == NULL)
+			goto fail_clear_exception;
+
+		request_pointer_capture = env->GetMethodID(view_class, "requestPointerCapture", "()V");
+		release_pointer_capture = env->GetMethodID(view_class, "releasePointerCapture", "()V");
+		if (request_pointer_capture == NULL || release_pointer_capture == NULL)
+			goto fail_clear_exception;
+
+		_pointer_capture_view = env->NewGlobalRef(decor_view);
+		if (_pointer_capture_view == NULL)
+			goto fail_clear_exception;
+
+		_request_pointer_capture = request_pointer_capture;
+		_release_pointer_capture = release_pointer_capture;
+		goto cleanup;
+
+	fail_clear_exception:
+		if (env->ExceptionCheck())
+			env->ExceptionClear();
+	fail_detach:
+		_request_pointer_capture = NULL;
+		_release_pointer_capture = NULL;
+		_jni_vm = NULL;
+	cleanup:
+		if (view_class != NULL)
+			env->DeleteLocalRef(view_class);
+		if (decor_view != NULL)
+			env->DeleteLocalRef(decor_view);
+		if (window_class != NULL)
+			env->DeleteLocalRef(window_class);
+		if (window != NULL)
+			env->DeleteLocalRef(window);
+		if (activity_class != NULL)
+			env->DeleteLocalRef(activity_class);
+		if (detach_thread)
+			vm->DetachCurrentThread();
+		return;
+	}
+
+	void shutdown_pointer_capture_api()
+	{
+		if (_jni_vm == NULL || _pointer_capture_view == NULL)
+			return;
+		JavaVM *vm = _jni_vm;
+
+		JNIEnv *env = NULL;
+		bool detach_thread = false;
+		const s32 get_env = vm->GetEnv((void **)&env, JNI_VERSION_1_6);
+		if (get_env == JNI_EDETACHED) {
+			if (vm->AttachCurrentThread(&env, NULL) != JNI_OK)
+				return;
+			detach_thread = true;
+		} else if (get_env != JNI_OK) {
+			return;
+		}
+
+		env->DeleteGlobalRef(_pointer_capture_view);
+		_pointer_capture_view = NULL;
+		_request_pointer_capture = NULL;
+		_release_pointer_capture = NULL;
+		_jni_vm = NULL;
+
+		if (detach_thread)
+			vm->DetachCurrentThread();
+	}
+
+	bool set_pointer_capture(bool enable)
+	{
+		if (_pointer_capture_view == NULL || _request_pointer_capture == NULL || _release_pointer_capture == NULL || _jni_vm == NULL)
+			return false;
+
+		JNIEnv *env = NULL;
+		bool detach_thread = false;
+		const s32 get_env = _jni_vm->GetEnv((void **)&env, JNI_VERSION_1_6);
+		if (get_env == JNI_EDETACHED) {
+			if (_jni_vm->AttachCurrentThread(&env, NULL) != JNI_OK)
+				return false;
+			detach_thread = true;
+		} else if (get_env != JNI_OK) {
+			return false;
+		}
+
+		env->CallVoidMethod(_pointer_capture_view
+			, enable ? _request_pointer_capture : _release_pointer_capture
+			);
+		const bool ok = !env->ExceptionCheck();
+		if (!ok)
+			env->ExceptionClear();
+
+		if (detach_thread)
+			_jni_vm->DetachCurrentThread();
+
+		return ok;
 	}
 
 	void run(struct android_app *app, DeviceOptions &opts)
 	{
+		_app = app;
 		_opts = &opts;
 
 		app->userData = this;
@@ -189,6 +367,7 @@ struct AndroidDevice
 		}
 
 		_main_thread.stop();
+		shutdown_pointer_capture_api();
 	}
 
 	void process_command(struct android_app *app, s32 cmd)
@@ -200,6 +379,7 @@ struct AndroidDevice
 		case APP_CMD_INIT_WINDOW: {
 			CE_ASSERT(app->window != NULL, "Android window is NULL");
 			_window = app->window;
+			init_pointer_capture_api();
 
 			// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
 			const s32 width  = ANativeWindow_getWidth(app->window);
@@ -236,18 +416,110 @@ struct AndroidDevice
 		}
 	}
 
+#ifndef AMOTION_EVENT_AXIS_RELATIVE_X
+#define AMOTION_EVENT_AXIS_RELATIVE_X 27
+#endif
+#ifndef AMOTION_EVENT_AXIS_RELATIVE_Y
+#define AMOTION_EVENT_AXIS_RELATIVE_Y 28
+#endif
+#ifndef AINPUT_SOURCE_MOUSE_RELATIVE
+#define AINPUT_SOURCE_MOUSE_RELATIVE 0x00020004
+#endif
+
 	s32 process_input(struct android_app *app, AInputEvent *event)
 	{
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+			const s32 source = AInputEvent_getSource(event);
 			const s32 action_raw = AMotionEvent_getAction(event);
 			const s32 pointer_index = (action_raw & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 			const s32 pointer_count = AMotionEvent_getPointerCount(event);
+			const s32 action = (action_raw & AMOTION_EVENT_ACTION_MASK);
+
+			if ((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE
+				|| (source & AINPUT_SOURCE_MOUSE_RELATIVE) == AINPUT_SOURCE_MOUSE_RELATIVE
+				|| AMotionEvent_getToolType(event, 0) == AMOTION_EVENT_TOOL_TYPE_MOUSE) {
+				const s16 x = (s16)AMotionEvent_getX(event, 0);
+				const s16 y = (s16)AMotionEvent_getY(event, 0);
+				const f32 relx = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_X, 0);
+				const f32 rely = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_Y, 0);
+				const bool cursor_mode_disabled = _cursor_mode == CursorMode::DISABLED;
+
+				if (action == AMOTION_EVENT_ACTION_MOVE
+					|| action == AMOTION_EVENT_ACTION_HOVER_MOVE
+					|| action == AMOTION_EVENT_ACTION_DOWN
+					|| action == AMOTION_EVENT_ACTION_UP
+					|| action == AMOTION_EVENT_ACTION_BUTTON_PRESS
+					|| action == AMOTION_EVENT_ACTION_BUTTON_RELEASE) {
+					_queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::CURSOR_DELTA
+						, relx
+						, rely
+						, 0
+						);
+
+					if (!cursor_mode_disabled) {
+						_queue.push_axis_event(InputDeviceType::MOUSE
+							, 0
+							, MouseAxis::CURSOR
+							, x
+							, y
+							, 0
+							);
+					}
+
+				}
+
+				if (action == AMOTION_EVENT_ACTION_SCROLL) {
+					const f32 hscroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
+					const f32 vscroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
+					_queue.push_axis_event(InputDeviceType::MOUSE
+						, 0
+						, MouseAxis::WHEEL
+						, hscroll
+						, vscroll
+						, 0
+						);
+				}
+
+				if (action == AMOTION_EVENT_ACTION_BUTTON_PRESS
+					|| action == AMOTION_EVENT_ACTION_BUTTON_RELEASE
+					|| action == AMOTION_EVENT_ACTION_DOWN
+					|| action == AMOTION_EVENT_ACTION_UP) {
+					const s32 new_button_state = AMotionEvent_getButtonState(event);
+					const s32 changed_button_state = _mouse_button_state ^ new_button_state;
+					const s32 button_masks[] = {
+						AMOTION_EVENT_BUTTON_PRIMARY,
+						AMOTION_EVENT_BUTTON_SECONDARY,
+						AMOTION_EVENT_BUTTON_TERTIARY,
+						AMOTION_EVENT_BUTTON_BACK,
+						AMOTION_EVENT_BUTTON_FORWARD
+					};
+
+					for (u32 i = 0; i < countof(button_masks); ++i) {
+						const s32 mask = button_masks[i];
+						if ((changed_button_state & mask) == 0)
+							continue;
+
+						const MouseButton::Enum mb = mouse_button(mask);
+						if (mb != MouseButton::COUNT) {
+							_queue.push_button_event(InputDeviceType::MOUSE
+								, 0
+								, mb
+								, (new_button_state & mask) != 0
+								);
+						}
+					}
+
+					_mouse_button_state = new_button_state;
+				}
+
+				return 1;
+			}
 
 			const s32 pointer_id = AMotionEvent_getPointerId(event, pointer_index);
 			const f32 x = AMotionEvent_getX(event, pointer_index);
 			const f32 y = AMotionEvent_getY(event, pointer_index);
-
-			const s32 action = (action_raw & AMOTION_EVENT_ACTION_MASK);
 
 			switch (action) {
 			case AMOTION_EVENT_ACTION_DOWN:
@@ -392,7 +664,18 @@ struct WindowAndroid : public Window
 
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
-		CE_UNUSED(mode);
+		if (mode == s_android_device->_cursor_mode)
+			return true;
+
+		if (mode == CursorMode::DISABLED) {
+			if (!s_android_device->set_pointer_capture(true))
+				return false;
+		} else if (mode == CursorMode::NORMAL) {
+			if (!s_android_device->set_pointer_capture(false))
+				return false;
+		}
+
+		s_android_device->_cursor_mode = mode;
 		return true;
 	}
 
