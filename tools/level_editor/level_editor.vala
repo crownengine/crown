@@ -3409,6 +3409,11 @@ public class LevelEditorApplication : Gtk.Application
 		android_manifest += "\n  <!-- For ConsoleServer -->";
 		android_manifest += "\n  <uses-permission android:name=\"android.permission.INTERNET\" />";
 		android_manifest += "\n";
+		android_manifest += "\n  <!-- For mouse input -->";
+		android_manifest += "\n  <uses-feature";
+		android_manifest += "\n    android:name=\"android.hardware.type.pc\"";
+		android_manifest += "\n    android:required=\"false\" />";
+		android_manifest += "\n";
 		android_manifest += "\n  <application";
 		android_manifest += "\n    android:hasCode=\"true\"";
 		android_manifest += "\n    android:label=\"%s\">".printf(app_title);
