@@ -61,6 +61,9 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 	case VK_INSERT:   return KeyboardButton::INS;
 	case VK_DELETE:   return KeyboardButton::DEL;
 	case VK_END:      return KeyboardButton::END;
+	case VK_SNAPSHOT: return KeyboardButton::PRINT_SCREEN;
+	case VK_SCROLL:   return KeyboardButton::SCROLL_LOCK;
+	case VK_PAUSE:    return KeyboardButton::BREAK;
 	case VK_LSHIFT:   return KeyboardButton::SHIFT_LEFT;
 	case VK_RSHIFT:   return KeyboardButton::SHIFT_RIGHT;
 	case VK_LCONTROL: return KeyboardButton::CTRL_LEFT;
@@ -122,6 +125,17 @@ static KeyboardButton::Enum win_translate_key(s32 winkey)
 	case 'X':         return KeyboardButton::X;
 	case 'Y':         return KeyboardButton::Y;
 	case 'Z':         return KeyboardButton::Z;
+	case VK_OEM_3:    return KeyboardButton::BACKTICK;
+	case VK_OEM_MINUS:return KeyboardButton::MINUS;
+	case VK_OEM_PLUS: return KeyboardButton::EQUAL;
+	case VK_OEM_4:    return KeyboardButton::OPEN_BRACKET;
+	case VK_OEM_6:    return KeyboardButton::CLOSE_BRACKET;
+	case VK_OEM_5:    return KeyboardButton::BACKSLASH;
+	case VK_OEM_1:    return KeyboardButton::SEMICOLON;
+	case VK_OEM_7:    return KeyboardButton::QUOTE;
+	case VK_OEM_COMMA:return KeyboardButton::COMMA;
+	case VK_OEM_PERIOD:return KeyboardButton::PERIOD;
+	case VK_OEM_2:    return KeyboardButton::SLASH;
 	default:          return KeyboardButton::COUNT;
 	}
 }

@@ -44,6 +44,10 @@
 #include <errno.h>
 #include <stdio.h>
 
+#ifndef KEY_BREAK
+#define KEY_BREAK 0x19b
+#endif
+
 struct wl_display;
 struct wl_proxy;
 struct wl_interface;
@@ -125,6 +129,10 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	case XK_Insert:       return KeyboardButton::INS;
 	case XK_Delete:       return KeyboardButton::DEL;
 	case XK_End:          return KeyboardButton::END;
+	case XK_Print:        return KeyboardButton::PRINT_SCREEN;
+	case XK_Scroll_Lock:  return KeyboardButton::SCROLL_LOCK;
+	case XK_Pause:
+	case XK_Break:        return KeyboardButton::BREAK;
 	case XK_Shift_L:      return KeyboardButton::SHIFT_LEFT;
 	case XK_Shift_R:      return KeyboardButton::SHIFT_RIGHT;
 	case XK_Control_L:    return KeyboardButton::CTRL_LEFT;
@@ -197,6 +205,17 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 	case 'x':             return KeyboardButton::X;
 	case 'y':             return KeyboardButton::Y;
 	case 'z':             return KeyboardButton::Z;
+	case XK_grave:        return KeyboardButton::BACKTICK;
+	case XK_minus:        return KeyboardButton::MINUS;
+	case XK_equal:        return KeyboardButton::EQUAL;
+	case XK_bracketleft:  return KeyboardButton::OPEN_BRACKET;
+	case XK_bracketright: return KeyboardButton::CLOSE_BRACKET;
+	case XK_backslash:    return KeyboardButton::BACKSLASH;
+	case XK_semicolon:    return KeyboardButton::SEMICOLON;
+	case XK_apostrophe:   return KeyboardButton::QUOTE;
+	case XK_comma:        return KeyboardButton::COMMA;
+	case XK_period:       return KeyboardButton::PERIOD;
+	case XK_slash:        return KeyboardButton::SLASH;
 	default:              return KeyboardButton::COUNT;
 	}
 }
@@ -231,6 +250,10 @@ static KeyboardButton::Enum evdev_translate_key(uint32_t key)
 	case KEY_INSERT:     return KeyboardButton::INS;
 	case KEY_DELETE:     return KeyboardButton::DEL;
 	case KEY_END:        return KeyboardButton::END;
+	case KEY_SYSRQ:      return KeyboardButton::PRINT_SCREEN;
+	case KEY_SCROLLLOCK: return KeyboardButton::SCROLL_LOCK;
+	case KEY_PAUSE:      return KeyboardButton::BREAK;
+	case KEY_BREAK:      return KeyboardButton::BREAK;
 	case KEY_LEFTSHIFT:  return KeyboardButton::SHIFT_LEFT;
 	case KEY_RIGHTSHIFT: return KeyboardButton::SHIFT_RIGHT;
 	case KEY_LEFTCTRL:   return KeyboardButton::CTRL_LEFT;
@@ -293,6 +316,17 @@ static KeyboardButton::Enum evdev_translate_key(uint32_t key)
 	case KEY_X:          return KeyboardButton::X;
 	case KEY_Y:          return KeyboardButton::Y;
 	case KEY_Z:          return KeyboardButton::Z;
+	case KEY_GRAVE:      return KeyboardButton::BACKTICK;
+	case KEY_MINUS:      return KeyboardButton::MINUS;
+	case KEY_EQUAL:      return KeyboardButton::EQUAL;
+	case KEY_LEFTBRACE:  return KeyboardButton::OPEN_BRACKET;
+	case KEY_RIGHTBRACE: return KeyboardButton::CLOSE_BRACKET;
+	case KEY_BACKSLASH:  return KeyboardButton::BACKSLASH;
+	case KEY_SEMICOLON:  return KeyboardButton::SEMICOLON;
+	case KEY_APOSTROPHE: return KeyboardButton::QUOTE;
+	case KEY_COMMA:      return KeyboardButton::COMMA;
+	case KEY_DOT:        return KeyboardButton::PERIOD;
+	case KEY_SLASH:      return KeyboardButton::SLASH;
 	default:             return KeyboardButton::COUNT;
 	}
 }
