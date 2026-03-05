@@ -30,6 +30,126 @@ extern "C"
 
 namespace crown
 {
+static KeyboardButton::Enum android_translate_key(s32 keycode)
+{
+#ifndef AKEYCODE_SCROLL_LOCK
+#define AKEYCODE_SCROLL_LOCK 116
+#endif
+#ifndef AKEYCODE_SYSRQ
+#define AKEYCODE_SYSRQ 120
+#endif
+#ifndef AKEYCODE_BREAK
+#define AKEYCODE_BREAK 121
+#endif
+
+	switch (keycode) {
+	case AKEYCODE_TAB:                return KeyboardButton::TAB;
+	case AKEYCODE_ENTER:              return KeyboardButton::ENTER;
+	case AKEYCODE_ESCAPE:             return KeyboardButton::ESCAPE;
+	case AKEYCODE_SPACE:              return KeyboardButton::SPACE;
+	case AKEYCODE_DEL:                return KeyboardButton::BACKSPACE;
+	case AKEYCODE_NUM_LOCK:           return KeyboardButton::NUM_LOCK;
+	case AKEYCODE_NUMPAD_ENTER:       return KeyboardButton::NUMPAD_ENTER;
+	case AKEYCODE_NUMPAD_DOT:         return KeyboardButton::NUMPAD_DELETE;
+	case AKEYCODE_NUMPAD_MULTIPLY:    return KeyboardButton::NUMPAD_MULTIPLY;
+	case AKEYCODE_NUMPAD_ADD:         return KeyboardButton::NUMPAD_ADD;
+	case AKEYCODE_NUMPAD_SUBTRACT:    return KeyboardButton::NUMPAD_SUBTRACT;
+	case AKEYCODE_NUMPAD_DIVIDE:      return KeyboardButton::NUMPAD_DIVIDE;
+	case AKEYCODE_NUMPAD_0:           return KeyboardButton::NUMPAD_0;
+	case AKEYCODE_NUMPAD_1:           return KeyboardButton::NUMPAD_1;
+	case AKEYCODE_NUMPAD_2:           return KeyboardButton::NUMPAD_2;
+	case AKEYCODE_NUMPAD_3:           return KeyboardButton::NUMPAD_3;
+	case AKEYCODE_NUMPAD_4:           return KeyboardButton::NUMPAD_4;
+	case AKEYCODE_NUMPAD_5:           return KeyboardButton::NUMPAD_5;
+	case AKEYCODE_NUMPAD_6:           return KeyboardButton::NUMPAD_6;
+	case AKEYCODE_NUMPAD_7:           return KeyboardButton::NUMPAD_7;
+	case AKEYCODE_NUMPAD_8:           return KeyboardButton::NUMPAD_8;
+	case AKEYCODE_NUMPAD_9:           return KeyboardButton::NUMPAD_9;
+	case AKEYCODE_F1:                 return KeyboardButton::F1;
+	case AKEYCODE_F2:                 return KeyboardButton::F2;
+	case AKEYCODE_F3:                 return KeyboardButton::F3;
+	case AKEYCODE_F4:                 return KeyboardButton::F4;
+	case AKEYCODE_F5:                 return KeyboardButton::F5;
+	case AKEYCODE_F6:                 return KeyboardButton::F6;
+	case AKEYCODE_F7:                 return KeyboardButton::F7;
+	case AKEYCODE_F8:                 return KeyboardButton::F8;
+	case AKEYCODE_F9:                 return KeyboardButton::F9;
+	case AKEYCODE_F10:                return KeyboardButton::F10;
+	case AKEYCODE_F11:                return KeyboardButton::F11;
+	case AKEYCODE_F12:                return KeyboardButton::F12;
+	case AKEYCODE_MOVE_HOME:          return KeyboardButton::HOME;
+	case AKEYCODE_DPAD_LEFT:          return KeyboardButton::LEFT;
+	case AKEYCODE_DPAD_UP:            return KeyboardButton::UP;
+	case AKEYCODE_DPAD_RIGHT:         return KeyboardButton::RIGHT;
+	case AKEYCODE_DPAD_DOWN:          return KeyboardButton::DOWN;
+	case AKEYCODE_PAGE_UP:            return KeyboardButton::PAGE_UP;
+	case AKEYCODE_PAGE_DOWN:          return KeyboardButton::PAGE_DOWN;
+	case AKEYCODE_INSERT:             return KeyboardButton::INS;
+	case AKEYCODE_FORWARD_DEL:        return KeyboardButton::DEL;
+	case AKEYCODE_MOVE_END:           return KeyboardButton::END;
+	case AKEYCODE_SYSRQ:              return KeyboardButton::PRINT_SCREEN;
+	case AKEYCODE_SCROLL_LOCK:        return KeyboardButton::SCROLL_LOCK;
+	case AKEYCODE_BREAK:              return KeyboardButton::BREAK;
+	case AKEYCODE_CTRL_LEFT:          return KeyboardButton::CTRL_LEFT;
+	case AKEYCODE_CTRL_RIGHT:         return KeyboardButton::CTRL_RIGHT;
+	case AKEYCODE_SHIFT_LEFT:         return KeyboardButton::SHIFT_LEFT;
+	case AKEYCODE_SHIFT_RIGHT:        return KeyboardButton::SHIFT_RIGHT;
+	case AKEYCODE_CAPS_LOCK:          return KeyboardButton::CAPS_LOCK;
+	case AKEYCODE_ALT_LEFT:           return KeyboardButton::ALT_LEFT;
+	case AKEYCODE_ALT_RIGHT:          return KeyboardButton::ALT_RIGHT;
+	case AKEYCODE_META_LEFT:          return KeyboardButton::SUPER_LEFT;
+	case AKEYCODE_META_RIGHT:         return KeyboardButton::SUPER_RIGHT;
+	case AKEYCODE_0:                  return KeyboardButton::NUMBER_0;
+	case AKEYCODE_1:                  return KeyboardButton::NUMBER_1;
+	case AKEYCODE_2:                  return KeyboardButton::NUMBER_2;
+	case AKEYCODE_3:                  return KeyboardButton::NUMBER_3;
+	case AKEYCODE_4:                  return KeyboardButton::NUMBER_4;
+	case AKEYCODE_5:                  return KeyboardButton::NUMBER_5;
+	case AKEYCODE_6:                  return KeyboardButton::NUMBER_6;
+	case AKEYCODE_7:                  return KeyboardButton::NUMBER_7;
+	case AKEYCODE_8:                  return KeyboardButton::NUMBER_8;
+	case AKEYCODE_9:                  return KeyboardButton::NUMBER_9;
+	case AKEYCODE_A:                  return KeyboardButton::A;
+	case AKEYCODE_B:                  return KeyboardButton::B;
+	case AKEYCODE_C:                  return KeyboardButton::C;
+	case AKEYCODE_D:                  return KeyboardButton::D;
+	case AKEYCODE_E:                  return KeyboardButton::E;
+	case AKEYCODE_F:                  return KeyboardButton::F;
+	case AKEYCODE_G:                  return KeyboardButton::G;
+	case AKEYCODE_H:                  return KeyboardButton::H;
+	case AKEYCODE_I:                  return KeyboardButton::I;
+	case AKEYCODE_J:                  return KeyboardButton::J;
+	case AKEYCODE_K:                  return KeyboardButton::K;
+	case AKEYCODE_L:                  return KeyboardButton::L;
+	case AKEYCODE_M:                  return KeyboardButton::M;
+	case AKEYCODE_N:                  return KeyboardButton::N;
+	case AKEYCODE_O:                  return KeyboardButton::O;
+	case AKEYCODE_P:                  return KeyboardButton::P;
+	case AKEYCODE_Q:                  return KeyboardButton::Q;
+	case AKEYCODE_R:                  return KeyboardButton::R;
+	case AKEYCODE_S:                  return KeyboardButton::S;
+	case AKEYCODE_T:                  return KeyboardButton::T;
+	case AKEYCODE_U:                  return KeyboardButton::U;
+	case AKEYCODE_V:                  return KeyboardButton::V;
+	case AKEYCODE_W:                  return KeyboardButton::W;
+	case AKEYCODE_X:                  return KeyboardButton::X;
+	case AKEYCODE_Y:                  return KeyboardButton::Y;
+	case AKEYCODE_Z:                  return KeyboardButton::Z;
+	case AKEYCODE_GRAVE:              return KeyboardButton::BACKTICK;
+	case AKEYCODE_MINUS:              return KeyboardButton::MINUS;
+	case AKEYCODE_EQUALS:             return KeyboardButton::EQUAL;
+	case AKEYCODE_LEFT_BRACKET:       return KeyboardButton::OPEN_BRACKET;
+	case AKEYCODE_RIGHT_BRACKET:      return KeyboardButton::CLOSE_BRACKET;
+	case AKEYCODE_BACKSLASH:          return KeyboardButton::BACKSLASH;
+	case AKEYCODE_SEMICOLON:          return KeyboardButton::SEMICOLON;
+	case AKEYCODE_APOSTROPHE:         return KeyboardButton::QUOTE;
+	case AKEYCODE_COMMA:              return KeyboardButton::COMMA;
+	case AKEYCODE_PERIOD:             return KeyboardButton::PERIOD;
+	case AKEYCODE_SLASH:              return KeyboardButton::SLASH;
+	default:                          return KeyboardButton::COUNT;
+	}
+}
+
 static bool push_event(const OsEvent &ev);
 
 struct AndroidDevice
@@ -168,12 +288,16 @@ struct AndroidDevice
 		} else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
 			const s32 keycode   = AKeyEvent_getKeyCode(event);
 			const s32 keyaction = AKeyEvent_getAction(event);
+			const KeyboardButton::Enum kb = keycode == AKEYCODE_BACK
+				? KeyboardButton::ESCAPE
+				: android_translate_key(keycode)
+				;
 
-			if (keycode == AKEYCODE_BACK) {
+			if (kb != KeyboardButton::COUNT) {
 				_queue.push_button_event(InputDeviceType::KEYBOARD
 					, 0
-					, KeyboardButton::ESCAPE
-					, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false
+					, kb
+					, keyaction == AKEY_EVENT_ACTION_DOWN
 					);
 			}
 
