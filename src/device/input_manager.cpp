@@ -57,6 +57,9 @@ static const char *s_keyboard_button_names[] =
 	"ins",          // KeyboardButton::INS
 	"del",          // KeyboardButton::DEL
 	"end",          // KeyboardButton::END
+	"print_screen", // KeyboardButton::PRINT_SCREEN
+	"scroll_lock",  // KeyboardButton::SCROLL_LOCK
+	"break",        // KeyboardButton::BREAK
 	"ctrl_left",    // KeyboardButton::CTRL_LEFT
 	"ctrl_right",   // KeyboardButton::CTRL_RIGHT
 	"shift_left",   // KeyboardButton::SHIFT_LEFT
@@ -101,7 +104,20 @@ static const char *s_keyboard_button_names[] =
 	"w",            // KeyboardButton::W
 	"x",            // KeyboardButton::X
 	"y",            // KeyboardButton::Y
-	"z"             // KeyboardButton::Z
+	"z",            // KeyboardButton::Z
+
+	/* Punctuation */
+	"backtick",     // KeyboardButton::BACKTICK
+	"minus",        // KeyboardButton::MINUS
+	"equal",        // KeyboardButton::EQUAL
+	"open_bracket", // KeyboardButton::OPEN_BRACKET
+	"close_bracket",// KeyboardButton::CLOSE_BRACKET
+	"backslash",    // KeyboardButton::BACKSLASH
+	"semicolon",    // KeyboardButton::SEMICOLON
+	"quote",        // KeyboardButton::QUOTE
+	"comma",        // KeyboardButton::COMMA
+	"period",       // KeyboardButton::PERIOD
+	"slash"         // KeyboardButton::SLASH
 };
 CE_STATIC_ASSERT(countof(s_keyboard_button_names) == KeyboardButton::COUNT);
 
