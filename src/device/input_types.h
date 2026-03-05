@@ -85,6 +85,9 @@ struct KeyboardButton
 		INS,
 		DEL,
 		END,
+		PRINT_SCREEN,
+		SCROLL_LOCK,
+		BREAK,
 
 		/* Modifier keys */
 		CTRL_LEFT,
@@ -134,6 +137,19 @@ struct KeyboardButton
 		X,
 		Y,
 		Z,
+
+		/* Punctuation */
+		BACKTICK,
+		MINUS,
+		EQUAL,
+		OPEN_BRACKET,
+		CLOSE_BRACKET,
+		BACKSLASH,
+		SEMICOLON,
+		QUOTE,
+		COMMA,
+		PERIOD,
+		SLASH,
 
 		COUNT
 	};
