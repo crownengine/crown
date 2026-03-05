@@ -428,22 +428,18 @@ struct AndroidDevice
 
 	s32 process_input(struct android_app *app, AInputEvent *event)
 	{
-		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+		const s32 type = AInputEvent_getType(event);
+		if (type == AINPUT_EVENT_TYPE_MOTION) {
 			const s32 source = AInputEvent_getSource(event);
 			const s32 action_raw = AMotionEvent_getAction(event);
-			const s32 pointer_index = (action_raw & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-			const s32 pointer_count = AMotionEvent_getPointerCount(event);
-			const s32 action = (action_raw & AMOTION_EVENT_ACTION_MASK);
+			const s32 action = action_raw & AMOTION_EVENT_ACTION_MASK;
+			const bool is_mouse =
+				((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)
+				|| ((source & AINPUT_SOURCE_MOUSE_RELATIVE) == AINPUT_SOURCE_MOUSE_RELATIVE)
+				|| (AMotionEvent_getToolType(event, 0) == AMOTION_EVENT_TOOL_TYPE_MOUSE)
+				;
 
-			if ((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE
-				|| (source & AINPUT_SOURCE_MOUSE_RELATIVE) == AINPUT_SOURCE_MOUSE_RELATIVE
-				|| AMotionEvent_getToolType(event, 0) == AMOTION_EVENT_TOOL_TYPE_MOUSE) {
-				const s16 x = (s16)AMotionEvent_getX(event, 0);
-				const s16 y = (s16)AMotionEvent_getY(event, 0);
-				const f32 relx = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_X, 0);
-				const f32 rely = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_Y, 0);
-				const bool cursor_mode_disabled = _cursor_mode == CursorMode::DISABLED;
-
+			if (is_mouse) {
 				if (action == AMOTION_EVENT_ACTION_MOVE
 					|| action == AMOTION_EVENT_ACTION_HOVER_MOVE
 					|| action == AMOTION_EVENT_ACTION_DOWN
@@ -453,31 +449,28 @@ struct AndroidDevice
 					_queue.push_axis_event(InputDeviceType::MOUSE
 						, 0
 						, MouseAxis::CURSOR_DELTA
-						, relx
-						, rely
+						, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_X, 0)
+						, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RELATIVE_Y, 0)
 						, 0
 						);
 
-					if (!cursor_mode_disabled) {
+					if (_cursor_mode != CursorMode::DISABLED) {
 						_queue.push_axis_event(InputDeviceType::MOUSE
 							, 0
 							, MouseAxis::CURSOR
-							, x
-							, y
+							, (s16)AMotionEvent_getX(event, 0)
+							, (s16)AMotionEvent_getY(event, 0)
 							, 0
 							);
 					}
-
 				}
 
 				if (action == AMOTION_EVENT_ACTION_SCROLL) {
-					const f32 hscroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0);
-					const f32 vscroll = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0);
 					_queue.push_axis_event(InputDeviceType::MOUSE
 						, 0
 						, MouseAxis::WHEEL
-						, hscroll
-						, vscroll
+						, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HSCROLL, 0)
+						, AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_VSCROLL, 0)
 						, 0
 						);
 				}
@@ -502,13 +495,8 @@ struct AndroidDevice
 							continue;
 
 						const MouseButton::Enum mb = mouse_button(mask);
-						if (mb != MouseButton::COUNT) {
-							_queue.push_button_event(InputDeviceType::MOUSE
-								, 0
-								, mb
-								, (new_button_state & mask) != 0
-								);
-						}
+						if (mb != MouseButton::COUNT)
+							_queue.push_button_event(InputDeviceType::MOUSE, 0, mb, (new_button_state & mask) != 0);
 					}
 
 					_mouse_button_state = new_button_state;
@@ -517,9 +505,10 @@ struct AndroidDevice
 				return 1;
 			}
 
+			const s32 pointer_index = (action_raw & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 			const s32 pointer_id = AMotionEvent_getPointerId(event, pointer_index);
-			const f32 x = AMotionEvent_getX(event, pointer_index);
-			const f32 y = AMotionEvent_getY(event, pointer_index);
+			const f32 pointer_x = AMotionEvent_getX(event, pointer_index);
+			const f32 pointer_y = AMotionEvent_getY(event, pointer_index);
 
 			switch (action) {
 			case AMOTION_EVENT_ACTION_DOWN:
@@ -527,13 +516,13 @@ struct AndroidDevice
 				if (pointer_id < TouchButton::COUNT)
 					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, true);
 				if (pointer_id < TouchAxis::COUNT)
-					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, pointer_x, pointer_y, 0);
 				break;
 
 			case AMOTION_EVENT_ACTION_UP:
 			case AMOTION_EVENT_ACTION_POINTER_UP:
 				if (pointer_id < TouchAxis::COUNT)
-					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, x, y, 0);
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, pointer_x, pointer_y, 0);
 				if (pointer_id < TouchButton::COUNT)
 					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
 				break;
@@ -544,20 +533,21 @@ struct AndroidDevice
 					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
 				break;
 
-			case AMOTION_EVENT_ACTION_MOVE:
-				for (int index = 0; index < pointer_count; index++) {
+			case AMOTION_EVENT_ACTION_MOVE: {
+				const s32 pointer_count = AMotionEvent_getPointerCount(event);
+				for (s32 index = 0; index < pointer_count; ++index) {
 					const s32 id = AMotionEvent_getPointerId(event, index);
-					if (id < TouchAxis::COUNT) {
-						const f32 xx = AMotionEvent_getX(event, index);
-						const f32 yy = AMotionEvent_getY(event, index);
-						_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, id, xx, yy, 0);
-					}
+					if (id < TouchAxis::COUNT)
+						_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, id, AMotionEvent_getX(event, index), AMotionEvent_getY(event, index), 0);
 				}
 				break;
 			}
+			}
 
 			return 1;
-		} else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY) {
+		}
+
+		if (type == AINPUT_EVENT_TYPE_KEY) {
 			const s32 keycode   = AKeyEvent_getKeyCode(event);
 			const s32 keyaction = AKeyEvent_getAction(event);
 			const KeyboardButton::Enum kb = keycode == AKEYCODE_BACK
