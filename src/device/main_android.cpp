@@ -162,10 +162,135 @@ static MouseButton::Enum mouse_button(s32 button_mask)
 	}
 }
 
+#ifndef AINPUT_SOURCE_GAMEPAD
+#define AINPUT_SOURCE_GAMEPAD 0x00000401
+#endif
+#ifndef AINPUT_SOURCE_JOYSTICK
+#define AINPUT_SOURCE_JOYSTICK 0x01000010
+#endif
+#ifndef AINPUT_SOURCE_DPAD
+#define AINPUT_SOURCE_DPAD 0x00000201
+#endif
+#ifndef AMOTION_EVENT_AXIS_HAT_X
+#define AMOTION_EVENT_AXIS_HAT_X 15
+#endif
+#ifndef AMOTION_EVENT_AXIS_HAT_Y
+#define AMOTION_EVENT_AXIS_HAT_Y 16
+#endif
+#ifndef AMOTION_EVENT_AXIS_Z
+#define AMOTION_EVENT_AXIS_Z 11
+#endif
+#ifndef AMOTION_EVENT_AXIS_RZ
+#define AMOTION_EVENT_AXIS_RZ 14
+#endif
+#ifndef AMOTION_EVENT_AXIS_LTRIGGER
+#define AMOTION_EVENT_AXIS_LTRIGGER 17
+#endif
+#ifndef AMOTION_EVENT_AXIS_RTRIGGER
+#define AMOTION_EVENT_AXIS_RTRIGGER 18
+#endif
+
+static JoypadButton::Enum joypad_button(s32 keycode)
+{
+#ifndef AKEYCODE_BUTTON_A
+#define AKEYCODE_BUTTON_A 96
+#endif
+#ifndef AKEYCODE_BUTTON_B
+#define AKEYCODE_BUTTON_B 97
+#endif
+#ifndef AKEYCODE_BUTTON_X
+#define AKEYCODE_BUTTON_X 99
+#endif
+#ifndef AKEYCODE_BUTTON_Y
+#define AKEYCODE_BUTTON_Y 100
+#endif
+#ifndef AKEYCODE_BUTTON_L1
+#define AKEYCODE_BUTTON_L1 102
+#endif
+#ifndef AKEYCODE_BUTTON_R1
+#define AKEYCODE_BUTTON_R1 103
+#endif
+#ifndef AKEYCODE_BUTTON_THUMBL
+#define AKEYCODE_BUTTON_THUMBL 106
+#endif
+#ifndef AKEYCODE_BUTTON_THUMBR
+#define AKEYCODE_BUTTON_THUMBR 107
+#endif
+#ifndef AKEYCODE_BUTTON_START
+#define AKEYCODE_BUTTON_START 108
+#endif
+#ifndef AKEYCODE_BUTTON_SELECT
+#define AKEYCODE_BUTTON_SELECT 109
+#endif
+#ifndef AKEYCODE_BUTTON_MODE
+#define AKEYCODE_BUTTON_MODE 110
+#endif
+
+	switch (keycode) {
+	case AKEYCODE_DPAD_UP:       return JoypadButton::UP;
+	case AKEYCODE_DPAD_DOWN:     return JoypadButton::DOWN;
+	case AKEYCODE_DPAD_LEFT:     return JoypadButton::LEFT;
+	case AKEYCODE_DPAD_RIGHT:    return JoypadButton::RIGHT;
+	case AKEYCODE_BUTTON_START:  return JoypadButton::START;
+	case AKEYCODE_BUTTON_SELECT: return JoypadButton::BACK;
+	case AKEYCODE_BUTTON_MODE:   return JoypadButton::GUIDE;
+	case AKEYCODE_BUTTON_THUMBL: return JoypadButton::THUMB_LEFT;
+	case AKEYCODE_BUTTON_THUMBR: return JoypadButton::THUMB_RIGHT;
+	case AKEYCODE_BUTTON_L1:     return JoypadButton::SHOULDER_LEFT;
+	case AKEYCODE_BUTTON_R1:     return JoypadButton::SHOULDER_RIGHT;
+	case AKEYCODE_BUTTON_A:      return JoypadButton::A;
+	case AKEYCODE_BUTTON_B:      return JoypadButton::B;
+	case AKEYCODE_BUTTON_X:      return JoypadButton::X;
+	case AKEYCODE_BUTTON_Y:      return JoypadButton::Y;
+	default:                     return JoypadButton::COUNT;
+	}
+}
+
+static s16 joypad_axis(f32 value)
+{
+	const f32 v = clamp(value, -1.0f, 1.0f);
+	return (s16)(v * INT16_MAX);
+}
+
+static s16 joypad_trigger(f32 value)
+{
+	const f32 v = clamp(value, 0.0f, 1.0f);
+	return (s16)(v * INT16_MAX);
+}
+
+static s8 joypad_hat_value(f32 value)
+{
+	if (value <= -0.5f)
+		return -1;
+	if (value >= 0.5f)
+		return 1;
+
+	return 0;
+}
+
 static bool push_event(const OsEvent &ev);
 
 struct AndroidDevice
 {
+	struct Joypad
+	{
+		struct AxisState
+		{
+			s16 lx, ly, rx, ry, lz, rz;
+		};
+
+		struct State
+		{
+			s32 device_id;
+			u16 button_state;
+			s8 hat_x;
+			s8 hat_y;
+			AxisState axis;
+		};
+
+		State state[CROWN_MAX_JOYPADS];
+	};
+
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Thread _main_thread;
@@ -178,6 +303,7 @@ struct AndroidDevice
 	jobject _pointer_capture_view;
 	jmethodID _request_pointer_capture;
 	jmethodID _release_pointer_capture;
+	Joypad _joypad;
 
 	explicit AndroidDevice(Allocator &a)
 		: _events(a)
@@ -191,6 +317,39 @@ struct AndroidDevice
 		, _request_pointer_capture(NULL)
 		, _release_pointer_capture(NULL)
 	{
+		for (u8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			_joypad.state[ii].device_id = -1;
+			_joypad.state[ii].button_state = 0;
+			_joypad.state[ii].hat_x = 0;
+			_joypad.state[ii].hat_y = 0;
+			memset(&_joypad.state[ii].axis, 0, sizeof(_joypad.state[ii].axis));
+		}
+	}
+
+	s8 joypad_id(s32 device_id, bool create)
+	{
+		for (s8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_joypad.state[ii].device_id == device_id)
+				return ii;
+		}
+
+		if (!create)
+			return -1;
+
+		for (s8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			if (_joypad.state[ii].device_id != -1)
+				continue;
+
+			_joypad.state[ii].device_id = device_id;
+			_joypad.state[ii].button_state = 0;
+			_joypad.state[ii].hat_x = 0;
+			_joypad.state[ii].hat_y = 0;
+			memset(&_joypad.state[ii].axis, 0, sizeof(_joypad.state[ii].axis));
+			_queue.push_status_event(InputDeviceType::JOYPAD, ii, true);
+			return ii;
+		}
+
+		return -1;
 	}
 
 	void init_pointer_capture_api()
@@ -428,11 +587,145 @@ struct AndroidDevice
 
 	s32 process_input(struct android_app *app, AInputEvent *event)
 	{
+		CE_UNUSED(app);
 		const s32 type = AInputEvent_getType(event);
 		if (type == AINPUT_EVENT_TYPE_MOTION) {
 			const s32 source = AInputEvent_getSource(event);
 			const s32 action_raw = AMotionEvent_getAction(event);
 			const s32 action = action_raw & AMOTION_EVENT_ACTION_MASK;
+			const bool is_joypad =
+				((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK)
+				|| ((source & AINPUT_SOURCE_GAMEPAD) == AINPUT_SOURCE_GAMEPAD)
+				;
+
+			if (is_joypad) {
+				if (action == AMOTION_EVENT_ACTION_MOVE || action == AMOTION_EVENT_ACTION_HOVER_MOVE) {
+					const s8 joypad_num = joypad_id(AInputEvent_getDeviceId(event), true);
+					if (joypad_num == -1)
+						return 1;
+					Joypad::State &jp = _joypad.state[joypad_num];
+
+					const s16 lx =  joypad_axis(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0));
+					const s16 ly = -joypad_axis(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0));
+					const s16 rx =  joypad_axis(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Z, 0));
+					const s16 ry = -joypad_axis(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RZ, 0));
+					const s16 lz =  joypad_trigger(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_LTRIGGER, 0));
+					const s16 rz =  joypad_trigger(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RTRIGGER, 0));
+
+					if (lx != jp.axis.lx || ly != jp.axis.ly) {
+						jp.axis.lx = lx;
+						jp.axis.ly = ly;
+						_queue.push_axis_event(InputDeviceType::JOYPAD
+							, joypad_num
+							, JoypadAxis::LEFT
+							, lx
+							, ly
+							, 0
+							);
+					}
+
+					if (rx != jp.axis.rx || ry != jp.axis.ry) {
+						jp.axis.rx = rx;
+						jp.axis.ry = ry;
+						_queue.push_axis_event(InputDeviceType::JOYPAD
+							, joypad_num
+							, JoypadAxis::RIGHT
+							, rx
+							, ry
+							, 0
+							);
+					}
+
+					if (lz != jp.axis.lz) {
+						jp.axis.lz = lz;
+						_queue.push_axis_event(InputDeviceType::JOYPAD
+							, joypad_num
+							, JoypadAxis::TRIGGER_LEFT
+							, 0
+							, 0
+							, lz
+							);
+					}
+
+					if (rz != jp.axis.rz) {
+						jp.axis.rz = rz;
+						_queue.push_axis_event(InputDeviceType::JOYPAD
+							, joypad_num
+							, JoypadAxis::TRIGGER_RIGHT
+							, 0
+							, 0
+							, rz
+							);
+					}
+
+					const s8 hat_x = joypad_hat_value(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HAT_X, 0));
+					const s8 hat_y = joypad_hat_value(AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HAT_Y, 0));
+					if (hat_x != jp.hat_x) {
+						const bool left_pressed = hat_x < 0;
+						const bool right_pressed = hat_x > 0;
+						const u16 left_mask = 1u << JoypadButton::LEFT;
+						const u16 right_mask = 1u << JoypadButton::RIGHT;
+						const bool left_old = (jp.button_state & left_mask) != 0;
+						const bool right_old = (jp.button_state & right_mask) != 0;
+
+						if (left_pressed != left_old) {
+							jp.button_state = (jp.button_state & ~left_mask) | (left_pressed ? left_mask : 0);
+
+							_queue.push_button_event(InputDeviceType::JOYPAD
+								, joypad_num
+								, JoypadButton::LEFT
+								, left_pressed
+								);
+						}
+
+						if (right_pressed != right_old) {
+							jp.button_state = (jp.button_state & ~right_mask) | (right_pressed ? right_mask : 0);
+
+							_queue.push_button_event(InputDeviceType::JOYPAD
+								, joypad_num
+								, JoypadButton::RIGHT
+								, right_pressed
+								);
+						}
+
+						jp.hat_x = hat_x;
+					}
+
+					if (hat_y != jp.hat_y) {
+						const bool up_pressed = hat_y < 0;
+						const bool down_pressed = hat_y > 0;
+						const u16 up_mask = 1u << JoypadButton::UP;
+						const u16 down_mask = 1u << JoypadButton::DOWN;
+						const bool up_old = (jp.button_state & up_mask) != 0;
+						const bool down_old = (jp.button_state & down_mask) != 0;
+
+						if (up_pressed != up_old) {
+							jp.button_state = (jp.button_state & ~up_mask) | (up_pressed ? up_mask : 0);
+
+							_queue.push_button_event(InputDeviceType::JOYPAD
+								, joypad_num
+								, JoypadButton::UP
+								, up_pressed
+								);
+						}
+
+						if (down_pressed != down_old) {
+							jp.button_state = (jp.button_state & ~down_mask) | (down_pressed ? down_mask : 0);
+
+							_queue.push_button_event(InputDeviceType::JOYPAD
+								, joypad_num
+								, JoypadButton::DOWN
+								, down_pressed
+								);
+						}
+
+						jp.hat_y = hat_y;
+					}
+				}
+
+				return 1;
+			}
+
 			const bool is_mouse =
 				((source & AINPUT_SOURCE_MOUSE) == AINPUT_SOURCE_MOUSE)
 				|| ((source & AINPUT_SOURCE_MOUSE_RELATIVE) == AINPUT_SOURCE_MOUSE_RELATIVE)
@@ -550,6 +843,38 @@ struct AndroidDevice
 		if (type == AINPUT_EVENT_TYPE_KEY) {
 			const s32 keycode   = AKeyEvent_getKeyCode(event);
 			const s32 keyaction = AKeyEvent_getAction(event);
+			const s32 source = AInputEvent_getSource(event);
+			const bool is_joypad =
+				((source & AINPUT_SOURCE_GAMEPAD) == AINPUT_SOURCE_GAMEPAD)
+				|| ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK)
+				|| ((source & AINPUT_SOURCE_DPAD) == AINPUT_SOURCE_DPAD)
+				;
+
+			if (is_joypad) {
+				const JoypadButton::Enum jb = joypad_button(keycode);
+				if (jb != JoypadButton::COUNT) {
+					const s8 joypad_num = joypad_id(AInputEvent_getDeviceId(event), true);
+					if (joypad_num != -1 && (keyaction == AKEY_EVENT_ACTION_DOWN || keyaction == AKEY_EVENT_ACTION_UP)) {
+						Joypad::State &jp = _joypad.state[joypad_num];
+						const bool pressed = keyaction == AKEY_EVENT_ACTION_DOWN;
+						const u16 mask = 1u << jb;
+						const bool old_state = (jp.button_state & mask) != 0;
+
+						if (pressed != old_state) {
+							jp.button_state = (jp.button_state & ~mask) | (pressed ? mask : 0);
+
+							_queue.push_button_event(InputDeviceType::JOYPAD
+								, joypad_num
+								, jb
+								, pressed
+								);
+						}
+					}
+				}
+
+				return 1;
+			}
+
 			const KeyboardButton::Enum kb = keycode == AKEYCODE_BACK
 				? KeyboardButton::ESCAPE
 				: android_translate_key(keycode)
