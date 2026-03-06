@@ -107,6 +107,9 @@ static void collect_units(Array<UnitId> *unit_lookup, SceneGraph *scene_graph, U
 	array::push_back(*unit_lookup, root);
 
 	TransformId transform = scene_graph->instance(root);
+	if (!is_valid(transform))
+		return;
+
 	TransformId cur = scene_graph->first_child(transform);
 
 	while (is_valid(cur)) {
