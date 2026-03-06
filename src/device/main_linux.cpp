@@ -423,29 +423,53 @@ struct Joypad
 					JoypadAxis::TRIGGER_RIGHT
 				};
 
-				// Remap triggers to [0, INT16_MAX]
-				s16 value = ev.value;
-				if (ev.number == 2 || ev.number == 5)
-					value = (ev.value + INT16_MAX) >> 1;
+				if (ev.number < countof(axis_map)) {
+					// Remap triggers to [0, INT16_MAX].
+					s16 value = ev.value;
+					if (ev.number == 2 || ev.number == 5)
+						value = (ev.value + INT16_MAX) >> 1;
 
-				s16 *values = ev.number > 2 ? _axis[joypad_id].right : _axis[joypad_id].left;
-				values[axis_idx[ev.number]] = value;
+					s16 *values = ev.number > 2 ? _axis[joypad_id].right : _axis[joypad_id].left;
+					values[axis_idx[ev.number]] = value;
 
-				if (ev.number == 2 || ev.number == 5) {
-					_queue->push_axis_event(InputDeviceType::JOYPAD
+					if (ev.number == 2 || ev.number == 5) {
+						_queue->push_axis_event(InputDeviceType::JOYPAD
+							, joypad_id
+							, axis_map[ev.number]
+							, 0
+							, 0
+							, values[2]
+							);
+					} else {
+						_queue->push_axis_event(InputDeviceType::JOYPAD
+							, joypad_id
+							, axis_map[ev.number]
+							, values[0]
+							, -values[1]
+							, 0
+							);
+					}
+				} else if (ev.number == 6) { // DPAD X axis.
+					_queue->push_button_event(InputDeviceType::JOYPAD
 						, joypad_id
-						, axis_map[ev.number]
-						, 0
-						, 0
-						, values[2]
+						, JoypadButton::LEFT
+						, ev.value < 0
 						);
-				} else if (ev.number < countof(axis_map)) {
-					_queue->push_axis_event(InputDeviceType::JOYPAD
+					_queue->push_button_event(InputDeviceType::JOYPAD
 						, joypad_id
-						, axis_map[ev.number]
-						, values[0]
-						, -values[1]
-						, 0
+						, JoypadButton::RIGHT
+						, ev.value > 0
+						);
+				} else if (ev.number == 7) { // DPAD Y axis.
+					_queue->push_button_event(InputDeviceType::JOYPAD
+						, joypad_id
+						, JoypadButton::UP
+						, ev.value < 0
+						);
+					_queue->push_button_event(InputDeviceType::JOYPAD
+						, joypad_id
+						, JoypadButton::DOWN
+						, ev.value > 0
 						);
 				}
 				break;
