@@ -339,8 +339,26 @@ public class FontImportDialog : Gtk.Window
 
 	public void on_import()
 	{
-		_import_result(FontResource.do_import(this, _project, _destination_dir, _filenames));
-		destroy();
+		ImportResult res = FontResource.do_import(this, _project, _destination_dir, _filenames);
+
+		string? primary_path = null;        // Track primary_path
+		if (res == ImportResult.SUCCESS) {
+			GLib.File file_src = File.new_for_path(_filenames.nth_data(0));
+			string resource_basename = _filenames.length() == 1
+				? _font_name.value + "." + _font_type
+				: file_src.get_basename();
+
+			GLib.File file_dst       = File.new_for_path(Path.build_filename(_destination_dir, resource_basename));
+
+			string resource_filename = _project.resource_filename(file_dst.get_path());
+			string resource_path     = ResourceId.normalize(resource_filename);
+			string resource_name     = ResourceId.name(resource_path);
+
+			primary_path = ResourceId.path(OBJECT_TYPE_FONT, resource_name);
+		}
+
+		_import_result(res, primary_path);
+		// FontResource.do_import() already calls FontImportDialog.destroy()
 	}
 }
 

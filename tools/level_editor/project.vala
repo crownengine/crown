@@ -12,7 +12,7 @@ public enum ImportResult
 	CANCEL,  ///< User cancelled the import.
 }
 
-public delegate void Import(ImportResult result);
+public delegate void Import(ImportResult result, string? primary_resource_path = null);
 
 public enum ProjectFlags
 {
@@ -625,7 +625,7 @@ public class Project
 		paths.sort((a, b) => {
 				int ext_a = a.last_index_of_char('.');
 				int ext_b = b.last_index_of_char('.');
-				return strcmp(a[ext_a : a.length], b[ext_b : b.length]);
+				return strcmp(a[ext_a: a.length], b[ext_b: b.length]);
 			});
 
 		while (paths.size != 0) {

@@ -88,14 +88,15 @@ namespace MeshResource
 		}
 	}
 
-	public static ImportResult do_import(Database database, string destination_dir, SList<string> filenames)
+	public static ImportResult do_import(Database database, string destination_dir, SList<string> filenames, out string? primary_path)
 	{
+		primary_path = null;                    // Track primary_path
 		Project project = database._project;
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-
 			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+
 			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
@@ -167,6 +168,8 @@ namespace MeshResource
 				loge(e.message);
 				return ImportResult.ERROR;
 			}
+
+			primary_path = ResourceId.path(OBJECT_TYPE_UNIT, resource_name);
 		}
 
 		return ImportResult.SUCCESS;
@@ -187,12 +190,16 @@ namespace MeshResource
 		}
 
 		ImportResult res = ImportResult.SUCCESS;
+		string? primary_path = null;
+
 		if (mesh_filenames != null)
-			res = MeshResource.do_import(database, destination_dir, mesh_filenames);
+			res = MeshResource.do_import(database, destination_dir, mesh_filenames, out primary_path);
+
+		// .fbx files call import_result from FBXImportDialog, while mixed (.mesh + .fbx) batches are not supported.
 		if (res == ImportResult.SUCCESS && fbx_filenames != null)
 			FBXImporter.import(import_result, database, destination_dir, fbx_filenames, parent_window);
 		else
-			import_result(res);
+			import_result(res, primary_path);
 	}
 
 } /* namespace MeshResource */

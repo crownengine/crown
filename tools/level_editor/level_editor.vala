@@ -2117,13 +2117,23 @@ public class LevelEditorApplication : Gtk.Application
 		save_as(null);
 	}
 
-	public void on_import_result(ImportResult result)
+	public void on_import_result(ImportResult result, string? primary_resource_path = null)
 	{
 		if (result == ImportResult.ERROR) {
 			loge("Failed to import resource(s)");
 			return;
 		} else if (result == ImportResult.SUCCESS) {
-			compile_and_reload.begin();
+			if (primary_resource_path != null) {
+				string? res_type = ResourceId.type(primary_resource_path);
+				string? res_name = ResourceId.name(primary_resource_path);
+				if (res_type != null && res_name != null)
+					compile_and_reveal_resource(res_type
+						, ResourceId.parent_folder(res_name)
+						, GLib.Path.get_basename(res_name)
+						);
+			} else {
+				compile_and_reload.begin();
+			}
 		}
 
 		ui_read_selection(_database_editor._selection.to_array());
@@ -2922,6 +2932,194 @@ public class LevelEditorApplication : Gtk.Application
 		md.show_all();
 	}
 
+	public void compile_and_reveal_resource(string type, string dir_name, string res_name)
+	{
+		string full_path = dir_name != "" ? dir_name + "/" + res_name : res_name;
+		
+		string cap_type = type;
+		string cap_dir = dir_name;
+		string cap_path = full_path;
+
+		compile_and_reload.begin((obj, res) => {
+			bool success = compile_and_reload.end(res);
+			if (!success) {
+				logw("Failed to compile/reload after creating %s".printf(cap_path));
+				return;
+			}
+
+			if (_project_browser._show_folder_view && cap_dir != "") {
+				_project_browser._folder_view._selected_type = "<folder>";
+				_project_browser._folder_view._selected_name = cap_dir;
+			}
+
+        	_project_browser.reveal(cap_type, cap_path);
+		});
+	}
+
+	public void on_create_resource(GLib.Variant? param, string type, int num_params)
+	{	
+		string dir_name = (string)param.get_child_value(0);
+		string res_name = (string)param.get_child_value(1);
+
+		if (type == "<folder>") {
+			if (res_name != "") {
+				do_create_directory(dir_name, res_name);
+				string full_path = dir_name != "" ? dir_name + "/" + res_name : res_name;
+
+				ulong handler_id = 0;
+				handler_id = _project_browser._project_store._tree_store.row_inserted.connect((path, iter) => {
+					GLib.Value val;
+					_project_browser._project_store._tree_store.get_value(iter, ProjectStore.Column.TYPE, out val);
+					string row_type = (string)val;
+					_project_browser._project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
+					string row_name = (string)val;
+
+					if (row_type == "<folder>" && row_name == full_path) {
+						_project_browser._project_store._tree_store.disconnect(handler_id);
+						GLib.Idle.add(() => {
+							string parent = ResourceId.parent_folder(full_path);
+
+							_project_browser.reveal("<folder>", parent != "" ? parent : "");
+							
+							_project_browser._folder_view.select_resource("<folder>", full_path);
+							return GLib.Source.REMOVE;
+						});
+					}
+				});
+			} else {
+				show_create_folder_dialog(dir_name);
+			}
+			return;
+		}
+
+		bool is_empty_script = false;
+		if (type == "lua" && num_params > 2)
+			is_empty_script = (bool)param.get_child_value(2);
+
+		if (res_name != "") {
+			switch (type) {
+			case "lua":
+				do_create_script(dir_name, res_name, is_empty_script);
+				break;
+			case OBJECT_TYPE_UNIT:
+				do_create_unit(dir_name, res_name);
+				break;
+			case OBJECT_TYPE_MATERIAL:
+				do_create_material(dir_name, res_name);
+				break;
+			case OBJECT_TYPE_STATE_MACHINE:
+				string skeleton_name = num_params > 2 ? (string)param.get_child_value(2) : "";
+				do_create_state_machine(dir_name, res_name, skeleton_name);
+				break;
+			default:
+				loge("Unknown resource type: %s".printf(type));
+				return;
+			}
+
+			compile_and_reveal_resource(type, dir_name, res_name);
+		} else {
+			show_create_resource_dialog_variant(dir_name, type, num_params, param);
+		}
+	}
+
+	public void show_create_resource_dialog_variant(string dir_name, string type, int num_params, GLib.Variant? original_param)
+	{
+		string title;
+		switch (type) {
+		case "lua":
+			title = "Script Name";
+			break;
+		case OBJECT_TYPE_UNIT:
+			title = "Unit Name";
+			break;
+		case OBJECT_TYPE_MATERIAL:
+			title = "Material Name";
+			break;
+		case OBJECT_TYPE_STATE_MACHINE:
+			title = "State Machine Name";
+			break;
+		default:
+			title = "Resource Name";
+			break;
+		}
+
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(title
+			, _level_editor_window
+			, Gtk.DialogFlags.MODAL
+			, "Cancel"
+			, Gtk.ResponseType.CANCEL
+			, "Ok"
+			, Gtk.ResponseType.OK
+			, null
+			);
+
+		InputString sb = new InputString();
+		sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
+		dg.get_content_area().add(sb);
+
+		Gtk.Entry? skeleton_entry = null;
+		bool is_empty_script = (type == "lua" && num_params > 2) ? (bool)original_param.get_child_value(2) : true;
+
+		if (type == OBJECT_TYPE_STATE_MACHINE) {
+			skeleton_entry = new Gtk.Entry();
+			skeleton_entry.set_placeholder_text("Skeleton name (optional)");
+			dg.get_content_area().add(skeleton_entry);
+		}
+
+		dg.response.connect((response_id) => {
+			if (response_id == Gtk.ResponseType.OK) {
+				string final_name = sb.value.strip();
+				if (final_name != "") {
+					GLib.Variant? new_param = null;
+
+					if (type == "lua") {
+						new_param = new GLib.Variant.tuple({dir_name, final_name, is_empty_script});
+					} else if (type == OBJECT_TYPE_STATE_MACHINE && skeleton_entry != null) {
+						string skeleton = skeleton_entry.text.strip();
+						new_param = new GLib.Variant.tuple({dir_name, final_name, skeleton});
+					} else {
+						new_param = new GLib.Variant.tuple({dir_name, final_name});
+					}
+
+					on_create_resource(new_param, type, num_params);
+				}
+			}
+			dg.destroy();
+		});
+
+		dg.show_all();
+	}
+
+	public void show_create_folder_dialog(string parent_dir)
+	{
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
+			, _level_editor_window
+			, Gtk.DialogFlags.MODAL
+			, "Cancel"
+			, Gtk.ResponseType.CANCEL
+			, "Ok"
+			, Gtk.ResponseType.OK
+			, null
+			);
+
+		InputString sb = new InputString();
+		sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
+		dg.get_content_area().add(sb);
+
+		dg.response.connect((response_id) => {
+			if (response_id == Gtk.ResponseType.OK) {
+				string final_name = sb.value.strip();
+				if (final_name != "") {
+					GLib.Variant? new_param = new GLib.Variant.tuple({parent_dir, final_name});
+					on_create_resource(new_param, "<folder>", 2);
+				}
+			}
+			dg.destroy();
+		});
+
+		dg.show_all();
+	}
+
 	public void do_create_directory(string parent_dir_name, string dir_name)
 	{
 		if (dir_name == "")
@@ -2937,34 +3135,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string parent_dir_name = (string)param.get_child_value(0);
-		string dir_name = (string)param.get_child_value(1);
-
-		if (dir_name != "") {
-			do_create_directory(parent_dir_name, dir_name);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
-				, this.active_window
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			dg.get_content_area().add(sb);
-
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_create_directory(parent_dir_name, sb.value.strip());
-					dg.destroy();
-				});
-
-			dg.show_all();
-		}
+		on_create_resource(param, "<folder>", 2);
 	}
 
 	public async bool compile_and_reload()
@@ -2985,41 +3156,11 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Failed to create script %s".printf(script_name));
 			return;
 		}
-
-		compile_and_reload.begin();
 	}
 
 	public void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string dir_name = (string)param.get_child_value(0);
-		string script_name = (string)param.get_child_value(1);
-		bool empty = (bool)param.get_child_value(2);
-
-		if (script_name != "") {
-			do_create_script(dir_name, script_name, empty);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Script Name"
-				, this.active_window
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			dg.get_content_area().add(sb);
-
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_create_script(dir_name, sb.value.strip(), empty);
-					dg.destroy();
-				});
-
-			dg.show_all();
-		}
+		on_create_resource(param, "lua", 3);
 	}
 
 	public void do_create_unit(string dir_name, string unit_name)
@@ -3032,40 +3173,11 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Failed to create unit %s".printf(unit_name));
 			return;
 		}
-
-		compile_and_reload.begin();
 	}
 
 	public void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string dir_name = (string)param.get_child_value(0);
-		string unit_name = (string)param.get_child_value(1);
-
-		if (unit_name != "") {
-			do_create_unit(dir_name, unit_name);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Unit Name"
-				, this.active_window
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			dg.get_content_area().add(sb);
-
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_create_unit(dir_name, sb.value.strip());
-					dg.destroy();
-				});
-
-			dg.show_all();
-		}
+		on_create_resource(param, OBJECT_TYPE_UNIT, 2);
 	}
 
 	public void do_create_state_machine(string dir_name, string state_machine_name, string skeleton_name)
@@ -3078,42 +3190,11 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Failed to create state machine %s".printf(state_machine_name));
 			return;
 		}
-
-		compile_and_reload.begin();
 	}
 
 	public void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string dir_name = (string)param.get_child_value(0);
-		string state_machine_name = (string)param.get_child_value(1);
-		string skeleton_name = (string)param.get_child_value(2);
-
-		if (state_machine_name != "") {
-			do_create_state_machine(dir_name, state_machine_name, skeleton_name);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("State Machine Name"
-				, this.active_window
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			dg.get_content_area().add(sb);
-
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_create_state_machine(dir_name, sb.value.strip(), skeleton_name);
-					dg.destroy();
-				});
-
-			dg.show_all();
-		}
-
+		on_create_resource(param, OBJECT_TYPE_STATE_MACHINE, 3);
 	}
 
 	public void do_create_material(string dir_name, string material_name)
@@ -3126,40 +3207,11 @@ public class LevelEditorApplication : Gtk.Application
 			loge("Failed to create material %s".printf(material_name));
 			return;
 		}
-
-		compile_and_reload.begin();
 	}
 
 	public void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string dir_name = (string)param.get_child_value(0);
-		string material_name = (string)param.get_child_value(1);
-
-		if (material_name != "") {
-			do_create_material(dir_name, material_name);
-		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Material Name"
-				, this.active_window
-				, Gtk.DialogFlags.MODAL
-				, "Cancel"
-				, Gtk.ResponseType.CANCEL
-				, "Ok"
-				, Gtk.ResponseType.OK
-				, null
-				);
-
-			InputString sb = new InputString();
-			sb.value_changed.connect(() => { dg.response(Gtk.ResponseType.OK); });
-			dg.get_content_area().add(sb);
-
-			dg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.OK)
-						do_create_material(dir_name, sb.value.strip());
-					dg.destroy();
-				});
-
-			dg.show_all();
-		}
+		on_create_resource(param, OBJECT_TYPE_MATERIAL, 2);
 	}
 
 	public void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
