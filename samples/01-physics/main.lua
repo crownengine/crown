@@ -10,6 +10,7 @@ Game = Game or {
 	camera = nil,
 	world_gui = nil,
 	cursor_disabled = false,
+	last_input_is_pad = false,
 
 	-- Player movement.
 	character_unit = nil,
@@ -28,6 +29,7 @@ Game = Game or {
 	third_person_camera = true,
 	third_person_distance = 8,
 	third_person_height = 1.4,
+	pad_look_speed = 32,
 
 	-- Bullets management.
 	max_bullets = 20,
@@ -49,6 +51,22 @@ GameBase.game = Game
 GameBase.game_level = "levels/mover"
 GameBase.show_help = true
 GameBase.show_build = true
+
+local function k(bind)
+	if Game.last_input_is_pad then
+		if bind == "f1" then return "start"
+		elseif bind == "w/a/s/d" then return "left thumb"
+		elseif bind == "mouse" then return "right thumb"
+		elseif bind == "shift" then return "B"
+		elseif bind == "ctrl" then return "LB"
+		elseif bind == "space" then return "A"
+		elseif bind == "e" then return "Y"
+		elseif bind == "-" then return "right thumb"
+		elseif bind == "left click" then return "RB" end
+	end
+
+	return bind
+end
 
 function Game.level_loaded()
 	Game.physics_world = World.physics_world(GameBase.world)
@@ -92,6 +110,24 @@ function Game.level_loaded()
 end
 
 function Game.update(dt)
+	-- Track the last active input device for show_help labels.
+	local keyboard_used = Keyboard.any_pressed() ~= nil
+	local pad_used = Pad1.any_pressed() ~= nil
+	if not pad_used then
+		local pad_left = Pad1.axis(Pad1.axis_id("left"))
+		local pad_right = Pad1.axis(Pad1.axis_id("right"))
+		pad_used = pad_left.x ~= 0
+			or pad_left.y ~= 0
+			or pad_right.x ~= 0
+			or pad_right.y ~= 0
+	end
+
+	if pad_used and not keyboard_used then
+		Game.last_input_is_pad = true
+	elseif keyboard_used and not pad_used then
+		Game.last_input_is_pad = false
+	end
+
 	-- Toggle cursor state and quit logic.
 	if Keyboard.any_pressed() then
 		if Keyboard.pressed(Keyboard.button_id("escape")) then
@@ -106,7 +142,8 @@ function Game.update(dt)
 	end
 
 	-- Toggle camera mode.
-	if Keyboard.released(Keyboard.button_id("minus")) then
+	if Keyboard.released(Keyboard.button_id("minus"))
+		or Pad1.pressed(Pad1.button_id("thumb_right")) then
 		Game.third_person_camera = not Game.third_person_camera
 	end
 
@@ -138,7 +175,9 @@ function Game.update(dt)
 	end
 
 	-- Shoot a bullet when left mouse button is pressed.
-	if Mouse.pressed(Mouse.button_id("left")) then
+	local shoot_pressed = Mouse.pressed(Mouse.button_id("left"))
+		or Pad1.pressed(Pad1.button_id("shoulder_right"))
+	if shoot_pressed then
 		local tr = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
 		local pos = SceneGraph.world_position(Game.scene_graph, tr)
 		local dir = Matrix4x4.y(SceneGraph.world_pose(Game.scene_graph, tr))
@@ -166,7 +205,9 @@ function Game.update(dt)
 	end
 
 	-- Actionable door.
-	if Keyboard.pressed(Keyboard.button_id("e")) then
+	local interact_pressed = Keyboard.pressed(Keyboard.button_id("e"))
+		or Pad1.pressed(Pad1.button_id("y"))
+	if interact_pressed then
 		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
 		local camera_position = SceneGraph.world_position(Game.scene_graph, camera_transform)
 		local camera_forward = Matrix4x4.y(SceneGraph.world_pose(Game.scene_graph, camera_transform))
@@ -189,6 +230,7 @@ function Game.update(dt)
 		end
 	end
 
+	-- Mouse/keyboard controls.
 	local move_dx = Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
 	local move_dy = Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
 	local look_dx = 0
@@ -198,6 +240,14 @@ function Game.update(dt)
 		look_dx = look_dx + cursor_delta.x
 		look_dy = look_dy + cursor_delta.y
 	end
+
+	-- Joypad controls.
+	local pad_left = Pad1.axis(Pad1.axis_id("left"))
+	local pad_right = Pad1.axis(Pad1.axis_id("right"))
+	move_dx = move_dx + pad_left.x
+	move_dy = move_dy + pad_left.y
+	look_dx = look_dx + pad_right.x * Game.pad_look_speed
+	look_dy = look_dy - pad_right.y * Game.pad_look_speed
 
 	-- Rotate camera.
 	if math.abs(look_dx) > 0.0001 or math.abs(look_dy) > 0.0001 then
@@ -224,9 +274,12 @@ function Game.update(dt)
 		end
 
 		local jump_pressed = Keyboard.pressed(Keyboard.button_id("space"))
+			or Pad1.pressed(Pad1.button_id("a"))
 		local run_pressed = Keyboard.button(Keyboard.button_id("shift_left")) ~= 0
+			or Pad1.button(Pad1.button_id("b")) ~= 0
 		local crouch_pressed = Keyboard.button(Keyboard.button_id("ctrl_left")) ~= 0
 			or Keyboard.button(Keyboard.button_id("ctrl_right")) ~= 0
+			or Pad1.button(Pad1.button_id("shoulder_left")) ~= 0
 		local crouch_active = crouch_pressed
 
 		-- Prevent uncrouching while blocked overhead.
@@ -294,7 +347,8 @@ function Game.update(dt)
 	World.set_listener_pose(GameBase.world, camera_world)
 
 	-- Toggle help.
-	if Keyboard.pressed(Keyboard.button_id("f1")) then
+	if Keyboard.pressed(Keyboard.button_id("f1"))
+		or Pad1.pressed(Pad1.button_id("start")) then
 		GameBase.show_help = not GameBase.show_help
 	end
 
@@ -325,17 +379,18 @@ function Game.update(dt)
 	local win_w, win_h = Device.resolution()
 	Gui.rect(GameBase.screen_gui, Vector2(win_w/2, win_h/2), Vector2(4, 4), Color4(255, 0, 255, 255))
 
-	GameBase.draw_help({{ key = "f1", desc = "Toggle help" },
-		{ key = "w/a/s/d", desc = "Walk" },
-		{ key = "-", desc = "Toggle 1st/3rd person" },
-		{ key = "shift", desc = "Run" },
-		{ key = "ctrl", desc = "Crouch" },
-		{ key = "space", desc = "Jump" },
-		{ key = "e", desc = "Interact" },
-		{ key = "left click", desc = "Shoot" },
-		{ key = "z", desc = "Toggle physics debug" },
-		{ key = "x", desc = "Toggle graphics debug" },
-		{ key = "esc", desc = "Quit or Enable cursor" }}
+	GameBase.draw_help({{ key = k("f1"), desc = "Toggle help" },
+		{ key = k("w/a/s/d"), desc = "Walk" },
+		{ key = k("mouse"), desc = "Look" },
+		{ key = k("shift"), desc = "Run" },
+		{ key = k("ctrl"), desc = "Crouch" },
+		{ key = k("space"), desc = "Jump" },
+		{ key = k("e"), desc = "Interact" },
+		{ key = k("-"), desc = "Toggle 1st/3rd person" },
+		{ key = k("left click"), desc = "Shoot" },
+		{ key = k("z"), desc = "Toggle physics debug" },
+		{ key = k("x"), desc = "Toggle graphics debug" },
+		{ key = k("esc"), desc = "Quit or Enable cursor" }}
 		, "Crown Physics Sample"
 		)
 
