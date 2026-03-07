@@ -27,14 +27,15 @@ public struct SoundResource
 		return _db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_SOUND, _id);
 	}
 
-	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames)
+	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
 		Project project = database._project;
+		string? primary_path = null;            // Track primary_path
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-
 			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+
 			string resource_filename = project.resource_filename(file_dst.get_path());
 			string resource_path     = ResourceId.normalize(resource_filename);
 			string resource_name     = ResourceId.name(resource_path);
@@ -53,9 +54,11 @@ public struct SoundResource
 				import_result(ImportResult.ERROR);
 				return;
 			}
+
+			primary_path = ResourceId.path(OBJECT_TYPE_SOUND, resource_name);
 		}
 
-		import_result(ImportResult.SUCCESS);
+		import_result(ImportResult.SUCCESS, primary_path);
 	}
 }
 
