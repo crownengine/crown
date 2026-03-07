@@ -18,6 +18,12 @@ Game = Game or {
 	walk_speed = 8,
 	run_multiplier = 1.8,
 
+	-- Camera management.
+	first_person_camera_local_position = Vector3Box(),
+	third_person_camera = true,
+	third_person_distance = 8,
+	third_person_height = 1.4,
+
 	-- Bullets management.
 	max_bullets = 20,
 	num_bullets = 0,
@@ -57,6 +63,8 @@ function Game.level_loaded()
 		if SceneGraph.parent(Game.scene_graph, camera_transform) == nil then
 			SceneGraph.link(Game.scene_graph, character_transform, camera_transform)
 		end
+
+		Game.first_person_camera_local_position:store(SceneGraph.local_position(Game.scene_graph, camera_transform))
 	end
 
 	-- Create a pool of reusable bullets.
@@ -91,8 +99,10 @@ function Game.update(dt)
 		end
 	end
 
-	local camera_world = Game.camera:world_pose()
-	World.set_listener_pose(GameBase.world, camera_world)
+	-- Toggle camera mode.
+	if Keyboard.released(Keyboard.button_id("minus")) then
+		Game.third_person_camera = not Game.third_person_camera
+	end
 
 	-- Recycle used bullets after they expire.
 	local head = Game.bullets_head
@@ -125,7 +135,7 @@ function Game.update(dt)
 	if Mouse.pressed(Mouse.button_id("left")) then
 		local tr = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
 		local pos = SceneGraph.world_position(Game.scene_graph, tr)
-		local dir = Matrix4x4.y(SceneGraph.local_pose(Game.scene_graph, tr))
+		local dir = Matrix4x4.y(SceneGraph.world_pose(Game.scene_graph, tr))
 		Vector3.normalize(dir)
 
 		if Game.num_bullets == Game.max_bullets then
@@ -173,8 +183,20 @@ function Game.update(dt)
 		end
 	end
 
-	local dx = Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
-	local dy = Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
+	local move_dx = Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
+	local move_dy = Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
+	local look_dx = 0
+	local look_dy = 0
+	if Game.cursor_disabled then
+		local cursor_delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
+		look_dx = look_dx + cursor_delta.x
+		look_dy = look_dy + cursor_delta.y
+	end
+
+	-- Rotate camera.
+	if math.abs(look_dx) > 0.0001 or math.abs(look_dy) > 0.0001 then
+		Game.camera:rotate(dt, look_dx, look_dy)
+	end
 
 	if Game.character_unit then
 		local mover = PhysicsWorld.mover_instance(Game.physics_world, Game.character_unit)
@@ -185,10 +207,11 @@ function Game.update(dt)
 		local coll_down  = PhysicsWorld.mover_collides_down(Game.physics_world, mover)
 
 		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
-		local camera_forward = Matrix4x4.y(SceneGraph.local_pose(Game.scene_graph, camera_transform))
-		local camera_right = Matrix4x4.x(SceneGraph.local_pose(Game.scene_graph, camera_transform))
-		local delta = Vector3(camera_forward.x, camera_forward.y, 0) * dy
-			+ Vector3(camera_right.x, camera_right.y, 0) * dx
+		local camera_pose = SceneGraph.world_pose(Game.scene_graph, camera_transform)
+		local camera_forward = Matrix4x4.y(camera_pose)
+		local camera_right = Matrix4x4.x(camera_pose)
+		local delta = Vector3(camera_forward.x, camera_forward.y, 0) * move_dy
+			+ Vector3(camera_right.x, camera_right.y, 0) * move_dx
 
 		if Vector3.length(delta) > 0.0001 then
 			Vector3.normalize(delta)
@@ -221,15 +244,22 @@ function Game.update(dt)
 		local character_transform = SceneGraph.instance(Game.scene_graph, Game.character_unit)
 		assert(character_transform)
 		SceneGraph.set_local_position(Game.scene_graph, character_transform, mover_pos)
+
+		if Game.third_person_camera then
+			local camera_local_pose = SceneGraph.local_pose(Game.scene_graph, camera_transform)
+			local local_forward = Matrix4x4.y(camera_local_pose)
+			local camera_pos = Vector3(0, 0, Game.third_person_height) - local_forward * Game.third_person_distance
+			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
+		else
+			local fp_pos = Game.first_person_camera_local_position:unbox()
+			SceneGraph.set_local_position(Game.scene_graph, camera_transform, fp_pos)
+		end
 	else
-		Game.camera:move(dt, dx, dy)
+		Game.camera:move(dt, move_dx, move_dy)
 	end
 
-	-- Update camera.
-	if Game.cursor_disabled then
-		local cursor_delta = Mouse.axis(Mouse.axis_id("cursor_delta"))
-		Game.camera:rotate(dt, cursor_delta.x, cursor_delta.y)
-	end
+	local camera_world = Game.camera:world_pose()
+	World.set_listener_pose(GameBase.world, camera_world)
 
 	-- Toggle help.
 	if Keyboard.pressed(Keyboard.button_id("f1")) then
@@ -265,6 +295,7 @@ function Game.update(dt)
 
 	GameBase.draw_help({{ key = "f1", desc = "Toggle help" },
 		{ key = "w/a/s/d", desc = "Walk" },
+		{ key = "-", desc = "Toggle 1st/3rd person" },
 		{ key = "shift", desc = "Run" },
 		{ key = "space", desc = "Jump" },
 		{ key = "e", desc = "Interact" },
