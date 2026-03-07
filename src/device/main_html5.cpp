@@ -23,6 +23,7 @@
 #include "device/types.h"
 #include "device/window.h"
 #include <stdlib.h> // EXIT_SUCCESS etc.
+#include <string.h> // memset, strcmp
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
@@ -57,6 +58,14 @@ EM_JS(void, crown_js_exit_pointer_lock, (void), {
 		document.exitPointerLock();
 	}
 });
+
+EM_JS(int, crown_js_is_firefox, (void), {
+	if (typeof navigator === 'undefined' || !navigator.userAgent) {
+		return 0;
+	}
+	return navigator.userAgent.indexOf('Firefox/') !== -1 ? 1 : 0;
+});
+
 // code-format on
 
 struct WindowEmscripten : public Window
@@ -310,18 +319,239 @@ static const EmKeyInfo em_key_info[] =
 	{ "KeyZ",           KeyboardButton::Z               }
 };
 
+struct EmJoypadButtonInfo
+{
+	u8 gb;
+	JoypadButton::Enum jb;
+};
+
+static const EmJoypadButtonInfo em_joypad_button_info[] =
+{
+	{ 12, JoypadButton::UP             },
+	{ 13, JoypadButton::DOWN           },
+	{ 14, JoypadButton::LEFT           },
+	{ 15, JoypadButton::RIGHT          },
+	{ 9,  JoypadButton::START          },
+	{ 8,  JoypadButton::BACK           },
+	{ 16, JoypadButton::GUIDE          },
+	{ 10, JoypadButton::THUMB_LEFT     },
+	{ 11, JoypadButton::THUMB_RIGHT    },
+	{ 4,  JoypadButton::SHOULDER_LEFT  },
+	{ 5,  JoypadButton::SHOULDER_RIGHT },
+	{ 0,  JoypadButton::A              },
+	{ 1,  JoypadButton::B              }
+};
+
 static bool push_event(const OsEvent &ev);
+struct EmscriptenDevice;
+
+struct Joypad
+{
+	struct State
+	{
+		bool connected;
+		u16 button_state;
+		s16 lx, ly, lz;
+		s16 rx, ry, rz;
+	};
+
+	DeviceEventQueue *_queue;
+	EmscriptenDevice *_device;
+	State _state[CROWN_MAX_JOYPADS];
+
+	explicit Joypad(DeviceEventQueue &queue, EmscriptenDevice &device);
+
+	static s16 axis(f32 value)
+	{
+		const f32 clamped = clamp(value, -1.0f, 1.0f);
+		return (s16)(clamped * (f32)INT16_MAX);
+	}
+
+	static f32 trigger_normalize(f32 value)
+	{
+		// Triggers are exposed on [0; 1] or [-1; 1] depending on browser/controller mapping.
+		return clamp(value < 0.0f ? (value + 1.0f) * 0.5f : value, 0.0f, 1.0f);
+	}
+
+	static s16 trigger(f32 value)
+	{
+		const f32 clamped = clamp(value, 0.0f, 1.0f);
+		return (s16)(clamped * (f32)INT16_MAX);
+	}
+
+	static bool button_pressed(const EmscriptenGamepadEvent &event, u8 button)
+	{
+		return button < event.numButtons
+			&& (event.digitalButton[button] || event.analogButton[button] > 0.5);
+	}
+
+	static f32 trigger_value(const EmscriptenGamepadEvent &event, u8 axis_0, u8 axis_1, u8 button)
+	{
+		const bool has_axis_0 = axis_0 < event.numAxes;
+		const bool has_axis_1 = axis_1 < event.numAxes;
+		if (has_axis_0 || has_axis_1) {
+			const f32 axis_0_value = has_axis_0 ? trigger_normalize((f32)event.axis[axis_0]) : 0.0f;
+			const f32 axis_1_value = has_axis_1 ? trigger_normalize((f32)event.axis[axis_1]) : 0.0f;
+			return max(axis_0_value, axis_1_value);
+		}
+
+		if (button < event.numButtons) {
+			const f32 analog = clamp((f32)event.analogButton[button], 0.0f, 1.0f);
+			if (analog > 0.0f || !event.digitalButton[button])
+				return analog;
+			return 1.0f;
+		}
+
+		return 0.0f;
+	}
+
+	void xy_buttons(u8 &x_button, u8 &y_button) const;
+
+	static EM_BOOL callback(int event_type, const EmscriptenGamepadEvent *event, void *user_data)
+	{
+		Joypad *joypad = (Joypad *)user_data;
+		const int ii = event->index;
+		if (ii < 0 || ii >= CROWN_MAX_JOYPADS)
+			return EM_EVENT_PROPAGATE;
+
+		if (event_type == EMSCRIPTEN_EVENT_GAMEPADCONNECTED) {
+			if (!joypad->_state[ii].connected) {
+				joypad->_state[ii].connected = true;
+				joypad->_queue->push_status_event(InputDeviceType::JOYPAD, ii, true);
+			}
+			return EM_EVENT_STOP;
+		}
+
+		if (event_type == EMSCRIPTEN_EVENT_GAMEPADDISCONNECTED) {
+			if (joypad->_state[ii].connected) {
+				memset(&joypad->_state[ii], 0, sizeof(joypad->_state[ii]));
+				joypad->_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
+			}
+			return EM_EVENT_STOP;
+		}
+
+		return EM_EVENT_PROPAGATE;
+	}
+
+	void poll()
+	{
+		emscripten_sample_gamepad_data();
+
+		for (s8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
+			EmscriptenGamepadEvent event;
+			memset(&event, 0, sizeof(event));
+
+			const EMSCRIPTEN_RESULT result = emscripten_get_gamepad_status(ii, &event);
+			const bool connected = result == EMSCRIPTEN_RESULT_SUCCESS && event.connected;
+			State &jp = _state[ii];
+			if (!connected) {
+				if (jp.connected) {
+					memset(&jp, 0, sizeof(jp));
+					_queue->push_status_event(InputDeviceType::JOYPAD, ii, false);
+				}
+				continue;
+			}
+
+			if (!jp.connected) {
+				jp.connected = true;
+				_queue->push_status_event(InputDeviceType::JOYPAD, ii, true);
+			}
+
+			u16 button_state = 0;
+			for (u32 ii = 0; ii < countof(em_joypad_button_info); ++ii) {
+				const EmJoypadButtonInfo &gb = em_joypad_button_info[ii];
+				if (button_pressed(event, gb.gb))
+					button_state |= (u16)1 << gb.jb;
+			}
+
+			u8 x_button;
+			u8 y_button;
+			xy_buttons(x_button, y_button);
+			if (button_pressed(event, x_button))
+				button_state |= (u16)1 << JoypadButton::X;
+			if (button_pressed(event, y_button))
+				button_state |= (u16)1 << JoypadButton::Y;
+
+			const u16 button_diff = button_state ^ jp.button_state;
+			for (u8 jb = 0; jb < JoypadButton::COUNT; ++jb) {
+				const u16 mask = (u16)1 << jb;
+				if (button_diff & mask) {
+					_queue->push_button_event(InputDeviceType::JOYPAD
+						, ii
+						, jb
+						, (button_state & mask) != 0
+						);
+				}
+			}
+			jp.button_state = button_state;
+
+			const u8 stick_axis_x[] = { 0, 2 };
+			const u8 stick_axis_y[] = { 1, 3 };
+			const JoypadAxis::Enum stick_out_axis[] = { JoypadAxis::LEFT, JoypadAxis::RIGHT };
+			s16 *stick_state_x[] = { &jp.lx, &jp.rx };
+			s16 *stick_state_y[] = { &jp.ly, &jp.ry };
+			for (u8 stick = 0; stick < 2; ++stick) {
+				const s16 x = stick_axis_x[stick] < event.numAxes
+						? axis((f32)event.axis[stick_axis_x[stick]])
+						: 0;
+				const s16 y = stick_axis_y[stick] < event.numAxes
+						? -axis((f32)event.axis[stick_axis_y[stick]])
+						: 0;
+				if (x != *stick_state_x[stick] || y != *stick_state_y[stick]) {
+					*stick_state_x[stick] = x;
+					*stick_state_y[stick] = y;
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, ii
+						, stick_out_axis[stick]
+						, x
+						, y
+						, 0
+						);
+				}
+			}
+
+			const u8 trigger_axis_0[] = { 4, 5 };
+			const u8 trigger_axis_1[] = { 6, 7 };
+			const u8 trigger_button[] = { 6, 7 };
+			const JoypadAxis::Enum trigger_out_axis[] = { JoypadAxis::TRIGGER_LEFT, JoypadAxis::TRIGGER_RIGHT };
+			s16 *trigger_state[] = { &jp.lz, &jp.rz };
+			for (u8 trigger_id = 0; trigger_id < 2; ++trigger_id) {
+				const s16 z = trigger(trigger_value(event
+					, trigger_axis_0[trigger_id]
+					, trigger_axis_1[trigger_id]
+					, trigger_button[trigger_id]
+					));
+				if (z != *trigger_state[trigger_id]) {
+					*trigger_state[trigger_id] = z;
+					_queue->push_axis_event(InputDeviceType::JOYPAD
+						, ii
+						, trigger_out_axis[trigger_id]
+						, 0
+						, 0
+						, z
+						);
+				}
+			}
+		}
+	}
+};
 
 struct EmscriptenDevice
 {
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	bool _pointer_locked;
+	bool _is_firefox;
+	bool _joypad_polled;
+	Joypad _joypad;
 
 	explicit EmscriptenDevice(Allocator &a)
 		: _events(a)
 		, _queue(push_event)
 		, _pointer_locked(false)
+		, _is_firefox(crown_js_is_firefox() != 0)
+		, _joypad_polled(false)
+		, _joypad(_queue, *this)
 	{
 	}
 
@@ -557,6 +787,9 @@ struct EmscriptenDevice
 		emscripten_set_touchmove_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
 		emscripten_set_touchcancel_callback(CROWN_HTML5_CANVAS_NAME, this, true, EmscriptenDevice::touch_callback);
 
+		emscripten_set_gamepadconnected_callback(&_joypad, true, Joypad::callback);
+		emscripten_set_gamepaddisconnected_callback(&_joypad, true, Joypad::callback);
+
 		emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockchange_callback);
 		emscripten_set_pointerlockerror_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockerror_callback);
 
@@ -571,6 +804,20 @@ struct EmscriptenDevice
 	}
 };
 
+Joypad::Joypad(DeviceEventQueue &queue, EmscriptenDevice &device)
+	: _queue(&queue)
+	, _device(&device)
+{
+	memset(&_state, 0, sizeof(_state));
+}
+
+void Joypad::xy_buttons(u8 &x_button, u8 &y_button) const
+{
+	// Firefox reports swapped X/Y compared to Chromium.
+	x_button = _device->_is_firefox ? 3 : 2;
+	y_button = _device->_is_firefox ? 2 : 3;
+}
+
 static EmscriptenDevice *s_emscripten_device;
 
 static bool push_event(const OsEvent &ev)
@@ -580,7 +827,16 @@ static bool push_event(const OsEvent &ev)
 
 bool next_event(OsEvent &ev)
 {
-	return s_emscripten_device->_events.pop(ev);
+	if (!s_emscripten_device->_joypad_polled) {
+		s_emscripten_device->_joypad.poll();
+		s_emscripten_device->_joypad_polled = true;
+	}
+
+	if (s_emscripten_device->_events.pop(ev))
+		return true;
+
+	s_emscripten_device->_joypad_polled = false;
+	return false;
 }
 
 struct InitGlobals

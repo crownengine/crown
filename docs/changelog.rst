@@ -10,6 +10,7 @@ Changelog
 
 * Runtime: meshes can now be set to cast shadows while being invisible.
 * Runtime: Android: added support for keyboard, mouse and joypad input devices.
+* Runtime: HTML5: added support for joypad input device.
 
 **Fixes**
 
