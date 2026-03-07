@@ -17,6 +17,11 @@ Game = Game or {
 	vertical_speed = 0,
 	walk_speed = 8,
 	run_multiplier = 1.8,
+	crouch_multiplier = 0.45,
+	crouch_camera_drop = 0.6,
+	mover_stand_height = 1.8,
+	mover_crouch_height = 1.0,
+	mover_crouching = false,
 
 	-- Camera management.
 	first_person_camera_local_position = Vector3Box(),
@@ -65,6 +70,7 @@ function Game.level_loaded()
 		end
 
 		Game.first_person_camera_local_position:store(SceneGraph.local_position(Game.scene_graph, camera_transform))
+
 	end
 
 	-- Create a pool of reusable bullets.
@@ -218,11 +224,36 @@ function Game.update(dt)
 		end
 
 		local jump_pressed = Keyboard.pressed(Keyboard.button_id("space"))
-		local run_pressed = Keyboard.button(Keyboard.button_id("shift_left"))
+		local run_pressed = Keyboard.button(Keyboard.button_id("shift_left")) ~= 0
+		local crouch_pressed = Keyboard.button(Keyboard.button_id("ctrl_left")) ~= 0
+			or Keyboard.button(Keyboard.button_id("ctrl_right")) ~= 0
+		local crouch_active = crouch_pressed
+
+		-- Prevent uncrouching while blocked overhead.
+		if not crouch_active and Game.mover_crouching and coll_up then
+			crouch_active = true
+		end
+
+		-- Resize capsule only when crouch state changes.
+		if crouch_active ~= Game.mover_crouching then
+			local current_center = PhysicsWorld.mover_center(Game.physics_world, mover)
+			local center_dz = (Game.mover_stand_height - Game.mover_crouch_height) * 0.5
+			Game.mover_crouching = crouch_active
+			if Game.mover_crouching then
+				PhysicsWorld.mover_set_height(Game.physics_world, mover, Game.mover_crouch_height)
+				PhysicsWorld.mover_set_center(Game.physics_world, mover, Vector3(current_center.x, current_center.y, current_center.z - center_dz))
+			else
+				PhysicsWorld.mover_set_height(Game.physics_world, mover, Game.mover_stand_height)
+				PhysicsWorld.mover_set_center(Game.physics_world, mover, Vector3(current_center.x, current_center.y, current_center.z + center_dz))
+			end
+		end
 
 		local speed = Game.walk_speed
-		if run_pressed ~= 0 then
+		if run_pressed then
 			speed = speed * Game.run_multiplier
+		end
+		if crouch_active then
+			speed = speed * Game.crouch_multiplier
 		end
 		delta = delta * speed
 
@@ -252,7 +283,8 @@ function Game.update(dt)
 			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
 		else
 			local fp_pos = Game.first_person_camera_local_position:unbox()
-			SceneGraph.set_local_position(Game.scene_graph, camera_transform, fp_pos)
+			local camera_pos = Vector3(fp_pos.x, fp_pos.y, fp_pos.z - (Game.mover_crouching and Game.crouch_camera_drop or 0))
+			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
 		end
 	else
 		Game.camera:move(dt, move_dx, move_dy)
@@ -297,6 +329,7 @@ function Game.update(dt)
 		{ key = "w/a/s/d", desc = "Walk" },
 		{ key = "-", desc = "Toggle 1st/3rd person" },
 		{ key = "shift", desc = "Run" },
+		{ key = "ctrl", desc = "Crouch" },
 		{ key = "space", desc = "Jump" },
 		{ key = "e", desc = "Interact" },
 		{ key = "left click", desc = "Shoot" },
