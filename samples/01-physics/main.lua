@@ -9,6 +9,7 @@ Game = Game or {
 	scene_graph = nil,
 	camera = nil,
 	world_gui = nil,
+	mover_debug_line = nil,
 	cursor_disabled = false,
 	last_input_is_pad = false,
 
@@ -74,6 +75,7 @@ function Game.level_loaded()
 	Game.scene_graph = World.scene_graph(GameBase.world)
 	Game.camera = FPSCamera(GameBase.world, GameBase.camera_unit)
 	Game.world_gui = World.create_world_gui(GameBase.world)
+	Game.mover_debug_line = World.create_debug_line(GameBase.world, true)
 
 	-- Create character controller.
 	Game.character_unit = World.unit_by_name(GameBase.world, "character")
@@ -334,6 +336,10 @@ function Game.update(dt)
 			local local_forward = Matrix4x4.y(camera_local_pose)
 			local camera_pos = Vector3(0, 0, Game.third_person_height) - local_forward * Game.third_person_distance
 			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
+
+			PhysicsWorld.mover_debug_draw(Game.physics_world, mover, Game.mover_debug_line, Color4(210, 210, 210, 255))
+			DebugLine.submit(Game.mover_debug_line)
+			DebugLine.reset(Game.mover_debug_line)
 		else
 			local fp_pos = Game.first_person_camera_local_position:unbox()
 			local camera_pos = Vector3(fp_pos.x, fp_pos.y, fp_pos.z - (Game.mover_crouching and Game.crouch_camera_drop or 0))
@@ -410,4 +416,5 @@ function Game.render(dt)
 end
 
 function Game.shutdown()
+	World.destroy_debug_line(GameBase.world, Game.mover_debug_line)
 end
