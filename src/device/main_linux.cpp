@@ -51,6 +51,11 @@
 struct wl_display;
 struct wl_proxy;
 struct wl_interface;
+struct wl_shm;
+struct wl_buffer;
+struct wl_cursor_theme;
+struct wl_cursor;
+struct wl_cursor_image;
 
 #define WAYLAND_IMPORT()                                                                                                                                   \
 	DL_IMPORT_FUNC(wl_display_connect,          struct wl_display *, (const char *));                                                                      \
@@ -105,6 +110,22 @@ WAYLAND_IMPORT();
 
 namespace crown
 {
+struct wl_cursor_image
+{
+	uint32_t width;
+	uint32_t height;
+	uint32_t hotspot_x;
+	uint32_t hotspot_y;
+	uint32_t delay;
+};
+
+struct wl_cursor
+{
+	unsigned int image_count;
+	struct wl_cursor_image **images;
+	const char *name;
+};
+
 static KeyboardButton::Enum evdev_translate_key(uint32_t key)
 {
 	switch (key) {
@@ -493,6 +514,12 @@ XRR_IMPORT();
 XKBCOMMON_IMPORT();
 #undef DL_IMPORT_FUNC
 
+#define WAYLAND_CURSOR_IMPORT()                                                                                    \
+	DL_IMPORT_FUNC(wl_cursor_theme_load,      struct wl_cursor_theme *, (const char *, int, struct wl_shm *));     \
+	DL_IMPORT_FUNC(wl_cursor_theme_destroy,   void,                     (struct wl_cursor_theme *));               \
+	DL_IMPORT_FUNC(wl_cursor_theme_get_cursor, struct wl_cursor *,      (struct wl_cursor_theme *, const char *)); \
+	DL_IMPORT_FUNC(wl_cursor_image_get_buffer, struct wl_buffer *,      (struct wl_cursor_image *))
+
 #define DECOR_IMPORT()                                                                                                                         \
 	DL_IMPORT_FUNC(libdecor_unref,                          void,             (libdecor *));                                                   \
 	DL_IMPORT_FUNC(libdecor_new,                            libdecor *,       (wl_display *, libdecor_interface *));                           \
@@ -516,6 +543,7 @@ XKBCOMMON_IMPORT();
 	typedef return_type (*PROTO_ ## func_name)params;  \
 	static PROTO_ ## func_name func_name
 
+WAYLAND_CURSOR_IMPORT();
 DECOR_IMPORT();
 #undef DL_IMPORT_FUNC
 
@@ -586,9 +614,11 @@ struct System
 struct SystemWayland : public System
 {
 	void *wl_lib;
+	void *wl_cursor_lib;
 	wl_display *display;
 	wl_registry *registry;
 	wl_compositor *compositor;
+	wl_shm *shm;
 	wl_seat *seat;
 	xdg_wm_base *wm_base;
 	wl_keyboard *keyboard;
@@ -598,7 +628,13 @@ struct SystemWayland : public System
 	zwp_pointer_constraints_v1 *pointer_constraints;
 	zwp_locked_pointer_v1 *locked_pointer;
 	wl_surface *content_surface;
+	wl_surface *cursor_surface;
+	wl_cursor_theme *cursor_theme;
+	uint32_t pointer_enter_serial;
+	bool pointer_inside_window;
 	bool pointer_inside_content;
+	bool cursor_visible;
+	MouseCursor::Enum cursor;
 	CursorMode::Enum cursor_mode;
 	DeviceEventQueue *queue;
 	int display_fd;
@@ -622,9 +658,11 @@ struct SystemWayland : public System
 
 	explicit SystemWayland(DeviceEventQueue &event_queue)
 		: wl_lib(NULL)
+		, wl_cursor_lib(NULL)
 		, display(NULL)
 		, registry(NULL)
 		, compositor(NULL)
+		, shm(NULL)
 		, seat(NULL)
 		, wm_base(NULL)
 		, keyboard(NULL)
@@ -634,7 +672,13 @@ struct SystemWayland : public System
 		, pointer_constraints(NULL)
 		, locked_pointer(NULL)
 		, content_surface(NULL)
+		, cursor_surface(NULL)
+		, cursor_theme(NULL)
+		, pointer_enter_serial(0)
+		, pointer_inside_window(false)
 		, pointer_inside_content(false)
+		, cursor_visible(true)
+		, cursor(MouseCursor::ARROW)
 		, cursor_mode(CursorMode::NORMAL)
 		, queue(&event_queue)
 		, display_fd(-1)
@@ -682,6 +726,18 @@ struct SystemWayland : public System
 		xkb.context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 		CE_ASSERT(xkb.context != NULL, "xkb_context_new: error");
 
+		wl_cursor_lib = os::library_open("libwayland-cursor.so.0");
+		if (!wl_cursor_lib)
+			wl_cursor_lib = os::library_open("libwayland-cursor.so");
+
+		if (wl_cursor_lib) {
+#define DL_IMPORT_FUNC(func_name, return_type, params)                               \
+	func_name = (PROTO_ ## func_name)os::library_symbol(wl_cursor_lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+			WAYLAND_CURSOR_IMPORT();
+#undef DL_IMPORT_FUNC
+		}
+
 		display = wl_display_connect(NULL);
 		CE_ASSERT(display != NULL, "wl_display_connect: error");
 		display_fd = wl_display_get_fd(display);
@@ -698,6 +754,11 @@ struct SystemWayland : public System
 		CE_ENSURE(compositor != NULL);
 		CE_ENSURE(seat != NULL);
 		CE_ENSURE(wm_base != NULL);
+
+		if (wl_cursor_lib && shm != NULL) {
+			cursor_theme = wl_cursor_theme_load(NULL, 24, shm);
+			cursor_surface = wl_compositor_create_surface(compositor);
+		}
 
 		return 0;
 	}
@@ -734,8 +795,14 @@ struct SystemWayland : public System
 			wl_seat_destroy(seat);
 		if (wm_base)
 			xdg_wm_base_destroy(wm_base);
+		if (cursor_surface)
+			wl_surface_destroy(cursor_surface);
+		if (cursor_theme)
+			wl_cursor_theme_destroy(cursor_theme);
 		if (compositor)
 			wl_compositor_destroy(compositor);
+		if (shm)
+			wl_shm_destroy(shm);
 		if (registry)
 			wl_registry_destroy(registry);
 		if (display)
@@ -746,6 +813,8 @@ struct SystemWayland : public System
 		if (xkb.context)
 			xkb_context_unref(xkb.context);
 		os::library_close(xkb.lib);
+		if (wl_cursor_lib)
+			os::library_close(wl_cursor_lib);
 		os::library_close(wl_lib);
 	}
 
@@ -782,6 +851,63 @@ struct SystemWayland : public System
 };
 
 static SystemWayland *_wl;
+
+static const char *wayland_cursor_name(MouseCursor::Enum cursor)
+{
+	switch (cursor) {
+	case MouseCursor::ARROW:               return "left_ptr";
+	case MouseCursor::HAND:                return "pointer";
+	case MouseCursor::TEXT_INPUT:          return "text";
+	case MouseCursor::CORNER_TOP_LEFT:     return "nw-resize";
+	case MouseCursor::CORNER_TOP_RIGHT:    return "ne-resize";
+	case MouseCursor::CORNER_BOTTOM_LEFT:  return "sw-resize";
+	case MouseCursor::CORNER_BOTTOM_RIGHT: return "se-resize";
+	case MouseCursor::SIZE_HORIZONTAL:     return "ew-resize";
+	case MouseCursor::SIZE_VERTICAL:       return "ns-resize";
+	case MouseCursor::WAIT:                return "wait";
+	default:                               return "left_ptr";
+	}
+}
+
+static void wayland_apply_cursor(SystemWayland *wl)
+{
+	// Let libdecor control cursor shape while hovering decoration/frame surfaces.
+	if (!wl->pointer || wl->pointer_enter_serial == 0 || !wl->pointer_inside_content)
+		return;
+
+	if (!wl->cursor_visible || wl->cursor_mode == CursorMode::DISABLED) {
+		wl_pointer_set_cursor(wl->pointer, wl->pointer_enter_serial, NULL, 0, 0);
+		return;
+	}
+
+	if (wl->cursor_theme == NULL || wl->cursor_surface == NULL)
+		return;
+
+	const char *name = wayland_cursor_name(wl->cursor);
+	wl_cursor *cursor = wl_cursor_theme_get_cursor(wl->cursor_theme, name);
+	if (cursor == NULL || cursor->image_count == 0 || cursor->images[0] == NULL)
+		return;
+
+	wl_cursor_image *image = cursor->images[0];
+	wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+	if (buffer == NULL)
+		return;
+
+	wl_pointer_set_cursor(wl->pointer
+		, wl->pointer_enter_serial
+		, wl->cursor_surface
+		, (int32_t)image->hotspot_x
+		, (int32_t)image->hotspot_y
+		);
+	wl_surface_attach(wl->cursor_surface, buffer, 0, 0);
+	wl_surface_damage(wl->cursor_surface
+		, 0
+		, 0
+		, (int32_t)image->width
+		, (int32_t)image->height
+		);
+	wl_surface_commit(wl->cursor_surface);
+}
 
 static void keyboard_handle_keymap(void *user_data
 	, wl_keyboard *keyboard
@@ -928,8 +1054,11 @@ static void pointer_handle_enter(void *user_data
 	const s32 mx = wl_fixed_to_int(surface_x);
 	const s32 my = wl_fixed_to_int(surface_y);
 
-	CE_UNUSED_2(pointer, serial);
+	CE_UNUSED(pointer);
+	wl->pointer_enter_serial = serial;
+	wl->pointer_inside_window = true;
 	wl->pointer_inside_content = (surface == wl->content_surface);
+	wayland_apply_cursor(wl);
 
 	if (!wl->pointer_inside_content)
 		return;
@@ -951,7 +1080,9 @@ static void pointer_handle_leave(void *user_data
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	CE_UNUSED_3(pointer, serial, surface);
+	wl->pointer_inside_window = false;
 	wl->pointer_inside_content = false;
+	wl->pointer_enter_serial = 0;
 }
 
 static void pointer_handle_motion(void *user_data
@@ -964,6 +1095,9 @@ static void pointer_handle_motion(void *user_data
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
 	CE_UNUSED_2(pointer, time);
+
+	if (!wl->pointer_inside_content)
+		return;
 
 	const s32 mx = wl_fixed_to_int(surface_x);
 	const s32 my = wl_fixed_to_int(surface_y);
@@ -989,7 +1123,7 @@ static void pointer_handle_button(void *user_data
 	DeviceEventQueue &queue = *wl->queue;
 	CE_UNUSED_3(pointer, serial, time);
 
-	if (!wl->pointer_inside_content)
+	if (!wl->pointer_inside_window || !wl->pointer_inside_content)
 		return;
 
 	MouseButton::Enum mb;
@@ -1019,6 +1153,9 @@ static void pointer_handle_axis(void *user_data
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
 	CE_UNUSED_2(pointer, time);
+
+	if (!wl->pointer_inside_window || !wl->pointer_inside_content)
+		return;
 
 	const int direction = value < 0 ? 1 : -1;
 	if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL) {
@@ -1130,6 +1267,8 @@ static void seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps)
 		wl_pointer_destroy(wl->pointer);
 		wl->pointer = NULL;
 		wl->pointer_inside_content = false;
+		wl->pointer_inside_window = false;
+		wl->pointer_enter_serial = 0;
 	}
 }
 
@@ -1166,6 +1305,8 @@ static void registry_handle_global(void *data, wl_registry *registry, uint name,
 
 	if (strcmp(iface, wl_compositor_interface.name) == 0) {
 		wl->compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
+	} else if (strcmp(iface, wl_shm_interface.name) == 0) {
+		wl->shm = (wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
 	} else if (strcmp(iface, wl_seat_interface.name) == 0) {
 		wl->seat = (wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
 		wl_seat_add_listener(wl->seat, &seat_listener, wl);
@@ -2054,7 +2195,8 @@ struct WindowWayland : public Window
 
 	void show_cursor(bool show) override
 	{
-		CE_UNUSED(show);
+		_wl->cursor_visible = show;
+		wayland_apply_cursor(_wl);
 	}
 
 	void set_fullscreen(bool full) override
@@ -2070,7 +2212,8 @@ struct WindowWayland : public Window
 
 	void set_cursor(MouseCursor::Enum cursor) override
 	{
-		CE_UNUSED(cursor);
+		_wl->cursor = cursor;
+		wayland_apply_cursor(_wl);
 	}
 
 	bool set_cursor_mode(CursorMode::Enum mode) override
@@ -2086,6 +2229,9 @@ struct WindowWayland : public Window
 				return false;
 
 			if (!_wl->pointer_constraints)
+				return false;
+
+			if (!_wl->pointer_inside_window)
 				return false;
 
 			_wl->relative_pointer = zwp_relative_pointer_manager_v1_get_relative_pointer(_wl->relative_pointer_manager, _wl->pointer);
@@ -2114,6 +2260,7 @@ struct WindowWayland : public Window
 		}
 
 		_wl->cursor_mode = mode;
+		wayland_apply_cursor(_wl);
 		return true;
 	}
 
