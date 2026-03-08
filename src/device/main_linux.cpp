@@ -53,10 +53,10 @@ struct wl_proxy;
 struct wl_interface;
 
 #define WAYLAND_IMPORT()                                                                                                                                   \
-	DL_IMPORT_FUNC(wl_display_connect,          struct wl_display *, (const char *name));                                                                  \
+	DL_IMPORT_FUNC(wl_display_connect,          struct wl_display *, (const char *));                                                                      \
 	DL_IMPORT_FUNC(wl_display_dispatch,         int,                 (struct wl_display *));                                                               \
 	DL_IMPORT_FUNC(wl_display_roundtrip,        int,                 (struct wl_display *));                                                               \
-	DL_IMPORT_FUNC(wl_proxy_add_listener,       int,                 (struct wl_proxy *, void (**implementation)(void), void *));                          \
+	DL_IMPORT_FUNC(wl_proxy_add_listener,       int,                 (struct wl_proxy *, void (**)(void), void *));                                        \
 	DL_IMPORT_FUNC(wl_proxy_get_version,        uint32_t,            (struct wl_proxy *));                                                                 \
 	DL_IMPORT_FUNC(wl_proxy_marshal_flags,      struct wl_proxy *,   (struct wl_proxy *, uint32_t, const struct wl_interface *, uint32_t, uint32_t, ...)); \
 	DL_IMPORT_FUNC(wl_display_dispatch_pending, int,                 (struct wl_display *));                                                               \
@@ -469,13 +469,13 @@ XRR_IMPORT();
 
 #undef DL_IMPORT_FUNC
 
-#define XKBCOMMON_IMPORT()                                                                                                                                                                   \
-	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags flags));                                                                                        \
-	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *context, const char *string, enum xkb_keymap_format format, enum xkb_keymap_compile_flags flags)); \
-	DL_IMPORT_FUNC(xkb_keymap_unref,           void,                 (struct xkb_keymap *keymap));                                                                                           \
-	DL_IMPORT_FUNC(xkb_state_key_get_one_sym,  xkb_keysym_t,         (struct xkb_state *state, xkb_keycode_t key));                                                                          \
-	DL_IMPORT_FUNC(xkb_state_new,              struct xkb_state *,   (struct xkb_keymap *keymap));                                                                                           \
-	DL_IMPORT_FUNC(xkb_state_unref,            void,                 (struct xkb_state *state));                                                                                             \
+#define XKBCOMMON_IMPORT()                                                                                                                                        \
+	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags));                                                                    \
+	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *, const char *, enum xkb_keymap_format, enum xkb_keymap_compile_flags)); \
+	DL_IMPORT_FUNC(xkb_keymap_unref,           void,                 (struct xkb_keymap *));                                                                       \
+	DL_IMPORT_FUNC(xkb_state_key_get_one_sym,  xkb_keysym_t,         (struct xkb_state *, xkb_keycode_t));                                                         \
+	DL_IMPORT_FUNC(xkb_state_new,              struct xkb_state *,   (struct xkb_keymap *));                                                                       \
+	DL_IMPORT_FUNC(xkb_state_unref,            void,                 (struct xkb_state *));                                                                        \
 
 #define DL_IMPORT_FUNC(func_name, return_type, params) \
 	typedef return_type (*PROTO_ ## func_name)params;  \
