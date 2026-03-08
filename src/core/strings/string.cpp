@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/error/error.inl"
 #include "core/strings/string.h"
+#include <ctype.h> // tolower
 
 namespace crown
 {
@@ -54,6 +56,22 @@ int wildcmp(const char *wild, const char *str)
 		++wild;
 
 	return !*wild;
+}
+
+int strncasecmp(const char *str1, const char *str2, u32 len)
+{
+	CE_ENSURE(NULL != str1);
+	CE_ENSURE(NULL != str2);
+
+	for (u32 i = 0; i < len; ++i) {
+		const char c1 = str1[i];
+		const char c2 = str2[i];
+		const int d = tolower(c1) - tolower(c2);
+		if (d != 0 || c1 == '\0' || c2 == '\0')
+			return d;
+	}
+
+	return 0;
 }
 
 } // namespace crown

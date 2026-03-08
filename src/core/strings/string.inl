@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/error/error.inl"
+#include "core/strings/string.h"
 #include "core/types.h"
 #include <ctype.h>  // isspace
 #include <string.h> // strncmp, strchr etc.
@@ -44,6 +45,22 @@ inline bool str_has_suffix(const char *str, const char *suffix)
 	const u32 ml = strlen32(str);
 	const u32 sl = strlen32(suffix);
 	return sl <= ml && strncmp(&str[ml - sl], suffix, sl) == 0;
+}
+
+inline bool str_has_prefix_case(const char *str, const char *prefix)
+{
+	CE_ENSURE(NULL != str);
+	CE_ENSURE(NULL != prefix);
+	return strncasecmp(&str[0], prefix, strlen32(prefix)) == 0;
+}
+
+inline bool str_has_suffix_case(const char *str, const char *suffix)
+{
+	CE_ENSURE(NULL != str);
+	CE_ENSURE(NULL != suffix);
+	const u32 ml = strlen32(str);
+	const u32 sl = strlen32(suffix);
+	return sl <= ml && strncasecmp(&str[ml - sl], suffix, sl) == 0;
 }
 
 } // namespace crown

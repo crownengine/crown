@@ -15,4 +15,7 @@ const char *skip_block(const char *str, char a, char b);
 ///
 int wildcmp(const char *wild, const char *str);
 
+///
+int strncasecmp(const char *str1, const char *str2, u32 len);
+
 } // namespace crown
