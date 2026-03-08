@@ -1102,7 +1102,8 @@ struct SystemX11 : public System
 		display_fd = ConnectionNumber(display);
 
 		int dummy_ret;
-		xwayland = XQueryExtension(display, "XWAYLAND", &dummy_ret, &dummy_ret, &dummy_ret);
+		char xwayland_ext[] = "XWAYLAND";
+		xwayland = XQueryExtension(display, xwayland_ext, &dummy_ret, &dummy_ret, &dummy_ret);
 
 		root_window = RootWindow(display, DefaultScreen(display));
 
