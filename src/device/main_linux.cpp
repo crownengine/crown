@@ -54,9 +54,11 @@ struct wl_interface;
 
 #define WAYLAND_IMPORT()                                                                                                                                   \
 	DL_IMPORT_FUNC(wl_display_connect,          struct wl_display *, (const char *));                                                                      \
+	DL_IMPORT_FUNC(wl_display_disconnect,       void,                (struct wl_display *));                                                               \
 	DL_IMPORT_FUNC(wl_display_dispatch,         int,                 (struct wl_display *));                                                               \
 	DL_IMPORT_FUNC(wl_display_roundtrip,        int,                 (struct wl_display *));                                                               \
 	DL_IMPORT_FUNC(wl_proxy_add_listener,       int,                 (struct wl_proxy *, void (**)(void), void *));                                        \
+	DL_IMPORT_FUNC(wl_proxy_destroy,            void,                (struct wl_proxy *));                                                                 \
 	DL_IMPORT_FUNC(wl_proxy_get_version,        uint32_t,            (struct wl_proxy *));                                                                 \
 	DL_IMPORT_FUNC(wl_proxy_marshal_flags,      struct wl_proxy *,   (struct wl_proxy *, uint32_t, const struct wl_interface *, uint32_t, uint32_t, ...)); \
 	DL_IMPORT_FUNC(wl_display_dispatch_pending, int,                 (struct wl_display *));                                                               \
@@ -77,9 +79,11 @@ WAYLAND_IMPORT();
 #undef DL_IMPORT_FUNC
 
 #define wl_display_connect (*crown_wl_display_connect)
+#define wl_display_disconnect (*crown_wl_display_disconnect)
 #define wl_display_dispatch (*crown_wl_display_dispatch)
 #define wl_display_roundtrip (*crown_wl_display_roundtrip)
 #define wl_proxy_add_listener (*crown_wl_proxy_add_listener)
+#define wl_proxy_destroy (*crown_wl_proxy_destroy)
 #define wl_proxy_get_version (*crown_wl_proxy_get_version)
 #define wl_proxy_marshal_flags (*crown_wl_proxy_marshal_flags)
 #define wl_display_dispatch_pending (*crown_wl_display_dispatch_pending)
@@ -96,6 +100,8 @@ WAYLAND_IMPORT();
 #include "wayland/relative-pointer-unstable-v1-client-protocol.c"
 #include "wayland/pointer-constraints-unstable-v1-client-protocol.h"
 #include "wayland/pointer-constraints-unstable-v1-client-protocol.c"
+
+#include <libdecor-0/libdecor.h>
 
 namespace crown
 {
@@ -469,19 +475,48 @@ XRR_IMPORT();
 
 #undef DL_IMPORT_FUNC
 
-#define XKBCOMMON_IMPORT()                                                                                                                                        \
-	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags));                                                                    \
-	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *, const char *, enum xkb_keymap_format, enum xkb_keymap_compile_flags)); \
-	DL_IMPORT_FUNC(xkb_keymap_unref,           void,                 (struct xkb_keymap *));                                                                       \
-	DL_IMPORT_FUNC(xkb_state_key_get_one_sym,  xkb_keysym_t,         (struct xkb_state *, xkb_keycode_t));                                                         \
-	DL_IMPORT_FUNC(xkb_state_new,              struct xkb_state *,   (struct xkb_keymap *));                                                                       \
-	DL_IMPORT_FUNC(xkb_state_unref,            void,                 (struct xkb_state *));                                                                        \
+#define XKBCOMMON_IMPORT()                                                                                                                                                                                  \
+	DL_IMPORT_FUNC(xkb_context_new,            struct xkb_context *, (enum xkb_context_flags));                                                                                                             \
+	DL_IMPORT_FUNC(xkb_context_unref,          void,                 (struct xkb_context *));                                                                                                               \
+	DL_IMPORT_FUNC(xkb_keymap_new_from_string, struct xkb_keymap *,  (struct xkb_context *, const char *, enum xkb_keymap_format, enum xkb_keymap_compile_flags));                                          \
+	DL_IMPORT_FUNC(xkb_keymap_unref,           void,                 (struct xkb_keymap *));                                                                                                                \
+	DL_IMPORT_FUNC(xkb_state_key_get_one_sym,  xkb_keysym_t,         (struct xkb_state *, xkb_keycode_t));                                                                                                  \
+	DL_IMPORT_FUNC(xkb_state_key_get_utf8,     int,                  (struct xkb_state *, xkb_keycode_t, char *, size_t));                                                                                  \
+	DL_IMPORT_FUNC(xkb_state_update_mask,      enum xkb_state_component, (struct xkb_state *, xkb_mod_mask_t, xkb_mod_mask_t, xkb_mod_mask_t, xkb_layout_index_t, xkb_layout_index_t, xkb_layout_index_t)); \
+	DL_IMPORT_FUNC(xkb_state_new,              struct xkb_state *,   (struct xkb_keymap *));                                                                                                                \
+	DL_IMPORT_FUNC(xkb_state_unref,            void,                 (struct xkb_state *));                                                                                                                 \
 
 #define DL_IMPORT_FUNC(func_name, return_type, params) \
 	typedef return_type (*PROTO_ ## func_name)params;  \
 	static PROTO_ ## func_name func_name
 
 XKBCOMMON_IMPORT();
+#undef DL_IMPORT_FUNC
+
+#define DECOR_IMPORT()                                                                                                                         \
+	DL_IMPORT_FUNC(libdecor_unref,                          void,             (libdecor *));                                                   \
+	DL_IMPORT_FUNC(libdecor_new,                            libdecor *,       (wl_display *, libdecor_interface *));                           \
+	DL_IMPORT_FUNC(libdecor_get_fd,                         int,              (libdecor *));                                                   \
+	DL_IMPORT_FUNC(libdecor_dispatch,                       int,              (libdecor *, int));                                              \
+	DL_IMPORT_FUNC(libdecor_decorate,                       libdecor_frame *, (libdecor *, wl_surface *, libdecor_frame_interface *, void *)); \
+	DL_IMPORT_FUNC(libdecor_frame_is_floating,              bool,             (libdecor_frame *));                                             \
+	DL_IMPORT_FUNC(libdecor_frame_close,                    void,             (libdecor_frame *));                                             \
+	DL_IMPORT_FUNC(libdecor_frame_map,                      void,             (libdecor_frame *));                                             \
+	DL_IMPORT_FUNC(libdecor_frame_set_app_id,               void,             (libdecor_frame *, const char *));                               \
+	DL_IMPORT_FUNC(libdecor_frame_set_title,                void,             (libdecor_frame *, const char *));                               \
+	DL_IMPORT_FUNC(libdecor_frame_get_xdg_surface,          xdg_surface *,    (libdecor_frame *));                                             \
+	DL_IMPORT_FUNC(libdecor_frame_get_xdg_toplevel,         xdg_toplevel *,   (libdecor_frame *));                                             \
+	DL_IMPORT_FUNC(libdecor_state_new,                      libdecor_state *, (int, int ));                                                    \
+	DL_IMPORT_FUNC(libdecor_state_free,                     void,             (libdecor_state *));                                             \
+	DL_IMPORT_FUNC(libdecor_configuration_get_content_size, bool,             (libdecor_configuration *, libdecor_frame *, int *, int *));     \
+	DL_IMPORT_FUNC(libdecor_configuration_get_window_state, bool,             (libdecor_configuration *, libdecor_window_state *));            \
+	DL_IMPORT_FUNC(libdecor_frame_commit,                   void,             (libdecor_frame *, libdecor_state *, libdecor_configuration *));
+
+#define DL_IMPORT_FUNC(func_name, return_type, params) \
+	typedef return_type (*PROTO_ ## func_name)params;  \
+	static PROTO_ ## func_name func_name
+
+DECOR_IMPORT();
 #undef DL_IMPORT_FUNC
 
 static void registry_handle_global(void *data, wl_registry *registry, uint name, const char *iface, uint ver);
@@ -499,7 +534,9 @@ static void surface_handle_leave(void *user_data, struct wl_surface *surface, st
 static const struct wl_surface_listener surface_listener =
 {
 	surface_handle_enter,
-	surface_handle_leave
+	surface_handle_leave,
+	NULL,
+	NULL
 };
 
 static void xdg_toplevel_handle_configure(void *user_data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, wl_array *states);
@@ -508,7 +545,9 @@ static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *topl
 static const struct xdg_toplevel_listener toplevel_listener =
 {
 	xdg_toplevel_handle_configure,
-	xdg_toplevel_handle_close
+	xdg_toplevel_handle_close,
+	NULL,
+	NULL
 };
 
 static void xdg_surface_handle_configure(void *user_data, struct xdg_surface *surface, uint32_t serial);
@@ -558,12 +597,12 @@ struct SystemWayland : public System
 	zwp_relative_pointer_v1 *relative_pointer;
 	zwp_pointer_constraints_v1 *pointer_constraints;
 	zwp_locked_pointer_v1 *locked_pointer;
+	wl_surface *content_surface;
+	bool pointer_inside_content;
 	CursorMode::Enum cursor_mode;
-	struct wl_surface *surface;
-	struct xdg_surface *xdg_surface;
-	struct xdg_toplevel *xdg_toplevel;
 	DeviceEventQueue *queue;
 	int display_fd;
+	char window_title[512];
 
 	struct
 	{
@@ -572,6 +611,14 @@ struct SystemWayland : public System
 		struct xkb_keymap *keymap;
 		struct xkb_state *state;
 	} xkb;
+
+	struct
+	{
+		void *lib;
+		struct libdecor *context;
+		struct libdecor_interface *iface;
+		int fd;
+	} decor;
 
 	explicit SystemWayland(DeviceEventQueue &event_queue)
 		: wl_lib(NULL)
@@ -582,12 +629,19 @@ struct SystemWayland : public System
 		, wm_base(NULL)
 		, keyboard(NULL)
 		, pointer(NULL)
+		, relative_pointer_manager(NULL)
+		, relative_pointer(NULL)
+		, pointer_constraints(NULL)
+		, locked_pointer(NULL)
+		, content_surface(NULL)
+		, pointer_inside_content(false)
 		, cursor_mode(CursorMode::NORMAL)
 		, queue(&event_queue)
-		, xdg_surface(NULL)
-		, xdg_toplevel(NULL)
 		, display_fd(-1)
 	{
+		memset(&xkb, 0, sizeof(xkb));
+		memset(window_title, 0, sizeof(window_title));
+		memset(&decor, 0, sizeof(decor));
 	}
 
 	virtual ~SystemWayland()
@@ -618,6 +672,13 @@ struct SystemWayland : public System
 		XKBCOMMON_IMPORT();
 #undef DL_IMPORT_FUNC
 
+		decor.lib = os::library_open("libdecor-0.so.0");
+#define DL_IMPORT_FUNC(func_name, return_type, params)                           \
+	func_name = (PROTO_ ## func_name)os::library_symbol(decor.lib, # func_name); \
+	CE_ENSURE(func_name != NULL);
+		DECOR_IMPORT();
+#undef DL_IMPORT_FUNC
+
 		xkb.context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 		CE_ASSERT(xkb.context != NULL, "xkb_context_new: error");
 
@@ -628,21 +689,62 @@ struct SystemWayland : public System
 		registry = wl_display_get_registry(display);
 		wl_registry_add_listener(registry, &_wl_registry_listener, this);
 
+		decor.context = libdecor_new(display, decor.iface);
+		CE_ASSERT(decor.context != NULL, "libdecor_new: error");
+		decor.fd = libdecor_get_fd(decor.context);
+
 		wl_display_roundtrip(display);
 		CE_ENSURE(display != NULL);
 		CE_ENSURE(compositor != NULL);
 		CE_ENSURE(seat != NULL);
 		CE_ENSURE(wm_base != NULL);
+
 		return 0;
 	}
 
 	void shutdown()
 	{
+		if (decor.lib != NULL) {
+			if (decor.context != NULL) {
+				libdecor_unref(decor.context);
+				decor.context = NULL;
+			}
+			decor.fd = -1;
+			os::library_close(decor.lib);
+			decor.lib = NULL;
+		}
+
+		if (relative_pointer) {
+			zwp_relative_pointer_v1_destroy(relative_pointer);
+			relative_pointer = NULL;
+		}
+		if (locked_pointer) {
+			zwp_locked_pointer_v1_destroy(locked_pointer);
+			locked_pointer = NULL;
+		}
 		if (relative_pointer_manager)
 			zwp_relative_pointer_manager_v1_destroy(relative_pointer_manager);
 		if (pointer_constraints)
 			zwp_pointer_constraints_v1_destroy(pointer_constraints);
+		if (pointer)
+			wl_pointer_destroy(pointer);
+		if (keyboard)
+			wl_keyboard_destroy(keyboard);
+		if (seat)
+			wl_seat_destroy(seat);
+		if (wm_base)
+			xdg_wm_base_destroy(wm_base);
+		if (compositor)
+			wl_compositor_destroy(compositor);
+		if (registry)
+			wl_registry_destroy(registry);
+		if (display)
+			wl_display_disconnect(display);
 
+		if (xkb.state)
+			xkb_state_unref(xkb.state);
+		if (xkb.context)
+			xkb_context_unref(xkb.context);
 		os::library_close(xkb.lib);
 		os::library_close(wl_lib);
 	}
@@ -658,14 +760,24 @@ struct SystemWayland : public System
 			if (wl_display_read_events(display) < 0)
 				return; // Connection error.
 
-			wl_display_dispatch(display);
+			wl_display_dispatch_pending(display);
 		}
+
+		if (decor.context != NULL && decor.fd >= 0 && FD_ISSET(decor.fd, fdset))
+			libdecor_dispatch(decor.context, 0);
 	}
 
 	int set_fds(fd_set *fdset, int max_fd)
 	{
 		FD_SET(display_fd, fdset);
-		return max(max_fd, max(display_fd, max_fd));
+		max_fd = max(display_fd, max_fd);
+
+		if (decor.context != NULL && decor.fd >= 0) {
+			FD_SET(decor.fd, fdset);
+			max_fd = max(decor.fd, max_fd);
+		}
+
+		return max_fd;
 	}
 };
 
@@ -679,6 +791,17 @@ static void keyboard_handle_keymap(void *user_data
 	)
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
+	CE_UNUSED(keyboard);
+
+	if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
+		close(fd);
+		return;
+	}
+
+	if (wl->xkb.state) {
+		xkb_state_unref(wl->xkb.state);
+		wl->xkb.state = NULL;
+	}
 
 	char *str = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (str == MAP_FAILED) {
@@ -703,7 +826,7 @@ static void keyboard_handle_keymap(void *user_data
 	}
 
 	xkb_keymap_unref(wl->xkb.keymap);
-	xkb_state_unref(wl->xkb.state);
+	wl->xkb.keymap = NULL;
 }
 
 static void keyboard_handle_enter(void *user_data
@@ -713,6 +836,7 @@ static void keyboard_handle_enter(void *user_data
 	, struct wl_array *keys
 	)
 {
+	CE_UNUSED_5(user_data, keyboard, serial, surface, keys);
 }
 
 static void keyboard_handle_leave(void *user_data
@@ -721,6 +845,7 @@ static void keyboard_handle_leave(void *user_data
 	, struct wl_surface *surface
 	)
 {
+	CE_UNUSED_4(user_data, keyboard, serial, surface);
 }
 
 static void keyboard_handle_key(void *user_data
@@ -733,6 +858,7 @@ static void keyboard_handle_key(void *user_data
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED_3(keyboard, serial, time);
 
 	const KeyboardButton::Enum kb = evdev_translate_key(key);
 	if (kb != KeyboardButton::COUNT) {
@@ -741,6 +867,18 @@ static void keyboard_handle_key(void *user_data
 			, kb
 			, state == WL_KEYBOARD_KEY_STATE_PRESSED
 			);
+	}
+
+	if (state == WL_KEYBOARD_KEY_STATE_PRESSED && wl->xkb.state != NULL) {
+		u8 utf8[4] = { 0 };
+		const xkb_keycode_t keycode = key + 8;
+		const int len = xkb_state_key_get_utf8(wl->xkb.state
+			, keycode
+			, (char *)utf8
+			, sizeof(utf8)
+			);
+		if (len > 0 && len <= (int)sizeof(utf8))
+			queue.push_text_event((u8)len, utf8);
 	}
 }
 
@@ -753,6 +891,19 @@ static void keyboard_handle_modifiers(void *user_data
 	, uint32_t group
 	)
 {
+	SystemWayland *wl = (SystemWayland *)user_data;
+	CE_UNUSED_2(keyboard, serial);
+
+	if (wl->xkb.state) {
+		xkb_state_update_mask(wl->xkb.state
+			, mods_depressed
+			, mods_latched
+			, mods_locked
+			, 0
+			, 0
+			, group
+			);
+	}
 }
 
 static const struct wl_keyboard_listener keyboard_listener =
@@ -762,6 +913,7 @@ static const struct wl_keyboard_listener keyboard_listener =
 	keyboard_handle_leave,
 	keyboard_handle_key,
 	keyboard_handle_modifiers,
+	NULL,
 };
 
 static void pointer_handle_enter(void *user_data
@@ -775,6 +927,12 @@ static void pointer_handle_enter(void *user_data
 	SystemWayland *wl = (SystemWayland *)user_data;
 	const s32 mx = wl_fixed_to_int(surface_x);
 	const s32 my = wl_fixed_to_int(surface_y);
+
+	CE_UNUSED_2(pointer, serial);
+	wl->pointer_inside_content = (surface == wl->content_surface);
+
+	if (!wl->pointer_inside_content)
+		return;
 
 	wl->queue->push_axis_event(InputDeviceType::MOUSE
 		, 0
@@ -791,6 +949,9 @@ static void pointer_handle_leave(void *user_data
 	, struct wl_surface *surface
 	)
 {
+	SystemWayland *wl = (SystemWayland *)user_data;
+	CE_UNUSED_3(pointer, serial, surface);
+	wl->pointer_inside_content = false;
 }
 
 static void pointer_handle_motion(void *user_data
@@ -802,6 +963,7 @@ static void pointer_handle_motion(void *user_data
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED_2(pointer, time);
 
 	const s32 mx = wl_fixed_to_int(surface_x);
 	const s32 my = wl_fixed_to_int(surface_y);
@@ -825,6 +987,10 @@ static void pointer_handle_button(void *user_data
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED_3(pointer, serial, time);
+
+	if (!wl->pointer_inside_content)
+		return;
 
 	MouseButton::Enum mb;
 	switch (button) {
@@ -850,6 +1016,28 @@ static void pointer_handle_axis(void *user_data
 	, wl_fixed_t value
 	)
 {
+	SystemWayland *wl = (SystemWayland *)user_data;
+	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED_2(pointer, time);
+
+	const int direction = value < 0 ? 1 : -1;
+	if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL) {
+		queue.push_axis_event(InputDeviceType::MOUSE
+			, 0
+			, MouseAxis::WHEEL
+			, 0
+			, (s16)direction
+			, 0
+			);
+	} else if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL) {
+		queue.push_axis_event(InputDeviceType::MOUSE
+			, 0
+			, MouseAxis::WHEEL
+			, (s16)direction
+			, 0
+			, 0
+			);
+	}
 }
 
 static const struct wl_pointer_listener pointer_listener =
@@ -859,6 +1047,12 @@ static const struct wl_pointer_listener pointer_listener =
 	pointer_handle_motion,
 	pointer_handle_button,
 	pointer_handle_axis,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 static void relative_pointer_handle_relative_motion(void *user_data
@@ -873,6 +1067,7 @@ static void relative_pointer_handle_relative_motion(void *user_data
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED_5(pointer, time_hi, time_lo, dx, dy);
 
 	queue.push_axis_event(InputDeviceType::MOUSE
 		, 0
@@ -892,12 +1087,14 @@ static void locked_pointer_handle_locked(void *data
 	, struct zwp_locked_pointer_v1 *locked_pointer
 	)
 {
+	CE_UNUSED_2(data, locked_pointer);
 }
 
 static void locked_pointer_handle_unlocked(void *data
 	, struct zwp_locked_pointer_v1 *locked_pointer
 	)
 {
+	CE_UNUSED_2(data, locked_pointer);
 }
 
 static const struct zwp_locked_pointer_v1_listener locked_pointer_listener =
@@ -910,14 +1107,29 @@ static void seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps)
 {
 	SystemWayland *wl = (SystemWayland *)data;
 
-	if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
+	if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && wl->keyboard == NULL) {
 		wl->keyboard = wl_seat_get_keyboard(seat);
 		wl_keyboard_add_listener(wl->keyboard, &keyboard_listener, wl);
+	} else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && wl->keyboard != NULL) {
+		wl_keyboard_destroy(wl->keyboard);
+		wl->keyboard = NULL;
 	}
 
-	if (caps & WL_SEAT_CAPABILITY_POINTER) {
+	if ((caps & WL_SEAT_CAPABILITY_POINTER) && wl->pointer == NULL) {
 		wl->pointer = wl_seat_get_pointer(seat);
 		wl_pointer_add_listener(wl->pointer, &pointer_listener, wl);
+	} else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && wl->pointer != NULL) {
+		if (wl->relative_pointer) {
+			zwp_relative_pointer_v1_destroy(wl->relative_pointer);
+			wl->relative_pointer = NULL;
+		}
+		if (wl->locked_pointer) {
+			zwp_locked_pointer_v1_destroy(wl->locked_pointer);
+			wl->locked_pointer = NULL;
+		}
+		wl_pointer_destroy(wl->pointer);
+		wl->pointer = NULL;
+		wl->pointer_inside_content = false;
 	}
 }
 
@@ -926,6 +1138,7 @@ static void seat_handle_name(void *user_data
 	, const char *name
 	)
 {
+	CE_UNUSED_3(user_data, seat, name);
 }
 
 static const wl_seat_listener seat_listener =
@@ -936,6 +1149,7 @@ static const wl_seat_listener seat_listener =
 
 static void wm_base_handle_ping(void *user_data, struct xdg_wm_base *wm_base, uint32_t serial)
 {
+	CE_UNUSED(user_data);
 	xdg_wm_base_pong(wm_base, serial);
 }
 
@@ -970,6 +1184,7 @@ static void registry_handle_global_remove(void *user_data
 	, uint32_t name
 	)
 {
+	CE_UNUSED_3(user_data, registry, name);
 }
 
 static void surface_handle_enter(void *user_data
@@ -977,6 +1192,7 @@ static void surface_handle_enter(void *user_data
 	, struct wl_output *output
 	)
 {
+	CE_UNUSED_3(user_data, surface, output);
 }
 
 static void surface_handle_leave(void *user_data
@@ -984,6 +1200,7 @@ static void surface_handle_leave(void *user_data
 	, struct wl_output *output
 	)
 {
+	CE_UNUSED_3(user_data, surface, output);
 }
 
 static void xdg_surface_handle_configure(void *user_data
@@ -1004,12 +1221,18 @@ static void xdg_toplevel_handle_configure(void *user_data
 	)
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
+	CE_UNUSED_2(toplevel, states);
+
+	if (width > 0 && height > 0) {
+		wl->queue->push_resolution_event((u16)width, (u16)height);
+	}
 }
 
 static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *toplevel)
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
 	DeviceEventQueue &queue = *wl->queue;
+	CE_UNUSED(toplevel);
 
 	queue.push_exit_event();
 }
@@ -1681,27 +1904,88 @@ struct WindowX11 : public Window
 	}
 };
 
+static void handle_configure(struct libdecor_frame *frame, struct libdecor_configuration *configuration, void *user_data);
+static void handle_close(struct libdecor_frame *frame, void *user_data);
+static void handle_commit(struct libdecor_frame *frame, void *user_data);
+
+static struct libdecor_frame_interface libdecor_frame_iface = {
+	handle_configure,
+	handle_close,
+	handle_commit,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
 struct WindowWayland : public Window
 {
+	wl_surface *surface;
+	libdecor_frame *frame;
+	int content_width;
+	int content_height;
+	int configured_width;
+	int configured_height;
+	int floating_width;
+	int floating_height;
+	enum libdecor_window_state window_state;
+	bool configured;
+	struct xdg_surface *xdg_surface;
+	struct xdg_toplevel *xdg_toplevel;
+	char floating_title[256];
+
 	WindowWayland()
+		: frame(NULL)
+		, configured(false)
+		, xdg_surface(NULL)
+		, xdg_toplevel(NULL)
 	{
+		memset(floating_title, 0, sizeof(floating_title));
 	}
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
-		_wl->surface = wl_compositor_create_surface(_wl->compositor);
-		CE_ENSURE(_wl->surface != NULL);
+		CE_UNUSED_3(x, y, parent);
 
-		wl_surface_add_listener(_wl->surface, &surface_listener, _wl);
+		floating_width  = width;
+		floating_height = height;
+
+		surface = wl_compositor_create_surface(_wl->compositor);
+		CE_ENSURE(surface != NULL);
+		_wl->content_surface = surface;
+
+		wl_surface_add_listener(surface, &surface_listener, this);
 	}
 
 	void close() override
 	{
-		wl_surface_destroy(_wl->surface);
+		destroy_toplevel_objects();
+		wl_surface_destroy(surface);
+		if (_wl->content_surface == surface)
+			_wl->content_surface = NULL;
+		surface = NULL;
 	}
 
 	void show() override
 	{
+		frame = libdecor_decorate(_wl->decor.context, surface, &libdecor_frame_iface, this);
+		libdecor_frame_set_app_id(frame, "org.crownengine.CrownRuntime");
+		libdecor_frame_set_title(frame, floating_title);
+		libdecor_frame_map(frame);
+
+		wl_display_roundtrip(_wl->display);
+		wl_display_roundtrip(_wl->display);
+
+		while (!configured) {
+		}
+
 		get_toplevel_objects();
 	}
 
@@ -1712,18 +1996,34 @@ struct WindowWayland : public Window
 
 	void resize(u16 width, u16 height) override
 	{
+		if (xdg_surface == NULL)
+			return;
+
+		xdg_surface_set_window_geometry(xdg_surface, 0, 0, width, height);
 	}
 
 	void move(u16 x, u16 y) override
 	{
+		CE_UNUSED_2(x, y);
 	}
 
 	void maximize_or_restore(bool maximize)
 	{
+		if (xdg_toplevel == NULL)
+			return;
+
+		if (maximize)
+			xdg_toplevel_set_maximized(xdg_toplevel);
+		else
+			xdg_toplevel_unset_maximized(xdg_toplevel);
 	}
 
 	void minimize() override
 	{
+		if (xdg_toplevel == NULL)
+			return;
+
+		xdg_toplevel_set_minimized(xdg_toplevel);
 	}
 
 	void maximize() override
@@ -1738,23 +2038,39 @@ struct WindowWayland : public Window
 
 	const char *title() override
 	{
-		return "";
+		return floating_title;
 	}
 
 	void set_title(const char *title) override
 	{
+		strncpy(floating_title, title, sizeof(floating_title) - 1);
+		floating_title[sizeof(floating_title) - 1] = '\0';
+
+		if (frame != NULL)
+			libdecor_frame_set_title(frame, floating_title);
+		else if (xdg_toplevel != NULL)
+			xdg_toplevel_set_title(xdg_toplevel, floating_title);
 	}
 
 	void show_cursor(bool show) override
 	{
+		CE_UNUSED(show);
 	}
 
 	void set_fullscreen(bool full) override
 	{
+		if (xdg_toplevel == NULL)
+			return;
+
+		if (full)
+			xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
+		else
+			xdg_toplevel_unset_fullscreen(xdg_toplevel);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
 	{
+		CE_UNUSED(cursor);
 	}
 
 	bool set_cursor_mode(CursorMode::Enum mode) override
@@ -1762,9 +2078,10 @@ struct WindowWayland : public Window
 		if (mode == _wl->cursor_mode)
 			return true;
 
-		_wl->cursor_mode = mode;
-
 		if (mode == CursorMode::DISABLED) {
+			if (!_wl->pointer)
+				return false;
+
 			if (!_wl->relative_pointer_manager)
 				return false;
 
@@ -1775,7 +2092,7 @@ struct WindowWayland : public Window
 			zwp_relative_pointer_v1_add_listener(_wl->relative_pointer, &relative_pointer_listener, _wl);
 
 			_wl->locked_pointer = zwp_pointer_constraints_v1_lock_pointer(_wl->pointer_constraints
-				, _wl->surface
+				, surface
 				, _wl->pointer
 				, NULL
 				, ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT
@@ -1785,19 +2102,24 @@ struct WindowWayland : public Window
 				, _wl
 				);
 		} else if (mode == CursorMode::NORMAL) {
-			zwp_relative_pointer_v1_destroy(_wl->relative_pointer);
-			_wl->relative_pointer = NULL;
+			if (_wl->relative_pointer) {
+				zwp_relative_pointer_v1_destroy(_wl->relative_pointer);
+				_wl->relative_pointer = NULL;
+			}
 
-			zwp_locked_pointer_v1_destroy(_wl->locked_pointer);
-			_wl->locked_pointer = NULL;
+			if (_wl->locked_pointer) {
+				zwp_locked_pointer_v1_destroy(_wl->locked_pointer);
+				_wl->locked_pointer = NULL;
+			}
 		}
 
+		_wl->cursor_mode = mode;
 		return true;
 	}
 
 	void *native_handle() override
 	{
-		return (void *)(uintptr_t)_wl->surface;
+		return (void *)(uintptr_t)surface;
 	}
 
 	void *native_handle_type() override
@@ -1812,39 +2134,93 @@ struct WindowWayland : public Window
 
 	void get_toplevel_objects()
 	{
-		if (_wl->xdg_surface == NULL) {
-			_wl->xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, _wl->surface);
-			CE_ENSURE(_wl->xdg_surface != NULL);
-			xdg_surface_add_listener(_wl->xdg_surface, &xdg_surface_listener, _wl);
+		const bool client_owned_xdg = frame == NULL;
+
+		if (xdg_surface == NULL) {
+			if (frame != NULL) {
+				xdg_surface = libdecor_frame_get_xdg_surface(frame);
+			} else {
+				xdg_surface = xdg_wm_base_get_xdg_surface(_wl->wm_base, surface);
+			}
+			CE_ENSURE(xdg_surface != NULL);
+			if (client_owned_xdg)
+				xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, _wl);
 		}
 
-		if (_wl->xdg_toplevel == NULL) {
-			_wl->xdg_toplevel = xdg_surface_get_toplevel(_wl->xdg_surface);
-			CE_ENSURE(_wl->xdg_toplevel != NULL);
-			xdg_toplevel_add_listener(_wl->xdg_toplevel, &toplevel_listener, _wl);
+		if (xdg_toplevel == NULL) {
+			if (frame != NULL)
+				xdg_toplevel = libdecor_frame_get_xdg_toplevel(frame);
+			else
+				xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+			CE_ENSURE(xdg_toplevel != NULL);
+			if (client_owned_xdg)
+				xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, _wl);
 		}
 
-		wl_surface_commit(_wl->surface);
-		wl_display_roundtrip(_wl->display);
+		if (client_owned_xdg) {
+			wl_surface_commit(surface);
+			wl_display_roundtrip(_wl->display);
+		}
 	}
 
 	void destroy_toplevel_objects()
 	{
-		if (_wl->xdg_toplevel) {
-			xdg_toplevel_destroy(_wl->xdg_toplevel);
-			_wl->xdg_toplevel = NULL;
+		if (frame == NULL && xdg_toplevel) {
+			xdg_toplevel_destroy(xdg_toplevel);
 		}
+		xdg_toplevel = NULL;
 
-		if (_wl->xdg_surface) {
-			xdg_surface_destroy(_wl->xdg_surface);
-			_wl->xdg_surface = NULL;
+		if (frame == NULL && xdg_surface) {
+			xdg_surface_destroy(xdg_surface);
 		}
-
-		wl_surface_attach(_wl->surface, NULL, 0, 0);
-		wl_surface_commit(_wl->surface);
-		wl_display_roundtrip(_wl->display);
+		xdg_surface = NULL;
 	}
 };
+
+static void handle_configure(libdecor_frame *frame
+	, libdecor_configuration *configuration
+	, void *user_data
+	)
+{
+	WindowWayland *window = (WindowWayland *)user_data;
+	DeviceEventQueue &queue = *_wl->queue;
+	struct libdecor_state *state;
+	int width, height;
+
+	if (!libdecor_configuration_get_content_size(configuration, frame, &width, &height)) {
+		width  = window->floating_width;
+		height = window->floating_height;
+	}
+
+	window->content_width  = width;
+	window->content_height = height;
+
+	queue.push_resolution_event(window->content_width, window->content_height);
+
+	state = libdecor_state_new(width, height);
+	libdecor_frame_commit(frame, state, configuration);
+	libdecor_state_free(state);
+
+	if (libdecor_frame_is_floating(window->frame)) {
+		window->floating_width  = width;
+		window->floating_height = height;
+	}
+
+	window->configured = true;
+}
+
+static void handle_close(libdecor_frame *frame, void *user_data)
+{
+	CE_UNUSED_2(frame, user_data);
+	DeviceEventQueue &queue = *_wl->queue;
+
+	queue.push_exit_event();
+}
+
+static void handle_commit(libdecor_frame *frame, void *user_data)
+{
+	CE_UNUSED_2(frame, user_data);
+}
 
 namespace window
 {
@@ -1904,10 +2280,12 @@ struct DisplayWayland : public Display
 {
 	void modes(Array<DisplayMode> &modes) override
 	{
+		CE_UNUSED(modes);
 	}
 
 	void set_mode(u32 id) override
 	{
+		CE_UNUSED(id);
 	}
 };
 

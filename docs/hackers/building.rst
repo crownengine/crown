@@ -57,7 +57,7 @@ Linux (Ubuntu >= 20.04)
 .. code::
 
 	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev \
-	libpulse-dev libxrandr-dev libc6-dev-i386 libgtk-3-dev
+	libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev
 
 	sudo add-apt-repository ppa:vala-team
 	sudo apt install valac libgee-0.8-dev
