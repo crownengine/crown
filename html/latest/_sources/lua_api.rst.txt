@@ -302,10 +302,11 @@ Keyboard Button Names
 * ``tab``, ``enter``, ``escape``, ``space``, ``backspace``
 * ``num_lock``, ``numpad_enter``, ``numpad_.``, ``numpad_*``, ``numpad_+``, ``numpad_-``, ``numpad_/``, ``numpad_0``, ``numpad_1``, ``numpad_2``, ``numpad_3``, ``numpad_4``, ``numpad_5``, ``numpad_6``, ``numpad_7``, ``numpad_8``, ``numpad_9``
 * ``f1``, ``f2``, ``f3``, ``f4``, ``f5``, ``f6``, ``f7``, ``f8``, ``f9``, ``f10``, ``f11``, ``f12``
-* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``ins``, ``del``, ``end``
+* ``home``, ``left``, ``up``, ``right``, ``down``, ``page_up``, ``page_down``, ``ins``, ``del``, ``end``, ``print_screen``, ``scroll_lock``, ``break``
 * ``ctrl_left``, ``ctrl_right``, ``shift_left``, ``shift_right``, ``caps_lock``, ``alt_left``, ``alt_right``, ``super_left``, ``super_right``
 * ``0``, ``1``, ``2``, ``3``, ``4``, ``5``, ``6``, ``7``, ``8``, ``9``
 * ``a``, ``b``, ``c``, ``d``, ``e``, ``f``, ``g``, ``h``, ``i``, ``j``, ``k``, ``l``, ``m``, ``n``, ``o``, ``p``, ``q``, ``r``, ``s``, ``t``, ``u``, ``v``, ``w``, ``x``, ``y``, ``z``
+* ``backtick``, ``minus``, ``equal``, ``open_bracket``, ``close_bracket``, ``backslash``, ``semicolon``, ``quote``, ``comma``, ``period``, ``slash``
 
 Keyboard Axis Names
 ~~~~~~~~~~~~~~~~~~~

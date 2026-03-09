@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-22T16:55:57+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-03-05T17:02:41+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
-<meta property="og:site_name" content="Crown 0.61.0 Manual" />
+<meta property="og:site_name" content="Crown 0.61.1 Manual" />
 <meta property="og:description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.61.0 Manual" />
+<meta property="og:image:alt" content="Crown 0.61.1 Manual" />
 <meta name="description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.61.0 Manual</title>
+  <title>Lua API reference &mdash; Crown 0.61.1 Manual</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -46,7 +46,7 @@
             <img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.61.0 Manual
+                Crown 0.61.1 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -177,7 +177,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.61.0 Manual</a>
+          <a href="index.html">Crown 0.61.1 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -448,10 +448,11 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 <li><p><code class="docutils literal notranslate"><span class="pre">tab</span></code>, <code class="docutils literal notranslate"><span class="pre">enter</span></code>, <code class="docutils literal notranslate"><span class="pre">escape</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">backspace</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_lock</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_enter</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_.</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_*</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_+</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_-</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_/</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_0</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_1</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_2</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_3</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_4</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_5</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_6</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_7</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_8</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_9</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">f1</span></code>, <code class="docutils literal notranslate"><span class="pre">f2</span></code>, <code class="docutils literal notranslate"><span class="pre">f3</span></code>, <code class="docutils literal notranslate"><span class="pre">f4</span></code>, <code class="docutils literal notranslate"><span class="pre">f5</span></code>, <code class="docutils literal notranslate"><span class="pre">f6</span></code>, <code class="docutils literal notranslate"><span class="pre">f7</span></code>, <code class="docutils literal notranslate"><span class="pre">f8</span></code>, <code class="docutils literal notranslate"><span class="pre">f9</span></code>, <code class="docutils literal notranslate"><span class="pre">f10</span></code>, <code class="docutils literal notranslate"><span class="pre">f11</span></code>, <code class="docutils literal notranslate"><span class="pre">f12</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">home</span></code>, <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">up</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>, <code class="docutils literal notranslate"><span class="pre">down</span></code>, <code class="docutils literal notranslate"><span class="pre">page_up</span></code>, <code class="docutils literal notranslate"><span class="pre">page_down</span></code>, <code class="docutils literal notranslate"><span class="pre">ins</span></code>, <code class="docutils literal notranslate"><span class="pre">del</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">home</span></code>, <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">up</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>, <code class="docutils literal notranslate"><span class="pre">down</span></code>, <code class="docutils literal notranslate"><span class="pre">page_up</span></code>, <code class="docutils literal notranslate"><span class="pre">page_down</span></code>, <code class="docutils literal notranslate"><span class="pre">ins</span></code>, <code class="docutils literal notranslate"><span class="pre">del</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, <code class="docutils literal notranslate"><span class="pre">print_screen</span></code>, <code class="docutils literal notranslate"><span class="pre">scroll_lock</span></code>, <code class="docutils literal notranslate"><span class="pre">break</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ctrl_left</span></code>, <code class="docutils literal notranslate"><span class="pre">ctrl_right</span></code>, <code class="docutils literal notranslate"><span class="pre">shift_left</span></code>, <code class="docutils literal notranslate"><span class="pre">shift_right</span></code>, <code class="docutils literal notranslate"><span class="pre">caps_lock</span></code>, <code class="docutils literal notranslate"><span class="pre">alt_left</span></code>, <code class="docutils literal notranslate"><span class="pre">alt_right</span></code>, <code class="docutils literal notranslate"><span class="pre">super_left</span></code>, <code class="docutils literal notranslate"><span class="pre">super_right</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">6</span></code>, <code class="docutils literal notranslate"><span class="pre">7</span></code>, <code class="docutils literal notranslate"><span class="pre">8</span></code>, <code class="docutils literal notranslate"><span class="pre">9</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">e</span></code>, <code class="docutils literal notranslate"><span class="pre">f</span></code>, <code class="docutils literal notranslate"><span class="pre">g</span></code>, <code class="docutils literal notranslate"><span class="pre">h</span></code>, <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">j</span></code>, <code class="docutils literal notranslate"><span class="pre">k</span></code>, <code class="docutils literal notranslate"><span class="pre">l</span></code>, <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code>, <code class="docutils literal notranslate"><span class="pre">o</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">q</span></code>, <code class="docutils literal notranslate"><span class="pre">r</span></code>, <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">t</span></code>, <code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">v</span></code>, <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">backtick</span></code>, <code class="docutils literal notranslate"><span class="pre">minus</span></code>, <code class="docutils literal notranslate"><span class="pre">equal</span></code>, <code class="docutils literal notranslate"><span class="pre">open_bracket</span></code>, <code class="docutils literal notranslate"><span class="pre">close_bracket</span></code>, <code class="docutils literal notranslate"><span class="pre">backslash</span></code>, <code class="docutils literal notranslate"><span class="pre">semicolon</span></code>, <code class="docutils literal notranslate"><span class="pre">quote</span></code>, <code class="docutils literal notranslate"><span class="pre">comma</span></code>, <code class="docutils literal notranslate"><span class="pre">period</span></code>, <code class="docutils literal notranslate"><span class="pre">slash</span></code></p></li>
 </ul>
 </section>
 <section id="keyboard-axis-names">
@@ -1552,7 +1553,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 22, 2026.
+      <span class="lastupdated">Last updated on Mar 05, 2026.
       </span></p>
   </div>
 
