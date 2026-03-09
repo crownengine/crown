@@ -77,8 +77,8 @@ cp -r build/docs/html/* html/"${VERSION_DIR}"
 
 git add html/"${VERSION_DIR}"
 
-# Update 'latest' only in stable releases, excluding patches.
-if [ "${VERSION}" != "master" ] && [ "${VERSION_PATCH}" -eq 0 ]; then
+# Update 'latest' only in stable releases.
+if [ "${VERSION}" != "master" ]; then
 	rm -rf html/latest
 	mkdir html/latest
 	cp -r build/docs/html/* html/latest
