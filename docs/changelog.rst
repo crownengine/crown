@@ -6,6 +6,10 @@ Changelog
 :ref:`0.61.2 --- DD MMM YYYY <v0.61.2>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: fixed a crash when casting rays or shapes against a Mover.
+
 .. _v0.61.1:
 
 :ref:`0.61.1 --- 09 Mar 2026 <v0.61.1>`
