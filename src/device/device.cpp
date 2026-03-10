@@ -441,25 +441,6 @@ bool Device::frame()
 			_window->set_cursor_mode(CursorMode::NORMAL);
 	}
 
-	const s64 time = time::now();
-	const s64 raw_dt_ticks = time - _last_time;
-	const f32 raw_dt = f32(time::seconds(raw_dt_ticks));
-	_last_time = time;
-
-	profiler_globals::clear();
-	RECORD_FLOAT("device.dt", raw_dt);
-	RECORD_FLOAT("device.fps", 1.0f/raw_dt);
-
-	f32 dt;
-	if (_timestep_policy == TimestepPolicy::SMOOTHED) {
-		f32 smoothed_dt = _delta_time_filter.filter(raw_dt_ticks);
-		RECORD_FLOAT("device.smoothed_dt", smoothed_dt);
-		RECORD_FLOAT("device.smoothed_fps", 1.0f/smoothed_dt);
-		dt = smoothed_dt;
-	} else {
-		dt = raw_dt;
-	}
-
 	if (CE_UNLIKELY(_width != _prev_width || _height != _prev_height)) {
 		_prev_width = _width;
 		_prev_height = _height;
@@ -482,6 +463,25 @@ bool Device::frame()
 
 	if (CE_UNLIKELY(!_needs_draw))
 		return false;
+
+	const s64 time = time::now();
+	const s64 raw_dt_ticks = time - _last_time;
+	const f32 raw_dt = f32(time::seconds(raw_dt_ticks));
+	_last_time = time;
+
+	profiler_globals::clear();
+	RECORD_FLOAT("device.dt", raw_dt);
+	RECORD_FLOAT("device.fps", 1.0f/raw_dt);
+
+	f32 dt;
+	if (_timestep_policy == TimestepPolicy::SMOOTHED) {
+		f32 smoothed_dt = _delta_time_filter.filter(raw_dt_ticks);
+		RECORD_FLOAT("device.smoothed_dt", smoothed_dt);
+		RECORD_FLOAT("device.smoothed_fps", 1.0f/smoothed_dt);
+		dt = smoothed_dt;
+	} else {
+		dt = raw_dt;
+	}
 
 	if (CE_LIKELY(_paused == 0)) {
 		_resource_manager->complete_requests();
