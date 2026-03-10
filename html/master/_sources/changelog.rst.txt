@@ -23,6 +23,7 @@ Changelog
 * Runtime: fixed a crash in the Graph subsystem.
 * Runtime: fixed ``smoothed`` timestep policy not honoring average_cap during the very first frames.
 * Runtime: fixed a crash when managing empty units.
+* Runtime: fixed a crash when casting rays or shapes against a Mover.
 * Runtime: Linux: fixed joypad D-pad.
 * Runtime: Linux: fixed ``caps_lock`` key detected as ``escape`` when released.
 * Data Compiler: fixed an issue that caused misdetected file changes before compilation.
