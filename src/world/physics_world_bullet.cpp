@@ -1681,7 +1681,7 @@ struct PhysicsWorldImpl
 		const btVector3 bb = to_btVector3(from + dir*len);
 
 		btCollisionWorld::ClosestRayResultCallback cb(aa, bb);
-		// Collide with everything
+		// Collide with everything.
 		cb.m_collisionFilterGroup = -1;
 		cb.m_collisionFilterMask = -1;
 
@@ -1709,7 +1709,7 @@ struct PhysicsWorldImpl
 		const btVector3 bb = to_btVector3(from + dir*len);
 
 		btCollisionWorld::AllHitsRayResultCallback cb(aa, bb);
-		// Collide with everything
+		// Collide with everything.
 		cb.m_collisionFilterGroup = -1;
 		cb.m_collisionFilterMask = -1;
 
@@ -1717,21 +1717,26 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit()) {
 			const int num = cb.m_hitPointWorld.size();
-			array::resize(hits, num);
-
 			for (int i = 0; i < num; ++i) {
-				const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObjects[i])->m_userObjectPointer;
-				if (actor_i == UINT32_MAX)
-					return false;
+				const btCollisionObject *obj = cb.m_collisionObjects[i];
+				const btRigidBody *body = btRigidBody::upcast(obj);
+				if (!body)
+					continue;
 
-				hits[i].position = to_vector3(cb.m_hitPointWorld[i]);
-				hits[i].normal   = to_vector3(cb.m_hitNormalWorld[i]);
-				hits[i].time     = (f32)cb.m_closestHitFraction;
-				hits[i].unit     = _actor[actor_i].unit;
-				hits[i].actor.i  = actor_i;
+				const u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
+				if (actor_i == UINT32_MAX)
+					continue;
+
+				RaycastHit rh;
+				rh.position = to_vector3(cb.m_hitPointWorld[i]);
+				rh.normal   = to_vector3(cb.m_hitNormalWorld[i]);
+				rh.time     = (f32)cb.m_hitFractions[i];
+				rh.unit     = _actor[actor_i].unit;
+				rh.actor.i  = actor_i;
+				array::push_back(hits, rh);
 			}
 
-			return true;
+			return array::size(hits) > 0;
 		}
 
 		return false;
@@ -1749,7 +1754,11 @@ struct PhysicsWorldImpl
 		_dynamics_world->convexSweepTest(shape, aa, bb, cb);
 
 		if (cb.hasHit()) {
-			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_hitCollisionObject)->m_userObjectPointer;
+			const btRigidBody *body = btRigidBody::upcast(cb.m_hitCollisionObject);
+			if (!body)
+				return false;
+
+			const u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
 			if (actor_i == UINT32_MAX)
 				return false;
 
