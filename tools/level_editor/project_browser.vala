@@ -1164,28 +1164,23 @@ public class ProjectBrowser : Gtk.Box
 		_address_bar = new Gtk.Entry();
 		_address_bar.set_placeholder_text("/");
 		_address_bar.hexpand = true;
-		_address_bar.key_press_event.connect((ev) => {
-				if (ev.keyval == Gdk.Key.Return || ev.keyval == Gdk.Key.KP_Enter) {
-					string input = _address_bar.text;
-					if (input.has_prefix("/"))
-						input = input.substring(1);
-					if (input.has_suffix("/"))
-						input = input.slice(0, input.length - 1);
+		_address_bar.activate.connect((ev) => {
+				string input = _address_bar.text;
+				if (input.has_prefix("/"))
+					input = input.substring(1);
+				if (input.has_suffix("/"))
+					input = input.slice(0, input.length - 1);
 
-					bool found = (input == "") || _project_store._folders.has_key(input);
-					if (found) {
-						GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(input));
-						_tree_view.grab_focus();
-					} else {
-						string current = _folder_view._selected_name;
-						_address_bar.text = current != "" ? "/" + current + "/" : "/";
-						_address_bar.set_position(-1);
-						loge("Project browser: folder not found: " + input);
-					}
-
-					return Gdk.EVENT_STOP;
+				bool found = (input == "") || _project_store._folders.has_key(input);
+				if (found) {
+					GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(input));
+					_tree_view.grab_focus();
+				} else {
+					string current = _folder_view._selected_name;
+					_address_bar.text = current != "" ? "/" + current + "/" : "/";
+					_address_bar.set_position(-1);
+					loge("Project browser: folder not found: " + input);
 				}
-				return Gdk.EVENT_PROPAGATE;
 			});
 		_address_bar.focus_in_event.connect((ev) => {
 				var app = (LevelEditorApplication)GLib.Application.get_default();
