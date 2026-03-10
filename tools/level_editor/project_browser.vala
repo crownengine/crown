@@ -1526,7 +1526,7 @@ public class ProjectBrowser : Gtk.Box
 		_navigating_history = false;
 	}
 
-	public void on_open_directory(GLib.SimpleAction action, GLib.Variant ?param)
+	public void on_open_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = param.get_string();
 
@@ -1538,11 +1538,12 @@ public class ProjectBrowser : Gtk.Box
 		Gtk.TreePath store_path;
 		if (_project_store.path_for_resource_type_name(out store_path, "<folder>", dir_name)) {
 			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);
-			if (filter_path == null)
+			if (filter_path == null) // Either the path is not valid or points to a non-visible row in the model.
 				return;
 			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
-			if (sort_path == null)
+			if (sort_path == null) // The path is not valid.
 				return;
+
 			_tree_view.expand_to_path(sort_path);
 			_tree_view.get_selection().select_path(sort_path);
 		}
@@ -1552,7 +1553,7 @@ public class ProjectBrowser : Gtk.Box
 		_btn_forward.sensitive = !_nav_history_forward.is_empty;
 	}
 
-	public void on_favorite_resource(GLib.SimpleAction action, GLib.Variant ?param)
+	public void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -1560,7 +1561,7 @@ public class ProjectBrowser : Gtk.Box
 		_project_store.add_to_favorites(type, name);
 	}
 
-	public void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant ?param)
+	public void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string type = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
@@ -1855,11 +1856,11 @@ public class ProjectBrowser : Gtk.Box
 
 	public void select_project_root()
 	{
-		Gtk.TreePath ?filter_path = _tree_filter.convert_child_path_to_path(_project_store.project_root_path());
+		Gtk.TreePath? filter_path = _tree_filter.convert_child_path_to_path(_project_store.project_root_path());
 		if (filter_path == null)
 			return;
 
-		Gtk.TreePath ?sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+		Gtk.TreePath? sort_path = _tree_sort.convert_child_path_to_path(filter_path);
 		if (sort_path == null)
 			return;
 
@@ -1900,7 +1901,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 	}
 
-	public Gtk.RadioButton add_sort_item(Gtk.RadioButton ?group, SortMode mode)
+	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
 	{
 		var button = new Gtk.RadioButton.with_label_from_widget(group, mode.to_label());
 		button.toggled.connect(() => {
@@ -2050,7 +2051,7 @@ public class ProjectBrowser : Gtk.Box
 
 		Gtk.TreeModel selected_model;
 		Gtk.TreeIter selected_iter;
-		Gtk.TreeRowReference ?selected_reference = null;
+		Gtk.TreeRowReference? selected_reference = null;
 		// Only restore the old selection if it has not been
 		// modified while searching (i.e. nothing is selected
 		// because entering search clears it).
