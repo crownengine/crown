@@ -29,6 +29,8 @@ public class EditorView : Gtk.EventBox
 	public bool _mouse_left;
 	public bool _mouse_middle;
 	public bool _mouse_right;
+	public double _flythrough_mouse_x;
+	public double _flythrough_mouse_y;
 
 	public uint _window_id;
 	public uint _last_window_id;
@@ -92,6 +94,8 @@ public class EditorView : Gtk.EventBox
 		_mouse_left   = false;
 		_mouse_middle = false;
 		_mouse_right  = false;
+		_flythrough_mouse_x = 0.0;
+		_flythrough_mouse_y = 0.0;
 
 		_window_id = 0;
 		_last_window_id = 0;
@@ -253,17 +257,12 @@ public class EditorView : Gtk.EventBox
 		} else if (!_mouse_middle || !_mouse_right) {
 			_buffer.append("LevelEditor:camera_drag_start('idle')");
 
-			bool is_flying = _tick_callback_id > 0;
-
-			if (!_mouse_right && is_flying) {
+			if (!_mouse_right && _tick_callback_id != 0) {
 				// Wait a little to prevent camera movement keys
 				// from activating unwanted accelerators.
 				_enable_accels_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 300, on_enable_accels);
-
-				if (_tick_callback_id != 0) {
-					remove_tick_callback(_tick_callback_id);
-					_tick_callback_id = 0;
-				}
+				remove_tick_callback(_tick_callback_id);
+				_tick_callback_id = 0;
 			}
 		}
 
@@ -303,6 +302,8 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:camera_drag_start('tumble')");
 		} else if (_mouse_right) {
 			_buffer.append("LevelEditor:camera_drag_start('flythrough')");
+			_flythrough_mouse_x = x;
+			_flythrough_mouse_y = y;
 
 			if (_tick_callback_id == 0)
 				_tick_callback_id = add_tick_callback(on_tick);
@@ -398,6 +399,9 @@ public class EditorView : Gtk.EventBox
 
 	public void on_motion(double x, double y)
 	{
+		if (_tick_callback_id != 0)
+			return;
+
 		int64 now = GLib.get_monotonic_time();
 
 		if (now - _motion_last_time >= (1000*1000)/MOTION_EVENTS_RATE) {
@@ -409,6 +413,7 @@ public class EditorView : Gtk.EventBox
 				, _mouse_middle
 				, _mouse_right
 				));
+
 			_runtime.send(DeviceApi.frame());
 		}
 	}
@@ -484,6 +489,27 @@ public class EditorView : Gtk.EventBox
 
 	public bool on_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock)
 	{
+		double x;
+		double y;
+		Gdk.ModifierType mask = 0;
+		this.get_window().get_device_position_double(this.get_display().get_default_seat().get_pointer(), out x, out y, out mask);
+
+		int scale = this.get_scale_factor();
+		_flythrough_mouse_x = x;
+		_flythrough_mouse_y = y;
+
+		_buffer.append(LevelEditorApi.set_mouse_state((int)x*scale
+			, (int)y*scale
+			, _mouse_left
+			, _mouse_middle
+			, _mouse_right
+			));
+
+		if (_buffer.len != 0) {
+			_runtime.send_script(_buffer.str);
+			_buffer.erase();
+		}
+
 		_runtime.send(DeviceApi.frame());
 		return GLib.Source.CONTINUE;
 	}

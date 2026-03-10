@@ -8,6 +8,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed stutters in flythrough camera mode.
 * Runtime: fixed a crash when casting rays or shapes against a Mover.
 
 .. _v0.61.1:
