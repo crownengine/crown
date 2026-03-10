@@ -1198,10 +1198,10 @@ public class ProjectBrowser : Gtk.Box
 				return Gdk.EVENT_PROPAGATE;
 			});
 
-		var _nav_bar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 2);
+		var _nav_bar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_nav_bar.pack_start(_btn_back, false, false, 0);
 		_nav_bar.pack_start(_btn_forward, false, false, 0);
-		_nav_bar.pack_start(_address_bar, true, true, 4);
+		_nav_bar.pack_start(_address_bar, true, true, 0);
 		_nav_bar.pack_end(_toggle_folder_view, false, false, 0);
 
 		_tree_view_content = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
