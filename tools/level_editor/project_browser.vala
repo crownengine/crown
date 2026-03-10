@@ -1174,7 +1174,7 @@ public class ProjectBrowser : Gtk.Box
 
 					bool found = (input == "") || _project_store._folders.has_key(input);
 					if (found) {
-						navigate_to(input);
+						GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(input));
 						_tree_view.grab_focus();
 					} else {
 						string current = _folder_view._selected_name;
@@ -1497,11 +1497,6 @@ public class ProjectBrowser : Gtk.Box
 
 		select_resource(type, name);
 		_folder_view.select_resource(type, name);
-	}
-
-	public void navigate_to(string path)
-	{
-		GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(path));
 	}
 
 	public void navigate_back()
