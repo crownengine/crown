@@ -106,6 +106,17 @@ static void test_memory()
 			}
 		}
 	}
+	{
+		void *p = a.reallocate(NULL, 64, 0);
+		ENSURE(p != NULL);
+		ENSURE(a.reallocate(NULL, 0, 0) == NULL);
+		ENSURE(a.reallocate(p, 0, 0) == NULL);
+	}
+	{
+		TempAllocator64 ta(a);
+		void *p = ta.allocate(16, 0);
+		ENSURE(p != NULL);
+	}
 	memory_globals::shutdown();
 }
 
