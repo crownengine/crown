@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed stutters in flythrough camera mode.
 * Runtime: fixed a crash when casting rays or shapes against a Mover.
+* Runtime: HTML5: fixed gray fringe on text.
 * Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.1:
