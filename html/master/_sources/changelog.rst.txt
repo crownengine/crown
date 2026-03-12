@@ -28,6 +28,7 @@ Changelog
 * Runtime: Linux: fixed joypad D-pad.
 * Runtime: Linux: fixed ``caps_lock`` key detected as ``escape`` when released.
 * Runtime: HTML5: fixed gray fringe on text.
+* Runtime: fixed a crash at startup in release builds.
 * Data Compiler: fixed an issue that caused misdetected file changes before compilation.
 * Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
