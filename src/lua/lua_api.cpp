@@ -2626,9 +2626,9 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "mover_set_position", [](lua_State *L) {
-			LuaStack stack(L, +1);
+			LuaStack stack(L);
 			stack.get_physics_world(1)->mover_set_position(stack.get_mover_instance(2), stack.get_vector3(3));
-			return 1;
+			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "mover_center", [](lua_State *L) {
 			LuaStack stack(L, +1);
@@ -2757,7 +2757,7 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "cast_sphere", [](lua_State *L) {
-			LuaStack stack(L, +1);
+			LuaStack stack(L, INT_MAX);
 
 			RaycastHit hit;
 			if (stack.get_physics_world(1)->cast_sphere(hit

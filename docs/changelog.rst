@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed stutters in flythrough camera mode.
 * Runtime: fixed a crash when casting rays or shapes against a Mover.
+* Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.1:
 
