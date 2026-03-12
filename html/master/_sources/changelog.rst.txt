@@ -28,6 +28,7 @@ Changelog
 * Runtime: Linux: fixed joypad D-pad.
 * Runtime: Linux: fixed ``caps_lock`` key detected as ``escape`` when released.
 * Data Compiler: fixed an issue that caused misdetected file changes before compilation.
+* Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.0:
 
