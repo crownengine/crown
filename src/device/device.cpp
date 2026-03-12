@@ -661,6 +661,9 @@ int Device::main_loop()
 	init.resolution.width  = _width;
 	init.resolution.height = _height;
 	init.resolution.reset  = _boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
+#if CROWN_PLATFORM_EMSCRIPTEN
+	init.resolution.formatColor = bgfx::TextureFormat::RGB8; // Avoids gray fringe on text.
+#endif
 	init.callback  = _bgfx_callback;
 	init.allocator = _bgfx_allocator;
 	init.platformData.ndt = _window->native_display();
