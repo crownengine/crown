@@ -511,8 +511,15 @@ Material
 Math
 ====
 
+Math types and helper functions. ``Vector3``, ``Quaternion``, ``Matrix4x4`` and
+``Color4`` are temporary Lua objects; use the corresponding ``*Box`` type to
+keep them across frames. See :doc:`gameplay/objects_binding`.
+
 Vector3
 -------
+
+Temporary 3D vector representing directions, positions etc. It is valid only in
+the current frame; use ``Vector3Box`` to store a copy for use in later frames.
 
 Constructors
 ~~~~~~~~~~~~
@@ -618,6 +625,9 @@ Functions
 Vector3Box
 ----------
 
+Boxed ``Vector3`` for storing vector values across frames. See
+:doc:`gameplay/objects_binding`.
+
 Constructors
 ~~~~~~~~~~~~
 
@@ -644,6 +654,10 @@ Functions
 
 Quaternion
 ----------
+
+Temporary quaternion representing orientation in 3D space. It is valid only in
+the current frame; use ``QuaternionBox`` to store a copy for use in later
+frames.
 
 Constructors
 ~~~~~~~~~~~~
@@ -716,6 +730,9 @@ Functions
 QuaternionBox
 -------------
 
+Boxed ``Quaternion`` for storing rotation values across frames. See
+:doc:`gameplay/objects_binding`.
+
 Constructors
 ~~~~~~~~~~~~
 
@@ -742,6 +759,9 @@ Functions
 
 Matrix4x4
 ---------
+
+Temporary 4x4 matrix representing rotation and translation. It is valid only in
+the current frame; use ``Matrix4x4Box`` to store a copy for use in later frames.
 
 Constructors
 ~~~~~~~~~~~~
@@ -833,6 +853,9 @@ Functions
 Matrix4x4Box
 ------------
 
+Boxed ``Matrix4x4`` for storing matrix values across frames. See
+:doc:`gameplay/objects_binding`.
+
 Constructors
 ~~~~~~~~~~~~
 
@@ -853,6 +876,9 @@ Functions
 
 Color4
 ------
+
+Temporary RGBA color value. Elements range is [0; 255]. It is valid only in the
+current frame. Use ``QuaternionBox`` to store a copy for use in later frames.
 
 Constructors
 ~~~~~~~~~~~~
