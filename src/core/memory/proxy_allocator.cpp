@@ -31,20 +31,26 @@ void ProxyAllocator::deallocate(void *data)
 
 void *ProxyAllocator::reallocate(void *data, u32 size, u32 align)
 {
+	const u32 old_size = data != NULL
+		? _allocator.allocated_size(data)
+		: Allocator::SIZE_NOT_TRACKED
+		;
+	void *ptr = _allocator.reallocate(data, size, align);
+
 	if (size == 0) {
-		if (data != NULL)
-			DEALLOCATE_MEMORY(_name, _allocator.allocated_size(data));
-		return _allocator.reallocate(data, size, align);
-	} else if (!data) {
-		void *ptr = _allocator.reallocate(data, size, align);
-		ALLOCATE_MEMORY(_name, _allocator.allocated_size(ptr));
+		if (old_size != Allocator::SIZE_NOT_TRACKED)
+			DEALLOCATE_MEMORY(_name, old_size);
 		return ptr;
 	}
 
-	const u32 data_size = _allocator.allocated_size(data);
-	void *ptr = _allocator.reallocate(data, size, align);
-	ALLOCATE_MEMORY(_name, _allocator.allocated_size(ptr));
-	DEALLOCATE_MEMORY(_name, data_size);
+	if (ptr != NULL) {
+		const u32 new_size = _allocator.allocated_size(ptr);
+		if (new_size != Allocator::SIZE_NOT_TRACKED)
+			ALLOCATE_MEMORY(_name, new_size);
+	}
+
+	if (data != NULL && ptr != NULL && old_size != Allocator::SIZE_NOT_TRACKED)
+		DEALLOCATE_MEMORY(_name, old_size);
 	return ptr;
 }
 
