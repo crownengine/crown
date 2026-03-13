@@ -12,6 +12,7 @@ Changelog
 * Runtime: fixed a crash when casting rays or shapes against a Mover.
 * Runtime: HTML5: fixed gray fringe on text.
 * Runtime: fixed a crash at startup in release builds.
+* Data Compiler: fixed slow shader/material compilation.
 * Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.1:
