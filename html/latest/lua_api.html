@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-05T17:02:41+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-03-12T15:33:40+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
-<meta property="og:site_name" content="Crown 0.61.1 Manual" />
+<meta property="og:site_name" content="Crown 0.61.2 Manual" />
 <meta property="og:description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.61.1 Manual" />
+<meta property="og:image:alt" content="Crown 0.61.2 Manual" />
 <meta name="description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.61.1 Manual</title>
+  <title>Lua API reference &mdash; Crown 0.61.2 Manual</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -46,7 +46,7 @@
             <img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.61.1 Manual
+                Crown 0.61.2 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -177,7 +177,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.61.1 Manual</a>
+          <a href="index.html">Crown 0.61.2 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -618,8 +618,13 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </section>
 <section id="math">
 <h2>Math<a class="headerlink" href="#math" title="Permalink to this headline">¶</a></h2>
+<p>Math types and helper functions. <code class="docutils literal notranslate"><span class="pre">Vector3</span></code>, <code class="docutils literal notranslate"><span class="pre">Quaternion</span></code>, <code class="docutils literal notranslate"><span class="pre">Matrix4x4</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Color4</span></code> are temporary Lua objects; use the corresponding <code class="docutils literal notranslate"><span class="pre">*Box</span></code> type to
+keep them across frames. See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="vector3">
 <h3>Vector3<a class="headerlink" href="#vector3" title="Permalink to this headline">¶</a></h3>
+<p>Temporary 3D vector representing directions, positions etc. It is valid only in
+the current frame; use <code class="docutils literal notranslate"><span class="pre">Vector3Box</span></code> to store a copy for use in later frames.</p>
 <section id="constructors">
 <h4>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -704,6 +709,8 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </section>
 <section id="vector3box">
 <h3>Vector3Box<a class="headerlink" href="#vector3box" title="Permalink to this headline">¶</a></h3>
+<p>Boxed <code class="docutils literal notranslate"><span class="pre">Vector3</span></code> for storing vector values across frames. See
+<a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id1">
 <h4>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -729,6 +736,9 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </section>
 <section id="quaternion">
 <h3>Quaternion<a class="headerlink" href="#quaternion" title="Permalink to this headline">¶</a></h3>
+<p>Temporary quaternion representing orientation in 3D space. It is valid only in
+the current frame; use <code class="docutils literal notranslate"><span class="pre">QuaternionBox</span></code> to store a copy for use in later
+frames.</p>
 <section id="id3">
 <h4>Constructors<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -784,6 +794,8 @@ It uses NLerp.</p>
 </section>
 <section id="quaternionbox">
 <h3>QuaternionBox<a class="headerlink" href="#quaternionbox" title="Permalink to this headline">¶</a></h3>
+<p>Boxed <code class="docutils literal notranslate"><span class="pre">Quaternion</span></code> for storing rotation values across frames. See
+<a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id5">
 <h4>Constructors<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -809,6 +821,8 @@ It uses NLerp.</p>
 </section>
 <section id="matrix4x4">
 <h3>Matrix4x4<a class="headerlink" href="#matrix4x4" title="Permalink to this headline">¶</a></h3>
+<p>Temporary 4x4 matrix representing rotation and translation. It is valid only in
+the current frame; use <code class="docutils literal notranslate"><span class="pre">Matrix4x4Box</span></code> to store a copy for use in later frames.</p>
 <section id="id7">
 <h4>Constructors<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -876,6 +890,8 @@ It uses NLerp.</p>
 </section>
 <section id="matrix4x4box">
 <h3>Matrix4x4Box<a class="headerlink" href="#matrix4x4box" title="Permalink to this headline">¶</a></h3>
+<p>Boxed <code class="docutils literal notranslate"><span class="pre">Matrix4x4</span></code> for storing matrix values across frames. See
+<a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id9">
 <h4>Constructors<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -897,6 +913,8 @@ It uses NLerp.</p>
 </section>
 <section id="color4">
 <h3>Color4<a class="headerlink" href="#color4" title="Permalink to this headline">¶</a></h3>
+<p>Temporary RGBA color value. Elements range is [0; 255]. It is valid only in the
+current frame. Use <code class="docutils literal notranslate"><span class="pre">QuaternionBox</span></code> to store a copy for use in later frames.</p>
 <section id="id11">
 <h4>Constructors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
 <dl class="simple">
@@ -1553,7 +1571,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 05, 2026.
+      <span class="lastupdated">Last updated on Mar 12, 2026.
       </span></p>
   </div>
 
