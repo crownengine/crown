@@ -12,6 +12,7 @@ Changelog
 * Runtime: meshes can now be set to cast shadows while being invisible.
 * Runtime: Android: added support for keyboard, mouse and joypad input devices.
 * Runtime: HTML5: added support for joypad input device.
+* Runtime: added the ability to select which GPU to boot the renderer with using the new ``renderer.device_id`` field of :doc:`boot.config <reference/boot_config>`.
 
 **Fixes**
 

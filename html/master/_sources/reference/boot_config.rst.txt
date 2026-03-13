@@ -49,6 +49,10 @@ Renderer configurations
 ``fullscreen = false``
 	Sets whether to enable fullscreen.
 
+``device_id = "0x0000"``
+    Sets which GPU to use for rendering. The ID is in hexadecimal notation.
+    Default value selects the first available device.
+
 Physics configurations
 ~~~~~~~~~~~~~~~~~~~~~~
 
