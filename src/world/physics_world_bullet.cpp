@@ -1813,12 +1813,6 @@ struct PhysicsWorldImpl
 					body->activate();
 				}
 			}
-
-			if ((inst = hash_map::get(_mover_map, *begin, UINT32_MAX)) != UINT32_MAX) {
-				Mover *mover = _mover[inst].mover;
-
-				mover->set_position(to_btVector3(translation(*begin_world)));
-			}
 		}
 	}
 

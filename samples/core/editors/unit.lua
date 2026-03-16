@@ -128,6 +128,13 @@ function UnitBox:set_local_position(pos)
 		SceneGraph.set_local_position(self._sg, tr, pos)
 		self._obb.dirty = true
 	end
+
+	local physics_world = World.physics_world(self._world)
+	local mover = PhysicsWorld.mover_instance(physics_world, self._unit_id)
+	if mover then
+		local world_position = SceneGraph.world_position(self._sg, tr)
+		PhysicsWorld.mover_set_position(physics_world, mover, world_position)
+	end
 end
 
 function UnitBox:set_local_rotation(rot)
