@@ -1,0 +1,71 @@
+_guid = "40c2ccd1-014b-4304-a4d1-8ae9fb56e420"
+_type = "unit"
+components = [
+	{
+		_guid = "93892a57-ef31-4b91-b2e6-7c6f7f64fa01"
+		_type = "script"
+		data = {
+			script_resource = "units/npc/npc"
+		}
+	}
+	{
+		_guid = "43d2ce7f-7d87-46b7-9539-9fc5c0a080cd"
+		_type = "transform"
+		data = {
+			position = [
+				3.5592217399999999
+				0.249705553
+				2.0292921100000001
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+		spawn_order = 0
+	}
+	{
+		_global_physics_config = "global"
+		_guid = "94ea73e7-3739-46ee-9d31-49a404f7db70"
+		_type = "mover"
+		data = {
+			center = [
+				0
+				0
+				0
+			]
+			collision_filter = "default"
+			height = 1.8
+			max_slope_angle = 0.78539816339744828
+			radius = 0.5
+		}
+		spawn_order = 2
+	}
+]
+editor = {
+	name = "unit"
+}
+position = [
+	0
+	0
+	0
+]
+prefab = null
+rotation = [
+	0
+	0
+	0
+	1
+]
+scale = [
+	1
+	1
+	1
+]

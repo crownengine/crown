@@ -393,7 +393,15 @@ function Game.update(dt)
 	local camera_view = Matrix4x4.y(camera_world)
 	local camera_right = Matrix4x4.x(camera_world)
 
-	for k, v in pairs({ label_slopes = "Slopes", label_moving_platforms = "Moving Platforms", label_trigger = "Trigger", label_raycast = "Raycast" }) do
+	for k, v in pairs({ label_slopes = "Slopes"
+		, label_movers = "Movers"
+		, label_irregular_terrain = "Irregular terrain"
+		, label_stairs = "Stairs"
+		, label_crouching = "Crouching"
+		, label_moving_platforms = "Moving platforms"
+		, label_rotating_platforms = "Rotating platforms"
+		, label_trigger = "Trigger"
+		, label_raycast = "Raycast" }) do
 		local label_unit = World.unit_by_name(GameBase.world, k)
 
 		if label_unit then

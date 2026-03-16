@@ -1,0 +1,51 @@
+_guid = "55c2029e-26cf-4a43-bcb3-a344a48231fa"
+_type = "unit"
+children = [
+]
+components = [
+	{
+		_guid = "bc3cfe5d-a930-405f-8ff8-a4fd94ec4cc2"
+		_type = "script"
+		data = {
+			script_resource = "units/rotating_platform/rotating_platform"
+		}
+	}
+]
+editor = {
+	name = "rotating_platform"
+}
+modified_components = {
+	#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				5
+				5
+				0.5
+			]
+		}
+	}
+	#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+		data = {
+			geometry_name = "Cylinder"
+			material = "units/moving_platform/moving_platform"
+			mesh_resource = "core/units/primitives/cylinder"
+		}
+	}
+	#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+		data = {
+			class = "keyframed"
+		}
+	}
+}
+prefab = "core/units/primitives/cube"
