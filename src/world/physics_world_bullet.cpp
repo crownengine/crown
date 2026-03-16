@@ -205,6 +205,33 @@ static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 	return m;
 }
 
+static void draw_mover_step_quad(DebugLine *lines, const Vector3 &bottom, const Vector3 &up, f32 step_quad_half, f32 step_height, f32 half_scale, const Color4 &color)
+{
+	const Vector3 step_center = bottom + up * step_height;
+	lines->add_line(bottom, step_center, color);
+	const f32 half = step_quad_half * half_scale;
+	const Vector3 q0 = step_center + Vector3{ -half, -half, 0.0f };
+	const Vector3 q1 = step_center + Vector3{  half, -half, 0.0f };
+	const Vector3 q2 = step_center + Vector3{  half,  half, 0.0f };
+	const Vector3 q3 = step_center + Vector3{ -half,  half, 0.0f };
+	lines->add_line(q0, q1, color);
+	lines->add_line(q1, q2, color);
+	lines->add_line(q2, q3, color);
+	lines->add_line(q3, q0, color);
+}
+
+static void draw_mover_slope_lines(DebugLine *lines, const Vector3 &bottom, const Vector3 &up, btScalar capsule_radius, f32 slope_angle, const Color4 &color)
+{
+	const f32 slope_length = btMax(0.30f, (f32)capsule_radius * 2.0f);
+	const Vector3 cardinals[] = { VECTOR3_XAXIS, -VECTOR3_XAXIS, VECTOR3_YAXIS, -VECTOR3_YAXIS };
+
+	for (u32 i = 0; i < countof(cardinals); ++i) {
+		Vector3 slope_dir = cardinals[i] * fcos(slope_angle) + up * fsin(slope_angle);
+		slope_dir = normalize(slope_dir);
+		lines->add_line(bottom, bottom + slope_dir * slope_length, color);
+	}
+}
+
 struct MyDebugDrawer : public btIDebugDraw
 {
 	DebugLine *_lines;
@@ -274,42 +301,29 @@ struct MyFilterCallback : public btOverlapFilterCallback
 	}
 };
 
-class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
+class MoverClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
 public:
 	btCollisionObject *_me;
-	const btVector3 _up;
-	btScalar _min_slope_dot;
-
-	btKinematicClosestNotMeConvexResultCallback(btCollisionObject *me, const btVector3 &up, btScalar min_slope_dot)
+	explicit MoverClosestNotMeConvexResultCallback(btCollisionObject *me)
 		: btCollisionWorld::ClosestConvexResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
 		, _me(me)
-		, _up(up)
-		, _min_slope_dot(min_slope_dot)
 	{
 	}
 
-	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convex_result, bool normal_in_world_space)
+	btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convex_result, bool normal_in_world_space) override
 	{
 		if (convex_result.m_hitCollisionObject == _me)
 			return btScalar(1.0);
 
-		if (!convex_result.m_hitCollisionObject->hasContactResponse())
-			return btScalar(1.0);
-
-		btVector3 hit_normal_world;
-		if (normal_in_world_space)
-			hit_normal_world = convex_result.m_hitNormalLocal;
-		else // Need to transform normal into world-space.
-			hit_normal_world = convex_result.m_hitCollisionObject->m_worldTransform.m_basis * convex_result.m_hitNormalLocal;
-
-		if (_up.dot(hit_normal_world) < _min_slope_dot)
+		if (!convex_result.m_hitCollisionObject->hasContactResponse()
+			&& btGhostObject::upcast(convex_result.m_hitCollisionObject) == NULL)
 			return btScalar(1.0);
 
 		return ClosestConvexResultCallback::addSingleResult(convex_result, normal_in_world_space);
 	}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const
+	bool needsCollision(btBroadphaseProxy *proxy0) const override
 	{
 		bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
 		collides = collides || (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
@@ -327,49 +341,71 @@ struct MoverFlags
 	};
 };
 
-// Mover is a modified version of btKinematicCharacterController.
 struct Mover
 {
-	u32 _flags;                  // MoverFlags::Enum
+	static constexpr btScalar MIN_VECTOR_LENGTH_SQUARED = btScalar(0.00000001f);
+	static constexpr btScalar SEPARATION_TOLERANCE = btScalar(0.000001f);
+	static constexpr btScalar MIN_TRAVEL_DISTANCE = btScalar(0.000001f);
+	static constexpr btScalar PENETRATION_DEPTH_TOLERANCE = btScalar(0.0001f);
+	static constexpr btScalar MIN_SWEEP_HIT_FRACTION = btScalar(0.0001f);
+	static constexpr btScalar MIN_MOVEMENT_DISTANCE = btScalar(0.0001f);
+	static constexpr btScalar SKIN_WIDTH = btScalar(0.001f);
+	static constexpr btScalar MIN_STEP_UP_ADVANCE_FRACTION = btScalar(0.001f);
+
+	u32 _flags;
 	btCollisionWorld *_collision_world;
 	btPairCachingGhostObject *_ghost;
-	btConvexShape *_shape;       // _ghost's shape, cached to avoid upcast.
-	btScalar _max_penetration_depth;
-	btScalar _vertical_delta;
+	btConvexShape *_shape;
 	btScalar _max_slope_radians;
-	btScalar _max_slope_cosine;  // cosf(_max_slope_radians).
+	btScalar _max_slope_cosine;
 	btScalar _step_height;
-	btVector3 _move_delta;
-	btVector3 _move_delta_normalized;
+	btScalar _detected_step_height;
+	btScalar _last_detected_step_height;
+	btScalar _detected_slope_radians;
 	btVector3 _current_position;
-	btVector3 _target_position;
-	btScalar _current_step_offset;
 	btManifoldArray _manifold_array;
-	bool _was_on_ground;
+	u32 _down_actor_i;
+	const btRigidBody *_down_actor_body;
 	btVector3 _up;
 	btVector3 _center;
 
+	struct CollisionHit
+	{
+		const btCollisionObject *hit_object;
+		btVector3 mover_position;
+		btVector3 normal;
+	};
+	static const u32 MAX_COLLISION_HITS = 8;
+	CollisionHit _collision_hits[MAX_COLLISION_HITS];
+	u32 _num_collision_hits;
+
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	Mover(Allocator &allocator, btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, float radius, float height, const btVector3 &up)
+	Mover(Allocator &allocator, btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, const MoverDesc &desc, const btVector3 &up)
+		: _flags(0)
+		, _collision_world(collision_world)
+		, _ghost(ghost)
+		, _shape(CE_NEW(allocator, btCapsuleShapeZ)(desc.capsule.radius, desc.capsule.height))
+		, _max_slope_radians(0.0f)
+		, _max_slope_cosine(0.0f)
+		, _step_height(btScalar(0.50f))
+		, _detected_step_height(0.0f)
+		, _last_detected_step_height(0.0f)
+		, _detected_slope_radians(0.0f)
+		, _current_position(ghost->m_worldTransform.m_origin)
+		, _down_actor_i(UINT32_MAX)
+		, _down_actor_body(NULL)
+		, _up(0.0f, 0.0f, 1.0f)
+		, _center(0.0f, 0.0f, 0.0f)
+		, _num_collision_hits(0)
 	{
-		_flags = 0;
-		_collision_world = collision_world;
-		_ghost = ghost;
-		_up.setValue(0.0f, 0.0f, 1.0f);
-		_move_delta.setValue(0.0, 0.0, 0.0);
-		_vertical_delta = 0.0;
-		_was_on_ground = false;
-		_current_step_offset = 0.0;
-		_max_penetration_depth = btScalar(0.2f);
-		_step_height = btScalar(0.02f); // FIXME: remove since we only use capsule colliders?
-		_center.setValue(0.0f, 0.0f, 0.0f);
-
-		_shape = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
 		_ghost->setCollisionShape(_shape);
-
+		CE_ASSERT(_ghost->m_collisionShape == _shape, "Mover ghost shape out of sync");
+		CE_ASSERT(_shape->m_shapeType == CAPSULE_SHAPE_PROXYTYPE, "Mover shape must be a capsule");
+		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
 		set_up_direction(up);
-		set_max_slope(btRadians(45.0));
+		set_max_slope(desc.max_slope_angle);
+		set_center(to_btVector3(desc.center));
 	}
 
 	void destroy_shape(Allocator &allocator)
@@ -379,338 +415,568 @@ struct Mover
 
 	static btVector3 normalized(const btVector3 &v)
 	{
-		btVector3 n(0, 0, 0);
+		return v.length() <= SIMD_EPSILON
+			? btVector3(0.0f, 0.0f, 0.0f)
+			: v.normalized()
+			;
+	}
 
-		if (v.length() > SIMD_EPSILON) {
-			n = v.normalized();
+	struct ActivePlane
+	{
+		btVector3 normal;
+		bool walkable;
+	};
+
+	static btVector3 clip_velocity_to_plane(const btVector3 &velocity, const btVector3 &normal)
+	{
+		btVector3 clipped = velocity - normal * (velocity.dot(normal) * btScalar(1.001f));
+		const btScalar into = clipped.dot(normal);
+		if (into < btScalar(0.0f))
+			clipped -= normal * into;
+		return clipped;
+	}
+
+	btVector3 separation_normal_for_plane(const btVector3 &normal, bool walkable, bool moving_up) const
+	{
+		if (!walkable && !moving_up && normal.dot(_up) > btScalar(0.0f)) {
+			btVector3 lateral = normal - _up * normal.dot(_up);
+			if (lateral.length2() > MIN_VECTOR_LENGTH_SQUARED)
+				return lateral.normalized();
+			return lateral;
 		}
-		return n;
+		return normal;
 	}
 
-	// Returns the reflection direction of a ray going 'direction' hitting a surface with normal 'normal'.
-	// See: http://www-cs-students.stanford.edu/~adityagp/final/node3.html
-	btVector3 reflection_direction(const btVector3 &direction, const btVector3 &normal)
+	void add_active_plane(ActivePlane *planes, int &plane_count, int max_planes, const btVector3 &move_delta_normalized, const btVector3 &normal, bool walkable) const
 	{
-		return direction - (btScalar(2.0) * direction.dot(normal)) * normal;
+		for (int i = 0; i < plane_count; ++i) {
+			if (planes[i].normal.dot(normal) >= btScalar(0.99f)) {
+				planes[i].walkable = planes[i].walkable || walkable;
+				if (planes[i].normal.dot(_up) < normal.dot(_up))
+					planes[i].normal = normal;
+				return;
+			}
+		}
+
+		if (plane_count < max_planes) {
+			planes[plane_count].normal = normal;
+			planes[plane_count].walkable = walkable;
+			++plane_count;
+			return;
+		}
+
+		int replace = 0;
+		btScalar replace_score = planes[0].normal.dot(move_delta_normalized);
+		for (int i = 1; i < plane_count; ++i) {
+			const btScalar score = planes[i].normal.dot(move_delta_normalized);
+			if (score < replace_score) {
+				replace = i;
+				replace_score = score;
+			}
+		}
+		planes[replace].normal = normal;
+		planes[replace].walkable = walkable;
 	}
 
-	// Returns the portion of 'direction' that is parallel to 'normal'.
-	btVector3 parallel_component(const btVector3 &direction, const btVector3 &normal)
+	btVector3 solve_contact_separation(const ActivePlane *planes, int plane_count, btScalar skin_width, bool moving_up) const
 	{
-		btScalar magnitude = direction.dot(normal);
-		return normal * magnitude;
+		btVector3 separation(0.0f, 0.0f, 0.0f);
+		bool has_walkable_plane = false;
+		bool has_nonwalkable_plane = false;
+		for (int i = 0; i < plane_count; ++i) {
+			has_walkable_plane |= planes[i].walkable;
+			has_nonwalkable_plane |= !planes[i].walkable;
+		}
+		for (int iteration = 0; iteration < plane_count * 2; ++iteration) {
+			bool changed = false;
+			for (int i = 0; i < plane_count; ++i) {
+				const btVector3 separation_normal = separation_normal_for_plane(planes[i].normal, planes[i].walkable, moving_up);
+				const btScalar normal_len2 = separation_normal.length2();
+				if (normal_len2 <= MIN_VECTOR_LENGTH_SQUARED)
+					continue;
+
+				const btScalar distance = separation.dot(separation_normal);
+				if (distance + SEPARATION_TOLERANCE < skin_width) {
+					separation += separation_normal * ((skin_width - distance) / normal_len2);
+					changed = true;
+				}
+			}
+			if (!changed)
+				break;
+		}
+		if (has_walkable_plane && has_nonwalkable_plane && !moving_up) {
+			const btScalar separation_down = separation.dot(_up);
+			if (separation_down < btScalar(0.0f))
+				separation -= _up * separation_down;
+		}
+		return separation;
 	}
 
-	// Returns the portion of 'direction' that is perpendicular to 'normal'.
-	btVector3 perpendicular_component(const btVector3 &direction, const btVector3 &normal)
+	btVector3 slide_velocity(const btVector3 &velocity, const ActivePlane *planes, int plane_count, bool has_lateral_command, bool moving_up)
 	{
-		return direction - parallel_component(direction, normal);
+		if (plane_count <= 0)
+			return velocity;
+
+		bool has_walkable_plane = false;
+		bool has_nonwalkable_plane = false;
+		for (int i = 0; i < plane_count; ++i) {
+			has_walkable_plane |= planes[i].walkable;
+			has_nonwalkable_plane |= !planes[i].walkable;
+		}
+
+		if (!has_lateral_command && has_walkable_plane)
+			return btVector3(0.0f, 0.0f, 0.0f);
+
+		btVector3 slide = velocity;
+		for (int iteration = 0; iteration < plane_count * 2; ++iteration) {
+			bool changed = false;
+			for (int i = 0; i < plane_count; ++i) {
+				if (slide.dot(planes[i].normal) < btScalar(0.0f)) {
+					slide = clip_velocity_to_plane(slide, planes[i].normal);
+					changed = true;
+				}
+			}
+			if (!changed)
+				break;
+		}
+
+		if (has_nonwalkable_plane) {
+			const btScalar upward = slide.dot(_up);
+			if (upward > btScalar(0.0f) && !moving_up)
+				slide -= _up * upward;
+		}
+		if (has_walkable_plane && has_nonwalkable_plane) {
+			const btScalar downward = slide.dot(_up);
+			if (!moving_up && downward < btScalar(0.0f))
+				slide -= _up * downward;
+		}
+		return slide;
 	}
 
-	bool recover_from_penetration()
+	bool needs_collision(const btCollisionObject *body0, const btCollisionObject *body1) const
 	{
-		// Here we must refresh the overlapping paircache as the penetrating movement itself or the
-		// previous recovery iteration might have used setWorldTransform and pushed us into an object
-		// that is not in the previous cache contents from the last timestep, as will happen if we
-		// are pushed into a new AABB overlap. Unhandled this means the next convex sweep gets stuck.
-		//
-		// Do this by calling the broadphase's setAabb with the moved AABB, this will update the broadphase
-		// paircache and the ghost's internal paircache at the same time.    /BW
+		if (body0 == NULL
+			|| body1 == NULL
+			|| body0->m_broadphaseHandle == NULL
+			|| body1->m_broadphaseHandle == NULL)
+			return false;
 
+		return (body0->m_broadphaseHandle->m_collisionFilterGroup & body1->m_broadphaseHandle->m_collisionFilterMask) != 0
+			|| (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask) != 0
+			;
+	}
+
+	void sync_ghost_position(const btVector3 &position)
+	{
+		btTransform xform = _ghost->m_worldTransform;
+		xform.m_origin = position + _center;
+		_ghost->setWorldTransform(xform);
+	}
+
+	void update_overlapping_pairs()
+	{
+		CE_ASSERT(_ghost->m_broadphaseHandle != NULL, "Mover ghost must be added to the broadphase");
 		btVector3 min_aabb;
 		btVector3 max_aabb;
 		_shape->getAabb(_ghost->m_worldTransform, min_aabb, max_aabb);
 		_collision_world->getBroadphase()->setAabb(_ghost->m_broadphaseHandle, min_aabb, max_aabb, _collision_world->getDispatcher());
+	}
 
-		bool penetration = false;
+	bool separate(btVector3 &separation_delta)
+	{
+		const btTransform saved_transform = _ghost->m_worldTransform;
+		const btVector3 start_position = saved_transform.m_origin - _center;
+		btVector3 working_position = start_position;
+		separation_delta.setValue(0.0f, 0.0f, 0.0f);
+		bool collided = false;
 
+		for (int loop = 0; loop < 4; ++loop) {
+			sync_ghost_position(working_position);
+			update_overlapping_pairs();
+			_collision_world->getDispatcher()->dispatchAllCollisionPairs(_ghost->getOverlappingPairCache(), _collision_world->getDispatchInfo(), _collision_world->getDispatcher());
+
+			btVector3 loop_offset(0.0f, 0.0f, 0.0f);
+			bool loop_collided = false;
+
+			for (int i = 0; i < _ghost->getOverlappingPairCache()->getNumOverlappingPairs(); ++i) {
+				_manifold_array.resizeNoInitialize(0);
+				btBroadphasePair &collision_pair = _ghost->getOverlappingPairCache()->getOverlappingPairArray()[i];
+				btCollisionObject *obj0 = (btCollisionObject *)collision_pair.m_pProxy0->m_clientObject;
+				btCollisionObject *obj1 = (btCollisionObject *)collision_pair.m_pProxy1->m_clientObject;
+
+				if ((obj0 != NULL && !obj0->hasContactResponse())
+					|| (obj1 != NULL && !obj1->hasContactResponse())
+					|| !needs_collision(obj0, obj1))
+					continue;
+
+				if (collision_pair.m_algorithm)
+					collision_pair.m_algorithm->getAllContactManifolds(_manifold_array);
+
+				for (int j = 0; j < _manifold_array.size(); ++j) {
+					btPersistentManifold *manifold = _manifold_array[j];
+					const btScalar direction_sign = manifold->getBody0() == _ghost ? btScalar(-1.0f) : btScalar(1.0f);
+					for (int p = 0; p < manifold->getNumContacts(); ++p) {
+						const btManifoldPoint &pt = manifold->getContactPoint(p);
+						if (pt.getDistance() < -PENETRATION_DEPTH_TOLERANCE) {
+							loop_offset += pt.m_normalWorldOnB * direction_sign * pt.getDistance() * btScalar(0.2f);
+							loop_collided = true;
+						}
+					}
+				}
+			}
+
+			if (!loop_collided)
+				break;
+
+			collided = true;
+			working_position += loop_offset;
+			if (loop_offset.length2() <= SIMD_EPSILON)
+				break;
+		}
+
+		if (collided)
+			separation_delta = working_position - start_position;
+
+		_ghost->setWorldTransform(saved_transform);
+		update_overlapping_pairs();
+		return collided;
+	}
+
+	bool fits_at(const btVector3 &position, btScalar min_distance = btScalar(0.0f))
+	{
+		const btTransform saved_transform = _ghost->m_worldTransform;
+
+		sync_ghost_position(position);
+		update_overlapping_pairs();
 		_collision_world->getDispatcher()->dispatchAllCollisionPairs(_ghost->getOverlappingPairCache(), _collision_world->getDispatchInfo(), _collision_world->getDispatcher());
 
-		_current_position = _ghost->m_worldTransform.m_origin - _center;
-
-		for (int i = 0; i < _ghost->getOverlappingPairCache()->getNumOverlappingPairs(); i++) {
+		bool fits = true;
+		for (int i = 0; i < _ghost->getOverlappingPairCache()->getNumOverlappingPairs() && fits; ++i) {
 			_manifold_array.resizeNoInitialize(0);
 
-			btBroadphasePair *collisionPair = &_ghost->getOverlappingPairCache()->getOverlappingPairArray()[i];
+			btBroadphasePair &collision_pair = _ghost->getOverlappingPairCache()->getOverlappingPairArray()[i];
+			btCollisionObject *obj0 = (btCollisionObject *)collision_pair.m_pProxy0->m_clientObject;
+			btCollisionObject *obj1 = (btCollisionObject *)collision_pair.m_pProxy1->m_clientObject;
 
-			btCollisionObject *obj0 = static_cast<btCollisionObject *>(collisionPair->m_pProxy0->m_clientObject);
-			btCollisionObject *obj1 = static_cast<btCollisionObject *>(collisionPair->m_pProxy1->m_clientObject);
-
-			if ((obj0 && !obj0->hasContactResponse()) || (obj1 && !obj1->hasContactResponse()))
+			if ((obj0 != NULL && !obj0->hasContactResponse())
+				|| (obj1 != NULL && !obj1->hasContactResponse())
+				|| !needs_collision(obj0, obj1))
 				continue;
 
-			if (!needs_collision(obj0, obj1))
-				continue;
+			if (collision_pair.m_algorithm)
+				collision_pair.m_algorithm->getAllContactManifolds(_manifold_array);
 
-			if (collisionPair->m_algorithm)
-				collisionPair->m_algorithm->getAllContactManifolds(_manifold_array);
-
-			for (int j = 0; j < _manifold_array.size(); j++) {
+			for (int j = 0; j < _manifold_array.size() && fits; ++j) {
 				btPersistentManifold *manifold = _manifold_array[j];
-				btScalar directionSign = manifold->getBody0() == _ghost ? btScalar(-1.0) : btScalar(1.0);
-				for (int p = 0; p < manifold->getNumContacts(); p++) {
-					const btManifoldPoint &pt = manifold->getContactPoint(p);
-
-					btScalar dist = pt.getDistance();
-
-					if (dist < -_max_penetration_depth) {
-						_current_position += pt.m_normalWorldOnB * directionSign * dist * btScalar(0.2);
-						penetration = true;
+				for (int p = 0; p < manifold->getNumContacts(); ++p) {
+					if (manifold->getContactPoint(p).getDistance()
+						+ (obj0->m_collisionShape != NULL ? obj0->m_collisionShape->getMargin() : btScalar(0.0f))
+						+ (obj1->m_collisionShape != NULL ? obj1->m_collisionShape->getMargin() : btScalar(0.0f)) < min_distance) {
+						fits = false;
+						break;
 					}
 				}
 			}
 		}
 
-		btTransform new_trans = _ghost->m_worldTransform;
-		new_trans.m_origin = _current_position + _center;
-		_ghost->setWorldTransform(new_trans);
-		return penetration;
+		_ghost->setWorldTransform(saved_transform);
+		update_overlapping_pairs();
+		return fits;
 	}
 
-	bool needs_collision(const btCollisionObject *body0, const btCollisionObject *body1)
+	void set_down_actor(const btCollisionObject *hit_object)
 	{
-		bool collides = (body0->m_broadphaseHandle->m_collisionFilterGroup & body1->m_broadphaseHandle->m_collisionFilterMask) != 0;
-		collides = collides || (body1->m_broadphaseHandle->m_collisionFilterGroup & body0->m_broadphaseHandle->m_collisionFilterMask);
-		return collides;
+		const btRigidBody *body = btRigidBody::upcast(hit_object);
+		if (body == NULL) {
+			_down_actor_i = UINT32_MAX;
+			_down_actor_body = NULL;
+			return;
+		}
+
+		_down_actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
+		_down_actor_body = body;
 	}
 
-	void step_up()
+	void classify_contact(const btVector3 &normal, const btVector3 &hit_point_world, const btVector3 &position, const btCollisionObject *hit_object)
 	{
-		btScalar step_height = 0.0f;
-		if (_vertical_delta < 0.0)
-			step_height = _step_height;
+		const btScalar up_dot = normal.dot(_up);
+		const btCapsuleShapeZ *capsule = (const btCapsuleShapeZ *)_shape;
+		const btScalar hit_height_from_bottom = (hit_point_world - (position + _center)).dot(_up) + capsule->getHalfHeight() + capsule->getRadius();
 
-		btTransform start;
-		btTransform end;
+		if (hit_height_from_bottom <= btMax(btScalar(0.01f), capsule->getRadius() * btScalar(0.10f)) && up_dot > btScalar(0.0f)) {
+			_flags |= MoverFlags::COLLIDES_DOWN;
+			set_down_actor(hit_object);
+			return;
+		}
 
-		start.setIdentity();
-		end.setIdentity();
-
-		// FIXME: Handle penetration properly (?).
-		start.m_origin = _current_position + _center;
-
-		_target_position = _current_position + _up * (step_height + _vertical_delta);
-		_current_position = _target_position;
-
-		end.m_origin = _target_position + _center;
-
-		btKinematicClosestNotMeConvexResultCallback callback(_ghost, -_up, _max_slope_cosine);
-		callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-		callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
-
-		_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-		if (callback.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback.m_hitCollisionObject)) {
+		if (up_dot >= _max_slope_cosine) {
+			_flags |= MoverFlags::COLLIDES_DOWN;
+			set_down_actor(hit_object);
+		} else if (up_dot <= -_max_slope_cosine) {
 			_flags |= MoverFlags::COLLIDES_UP;
-
-			// Only modify the position if the hit was a slope and not a wall or ceiling.
-			if (callback.m_hitNormalWorld.dot(_up) > 0.0) {
-				// We moved up only a fraction of the step height.
-				_current_step_offset = step_height * callback.m_closestHitFraction;
-				_current_position.setInterpolate3(_current_position, _target_position, callback.m_closestHitFraction);
-			}
-
-			btTransform &xform = _ghost->m_worldTransform;
-			xform.m_origin = _current_position + _center;
-			_ghost->setWorldTransform(xform);
-
-			// Fix penetration if we hit a ceiling for example.
-			int num_penetration_loops = 0;
-			while (recover_from_penetration()) {
-				num_penetration_loops++;
-				if (num_penetration_loops > 4) {
-					break; // Character could not recover from penetration.
-				}
-			}
-			_target_position = _ghost->m_worldTransform.m_origin - _center;
-			_current_position = _target_position;
-
-			if (_vertical_delta > 0) {
-				_vertical_delta = 0.0;
-				_current_step_offset = _step_height;
-			}
 		} else {
-			_current_step_offset = step_height;
-			_current_position = _target_position;
+			_flags |= MoverFlags::COLLIDES_SIDES;
 		}
 	}
 
-	void step_forward_and_strafe(const btVector3 &delta)
+	bool is_step_like_contact(const btVector3 &hit_point_world, const btVector3 &position, btScalar *detected_height = NULL) const
 	{
-		btTransform start;
-		btTransform end;
+		const btCapsuleShapeZ *capsule = (const btCapsuleShapeZ *)_shape;
+		const btScalar radius = capsule->getRadius();
+		const btVector3 to_hit = hit_point_world - (position + _center);
+		const btScalar axial = to_hit.dot(_up);
+		const btScalar bottom = -(capsule->getHalfHeight() + radius);
+		if (axial > bottom + _step_height + btScalar(0.005f))
+			return false;
 
-		_target_position = _current_position + delta;
+		const btScalar hit_height_from_bottom = axial - bottom;
+		if (detected_height != NULL)
+			*detected_height = hit_height_from_bottom;
+		if (hit_height_from_bottom < btScalar(0.03f) || hit_height_from_bottom > _step_height)
+			return false;
 
-		start.setIdentity();
-		end.setIdentity();
+		return (to_hit - _up * axial).length() >= btMax(btScalar(0.02f), radius * btScalar(0.20f));
+	}
 
-		btScalar fraction = 1.0;
-		int maxIter = 10;
+	bool try_step_up(btVector3 &current_position, btVector3 &remaining, btScalar skin_width, bool was_on_ground, bool moving_up)
+	{
+		if (!was_on_ground || _step_height <= btScalar(0.0f) || moving_up)
+			return false;
 
-		while (fraction > btScalar(0.01) && maxIter-- > 0) {
-			start.m_origin = _current_position + _center;
-			end.m_origin   = _target_position + _center;
-			btVector3 sweepDirNegative(_current_position - _target_position);
+		const btVector3 lateral = remaining - _up * remaining.dot(_up);
+		const btScalar lateral_len = lateral.length();
+		if (lateral_len <= MIN_TRAVEL_DISTANCE)
+			return false;
 
-			btKinematicClosestNotMeConvexResultCallback callback(_ghost, sweepDirNegative, btScalar(0.0));
-			callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-			callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		btVector3 stepped = current_position;
 
-			if (!(start == end))
-				_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+		{
+			MoverClosestNotMeConvexResultCallback cb(_ghost);
+			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+			_collision_world->convexSweepTest(_shape
+				, btTransform(btQuaternion::getIdentity(), stepped + _center)
+				, btTransform(btQuaternion::getIdentity(), stepped + _up * _step_height + _center)
+				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
 
-			fraction -= callback.m_closestHitFraction;
-
-			if (callback.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback.m_hitCollisionObject)) {
-				// We moved only a fraction.
-				_flags |= MoverFlags::COLLIDES_SIDES;
-
-				// Update target position based on collision.
-				const btVector3 hit_normal = callback.m_hitNormalWorld;
-				const btScalar normal_mag = btScalar(1.0);
-				btVector3 movement_dir = _target_position - _current_position;
-				btScalar movement_length = movement_dir.length();
-				if (movement_length > SIMD_EPSILON) {
-					movement_dir.normalize();
-
-					btVector3 reflect_dir = reflection_direction(movement_dir, hit_normal);
-					reflect_dir.normalize();
-
-					// btVector3 parallel_dir = parallel_component(reflect_dir, hit_normal);
-					btVector3 perpendicular_dir = perpendicular_component(reflect_dir, hit_normal);
-
-					_target_position = _current_position;
-
-					if (normal_mag != 0.0) {
-						btVector3 perp_component = perpendicular_dir * btScalar(normal_mag * movement_length);
-						_target_position += perp_component;
-					}
-				}
-
-				btVector3 current_dir = _target_position - _current_position;
-				btScalar distance2 = current_dir.length2();
-				if (distance2 <= SIMD_EPSILON)
-					break;
-
-				current_dir.normalize();
-				// See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners."
-				if (current_dir.dot(_move_delta_normalized) <= btScalar(0.0))
-					break;
+			if (cb.hasHit()) {
+				CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up sweep hit missing collision object");
+				const btScalar up_hit = btMax(btScalar(0.0f), btMin(cb.m_closestHitFraction, btScalar(1.0f)));
+				if (up_hit <= MIN_SWEEP_HIT_FRACTION)
+					return false;
+				stepped += _up * (_step_height * btMax(btScalar(0.0f), up_hit - skin_width / btMax(_step_height, MIN_TRAVEL_DISTANCE)));
 			} else {
-				_current_position = _target_position;
+				stepped += _up * _step_height;
 			}
 		}
+
+		btVector3 advanced = stepped;
+		{
+			MoverClosestNotMeConvexResultCallback cb(_ghost);
+			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+			_collision_world->convexSweepTest(_shape
+				, btTransform(btQuaternion::getIdentity(), stepped + _center)
+				, btTransform(btQuaternion::getIdentity(), stepped + lateral + _center)
+				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+			if (cb.hasHit()) {
+				CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up lateral hit missing collision object");
+				const btScalar lat_safe = btMax(btScalar(0.0f), btMin(cb.m_closestHitFraction, btScalar(1.0f)) - skin_width / btMax(lateral_len, MIN_TRAVEL_DISTANCE));
+				if (lat_safe <= MIN_STEP_UP_ADVANCE_FRACTION)
+					return false;
+				advanced += lateral * lat_safe;
+			} else {
+				advanced += lateral;
+			}
+		}
+
+		{
+			const btCapsuleShapeZ *capsule_shape = (const btCapsuleShapeZ *)_shape;
+			const btVector3 lateral_dir = lateral / lateral_len;
+			const btVector3 check_pos = stepped + lateral_dir * capsule_shape->getRadius();
+
+			MoverClosestNotMeConvexResultCallback cb(_ghost);
+			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+			_collision_world->convexSweepTest(_shape
+				, btTransform(btQuaternion::getIdentity(), check_pos + _center)
+				, btTransform(btQuaternion::getIdentity(), check_pos - _up * (_step_height + btScalar(0.05f)) + _center)
+				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+
+			if (!cb.hasHit())
+				return false;
+			CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up landing hit missing collision object");
+
+			if (cb.m_hitNormalWorld.length2() <= SIMD_EPSILON)
+				return false;
+			if (cb.m_hitNormalWorld.normalized().dot(_up) < _max_slope_cosine + btScalar(0.01f))
+				return false;
+
+			current_position.setInterpolate3(advanced, advanced - _up * (_step_height + btScalar(0.05f)), cb.m_closestHitFraction);
+			_flags |= MoverFlags::COLLIDES_DOWN;
+			remaining.setValue(0.0f, 0.0f, 0.0f);
+			return true;
+		}
 	}
 
-	void step_down()
+	void sweep_ground(bool moving_up, bool snap)
 	{
-		btTransform start;
-		btTransform end;
-		btTransform end_double;
-		bool runonce = false;
-
-		btVector3 orig_position = _target_position;
-		btScalar down_velocity = (_vertical_delta < 0.f ? -_vertical_delta : 0.f);
-
-		if (_vertical_delta > 0.0)
+		if (moving_up)
 			return;
 
-		btVector3 step_drop = _up * (_current_step_offset + down_velocity);
-		_target_position -= step_drop;
+		const btScalar probe_distance = btMax(_step_height, btScalar(0.05f));
 
-		btKinematicClosestNotMeConvexResultCallback callback(_ghost, _up, _max_slope_cosine);
-		callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-		callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		MoverClosestNotMeConvexResultCallback cb(_ghost);
+		cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		_collision_world->convexSweepTest(_shape
+			, btTransform(btQuaternion::getIdentity(), _current_position + _center)
+			, btTransform(btQuaternion::getIdentity(), _current_position + _center - _up * probe_distance)
+			, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+		if (!cb.hasHit())
+			return;
+		CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover ground probe hit missing collision object");
 
-		btKinematicClosestNotMeConvexResultCallback callback2(_ghost, _up, _max_slope_cosine);
-		callback2.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-		callback2.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		if (cb.m_hitNormalWorld.length2() <= SIMD_EPSILON)
+			return;
+		if (cb.m_hitNormalWorld.normalized().dot(_up) < _max_slope_cosine)
+			return;
 
-		while (1) {
-			start.setIdentity();
-			end.setIdentity();
+		if (snap)
+			_current_position.setInterpolate3(_current_position, _current_position - _up * probe_distance, cb.m_closestHitFraction);
 
-			end_double.setIdentity();
-
-			start.m_origin = _current_position + _center;
-			end.m_origin   = _target_position + _center;
-
-			// Set double test for 2x the step drop, to check for a large drop vs small drop.
-			end_double.m_origin = _target_position - step_drop + _center;
-
-			_ghost->convexSweepTest(_shape, start, end, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-			// Test a double fall height, to see if the character should interpolate it's fall (full) or not (partial).
-			if (!callback.hasHit() && _ghost->hasContactResponse())
-				_ghost->convexSweepTest(_shape, start, end_double, callback2, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-			btScalar down_vel2 = (_vertical_delta < 0.f ? -_vertical_delta : 0.f);
-			bool has_hit = callback2.hasHit() && _ghost->hasContactResponse() && needs_collision(_ghost, callback2.m_hitCollisionObject);
-
-			btScalar step_height = 0.0f;
-			if (_vertical_delta < 0.0)
-				step_height = _step_height;
-
-			if (down_vel2 > 0.0 && down_vel2 < step_height && has_hit == true && runonce == false && _was_on_ground) {
-				// redo the velocity calculation when falling a small amount, for fast stairs motion
-				// for larger falls, use the smoother/slower interpolated movement by not touching
-				// the target position.
-
-				_target_position = orig_position;
-				down_velocity = step_height;
-
-				step_drop = _up * (_current_step_offset + down_velocity);
-				_target_position -= step_drop;
-				runonce = true;
-				continue; // Re-run previous tests.
-			}
-			break;
-		}
-
-		if ((_ghost->hasContactResponse() && (callback.hasHit() && needs_collision(_ghost, callback.m_hitCollisionObject))) || runonce == true) {
-			// We dropped a fraction of the height -> hit floor.
-			// btScalar fraction = (_current_position.y - callback.m_hitPointWorld.y) / 2;
-
-			_current_position.setInterpolate3(_current_position, _target_position, callback.m_closestHitFraction);
-			_flags |= MoverFlags::COLLIDES_DOWN;
-		} else {
-			// We dropped the full height.
-			_current_position = _target_position;
+		_flags |= MoverFlags::COLLIDES_DOWN;
+		set_down_actor(cb.m_hitCollisionObject);
+		if (_num_collision_hits < MAX_COLLISION_HITS) {
+			_collision_hits[_num_collision_hits].hit_object = cb.m_hitCollisionObject;
+			_collision_hits[_num_collision_hits].mover_position = _current_position;
+			_collision_hits[_num_collision_hits].normal = cb.m_hitNormalWorld.normalized();
+			++_num_collision_hits;
 		}
 	}
 
 	void move(const btVector3 &delta)
 	{
-		_move_delta = delta;
-		_move_delta_normalized = normalized(delta);
+		CE_ASSERT(_ghost->hasContactResponse(), "Mover ghost must have contact response");
+		CE_ASSERT(_ghost->m_collisionShape == _shape, "Mover ghost shape out of sync");
+		CE_ASSERT(_shape->m_shapeType == CAPSULE_SHAPE_PROXYTYPE, "Mover shape must be a capsule");
+		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
+		_detected_step_height = 0.0f;
+		_last_detected_step_height = 0.0f;
+		_detected_slope_radians = 0.0f;
+		_num_collision_hits = 0;
+		_down_actor_i = UINT32_MAX;
+		_down_actor_body = NULL;
+
+		const btVector3 move_delta_normalized = normalized(delta);
+		const btScalar vertical_delta = delta.dot(_up);
+		const bool was_on_ground = (_flags &MoverFlags::COLLIDES_DOWN) != 0;
+		const bool moving_up = vertical_delta > btScalar(0.0f);
+		const bool has_lateral_command = (delta - _up * vertical_delta).length2() > MIN_VECTOR_LENGTH_SQUARED;
 
 		_current_position = _ghost->m_worldTransform.m_origin - _center;
-		_target_position = _current_position;
-
-		_was_on_ground = onGround();
 		_flags = 0u;
 
-		// Split move delta into vertical and perpendicular components.
-		// FIXME: generalize by projecting _move_delta onto _up?
-		_vertical_delta = _move_delta.z;
-		btVector3 perpendicular_offset = btVector3(_move_delta.x, _move_delta.y, 0.0f);
+		sync_ghost_position(_current_position);
+		update_overlapping_pairs();
+		const btVector3 start_position = _current_position;
 
-		btTransform xform;
-		xform = _ghost->m_worldTransform;
+		btVector3 current_position = _current_position;
+		btVector3 remaining = delta;
+		const btScalar min_movement = MIN_MOVEMENT_DISTANCE;
+		const btScalar skin_width = SKIN_WIDTH;
+		ActivePlane active_planes[4];
+		int active_plane_count = 0;
 
-		step_up();
-		step_forward_and_strafe(perpendicular_offset);
-		step_down();
+		for (int i = 0; i < 8; ++i) {
+			const btScalar length = remaining.length();
+			if (length <= min_movement)
+				break;
 
-		xform.m_origin = _current_position + _center;
-		_ghost->setWorldTransform(xform);
+			MoverClosestNotMeConvexResultCallback callback(_ghost);
+			callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+			callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+			_collision_world->convexSweepTest(_shape
+				, btTransform(btQuaternion::getIdentity(), current_position + _center)
+				, btTransform(btQuaternion::getIdentity(), current_position + remaining + _center)
+				, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
 
-		int num_penetration_loops = 0;
-		while (recover_from_penetration()) {
-			num_penetration_loops++;
-			if (num_penetration_loops > 4)
-				break; // Character could not recover from penetration.
+			if (!callback.hasHit()) {
+				current_position += remaining;
+				remaining.setValue(0.0f, 0.0f, 0.0f);
+				break;
+			}
+
+			CE_ASSERT(callback.m_hitCollisionObject != NULL, "Mover sweep hit missing collision object");
+
+			const btScalar hit_fraction = btMax(btScalar(0.0f), btMin(callback.m_closestHitFraction, btScalar(1.0f)));
+			const btScalar safe_fraction = btMax(btScalar(0.0f), hit_fraction - skin_width / btMax(length, MIN_TRAVEL_DISTANCE));
+			current_position += remaining * safe_fraction;
+
+			btVector3 normal = callback.m_hitNormalWorld;
+			if (normal.length2() <= SIMD_EPSILON)
+				break;
+			normal.normalize();
+			const btScalar up_dot = btClamped(normal.dot(_up), btScalar(-1.0f), btScalar(1.0f));
+			_detected_slope_radians = btMax(_detected_slope_radians, btScalar(facos((f32)up_dot)));
+			if (_num_collision_hits < MAX_COLLISION_HITS) {
+				_collision_hits[_num_collision_hits].hit_object = callback.m_hitCollisionObject;
+				_collision_hits[_num_collision_hits].mover_position = current_position;
+				_collision_hits[_num_collision_hits].normal = normal;
+				++_num_collision_hits;
+			}
+
+			classify_contact(normal, callback.m_hitPointWorld, current_position, callback.m_hitCollisionObject);
+
+			const bool walkable = up_dot >= _max_slope_cosine;
+			if (vertical_delta > btScalar(0.0f) && was_on_ground && hit_fraction <= btScalar(0.02f) && walkable) {
+				current_position += remaining * (btScalar(1.0f) - safe_fraction);
+				remaining.setValue(0.0f, 0.0f, 0.0f);
+				break;
+			}
+			if (hit_fraction <= MIN_SWEEP_HIT_FRACTION && remaining.dot(normal) >= btScalar(0.0f)) {
+				current_position += remaining;
+				remaining.setValue(0.0f, 0.0f, 0.0f);
+				break;
+			}
+			if (!has_lateral_command && !moving_up && walkable) {
+				remaining.setValue(0.0f, 0.0f, 0.0f);
+				break;
+			}
+
+			add_active_plane(active_planes, active_plane_count, countof(active_planes), move_delta_normalized, normal, walkable);
+
+			btScalar detected_step_height = 0.0f;
+			const bool is_step_contact = is_step_like_contact(callback.m_hitPointWorld, current_position, &detected_step_height);
+			if (is_step_contact) {
+				_detected_step_height = btMax(_detected_step_height, detected_step_height);
+				_last_detected_step_height = detected_step_height;
+			}
+
+			if (is_step_contact && try_step_up(current_position, remaining, skin_width, was_on_ground, moving_up))
+				break;
+
+			current_position += solve_contact_separation(active_planes, active_plane_count, skin_width, moving_up);
+			remaining = slide_velocity(remaining * (btScalar(1.0f) - hit_fraction), active_planes, active_plane_count, has_lateral_command, moving_up);
+			if (remaining.length2() <= min_movement * min_movement)
+				break;
+		}
+
+		_current_position = current_position;
+		sync_ghost_position(_current_position);
+		sweep_ground(moving_up, true);
+		sync_ghost_position(_current_position);
+		sweep_ground(moving_up, false);
+		if (!fits_at(_current_position, -PENETRATION_DEPTH_TOLERANCE)) {
+			_current_position = start_position;
+			_flags = 0u;
+			_down_actor_i = UINT32_MAX;
+			_down_actor_body = NULL;
+			_num_collision_hits = 0;
+			sync_ghost_position(_current_position);
+			update_overlapping_pairs();
+			sweep_ground(moving_up, false);
 		}
 	}
 
@@ -719,61 +985,51 @@ struct Mover
 		if (_up == up)
 			return;
 
-		btVector3 u = _up;
+		const btVector3 old_up = _up;
+		_up = up.length2() > btScalar(0.0f)
+			? up.normalized()
+			: btVector3(0.0f, 0.0f, 0.0f)
+			;
 
-		if (up.length2() > 0)
-			_up = up.normalized();
-		else
-			_up = btVector3(0.0, 0.0, 0.0);
-
-		if (!_ghost) return;
-		btQuaternion rot = rotation(_up, u);
-
-		// set orientation with new up
-		btTransform xform;
-		xform = _ghost->m_worldTransform;
-		btQuaternion orn = rot.inverse() * xform.getRotation();
-		xform.setRotation(orn);
+		btTransform xform = _ghost->m_worldTransform;
+		xform.setRotation(rotation(_up, old_up).inverse() * xform.getRotation());
 		_ghost->setWorldTransform(xform);
 	}
 
-	btQuaternion rotation(btVector3 &v0, btVector3 &v1) const
+	btQuaternion rotation(const btVector3 &v0, const btVector3 &v1) const
 	{
-		if (v0.length2() == 0.0f || v1.length2() == 0.0f) {
-			btQuaternion q;
-			return q;
-		}
-
-		return shortestArcQuatNormalize2(v0, v1);
+		if (v0.length2() == btScalar(0.0f) || v1.length2() == btScalar(0.0f))
+			return btQuaternion();
+		btVector3 from = v0;
+		btVector3 to = v1;
+		return shortestArcQuatNormalize2(from, to);
 	}
 
 	void reset()
 	{
-		_vertical_delta = 0.0;
-		_was_on_ground = false;
-		_move_delta.setValue(0, 0, 0);
+		_detected_step_height = 0.0f;
+		_last_detected_step_height = 0.0f;
+		_detected_slope_radians = 0.0f;
+		_num_collision_hits = 0;
+		_down_actor_i = UINT32_MAX;
+		_down_actor_body = NULL;
 
-		// clear pair cache
 		btHashedOverlappingPairCache *cache = _ghost->getOverlappingPairCache();
-		while (cache->getOverlappingPairArray().size() > 0) {
+		while (cache->getOverlappingPairArray().size() > 0)
 			cache->removeOverlappingPair(cache->getOverlappingPairArray()[0].m_pProxy0, cache->getOverlappingPairArray()[0].m_pProxy1, _collision_world->getDispatcher());
-		}
 	}
 
 	void set_position(const btVector3 &origin)
 	{
-		btTransform xform;
-		xform.setIdentity();
-		xform.m_origin = (origin + _center);
-		_ghost->setWorldTransform(xform);
+		reset();
+		_ghost->setWorldTransform(btTransform(btQuaternion::getIdentity(), origin + _center));
+		_current_position = origin;
 	}
 
-	/// The max slope determines the maximum angle that the controller can walk up.
-	/// The slope angle is measured in radians.
 	void set_max_slope(btScalar angle)
 	{
 		_max_slope_radians = angle;
-		_max_slope_cosine = btCos(angle);
+		_max_slope_cosine = btScalar(fcos((f32)angle));
 	}
 
 	btScalar max_slope() const
@@ -786,50 +1042,29 @@ struct Mover
 		return ((btCapsuleShapeZ *)_shape)->getRadius();
 	}
 
-	bool onGround() const
-	{
-		return fabs(_vertical_delta) < SIMD_EPSILON;
-	}
-
 	void set_height_radius(Allocator &allocator, float radius, float height)
 	{
-		CE_ENSURE(_shape != NULL);
-		btCapsuleShapeZ *new_capsule = CE_NEW(allocator, btCapsuleShapeZ)(radius, height);
-
-		_ghost->setCollisionShape(new_capsule);
+		_ghost->setCollisionShape(CE_NEW(allocator, btCapsuleShapeZ)(radius, height));
 		CE_DELETE(allocator, _shape);
-		_shape = new_capsule;
-
-		int num_penetration_loops = 0;
-		while (recover_from_penetration()) {
-			num_penetration_loops++;
-			if (num_penetration_loops > 4)
-				break; // Character could not recover from penetration.
-		}
+		_shape = (btConvexShape *)_ghost->m_collisionShape;
+		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
 	}
 
 	void set_height(Allocator &allocator, float height)
 	{
-		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
-		btScalar radius = capsule->getRadius();
-
-		set_height_radius(allocator, radius, height);
+		set_height_radius(allocator, ((btCapsuleShapeZ *)_shape)->getRadius(), height);
 	}
 
 	void set_radius(Allocator &allocator, float radius)
 	{
-		btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)_shape;
-		btScalar height = capsule->getHalfHeight() * 2.0f;
-
-		set_height_radius(allocator, radius, height);
+		set_height_radius(allocator, radius, ((btCapsuleShapeZ *)_shape)->getHalfHeight() * 2.0f);
 	}
 
 	void set_center(const btVector3 &center)
 	{
-		btVector3 delta = center - _center;
-		_center = center;
 		btTransform xform = _ghost->m_worldTransform;
-		xform.m_origin += delta;
+		xform.m_origin += center - _center;
+		_center = center;
 		_ghost->setWorldTransform(xform);
 	}
 };
@@ -1458,41 +1693,24 @@ struct PhysicsWorldImpl
 			UnitId unit = unit_lookup[unit_index[i]];
 			CE_ASSERT(!hash_map::has(_mover_map, unit), "Unit already has a mover component");
 
-			TransformId ti = _scene_graph->instance(unit);
-			Matrix4x4 tm = _scene_graph->world_pose(ti);
-
-			u32 filter_i = physics_config_resource::filter_index(filters, _config_resource->num_filters, movers[i].collision_filter);
-			const PhysicsCollisionFilter *f = &filters[filter_i];
-
-			const btTransform pose(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm)));
+			const Matrix4x4 tm = _scene_graph->world_pose(_scene_graph->instance(unit));
+			const PhysicsCollisionFilter *f = &filters[physics_config_resource::filter_index(filters, _config_resource->num_filters, movers[i].collision_filter)];
 
 			btPairCachingGhostObject *ghost = CE_NEW(_ghosts_pool, btPairCachingGhostObject)();
-			ghost->setWorldTransform(pose);
+			ghost->setWorldTransform(btTransform(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm))));
 			ghost->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
 
 			Mover *mover = CE_NEW(*_allocator, Mover)(_shapes_pool
 				, _dynamics_world
 				, ghost
-				, movers[i].capsule.radius
-				, movers[i].capsule.height
+				, movers[i]
 				, to_btVector3(VECTOR3_UP)
 				);
-			mover->set_max_slope(movers[i].max_slope_angle);
-			mover->set_center(to_btVector3(movers[i].center));
 
-			_dynamics_world->addCollisionObject(ghost
-				, f->me
-				, f->mask
-				);
-
-			MoverInstanceData mid;
-			mid.unit = unit;
-			mid.ghost = ghost;
-			mid.mover = mover;
+			_dynamics_world->addCollisionObject(ghost, f->me, f->mask);
 
 			const u32 last = array::size(_mover);
-
-			array::push_back(_mover, mid);
+			array::push_back(_mover, { unit, ghost, mover });
 			hash_map::set(_mover_map, unit, last);
 		}
 	}
@@ -1569,7 +1787,6 @@ struct PhysicsWorldImpl
 
 	void mover_set_position(MoverId mover, const Vector3 &position)
 	{
-		_mover[mover.i].mover->reset();
 		_mover[mover.i].mover->set_position(to_btVector3(position));
 	}
 
@@ -1585,7 +1802,78 @@ struct PhysicsWorldImpl
 
 	void mover_move(MoverId mover, const Vector3 &delta)
 	{
-		_mover[mover.i].mover->move(to_btVector3(delta));
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+
+		MoverInstanceData &moving = _mover[mover.i];
+		const btVector3 mover_delta = to_btVector3(delta);
+		moving.mover->move(mover_delta);
+
+		const btCollisionObject *emitted_hit_objects[Mover::MAX_COLLISION_HITS];
+		u32 num_emitted_hit_objects = 0;
+		for (u32 hit_i = 0; hit_i < moving.mover->_num_collision_hits; ++hit_i) {
+			const Mover::CollisionHit &hit = moving.mover->_collision_hits[hit_i];
+			const btCollisionObject *hit_object = hit.hit_object;
+			CE_ASSERT(hit_object != NULL, "Recorded mover hit missing collision object");
+			CE_ASSERT(hit_object != moving.mover->_ghost, "Recorded mover hit unexpectedly points to self");
+
+			u32 emitted_i = 0;
+			for (; emitted_i < num_emitted_hit_objects; ++emitted_i) {
+				if (emitted_hit_objects[emitted_i] == hit_object)
+					break;
+			}
+			if (emitted_i != num_emitted_hit_objects)
+				continue;
+
+			if (num_emitted_hit_objects < countof(emitted_hit_objects))
+				emitted_hit_objects[num_emitted_hit_objects++] = hit_object;
+
+			const btRigidBody *body = btRigidBody::upcast(hit_object);
+			if (body != NULL) {
+				const u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
+				if (actor_i < array::size(_actor) && _actor[actor_i].body == body) {
+					PhysicsMoverActorCollisionEvent ev;
+					ev.mover_unit = moving.unit;
+					ev.actor_unit = _actor[actor_i].unit;
+					ev.actor = make_actor_instance(actor_i);
+					ev.normal = to_vector3(hit.normal);
+					ev.position = to_vector3(hit.mover_position);
+					ev.direction = to_vector3(Mover::normalized(mover_delta));
+					ev.direction_length = (f32)mover_delta.length();
+					event_stream::write(_events, EventType::PHYSICS_MOVER_ACTOR_COLLISION, ev);
+					continue;
+				}
+			}
+
+			for (u32 other_mover_i = 0; other_mover_i < array::size(_mover); ++other_mover_i) {
+				if (other_mover_i == mover.i)
+					continue;
+				if (_mover[other_mover_i].ghost != hit_object)
+					continue;
+
+				PhysicsMoverMoverCollisionEvent ev;
+				ev.mover_unit = moving.unit;
+				ev.other_mover_unit = _mover[other_mover_i].unit;
+				ev.mover = mover;
+				ev.other_mover = make_mover_instance(other_mover_i);
+				event_stream::write(_events, EventType::PHYSICS_MOVER_MOVER_COLLISION, ev);
+				break;
+			}
+		}
+	}
+
+	bool mover_separate(MoverId mover, Vector3 &separation_delta)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		btVector3 separation_bt;
+		const bool result = _mover[mover.i].mover->separate(separation_bt);
+		separation_delta = to_vector3(separation_bt);
+		return result;
+	}
+
+	bool mover_fits_at(MoverId mover, const Vector3 &position)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->fits_at(to_btVector3(position));
 	}
 
 	bool mover_collides_sides(MoverId mover)
@@ -1603,9 +1891,35 @@ struct PhysicsWorldImpl
 		return (_mover[mover.i].mover->_flags & MoverFlags::COLLIDES_DOWN) != 0;
 	}
 
+	ActorId mover_actor_colliding_down(MoverId mover)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		Mover *m = _mover[mover.i].mover;
+
+		const u32 actor_i = m->_down_actor_i;
+		if (actor_i >= array::size(_actor))
+			return make_actor_instance(UINT32_MAX);
+		if (_actor[actor_i].body != m->_down_actor_body)
+			return make_actor_instance(UINT32_MAX);
+		return make_actor_instance(actor_i);
+	}
+
 	void mover_debug_draw(MoverId mover, DebugLine *lines, const Color4 &color)
 	{
-		collision_object_debug_draw(lines, _mover[mover.i].mover->_ghost, color);
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		Mover *m = _mover[mover.i].mover;
+		collision_object_debug_draw(lines, m->_ghost, color);
+
+		const btCapsuleShapeZ *capsule = (btCapsuleShapeZ *)m->_shape;
+		const btScalar capsule_radius = capsule->getRadius();
+		const Vector3 up = to_vector3(Mover::normalized(m->_up));
+		const Vector3 bottom = to_vector3(m->_current_position + m->_center) - up * (capsule->getHalfHeight() + capsule_radius);
+
+		const f32 step_quad_half = btMax(0.05f, (f32)capsule_radius * 0.75f);
+		draw_mover_step_quad(lines, bottom, up, step_quad_half, (f32)m->_step_height, 1.0f, COLOR4_YELLOW);
+		draw_mover_step_quad(lines, bottom, up, step_quad_half, m->_last_detected_step_height > 0.0f ? (f32)m->_last_detected_step_height : (f32)m->_detected_step_height, 2.0f, COLOR4_BLUE);
+		draw_mover_slope_lines(lines, bottom, up, capsule_radius, (f32)m->_max_slope_radians, COLOR4_YELLOW);
+		draw_mover_slope_lines(lines, bottom, up, capsule_radius, (f32)m->_detected_slope_radians, COLOR4_BLUE);
 	}
 
 	JointId joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
@@ -2353,6 +2667,16 @@ void PhysicsWorld::mover_move(MoverId mover, const Vector3 &delta)
 	_impl->mover_move(mover, delta);
 }
 
+bool PhysicsWorld::mover_separate(MoverId mover, Vector3 &separation_delta)
+{
+	return _impl->mover_separate(mover, separation_delta);
+}
+
+bool PhysicsWorld::mover_fits_at(MoverId mover, const Vector3 &position)
+{
+	return _impl->mover_fits_at(mover, position);
+}
+
 bool PhysicsWorld::mover_collides_sides(MoverId mover)
 {
 	return _impl->mover_collides_sides(mover);
@@ -2366,6 +2690,11 @@ bool PhysicsWorld::mover_collides_up(MoverId mover)
 bool PhysicsWorld::mover_collides_down(MoverId mover)
 {
 	return _impl->mover_collides_down(mover);
+}
+
+ActorId PhysicsWorld::mover_actor_colliding_down(MoverId mover)
+{
+	return _impl->mover_actor_colliding_down(mover);
 }
 
 void PhysicsWorld::mover_debug_draw(MoverId mover, DebugLine *lines, const Color4 &color)

@@ -218,6 +218,8 @@ struct EventType
 
 		PHYSICS_COLLISION,
 		PHYSICS_TRIGGER,
+		PHYSICS_MOVER_ACTOR_COLLISION,
+		PHYSICS_MOVER_MOVER_COLLISION,
 		PHYSICS_TRANSFORM,
 
 		COUNT
@@ -587,11 +589,30 @@ struct LevelLoadedEvent
 struct PhysicsCollisionEvent
 {
 	enum Type { TOUCH_BEGIN, TOUCHING, TOUCH_END } type;
-	UnitId units[2];         ///<
+	UnitId units[2];   ///<
 	ActorId actors[2]; ///<
-	Vector3 position;        ///< In world-space.
-	Vector3 normal;          ///< In world-space.
-	float distance;          ///< Separation distance
+	Vector3 position;  ///< In world-space.
+	Vector3 normal;    ///< In world-space.
+	float distance;    ///< Separation distance
+};
+
+struct PhysicsMoverActorCollisionEvent
+{
+	UnitId mover_unit;      ///< The mover unit that produced the collision.
+	UnitId actor_unit;      ///< The unit that holds the hit actor.
+	ActorId actor;          ///< The actor that was hit.
+	Vector3 normal;         ///< Collision normal from the mover sweep hit.
+	Vector3 position;       ///< Mover position at collision time.
+	Vector3 direction;      ///< Requested mover direction for this move.
+	float direction_length; ///< Length of requested mover direction for this move.
+};
+
+struct PhysicsMoverMoverCollisionEvent
+{
+	UnitId mover_unit;       ///< The mover unit that produced the collision.
+	UnitId other_mover_unit; ///< The other mover unit that was hit.
+	MoverId mover;           ///< The mover instance that produced the collision.
+	MoverId other_mover;     ///< The other mover instance that was hit.
 };
 
 struct PhysicsTriggerEvent

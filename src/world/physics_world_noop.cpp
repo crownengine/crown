@@ -270,6 +270,19 @@ struct PhysicsWorldImpl
 		CE_UNUSED_2(mover, delta);
 	}
 
+	bool mover_separate(MoverId mover, Vector3 &separation_delta)
+	{
+		CE_UNUSED(mover);
+		separation_delta = VECTOR3_ZERO;
+		return false;
+	}
+
+	bool mover_fits_at(MoverId mover, const Vector3 &position)
+	{
+		CE_UNUSED_2(mover, position);
+		return true;
+	}
+
 	bool mover_collides_sides(MoverId mover)
 	{
 		CE_UNUSED(mover);
@@ -286,6 +299,12 @@ struct PhysicsWorldImpl
 	{
 		CE_UNUSED(mover);
 		return false;
+	}
+
+	ActorId mover_actor_colliding_down(MoverId mover)
+	{
+		CE_UNUSED(mover);
+		return make_actor_instance(UINT32_MAX);
 	}
 
 	JointId joint_create(ActorId /*a0*/, ActorId /*a1*/, const JointDesc & /*jd*/)
@@ -627,6 +646,16 @@ void PhysicsWorld::mover_move(MoverId mover, const Vector3 &delta)
 	_impl->mover_move(mover, delta);
 }
 
+bool PhysicsWorld::mover_separate(MoverId mover, Vector3 &separation_delta)
+{
+	return _impl->mover_separate(mover, separation_delta);
+}
+
+bool PhysicsWorld::mover_fits_at(MoverId mover, const Vector3 &position)
+{
+	return _impl->mover_fits_at(mover, position);
+}
+
 bool PhysicsWorld::mover_collides_sides(MoverId mover)
 {
 	return _impl->mover_collides_sides(mover);
@@ -640,6 +669,11 @@ bool PhysicsWorld::mover_collides_up(MoverId mover)
 bool PhysicsWorld::mover_collides_down(MoverId mover)
 {
 	return _impl->mover_collides_down(mover);
+}
+
+ActorId PhysicsWorld::mover_actor_colliding_down(MoverId mover)
+{
+	return _impl->mover_actor_colliding_down(mover);
 }
 
 JointId PhysicsWorld::joint_create(ActorId a0, ActorId a1, const JointDesc &jd)

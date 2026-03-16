@@ -127,6 +127,21 @@ callbacks in your script component:
 		-- Called between collision_begin() and collision_end() while the units remain touching.
 	end
 
+Mover collisions
+----------------
+
+Units with a Mover can also receive collision callbacks:
+
+.. code:: lua
+
+	function MyScript.mover_actor_collision(world, mover_unit, actor_unit, actor, normal, mover_position, mover_direction, mover_direction_length)
+		-- Called on mover_unit when its mover collides with an actor.
+	end
+
+	function MyScript.mover_mover_collision(world, mover_unit, other_mover_unit, mover, other_mover)
+		-- Called on mover_unit when its mover collides with another mover.
+	end
+
 Triggers
 --------
 

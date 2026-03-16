@@ -473,6 +473,63 @@ void World::update_scene(f32 dt)
 				break;
 			}
 
+			case EventType::PHYSICS_MOVER_ACTOR_COLLISION: {
+				const PhysicsMoverActorCollisionEvent &ev = *(PhysicsMoverActorCollisionEvent *)data;
+				ScriptId inst = script_world::instance(*_script_world, ev.mover_unit);
+				if (is_valid(inst)) {
+					ArgType::Enum arg_types[8] =
+					{
+						ArgType::POINTER,
+						ArgType::UNIT,
+						ArgType::UNIT,
+						ArgType::ID,
+						ArgType::VECTOR3,
+						ArgType::VECTOR3,
+						ArgType::VECTOR3,
+						ArgType::FLOAT
+					};
+
+					Arg args[8];
+					args[0].pointer_value = this;
+					args[1].unit_value = ev.mover_unit;
+					args[2].unit_value = ev.actor_unit;
+					args[3].id_value = ev.actor.i;
+					args[4].vector3_value = ev.normal;
+					args[5].vector3_value = ev.position;
+					args[6].vector3_value = ev.direction;
+					args[7].float_value = ev.direction_length;
+
+					script_world::unicast(*_script_world, "mover_actor_collision", inst, arg_types, args, countof(args));
+				}
+				break;
+			}
+
+			case EventType::PHYSICS_MOVER_MOVER_COLLISION: {
+				const PhysicsMoverMoverCollisionEvent &ev = *(PhysicsMoverMoverCollisionEvent *)data;
+				ScriptId inst = script_world::instance(*_script_world, ev.mover_unit);
+				if (!is_valid(inst))
+					break;
+
+				ArgType::Enum arg_types[5] =
+				{
+					ArgType::POINTER,
+					ArgType::UNIT,
+					ArgType::UNIT,
+					ArgType::ID,
+					ArgType::ID
+				};
+
+				Arg args[5];
+				args[0].pointer_value = this;
+				args[1].unit_value = ev.mover_unit;
+				args[2].unit_value = ev.other_mover_unit;
+				args[3].id_value = ev.mover.i;
+				args[4].id_value = ev.other_mover.i;
+
+				script_world::unicast(*_script_world, "mover_mover_collision", inst, arg_types, args, countof(args));
+				break;
+			}
+
 			default:
 				break;
 			}

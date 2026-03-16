@@ -218,6 +218,12 @@ struct PhysicsWorld
 	/// The @a mover will slide against physical actors.
 	void mover_move(MoverId mover, const Vector3 &delta);
 
+	///
+	bool mover_separate(MoverId mover, Vector3 &separation_delta);
+
+	/// Returns whether the @a mover can be placed at @a position without colliding with any surrounding actors.
+	bool mover_fits_at(MoverId mover, const Vector3 &position);
+
 	/// Returns whether the @a mover collides sideways.
 	bool mover_collides_sides(MoverId mover);
 
@@ -226,6 +232,9 @@ struct PhysicsWorld
 
 	/// Returns whether the @a mover collides downwards.
 	bool mover_collides_down(MoverId mover);
+
+	/// Returns the actor currently colliding with the @a mover in the downwards direction, if any.
+	ActorId mover_actor_colliding_down(MoverId mover);
 
 	/// Adds the @a mover's debug geometry to @a lines.
 	void mover_debug_draw(MoverId actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
