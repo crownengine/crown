@@ -24,6 +24,8 @@ Game = Game or {
 	mover_stand_height = 1.8,
 	mover_crouch_height = 1.0,
 	mover_crouching = false,
+	character_support_actor = nil,
+	character_support_prev_pose = Matrix4x4Box(),
 
 	-- Camera management.
 	first_person_camera_local_position = Vector3Box(),
@@ -89,8 +91,9 @@ function Game.level_loaded()
 			SceneGraph.link(Game.scene_graph, character_transform, camera_transform)
 		end
 
+		Game.character_support_actor = nil
+		Game.character_support_prev_pose:store(Matrix4x4.identity())
 		Game.first_person_camera_local_position:store(SceneGraph.local_position(Game.scene_graph, camera_transform))
-
 	end
 
 	-- Create a pool of reusable bullets.
@@ -264,6 +267,30 @@ function Game.update(dt)
 		local coll_up    = PhysicsWorld.mover_collides_up(Game.physics_world, mover)
 		local coll_down  = PhysicsWorld.mover_collides_down(Game.physics_world, mover)
 
+		-- Moving platforms character interaction.
+		local mover_carry_delta = Vector3.zero()
+		if coll_down then
+			local support_actor = PhysicsWorld.mover_actor_colliding_down(Game.physics_world, mover)
+			if support_actor ~= nil and PhysicsWorld.actor_is_kinematic(Game.physics_world, support_actor) then
+				local support_pose = PhysicsWorld.actor_world_pose(Game.physics_world, support_actor)
+				if Game.character_support_actor ~= nil and Game.character_support_actor == support_actor then
+					local support_delta = Matrix4x4.multiply(Matrix4x4.invert(Game.character_support_prev_pose:unbox()), support_pose)
+					local mover_pos = PhysicsWorld.mover_position(Game.physics_world, mover)
+					local mover_center = PhysicsWorld.mover_center(Game.physics_world, mover)
+					local current_mover_origin = mover_pos + mover_center
+					local carried_mover_origin = Matrix4x4.transform(support_delta, current_mover_origin)
+					mover_carry_delta = carried_mover_origin - current_mover_origin
+				end
+
+				Game.character_support_actor = support_actor
+				Game.character_support_prev_pose:store(support_pose)
+			else
+				Game.character_support_actor = nil
+			end
+		else
+			Game.character_support_actor = nil
+		end
+
 		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
 		local camera_pose = SceneGraph.world_pose(Game.scene_graph, camera_transform)
 		local camera_forward = Matrix4x4.y(camera_pose)
@@ -323,6 +350,10 @@ function Game.update(dt)
 		end
 
 		delta.z = Game.vertical_speed
+		if Vector3.length(mover_carry_delta) > 0.0001 then
+			local mover_pos = PhysicsWorld.mover_position(Game.physics_world, mover)
+			PhysicsWorld.mover_set_position(Game.physics_world, mover, mover_pos + mover_carry_delta)
+		end
 		PhysicsWorld.mover_move(Game.physics_world, mover, delta*dt)
 
 		-- Copy mover position to character position.
