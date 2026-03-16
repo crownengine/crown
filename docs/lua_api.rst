@@ -1171,6 +1171,9 @@ Mover
 **mover_collides_down** (pw, mover) : bool
 	Returns whether the *mover* collides downwards.
 
+**mover_actor_colliding_down** (pw, mover) : Actor
+	Returns the actor colliding downwards with the *mover*, or ``nil``.
+
 **mover_debug_draw** (pw, mover, debug_line [, color])
 	Adds the *mover*'s debug geometry to *lines*.
 

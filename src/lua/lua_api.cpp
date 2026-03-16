@@ -2660,6 +2660,15 @@ void load_api(LuaEnvironment &env)
 			stack.push_bool(stack.get_physics_world(1)->mover_collides_down(stack.get_mover_instance(2)));
 			return 1;
 		});
+	env.add_module_function("PhysicsWorld", "mover_actor_colliding_down", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			ActorId actor = stack.get_physics_world(1)->mover_actor_colliding_down(stack.get_mover_instance(2));
+			if (is_valid(actor))
+				stack.push_id(actor.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
 	env.add_module_function("PhysicsWorld", "mover_debug_draw", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_physics_world(1)->mover_debug_draw(stack.get_mover_instance(2)
