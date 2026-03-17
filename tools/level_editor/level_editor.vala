@@ -2959,7 +2959,7 @@ public class LevelEditorApplication : Gtk.Application
 				_project_browser._folder_view._selected_name = cap_dir;
 			}
 
-        	_project_browser.reveal(cap_type, cap_path);
+			_project_browser.reveal(cap_type, cap_path);
 		});
 	}
 
