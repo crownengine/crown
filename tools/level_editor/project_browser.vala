@@ -18,6 +18,33 @@ public string project_path(string type, string name)
 	return ResourceId.path(type, name);
 }
 
+// Menu items common to files and folders.
+public GLib.Menu? project_entry_menu_common(string type, string name)
+{
+	GLib.Menu common_menu = new GLib.Menu();
+	GLib.MenuItem mi;
+
+	mi = new GLib.MenuItem("Copy Path", null);
+	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(type, name)));
+	common_menu.append_item(mi);
+
+	mi = new GLib.MenuItem("Copy Name", null);
+	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
+
+	mi = new GLib.MenuItem("Open Containing Folder...", null);
+	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
+
+	if (type != "<folder>" || name != "") {
+		mi = new GLib.MenuItem("Add to Favorites", null);
+		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({type, name}));
+		common_menu.append_item(mi);
+	}
+
+	return common_menu;
+}
+
 // Menu to open when clicking on project's files and folders.
 public GLib.Menu? project_entry_menu_create(string type, string name)
 {
@@ -62,6 +89,8 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		GLib.Menu destroy_menu = new GLib.Menu();
 
+		menu.append_section(null, project_entry_menu_common(type, name));
+
 		if ((string)name != ProjectStore.ROOT_FOLDER) {
 			mi = new GLib.MenuItem("Delete Folder", null);
 			mi.set_action_and_target_value("app.delete-directory", new GLib.Variant.string((string)name));
@@ -78,10 +107,6 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 			menu.append_item(mi);
 		}
 
-		mi = new GLib.MenuItem("Delete File", null);
-		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
-		menu.append_item(mi);
-
 		if (type == OBJECT_TYPE_MESH_SKELETON || type == OBJECT_TYPE_SPRITE) {
 			mi = new GLib.MenuItem("New State Machine...", null);
 			string skeleton_name;
@@ -93,30 +118,13 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 			mi.set_action_and_target_value("app.create-state-machine", new GLib.Variant.tuple({ResourceId.parent_folder(name), "", skeleton_name}));
 			menu.append_item(mi);
 		}
+
+		menu.append_section(null, project_entry_menu_common(type, name));
+
+		mi = new GLib.MenuItem("Delete File", null);
+		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
+		menu.append_item(mi);
 	}
-
-	// Add common menu items.
-	GLib.Menu common_menu = new GLib.Menu();
-
-	mi = new GLib.MenuItem("Copy Path", null);
-	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(type, name)));
-	common_menu.append_item(mi);
-
-	mi = new GLib.MenuItem("Copy Name", null);
-	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
-	common_menu.append_item(mi);
-
-	mi = new GLib.MenuItem("Open Containing Folder...", null);
-	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
-	common_menu.append_item(mi);
-
-	if (type != "<folder>" || name != "") {
-		mi = new GLib.MenuItem("Add to Favorites", null);
-		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({type, name}));
-		common_menu.append_item(mi);
-	}
-
-	menu.append_section(null, common_menu);
 
 	return menu;
 }
