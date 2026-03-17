@@ -72,6 +72,12 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 	} else { // If file
 		menu = new GLib.Menu();
 
+		if (type != "lua") {
+			mi = new GLib.MenuItem("Duplicate...", null);
+			mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(project_path(type, name)));
+			menu.append_item(mi);
+		}
+
 		mi = new GLib.MenuItem("Delete File", null);
 		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
 		menu.append_item(mi);
@@ -131,6 +137,12 @@ public GLib.Menu? favorites_entry_menu_create(string type, string name)
 	string path = project_path(type, name);
 	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(path));
 	common_menu.append_item(mi);
+
+	if (type != "<folder>" && type != "lua") {
+		mi = new GLib.MenuItem("Duplicate...", null);
+		mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(path));
+		common_menu.append_item(mi);
+	}
 
 	mi = new GLib.MenuItem("Copy Name", null);
 	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));

@@ -567,6 +567,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_project =
 	{
+		{ "duplicate-resource",   on_duplicate_resource,   "s",     null },
 		{ "delete-file",          on_delete_file,          "s",     null },
 		{ "delete-directory",     on_delete_directory,     "s",     null },
 		{ "create-directory",     on_create_directory,     "(ss)",  null },
@@ -2898,6 +2899,86 @@ public class LevelEditorApplication : Gtk.Application
 				do_delete_file(resource_path);
 			}
 		}
+	}
+
+	public void do_duplicate_resource(string source_resource_path, string resource_type, string resource_parent, string duplicated_basename)
+	{
+		string duplicated_name = resource_parent != "" ? resource_parent + "/" + duplicated_basename : duplicated_basename;
+		string duplicated_resource_path = ResourceId.path(resource_type, duplicated_name);
+		string duplicated_absolute_path = _project.absolute_path(duplicated_resource_path);
+
+		if (GLib.File.new_for_path(duplicated_absolute_path).query_exists()) {
+			loge("Resource already exists: %s".printf(duplicated_resource_path));
+			return;
+		}
+
+		if (_database.has_type(StringId64(resource_type))) {
+			Guid source_id;
+			if (_database.add_from_resource_path(out source_id, source_resource_path) != 0) {
+				loge("Failed to load resource: %s".printf(source_resource_path));
+				return;
+			}
+
+			Database tmp_db = new Database(_project, null);
+			create_object_types(tmp_db);
+
+			Guid duplicated_id = Guid.new_guid();
+			_database.duplicate(source_id, duplicated_id, tmp_db);
+
+			if (tmp_db.save(duplicated_absolute_path, duplicated_id) != 0) {
+				loge("Failed to save duplicated resource: %s".printf(duplicated_resource_path));
+				return;
+			}
+		} else {
+			string source_absolute_path = _project.absolute_path(source_resource_path);
+			try {
+				GLib.File.new_for_path(source_absolute_path).copy(GLib.File.new_for_path(duplicated_absolute_path), GLib.FileCopyFlags.NONE);
+			} catch (Error e) {
+				loge("Failed to duplicate resource: %s".printf(e.message));
+				return;
+			}
+		}
+
+		compile_and_reveal_resource(resource_type, resource_parent, duplicated_basename);
+	}
+
+	public void on_duplicate_resource(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string resource_path = param.get_string();
+		string? resource_type = ResourceId.type(resource_path);
+		string? resource_name = ResourceId.name(resource_path);
+
+		if (resource_type == null || resource_name == null)
+			return;
+		if (resource_type == "lua")
+			return;
+
+		string basename = GLib.Path.get_basename(resource_name);
+		string resource_parent = ResourceId.parent_folder(resource_name);
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Resource Name"
+			, _level_editor_window
+			, Gtk.DialogFlags.MODAL
+			, "Cancel"
+			, Gtk.ResponseType.CANCEL
+			, "Ok"
+			, Gtk.ResponseType.OK
+			, null
+			);
+		dg.set_default_response(Gtk.ResponseType.OK);
+
+		InputString sb = new InputString();
+		sb.value = basename + "_copy";
+		sb._entry.activates_default = true;
+		dg.get_content_area().add(sb);
+		dg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.OK) {
+					string duplicated_basename = sb.value.strip();
+					if (duplicated_basename != "")
+						do_duplicate_resource(resource_path, resource_type, resource_parent, duplicated_basename);
+				}
+				dg.destroy();
+			});
+		dg.show_all();
 	}
 
 	public void do_delete_directory(string dir_name)
