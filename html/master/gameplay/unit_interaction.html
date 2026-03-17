@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-18T12:04:24+00:00" /><meta property="og:title" content="Interacting with Units" />
+    <meta property="article:modified_time" content="2026-03-16T17:42:25+00:00" /><meta property="og:title" content="Interacting with Units" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/gameplay/unit_interaction.html" />
 <meta property="og:site_name" content="Crown 0.62.0 Manual" />
@@ -74,6 +74,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#the-script-component">The Script component</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-unit-script">Creating a Unit script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#receiving-collision-events">Receiving collision events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mover-collisions">Mover collisions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#triggers">Triggers</a></li>
 </ul>
 </li>
@@ -221,6 +222,19 @@ callbacks in your script component:</p>
 </pre></div>
 </div>
 </section>
+<section id="mover-collisions">
+<h2>Mover collisions<a class="headerlink" href="#mover-collisions" title="Permalink to this headline">¶</a></h2>
+<p>Units with a Mover can also receive collision callbacks:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">mover_actor_collision</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mover_unit</span><span class="p">,</span> <span class="n">actor_unit</span><span class="p">,</span> <span class="n">actor</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">mover_position</span><span class="p">,</span> <span class="n">mover_direction</span><span class="p">,</span> <span class="n">mover_direction_length</span><span class="p">)</span>
+        <span class="c1">-- Called on mover_unit when its mover collides with an actor.</span>
+<span class="kr">end</span>
+
+<span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">mover_mover_collision</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mover_unit</span><span class="p">,</span> <span class="n">other_mover_unit</span><span class="p">,</span> <span class="n">mover</span><span class="p">,</span> <span class="n">other_mover</span><span class="p">)</span>
+        <span class="c1">-- Called on mover_unit when its mover collides with another mover.</span>
+<span class="kr">end</span>
+</pre></div>
+</div>
+</section>
 <section id="triggers">
 <h2>Triggers<a class="headerlink" href="#triggers" title="Permalink to this headline">¶</a></h2>
 <p>Units whose actor is configured as a trigger (actor class ‘trigger’) will not
@@ -249,7 +263,7 @@ receive regular collision events, instead, they will receive trigger events:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 18, 2026.
+      <span class="lastupdated">Last updated on Mar 16, 2026.
       </span></p>
   </div>
 
