@@ -1140,6 +1140,16 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
+			type = PropertyType.STRING,
+			name = "shader",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_MATERIAL, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
 			type = PropertyType.RESOURCE,
 			name = "source",
 			resource_type = OBJECT_TYPE_MESH,

@@ -825,7 +825,7 @@ public class Database
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
 		decode_object_from_properties(id, owner_id, properties, json);
 
-		if (type == OBJECT_TYPE_UNIT)
+		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_MATERIAL)
 			decode_object_compat(id, owner_id, db_key, json);
 	}
 
@@ -928,7 +928,7 @@ public class Database
 		string type = object_type(id);
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
 
-		if (type == OBJECT_TYPE_UNIT || properties == null)
+		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_MATERIAL || properties == null)
 			return encode_object_compat(id, db);
 
 		Hashtable obj = new Hashtable();
