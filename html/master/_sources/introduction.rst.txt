@@ -50,7 +50,7 @@ design principles:
 	All aspects of the game are defined via text-based configuration files,
 	which are compiled into native, efficient, platform-specific BLOBs before
 	shipping. These files are human-readable, making them easy to inspect and
-	compatible with traditional VCS and regular text-based utilities.
+	compatible with traditional VCS, regular text-based utilities and LLMs.
 
 * Data-oriented
 	Data in memory is organized to achieve the maximum performance possible on
