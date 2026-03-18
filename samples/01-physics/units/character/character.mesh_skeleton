@@ -1,0 +1,441 @@
+_guid = "b2b0c2ec-bb67-429d-82cf-5b0d44d9feee"
+_type = "mesh_skeleton"
+skeleton = [
+	{
+		_guid = "5dfa549d-5957-40e9-a176-4deea6bcd0cd"
+		_type = "mesh_bone"
+		children = [
+			{
+				_guid = "7bc386ec-6b26-46ac-b619-d298c8277881"
+				_type = "mesh_bone"
+				children = [
+					{
+						_guid = "31686ad8-dc03-4c6e-89c5-7189eae4cb5e"
+						_type = "mesh_bone"
+						children = [
+							{
+								_guid = "45781821-277e-4cda-929a-c41952d59f25"
+								_type = "mesh_bone"
+								children = [
+									{
+										_guid = "0961b794-0239-408e-9d62-81a2380ccbbf"
+										_type = "mesh_bone"
+										children = [
+											{
+												_guid = "1b7c9feb-370f-44ae-8750-16f4c0c78d64"
+												_type = "mesh_bone"
+												children = [
+													{
+														_guid = "2c6bd272-9c26-434a-aefa-4b7d733b7bd2"
+														_type = "mesh_bone"
+														name = "mixamorig:RightToe_End"
+													}
+												]
+												name = "mixamorig:RightToeBase"
+											}
+										]
+										name = "mixamorig:RightFoot"
+									}
+								]
+								name = "mixamorig:RightLeg"
+							}
+						]
+						name = "mixamorig:RightUpLeg"
+					}
+					{
+						_guid = "c8655322-cd4a-497b-ad37-fce6c7f4fc30"
+						_type = "mesh_bone"
+						children = [
+							{
+								_guid = "72c8a3a1-329a-456e-ba48-24b810582599"
+								_type = "mesh_bone"
+								children = [
+									{
+										_guid = "dbc2c2b1-b2ab-47bc-835a-169c7027fd8f"
+										_type = "mesh_bone"
+										children = [
+											{
+												_guid = "d889172f-b044-42c3-91ba-6f04633df6e9"
+												_type = "mesh_bone"
+												children = [
+													{
+														_guid = "46f9e73f-9368-4656-b586-76ed47823225"
+														_type = "mesh_bone"
+														name = "mixamorig:LeftToe_End"
+													}
+												]
+												name = "mixamorig:LeftToeBase"
+											}
+										]
+										name = "mixamorig:LeftFoot"
+									}
+								]
+								name = "mixamorig:LeftLeg"
+							}
+						]
+						name = "mixamorig:LeftUpLeg"
+					}
+					{
+						_guid = "de36a0c9-1870-48a6-9686-61bf0fd68dcc"
+						_type = "mesh_bone"
+						children = [
+							{
+								_guid = "771d8ef9-88f5-4f8a-afec-b833120853b0"
+								_type = "mesh_bone"
+								children = [
+									{
+										_guid = "0096ca70-8abd-4dc0-acfc-abfab6a3e499"
+										_type = "mesh_bone"
+										children = [
+											{
+												_guid = "1c6a35c3-c291-4cb2-a767-4a1e90ce68ef"
+												_type = "mesh_bone"
+												children = [
+													{
+														_guid = "1de24aaf-bdd8-44f7-b77c-829515c1413a"
+														_type = "mesh_bone"
+														children = [
+															{
+																_guid = "33ddae9e-836a-42dd-b437-9c92d0a2573e"
+																_type = "mesh_bone"
+																children = [
+																	{
+																		_guid = "6cef4075-b632-40e5-bfef-9c2308f6994d"
+																		_type = "mesh_bone"
+																		children = [
+																			{
+																				_guid = "01c8e722-defd-4ee7-a3de-b2a5f8268628"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "3fce21e2-5d8f-415b-aac8-2ec0fbe03d1e"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "b538d0e4-98e5-42d8-85dd-f284edbef1e7"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "c751c3d8-1ca9-4023-a893-26a9e79b74a1"
+																										_type = "mesh_bone"
+																										name = "mixamorig:LeftHandIndex4"
+																									}
+																								]
+																								name = "mixamorig:LeftHandIndex3"
+																							}
+																						]
+																						name = "mixamorig:LeftHandIndex2"
+																					}
+																				]
+																				name = "mixamorig:LeftHandIndex1"
+																			}
+																			{
+																				_guid = "27caf51b-8744-4f66-8929-38d5a8158909"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "33c60769-be54-43b3-832f-916206405c99"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "c50ef23e-d7c8-470b-952a-0dbad9245fd4"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "5ed9a5ad-0364-4870-9675-288e2fd43b9e"
+																										_type = "mesh_bone"
+																										name = "mixamorig:LeftHandRing4"
+																									}
+																								]
+																								name = "mixamorig:LeftHandRing3"
+																							}
+																						]
+																						name = "mixamorig:LeftHandRing2"
+																					}
+																				]
+																				name = "mixamorig:LeftHandRing1"
+																			}
+																			{
+																				_guid = "4aa29c82-a418-4c05-9620-0415f9912783"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "531427ef-7815-4453-bcb3-3fbbb4599eaf"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "bed375d7-8723-4fcd-a729-4cbb9475e76e"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "b63d8385-62e8-4cbd-b3fe-ceed6b50f7b7"
+																										_type = "mesh_bone"
+																										name = "mixamorig:LeftHandThumb4"
+																									}
+																								]
+																								name = "mixamorig:LeftHandThumb3"
+																							}
+																						]
+																						name = "mixamorig:LeftHandThumb2"
+																					}
+																				]
+																				name = "mixamorig:LeftHandThumb1"
+																			}
+																			{
+																				_guid = "a2866f7f-e1b8-40c0-871f-6a7f505a3539"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "4944f873-6af9-463a-9301-f071beb4f3f1"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "f5b1bcd0-d621-4d7c-ad2b-e94413175204"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "3caf023c-5531-4987-a33c-9eafa7767c3c"
+																										_type = "mesh_bone"
+																										name = "mixamorig:LeftHandMiddle4"
+																									}
+																								]
+																								name = "mixamorig:LeftHandMiddle3"
+																							}
+																						]
+																						name = "mixamorig:LeftHandMiddle2"
+																					}
+																				]
+																				name = "mixamorig:LeftHandMiddle1"
+																			}
+																			{
+																				_guid = "dc999943-b386-4956-b412-95e824060418"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "74c734ae-60ce-4b6d-8967-21537d799b70"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "6234181a-821f-4bb4-a08c-b4a576b51d58"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "b125584a-fdac-4fe1-a472-d3f382396dbf"
+																										_type = "mesh_bone"
+																										name = "mixamorig:LeftHandPinky4"
+																									}
+																								]
+																								name = "mixamorig:LeftHandPinky3"
+																							}
+																						]
+																						name = "mixamorig:LeftHandPinky2"
+																					}
+																				]
+																				name = "mixamorig:LeftHandPinky1"
+																			}
+																		]
+																		name = "mixamorig:LeftHand"
+																	}
+																]
+																name = "mixamorig:LeftForeArm"
+															}
+														]
+														name = "mixamorig:LeftArm"
+													}
+												]
+												name = "mixamorig:LeftShoulder"
+											}
+											{
+												_guid = "254996d7-d456-4cfb-9a60-fd74c18e3f1e"
+												_type = "mesh_bone"
+												children = [
+													{
+														_guid = "64fde782-0e47-4865-bd44-8e22c4bc84f2"
+														_type = "mesh_bone"
+														children = [
+															{
+																_guid = "3c88d1b1-18d4-4015-ae34-6556adad50d1"
+																_type = "mesh_bone"
+																name = "mixamorig:HeadTop_End"
+															}
+														]
+														name = "mixamorig:Head"
+													}
+												]
+												name = "mixamorig:Neck"
+											}
+											{
+												_guid = "fb1120e4-ee68-4f2b-a5a8-e45fc7a20e38"
+												_type = "mesh_bone"
+												children = [
+													{
+														_guid = "0c232e3b-6d51-424a-936f-59d288b69617"
+														_type = "mesh_bone"
+														children = [
+															{
+																_guid = "73d4eada-ef30-4ce9-b389-2db919e7d5e9"
+																_type = "mesh_bone"
+																children = [
+																	{
+																		_guid = "43710431-e058-42cb-9f92-04351fe0ceec"
+																		_type = "mesh_bone"
+																		children = [
+																			{
+																				_guid = "2206b66f-bf53-432e-9391-8a033fc57b53"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "4ccaba8d-1505-4703-8f3d-b0a1a9c51cac"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "857f01af-b3f4-44e9-90aa-f867461f438f"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "e895b532-1549-463f-8010-aba868819084"
+																										_type = "mesh_bone"
+																										name = "mixamorig:RightHandThumb4"
+																									}
+																								]
+																								name = "mixamorig:RightHandThumb3"
+																							}
+																						]
+																						name = "mixamorig:RightHandThumb2"
+																					}
+																				]
+																				name = "mixamorig:RightHandThumb1"
+																			}
+																			{
+																				_guid = "28e0d9bf-6f2e-466b-b192-6686bfe2b9c0"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "de1b52af-f083-43b6-8cb5-7317dd7802df"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "b58e18eb-d230-4f0f-9d4b-a7e12f32e29a"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "73b5ee78-7f5c-49ac-acc0-539224c96ff6"
+																										_type = "mesh_bone"
+																										name = "mixamorig:RightHandIndex4"
+																									}
+																								]
+																								name = "mixamorig:RightHandIndex3"
+																							}
+																						]
+																						name = "mixamorig:RightHandIndex2"
+																					}
+																				]
+																				name = "mixamorig:RightHandIndex1"
+																			}
+																			{
+																				_guid = "817a1986-bcc5-4e17-9b08-1e2ea569478b"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "3e0c7d17-1fee-4a13-979e-1982344d033a"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "41c8ea04-0723-42c0-b3f1-05deb6ef44dd"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "62a152da-c505-4b7d-9b0d-a96ce761dcbd"
+																										_type = "mesh_bone"
+																										name = "mixamorig:RightHandPinky4"
+																									}
+																								]
+																								name = "mixamorig:RightHandPinky3"
+																							}
+																						]
+																						name = "mixamorig:RightHandPinky2"
+																					}
+																				]
+																				name = "mixamorig:RightHandPinky1"
+																			}
+																			{
+																				_guid = "9b4893ca-f35c-4e8c-8580-5e5e551d4d44"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "284881c7-4048-4d80-b469-8f0f38e3c997"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "74dc7c96-78b2-43f9-9493-88398dd6aa1d"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "d7ef6417-b0b9-4836-8e10-0c32f4316138"
+																										_type = "mesh_bone"
+																										name = "mixamorig:RightHandRing4"
+																									}
+																								]
+																								name = "mixamorig:RightHandRing3"
+																							}
+																						]
+																						name = "mixamorig:RightHandRing2"
+																					}
+																				]
+																				name = "mixamorig:RightHandRing1"
+																			}
+																			{
+																				_guid = "dea1445c-d923-4d04-b204-2b03bed948c5"
+																				_type = "mesh_bone"
+																				children = [
+																					{
+																						_guid = "bccd4d45-d188-4187-9c55-d4f481a73b1e"
+																						_type = "mesh_bone"
+																						children = [
+																							{
+																								_guid = "837addde-f87d-4ef1-b8f6-95326db1aba2"
+																								_type = "mesh_bone"
+																								children = [
+																									{
+																										_guid = "963fb20e-c93f-4f5f-9ed5-4e864a54381e"
+																										_type = "mesh_bone"
+																										name = "mixamorig:RightHandMiddle4"
+																									}
+																								]
+																								name = "mixamorig:RightHandMiddle3"
+																							}
+																						]
+																						name = "mixamorig:RightHandMiddle2"
+																					}
+																				]
+																				name = "mixamorig:RightHandMiddle1"
+																			}
+																		]
+																		name = "mixamorig:RightHand"
+																	}
+																]
+																name = "mixamorig:RightForeArm"
+															}
+														]
+														name = "mixamorig:RightArm"
+													}
+												]
+												name = "mixamorig:RightShoulder"
+											}
+										]
+										name = "mixamorig:Spine2"
+									}
+								]
+								name = "mixamorig:Spine1"
+							}
+						]
+						name = "mixamorig:Spine"
+					}
+				]
+				name = "mixamorig:Hips"
+			}
+		]
+		name = ""
+	}
+]
+source = "units/character/character.fbx"

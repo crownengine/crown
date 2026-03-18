@@ -17,8 +17,8 @@ Game = Game or {
 	character_unit = nil,
 	gravity = 6*9.8,
 	vertical_speed = 0,
-	walk_speed = 8,
-	run_multiplier = 1.8,
+	walk_speed = 3,
+	run_multiplier = 4,
 	crouch_multiplier = 0.45,
 	crouch_camera_drop = 0.6,
 	mover_stand_height = 1.8,
@@ -26,9 +26,11 @@ Game = Game or {
 	mover_crouching = false,
 	character_support_actor = nil,
 	character_support_prev_pose = Matrix4x4Box(),
+	character_base_rotation = QuaternionBox(),
 
 	-- Camera management.
-	first_person_camera_local_position = Vector3Box(),
+	first_person_camera_local_offset = Vector3Box(),
+	first_person_height = 2.6,
 	third_person_camera = true,
 	third_person_distance = 8,
 	third_person_height = 1.4,
@@ -81,19 +83,36 @@ function Game.level_loaded()
 
 	-- Create character controller.
 	Game.character_unit = World.unit_by_name(GameBase.world, "character")
+	Game.character_base_rotation:store(Quaternion.identity())
+	local asm = World.animation_state_machine(GameBase.world)
+	if Game.character_unit and asm then
+		local animation = AnimationStateMachine.instance(asm, Game.character_unit)
+		if animation then
+			AnimationStateMachine.trigger(asm, animation, "idle")
+		end
+	end
 
-	-- Link camera to mover.
+	-- Keep camera unparented so it is unaffected by any character parent transform.
 	if Game.character_unit then
 		local character_transform = SceneGraph.instance(Game.scene_graph, Game.character_unit)
-		local camera_transform    = SceneGraph.instance(Game.scene_graph, GameBase.camera_unit)
+		local camera_transform = SceneGraph.instance(Game.scene_graph, GameBase.camera_unit)
+		local camera_parent = SceneGraph.parent(Game.scene_graph, camera_transform)
+		local fp_local_offset = camera_parent == character_transform
+			and SceneGraph.local_position(Game.scene_graph, camera_transform)
+			or Vector3.zero()
 
-		if SceneGraph.parent(Game.scene_graph, camera_transform) == nil then
-			SceneGraph.link(Game.scene_graph, character_transform, camera_transform)
+		if camera_parent then
+			local camera_world_pose = SceneGraph.world_pose(Game.scene_graph, camera_transform)
+			SceneGraph.unlink(Game.scene_graph, camera_transform)
+			SceneGraph.set_local_pose(Game.scene_graph, camera_transform, camera_world_pose)
 		end
+
+		-- Preserve the authored mesh orientation so yaw can be applied on top of it.
+		Game.character_base_rotation:store(SceneGraph.local_rotation(Game.scene_graph, character_transform))
 
 		Game.character_support_actor = nil
 		Game.character_support_prev_pose:store(Matrix4x4.identity())
-		Game.first_person_camera_local_position:store(SceneGraph.local_position(Game.scene_graph, camera_transform))
+		Game.first_person_camera_local_offset:store(fp_local_offset)
 	end
 
 	-- Create a pool of reusable bullets.
@@ -183,9 +202,9 @@ function Game.update(dt)
 	local shoot_pressed = Mouse.pressed(Mouse.button_id("left"))
 		or Pad1.pressed(Pad1.button_id("shoulder_right"))
 	if shoot_pressed then
-		local tr = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
-		local pos = SceneGraph.world_position(Game.scene_graph, tr)
-		local dir = Matrix4x4.y(SceneGraph.world_pose(Game.scene_graph, tr))
+		local camera_pose = Game.camera:world_pose()
+		local pos = Matrix4x4.translation(camera_pose)
+		local dir = Matrix4x4.y(camera_pose)
 		Vector3.normalize(dir)
 
 		if Game.num_bullets == Game.max_bullets then
@@ -213,9 +232,10 @@ function Game.update(dt)
 	local interact_pressed = Keyboard.pressed(Keyboard.button_id("e"))
 		or Pad1.pressed(Pad1.button_id("y"))
 	if interact_pressed then
-		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
-		local camera_position = SceneGraph.world_position(Game.scene_graph, camera_transform)
-		local camera_forward = Matrix4x4.y(SceneGraph.world_pose(Game.scene_graph, camera_transform))
+		local camera_pose = Game.camera:world_pose()
+		local camera_position = Matrix4x4.translation(camera_pose)
+		local camera_forward = Matrix4x4.y(camera_pose)
+		Vector3.normalize(camera_forward)
 		local hit, hit_pos, normal, time, unit, actor = PhysicsWorld.cast_ray(Game.physics_world, camera_position, camera_forward, 100)
 
 		if hit then
@@ -261,6 +281,8 @@ function Game.update(dt)
 
 	if Game.character_unit then
 		local mover = PhysicsWorld.mover_instance(Game.physics_world, Game.character_unit)
+		local character_transform = SceneGraph.instance(Game.scene_graph, Game.character_unit)
+		assert(character_transform)
 
 		-- Player mover.
 		local coll_sides = PhysicsWorld.mover_collides_sides(Game.physics_world, mover)
@@ -291,10 +313,10 @@ function Game.update(dt)
 			Game.character_support_actor = nil
 		end
 
-		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
-		local camera_pose = SceneGraph.world_pose(Game.scene_graph, camera_transform)
+		local camera_pose = Game.camera:world_pose()
 		local camera_forward = Matrix4x4.y(camera_pose)
 		local camera_right = Matrix4x4.x(camera_pose)
+		local camera_transform = SceneGraph.instance(Game.scene_graph, Game.camera:unit())
 		local delta = Vector3(camera_forward.x, camera_forward.y, 0) * move_dy
 			+ Vector3(camera_right.x, camera_right.y, 0) * move_dx
 
@@ -339,6 +361,33 @@ function Game.update(dt)
 		end
 		delta = delta * speed
 
+		-- Animation.
+		local move_speed = Vector3.length(delta)
+		local animation_moving = move_speed > 0.0001
+		local animation_running = animation_moving and run_pressed and not crouch_active
+
+		if animation_moving then
+			local yaw = math.atan2(delta.y, delta.x) + math.pi * 0.5
+			local character_rotation = Quaternion.multiply(Quaternion.from_axis_angle(Vector3(0, 0, 1), yaw), Game.character_base_rotation:unbox())
+			SceneGraph.set_local_rotation(Game.scene_graph, character_transform, character_rotation)
+		end
+
+		local asm = World.animation_state_machine(GameBase.world)
+		if asm then
+			local animation = AnimationStateMachine.instance(asm, Game.character_unit)
+			local speed_id  = AnimationStateMachine.variable_id(asm, animation, "speed")
+
+			AnimationStateMachine.set_variable(asm, animation, speed_id, math.min(1.0, move_speed / Game.walk_speed))
+
+			if animation_running then
+				AnimationStateMachine.trigger(asm, animation, "run")
+			elseif animation_moving then
+				AnimationStateMachine.trigger(asm, animation, "walk")
+			else
+				AnimationStateMachine.trigger(asm, animation, "idle")
+			end
+		end
+
 		if jump_pressed and coll_down then
 			Game.vertical_speed = Game.gravity * 0.25
 		else
@@ -358,20 +407,26 @@ function Game.update(dt)
 
 		-- Copy mover position to character position.
 		local mover_pos = PhysicsWorld.mover_position(Game.physics_world, mover)
-		local character_transform = SceneGraph.instance(Game.scene_graph, Game.character_unit)
-		assert(character_transform)
 		SceneGraph.set_local_position(Game.scene_graph, character_transform, mover_pos)
+		local character_world_pose = SceneGraph.world_pose(Game.scene_graph, character_transform)
+		local character_world_position = Matrix4x4.translation(character_world_pose)
 
 		if Game.third_person_camera then
-			local camera_local_pose = SceneGraph.local_pose(Game.scene_graph, camera_transform)
-			local local_forward = Matrix4x4.y(camera_local_pose)
-			local camera_pos = Vector3(0, 0, Game.third_person_height) - local_forward * Game.third_person_distance
+			local camera_pos = character_world_position
+				+ Vector3(0, 0, Game.third_person_height)
+				- camera_forward * Game.third_person_distance
 			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
-
-			PhysicsWorld.mover_debug_draw(Game.physics_world, mover, Game.mover_debug_line, Color4(210, 210, 210, 255))
 		else
-			local fp_pos = Game.first_person_camera_local_position:unbox()
-			local camera_pos = Vector3(fp_pos.x, fp_pos.y, fp_pos.z - (Game.mover_crouching and Game.crouch_camera_drop or 0))
+			local fp_offset = Game.first_person_camera_local_offset:unbox()
+			local char_right = Matrix4x4.x(character_world_pose)
+			local char_forward = Matrix4x4.y(character_world_pose)
+			if Vector3.length(char_right) > 0.0001 then Vector3.normalize(char_right) end
+			if Vector3.length(char_forward) > 0.0001 then Vector3.normalize(char_forward) end
+			local height = Game.first_person_height - (Game.mover_crouching and Game.crouch_camera_drop or 0)
+			local camera_pos = character_world_position
+				+ char_right * fp_offset.x
+				+ char_forward * fp_offset.y
+				+ Vector3(0, 0, height)
 			SceneGraph.set_local_position(Game.scene_graph, camera_transform, camera_pos)
 		end
 	else

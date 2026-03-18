@@ -23,7 +23,8 @@ end
 
 function FPSCamera:world_pose()
 	local camera_transform = SceneGraph.instance(self._scene_graph, self._unit)
-	return SceneGraph.world_pose(self._scene_graph, camera_transform)
+	local pose = SceneGraph.world_pose(self._scene_graph, camera_transform)
+	return Matrix4x4.from_quaternion_translation(Matrix4x4.rotation(pose), Matrix4x4.translation(pose))
 end
 
 function FPSCamera:rotate(dt, dx, dy)

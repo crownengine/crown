@@ -1,0 +1,57 @@
+_guid = "3497f175-cc26-4af9-836f-4cf7bb8c468e"
+_type = "material"
+shader = "mesh+SKINNING"
+uniforms = {
+	u_albedo = {
+		type = "vector3"
+		value = [
+			0.83700001239776611
+			0.30230802297592163
+			0.26365500688552856
+		]
+	}
+	u_emission_color = {
+		type = "vector3"
+		value = [
+			0
+			0
+			0
+		]
+	}
+	u_emission_intensity = {
+		type = "float"
+		value = 1
+	}
+	u_metallic = {
+		type = "float"
+		value = 0
+	}
+	u_roughness = {
+		type = "float"
+		value = 0.8082915344758308
+	}
+	u_use_albedo_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_ao_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_emission_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_metallic_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_normal_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_roughness_map = {
+		type = "float"
+		value = 0
+	}
+}

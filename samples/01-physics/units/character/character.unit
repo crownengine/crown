@@ -1,0 +1,197 @@
+_guid = "5c1f3e23-0276-467a-982c-487fb652077f"
+_type = "unit"
+children = [
+	{
+		_guid = "073db01d-22a3-46d7-8d10-aec49c5dcb3a"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "c9e4bcf0-92e6-4d79-aa77-da193fadb239"
+				_type = "transform"
+				data = {
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "f75b1ccf-fbef-45f1-9898-532521f1c139"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "Beta_Surface"
+					material = "units/character/materials/Beta_HighLimbsGeoSG3"
+					mesh_resource = "units/character/character"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			name = "Beta_Surface"
+		}
+		prefab = null
+	}
+	{
+		_guid = "fb98e18d-d20f-4b89-b9ac-9b6e7e6f90f1"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "ccfa2a77-a4e7-4e0d-88b4-8a82f06ef243"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "Beta_Joints"
+					material = "units/character/materials/Beta_Joints_MAT1"
+					mesh_resource = "units/character/character"
+					visible = true
+				}
+			}
+			{
+				_guid = "fb8a13b2-9082-415d-aa65-858000cb7393"
+				_type = "transform"
+				data = {
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			name = "Beta_Joints"
+		}
+		prefab = null
+	}
+]
+components = [
+	{
+		_guid = "03e73686-a658-4835-b3ed-505f9d896f1c"
+		_type = "animation_state_machine"
+		data = {
+			state_machine_resource = "units/character/character"
+		}
+	}
+	{
+		_guid = "3fc9e173-c9cc-445f-a14b-c88f47bf0459"
+		_type = "script"
+		data = {
+			script_resource = "units/character/character"
+		}
+	}
+	{
+		_guid = "4de9482d-0dc5-495c-a4ce-0bfcc7f57fc5"
+		_type = "actor"
+		data = {
+			class = "keyframed"
+			collision_filter = "player"
+			lock_rotation_x = false
+			lock_rotation_y = false
+			lock_rotation_z = false
+			lock_translation_x = false
+			lock_translation_y = false
+			lock_translation_z = false
+			mass = 1
+			material = "default"
+		}
+	}
+	{
+		_guid = "53b687c2-1368-4e17-aa19-c7dc965531cd"
+		_type = "transform"
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0.70710678118654746
+				0
+				0
+				0.70710678118654757
+			]
+			scale = [
+				0.01
+				0.01
+				0.01
+			]
+		}
+	}
+	{
+		_guid = "6454ce77-a173-4bc9-8b83-a14df2badda8"
+		_type = "mover"
+		data = {
+			center = [
+				0
+				0
+				1.3999999999999999
+			]
+			collision_filter = "mover"
+			height = 1.8
+			max_slope_angle = 0.78539816339744828
+			radius = 0.5
+		}
+	}
+	{
+		_guid = "7444039a-73a5-4110-a80f-5db06d7c9cbf"
+		_type = "collider"
+		data = {
+			collider_data = {
+				half_extents = [
+					0.5
+					0.5
+					0.5
+				]
+				height = 1
+				position = [
+					0
+					0
+					0
+				]
+				radius = 0.5
+				rotation = [
+					0
+					0
+					0
+					1
+				]
+			}
+			name = "Cube"
+			scene = "core/units/primitives/cube"
+			shape = "box"
+			source = "mesh"
+		}
+	}
+]
+editor = {
+	name = "Unnamed"
+}
+prefab = null

@@ -1,0 +1,5 @@
+_guid = "5d446485-8be9-428b-9cbb-64e7008ac32d"
+_type = "mesh_animation"
+source = "units/character/animations/running.fbx"
+stack_name = "mixamo.com"
+target_skeleton = "units/character/character"

@@ -1,0 +1,5 @@
+_guid = "8f5d81f7-73db-42c5-9f25-01cb5c1f70d3"
+_type = "mesh_animation"
+source = "units/character/animations/idle.fbx"
+stack_name = "mixamo.com"
+target_skeleton = "units/character/character"

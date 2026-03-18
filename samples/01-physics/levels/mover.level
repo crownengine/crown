@@ -4,17 +4,17 @@ editor = {
 	camera = {
 		orthographic_size = 6.6574621199999999
 		position = [
-			55.244636499999999
-			-25.937980700000001
-			17.088911100000001
+			28.217533100000001
+			-36.9815331
+			31.281192799999999
 		]
 		rotation = [
-			0.00073533359700000002
-			0.00062699639199999995
-			0.64015501699999999
-			0.76824516099999995
+			-0.19022186099999999
+			-0.054133851099999998
+			0.26842465999999998
+			0.94277960100000002
 		]
-		target_distance = 56.830497700000002
+		target_distance = 45.768249500000003
 		view_type = 0
 	}
 }
@@ -4368,6 +4368,38 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "60215076-525d-4506-b9f8-325a16f7d1a4"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			name = "character"
+		}
+		modified_components = {
+			#53b687c2-1368-4e17-aa19-c7dc965531cd = {
+				data = {
+					position = [
+						-1.83136868
+						0.134250745
+						0.777823865
+					]
+					rotation = [
+						0.70710664999999995
+						0
+						0
+						0.70710688799999999
+					]
+					scale = [
+						0.014999999700000001
+						0.014999999700000001
+						0.014999999700000001
+					]
+				}
+			}
+		}
+		prefab = "units/character/character"
+	}
+	{
 		_guid = "6066587f-3c6a-4e18-a209-ccce6a4ac533"
 		_type = "unit"
 		children = [
@@ -7768,113 +7800,6 @@ units = [
 						4
 						1
 						0.5
-					]
-				}
-			}
-		}
-		prefab = "core/units/primitives/cube"
-	}
-	{
-		_guid = "bcb2bc03-d313-4741-a28d-12a6d0d8196f"
-		_type = "unit"
-		children = [
-		]
-		components = [
-			{
-				_guid = "1fb2f570-d5d6-4764-9255-2bbc5b9b584c"
-				_type = "actor"
-				data = {
-					class = "keyframed"
-					collision_filter = "player"
-					lock_rotation_x = false
-					lock_rotation_y = false
-					lock_rotation_z = false
-					lock_translation_x = false
-					lock_translation_y = false
-					lock_translation_z = false
-					mass = 1
-					material = "default"
-				}
-			}
-			{
-				_guid = "75b497d8-f6b7-4890-959e-eba397df66e0"
-				_type = "mover"
-				data = {
-					center = [
-						0
-						0
-						0
-					]
-					collision_filter = "mover"
-					height = 1.8
-					max_slope_angle = 0.78539816339744828
-					radius = 0.5
-				}
-			}
-			{
-				_guid = "7fa88a79-7d1f-45db-b33f-30e9f3ad283a"
-				_type = "script"
-				data = {
-					script_resource = "units/character/character"
-				}
-			}
-			{
-				_guid = "df813664-3436-4816-840f-68286b4a74db"
-				_type = "collider"
-				data = {
-					collider_data = {
-						half_extents = [
-							0.25
-							0.25
-							0.25
-						]
-						height = 0
-						position = [
-							0
-							0
-							0
-						]
-						radius = 0
-						rotation = [
-							0
-							0
-							0
-							1
-						]
-					}
-					name = "Cube"
-					scene = "core/units/primitives/cube"
-					shape = "box"
-					source = "inline"
-				}
-			}
-		]
-		deleted_components = {
-			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
-			#49753fff-34ea-4aff-8bcf-5116f1c1519a = false
-			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
-		}
-		editor = {
-			name = "character"
-		}
-		modified_components = {
-			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
-				data = {
-					position = [
-						3.4794950500000001
-						-4.2616310100000003
-						7.3938693999999998
-					]
-					rotation = [
-						0
-						0
-						0
-						1
-					]
-					scale = [
-						1
-						1
-						1
 					]
 				}
 			}

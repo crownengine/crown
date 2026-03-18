@@ -1,0 +1,110 @@
+_guid = "08f6b7e7-6bf7-4505-bf38-692a8c5496ad"
+_type = "state_machine"
+animation_type = "mesh_animation"
+initial_state = "56c1c579-bab7-4362-8d20-af4fd65039d9"
+skeleton_name = "units/character/character"
+states = [
+	{
+		_guid = "13c340e7-6117-46f2-9a44-710daf8f181b"
+		_type = "state_machine_node"
+		animations = [
+			{
+				_guid = "e5c16568-9d9b-4e3a-8ba4-3409fd40e789"
+				_type = "node_animation"
+				name = "units/character/animations/walking"
+				weight = ""
+			}
+		]
+		loop = true
+		name = "walking"
+		speed = "1"
+		transitions = [
+			{
+				_guid = "1197cf1b-dd57-408f-ac7b-af91c860b562"
+				_type = "node_transition"
+				event = "idle"
+				mode = "immediate"
+				to = "56c1c579-bab7-4362-8d20-af4fd65039d9"
+			}
+			{
+				_guid = "87355f56-a7d2-4267-b581-25de87ba6f66"
+				_type = "node_transition"
+				event = "run"
+				mode = "immediate"
+				to = "a4214ced-d6c6-44d1-ada6-6a9f6764ad6b"
+			}
+		]
+	}
+	{
+		_guid = "56c1c579-bab7-4362-8d20-af4fd65039d9"
+		_type = "state_machine_node"
+		animations = [
+			{
+				_guid = "1bb1312b-803f-4a30-8c25-076c4f34658d"
+				_type = "node_animation"
+				name = "units/character/animations/idle"
+				weight = "speed"
+			}
+		]
+		loop = true
+		name = "idle"
+		speed = ""
+		transitions = [
+			{
+				_guid = "a2e4806c-811f-48e0-8d5c-b3ce0457eba9"
+				_type = "node_transition"
+				event = "walk"
+				mode = "immediate"
+				to = "13c340e7-6117-46f2-9a44-710daf8f181b"
+			}
+			{
+				_guid = "e9ce9a61-4f42-44b4-877f-b7956c8cba26"
+				_type = "node_transition"
+				event = "run"
+				mode = "immediate"
+				to = "a4214ced-d6c6-44d1-ada6-6a9f6764ad6b"
+			}
+		]
+	}
+	{
+		_guid = "a4214ced-d6c6-44d1-ada6-6a9f6764ad6b"
+		_type = "state_machine_node"
+		animations = [
+			{
+				_guid = "1687f7a9-c404-45be-bc58-5c54a753418e"
+				_type = "node_animation"
+				name = "units/character/animations/running"
+				weight = ""
+			}
+		]
+		loop = true
+		name = "running"
+		speed = "speed"
+		transitions = [
+			{
+				_guid = "22c7b89e-131f-4084-92dc-e7d2ab2ce6d3"
+				_type = "node_transition"
+				event = "walk"
+				mode = "immediate"
+				to = "13c340e7-6117-46f2-9a44-710daf8f181b"
+			}
+			{
+				_guid = "93ee5ecc-7b7a-47b3-b216-9bc3d6e621c8"
+				_type = "node_transition"
+				event = "idle"
+				mode = "immediate"
+				to = "56c1c579-bab7-4362-8d20-af4fd65039d9"
+			}
+		]
+	}
+]
+variables = [
+	{
+		_guid = "2a38f6e3-b5bb-479d-9b69-d0aca20fe27a"
+		_type = "state_machine_variable"
+		max = 2
+		min = 0
+		name = "speed"
+		value = 1
+	}
+]
