@@ -6,9 +6,9 @@ What is it?
 -----------
 
 Crown is a complete and cross-platform game engine designed for flexibility,
-performance, and fast-iterations. It isn't tied to any specific game type or
-genre; instead, it provides versatile tools and general primitives suitable for
-building a wide range of 3D and 2D games.
+performance and fast iteration. It is not tied to any specific game type or
+genre; instead, it provides a small set of general-purpose systems for building
+a wide range of 3D and 2D games.
 
 .. image:: shots/level-editor.png
 
@@ -47,26 +47,26 @@ Crown is loosely inspired by the Bitsquid engine and shares with it many of its
 design principles:
 
 * Data-driven
-	All aspects of the game are defined via text-based configuration files,
-	which are compiled into native, efficient, platform-specific BLOBs before
-	shipping. These files are human-readable, making them easy to inspect and
-	compatible with traditional VCS, regular text-based utilities and LLMs.
+	All aspects of the game are defined in text-based configuration files, which
+	are compiled into efficient, platform-specific BLOBs before shipping. These
+	files are human-readable, easy to inspect and work well with traditional
+	version control, regular text-based tools and LLMs.
 
 * Data-oriented
-	Data in memory is organized to achieve the maximum performance possible on
-	every supported platform.
+	Data in memory is organized for high performance on every supported
+	platform.
 
 * Hot-reload everything
-	Every game asset is reloadable at run-time, including code.
+	Every game asset can be reloaded at run time, including code.
 
 * Multi-process Editor/Runtime architecture
-	The Editor and the Runtime live in separate processes. The Editor helds all
-	the important data: if the Runtime crashes you can restart it without losing
-	any work.
+	The Editor and Runtime live in separate processes. The Editor holds the
+	authoritative state, so if the Runtime crashes you can restart it without
+	losing work.
 
 * Lightweight Codebase and Runtime
 	The whole engine (runtime + tools) consists of fewer than 100K lines of
-	code. Written in high-performance native languages only, it is easily
+	code. Written entirely in high-performance native languages, it is easily
 	understood and extensible by anyone.
 
 Features
@@ -80,7 +80,7 @@ Features
 	* Project Browser with global searching, multiple view modes, thumbnails etc.
 	* Deployer for Android, HTML5 and desktop platforms.
 	* Console with Lua REPL and runtime commands.
-	* Undo/redo everywhere, light/dark theme, customizable launchers and much, much more...
+	* Undo/redo support, light/dark theme and customizable launchers.
 
 * Graphics
 	* D3D11, Vulkan and GLES 3.0 render backends.
@@ -88,7 +88,7 @@ Features
 	* Physically-based rendering pipeline with metallic workflow.
 	* GLSL-like shader programming language.
 	* 3D skeletal animation.
-	* Animation state machine with events, variables and blending with simple expressions evaluator.
+	* Animation state machine with events, variables, blending and a simple expression evaluator.
 	* Immediate-mode GUI API with customizable materials.
 	* TrueType text rendering via texture atlas.
 	* Flipbook sprite animation.
@@ -111,7 +111,7 @@ Features
 
 * Scripting
 	* Integrated Lua runtime can be used to control every aspect of the game.
-	* On supported platforms, LuaJIT is used for even higher performances.
+	* On supported platforms, LuaJIT is used for even higher performance.
 	* Integrated REPL to quickly test and experiment while the game is running.
 	* Live reloading of gameplay code without needing to restart the game.
 
@@ -123,4 +123,3 @@ Features
 * Debugging
 	* Integrated profiler API and data plotter graph.
 	* C++ and Lua callstack generation.
-
