@@ -34,6 +34,26 @@
 
 namespace crown
 {
+// Extract bounding sphere in local space.
+static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
+{
+	Sphere s;
+
+	if (lm._data.type[i] == LightType::OMNI) {
+		s = { VECTOR3_ZERO, lm._data.shader[i].range };
+	} else if (lm._data.type[i] == LightType::SPOT) {
+		s = sphere::from_cone(VECTOR3_ZERO
+			, VECTOR3_DOWN
+			, lm._data.shader[i].range
+			, lm._data.shader[i].spot_angle
+			);
+	} else {
+		CE_FATAL("Unknown light type");
+	}
+
+	return s;
+}
+
 namespace culling_set
 {
 	static u32 find_object(const CullingSet &set, u32 object_id)
@@ -192,6 +212,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _cullable_objects(a)
 	, _cullable_shadow_casters(a)
 	, _cullable_sprites(a)
+	, _cullable_lights(a)
 	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
@@ -555,13 +576,21 @@ void RenderWorld::light_set_color(LightId light, const Color4 &col)
 void RenderWorld::light_set_type(LightId light, LightType::Enum type)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+
+	u32 prev_type = _light_manager._data.type[light.i];
+
+	if (prev_type == type)
+		return;
+
 	_light_manager._data.type[light.i] = type;
+	_light_manager._dirty = true;
 }
 
 void RenderWorld::light_set_range(LightId light, f32 range)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.shader[light.i].range = range;
+	_light_manager._dirty = true;
 }
 
 void RenderWorld::light_set_intensity(LightId light, f32 intensity)
@@ -574,6 +603,7 @@ void RenderWorld::light_set_spot_angle(LightId light, f32 angle)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.shader[light.i].spot_angle = angle;
+	_light_manager._dirty = true;
 }
 
 void RenderWorld::light_set_shadow_bias(LightId light, f32 bias)
@@ -585,10 +615,18 @@ void RenderWorld::light_set_shadow_bias(LightId light, f32 bias)
 void RenderWorld::light_set_cast_shadows(LightId light, bool cast_shadows)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+
+	bool prev_cast_shadows = (_light_manager._data.flag[light.i] & RenderableFlags::SHADOW_CASTER) != 0;
+
+	if (prev_cast_shadows == cast_shadows)
+		return;
+
 	if (cast_shadows)
 		_light_manager._data.flag[light.i] |= RenderableFlags::SHADOW_CASTER;
 	else
 		_light_manager._data.flag[light.i] &= ~RenderableFlags::SHADOW_CASTER;
+
+	_light_manager._dirty = true;
 }
 
 void RenderWorld::light_debug_draw(LightId light, DebugLine &dl)
@@ -866,6 +904,8 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 
 			lid.shader[light.i].position = pos;
 			lid.shader[light.i].direction = dir;
+
+			_light_manager._dirty = true;
 		}
 	}
 }
@@ -970,6 +1010,39 @@ void RenderWorld::sync_cullable_sets()
 		}
 	}
 
+	if (_light_manager._dirty) {
+		_light_manager._dirty = false;
+		LightManager::LightInstanceData &idata = _light_manager._data;
+
+		for (u32 i = 0; i < idata.size; ++i) {
+			/*
+			 * if ((idata.flag[i] & RenderableFlags::DIRTY) == 0)
+			 *  continue;
+			 *
+			 * idata.flag[i] &= ~RenderableFlags::DIRTY;
+			 */
+
+			u32 changed = idata.flag[i] ^ idata.prev_flags[i];
+
+			if (changed)
+				idata.prev_flags[i] = idata.flag[i];
+
+			const bool is_local_light = idata.type[i] == LightType::OMNI
+				|| idata.type[i] == LightType::SPOT
+				;
+			if (is_local_light) {
+				Cullable co;
+				co.world  = from_translation(idata.shader[i].position);
+				co.sphere = local_sphere(_light_manager, i);
+				co.id     = i;
+
+				culling_set::update(_cullable_lights, i, co.sphere, co.world);
+			} else if (culling_set::find_object(_cullable_lights, i) != UINT32_MAX) {
+				culling_set::remove(_cullable_lights, i);
+			}
+		}
+	}
+
 	LEAVE_PROFILE_SCOPE();
 }
 
@@ -1052,12 +1125,10 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	array::clear(lm._lights_data);
 	u32 num_lights = 0; // Total lights to render this frame.
 
-	// Collect indices to all directional and local lights.
+	// Collect indices to all directional lights.
 	for (u32 i = 0; i < lid.size; ++i) {
 		if (lid.type[i] == LightType::DIRECTIONAL)
 			array::push_back(lm._directional_lights, i);
-		else
-			array::push_back(lm._local_lights, i);
 	}
 
 	// Sort directional lights by intensity.
@@ -1179,8 +1250,16 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 	// Render local lights.
 	if (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS) {
+		culling_set::cull_spheres(_cullable_lights, view_frustum, 0, array::size(_cullable_lights.id));
+		u32 nl = culling_set::remove_culled(_cullable_lights);
+		CE_UNUSED(nl);
+
+		for (u32 i = 0; i < array::size(_cullable_lights.render); ++i) {
+			const u32 light_id = _cullable_lights.id[_cullable_lights.render[i]];
+			array::push_back(lm._local_lights, light_id);
+		}
+
 		// Sort culled lights by distance to camera.
-		// TODO: no culling is performed yet, "culled lights" here means *all* local lights.
 		std::sort(array::begin(lm._local_lights)
 			, array::end(lm._local_lights)
 			, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
@@ -2148,6 +2227,7 @@ void RenderWorld::LightManager::allocate(u32 num)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(ShaderData) + alignof(ShaderData)
 		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(f32) + alignof(f32)
 		+ num*sizeof(u32) + alignof(u32)
 		;
 
@@ -2158,11 +2238,13 @@ void RenderWorld::LightManager::allocate(u32 num)
 
 	new_data.unit = (UnitId *)memory::align_top(new_data.buffer, alignof(UnitId));
 	new_data.flag = (u32 *)memory::align_top(new_data.unit + num, alignof(u32));
-	new_data.type = (u32 *)memory::align_top(new_data.flag + num, alignof(u32));
+	new_data.prev_flags = (u32 *)memory::align_top(new_data.flag + num, alignof(u32));
+	new_data.type = (u32 *)memory::align_top(new_data.prev_flags + num, alignof(u32));
 	new_data.shader = (ShaderData *)memory::align_top(new_data.type + num, alignof(ShaderData));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(*new_data.unit));
 	memcpy(new_data.flag, _data.flag, _data.size * sizeof(*new_data.flag));
+	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(*new_data.prev_flags));
 	memcpy(new_data.type, _data.type, _data.size * sizeof(*new_data.type));
 	memcpy(new_data.shader, _data.shader, _data.size * sizeof(ShaderData));
 
@@ -2201,6 +2283,7 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 
 		_data.unit[last]               = unit;
 		_data.flag[last]               = lights[i].flags;
+		_data.prev_flags[last]         = 0;
 		_data.type[last]               = lights[i].type;
 		_data.shader[last].color       = lights[i].color;
 		_data.shader[last].intensity   = lights[i].intensity;
@@ -2231,8 +2314,11 @@ void RenderWorld::LightManager::destroy(LightId light)
 	const UnitId u      = _data.unit[light.i];
 	const UnitId last_u = _data.unit[last];
 
+	culling_set::fixup(_render_world->_cullable_lights, light.i, last);
+
 	_data.unit[light.i] = _data.unit[last];
 	_data.flag[light.i] = _data.flag[last];
+	_data.prev_flags[light.i] = _data.prev_flags[last];
 	_data.type[light.i] = _data.type[last];
 	_data.shader[light.i] = _data.shader[last];
 
@@ -2272,14 +2358,22 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 		}
 
 		case LightType::OMNI:
-			dl.add_sphere(pos, _data.shader[i].range, COLOR4_YELLOW);
-			break;
-
 		case LightType::SPOT: {
-			const f32 angle  = _data.shader[i].spot_angle;
-			const f32 range  = _data.shader[i].range;
-			const f32 radius = ftan(angle)*range;
-			dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW, 36, 4);
+			bool bounds = true;
+			if (_data.type[i] == LightType::OMNI) {
+				dl.add_sphere(pos, _data.shader[i].range, COLOR4_YELLOW);
+			} else {
+				const f32 angle  = _data.shader[i].spot_angle;
+				const f32 range  = _data.shader[i].range;
+				const f32 radius = ftan(angle)*range;
+				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW, 36, 4);
+			}
+
+			if (bounds) {
+				Sphere s;
+				sphere::transform(s, local_sphere(*this, i), from_translation(pos)); // FIXME: add world to _data.
+				dl.add_sphere(s.c, s.r, COLOR4_YELLOW);
+			}
 			break;
 		}
 

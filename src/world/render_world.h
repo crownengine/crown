@@ -534,6 +534,7 @@ struct RenderWorld
 
 			UnitId *unit;
 			u32 *flag;            // RenderableFlags::Enum
+			u32 *prev_flags;
 			u32 *type;            // LightType::Enum
 			ShaderData *shader;
 		};
@@ -542,6 +543,7 @@ struct RenderWorld
 		RenderWorld *_render_world;
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
+		bool _dirty;
 		Array<ShaderData> _lights_data; // Shader array to send to GPU.
 		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
 		Array<u32> _local_lights;       // Indices to local lights sorted by distance to camera.
@@ -553,6 +555,7 @@ struct RenderWorld
 			: _allocator(&a)
 			, _render_world(rw)
 			, _map(a)
+			, _dirty(true)
 			, _lights_data(a)
 			, _directional_lights(a)
 			, _local_lights(a)
@@ -613,6 +616,7 @@ struct RenderWorld
 	CullingSet _cullable_objects;
 	CullingSet _cullable_shadow_casters;
 	CullingSet _cullable_sprites;
+	CullingSet _cullable_lights;
 
 	UnitDestroyCallback _unit_destroy_callback;
 
