@@ -36,6 +36,7 @@ Changelog
 * Runtime: fixed a crash at startup in release builds.
 * Data Compiler: fixed an issue that caused misdetected file changes before compilation.
 * Data Compiler: fixed slow shader/material compilation.
+* Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.
 * Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.0:
