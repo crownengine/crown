@@ -1275,16 +1275,21 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 		u32 cur_tile;
 		u32 sm_local_view_id = View::SM_LOCAL_0;
 
-		// Render shadow map for spot lights.
-		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS && num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS; ++i) {
+		// Render local lights. Shadow maps are generated only for the first
+		// LOCAL_LIGHTS_MAX_SHADOW_CASTERS lights that can cast shadows.
+		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
 			LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
 
 			if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
 				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+				const bool render_shadow = cast_shadows
+					&& local_shadows
+					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+					;
 
-				shader.cast_shadows = f32(cast_shadows);
+				shader.cast_shadows = f32(render_shadow);
 
-				if (cast_shadows && local_shadows) {
+				if (render_shadow) {
 					cur_tile = num_tiles++;
 
 					// Compute light view-proj matrix.
@@ -1338,10 +1343,14 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				array::push_back(lm._local_lights_spot, lm._local_lights[i]);
 			} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
 				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+				const bool render_shadow = cast_shadows
+					&& local_shadows
+					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+					;
 
-				shader.cast_shadows = f32(cast_shadows);
+				shader.cast_shadows = f32(render_shadow);
 
-				if (cast_shadows && local_shadows) {
+				if (render_shadow) {
 					cur_tile = num_tiles++;
 
 					// Compute projection matrices.
