@@ -6,6 +6,10 @@ Changelog
 :ref:`0.61.3 --- DD MMM YYYY <v0.61.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.
+
 .. _v0.61.2:
 
 :ref:`0.61.2 --- 13 Mar 2026 <v0.61.2>`
