@@ -54,6 +54,10 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._prefab = prefab
 	self._sg = World.scene_graph(world)
 	self._selected = false
+	self._hidden = false
+	self._selectable = true
+	self._mesh_visible = true
+	self._sprite_visible = true
 	self._obb = { pose = Matrix4x4Box(), half_extents = Vector3Box(), dirty = true }
 
 	self:freeze()
@@ -81,6 +85,38 @@ end
 
 function UnitBox:is_spatial()
 	return SceneGraph.instance(self._sg, self._unit_id) ~= nil
+end
+
+function UnitBox:is_selectable()
+	return self._selectable and not self._hidden
+end
+
+function UnitBox:set_selectable(selectable)
+	self._selectable = selectable
+	if not selectable then
+		self:on_selected(false)
+	end
+end
+
+function UnitBox:set_hidden(hidden)
+	if self._hidden == hidden then
+		return
+	end
+
+	self._hidden = hidden
+	if hidden then
+		self:on_selected(false)
+	end
+
+	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
+	if mesh then
+		RenderWorld.mesh_set_visible(self._rw, mesh, self._mesh_visible and not self._hidden)
+	end
+
+	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
+	if sprite then
+		RenderWorld.sprite_set_visible(self._rw, sprite, self._sprite_visible and not self._hidden)
+	end
 end
 
 function UnitBox:local_position()
@@ -282,6 +318,10 @@ function UnitBox:raycast_sprite_tree(pos, dir)
 end
 
 function UnitBox:raycast(pos, dir)
+	if not self:is_selectable() then
+		return -1.0
+	end
+
 	local obb_tm, obb_he = self:obb()
 	if Math.ray_obb_intersection(pos, dir, obb_tm, obb_he) == -1.0 then
 		return -1.0
@@ -296,7 +336,7 @@ function UnitBox:raycast(pos, dir)
 end
 
 function UnitBox:draw()
-	if not self._selected then
+	if self._hidden or not self._selected then
 		return
 	end
 
@@ -383,24 +423,28 @@ function UnitBox:set_tonemap(type)
 end
 
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
+	self._mesh_visible = visible
+
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then
 		RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
 		RenderWorld.mesh_set_material(self._rw, mesh, material)
-		RenderWorld.mesh_set_visible(self._rw, mesh, visible)
+		RenderWorld.mesh_set_visible(self._rw, mesh, visible and not self._hidden)
 		RenderWorld.mesh_set_cast_shadows(self._rw, mesh, cast_shadows)
 		self._obb.dirty = true
 	end
 end
 
 function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visible, flip_x, flip_y)
+	self._sprite_visible = visible
+
 	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
 	if sprite then
 		RenderWorld.sprite_set_sprite(self._rw, sprite, sprite_resource_name)
 		RenderWorld.sprite_set_material(self._rw, sprite, material)
 		RenderWorld.sprite_set_layer(self._rw, sprite, layer)
 		RenderWorld.sprite_set_depth(self._rw, sprite, depth)
-		RenderWorld.sprite_set_visible(self._rw, sprite, visible)
+		RenderWorld.sprite_set_visible(self._rw, sprite, visible and not self._hidden)
 		RenderWorld.sprite_flip_x(self._rw, sprite, flip_x)
 		RenderWorld.sprite_flip_y(self._rw, sprite, flip_y)
 		self._obb.dirty = true

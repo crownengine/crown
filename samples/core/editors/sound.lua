@@ -15,6 +15,9 @@ function SoundObject:init(world, id, name, range, volume, loop)
 	self._unit_id = World.spawn_unit(world, "core/units/sound")
 	self._sg = World.scene_graph(world)
 	self._selected = false
+	self._hidden = false
+	self._selectable = true
+	self._mesh_visible = true
 end
 
 function SoundObject:id()
@@ -35,6 +38,34 @@ end
 
 function SoundObject:is_spatial()
 	return true
+end
+
+function SoundObject:is_selectable()
+	return self._selectable and not self._hidden
+end
+
+function SoundObject:set_selectable(selectable)
+	self._selectable = selectable
+	if not selectable then
+		self:on_selected(false)
+	end
+end
+
+function SoundObject:set_hidden(hidden)
+	if self._hidden == hidden then
+		return
+	end
+
+	self._hidden = hidden
+	if hidden then
+		self:on_selected(false)
+	end
+
+	local rw = LevelEditor._rw
+	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
+	if mesh then
+		RenderWorld.mesh_set_visible(rw, mesh, self._mesh_visible and not self._hidden)
+	end
 end
 
 function SoundObject:local_position()
@@ -107,6 +138,10 @@ function SoundObject:obb()
 end
 
 function SoundObject:raycast(pos, dir)
+	if not self:is_selectable() then
+		return -1.0
+	end
+
 	local rw = LevelEditor._rw
 	local mesh = RenderWorld.mesh_instance(rw, self._unit_id)
 	local tm, hext = RenderWorld.mesh_obb(rw, mesh)
@@ -114,13 +149,15 @@ function SoundObject:raycast(pos, dir)
 end
 
 function SoundObject:draw()
-	if self._selected then
-		DebugLine.add_sphere(LevelEditor._lines
-			, self:local_position()
-			, self._range
-			, Color4.yellow()
-			)
+	if self._hidden or not self._selected then
+		return
 	end
+
+	DebugLine.add_sphere(LevelEditor._lines
+		, self:local_position()
+		, self._range
+		, Color4.yellow()
+		)
 end
 
 function SoundObject:set_range(range)

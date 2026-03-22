@@ -211,7 +211,7 @@ function raycast(objects, pos, dir)
 	local sprite_z = 0
 
 	for k, v in pairs(objects) do
-		if v:is_spatial() then
+		if v:is_spatial() and v:is_selectable() then
 			local nv, nq, nm = Device.temp_count()
 			local t, l, d = v:raycast(pos, dir)
 			if t ~= -1.0 then
@@ -427,7 +427,7 @@ function SelectTool:mouse_move(x, y)
 		-- adds/removes them to/from the selection.
 		local function objects_in_frustum(n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
 			for k, obj in pairs(LevelEditor._objects) do
-				if obj:is_spatial() then
+				if obj:is_spatial() and obj:is_selectable() then
 					local nv, nq, nm = Device.temp_count()
 					local obb_tm, obb_he = obj:obb()
 					local obj_intersects = Math.obb_intersects_frustum(obb_tm, obb_he, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n5, d5)
@@ -1857,6 +1857,24 @@ function LevelEditor:move_object(id, pos, rot, scale)
 	unit_box:set_local_position(pos)
 	unit_box:set_local_rotation(rot)
 	unit_box:set_local_scale(scale)
+end
+
+function LevelEditor:set_object_hidden(id, hidden)
+	local obj = self._objects[id]
+	obj:set_hidden(hidden)
+
+	if hidden and self._selection:has(id) then
+		self._selection:remove(id)
+	end
+end
+
+function LevelEditor:set_object_selectable(id, selectable)
+	local obj = self._objects[id]
+	obj:set_selectable(selectable)
+
+	if not selectable and self._selection:has(id) then
+		self._selection:remove(id)
+	end
 end
 
 function LevelEditor:set_placeable(placeable_type, name)

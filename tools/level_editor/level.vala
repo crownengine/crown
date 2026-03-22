@@ -8,6 +8,9 @@ namespace Crown
 /// Manages objects in a level.
 public class Level
 {
+	public const string OBJECT_HIDDEN_KEY = "editor.hidden";
+	public const string OBJECT_LOCKED_KEY = "editor.locked";
+
 	public Project _project;
 
 	// Engine connections
@@ -192,6 +195,43 @@ public class Level
 				sound.set_local_scale(scales[i]);
 			}
 		}
+	}
+
+	public bool object_hidden(Guid id)
+	{
+		return _db.get_bool(id, OBJECT_HIDDEN_KEY, false);
+	}
+
+	public bool object_locked(Guid id)
+	{
+		return _db.get_bool(id, OBJECT_LOCKED_KEY, false);
+	}
+
+	public void set_object_hidden(Guid id, bool hidden)
+	{
+		_db.set_bool(id, OBJECT_HIDDEN_KEY, hidden);
+	}
+
+	public void set_object_locked(Guid id, bool locked)
+	{
+		_db.set_bool(id, OBJECT_LOCKED_KEY, locked);
+	}
+
+	public Guid?[] filter_runtime_selection(Guid?[] selection)
+	{
+		Gee.ArrayList<Guid?> filtered = new Gee.ArrayList<Guid?>();
+
+		foreach (Guid? id in selection) {
+			if (!_db.has_object(id))
+				continue;
+
+			if (object_hidden(id) || object_locked(id))
+				continue;
+
+			filtered.add(id);
+		}
+
+		return filtered.to_array();
 	}
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)

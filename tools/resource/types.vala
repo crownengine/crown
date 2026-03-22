@@ -745,6 +745,20 @@ public static void create_object_types(Database database)
 			hidden = true,
 			tooltip = "Instance name inside the level.",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "editor.hidden",
+			deffault = false,
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "editor.locked",
+			deffault = false,
+			hidden = true,
+		},
 	};
 	StringId64 sound_source_type = database.create_object_type(OBJECT_TYPE_SOUND_SOURCE, properties, 3.0);
 
@@ -1091,6 +1105,20 @@ public static void create_object_types(Database database)
 			name = "editor.name",
 			deffault = OBJECT_NAME_UNNAMED,
 			tooltip = "Instance name inside the level.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "editor.hidden",
+			deffault = false,
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "editor.locked",
+			deffault = false,
+			hidden = true,
 		},
 		PropertyDefinition()
 		{

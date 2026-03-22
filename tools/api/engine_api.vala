@@ -591,6 +591,16 @@ namespace LevelEditorApi
 		return "LevelEditor:set_placeable(\"%s\", \"%s\")".printf(type, name);
 	}
 
+	public string object_set_hidden(Guid id, bool hidden)
+	{
+		return "LevelEditor:set_object_hidden(\"%s\", %s)".printf(id.to_string(), Lua.bool(hidden));
+	}
+
+	public string object_set_selectable(Guid id, bool selectable)
+	{
+		return "LevelEditor:set_object_selectable(\"%s\", %s)".printf(id.to_string(), Lua.bool(selectable));
+	}
+
 	public string selection_set(Guid?[] ids)
 	{
 		StringBuilder sb = new StringBuilder();

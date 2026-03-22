@@ -555,6 +555,8 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		{ "menu-edit",          null,                  null,   null    },
 		{ "rename",             on_rename,             "(ss)", null    },
+		{ "toggle-hidden",      on_toggle_object_state,null,   null    },
+		{ "toggle-locked",      on_toggle_object_state,null,   null    },
 		{ "tool",               on_tool,               "i",    "1"     }, // See: Crown.ToolType
 		{ "set-placeable",      on_set_placeable,      "(ss)", null    },
 		{ "cancel-place",       on_cancel_place,       null,   null    },
@@ -840,6 +842,8 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("app.tool(1)", new string[] { "W" });
 		this.set_accels_for_action("app.tool(2)", new string[] { "E" });
 		this.set_accels_for_action("app.tool(3)", new string[] { "R" });
+		this.set_accels_for_action("app.toggle-hidden", new string[] { "H" });
+		this.set_accels_for_action("app.toggle-locked", new string[] { "L" });
 
 		this.set_accels_for_action("app.grid-size(0)", new string[] { "<Primary>G" });
 		this.set_accels_for_action("app.rotation-snap-size(0)", new string[] { "<Primary>H" });
@@ -1278,8 +1282,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Update editor view with current editor state.
 		_level.send_level();
-		_database_editor.send_selection(_editor);
 		send_state();
+		send_editor_selection();
 		_preferences_dialog.apply();
 		_editor.send(DeviceApi.frame());
 	}
@@ -1474,6 +1478,15 @@ public class LevelEditorApplication : Gtk.Application
 		_editor.send_script(sb.str);
 	}
 
+	public void send_editor_selection()
+	{
+		if (!_editor.is_connected())
+			return;
+
+		Guid?[] runtime_selection = _level.filter_runtime_selection(_database_editor._selection.to_array());
+		_editor.send_script(LevelEditorApi.selection_set(runtime_selection));
+	}
+
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
 	{
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
@@ -1506,15 +1519,36 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
+		bool runtime_changed = false;
+
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
 			_level.generate_change_objects(sb, object_ids);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
-				_editor_viewport.frame();
+				runtime_changed = true;
 			}
 		}
 
+		bool selection_affected = false;
+		Gee.HashSet<Guid?> changed_ids = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		foreach (Guid? changed_id in object_ids)
+			changed_ids.add(changed_id);
+
+		foreach (Guid? selected_id in _database_editor._selection) {
+			if (changed_ids.contains(selected_id)) {
+				selection_affected = true;
+				break;
+			}
+		}
+
+		if (selection_affected) {
+			send_editor_selection();
+			runtime_changed = true;
+		}
+
+		if (runtime_changed)
+			_editor_viewport.frame();
 		ui_read_selection(_database_editor._selection.to_array());
 		update_active_window_title();
 	}
@@ -1828,14 +1862,15 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
+		update_active_window_title();
+		_level_treeview.set_level(_level);
+
 		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
+			send_editor_selection();
 			_editor_viewport.frame();
 		}
-
-		update_active_window_title();
-		_level_treeview.set_level(_level);
 	}
 
 	public bool do_save(string path)
@@ -1942,14 +1977,15 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
+		update_active_window_title();
+		_level_treeview.set_level(_level);
+
 		if (_editor.is_connected()) {
 			_level.send_level();
 			send_state();
+			send_editor_selection();
 			_editor_viewport.frame();
 		}
-
-		update_active_window_title();
-		_level_treeview.set_level(_level);
 	}
 
 	public void on_new_level(GLib.SimpleAction action, GLib.Variant? param)
@@ -2863,6 +2899,59 @@ public class LevelEditorApplication : Gtk.Application
 				});
 			dg.show_all();
 		}
+	}
+
+	public void on_toggle_object_state(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		bool toggle_hidden = action.get_name() == "toggle-hidden";
+		bool toggle_locked = action.get_name() == "toggle-locked";
+		if (!toggle_hidden && !toggle_locked)
+			return;
+
+		Gee.ArrayList<Guid?> object_ids = new Gee.ArrayList<Guid?>();
+		foreach (Guid? object_id in _database_editor._selection) {
+			if (!_database.has_object(object_id) || !_database.is_alive(object_id))
+				continue;
+
+			string object_type = _database.object_type(object_id);
+			if (object_type != OBJECT_TYPE_UNIT && object_type != OBJECT_TYPE_SOUND_SOURCE)
+				continue;
+
+			object_ids.add(object_id);
+		}
+
+		if (object_ids.size == 0)
+			return;
+
+		bool all_set = true;
+		foreach (Guid? object_id in object_ids) {
+			bool object_state = toggle_hidden
+				? _level.object_hidden(object_id)
+				: _level.object_locked(object_id);
+			if (!object_state) {
+				all_set = false;
+				break;
+			}
+		}
+
+		bool state = !all_set;
+		Gee.ArrayList<Guid?> changed = new Gee.ArrayList<Guid?>();
+		foreach (Guid? object_id in object_ids) {
+			bool object_state = toggle_hidden
+				? _level.object_hidden(object_id)
+				: _level.object_locked(object_id);
+			if (object_state == state)
+				continue;
+
+			if (toggle_hidden)
+				_level.set_object_hidden(object_id, state);
+			else
+				_level.set_object_locked(object_id, state);
+			changed.add(object_id);
+		}
+
+		if (changed.size > 0)
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, changed.to_array());
 	}
 
 	public void on_manual(GLib.SimpleAction action, GLib.Variant? param)
@@ -4629,7 +4718,7 @@ public class LevelEditorApplication : Gtk.Application
 		ui_read_selection(_database_editor._selection.to_array());
 		ui_read_selection.connect(_level_treeview.read_selection);
 
-		_database_editor.send_selection(_editor);
+		send_editor_selection();
 		_editor_viewport.frame();
 	}
 
@@ -4637,7 +4726,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		ui_read_selection(_database_editor._selection.to_array());
 
-		_database_editor.send_selection(_editor);
+		send_editor_selection();
 		_editor_viewport.frame();
 	}
 }

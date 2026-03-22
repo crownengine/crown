@@ -503,6 +503,9 @@ public struct Unit
 				Guid component_id = components[spawn_order[i]];
 				generate_add_component_commands(sb, unit_id, component_id, db);
 			}
+
+			sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
+			sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
 		}
 
 		sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
@@ -687,6 +690,9 @@ public struct Unit
 						generate_set_component_commands(sb, unit_id, component_id, db);
 						return true;
 					});
+
+				sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
+				sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
 			} else if (Unit.is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);

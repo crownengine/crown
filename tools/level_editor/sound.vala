@@ -114,6 +114,8 @@ public struct Sound
 				, db.get_bool      (id, "loop")
 				);
 			sb.append(s);
+			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
+			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
 			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 		}
 
@@ -150,6 +152,8 @@ public struct Sound
 				, sound.local_scale()
 				));
 			sb.append(LevelEditorApi.set_sound_range(id, sound.range()));
+			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
+			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
 			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 		}
 

@@ -23,6 +23,8 @@ public class LevelTreeView : Gtk.Box
 		NAME,
 		VISIBLE,
 		SAVE_STATE,
+		OBJECT_VISIBLE,
+		SELECTION_LOCKED,
 
 		COUNT
 	}
@@ -72,6 +74,9 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.TreeRowReference _units_root;
 	public Gtk.TreeRowReference _sounds_root;
+	public Gtk.TreeViewColumn _name_column;
+	public Gtk.TreeViewColumn _visibility_column;
+	public Gtk.TreeViewColumn _lock_column;
 
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 
@@ -97,6 +102,8 @@ public class LevelTreeView : Gtk.Box
 			, typeof(string) // Column.NAME
 			, typeof(bool)   // Column.VISIBLE
 			, typeof(uint32) // Column.SAVED_STATE
+			, typeof(bool)   // Column.OBJECT_VISIBLE
+			, typeof(bool)   // Column.SELECTION_LOCKED
 			);
 
 		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
@@ -105,12 +112,13 @@ public class LevelTreeView : Gtk.Box
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_sort_column_id(Column.NAME, Gtk.SortType.ASCENDING);
 
-		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
+		_name_column = new Gtk.TreeViewColumn();
+		_name_column.expand = true;
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
-		column.pack_start(cell_pixbuf, false);
-		column.pack_start(cell_text, true);
-		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
+		_name_column.pack_start(cell_pixbuf, false);
+		_name_column.pack_start(cell_text, true);
+		_name_column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
 				Value type;
 				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
 
@@ -127,14 +135,64 @@ public class LevelTreeView : Gtk.Box
 				else
 					cell.set_property("icon-name", "level-object-unknown");
 			});
-		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
+		_name_column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
 				Value name;
 				model.get_value(iter, LevelTreeView.Column.NAME, out name);
 
 				cell.set_property("text", (string)name);
 			});
+
+		_visibility_column = new Gtk.TreeViewColumn();
+		_visibility_column.sizing = Gtk.TreeViewColumnSizing.FIXED;
+		_visibility_column.fixed_width = 18;
+		Gtk.CellRendererPixbuf cell_visibility = new Gtk.CellRendererPixbuf();
+		cell_visibility.set_property("xpad", 0u);
+		_visibility_column.pack_start(cell_visibility, false);
+		_visibility_column.set_cell_data_func(cell_visibility, (cell_layout, cell, model, iter) => {
+				Value type;
+				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
+
+				if ((int)type == LevelTreeView.ItemType.FOLDER) {
+					cell.set_property("icon-name", "");
+					cell.set_property("sensitive", false);
+					return;
+				}
+
+				Value object_visible;
+				model.get_value(iter, LevelTreeView.Column.OBJECT_VISIBLE, out object_visible);
+
+				cell.set_property("icon-name", "layer-visible");
+				cell.set_property("sensitive", (bool)object_visible);
+			});
+
+		_lock_column = new Gtk.TreeViewColumn();
+		_lock_column.sizing = Gtk.TreeViewColumnSizing.FIXED;
+		_lock_column.fixed_width = 34;
+		Gtk.CellRendererPixbuf cell_lock = new Gtk.CellRendererPixbuf();
+		cell_lock.set_property("xpad", 0u);
+		cell_lock.set_property("xalign", 0.0f);
+		_lock_column.pack_start(cell_lock, false);
+		_lock_column.set_cell_data_func(cell_lock, (cell_layout, cell, model, iter) => {
+				Value type;
+				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
+
+				if ((int)type == LevelTreeView.ItemType.FOLDER) {
+					cell.set_property("icon-name", "");
+					cell.set_property("sensitive", false);
+					return;
+				}
+
+				Value selection_locked;
+				model.get_value(iter, LevelTreeView.Column.SELECTION_LOCKED, out selection_locked);
+
+				cell.set_property("icon-name", "layer-locked");
+				cell.set_property("sensitive", (bool)selection_locked);
+			});
+
 		_tree_view = new Gtk.TreeView();
-		_tree_view.append_column(column);
+		_tree_view.append_column(_name_column);
+		_tree_view.append_column(_visibility_column);
+		_tree_view.append_column(_lock_column);
 #if 0
 		// For debugging.
 		_tree_view.insert_column_with_attributes(-1
@@ -188,7 +246,64 @@ public class LevelTreeView : Gtk.Box
 
 	public void on_button_pressed(int n_press, double x, double y)
 	{
-		if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+		uint button = _gesture_click.get_current_button();
+
+		if (button == Gdk.BUTTON_PRIMARY) {
+			int bx;
+			int by;
+			Gtk.TreePath path;
+			Gtk.TreeViewColumn column;
+			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
+				return; // Clicked on empty space.
+
+			if (column == _visibility_column || column == _lock_column) {
+				Gtk.TreeIter iter;
+				if (!_tree_view.model.get_iter(out iter, path))
+					return;
+
+				Value val;
+				_tree_view.model.get_value(iter, Column.TYPE, out val);
+				if ((int)val == ItemType.FOLDER)
+					return;
+
+				_tree_view.model.get_value(iter, Column.GUID, out val);
+				Guid object_id = (Guid)val;
+
+				Gtk.TreeIter iter_filter;
+				Gtk.TreeIter iter_model;
+				_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+				_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+					if (column == _visibility_column) {
+						_tree_view.model.get_value(iter, Column.OBJECT_VISIBLE, out val);
+						bool object_visible = (bool)val;
+						object_visible = !object_visible;
+						_tree_store.set(iter_model, Column.OBJECT_VISIBLE, object_visible, -1);
+
+						bool object_hidden = !object_visible;
+						if (_level.object_hidden(object_id) != object_hidden) {
+							_level.set_object_hidden(object_id, object_hidden);
+							_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
+						}
+					} else if (column == _lock_column) {
+						_tree_view.model.get_value(iter, Column.SELECTION_LOCKED, out val);
+						bool selection_locked = (bool)val;
+						selection_locked = !selection_locked;
+						_tree_store.set(iter_model, Column.SELECTION_LOCKED, selection_locked, -1);
+
+						if (_level.object_locked(object_id) != selection_locked) {
+							_level.set_object_locked(object_id, selection_locked);
+							_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
+						}
+					}
+
+				_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+				return;
+			}
+		}
+
+		if (button == Gdk.BUTTON_SECONDARY) {
 			int bx;
 			int by;
 			Gtk.TreePath path;
@@ -258,7 +373,7 @@ public class LevelTreeView : Gtk.Box
 			menu.popup();
 
 			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
-		} else if (_gesture_click.get_current_button() == Gdk.BUTTON_PRIMARY && n_press == 2) {
+		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
 			widget_activate_action(_tree_view, "viewport.camera-frame-selected");
 		}
 	}
@@ -332,13 +447,21 @@ public class LevelTreeView : Gtk.Box
 						_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
 						_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
 
+							bool object_visible_new = !_level.object_hidden(id);
+							bool selection_locked_new = _level.object_locked(id);
+
 						_tree_store.set(iter_model
 							, Column.NAME
 							, _db.name(id)
+							, Column.OBJECT_VISIBLE
+							, object_visible_new
+							, Column.SELECTION_LOCKED
+							, selection_locked_new
 							, -1
 							);
-						return true;
-					}
+
+							return true;
+						}
 
 					return false;
 				});
@@ -359,6 +482,7 @@ public class LevelTreeView : Gtk.Box
 	public void set_level(Level level)
 	{
 		Gtk.TreeIter iter;
+		_level = level;
 
 		_tree_view.model = null;
 		_tree_store.clear();
@@ -376,6 +500,10 @@ public class LevelTreeView : Gtk.Box
 			, true
 			, Column.SAVE_STATE
 			, 0u
+			, Column.OBJECT_VISIBLE
+			, true
+			, Column.SELECTION_LOCKED
+			, false
 			, -1
 			);
 		_units_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
@@ -393,15 +521,18 @@ public class LevelTreeView : Gtk.Box
 			, true
 			, Column.SAVE_STATE
 			, 0u
+			, Column.OBJECT_VISIBLE
+			, true
+			, Column.SELECTION_LOCKED
+			, false
 			, -1
 			);
 		_sounds_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 
 		_tree_view.model = _tree_sort;
 
-		_level = level;
-		on_objects_created(_db.get_set(_level._id, "units", new Gee.HashSet<Guid?>()).to_array());
-		on_objects_created(_db.get_set(_level._id, "sounds", new Gee.HashSet<Guid?>()).to_array());
+		on_objects_created(_db.get_set(_level._id, "units", new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)).to_array());
+		on_objects_created(_db.get_set(_level._id, "sounds", new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)).to_array());
 
 		_tree_view.expand_all();
 	}
@@ -422,6 +553,8 @@ public class LevelTreeView : Gtk.Box
 					break;
 
 				Unit u = Unit(_level._db, object_ids[i]);
+					bool object_visible = !_level.object_hidden(u._id);
+					bool selection_locked = _level.object_locked(u._id);
 				Gtk.TreeIter units_iter;
 
 				_tree_store.get_iter(out units_iter, _units_root.get_path());
@@ -438,6 +571,10 @@ public class LevelTreeView : Gtk.Box
 					, true
 					, Column.SAVE_STATE
 					, 0u
+					, Column.OBJECT_VISIBLE
+					, object_visible
+					, Column.SELECTION_LOCKED
+					, selection_locked
 					, -1
 					);
 			}
@@ -453,6 +590,8 @@ public class LevelTreeView : Gtk.Box
 		for (i = 0; i < object_ids.length; ++i) {
 			if (_db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
 				break;
+			bool object_visible = !_level.object_hidden(object_ids[i]);
+			bool selection_locked = _level.object_locked(object_ids[i]);
 
 			Gtk.TreeIter sounds_iter;
 			Gtk.TreeIter iter;
@@ -471,6 +610,10 @@ public class LevelTreeView : Gtk.Box
 				, true
 				, Column.SAVE_STATE
 				, 0u
+				, Column.OBJECT_VISIBLE
+				, object_visible
+				, Column.SELECTION_LOCKED
+				, selection_locked
 				, -1
 				);
 		}
