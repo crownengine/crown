@@ -259,7 +259,7 @@ public class LevelTreeView : Gtk.Box
 
 			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 		} else if (_gesture_click.get_current_button() == Gdk.BUTTON_PRIMARY && n_press == 2) {
-			GLib.Application.get_default().activate_action("camera-frame-selected", null);
+			widget_activate_action(_tree_view, "viewport.camera-frame-selected");
 		}
 	}
 

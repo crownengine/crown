@@ -25,6 +25,7 @@ Changelog
 * Tools: fixed favorites entries disappearing when saved from some external applications.
 * Tools: fixed ``Ctrl+O`` keyboard shortcut for opening levels.
 * Tools: fixed stutters in flythrough camera mode.
+* Tools: fixed framing object when double-clicking it in the Level Tree.
 * Runtime: added missing keyboard punctuation and special keys on HTML5, Linux and Windows platforms.
 * Runtime: fixed a crash in the Graph subsystem.
 * Runtime: fixed ``smoothed`` timestep policy not honoring average_cap during the very first frames.
