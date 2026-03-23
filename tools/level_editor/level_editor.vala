@@ -2795,7 +2795,9 @@ public class LevelEditorApplication : Gtk.Application
 				success = false;
 
 		if (success) {
-			_project_browser.queue_draw();
+			_project_browser._folder_view._icon_view.queue_draw();
+			_project_browser._folder_view._list_view.queue_draw();
+			_project_browser._tree_view.queue_draw();
 
 			// Apply editor changes to reloaded units.
 			var sb = new GLib.StringBuilder();

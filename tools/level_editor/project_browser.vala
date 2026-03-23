@@ -915,7 +915,8 @@ public class ProjectBrowser : Gtk.Box
 		_thumbnail_cache = thumbnail_cache;
 		_thumbnail_cache.changed.connect(() => {
 			_tree_view.queue_draw();
-			_folder_view.queue_draw();
+			_folder_view._icon_view.queue_draw();
+			_folder_view._list_view.queue_draw();
 		});
 
 		_needle = "";
