@@ -24,6 +24,8 @@ sounds = [
 		_guid = "8b0b2bd9-f3ac-4034-9c08-9f53e7e69f23"
 		_type = "sound_source"
 		editor = {
+			hidden = false
+			locked = false
 			name = "background_noise"
 		}
 		group = "music"
@@ -51,6 +53,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -83,6 +87,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -115,6 +121,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -147,6 +155,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone2"
 		}
 		modified_components = {
@@ -179,6 +189,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -211,6 +223,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -243,6 +257,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -275,6 +291,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -307,6 +325,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -339,6 +359,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -371,6 +393,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -403,6 +427,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -435,6 +461,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -467,6 +495,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -499,6 +529,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -531,6 +563,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -563,6 +597,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "moving_platform_x"
 		}
 		modified_components = {
@@ -600,6 +636,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -632,6 +670,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -664,6 +704,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -696,6 +738,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -728,6 +772,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -760,6 +806,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -792,6 +840,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -824,6 +874,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "block4"
 		}
 		modified_components = {
@@ -861,6 +913,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -893,6 +947,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -925,6 +981,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -957,6 +1015,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -989,6 +1049,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -1021,6 +1083,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -1053,6 +1117,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sun"
 		}
 		modified_components = {
@@ -1097,6 +1163,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -1129,6 +1197,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -1161,6 +1231,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1193,6 +1265,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -1225,6 +1299,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1257,6 +1333,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -1289,6 +1367,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -1321,6 +1401,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1353,6 +1435,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -1385,6 +1469,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -1417,6 +1503,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -1449,6 +1537,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = true
 			name = "ground"
 		}
 		modified_components = {
@@ -1492,6 +1582,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1524,6 +1616,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1556,6 +1650,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1588,6 +1684,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere2"
 		}
 		modified_components = {
@@ -1620,6 +1718,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1652,6 +1752,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -1684,6 +1786,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1716,6 +1820,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1748,6 +1854,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1780,6 +1888,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "moving_platform_y"
 		}
 		modified_components = {
@@ -1817,6 +1927,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -1849,6 +1961,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1881,6 +1995,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -1913,6 +2029,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone2"
 		}
 		modified_components = {
@@ -1945,6 +2063,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone2"
 		}
 		modified_components = {
@@ -1977,6 +2097,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope8"
 		}
 		modified_components = {
@@ -2009,6 +2131,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2045,6 +2169,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_rotating_platforms"
 		}
 		modified_components = {
@@ -2083,6 +2209,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2115,6 +2243,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2147,6 +2277,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -2179,6 +2311,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -2211,6 +2345,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -2243,6 +2379,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "trigger_wall_R"
 		}
 		modified_components = {
@@ -2275,6 +2413,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "raycast_wall_R"
 		}
 		modified_components = {
@@ -2316,6 +2456,8 @@ units = [
 			}
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "trigger_trigger"
 		}
 		modified_components = {
@@ -2354,6 +2496,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -2386,6 +2530,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2418,6 +2564,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -2450,6 +2598,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2486,6 +2636,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_crouching"
 		}
 		modified_components = {
@@ -2524,6 +2676,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2556,6 +2710,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2588,6 +2744,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2620,6 +2778,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -2652,6 +2812,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2684,6 +2846,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -2716,6 +2880,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -2748,6 +2914,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -2780,6 +2948,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2812,6 +2982,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2844,6 +3016,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2876,6 +3050,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "rotating_platform"
 		}
 		modified_components = {
@@ -2908,6 +3084,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "trigger_door"
 		}
 		modified_components = {
@@ -2950,6 +3128,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -2982,6 +3162,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "moving_platform_z1"
 		}
 		modified_components = {
@@ -3019,6 +3201,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -3051,6 +3235,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -3083,6 +3269,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3115,6 +3303,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3147,6 +3337,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3179,6 +3371,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -3211,6 +3405,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3243,6 +3439,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3275,6 +3473,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope5"
 		}
 		modified_components = {
@@ -3307,6 +3507,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -3339,6 +3541,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -3375,6 +3579,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_stairs"
 		}
 		modified_components = {
@@ -3413,6 +3619,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3445,6 +3653,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -3477,6 +3687,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere2"
 		}
 		modified_components = {
@@ -3509,6 +3721,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3541,6 +3755,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3573,6 +3789,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = true
 			name = "wall3"
 		}
 		modified_components = {
@@ -3605,6 +3823,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3637,6 +3857,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -3669,6 +3891,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3701,6 +3925,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3733,6 +3959,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -3765,6 +3993,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere2"
 		}
 		modified_components = {
@@ -3797,6 +4027,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -3829,6 +4061,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -3861,6 +4095,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3893,6 +4129,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -3925,6 +4163,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -3957,6 +4197,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -3989,6 +4231,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4021,6 +4265,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "rotating_platform"
 		}
 		modified_components = {
@@ -4053,6 +4299,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4085,6 +4333,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4117,6 +4367,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4149,6 +4401,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4181,6 +4435,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4213,6 +4469,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4245,6 +4503,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -4277,6 +4537,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4309,6 +4571,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4341,6 +4605,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4373,6 +4639,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "character"
 		}
 		modified_components = {
@@ -4405,6 +4673,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4437,6 +4707,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4469,6 +4741,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4501,6 +4775,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4533,6 +4809,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4565,6 +4843,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4597,6 +4877,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -4629,6 +4911,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -4661,6 +4945,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4693,6 +4979,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -4725,6 +5013,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone2"
 		}
 		modified_components = {
@@ -4757,6 +5047,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope7"
 		}
 		modified_components = {
@@ -4789,6 +5081,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4821,6 +5115,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -4853,6 +5149,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "moving_platform_z2"
 		}
 		modified_components = {
@@ -4890,6 +5188,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -4922,6 +5222,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "trigger_wall_L"
 		}
 		modified_components = {
@@ -4958,6 +5260,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_trigger"
 		}
 		modified_components = {
@@ -4996,6 +5300,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5028,6 +5334,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5060,6 +5368,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5092,6 +5402,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope6"
 		}
 		modified_components = {
@@ -5124,6 +5436,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -5156,6 +5470,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -5188,6 +5504,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5220,6 +5538,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "rotating_platform"
 		}
 		modified_components = {
@@ -5252,6 +5572,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5284,6 +5606,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -5316,6 +5640,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -5348,6 +5674,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -5380,6 +5708,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -5412,6 +5742,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5444,6 +5776,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -5476,6 +5810,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5508,6 +5844,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -5540,6 +5878,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -5572,6 +5912,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -5604,6 +5946,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "raycast_wall_L"
 		}
 		modified_components = {
@@ -5636,6 +5980,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -5668,6 +6014,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5700,6 +6048,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5732,6 +6082,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -5768,6 +6120,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_moving_platforms"
 		}
 		modified_components = {
@@ -5806,6 +6160,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -5838,6 +6194,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -5870,6 +6228,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -5902,6 +6262,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone2"
 		}
 		modified_components = {
@@ -5934,6 +6296,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5966,6 +6330,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -5998,6 +6364,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6030,6 +6398,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6062,6 +6432,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6094,6 +6466,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "raycast_door"
 		}
 		modified_components = {
@@ -6136,6 +6510,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6168,6 +6544,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6200,6 +6578,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -6232,6 +6612,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6264,6 +6646,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6296,6 +6680,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6328,6 +6714,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6360,6 +6748,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6392,6 +6782,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6424,6 +6816,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -6456,6 +6850,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -6488,6 +6884,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6520,6 +6918,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6552,6 +6952,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -6584,6 +6986,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -6620,6 +7024,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_movers"
 		}
 		modified_components = {
@@ -6658,6 +7064,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6690,6 +7098,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = true
 			name = "wall2"
 		}
 		modified_components = {
@@ -6722,6 +7132,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -6754,6 +7166,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -6786,6 +7200,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "block3"
 		}
 		modified_components = {
@@ -6823,6 +7239,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -6855,6 +7273,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -6887,6 +7307,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -6919,6 +7341,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -6951,6 +7375,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = true
 			name = "wall4"
 		}
 		modified_components = {
@@ -6983,6 +7409,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -7015,6 +7443,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7047,6 +7477,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7079,6 +7511,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7111,6 +7545,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -7143,6 +7579,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7175,6 +7613,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -7211,6 +7651,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_raycast"
 		}
 		modified_components = {
@@ -7249,6 +7691,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit_0000"
 		}
 		modified_components = {
@@ -7287,6 +7731,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7319,6 +7765,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -7351,6 +7799,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit"
 		}
 		modified_components = {
@@ -7383,6 +7833,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7415,6 +7867,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7447,6 +7901,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7484,6 +7940,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -7516,6 +7974,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -7548,6 +8008,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "shading_environment"
 		}
 		modified_components = {
@@ -7588,6 +8050,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7620,6 +8084,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7652,6 +8118,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -7684,6 +8152,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7716,6 +8186,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7748,6 +8220,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -7780,6 +8254,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7812,6 +8288,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7844,6 +8322,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7876,6 +8356,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -7908,6 +8390,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -7940,6 +8424,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -7972,6 +8458,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8004,6 +8492,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -8040,6 +8530,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_irregular_terrain"
 		}
 		modified_components = {
@@ -8078,6 +8570,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -8110,6 +8604,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope9"
 		}
 		modified_components = {
@@ -8142,6 +8638,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope"
 		}
 		modified_components = {
@@ -8174,6 +8672,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8206,6 +8706,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -8238,6 +8740,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8270,6 +8774,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -8302,6 +8808,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8334,6 +8842,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = true
 			name = "wall"
 		}
 		modified_components = {
@@ -8366,6 +8876,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -8398,6 +8910,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -8430,6 +8944,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -8462,6 +8978,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8494,6 +9012,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8526,6 +9046,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8558,6 +9080,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -8590,6 +9114,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -8622,6 +9148,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "camera"
 		}
 		modified_components = {
@@ -8654,6 +9182,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere2"
 		}
 		modified_components = {
@@ -8686,6 +9216,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -8718,6 +9250,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -8750,6 +9284,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8782,6 +9318,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8814,6 +9352,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -8846,6 +9386,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -8878,6 +9420,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope4"
 		}
 		modified_components = {
@@ -8910,6 +9454,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -8942,6 +9488,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -8974,6 +9522,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "block2"
 		}
 		modified_components = {
@@ -9011,6 +9561,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9043,6 +9595,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9075,6 +9629,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9107,6 +9663,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "block"
 		}
 		modified_components = {
@@ -9150,6 +9708,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9182,6 +9742,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope2"
 		}
 		modified_components = {
@@ -9214,6 +9776,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9246,6 +9810,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9278,6 +9844,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9310,6 +9878,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -9342,6 +9912,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9374,6 +9946,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -9406,6 +9980,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -9438,6 +10014,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -9470,6 +10048,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9502,6 +10082,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9534,6 +10116,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -9566,6 +10150,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9598,6 +10184,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9630,6 +10218,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube2"
 		}
 		modified_components = {
@@ -9662,6 +10252,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9694,6 +10286,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9726,6 +10320,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9758,6 +10354,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9790,6 +10388,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9822,6 +10422,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -9854,6 +10456,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9886,6 +10490,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9918,6 +10524,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -9950,6 +10558,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -9982,6 +10592,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "raycast_door_button"
 		}
 		modified_components = {
@@ -10024,6 +10636,8 @@ units = [
 			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
 		}
 		editor = {
+			hidden = false
+			locked = false
 			name = "label_slopes"
 		}
 		modified_components = {
@@ -10062,6 +10676,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10094,6 +10710,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10126,6 +10744,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope"
 		}
 		modified_components = {
@@ -10158,6 +10778,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -10190,6 +10812,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "slope3"
 		}
 		modified_components = {
@@ -10222,6 +10846,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10254,6 +10880,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10286,6 +10914,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10318,6 +10948,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -10350,6 +10982,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10382,6 +11016,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder2"
 		}
 		modified_components = {
@@ -10414,6 +11050,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cone"
 		}
 		modified_components = {
@@ -10446,6 +11084,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -10478,6 +11118,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -10510,6 +11152,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -10542,6 +11186,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cylinder"
 		}
 		modified_components = {
@@ -10574,6 +11220,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "sphere"
 		}
 		modified_components = {
@@ -10606,6 +11254,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube"
 		}
 		modified_components = {
@@ -10638,6 +11288,8 @@ units = [
 		children = [
 		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "cube3"
 		}
 		modified_components = {
