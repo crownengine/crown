@@ -23,6 +23,64 @@ public const string PANEL_EDITOR = "panel-editor";
 public const string PANEL_PROJECTS_LIST = "panel-projects-list";
 public const string PANEL_NEW_PROJECT = "panel-new-project";
 
+public bool widget_activate_action_variant(Gtk.Widget widget, string name, GLib.Variant? args = null)
+{
+#if CROWN_GTK3
+	int dot = name.index_of_char('.');
+	if (dot >= 0) {
+		if (dot == 0 || dot >= name.length - 1)
+			return false;
+
+		string prefix = name.substring(0, dot);
+		string action_name = name.substring(dot + 1);
+
+		for (Gtk.Widget? it = widget; it != null; it = it.get_parent()) {
+			unowned GLib.ActionGroup? group = it.get_action_group(prefix);
+			if (group == null || !group.has_action(action_name))
+				continue;
+
+			if (!group.get_action_enabled(action_name))
+				return false;
+
+			group.activate_action(action_name, args);
+			return true;
+		}
+
+		return false;
+	}
+
+	for (Gtk.Widget? it = widget; it != null; it = it.get_parent()) {
+		unowned GLib.ActionGroup? group = it as GLib.ActionGroup;
+		if (group == null || !group.has_action(name))
+			continue;
+
+		if (!group.get_action_enabled(name))
+			return false;
+
+		group.activate_action(name, args);
+		return true;
+	}
+
+	return false;
+#else
+	return widget.activate_action_variant(name, args);
+#endif
+}
+
+public bool widget_activate_action(Gtk.Widget widget, string detailed_action_name)
+{
+	string action_name;
+	GLib.Variant? target_value;
+
+	try {
+		GLib.Action.parse_detailed_name(detailed_action_name, out action_name, out target_value);
+	} catch (GLib.Error e) {
+		return false;
+	}
+
+	return widget_activate_action_variant(widget, action_name, target_value);
+}
+
 public enum Theme
 {
 	DARK,
