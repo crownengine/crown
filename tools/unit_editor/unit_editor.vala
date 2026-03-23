@@ -7,6 +7,7 @@ namespace Crown
 {
 public class UnitEditor : Gtk.ApplicationWindow
 {
+	public LevelEditorApplication _application;
 	public DatabaseEditor _database_editor;
 	public Database _database;
 	public EditorViewport _editor_viewport;
@@ -28,7 +29,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public signal void saved();
 
-	public UnitEditor(Gtk.Application application
+	public UnitEditor(LevelEditorApplication application
 		, Project project
 		, string boot_dir
 		, string console_addr
@@ -37,6 +38,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		)
 	{
 		Object(application: application);
+		_application = application;
 
 		_database_editor = new DatabaseEditor(project, undo_redo_size);
 		_database_editor.undo.connect(on_undo);
@@ -67,6 +69,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_runtime.connected.connect(on_editor_connected);
 		_runtime.disconnected.connect(on_editor_disconnected);
 		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
+		_runtime.message_received.connect(on_message_received);
 
 		_level = new Level(_database, _runtime);
 
@@ -176,6 +179,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void on_editor_disconnected_unexpected(RuntimeInstance ri)
 	{
+	}
+
+	public void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
+	{
+		_application.on_message_received(ri, client, json);
 	}
 
 	public void reset()
