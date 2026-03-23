@@ -10,6 +10,7 @@ Changelog
 
 * Tools: the command bar in the Console will now suggest completions when typing Lua expressions.
 * Tools: added the ability to Duplicate resources from the Project Browser.
+* Tools: added the ability to hide and lock objects in the Level Tree.
 * Runtime: the Mover component has been refactored to improve robustness and fix all issues present in the previous implementation.
 * Runtime: meshes can now be set to cast shadows while being invisible.
 * Runtime: Android: added support for keyboard, mouse and joypad input devices.
