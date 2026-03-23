@@ -2790,9 +2790,11 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		bool success = true;
 
+		_thumbnail_cache._request_generation_enabled = false;
 		foreach (var ri in _runtimes)
 			if (ri.is_connected() && !yield ri.refresh(_data_compiler))
 				success = false;
+		_thumbnail_cache._request_generation_enabled = true;
 
 		if (success) {
 			_project_browser._folder_view._icon_view.queue_draw();

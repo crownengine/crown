@@ -27,6 +27,7 @@ public class ThumbnailCache
 	public Gee.HashMap<StringId64?, CacheEntry?> _map;
 	public uint _max_cache_size;
 	public bool _no_disk_cache; // Debug only: always go through server to get a thumbnail.
+	public bool _request_generation_enabled;
 	public PixbufView _debug_pixbuf;
 	public Gtk.Window _debug_window;
 
@@ -40,6 +41,7 @@ public class ThumbnailCache
 		_list = new GLib.List<StringId64?>();
 		_map = new Gee.HashMap<StringId64?, CacheEntry?>(StringId64.hash_func, StringId64.equal_func);
 		_no_disk_cache = false;
+		_request_generation_enabled = true;
 
 		reset(max_cache_size);
 	}
@@ -263,7 +265,7 @@ public class ThumbnailCache
 		if (!entry.pending && (entry.mtime == 0 || entry.mtime <= _project.mtime(type, name))) {
 			// On-disk thumbnail not found or outdated.
 			// Ask the server to generate a fresh one if the data is ready.
-			if (_project._data_compiled) {
+			if (_project._data_compiled && _request_generation_enabled) {
 				try {
 					// Create a unique temporary file to store the thumbnail's data.
 					FileIOStream fs;
