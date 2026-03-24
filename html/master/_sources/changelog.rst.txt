@@ -41,6 +41,7 @@ Changelog
 * Data Compiler: fixed slow shader/material compilation.
 * Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.
 * Data Compiler: fixed a minor issue that caused the compiler to increment the data revision even when no resource was actually compiled.
+* Data Compiler: fixed an issues that caused stale data to be loaded when compiled on different runtime versions under certain circumnstances.
 * Lua: fixed "Unbalanced stack!" errors when calling ``PhysicsWorld.mover_set_position()`` or ``PhysicsWorld.cast_sphere()``.
 
 .. _v0.61.0:
