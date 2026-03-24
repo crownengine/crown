@@ -1037,6 +1037,8 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			const char *type_str = resource_type(path.c_str());
 			if (type_str == NULL)
 				continue;
+			if (!can_compile(StringId64(type_str)))
+				continue;
 
 			const ResourceId id = resource_id(path.c_str());
 

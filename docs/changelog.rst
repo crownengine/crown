@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed framing object when double-clicking it in the Level Tree.
 * Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.
+* Data Compiler: fixed a minor issue that caused the compiler to increment the data revision even when no resource was actually compiled.
 
 .. _v0.61.2:
 
