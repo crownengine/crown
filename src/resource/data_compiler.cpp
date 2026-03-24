@@ -1020,6 +1020,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 	// Find the set of resources to be compiled, removed etc.
 	Vector<DynamicString> to_compile(default_allocator());
 	Vector<DynamicString> to_remove(default_allocator());
+	Array<ResourceId> potentially_stale_outputs(default_allocator());
 
 	auto cur = hash_map::begin(_source_index._paths);
 	auto end = hash_map::end(_source_index._paths);
@@ -1140,6 +1141,10 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		rtd.version = 0;
 		rtd.compiler = NULL;
 		rtd = hash_map::get(_compilers, type, rtd);
+		const u32 stored_type_version = data_version_stored(type);
+		const bool type_version_mismatch = stored_type_version != UINT32_MAX
+			&& stored_type_version != rtd.version
+			;
 
 		Buffer output_buffer(default_allocator());
 		FileBuffer output(output_buffer);
@@ -1238,6 +1243,12 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(dest.c_str()));
 				hash_map::set(_data_revisions, id, _revision + 1);
 			}
+
+			// If this compile attempt fails later, this output may remain on disk with
+			// a type version that does not match stored metadata. Invalidate it so the
+			// next compile() run rebuilds only the affected resources.
+			if (type_version_mismatch)
+				array::push_back(potentially_stale_outputs, id);
 		} else {
 			loge(DATA_COMPILER, "Failed to compile data");
 			break;
@@ -1366,6 +1377,18 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 					logi(DATA_COMPILER, "Bundles are up to date");
 				}
 			}
+		}
+	} else {
+		// A failed compile may have overwritten only a subset of outputs. Invalidate
+		// just the potentially stale resources so the next compile() run can do a
+		// targeted rebuild instead of recompiling everything.
+		for (u32 i = 0; i < array::size(potentially_stale_outputs); ++i) {
+			const ResourceId id = potentially_stale_outputs[i];
+			hash_map::remove(_data_index, id);
+			hash_map::remove(_data_mtimes, id);
+			hash_map::remove(_data_dependencies, id);
+			hash_map::remove(_data_requirements, id);
+			hash_map::remove(_data_revisions, id);
 		}
 	}
 
