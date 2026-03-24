@@ -685,6 +685,8 @@ public class LevelEditorApplication : Gtk.Application
 	public string[] _tool_move_accels;
 	public string[] _tool_rotate_accels;
 	public string[] _tool_scale_accels;
+	public string[] _toggle_hidden_accels;
+	public string[] _toggle_locked_accels;
 	public string[] _delete_accels;
 	public string[] _camera_view_perspective_accels;
 	public string[] _camera_view_front_accels;
@@ -872,6 +874,8 @@ public class LevelEditorApplication : Gtk.Application
 		_tool_move_accels = this.get_accels_for_action("app.tool(1)");
 		_tool_rotate_accels = this.get_accels_for_action("app.tool(2)");
 		_tool_scale_accels = this.get_accels_for_action("app.tool(3)");
+		_toggle_hidden_accels = this.get_accels_for_action("app.toggle-hidden");
+		_toggle_locked_accels = this.get_accels_for_action("app.toggle-locked");
 		_delete_accels = this.get_accels_for_action("database.delete");
 		_camera_view_perspective_accels = this.get_accels_for_action("viewport.camera-view(0)");
 		_camera_view_front_accels = this.get_accels_for_action("viewport.camera-view(1)");
@@ -4612,6 +4616,8 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("app.tool(1)", on ? _tool_move_accels : no_accels);
 		this.set_accels_for_action("app.tool(2)", on ? _tool_rotate_accels : no_accels);
 		this.set_accels_for_action("app.tool(3)", on ? _tool_scale_accels : no_accels);
+		this.set_accels_for_action("app.toggle-hidden", on ? _toggle_hidden_accels : no_accels);
+		this.set_accels_for_action("app.toggle-locked", on ? _toggle_locked_accels : no_accels);
 		this.set_accels_for_action("database.delete", on ? _delete_accels : no_accels);
 		this.set_accels_for_action("viewport.camera-view(0)", on ? _camera_view_perspective_accels : no_accels);
 		this.set_accels_for_action("viewport.camera-view(1)", on ? _camera_view_front_accels : no_accels);
