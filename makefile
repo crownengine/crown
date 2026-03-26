@@ -172,13 +172,25 @@ build/projects/linux:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
 	$(GENIE) --gfxapi=vulkan --with-tools --compiler=linux-gcc gmake
-linux-debug64:           \
-	build/projects/linux \
-	build/linux64/bin/luajit
+linux-debug32:               \
+	build/projects/linux     \
+	build/linux32/bin/luajit \
+	build/linux32/bin/luac
+linux-development32:         \
+	build/projects/linux     \
+	build/linux32/bin/luajit \
+	build/linux32/bin/luac
+linux-debug64:                 \
+	build/projects/linux       \
+	build/linux64/bin/luajit   \
+	build/linux64/bin/texturec \
+	build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
-linux-development64:     \
-	build/projects/linux \
-	build/linux64/bin/luajit
+linux-development64:           \
+	build/projects/linux       \
+	build/linux64/bin/luajit   \
+	build/linux64/bin/texturec \
+	build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
 linux-release64:         \
 	build/projects/linux \
@@ -211,13 +223,23 @@ build/projects/mingw:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
 	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
-mingw-debug64:           \
-	build/projects/mingw \
-	build/mingw64/bin/luajit.exe
+mingw-debug32:             \
+	build/projects/mingw32 \
+	build/mingw32/bin/luac
+mingw-development32:       \
+	build/projects/mingw32 \
+	build/mingw32/bin/luac
+mingw-debug64:                     \
+	build/projects/mingw           \
+	build/mingw64/bin/luajit.exe   \
+	build/mingw64/bin/texturec.exe \
+	build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=debug64
-mingw-development64:     \
-	build/projects/mingw \
-	build/mingw64/bin/luajit.exe
+mingw-development64:               \
+	build/projects/mingw           \
+	build/mingw64/bin/luajit.exe   \
+	build/mingw64/bin/texturec.exe \
+	build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=development64
 mingw-release64:         \
 	build/projects/mingw \
@@ -232,13 +254,17 @@ build/projects/vs2022:
 	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2022
 	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2022
 	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2022
-windows-debug64:          \
-	build/projects/vs2022 \
-	build/windows64/bin/luajit.exe
+windows-debug64:                     \
+	build/projects/vs2022            \
+	build/windows64/bin/luajit.exe   \
+	build/windows64/bin/texturec.exe \
+	build/windows64/bin/shaderc.exe
 	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "debug|x64" $(ARG_PREFIX)Project crown
-windows-development64:    \
-	build/projects/vs2022 \
-	build/windows64/bin/luajit.exe
+windows-development64:               \
+	build/projects/vs2022            \
+	build/windows64/bin/luajit.exe   \
+	build/windows64/bin/texturec.exe \
+	build/windows64/bin/shaderc.exe
 	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "development|x64" $(ARG_PREFIX)Project crown
 windows-release64:        \
 	build/projects/vs2022 \
@@ -277,40 +303,23 @@ crown-launcher-mingw-release64: \
 	build/projects/mingw
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown-launcher config=release64
 
-tools-linux-release32:       \
-	build/linux32/bin/luajit \
-	build/linux32/bin/luac
-tools-linux-debug64:           \
-	build/linux64/bin/texturec \
-	build/linux64/bin/shaderc  \
-	linux-debug64              \
+tools-linux-debug64: \
+	linux-debug64    \
 	crown-editor-linux-debug64
-tools-linux-release64:         \
-	build/linux64/bin/texturec \
-	build/linux64/bin/shaderc  \
-	linux-development64        \
+tools-linux-release64:  \
+	linux-development64 \
 	crown-editor-linux-release64
 
-tools-windows-debug64:               \
-	build/windows64/bin/texturec.exe \
-	build/windows64/bin/shaderc.exe  \
+tools-windows-debug64: \
 	windows-debug64
-tools-windows-release64:             \
-	build/windows64/bin/texturec.exe \
-	build/windows64/bin/shaderc.exe  \
+tools-windows-release64: \
 	windows-development64
 
-tools-mingw-release32: \
-	build/mingw32/bin/luac
-tools-mingw-debug64:               \
-	build/mingw64/bin/texturec.exe \
-	build/mingw64/bin/shaderc.exe  \
-	mingw-debug64                  \
+tools-mingw-debug64: \
+	mingw-debug64    \
 	crown-editor-mingw-debug64
-tools-mingw-release64:             \
-	build/mingw64/bin/texturec.exe \
-	build/mingw64/bin/shaderc.exe  \
-	mingw-development64            \
+tools-mingw-release64:  \
+	mingw-development64 \
 	crown-editor-mingw-release64
 
 .PHONY: docs
@@ -329,16 +338,16 @@ endif
 endif
 
 .PHONY: 00-empty
-00-empty: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+00-empty: $(SAMPLES_OS)-development64
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 01-physics
-01-physics: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+01-physics: $(SAMPLES_OS)-development64
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 02-animation
-02-animation: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+02-animation: $(SAMPLES_OS)-development64
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 03-joypad
-03-joypad: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+03-joypad: $(SAMPLES_OS)-development64
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 
 .PHONY: samples

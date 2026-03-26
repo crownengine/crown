@@ -106,7 +106,7 @@ elif [ "${PLATFORM}" = "html5" ]; then
 	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
 	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
-	make tools-linux-release32 MAKE_JOBS="${BUILD_JOBS}"
+	make linux-development32 MAKE_JOBS="${BUILD_JOBS}"
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
@@ -166,7 +166,7 @@ elif [ "${PLATFORM}" = "windows" ]; then
 	else
 		export MINGW=/mingw32
 		export PATH="${MINGW}/bin:${PATH}"
-		make -B tools-mingw-release32 MAKE_JOBS="${BUILD_JOBS}"
+		make -B mingw-development32 MAKE_JOBS="${BUILD_JOBS}"
 
 		mv build/mingw32 build/windows32 # Rename mingw* to windows*.
 	fi
