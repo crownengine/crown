@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed framing object when double-clicking it in the Level Tree.
 * Tools: fixed thumbnails in the Project Browser not updating sometimes.
+* Tools: fixed object trees inside editors unnecessarily expand when modified.
 * Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.
 * Data Compiler: fixed a minor issue that caused the compiler to increment the data revision even when no resource was actually compiled.
 * Data Compiler: fixed an issues that caused stale data to be loaded when compiled on different runtime versions under certain circumnstances.
