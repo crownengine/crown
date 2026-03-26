@@ -317,36 +317,45 @@ tools-mingw-release64:             \
 docs:
 	"$(MAKE)" -C docs/ html
 
+SAMPLES_OS=$(OS)
 SAMPLES_PLATFORM=$(OS)
+ifneq (,$(filter MSYS% MINGW%,$(UNAME)))
+ifneq (,$(or $(MINGW),$(MINGW_PREFIX)))
+	MINGW ?= $(MINGW_PREFIX)
+	SAMPLES_OS=mingw
+	SAMPLES_PLATFORM=windows
+	EXE_PREFIX=./
+endif
+endif
 
 .PHONY: 00-empty
-00-empty: $(OS)-development64 tools-$(OS)-release64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+00-empty: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 01-physics
-01-physics: $(OS)-development64 tools-$(OS)-release64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+01-physics: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 02-animation
-02-animation: $(OS)-development64 tools-$(OS)-release64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+02-animation: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 03-joypad
-03-joypad: $(OS)-development64 tools-$(OS)-release64
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+03-joypad: $(SAMPLES_OS)-development64 tools-$(SAMPLES_OS)-release64
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
 
 .PHONY: samples
 samples: 00-empty 01-physics 02-animation 03-joypad
 
 .PHONY: run-00-empty
 run-00-empty: 00-empty
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM))
 .PHONY: run-01-physics
 run-01-physics: 01-physics
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM))
 .PHONY: run-02-animation
 run-02-animation: 02-animation
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM))
 .PHONY: run-03-joypad
 run-03-joypad: 03-joypad
-	cd build/$(OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(OS))
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM))
 
 .PHONY: clean-samples
 clean-samples:
