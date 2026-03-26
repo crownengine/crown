@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-13T17:31:33+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-03-26T17:29:26+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
-<meta property="og:site_name" content="Crown 0.61.2 Manual" />
-<meta property="og:description" content="0.61.2 — 13 Mar 2026: Fixes Tools: fixed stutters in flythrough camera mode., Runtime: fixed a crash when casting rays or shapes against a Mover., Runtime: HTML5: fixed gray fringe on text., Runtime: fixed a crash at startup in release builds., Data Compiler: fixed slow shader..." />
+<meta property="og:site_name" content="Crown 0.61.3 Manual" />
+<meta property="og:description" content="0.61.3 — 26 Mar 2026: Fixes Tools: fixed framing object when double-clicking it in the Level Tree., Tools: fixed thumbnails in the Project Browser not updating sometimes., Tools: fixed object trees inside editors unnecessarily expand when modified., Data Compiler: fixed a cras..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.61.2 Manual" />
-<meta name="description" content="0.61.2 — 13 Mar 2026: Fixes Tools: fixed stutters in flythrough camera mode., Runtime: fixed a crash when casting rays or shapes against a Mover., Runtime: HTML5: fixed gray fringe on text., Runtime: fixed a crash at startup in release builds., Data Compiler: fixed slow shader..." />
+<meta property="og:image:alt" content="Crown 0.61.3 Manual" />
+<meta name="description" content="0.61.3 — 26 Mar 2026: Fixes Tools: fixed framing object when double-clicking it in the Level Tree., Tools: fixed thumbnails in the Project Browser not updating sometimes., Tools: fixed object trees inside editors unnecessarily expand when modified., Data Compiler: fixed a cras..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.61.2 Manual</title>
+  <title>Changelog &mdash; Crown 0.61.3 Manual</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -34,7 +34,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.61.2 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.61.3 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,7 +46,7 @@
             <img src="_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                Crown 0.61.2 Manual
+                Crown 0.61.3 Manual
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -58,20 +58,21 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mar-2026"><span class="xref std std-ref">0.61.2 — 13 Mar 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mar-2026"><span class="xref std std-ref">0.61.3 — 26 Mar 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-61-2"><span class="xref std std-ref">0.61.2 — 13 Mar 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-61-1"><span class="xref std std-ref">0.61.1 — 09 Mar 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2026"><span class="xref std std-ref">0.61.0 — 23 Feb 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dec-2025">0.60.0 — 30 Dec 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2025">0.59.0 — 02 Oct 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2025">0.58.0 — 01 Aug 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2025">0.57.0 — 13 Jun 2025</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.56.0 — 04 Jun 2025</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.56.0 — 04 Jun 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#apr-2025">0.55.0 — 03 Apr 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2025">0.54.0 — 13 Jan 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2024">0.53.0 — 30 Nov 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.52.0 — 11 Nov 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.52.0 — 11 Nov 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.51.0 — 28 Oct 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.50.0 — 10 Oct 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.50.0 — 10 Oct 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
@@ -81,7 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#apr-2021">0.43.0 — <em>17 Apr 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mar-2021">0.42.0 — <em>05 Mar 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2021">0.41.0 — <em>16 Jan 2021</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.40.0 — <em>06 Jan 2021</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.40.0 — <em>06 Jan 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2020">0.39.0 — <em>24 Oct 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2020">0.38.0 — <em>24 Aug 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2020">0.37.0 — <em>26 Jun 2020</em></a></li>
@@ -110,7 +111,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.61.2 Manual</a>
+          <a href="index.html">Crown 0.61.3 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -131,7 +132,19 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <section id="mar-2026">
-<span id="v0-61-2"></span><h2><a class="reference internal" href="#v0-61-2"><span class="std std-ref">0.61.2 — 13 Mar 2026</span></a><a class="headerlink" href="#mar-2026" title="Permalink to this headline">¶</a></h2>
+<span id="v0-61-3"></span><h2><a class="reference internal" href="#v0-61-3"><span class="std std-ref">0.61.3 — 26 Mar 2026</span></a><a class="headerlink" href="#mar-2026" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li><p>Tools: fixed framing object when double-clicking it in the Level Tree.</p></li>
+<li><p>Tools: fixed thumbnails in the Project Browser not updating sometimes.</p></li>
+<li><p>Tools: fixed object trees inside editors unnecessarily expand when modified.</p></li>
+<li><p>Data Compiler: fixed a crash caused by msaa_quality not being initialized to default.</p></li>
+<li><p>Data Compiler: fixed a minor issue that caused the compiler to increment the data revision even when no resource was actually compiled.</p></li>
+<li><p>Data Compiler: fixed an issues that caused stale data to be loaded when compiled on different runtime versions under certain circumnstances.</p></li>
+</ul>
+</section>
+<section id="v0-61-2">
+<span id="id1"></span><h2><a class="reference internal" href="#v0-61-2"><span class="std std-ref">0.61.2 — 13 Mar 2026</span></a><a class="headerlink" href="#v0-61-2" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed stutters in flythrough camera mode.</p></li>
@@ -143,7 +156,7 @@
 </ul>
 </section>
 <section id="v0-61-1">
-<span id="id1"></span><h2><a class="reference internal" href="#v0-61-1"><span class="std std-ref">0.61.1 — 09 Mar 2026</span></a><a class="headerlink" href="#v0-61-1" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><a class="reference internal" href="#v0-61-1"><span class="std std-ref">0.61.1 — 09 Mar 2026</span></a><a class="headerlink" href="#v0-61-1" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fix Delete key being disabled in entries.</p></li>
@@ -341,8 +354,8 @@
 <li><p>Tools: Windows: fixed rendering of selected objects’ outlines.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<section id="id3">
+<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Runtime: added cascaded shadow mapping.</p></li>
@@ -477,8 +490,8 @@
 <li><p>Data Compiler: fixed erratic texture compilation when both legacy properties and the new “output” object were specified in the .texture resource.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<section id="id4">
+<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added the ability to add/remove components from units in the Inspector panel.</p></li>
@@ -516,8 +529,8 @@
 <li><p>Windows: fixed console output and absolute paths when launched under MinGW.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<section id="id5">
+<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added an option to use the debug keystore when deploying APKs for Android.</p></li>
@@ -777,8 +790,8 @@
 <li><p>Removed the default “FPSCamera” camera from the core game framework</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<section id="id6">
+<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li><p>Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances</p></li>
@@ -963,7 +976,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.61.2 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.61.3 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -971,7 +984,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 13, 2026.
+      <span class="lastupdated">Last updated on Mar 26, 2026.
       </span></p>
   </div>
 
