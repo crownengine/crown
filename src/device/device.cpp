@@ -547,7 +547,11 @@ int Device::main_loop()
 	_console_server->register_message_type("refresh", device_message_refresh, this);
 
 #if !CROWN_PLATFORM_EMSCRIPTEN
-	_console_server->listen(_options._console_port, _options._wait_console);
+	_console_server->listen(_options._console_port
+		, _options._wait_console
+		, _options._port_file.empty() ? NULL : _options._port_file.c_str()
+		, CROWN_DEFAULT_CONSOLE_PORT
+		);
 #endif
 
 	bool is_bundle = true;

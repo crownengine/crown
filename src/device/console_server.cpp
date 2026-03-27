@@ -3,18 +3,24 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "config.h"
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/file_buffer.inl"
+#include "core/filesystem/filesystem_disk.h"
+#include "core/filesystem/path.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
+#include "core/math/random.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/network/ip_address.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
+#include "core/strings/string_view.inl"
+#include "core/time.h"
 #include "core/thread/scoped_mutex.inl"
 #include "device/console_server.h"
 #include "device/log.h"
@@ -25,6 +31,89 @@ namespace crown
 {
 namespace console_server_internal
 {
+	struct AutoBindResult
+	{
+		u32 tries;
+		u32 elapsed_ms;
+		bool success;
+	};
+
+	static bool write_port_file(FilesystemDisk &fs, const char *file, u16 port)
+	{
+		CE_ASSERT(file != NULL, "Port file must be != NULL");
+
+		TempAllocator1024 ta;
+		DynamicString tmp_file(ta);
+		tmp_file += file;
+		tmp_file += ".tmp";
+
+		StringStream ss(ta);
+		ss << port << "\n";
+		const char *port_str = string_stream::c_str(ss);
+		const u32 port_str_len = strlen32(port_str);
+
+		File *fp = fs.open(tmp_file.c_str(), FileOpenMode::WRITE);
+		if (!fp->is_open()) {
+			fs.close(*fp);
+			loge(CONSOLE_SERVER, "Could not open port file `%s`", tmp_file.c_str());
+			return false;
+		}
+
+		if (fp->write(port_str, port_str_len) != port_str_len) {
+			fs.close(*fp);
+			fs.delete_file(tmp_file.c_str());
+			loge(CONSOLE_SERVER, "Could not write port file `%s`", tmp_file.c_str());
+			return false;
+		}
+
+		fs.close(*fp);
+
+		const RenameResult rr = fs.rename(tmp_file.c_str(), file);
+		if (rr.error != RenameResult::SUCCESS) {
+			fs.delete_file(tmp_file.c_str());
+			loge(CONSOLE_SERVER, "Could not rename port file `%s` -> `%s`"
+				, tmp_file.c_str()
+				, file
+				);
+			return false;
+		}
+
+		return true;
+	}
+
+	static AutoBindResult bind_auto_port(u16 *port, ConsoleServer &cs)
+	{
+		CE_ENSURE(port != NULL);
+
+		AutoBindResult abr = {};
+
+		const s64 t0 = time::now();
+		const u32 span = CROWN_CONSOLE_PORT_AUTO_MAX - CROWN_CONSOLE_PORT_AUTO_MIN + 1;
+		const u32 max_tries = min((u32)CROWN_CONSOLE_PORT_AUTO_MAX_TRIES, span);
+
+		Random random;
+		const u32 start = (u32)random.integer((s32)span);
+		for (u32 i = 0; abr.tries < max_tries; ++i) {
+			if (abr.tries > 0) {
+				abr.elapsed_ms = (u32)(time::seconds(time::now() - t0) * 1000.0);
+				if (abr.elapsed_ms >= CROWN_CONSOLE_PORT_AUTO_MAX_MS)
+					break;
+			}
+
+			++abr.tries;
+			const u16 candidate = (u16)(CROWN_CONSOLE_PORT_AUTO_MIN + ((start + i) % span));
+			const BindResult br = cs._server.bind(candidate);
+			if (br.error == BindResult::SUCCESS) {
+				*port = candidate;
+				abr.success = true;
+				break;
+			}
+		}
+
+		abr.elapsed_ms = (u32)(time::seconds(time::now() - t0) * 1000.0);
+		return abr;
+	}
+
 	static void message_command(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
 	{
 		TempAllocator4096 ta;
@@ -158,14 +247,71 @@ ConsoleServer::ConsoleServer(Allocator &a)
 	this->register_command_name("help", "List all commands.", console_server_internal::command_help, this);
 }
 
-void ConsoleServer::listen(u16 port, bool wait)
+bool ConsoleServer::listen(u16 port, bool wait, const char *port_file, u16 default_port)
 {
-	const BindResult br = _server.bind(port);
-	if (br.error != BindResult::SUCCESS)
-		return;
+	_port = UINT16_MAX;
 
-	_port = port;
+	TempAllocator1024 ta;
+	FilesystemDisk fs(ta);
+	const char *file = NULL;
+
+	if (port_file != NULL) {
+		const StringView parent = path::parent_dir(port_file);
+		CE_ASSERT(parent.length() > 0, "Port file path must include a parent directory");
+
+		DynamicString prefix(ta);
+		prefix = parent;
+		fs.set_prefix(prefix.c_str());
+
+		file = path::basename(port_file);
+	}
+
+	u16 chosen_port = UINT16_MAX;
+	if (port != 0) {
+		const BindResult br = _server.bind(port);
+		if (br.error != BindResult::SUCCESS) {
+			if (file != NULL)
+				fs.delete_file(file);
+			logw(CONSOLE_SERVER
+				, "Could not bind console port %u: continuing without console"
+				, port
+				);
+			return true;
+		}
+		chosen_port = port;
+	} else {
+		if (default_port != 0) {
+			const BindResult br = _server.bind(default_port);
+			if (br.error == BindResult::SUCCESS)
+				chosen_port = default_port;
+		}
+
+		if (chosen_port == UINT16_MAX) {
+			const console_server_internal::AutoBindResult abr = console_server_internal::bind_auto_port(&chosen_port, *this);
+			if (!abr.success) {
+				if (file != NULL)
+					fs.delete_file(file);
+				logw(CONSOLE_SERVER
+					, "Could not find open console port in range [%u, %u] after %u tries in %u ms: continuing without console"
+					, CROWN_CONSOLE_PORT_AUTO_MIN
+					, CROWN_CONSOLE_PORT_AUTO_MAX
+					, abr.tries
+					, abr.elapsed_ms
+					);
+				return true;
+			}
+		}
+	}
+
+	_port = chosen_port;
 	_server.listen(5);
+
+	if (file != NULL && !console_server_internal::write_port_file(fs, file, _port)) {
+		_server.close();
+		_port = UINT16_MAX;
+		return false;
+	}
+
 	_active_socket_set.set(&_server);
 
 	_input_thread.start([](void *thiz) { return ((ConsoleServer *)thiz)->run_input_thread(); }, this);
@@ -174,6 +320,8 @@ void ConsoleServer::listen(u16 port, bool wait)
 	// Wait for real clients to connect.
 	if (wait)
 		_client_connected.wait();
+
+	return true;
 }
 
 void ConsoleServer::shutdown()

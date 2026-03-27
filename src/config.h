@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/platform.h"
+#include "core/types.h"
 
 #define CROWN_VERSION_MAJOR 0
 #define CROWN_VERSION_MINOR 63
@@ -109,6 +110,24 @@
 
 #ifndef CROWN_DEFAULT_COMPILER_PORT
 	#define CROWN_DEFAULT_COMPILER_PORT 10618
+#endif
+
+#ifndef CROWN_CONSOLE_PORT_AUTO_MIN
+	#define CROWN_CONSOLE_PORT_AUTO_MIN 16384
+#endif
+
+#ifndef CROWN_CONSOLE_PORT_AUTO_MAX
+	#define CROWN_CONSOLE_PORT_AUTO_MAX 49151
+#endif
+CE_STATIC_ASSERT(CROWN_CONSOLE_PORT_AUTO_MIN <= CROWN_CONSOLE_PORT_AUTO_MAX, "Invalid console auto-port range");
+
+#ifndef CROWN_CONSOLE_PORT_AUTO_MAX_TRIES
+	#define CROWN_CONSOLE_PORT_AUTO_MAX_TRIES 10
+#endif
+CE_STATIC_ASSERT(CROWN_CONSOLE_PORT_AUTO_MAX_TRIES > 0, "Invalid console auto-port max tries");
+
+#ifndef CROWN_CONSOLE_PORT_AUTO_MAX_MS
+	#define CROWN_CONSOLE_PORT_AUTO_MAX_MS 100
 #endif
 
 #ifndef CROWN_BOOT_CONFIG

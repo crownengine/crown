@@ -43,6 +43,7 @@ static void help(const char *msg = NULL)
 		"      windows\n"
 		"  --continue                      Run the engine after the data has been compiled.\n"
 		"  --console-port <port>           Set port of the console server.\n"
+		"  --port-file <path>              Write selected console port to <path>.\n"
 		"  --wait-console                  Wait for a console connection before booting the engine.\n"
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
@@ -67,6 +68,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _map_source_dir_prefix(DynamicString(a))
 	, _data_dir(DynamicString(a))
 	, _bundle_dir(DynamicString(a))
+	, _port_file(DynamicString(a))
 	, _boot_dir(NULL)
 	, _platform(NULL)
 	, _lua_string(DynamicString(a))
@@ -78,7 +80,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _pumped(false)
 	, _hidden(false)
 	, _parent_window(0)
-	, _console_port(CROWN_DEFAULT_CONSOLE_PORT)
+	, _console_port(0)
 	, _window_x(0)
 	, _window_y(0)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
@@ -217,6 +219,10 @@ int DeviceOptions::parse(bool *quit)
 			return EXIT_FAILURE;
 		}
 	}
+
+	const char *port_file = cl.get_parameter(0, "port-file");
+	if (port_file)
+		path::reduce(_port_file, port_file);
 
 	const char *ls = cl.get_parameter(0, "lua-string");
 	if (ls)

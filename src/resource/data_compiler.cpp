@@ -1705,7 +1705,11 @@ int main_data_compiler(const DeviceOptions &opts)
 
 	console_server_globals::init();
 	if (opts._server)
-		console_server()->listen(CROWN_DEFAULT_COMPILER_PORT, opts._wait_console);
+		console_server()->listen(opts._console_port
+			, opts._wait_console
+			, opts._port_file.empty() ? NULL : opts._port_file.c_str()
+			, CROWN_DEFAULT_COMPILER_PORT
+			);
 
 	MeshCache mesh_cache;
 

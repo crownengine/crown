@@ -79,7 +79,7 @@ struct ConsoleServer
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void listen(u16 port, bool wait);
+	bool listen(u16 port, bool wait, const char *port_file, u16 default_port);
 
 	/// Shutdowns the server.
 	void shutdown();
