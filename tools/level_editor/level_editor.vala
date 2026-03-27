@@ -23,6 +23,68 @@ public const string PANEL_EDITOR = "panel-editor";
 public const string PANEL_PROJECTS_LIST = "panel-projects-list";
 public const string PANEL_NEW_PROJECT = "panel-new-project";
 
+public bool parse_port_from_string(out uint16 port, string str)
+{
+	port = 0;
+
+	string trimmed = str.strip();
+	if (trimmed == "")
+		return false;
+
+	for (int i = 0; i < trimmed.length; ++i) {
+		if (trimmed[i] < '0' || trimmed[i] > '9')
+			return false;
+	}
+
+	int parsed = int.parse(trimmed);
+	if (parsed < 1 || parsed > 65535)
+		return false;
+
+	port = (uint16)parsed;
+	return true;
+}
+
+public bool wait_port_file(out uint16 port, string file_path, int num_tries, int interval)
+{
+	port = 0;
+	for (int tries = 0; tries < num_tries; ++tries) {
+		try {
+			string contents = null;
+			GLib.FileUtils.get_contents(file_path, out contents);
+			if (parse_port_from_string(out port, contents))
+				return true;
+		} catch (FileError e) {
+		}
+
+		GLib.Thread.usleep(interval*1000);
+	}
+
+	return false;
+}
+
+public bool create_port_file_path(out string file_path)
+{
+	file_path = "";
+
+	try {
+		GLib.FileIOStream io;
+		file_path = GLib.File.new_tmp("crown_port_file_XXXXXX", out io).get_path();
+		return true;
+	} catch (Error e) {
+		loge(e.message);
+		return false;
+	}
+}
+
+public void cleanup_port_file_path(string file_path)
+{
+	try {
+		GLib.File.new_for_path(file_path).delete();
+	} catch (Error e) {
+		// Ignore.
+	}
+}
+
 public bool widget_activate_action_variant(Gtk.Widget widget, string name, GLib.Variant? args = null)
 {
 #if CROWN_GTK3
@@ -760,7 +822,7 @@ public class LevelEditorApplication : Gtk.Application
 	public LevelEditorApplication()
 	{
 		Object(application_id: "org.crownengine.Crown"
-			, flags: GLib.ApplicationFlags.FLAGS_NONE
+			, flags: GLib.ApplicationFlags.NON_UNIQUE
 			);
 
 		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
@@ -1571,6 +1633,10 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		yield stop_backend();
 
+		string port_file;
+		if (!create_port_file_path(out port_file))
+			return false;
+
 		// Spawn the data compiler.
 		string args[] =
 		{
@@ -1582,6 +1648,8 @@ public class LevelEditorApplication : Gtk.Application
 			"--map-source-dir",
 			"core",
 			_project.toolchain_dir(),
+			"--port-file",
+			port_file,
 			"--server",
 			"--wait-console"
 		};
@@ -1596,8 +1664,20 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_stack.set_visible_child_name(COMPILER_CONNECTING);
 		_inspector_stack.set_visible_child_name(COMPILER_CONNECTING);
 
+		uint16 data_compiler_port = 0;
+		bool has_port = wait_port_file(out data_compiler_port
+			, port_file
+			, DATA_COMPILER_CONNECTION_TRIES
+			, DATA_COMPILER_CONNECTION_INTERVAL
+			);
+		cleanup_port_file_path(port_file);
+		if (!has_port) {
+			loge("Cannot read data_compiler port");
+			return false;
+		}
+
 		int tries = yield _compiler.connect_async(DATA_COMPILER_ADDRESS
-			, DATA_COMPILER_TCP_PORT
+			, data_compiler_port
 			, DATA_COMPILER_CONNECTION_TRIES
 			, DATA_COMPILER_CONNECTION_INTERVAL
 			);
@@ -1689,14 +1769,18 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
+		string port_file;
+		if (!create_port_file_path(out port_file))
+			return;
+
 		// Spawn the game.
 		string args[] =
 		{
 			ENGINE_EXE,
 			"--data-dir",
 			_project.data_dir(),
-			"--console-port",
-			GAME_TCP_PORT.to_string(),
+			"--port-file",
+			port_file,
 			"--wait-console",
 			"--lua-string",
 			sg == StartGame.TEST ? "TEST=true" : ""
@@ -1708,9 +1792,21 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
+		uint16 game_port = 0;
+		bool has_port = wait_port_file(out game_port
+			, port_file
+			, GAME_CONNECTION_TRIES
+			, GAME_CONNECTION_INTERVAL
+			);
+		cleanup_port_file_path(port_file);
+		if (!has_port) {
+			loge("Cannot read game port");
+			return;
+		}
+
 		// Try to connect to the game.
 		int tries = yield _game.connect_async(GAME_ADDRESS
-			, GAME_TCP_PORT
+			, game_port
 			, GAME_CONNECTION_TRIES
 			, GAME_CONNECTION_INTERVAL
 			);
@@ -1722,6 +1818,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async void start_thumbnail()
 	{
+		string port_file;
+		if (!create_port_file_path(out port_file))
+			return;
+
 		string args[] =
 		{
 			ENGINE_EXE,
@@ -1729,8 +1829,8 @@ public class LevelEditorApplication : Gtk.Application
 			_project.data_dir(),
 			"--boot-dir",
 			THUMBNAIL_BOOT_DIR,
-			"--console-port",
-			THUMBNAIL_TCP_PORT.to_string(),
+			"--port-file",
+			port_file,
 			"--wait-console",
 			"--pumped",
 			"--hidden"
@@ -1742,9 +1842,21 @@ public class LevelEditorApplication : Gtk.Application
 			loge(e.message);
 		}
 
+		uint16 thumbnail_port = 0;
+		bool has_port = wait_port_file(out thumbnail_port
+			, port_file
+			, THUMBNAIL_CONNECTION_TRIES
+			, THUMBNAIL_CONNECTION_INTERVAL
+			);
+		cleanup_port_file_path(port_file);
+		if (!has_port) {
+			loge("Cannot read thumbnail port");
+			return;
+		}
+
 		// Try to connect to the game.
 		int tries = yield _thumbnail.connect_async(THUMBNAIL_ADDRESS
-			, THUMBNAIL_TCP_PORT
+			, thumbnail_port
 			, THUMBNAIL_CONNECTION_TRIES
 			, THUMBNAIL_CONNECTION_INTERVAL
 			);

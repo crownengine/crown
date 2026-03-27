@@ -85,6 +85,10 @@ public class EditorViewport : Gtk.Bin
 			return;
 
 		// Spawn the level editor.
+		string port_file;
+		if (!create_port_file_path(out port_file))
+			return;
+
 		string args[] =
 		{
 			ENGINE_EXE,
@@ -94,8 +98,8 @@ public class EditorViewport : Gtk.Bin
 			_boot_dir,
 			"--parent-window",
 			window_xid.to_string(),
-			"--console-port",
-			_console_port.to_string(),
+			"--port-file",
+			port_file,
 			"--wait-console",
 			_render_mode == ViewportRenderMode.PUMPED ? "--pumped" : "",
 			"--window-rect", "0", "0", width.to_string(), height.to_string(),
@@ -107,9 +111,21 @@ public class EditorViewport : Gtk.Bin
 			loge(e.message);
 		}
 
+		uint16 console_port = 0;
+		bool has_port = wait_port_file(out console_port
+			, port_file
+			, EDITOR_CONNECTION_TRIES
+			, EDITOR_CONNECTION_INTERVAL
+			);
+		cleanup_port_file_path(port_file);
+		if (!has_port) {
+			loge("Cannot read console port for %s".printf(_runtime._name));
+			return;
+		}
+
 		// Try to connect to the level editor.
 		int tries = yield _runtime.connect_async(_console_address
-			, _console_port
+			, console_port
 			, EDITOR_CONNECTION_TRIES
 			, EDITOR_CONNECTION_INTERVAL
 			);
