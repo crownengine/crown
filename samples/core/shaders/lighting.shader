@@ -34,6 +34,12 @@ bgfx_shaders = {
 				return dot(a, a);
 			}
 
+			float smooth_range_fade(float dd, float rr, float fade_width)
+			{
+				float a = 1.0 - dd / rr;
+				return smoothstep(0.0, fade_width, a);
+			}
+
 			vec3 fresnel(float dot, vec3 f0)
 			{
 				float a = clamp(1.0 - dot, 0.0, 1.0);
@@ -98,11 +104,9 @@ bgfx_shaders = {
 				vec3 l = normalize(dpos);  // Direction to light.
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);
-				float attenuation_std = 1.0 / dd;
-				float k = 0.15;
-				float a = 1.0 - dd / (range*range);
-				float t = clamp(a/k, 0.0, 1.0);
-				float attenuation = max(mix(0.0, attenuation_std, t), 0.0);
+				float attenuation_std = 1.0 / max(dd, 0.0001);
+				float range_fade = smooth_range_fade(dd, range*range, 0.15);
+				float attenuation = attenuation_std * range_fade;
 				vec3 radiance = color * intensity * attenuation;
 				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
 			}
@@ -127,15 +131,16 @@ bgfx_shaders = {
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);
 				float ldotd = dot(l, -direction);
-				float r = range / ldotd;
-				float rr = r*r;
-				float attenuation_std = 1.0 / dd;
+				float attenuation_std = 1.0 / max(dd, 0.0001);
 				float k = 0.03;
 
-				if (ldotd >= cos(spot_angle) && dd <= rr) {
+				if (ldotd >= cos(spot_angle)) {
+					float r = range / ldotd;
+					float rr = r*r;
 					float a = ldotd - cos(spot_angle);
 					float t = clamp(a/k, 0.0, 1.0);
-					float attenuation = mix(0.0, attenuation_std, t);
+					float range_fade = smooth_range_fade(dd, rr, 0.15);
+					float attenuation = attenuation_std * t * range_fade;
 
 					vec3 radiance = color * intensity * attenuation;
 					return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
