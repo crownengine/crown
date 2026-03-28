@@ -16,6 +16,7 @@ Changelog
 * Runtime: Android: added support for keyboard, mouse and joypad input devices.
 * Runtime: HTML5: added support for joypad input device.
 * Runtime: added the ability to select which GPU to boot the renderer with using the new ``renderer.device_id`` field of :doc:`boot.config <reference/boot_config>`.
+* Runtime: slightly improved the attenuation of spot and omni lights at the edges of the range.
 * Lua: added ``PhysicsWorld.mover_actor_colliding_down()``.
 * Lua: added ``mover_actor_collision()`` and ``mover_mover_collision()`` script component callbacks.
 
