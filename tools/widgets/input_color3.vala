@@ -379,6 +379,7 @@ public class InputColor3 : InputField
 				_rgb_hsv_stack.set_visible_child_name("hsv");
 			});
 		_rgb_hsv_switcher = new Gtk.StackSwitcher();
+		_rgb_hsv_switcher.homogeneous = true;
 		_rgb_hsv_switcher.set_stack(_rgb_hsv_stack);
 
 		_visual_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
