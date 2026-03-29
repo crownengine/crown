@@ -106,11 +106,14 @@ elif [ "${PLATFORM}" = "html5" ]; then
 	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
 	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
+	make docs
 	make linux-development32 MAKE_JOBS="${BUILD_JOBS}"
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
+	make docs
+
 	if [ "${ARCH}" = "x64" ]; then
 		export MINGW=/mingw64
 		export PATH="${MINGW}/bin:${PATH}"
@@ -203,6 +206,12 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 		cp -r exporters "${PARTIALPACKAGE}"
 		cp -r samples   "${PARTIALPACKAGE}"
 		mv    "${PARTIALPACKAGE}"/samples/core "${PARTIALPACKAGE}"
+
+		# 'docs/html' is the new 'docs' folder.
+		mv    "${PARTIALPACKAGE}"/platforms/docs "${PARTIALPACKAGE}" # Move docs outside of 'platforms'.
+		mv    "${PARTIALPACKAGE}"/docs/html "${PARTIALPACKAGE}"/html
+		rm -r "${PARTIALPACKAGE}"/docs
+		mv    "${PARTIALPACKAGE}"/html "${PARTIALPACKAGE}"/docs
 
 		if [ "${PLATFORM}" = "linux" ]; then
 			# Copy crown-launcher.

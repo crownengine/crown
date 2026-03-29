@@ -270,7 +270,7 @@ jobs:
         shell: msys2 {0}
         run: |
           set -euo pipefail
-          pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee git
+          pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee git mingw-w64-x86_64-python-sphinx
       - name: package
         shell: msys2 {0}
         run: |

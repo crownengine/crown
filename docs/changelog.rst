@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.0 --- DD MMM YYYY <v0.62.0>`
 ---------------------------------------
 
+**General**
+
+* Full documentation in HTML and RST format is now included in binary packages.
+
 **New Features and Improvements**
 
 * Tools: the command bar in the Console will now suggest completions when typing Lua expressions.
