@@ -112,9 +112,8 @@ elif [ "${PLATFORM}" = "linux" ]; then
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
-	make docs
-
 	if [ "${ARCH}" = "x64" ]; then
+		make docs
 		export MINGW=/mingw64
 		export PATH="${MINGW}/bin:${PATH}"
 		make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
