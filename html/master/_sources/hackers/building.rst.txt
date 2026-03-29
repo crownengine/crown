@@ -100,6 +100,9 @@ Windows (MSYS2)
 	mingw-w64-x86_64-gtk3 mingw-w64-x86_64-sassc \
 	mingw-w64-x86_64-vala mingw-w64-x86_64-libgee
 
+    # Optionally, to build docs:
+    pacman -Sy mingw-w64-x86_64-python-sphinx
+
 4. :ref:`Build for Windows (MSYS2)<build_msys2>`.
 
 Windows (VS Code)

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-08T15:21:57+00:00" /><meta property="og:title" content="Building" />
+    <meta property="article:modified_time" content="2026-03-29T16:51:58+00:00" /><meta property="og:title" content="Building" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/building.html" />
 <meta property="og:site_name" content="Crown 0.62.0 Manual" />
@@ -225,9 +225,12 @@
 <ol class="arabic simple" start="3">
 <li><p>Open MSYS2 MINGW64 shell and install dependencies:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pacman</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> \
-<span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">sassc</span> \
-<span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">pacman</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> \
+    <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">sassc</span> \
+    <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span>
+
+<span class="c1"># Optionally, to build docs:</span>
+<span class="n">pacman</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">python</span><span class="o">-</span><span class="n">sphinx</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
@@ -335,7 +338,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 08, 2026.
+      <span class="lastupdated">Last updated on Mar 29, 2026.
       </span></p>
   </div>
 
