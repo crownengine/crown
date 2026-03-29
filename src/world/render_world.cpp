@@ -1125,6 +1125,10 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	array::clear(lm._lights_data);
 	u32 num_lights = 0; // Total lights to render this frame.
 
+	// TODO: implement shadow casters culling.
+	culling_set::cull_none(_cullable_shadow_casters);
+	culling_set::remove_culled(_cullable_shadow_casters);
+
 	// Collect indices to all directional lights.
 	for (u32 i = 0; i < lid.size; ++i) {
 		if (lid.type[i] == LightType::DIRECTIONAL)
@@ -1236,8 +1240,6 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
 				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
 
-				culling_set::cull_none(_cullable_shadow_casters);
-				culling_set::remove_culled(_cullable_shadow_casters);
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
 		}
@@ -2308,6 +2310,7 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 		_data.shader[last].mvp[1]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[2]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[3]      = MATRIX4X4_IDENTITY;
+		_dirty                         = true;
 
 		++_data.size;
 
