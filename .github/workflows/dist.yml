@@ -98,7 +98,7 @@ jobs:
             ./scripts/dist/package.sh android arm --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-android-arm
           path: dist-android-arm.tar.gz
@@ -144,7 +144,7 @@ jobs:
             ./scripts/dist/package.sh android arm64 --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-android-arm64
           path: dist-android-arm64.tar.gz
@@ -189,7 +189,7 @@ jobs:
             ./scripts/dist/package.sh html5 wasm --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-html5-wasm
           path: dist-html5-wasm.tar.gz
@@ -233,7 +233,7 @@ jobs:
             ./scripts/dist/package.sh linux x64 --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-linux-x64
           path: dist-linux-x64.tar.gz
@@ -279,7 +279,7 @@ jobs:
             ./scripts/dist/package.sh windows x64 --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-windows-x64
           path: dist-windows-x64.tar.gz
@@ -325,7 +325,7 @@ jobs:
             ./scripts/dist/package.sh windows x32 --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-windows-x32
           path: dist-windows-x32.tar.gz
