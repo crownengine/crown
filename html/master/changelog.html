@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-29T16:51:58+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-04-08T16:10:40+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.62.0 Manual" />
@@ -141,13 +141,14 @@
 <li><p>Tools: the command bar in the Console will now suggest completions when typing Lua expressions.</p></li>
 <li><p>Tools: added the ability to Duplicate resources from the Project Browser.</p></li>
 <li><p>Tools: added the ability to hide and lock objects in the Level Tree.</p></li>
+<li><p>Tools: the Mover component now exposes a configurable <code class="docutils literal notranslate"><span class="pre">step_height</span></code> field.</p></li>
 <li><p>Runtime: the Mover component has been refactored to improve robustness and fix all issues present in the previous implementation.</p></li>
 <li><p>Runtime: meshes can now be set to cast shadows while being invisible.</p></li>
 <li><p>Runtime: Android: added support for keyboard, mouse and joypad input devices.</p></li>
 <li><p>Runtime: HTML5: added support for joypad input device.</p></li>
 <li><p>Runtime: added the ability to select which GPU to boot the renderer with using the new <code class="docutils literal notranslate"><span class="pre">renderer.device_id</span></code> field of <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: slightly improved the attenuation of spot and omni lights at the edges of the range.</p></li>
-<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_actor_colliding_down()</span></code>.</p></li>
+<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_actor_colliding_down()</span></code>, <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_step_height()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.mover_set_step_height()</span></code>.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">mover_actor_collision()</span></code> and <code class="docutils literal notranslate"><span class="pre">mover_mover_collision()</span></code> script component callbacks.</p></li>
 </ul>
 <p><strong>Fixes</strong></p>
@@ -989,7 +990,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 29, 2026.
+      <span class="lastupdated">Last updated on Apr 08, 2026.
       </span></p>
   </div>
 

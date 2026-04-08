@@ -15,13 +15,14 @@ Changelog
 * Tools: the command bar in the Console will now suggest completions when typing Lua expressions.
 * Tools: added the ability to Duplicate resources from the Project Browser.
 * Tools: added the ability to hide and lock objects in the Level Tree.
+* Tools: the Mover component now exposes a configurable ``step_height`` field.
 * Runtime: the Mover component has been refactored to improve robustness and fix all issues present in the previous implementation.
 * Runtime: meshes can now be set to cast shadows while being invisible.
 * Runtime: Android: added support for keyboard, mouse and joypad input devices.
 * Runtime: HTML5: added support for joypad input device.
 * Runtime: added the ability to select which GPU to boot the renderer with using the new ``renderer.device_id`` field of :doc:`boot.config <reference/boot_config>`.
 * Runtime: slightly improved the attenuation of spot and omni lights at the edges of the range.
-* Lua: added ``PhysicsWorld.mover_actor_colliding_down()``.
+* Lua: added ``PhysicsWorld.mover_actor_colliding_down()``, ``PhysicsWorld.mover_step_height()`` and ``PhysicsWorld.mover_set_step_height()``.
 * Lua: added ``mover_actor_collision()`` and ``mover_mover_collision()`` script component callbacks.
 
 **Fixes**

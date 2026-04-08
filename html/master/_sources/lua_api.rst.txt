@@ -1143,6 +1143,12 @@ Mover
 **mover_set_max_slope_angle** (pw, mover, angle)
 	Sets the max slope *angle* of the *mover*.
 
+**mover_step_height** (pw, mover) : number
+	Returns the step height of the *mover*.
+
+**mover_set_step_height** (pw, mover, height)
+	Sets the step *height* of the *mover*.
+
 **mover_set_collision_filter** (pw, mover, filter)
 	Sets the collision *filter* of the *mover*.
 
