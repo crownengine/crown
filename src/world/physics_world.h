@@ -199,6 +199,12 @@ struct PhysicsWorld
 	/// Sets the max slope @a angle of the @a mover.
 	void mover_set_max_slope_angle(MoverId mover, f32 angle);
 
+	/// Returns the step height of the @a mover.
+	f32 mover_step_height(MoverId mover);
+
+	/// Sets the step @a height of the @a mover.
+	void mover_set_step_height(MoverId mover, f32 height);
+
 	/// Sets the collision @a filter of the @a mover.
 	void mover_set_collision_filter(MoverId mover, StringId32 filter);
 

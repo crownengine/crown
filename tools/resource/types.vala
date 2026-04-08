@@ -949,6 +949,14 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.DOUBLE,
+			name = "data.step_height",
+			min = 0.0,
+			deffault = 0.5,
+			tooltip = "Mover step height.",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.STRING,
 			name = "data.collision_filter",
 			editor = PropertyEditorType.ENUM,

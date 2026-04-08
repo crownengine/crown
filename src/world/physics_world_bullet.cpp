@@ -405,6 +405,7 @@ struct Mover
 		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
 		set_up_direction(up);
 		set_max_slope(desc.max_slope_angle);
+		set_step_height(desc.step_height);
 		set_center(to_btVector3(desc.center));
 	}
 
@@ -1035,6 +1036,11 @@ struct Mover
 	btScalar max_slope() const
 	{
 		return _max_slope_radians;
+	}
+
+	void set_step_height(btScalar height)
+	{
+		_step_height = btMax(btScalar(0.0f), height);
 	}
 
 	btScalar radius() const
@@ -1766,6 +1772,18 @@ struct PhysicsWorldImpl
 	{
 		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
 		return _mover[mover.i].mover->set_max_slope(angle);
+	}
+
+	f32 mover_step_height(MoverId mover)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		return _mover[mover.i].mover->_step_height;
+	}
+
+	void mover_set_step_height(MoverId mover, f32 height)
+	{
+		CE_ASSERT(mover.i < array::size(_mover), "Index out of bounds");
+		_mover[mover.i].mover->set_step_height(height);
 	}
 
 	void mover_set_collision_filter(MoverId mover, StringId32 filter)
@@ -2635,6 +2653,16 @@ f32 PhysicsWorld::mover_max_slope_angle(MoverId mover)
 void PhysicsWorld::mover_set_max_slope_angle(MoverId mover, f32 angle)
 {
 	_impl->mover_set_max_slope_angle(mover, angle);
+}
+
+f32 PhysicsWorld::mover_step_height(MoverId mover)
+{
+	return _impl->mover_step_height(mover);
+}
+
+void PhysicsWorld::mover_set_step_height(MoverId mover, f32 height)
+{
+	_impl->mover_set_step_height(mover, height);
 }
 
 void PhysicsWorld::mover_set_collision_filter(MoverId mover, StringId32 filter)

@@ -313,6 +313,11 @@ namespace physics_resource_internal
 		md.capsule.radius   = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.radius")), opts);
 		md.capsule.height   = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.height")), opts);
 		md.max_slope_angle  = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.max_slope_angle")), opts);
+		if (flat_json_object::has(obj, "data.step_height")) {
+			md.step_height = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.step_height")), opts);
+		} else {
+			md.step_height = 0.5f;
+		}
 		md.collision_filter = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.collision_filter")), opts);
 		if (flat_json_object::has(obj, "data.center")) {
 			md.center = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.center")), opts);
@@ -325,6 +330,7 @@ namespace physics_resource_internal
 		bw.write(md.capsule.radius);
 		bw.write(md.capsule.height);
 		bw.write(md.max_slope_angle);
+		bw.write(md.step_height);
 		bw.write(md.collision_filter);
 		bw.write(md.center);
 		return 0;

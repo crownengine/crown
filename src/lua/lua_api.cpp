@@ -2580,7 +2580,9 @@ void load_api(LuaEnvironment &env)
 			desc.capsule.height = stack.get_float(3);
 			desc.capsule.radius = stack.get_float(4);
 			desc.max_slope_angle = stack.get_float(5);
+			desc.step_height = 0.5f;
 			desc.collision_filter = stack.get_string_id_32(6);
+			desc.center = VECTOR3_ZERO;
 
 			stack.push_id(pw->mover_create(unit, &desc).i);
 			return 1;
@@ -2613,6 +2615,16 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("PhysicsWorld", "mover_set_max_slope_angle", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_physics_world(1)->mover_set_max_slope_angle(stack.get_mover_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "mover_step_height", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->mover_step_height(stack.get_mover_instance(2)));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "mover_set_step_height", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->mover_set_step_height(stack.get_mover_instance(2), stack.get_float(3));
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "mover_set_collision_filter", [](lua_State *L) {
