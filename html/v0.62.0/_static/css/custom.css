@@ -1,0 +1,19 @@
+.wy-side-nav-search > div.version {
+	font-weight: bold;
+	font-size: larger;
+	color: #d9d9d9;
+}
+
+.wy-side-nav-search {
+	background-color: #343131;
+}
+
+.wy-nav-top {
+	background-color: #343131;
+}
+
+@media screen and (min-width: 1000px) {
+	.wy-nav-side, .wy-grid-for-nav {
+		margin-left: calc(((100vw - 1000px) / 2));
+	}
+}
