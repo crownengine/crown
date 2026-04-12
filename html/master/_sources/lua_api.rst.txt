@@ -5,6 +5,8 @@ Lua API reference
 AnimationStateMachine
 =====================
 
+Interface to the animation state machine component in a unit.
+
 **create** (asm, unit, state_machine_resource) : Id
 	Creates a new state machine instance for *unit* and returns its id.
 
@@ -32,6 +34,8 @@ AnimationStateMachine
 
 DebugLine
 =========
+
+Interface to draw various shapes for debugging purposes.
 
 **add_line** (debug_line, start, end, color)
 	Adds a line from *start* to *end* with the given *color*.
@@ -66,6 +70,8 @@ DebugLine
 
 Device
 ======
+
+Interface to access global application-level functionalities.
 
 **argv** () : table
 	Returns a table containing the command line parameters the engine was started with.
@@ -162,6 +168,8 @@ Device
 Display
 =======
 
+Interface to access the graphical display.
+
 **modes** () : table
 	Returns an array of `DisplayMode`_ tables.
 
@@ -180,6 +188,8 @@ DisplayMode is a lua table with 3 fields:
 
 Gui
 ===
+
+An immediate-mode GUI to draw text and various primitive shapes either in 2D or 3D.
 
 **move** (gui, pos)
 	Moves the Gui to *pos*.
@@ -238,6 +248,8 @@ Gui
 Input
 =====
 
+A singleton that exposes the full list of input events in each frame.
+
 **events** () : table
 	Returns an array of `InputEvent`_ tables.
 
@@ -259,7 +271,9 @@ InputEventType
 * ``AXIS_CHANGED``: An axis changed its value.
 
 Keyboard
---------
+========
+
+Singleton that represents the default system keyboard.
 
 **name** () : string
 	Returns the name of keyboard.
@@ -297,7 +311,7 @@ Keyboard
 	Returns the *id* of the button *name* or ``nil`` if no matching button is found.
 
 Keyboard Button Names
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 * ``tab``, ``enter``, ``escape``, ``space``, ``backspace``
 * ``num_lock``, ``numpad_enter``, ``numpad_.``, ``numpad_*``, ``numpad_+``, ``numpad_-``, ``numpad_/``, ``numpad_0``, ``numpad_1``, ``numpad_2``, ``numpad_3``, ``numpad_4``, ``numpad_5``, ``numpad_6``, ``numpad_7``, ``numpad_8``, ``numpad_9``
@@ -309,12 +323,14 @@ Keyboard Button Names
 * ``backtick``, ``minus``, ``equal``, ``open_bracket``, ``close_bracket``, ``backslash``, ``semicolon``, ``quote``, ``comma``, ``period``, ``slash``
 
 Keyboard Axis Names
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 None.
 
 Mouse
------
+=====
+
+Singleton that represents the default system mouse.
 
 **name** () : string
 	Returns the name of the mouse.
@@ -361,19 +377,21 @@ Mouse
 	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Mouse Button Names
-~~~~~~~~~~~~~~~~~~
+------------------
 
 ``left``, ``middle``, ``right``, ``extra_1``, ``extra_2``
 
 Mouse Axis Names
-~~~~~~~~~~~~~~~~
+----------------
 
 * ``cursor``: Returns the cursor position (x, y) in screen coordinates.
 * ``cursor_delta``: Returns the delta of the cursor position (x, y) since last frame.
 * ``wheel``: Returns the movement of the mouse wheel in the y axis. Positive values of y mean upward scrolling, negative values mean downward scrolling.
 
 Touch
------
+=====
+
+Singleton that represents the default system touchscreen.
 
 **name** () : string
 	Returns the name of the touch.
@@ -420,7 +438,9 @@ Touch
 	Returns the *id* of the axis *name* or ``nil`` if no matching axis is found.
 
 Pad1, Pad2, Pad3, Pad4
-----------------------
+======================
+
+Singleton that represents the connected gamepad(s).
 
 **name** () : string
 	Returns the name of the pad.
@@ -473,7 +493,7 @@ Pad1, Pad2, Pad3, Pad4
 	Sets the *deadzone_mode* and *deadzone_size* for the axis *id*.
 
 Pad Button Names
-~~~~~~~~~~~~~~~~
+----------------
 
 * ``up``, ``down``, ``left``, ``right``
 * ``start``, ``back``, ``guide``
@@ -482,13 +502,15 @@ Pad Button Names
 * ``a``, ``b``, ``x``, ``y``
 
 Pad Axis Names
-~~~~~~~~~~~~~~
+--------------
 
 * ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1].
 * ``trigger_left``, ``trigger_right``: The z element represents the left or right trigger [0; +1].
 
 Material
 ========
+
+Interface to manipulate a rendering material.
 
 **set_float** (material, name, value)
 	Sets the *value* of the variable *name*.
@@ -508,27 +530,21 @@ Material
 **set_texture** (material, sampler_name, texture_name)
 	Sets the *texture_resource* of the sampler *sampler_name*.
 
-Math
-====
-
-Math types and helper functions. ``Vector3``, ``Quaternion``, ``Matrix4x4`` and
-``Color4`` are temporary Lua objects; use the corresponding ``*Box`` type to
-keep them across frames. See :doc:`gameplay/objects_binding`.
-
 Vector3
--------
+=======
 
 Temporary 3D vector representing directions, positions etc. It is valid only in
 the current frame; use ``Vector3Box`` to store a copy for use in later frames.
+See :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Vector3** (x, y, z) : Vector3
 	Returns a new vector from individual elements.
 
 Functions
-~~~~~~~~~
+---------
 
 **x** (v) : float
 	Returns the x value of the vector.
@@ -623,13 +639,13 @@ Functions
 	Returns a string representing the vector *v*.
 
 Vector3Box
-----------
+==========
 
 Boxed ``Vector3`` for storing vector values across frames. See
 :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Vector3Box** () : Vector3Box
 	Returns a new Vector3Box initialized with the zero vector.
@@ -641,7 +657,7 @@ Constructors
 	Returns a new Vector3Box from individual elements.
 
 Functions
-~~~~~~~~~
+---------
 
 **store** (v)
 	Stores the Vector3 *v* in the box.
@@ -653,14 +669,14 @@ Functions
 	Returns the stored vector from the box.
 
 Quaternion
-----------
+==========
 
 Temporary quaternion representing orientation in 3D space. It is valid only in
 the current frame; use ``QuaternionBox`` to store a copy for use in later
-frames.
+frames. See :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Quaternion** (axis, angle) : Quaternion
 	Returns a new quaternion from *axis* and *angle*.
@@ -672,7 +688,7 @@ Constructors
 	Returns a new quaternion from *axis* and *angle*.
 
 Functions
-~~~~~~~~~
+---------
 
 **negate** (q) : Quaternion
 	Negates the quaternion *q* and returns the result.
@@ -728,13 +744,13 @@ Functions
 	Returns a string representing the quaternion *q*.
 
 QuaternionBox
--------------
+=============
 
 Boxed ``Quaternion`` for storing rotation values across frames. See
 :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **QuaternionBox** () : QuaternionBox
 	Returns a new QuaternionBox initialized with the identity quaternion.
@@ -746,7 +762,7 @@ Constructors
 	Returns a new QuaternionBox from individual elements.
 
 Functions
-~~~~~~~~~
+---------
 
 **store** (q)
 	Stores the Quaternion *q* in the box.
@@ -758,13 +774,14 @@ Functions
 	Returns the stored quaternion from the box.
 
 Matrix4x4
----------
+=========
 
 Temporary 4x4 matrix representing rotation and translation. It is valid only in
 the current frame; use ``Matrix4x4Box`` to store a copy for use in later frames.
+See :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Matrix4x4** (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw) : Matrix4x4
 	Returns a new matrix from individual elements.
@@ -782,7 +799,7 @@ Constructors
 	Returns a new matrix from *x*, *y*, *z* and *t*.
 
 Functions
-~~~~~~~~~
+---------
 
 **copy** (m) : Matrix4x4
 	Returns a copy of the matrix *m*.
@@ -851,13 +868,13 @@ Functions
 	Returns a string representing the matrix *m*.
 
 Matrix4x4Box
-------------
+============
 
 Boxed ``Matrix4x4`` for storing matrix values across frames. See
 :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Matrix4x4Box** () : Matrix4x4Box
 	Returns a new Matrix4x4Box initialized with the identity matrix.
@@ -866,7 +883,7 @@ Constructors
 	Returns a new Matrix4x4Box from the Matrix4x4 *m*.
 
 Functions
-~~~~~~~~~
+---------
 
 **store** (m)
 	Stores the Matrix4x4 *m* in the box.
@@ -875,19 +892,20 @@ Functions
 	Returns the stored matrix from the box.
 
 Color4
-------
+======
 
 Temporary RGBA color value. Elements range is [0; 255]. It is valid only in the
 current frame. Use ``QuaternionBox`` to store a copy for use in later frames.
+See :doc:`gameplay/objects_binding`.
 
 Constructors
-~~~~~~~~~~~~
+------------
 
 **Color4** (r, g, b, a) : Color4
 	Returns a new Color4 from individual elements.
 
 Functions
-~~~~~~~~~
+---------
 
 **lerp** (a, b, t) : Color4
 	Returns the linearly interpolated color between *a* and *b* at time *t* in [0, 1].
@@ -905,7 +923,9 @@ Functions
 	Returns a string representing the color *c*.
 
 Math
-----
+====
+
+Assorted math helper functions.
 
 **ray_plane_intersection** (from, dir, point, normal) : float
 	Returns the distance along ray (from, dir) to intersection point with plane defined by
@@ -943,6 +963,8 @@ Math
 
 PhysicsWorld
 =============
+
+Manages physics objects in a `World`_.
 
 **gravity** (pw) : Vector3
 	Returns the gravity.
@@ -1186,6 +1208,8 @@ Mover
 Profiler
 ========
 
+Interface to the integrated profiler.
+
 **enter_scope** (name)
 	Starts a new profile scope with the given *name*.
 
@@ -1197,6 +1221,8 @@ Profiler
 
 RenderWorld
 ===========
+
+Manages rendering objects in a `World`_.
 
 **enable_debug_drawing** (rw, enable)
 	Sets whether to *enable* debug drawing.
@@ -1367,6 +1393,8 @@ Fog
 ResourcePackage
 ===============
 
+Represents a collection of resources that can be loaded in group.
+
 **load** (package)
 	Loads all the resources in the *package*.
 
@@ -1385,6 +1413,8 @@ ResourcePackage
 
 SceneGraph
 ==========
+
+Interface to the transform component in a unit.
 
 **create** (sg, unit, position, rotation, scale) : Id
 	Creates the transform for the *unit* and returns its ID.
@@ -1456,6 +1486,8 @@ SceneGraph
 SoundWorld
 ===========
 
+Manages sounds in a `World`_.
+
 **stop_all** (sound_world)
 	Stops all the sounds in the world.
 
@@ -1475,6 +1507,8 @@ SoundWorld
 UnitManager
 ===========
 
+Singleton to manage all units in the game.
+
 **create** ([world]) : UnitId
 	Creates a new empty unit. If *world* is specified, the unit will be owned by
 	that world.
@@ -1487,6 +1521,8 @@ UnitManager
 
 Window
 ======
+
+Represents the application window.
 
 **show** ()
 	Shows the window.
@@ -1537,6 +1573,8 @@ Window
 
 World
 =====
+
+Represents a game world.
 
 **spawn_unit** (world, name, [position, rotation, scale]) : UnitId
 	Spawns a new instance of the unit *name* at the given *position*, *rotation* and *scale*.
@@ -1676,6 +1714,8 @@ Sound
 
 Level
 -----
+
+Interface to manage levels in a `World`_.
 
 **load_level** (world, name, [pos, rot]) : Level
 	Loads the level *name* into the world at the given *position* and *rotation*.
