@@ -134,6 +134,9 @@ struct LuaStack
 	bool is_table(int i);
 
 	///
+	bool has_metatable(int i, const char *metatable);
+
+	///
 	bool is_vector3(int i);
 
 	///

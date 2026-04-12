@@ -113,6 +113,17 @@ inline bool LuaStack::is_table(int i)
 	return lua_istable(L, i) == 1;
 }
 
+inline bool LuaStack::has_metatable(int i, const char *metatable)
+{
+	if (lua_getmetatable(L, i) == 0)
+		return false;
+
+	luaL_getmetatable(L, metatable);
+	const bool equal = lua_rawequal(L, -1, -2) != 0;
+	lua_pop(L, 2);
+	return equal;
+}
+
 inline int LuaStack::value_type(int i)
 {
 	return lua_type(L, i);
