@@ -1790,6 +1790,13 @@ static void test_path()
 		DynamicString expanded(ta);
 		ENSURE(!path::expand(expanded, "$DATEFOO"));
 	}
+	{
+		ENSURE(path::is_valid_basename("foo"));
+		ENSURE(path::is_valid_basename("foo.txt"));
+		ENSURE(!path::is_valid_basename("foo/bar"));
+		ENSURE(!path::is_valid_basename("foo\\bar"));
+		ENSURE(!path::is_valid_basename(""));
+	}
 }
 
 static void test_command_line()

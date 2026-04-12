@@ -57,6 +57,9 @@ namespace path
 	/// Returns the parent directory of @a path.
 	StringView parent_dir(const char *path);
 
+	/// Returns whether the @a basename is valid.
+	bool is_valid_basename(const char *basename);
+
 } // namespace path
 
 } // namespace crown

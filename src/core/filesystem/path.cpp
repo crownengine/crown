@@ -230,6 +230,21 @@ namespace path
 		return { path, u32(ls - path) };
 	}
 
+	bool is_valid_basename(const char *basename)
+	{
+		CE_ENSURE(basename != NULL);
+
+		if (basename[0] == '\0')
+			return false;
+
+		if (strcmp(basename, ".") == 0 || strcmp(basename, "..") == 0)
+			return false;
+
+		return strchr(basename, '/') == NULL
+			&& strchr(basename, '\\') == NULL
+			;
+	}
+
 } // namespace path
 
 } // namespace crown
