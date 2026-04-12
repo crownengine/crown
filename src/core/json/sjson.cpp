@@ -30,8 +30,8 @@ namespace sjson
 
 	void set_error_callback(SJsonError callback, void *user_data)
 	{
-		_error_function = callback;
-		_error_user_data = user_data;
+		_error_function = callback ? callback : default_error;
+		_error_user_data = callback ? user_data : NULL;
 	}
 
 	void vfatal(const char *format, va_list args)
@@ -49,14 +49,14 @@ namespace sjson
 		va_end(args);
 	}
 
-#define NEXT_OR_RETURN(json, c, return_val)            \
-	do {                                               \
-		char _c = (c);                                 \
-		if (_c && _c != *json) {                       \
-			fatal("Expected '%c' got '%c'", _c, json); \
-			return return_val;                         \
-		}                                              \
-	} while (0);                                       \
+#define NEXT_OR_RETURN(json, c, return_val)             \
+	do {                                                \
+		char _c = (c);                                  \
+		if (_c && _c != *json) {                        \
+			fatal("Expected '%c' got '%c'", _c, *json); \
+			return return_val;                          \
+		}                                               \
+	} while (0);                                        \
 	++json
 
 	static const char *skip_string(const char *json)
@@ -75,7 +75,8 @@ namespace sjson
 			}
 		}
 
-		return json;
+		fatal("Bad string");
+		return NULL;
 	}
 
 	static const char *skip_comments(const char *json)
@@ -114,12 +115,15 @@ namespace sjson
 		}
 
 		while (*json) {
-			if (*json == '/')
+			if (*json == '/') {
 				json = skip_comments(json);
-			else if (isspace(*json) || *json == ',')
+				if (json == NULL)
+					return NULL;
+			} else if (isspace(*json) || *json == ',') {
 				++json;
-			else
+			} else {
 				break;
+			}
 		}
 
 		return json;
@@ -147,6 +151,9 @@ namespace sjson
 				json += 3;
 			} else {
 				json = skip_string(json);
+				if (json == NULL)
+					return NULL;
+
 				if (*json == '"') {
 					fatal("Bad string");
 					return NULL;
@@ -170,6 +177,9 @@ namespace sjson
 						break;
 				} else if (*json == '"') {
 					json = skip_string(json);
+					if (json == NULL)
+						return NULL;
+
 					if (*json == '"') {
 						json = strstr(json + 1, "\"\"\"");
 						if (json == NULL) {
@@ -180,9 +190,16 @@ namespace sjson
 					}
 				} else if (*json == '/') {
 					json = skip_comments(json);
+					if (json == NULL)
+						return NULL;
 				} else {
 					++json;
 				}
+			}
+
+			if (num != 0) {
+				fatal("Bad object or array");
+				return NULL;
 			}
 			break;
 		}
@@ -216,11 +233,34 @@ namespace sjson
 		}
 
 		if (*json == '"') {
-			parse_string(key, json);
-			return skip_string(json);
+			while (*++json) {
+				if (*json == '"')
+					return json + 1;
+
+				if (*json == '\\') {
+					++json;
+
+					switch (*json) {
+					case '"':  key += '"';  break;
+					case '\\': key += '\\'; break;
+					case '/':  key += '/';  break;
+					case 'b':  key += '\b'; break;
+					case 'f':  key += '\f'; break;
+					case 'n':  key += '\n'; break;
+					case 'r':  key += '\r'; break;
+					case 't':  key += '\t'; break;
+					default: fatal("Bad escape character"); return NULL; break;
+					}
+				} else {
+					key += *json;
+				}
+			}
+
+			fatal("Bad string");
+			return NULL;
 		}
 
-		while (true) {
+		while (*json) {
 			if (isspace(*json) || *json == '=' || *json == ':')
 				return json;
 
@@ -371,6 +411,8 @@ namespace sjson
 
 		if (*json == '[') {
 			json = skip_spaces(++json);
+			if (json == NULL)
+				return;
 
 			if (*json == ']')
 				return;
@@ -379,12 +421,19 @@ namespace sjson
 				array::push_back(arr, json);
 
 				json = skip_value(json);
+				if (json == NULL)
+					return;
+
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 
 				if (*json == ']')
 					return;
 
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 			}
 		}
 
@@ -404,17 +453,28 @@ namespace sjson
 			TempAllocator256 ta;
 			DynamicString key(ta);
 			json = parse_key(json, key);
+			if (json == NULL)
+				return;
 
 			StringView fs_key(key_begin, key.length());
 
 			json = skip_spaces(json);
+			if (json == NULL)
+				return;
 			NEXT_OR_RETURN(json, (*json == '=') ? '=' : ':', /*void*/);
 			json = skip_spaces(json);
+			if (json == NULL)
+				return;
 
 			hash_map::set(obj._map, fs_key, json);
 
 			json = skip_value(json);
+			if (json == NULL)
+				return;
+
 			json = skip_spaces(json);
+			if (json == NULL)
+				return;
 		}
 
 		obj._end = json + 1;
@@ -429,6 +489,8 @@ namespace sjson
 
 		if (*json == '{') {
 			json = skip_spaces(++json);
+			if (json == NULL)
+				return;
 
 			if (*json == '}') {
 				obj._end = json + 1;
@@ -441,17 +503,28 @@ namespace sjson
 				TempAllocator256 ta;
 				DynamicString key(ta);
 				json = parse_key(json, key);
+				if (json == NULL)
+					return;
 
 				StringView fs_key(key_begin, key.length());
 
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 				NEXT_OR_RETURN(json, (*json == '=') ? '=' : ':', /*void*/);
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 
 				hash_map::set(obj._map, fs_key, json);
 
 				json = skip_value(json);
+				if (json == NULL)
+					return;
+
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 
 				if (*json == '}') {
 					obj._end = json + 1;
@@ -459,6 +532,8 @@ namespace sjson
 				}
 
 				json = skip_spaces(json);
+				if (json == NULL)
+					return;
 			}
 		}
 
@@ -473,6 +548,8 @@ namespace sjson
 		}
 
 		json = skip_spaces(json);
+		if (json == NULL)
+			return;
 
 		if (*json == '{')
 			parse_object(obj, json);

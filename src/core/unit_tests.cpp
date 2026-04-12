@@ -1306,6 +1306,12 @@ static void test_guid()
 	memory_globals::shutdown();
 }
 
+static void count_parse_error(const char *msg, void *user_data)
+{
+	CE_UNUSED(msg);
+	++*(u32 *)user_data;
+}
+
 static void test_json()
 {
 	memory_globals::init();
@@ -1543,6 +1549,61 @@ static void test_sjson()
 		sjson::parse_object(obj, "{foo=\"\"\"verbatim1\"\"\" bar=\"\"\"verbatim2\"\"\"}");
 		ENSURE(json_object::has(obj, "foo"));
 		ENSURE(json_object::has(obj, "bar"));
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, "foo = \"unterminated");
+		sjson::set_error_callback(NULL, NULL);
+
+		ENSURE(num_errors == 1);
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, "foo = 1 /");
+		sjson::set_error_callback(NULL, NULL);
+
+		ENSURE(num_errors == 1);
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, "foo = { bar = 1");
+		sjson::set_error_callback(NULL, NULL);
+
+		ENSURE(num_errors == 1);
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		sjson::parse(obj, "foo");
+		sjson::set_error_callback(NULL, NULL);
+
+		ENSURE(num_errors == 1);
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		TempAllocator1024 ta;
+		JsonArray arr(ta);
+		sjson::parse_array(arr, "[ / ]");
+		sjson::set_error_callback(NULL, NULL);
+
+		ENSURE(num_errors == 1);
 	}
 	memory_globals::shutdown();
 }
