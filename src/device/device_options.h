@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/option.h"
-#include "core/platform.h"
 #include "core/strings/dynamic_string.h"
 #include "core/types.h"
 
@@ -40,9 +39,6 @@ struct DeviceOptions
 	u16 _window_y;
 	Option<u16> _window_width;
 	Option<u16> _window_height;
-#if CROWN_PLATFORM_ANDROID
-	void *_asset_manager;
-#endif
 
 	///
 	DeviceOptions(Allocator &a, int argc, const char **argv);

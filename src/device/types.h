@@ -14,6 +14,13 @@ struct Device;
 struct Pipeline;
 struct Profiler;
 
+struct PlatformData
+{
+	void *_android_asset_manager;      ///< Android asset manager.
+	void *_android_internal_data_path; ///< Android internal data path.
+	void *_android_obb_path;           ///< Android OBB path.
+};
+
 struct OsEventType
 {
 	enum Enum

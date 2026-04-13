@@ -67,6 +67,8 @@ LOG_SYSTEM(DEVICE, "device")
 
 namespace crown
 {
+PlatformData g_platform_data;
+
 extern bool next_event(OsEvent &ev);
 
 #define RESOURCE_TYPE(type_name)                            \
@@ -548,7 +550,7 @@ int Device::main_loop()
 
 	bool is_bundle = true;
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), const_cast<AAssetManager *>((AAssetManager *)_options._asset_manager));
+	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), (AAssetManager *)g_platform_data._android_asset_manager);
 #else
 	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 	{

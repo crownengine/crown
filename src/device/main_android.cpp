@@ -30,6 +30,8 @@ extern "C"
 
 namespace crown
 {
+extern PlatformData g_platform_data;
+
 static KeyboardButton::Enum android_translate_key(s32 keycode)
 {
 #ifndef AKEYCODE_SCROLL_LOCK
@@ -1072,7 +1074,9 @@ void android_main(struct android_app *app)
 	guid_globals::init();
 
 	DeviceOptions opts(default_allocator(), 0, NULL);
-	opts._asset_manager = app->activity->assetManager;
+	g_platform_data._android_asset_manager = app->activity->assetManager;
+	g_platform_data._android_internal_data_path = (void *)app->activity->internalDataPath;
+	g_platform_data._android_obb_path = (void *)app->activity->obbPath;
 
 	s_android_device = CE_NEW(default_allocator(), AndroidDevice)(default_allocator());
 	s_android_device->run(app, opts);
