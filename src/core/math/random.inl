@@ -4,9 +4,15 @@
  */
 
 #include "core/math/random.h"
+#include "core/time.h"
 
 namespace crown
 {
+inline Random::Random()
+	: _seed((u32)time::now())
+{
+}
+
 inline Random::Random(s32 seed)
 	: _seed((u32)seed)
 {

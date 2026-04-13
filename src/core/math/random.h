@@ -16,6 +16,9 @@ struct Random
 {
 	u32 _seed;
 
+	/// Initializes the generator with the current time.
+	Random();
+
 	/// Initializes the generator with the given @a seed.
 	explicit Random(s32 seed);
 
