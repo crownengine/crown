@@ -4,7 +4,10 @@
  */
 
 #include "core/containers/hash_set.inl"
+#include "core/containers/array.inl"
 #include "core/guid.h"
+#include "core/json/json_object.inl"
+#include "core/json/sjson.h"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
 #include "core/math/frustum.inl"
@@ -17,6 +20,7 @@
 #include "core/math/types.h"
 #include "core/math/vector2.inl"
 #include "core/math/vector3.inl"
+#include "core/memory/memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/profiler.h"
 #include "core/strings/dynamic_string.inl"
@@ -26,6 +30,7 @@
 #include "device/device.h"
 #include "device/input_device.h"
 #include "device/input_manager.h"
+#include "device/save_game.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
 #include "resource/resource_id.inl"
@@ -504,6 +509,423 @@ static void lua_dump_table(lua_State *L, int i, StringStream &json)
 	}
 
 	json << "}";
+}
+
+static int lua_abs_index(lua_State *L, int i)
+{
+	return i > 0 || i <= LUA_REGISTRYINDEX
+		? i
+		: lua_gettop(L) + i + 1
+		;
+}
+
+static void lua_save_data_write_indent(StringStream &sjson, u32 depth)
+{
+	for (u32 ii = 0; ii < depth; ++ii)
+		sjson << "\t";
+}
+
+static bool lua_save_data_is_reserved_type(const char *type)
+{
+	return strcmp(type, "table") == 0
+		|| strcmp(type, "vector3") == 0
+		|| strcmp(type, "vector3box") == 0
+		|| strcmp(type, "matrix4x4") == 0
+		|| strcmp(type, "matrix4x4box") == 0
+		;
+}
+
+static void lua_save_data_write_string(StringStream &sjson, const char *str, u32 len)
+{
+	CE_ENSURE(str != NULL);
+
+	sjson << "\"";
+	for (u32 ii = 0; ii < len; ++ii) {
+		const char ch = str[ii];
+		switch (ch) {
+		case '"':  sjson << "\\\""; break;
+		case '\\': sjson << "\\\\"; break;
+		case '\b': sjson << "\\b";  break;
+		case '\f': sjson << "\\f";  break;
+		case '\n': sjson << "\\n";  break;
+		case '\r': sjson << "\\r";  break;
+		case '\t': sjson << "\\t";  break;
+		default:
+			sjson << ch;
+			break;
+		}
+	}
+	sjson << "\"";
+}
+
+static void lua_save_data_write_string(StringStream &sjson, lua_State *L, int i)
+{
+	size_t len = 0;
+	const char *str = lua_tolstring(L, i, &len);
+	lua_save_data_write_string(sjson, str, (u32)len);
+}
+
+static void lua_save_data_write_key(StringStream &sjson, lua_State *L, int i)
+{
+	if (lua_type(L, i) != LUA_TSTRING)
+		luaL_error(L, "Unsupported save data key type");
+
+	size_t len = 0;
+	const char *str = lua_tolstring(L, i, &len);
+	CE_ENSURE(str != NULL);
+	lua_save_data_write_string(sjson, str, (u32)len);
+}
+
+static void lua_save_data_write_vector3(StringStream &sjson, const char *type, const Vector3 &v)
+{
+	sjson << "{ type = \"" << type << "\" data = [ ";
+	sjson << v.x << " " << v.y << " " << v.z;
+	sjson << " ] }";
+}
+
+static void lua_save_data_write_matrix4x4(StringStream &sjson, const char *type, const Matrix4x4 &m)
+{
+	sjson << "{ type = \"" << type << "\" data = [ ";
+	sjson << m.x.x << " " << m.x.y << " " << m.x.z << " " << m.x.w << " ";
+	sjson << m.y.x << " " << m.y.y << " " << m.y.z << " " << m.y.w << " ";
+	sjson << m.z.x << " " << m.z.y << " " << m.z.z << " " << m.z.w << " ";
+	sjson << m.t.x << " " << m.t.y << " " << m.t.z << " " << m.t.w;
+	sjson << " ] }";
+}
+
+static bool lua_save_data_table_collides_with_typed_object(lua_State *L, int i)
+{
+	i = lua_abs_index(L, i);
+
+	u32 count = 0;
+	bool has_type = false;
+	bool has_data = false;
+
+	lua_pushnil(L);
+	while (lua_next(L, i) != 0) {
+		++count;
+		if (lua_type(L, -2) == LUA_TSTRING) {
+			const char *key = lua_tostring(L, -2);
+			has_type = has_type || strcmp(key, "type") == 0;
+			has_data = has_data || strcmp(key, "data") == 0;
+		}
+		lua_pop(L, 1);
+	}
+
+	if (count != 2 || !has_type || !has_data)
+		return false;
+
+	lua_getfield(L, i, "type");
+	const bool collides = lua_type(L, -1) == LUA_TSTRING
+		&& lua_save_data_is_reserved_type(lua_tostring(L, -1))
+		;
+	lua_pop(L, 1);
+	return collides;
+}
+
+static void lua_save_data_write_value(lua_State *L, int i, StringStream &sjson, u32 depth);
+
+static void lua_save_data_write_table(lua_State *L, int i, StringStream &sjson, u32 depth, bool root, bool force_regular)
+{
+	i = lua_abs_index(L, i);
+	const u32 child_depth = root ? depth : depth + 1;
+
+	if (!force_regular && lua_save_data_table_collides_with_typed_object(L, i)) {
+		if (!root)
+			sjson << "{\n";
+
+		lua_save_data_write_indent(sjson, child_depth);
+		sjson << "type = \"table\"\n";
+		lua_save_data_write_indent(sjson, child_depth);
+		sjson << "data = ";
+		lua_save_data_write_table(L, i, sjson, child_depth, false, true);
+
+		sjson << "\n";
+		if (!root) {
+			lua_save_data_write_indent(sjson, depth);
+			sjson << "}";
+		}
+		return;
+	}
+
+	if (!root)
+		sjson << "{\n";
+
+	lua_pushnil(L);
+	while (lua_next(L, i) != 0) {
+		lua_save_data_write_indent(sjson, child_depth);
+		lua_save_data_write_key(sjson, L, -2);
+		sjson << " = ";
+		lua_save_data_write_value(L, -1, sjson, child_depth);
+		sjson << "\n";
+		lua_pop(L, 1);
+	}
+
+	if (!root) {
+		lua_save_data_write_indent(sjson, depth);
+		sjson << "}";
+	}
+}
+
+static void lua_save_data_write_value(lua_State *L, int i, StringStream &sjson, u32 depth)
+{
+	LuaStack stack(L);
+	const int type = lua_type(L, i);
+
+	if (type == LUA_TBOOLEAN) {
+		sjson << (stack.get_bool(i) ? "true" : "false");
+	} else if (type == LUA_TNUMBER) {
+		sjson << (f64)lua_tonumber(L, i);
+	} else if (type == LUA_TSTRING) {
+		lua_save_data_write_string(sjson, L, i);
+	} else if (type == LUA_TLIGHTUSERDATA && stack.is_vector3(i)) {
+		lua_save_data_write_vector3(sjson, "vector3", stack.get_vector3(i));
+	} else if (type == LUA_TLIGHTUSERDATA && stack.is_matrix4x4(i)) {
+		lua_save_data_write_matrix4x4(sjson, "matrix4x4", stack.get_matrix4x4(i));
+	} else if (stack.has_metatable(i, "Vector3Box")) {
+		lua_save_data_write_vector3(sjson, "vector3box", stack.get_vector3box(i));
+	} else if (stack.has_metatable(i, "Matrix4x4Box")) {
+		lua_save_data_write_matrix4x4(sjson, "matrix4x4box", stack.get_matrix4x4box(i));
+	} else if (type == LUA_TTABLE) {
+		lua_save_data_write_table(L, i, sjson, depth, false, false);
+	} else {
+		luaL_error(L, "Unsupported save data value type");
+	}
+}
+
+static void lua_save_data_write_root_table(lua_State *L, int i, StringStream &sjson)
+{
+	lua_save_data_write_table(L, i, sjson, 0, true, false);
+}
+
+static bool lua_save_data_push_sjson_value(lua_State *L, const char *value, bool &error);
+static bool lua_save_data_push_sjson_object(lua_State *L, const char *value, bool &error, bool force_regular);
+
+static bool lua_save_data_push_sjson_array(lua_State *L, const char *value, bool &error)
+{
+	const int top = lua_gettop(L);
+	LuaStack stack(L, INT_MAX);
+	TempAllocator1024 ta;
+	JsonArray arr(ta);
+	sjson::parse_array(arr, value);
+	if (error) {
+		lua_settop(L, top);
+		return false;
+	}
+
+	stack.push_table(array::size(arr));
+	for (u32 ii = 0; ii < array::size(arr); ++ii) {
+		stack.push_key_begin(ii + 1);
+		if (!lua_save_data_push_sjson_value(L, arr[ii], error)) {
+			lua_settop(L, top);
+			return false;
+		}
+		stack.push_key_end();
+	}
+
+	return true;
+}
+
+static bool lua_save_data_parse_typed_object(DynamicString &type, const JsonObject &obj, bool &error)
+{
+	if (json_object::size(obj) != 2
+		|| !json_object::has(obj, "type")
+		|| !json_object::has(obj, "data")
+		|| sjson::type(obj["type"]) != JsonValueType::STRING
+		) {
+		return false;
+	}
+
+	sjson::parse_string(type, obj["type"]);
+	if (error)
+		return false;
+
+	return lua_save_data_is_reserved_type(type.c_str());
+}
+
+static bool lua_save_data_push_sjson_object(lua_State *L, const char *value, bool &error, bool force_regular)
+{
+	const int top = lua_gettop(L);
+	LuaStack stack(L, INT_MAX);
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, value);
+	if (error) {
+		lua_settop(L, top);
+		return false;
+	}
+
+	if (!force_regular) {
+		DynamicString type(ta);
+		if (lua_save_data_parse_typed_object(type, obj, error)) {
+			if (type == "table") {
+				if (!lua_save_data_push_sjson_object(L, obj["data"], error, true)) {
+					lua_settop(L, top);
+					return false;
+				}
+				return true;
+			}
+
+			JsonArray arr(ta);
+			sjson::parse_array(arr, obj["data"]);
+			if (error) {
+				lua_settop(L, top);
+				return false;
+			}
+
+			if (type == "vector3" || type == "vector3box") {
+				if (array::size(arr) != 3) {
+					error = true;
+					lua_settop(L, top);
+					return false;
+				}
+
+				Vector3 v = sjson::parse_vector3(obj["data"]);
+				if (error) {
+					lua_settop(L, top);
+					return false;
+				}
+
+				if (type == "vector3")
+					stack.push_vector3(v);
+				else
+					stack.push_vector3box(v);
+				return true;
+			} else if (type == "matrix4x4" || type == "matrix4x4box") {
+				if (array::size(arr) != 16) {
+					error = true;
+					lua_settop(L, top);
+					return false;
+				}
+
+				Matrix4x4 m = sjson::parse_matrix4x4(obj["data"]);
+				if (error) {
+					lua_settop(L, top);
+					return false;
+				}
+
+				if (type == "matrix4x4")
+					stack.push_matrix4x4(m);
+				else
+					stack.push_matrix4x4box(m);
+				return true;
+			}
+		}
+		if (error) {
+			lua_settop(L, top);
+			return false;
+		}
+	}
+
+	stack.push_table(0, json_object::size(obj));
+	auto cur = json_object::begin(obj);
+	auto end = json_object::end(obj);
+	for (; cur != end; ++cur) {
+		JSON_OBJECT_SKIP_HOLE(obj, cur);
+
+		lua_pushlstring(L, cur->first.data(), cur->first.length());
+		if (!lua_save_data_push_sjson_value(L, cur->second, error)) {
+			lua_settop(L, top);
+			return false;
+		}
+		lua_settable(L, -3);
+	}
+
+	return true;
+}
+
+static bool lua_save_data_push_sjson_value(lua_State *L, const char *value, bool &error)
+{
+	const int top = lua_gettop(L);
+	LuaStack stack(L, INT_MAX);
+
+	switch (sjson::type(value)) {
+	case JsonValueType::NIL:
+		stack.push_nil();
+		break;
+
+	case JsonValueType::BOOL: {
+		const bool val = sjson::parse_bool(value);
+		if (error) {
+			lua_settop(L, top);
+			return false;
+		}
+		stack.push_bool(val);
+		return true;
+	}
+
+	case JsonValueType::NUMBER: {
+		const f32 val = sjson::parse_float(value);
+		if (error) {
+			lua_settop(L, top);
+			return false;
+		}
+		stack.push_float(val);
+		return true;
+	}
+
+	case JsonValueType::STRING: {
+		TempAllocator1024 ta;
+		DynamicString str(ta);
+		sjson::parse_string(str, value);
+		if (error) {
+			lua_settop(L, top);
+			return false;
+		}
+		stack.push_lstring(str.c_str(), str.length());
+		break;
+	}
+
+	case JsonValueType::ARRAY:
+		if (!lua_save_data_push_sjson_array(L, value, error)) {
+			lua_settop(L, top);
+			return false;
+		}
+		return true;
+
+	case JsonValueType::OBJECT:
+		if (!lua_save_data_push_sjson_object(L, value, error, false)) {
+			lua_settop(L, top);
+			return false;
+		}
+		return true;
+
+	default:
+		stack.push_nil();
+		break;
+	}
+
+	if (error) {
+		lua_settop(L, top);
+		return false;
+	}
+	return true;
+}
+
+static bool lua_save_data_push_table(lua_State *L, const void *data)
+{
+	const int top = lua_gettop(L);
+	CE_ENSURE(data != NULL);
+	if (data == NULL)
+		return false;
+
+	bool parse_error = false;
+	sjson::set_error_callback([](const char *msg, void *user_data) {
+			CE_UNUSED(msg);
+			*(bool *)user_data = true;
+		}
+		, &parse_error
+		);
+
+	const bool parsed = lua_save_data_push_sjson_object(L, (const char *)data, parse_error, false);
+	sjson::set_error_callback(NULL, NULL);
+
+	if (!parsed || parse_error) {
+		lua_settop(L, top);
+		return false;
+	}
+
+	return true;
 }
 
 void load_api(LuaEnvironment &env)
@@ -3069,6 +3491,67 @@ void load_api(LuaEnvironment &env)
 			return 0;
 		});
 
+	env.add_module_function("SaveGame", "save", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			LUA_ASSERT(stack.is_table(2), stack, "Table expected");
+
+			StringStream sjson(default_allocator());
+			lua_save_data_write_root_table(L, 2, sjson);
+
+			stack.push_id(save_game::save(stack.get_string(1), array::begin(sjson), array::size(sjson)));
+			return 1;
+		});
+	env.add_module_function("SaveGame", "load", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_id(save_game::load(stack.get_string(1)));
+			return 1;
+		});
+	env.add_module_function("SaveGame", "status", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const u32 request = stack.get_id(1);
+			const SaveStatus st = save_game::status(request);
+			s32 error = st.done ? st.error : SaveError::SUCCESS;
+
+			stack.push_table(0, 4);
+			const int status_table = lua_gettop(L);
+
+			stack.push_key_begin("done");
+			stack.push_bool(st.done);
+			stack.push_key_end();
+
+			stack.push_key_begin("progress");
+			stack.push_float(st.progress);
+			stack.push_key_end();
+
+			if (st.done && error == SaveError::SUCCESS && st.data != NULL) {
+				stack.push_key_begin("data");
+				if (lua_save_data_push_table(L, st.data))
+					stack.push_key_end();
+				else {
+					lua_settop(L, status_table);
+					error = SaveError::CORRUPTED;
+				}
+			}
+
+			if (st.done && error != SaveError::SUCCESS) {
+				stack.push_key_begin("error");
+				stack.push_int(error);
+				stack.push_key_end();
+			}
+
+			return 1;
+		});
+	env.add_module_function("SaveGame", "free", [](lua_State *L) {
+			LuaStack stack(L);
+			const u32 request = stack.get_id(1);
+			const SaveStatus st = save_game::status(request);
+			if (!st.done)
+				return 0;
+
+			save_game::free(request);
+			return 0;
+		});
+
 	env.add_module_function("Profiler", "enter_scope", [](lua_State *L) {
 			LuaStack stack(L);
 			profiler::enter_profile_scope(stack.get_string(1));
@@ -3523,6 +4006,13 @@ void load_api(LuaEnvironment &env)
 	env.set_module_number("InputEventType", "BUTTON_PRESSED", InputEventType::BUTTON_PRESSED);
 	env.set_module_number("InputEventType", "BUTTON_RELEASED", InputEventType::BUTTON_RELEASED);
 	env.set_module_number("InputEventType", "AXIS_CHANGED", InputEventType::AXIS_CHANGED);
+	env.set_module_number("SaveError", "INVALID_REQUEST", SaveError::INVALID_REQUEST);
+	env.set_module_number("SaveError", "SAVE_DIR_UNSET", SaveError::SAVE_DIR_UNSET);
+	env.set_module_number("SaveError", "MISSING", SaveError::MISSING);
+	env.set_module_number("SaveError", "INVALID_FILENAME", SaveError::INVALID_FILENAME);
+	env.set_module_number("SaveError", "IO_ERROR", SaveError::IO_ERROR);
+	env.set_module_number("SaveError", "CORRUPTED", SaveError::CORRUPTED);
+	env.set_module_number("SaveError", "UNKNOWN", SaveError::UNKNOWN);
 	// code-format on
 }
 

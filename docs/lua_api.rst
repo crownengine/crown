@@ -1411,6 +1411,50 @@ Represents a collection of resources that can be loaded in group.
 **has_loaded** (package) : bool
 	Returns whether the *package* has been loaded.
 
+SaveGame
+========
+
+Singleton to save and load savegames.
+
+**save** (filename, data) : Id
+	Starts saving *data* to *filename* asynchronously and returns its request id.
+	The function returns before the file has been written. Poll for completion
+	with ``SaveGame.status()``. *filename* must be a filename, not a path. *data*
+	must be a table with string keys. Values can be bool, number, string, table,
+	Vector3, Vector3Box, Matrix4x4 or Matrix4x4Box.
+
+**load** (filename) : Id
+	Starts loading *filename* asynchronously and returns its request id. The
+	function returns before the file has been read. Poll for completion with
+	``SaveGame.status()``. *filename* must be a filename, not a path. When the
+	request is done, the loaded table is returned in the ``data`` field of
+	``SaveGame.status()``.
+
+**status** (request) : table
+	Returns a table with the current status of *request*.
+
+	The returned table has the following fields:
+
+	* ``done``: Whether the request has finished.
+	* ``progress``: Completion progress in the [0; 1] range.
+	* ``data``: The loaded table. This field is present only for successful load requests.
+	* ``error``: One of `SaveError`_, or ``nil`` if the request is done and no error has occurred.
+
+**free** (request)
+	Frees the resources held by *request*. Call this after the request is done.
+	After this call, *request* is invalid.
+
+SaveError
+---------
+
+* ``INVALID_REQUEST``: The request id is invalid.
+* ``SAVE_DIR_UNSET``: ``save_dir`` is not configured.
+* ``MISSING``: The save file does not exist.
+* ``INVALID_FILENAME``: The filename is invalid.
+* ``IO_ERROR``: File read/write failed.
+* ``CORRUPTED``: Save data could not be parsed.
+* ``UNKNOWN``: The request failed for an unknown reason.
+
 SceneGraph
 ==========
 

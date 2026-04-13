@@ -116,6 +116,7 @@ function crown_project(_name, _kind, _defines)
 			targetextension ".js"
 			linkoptions {
 				"-pthread",               -- https://emscripten.org/docs/porting/pthreads.html#compiling-with-pthreads-enabled
+				"-lidbfs.js",
 				"-lopenal",
 				"-s ABORTING_MALLOC=0",
 				"-s PTHREAD_POOL_SIZE=8",

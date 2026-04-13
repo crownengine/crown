@@ -10,6 +10,7 @@
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_apk.h"
 #include "core/filesystem/filesystem_disk.h"
+#include "core/filesystem/path.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/list.inl"
@@ -37,6 +38,7 @@
 #include "device/input_manager.h"
 #include "device/log.h"
 #include "device/pipeline.h"
+#include "device/save_game.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
 #include "resource/resource_id.inl"
@@ -714,6 +716,15 @@ int Device::main_loop()
 	if (!_options._hidden)
 		_window->show();
 
+	{
+		DynamicString save_dir(default_allocator());
+		if (!_boot_config.save_dir.empty()
+			&& !path::expand(save_dir, _boot_config.save_dir.c_str())
+			)
+			loge(DEVICE, "Unable to expand save_dir: '%s'", _boot_config.save_dir.c_str());
+		save_game_globals::init(default_allocator(), save_dir.c_str());
+	}
+
 	_input_manager    = CE_NEW(_allocator, InputManager)(default_allocator());
 	_unit_manager     = CE_NEW(_allocator, UnitManager)(default_allocator());
 	_lua_environment  = CE_NEW(_allocator, LuaEnvironment)();
@@ -773,6 +784,7 @@ int Device::main_loop()
 	_pipeline->destroy();
 	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
+	save_game_globals::shutdown();
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
 	CE_DELETE(_allocator, _resource_manager);

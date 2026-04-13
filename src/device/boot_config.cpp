@@ -22,6 +22,7 @@ BootConfig::BootConfig(Allocator &a)
 	, boot_package_name(u64(0))
 	, render_config_name(u64(0))
 	, window_title(a)
+	, save_dir(a)
 	, window_w(CROWN_DEFAULT_WINDOW_WIDTH)
 	, window_h(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, device_id(0)
@@ -79,6 +80,9 @@ bool BootConfig::parse(const char *json)
 	if (json_object::has(cfg, CROWN_PLATFORM_NAME)) {
 		JsonObject platform(ta);
 		sjson::parse(platform, cfg[CROWN_PLATFORM_NAME]);
+
+		if (json_object::has(platform, "save_dir"))
+			sjson::parse_string(save_dir, platform["save_dir"]);
 
 		if (json_object::has(platform, "renderer")) {
 			JsonObject renderer(ta);
