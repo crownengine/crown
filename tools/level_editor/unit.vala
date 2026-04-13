@@ -469,6 +469,80 @@ public struct Unit
 		}
 	}
 
+	public static void collect_unit_tree(Gee.ArrayList<Guid?> unit_ids, Guid unit_id, Database db)
+	{
+		unit_ids.add(unit_id);
+
+		if (db.has_property(unit_id, "children")) {
+			Gee.HashSet<Guid?> children = db.get_set(unit_id, "children", new Gee.HashSet<Guid?>());
+			foreach (Guid child_id in children) {
+				if (db.is_alive(child_id))
+					collect_unit_tree(unit_ids, child_id, db);
+			}
+		}
+	}
+
+	public static int compare_component_spawn_order(Database db, Guid? component_a, Guid? component_b)
+	{
+		double order_a = db.get_double(component_a, "spawn_order");
+		double order_b = db.get_double(component_b, "spawn_order");
+
+		if (order_a < order_b)
+			return -1;
+		else if (order_a > order_b)
+			return 1;
+		return 0;
+	}
+
+	public static void spawn_unit_tree(StringBuilder sb, Guid unit_id, Database db)
+	{
+		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
+		Gee.ArrayList<Guid?> components = new Gee.ArrayList<Guid?>();
+		collect_unit_tree(unit_ids, unit_id, db);
+
+		sb.append("editor_tree_nv, editor_tree_nq, editor_tree_nm = Device.temp_count()");
+
+		foreach (Guid id in unit_ids) {
+			Unit unit = Unit(db, id);
+			if (unit.prefab() != null) {
+				spawn_unit(sb, id, db);
+			} else {
+				sb.append(LevelEditorApi.spawn_empty_unit(id));
+				components.add_all(db.get_set(id, "components", new Gee.HashSet<Guid?>()));
+			}
+		}
+
+		components.sort((a, b) => {
+				return compare_component_spawn_order(db, a, b);
+			});
+
+		foreach (Guid component_id in components) {
+			if (db.object_type(component_id) == OBJECT_TYPE_TRANSFORM)
+				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
+		}
+
+		foreach (Guid id in unit_ids) {
+			Guid owner_id = db.owner(id);
+			if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
+				sb.append(LevelEditorApi.unit_set_parent(owner_id, id));
+		}
+
+		foreach (Guid component_id in components) {
+			if (db.object_type(component_id) != OBJECT_TYPE_TRANSFORM)
+				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
+		}
+
+		foreach (Guid id in unit_ids) {
+			Unit unit = Unit(db, id);
+			if (unit.prefab() == null) {
+				sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
+				sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
+			}
+		}
+
+		sb.append("Device.set_temp_count(editor_tree_nv, editor_tree_nq, editor_tree_nm)");
+	}
+
 	public static void spawn_unit(StringBuilder sb, Guid unit_id, Database db)
 	{
 		Unit unit = Unit(db, unit_id);
@@ -520,17 +594,7 @@ public struct Unit
 				if (!db.is_alive(object_ids[i]))
 					continue;
 
-				spawn_unit(sb, object_ids[i], db);
-
-				Unit unit = Unit(db, object_ids[i]);
-				if (db.has_property(unit._id, "children")) {
-					Gee.HashSet<Guid?> children = db.get_set(unit._id, "children", new Gee.HashSet<Guid?>());
-					generate_spawn_unit_commands(sb, children.to_array(), db);
-				}
-
-				Guid owner_id = db.owner(object_ids[i]);
-				if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
-					sb.append(LevelEditorApi.unit_set_parent(owner_id, object_ids[i]));
+				spawn_unit_tree(sb, object_ids[i], db);
 			} else if (Unit.is_component(object_ids[i], db)) {
 				if (!db.is_alive(object_ids[i]))
 					continue;

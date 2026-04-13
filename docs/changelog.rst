@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.1 --- DD MMM YYYY <v0.62.1>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed units not spawning correctly when opened in the Unit Editor.
+
 .. _v0.62.0:
 
 :ref:`0.62.0 --- 09 Apr 2026 <v0.62.0>`
