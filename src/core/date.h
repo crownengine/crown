@@ -11,17 +11,37 @@ namespace crown
 {
 namespace date
 {
-	///
-	void date(s32 &year, s32 &month, s32 &day);
+	struct Date
+	{
+		s32 year;
+		s32 month;
+		s32 day;
+	};
+
+	struct Time
+	{
+		s32 hour;
+		s32 minutes;
+		s32 seconds;
+	};
 
 	///
-	void utc_date(s32 &year, s32 &month, s32 &day);
+	void date(Date &date);
 
 	///
-	void time(s32 &hour, s32 &minutes, s32 &seconds);
+	void utc_date(Date &date);
 
 	///
-	void utc_time(s32 &hour, s32 &minutes, s32 &seconds);
+	void time(Time &time);
+
+	///
+	void utc_time(Time &time);
+
+	/// Formats @a date as YYYY-MM-DD.
+	const char *to_string(char *buf, u32 len, const Date &date);
+
+	/// Formats @a time as HH-MM-SS.
+	const char *to_string(char *buf, u32 len, const Time &time);
 
 } // namespace date
 
