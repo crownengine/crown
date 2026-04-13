@@ -39,7 +39,9 @@ project ("crown-launcher")
 	configuration {}
 
 	files {
+		CROWN_DIR .. "src/core/date.cpp",
 		CROWN_DIR .. "src/core/debug/**.cpp",
+		CROWN_DIR .. "src/core/environment.cpp",
 		CROWN_DIR .. "src/core/error/**.cpp",
 		CROWN_DIR .. "src/core/filesystem/path.cpp",
 		CROWN_DIR .. "src/core/guid.cpp",
@@ -50,6 +52,7 @@ project ("crown-launcher")
 		CROWN_DIR .. "src/core/strings/dynamic_string.cpp",
 		CROWN_DIR .. "src/core/strings/string_id.cpp",
 		CROWN_DIR .. "src/core/thread/mutex.cpp",
+		CROWN_DIR .. "src/core/time.cpp",
 		CROWN_DIR .. "src/device/log.cpp",
 		CROWN_DIR .. "tools/launcher/launcher.cpp",
 	}

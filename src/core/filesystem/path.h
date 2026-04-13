@@ -49,6 +49,11 @@ namespace path
 	/// Removes unnecessary dots and separators from @a path.
 	void reduce(DynamicString &clean, const char *path);
 
+	/// Expands variables in @a path_template into @a expanded.
+	/// Returns false if @a path_template contains an unknown variable or a
+	/// variable cannot be expanded.
+	bool expand(DynamicString &expanded, const char *path_template);
+
 	/// Returns the parent directory of @a path.
 	StringView parent_dir(const char *path);
 

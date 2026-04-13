@@ -1779,6 +1779,17 @@ static void test_path()
 		ENSURE(path == "foo/bar");
 	}
 #endif
+	{
+		TempAllocator128 ta;
+		DynamicString expanded(ta);
+		ENSURE(path::expand(expanded, "$DATE_$RANDOM"));
+		ENSURE(expanded.length() == 19);
+	}
+	{
+		TempAllocator128 ta;
+		DynamicString expanded(ta);
+		ENSURE(!path::expand(expanded, "$DATEFOO"));
+	}
 }
 
 static void test_command_line()

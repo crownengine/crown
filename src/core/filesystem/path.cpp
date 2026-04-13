@@ -4,15 +4,22 @@
  */
 
 #include "core/containers/array.inl"
+#include "core/date.h"
+#include "core/environment.h"
 #include "core/filesystem/path.h"
+#include "core/math/random.inl"
+#include "core/memory/temp_allocator.inl"
 #include "core/platform.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_view.inl"
-#include <ctype.h>  // isalpha
-#include <string.h> // strrchr
+#include "device/types.h"
+#include <ctype.h>  // isalpha, isalnum
+#include <string.h> // strncmp, strrchr
 
 namespace crown
 {
+extern PlatformData g_platform_data;
+
 #if CROWN_PLATFORM_WINDOWS
 const char PATH_SEPARATOR = '\\';
 #else
@@ -113,6 +120,96 @@ namespace path
 
 		if (has_trailing_separator(clean.c_str()))
 			array::pop_back(clean._data);
+	}
+
+	bool expand(DynamicString &expanded, const char *path_template)
+	{
+		const char *ch = path_template;
+		CE_ENSURE(ch != NULL);
+
+		expanded = "";
+		char buf[16];
+
+		while (*ch) {
+			if (*ch != '$') {
+				expanded += *ch;
+				++ch;
+				continue;
+			}
+
+			++ch;
+			if (strncmp(ch, "USER_DATA", 9) == 0 && !isalnum((unsigned char)ch[9])) {
+				ch += 9;
+				if (CROWN_PLATFORM_ANDROID) {
+					const char *path = (const char *)g_platform_data._android_internal_data_path;
+					if (path == NULL || path[0] == '\0')
+						return false;
+					expanded += path;
+				} else {
+					TempAllocator256 ta;
+					DynamicString path(ta);
+					environment::user_data_dir(path);
+					if (path.empty())
+						return false;
+
+					expanded += path;
+				}
+			} else if (CROWN_PLATFORM_ANDROID
+				&& strncmp(ch, "OBB_PATH", 8) == 0
+				&& !isalnum((unsigned char)ch[8])
+				) {
+				ch += 8;
+				const char *path = (const char *)g_platform_data._android_obb_path;
+				if (path == NULL || path[0] == '\0')
+					return false;
+				expanded += path;
+			} else if (strncmp(ch, "UTC_DATE", 8) == 0 && !isalnum((unsigned char)ch[8])) {
+				ch += 8;
+				date::Date d;
+				date::utc_date(d);
+				date::to_string(buf, sizeof(buf), d);
+				expanded += buf;
+			} else if (strncmp(ch, "UTC_TIME", 8) == 0 && !isalnum((unsigned char)ch[8])) {
+				ch += 8;
+				date::Time t;
+				date::utc_time(t);
+				date::to_string(buf, sizeof(buf), t);
+				expanded += buf;
+			} else if (strncmp(ch, "RANDOM", 6) == 0 && !isalnum((unsigned char)ch[6])) {
+				ch += 6;
+				Random random;
+				const char alphabet[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				for (u32 ii = 0; ii < 8; ++ii)
+					buf[ii] = alphabet[random.integer(s32(sizeof(alphabet) - 1))];
+				buf[8] = '\0';
+				expanded += buf;
+			} else if (strncmp(ch, "DATE", 4) == 0 && !isalnum((unsigned char)ch[4])) {
+				ch += 4;
+				date::Date d;
+				date::date(d);
+				date::to_string(buf, sizeof(buf), d);
+				expanded += buf;
+			} else if (strncmp(ch, "TIME", 4) == 0 && !isalnum((unsigned char)ch[4])) {
+				ch += 4;
+				date::Time t;
+				date::time(t);
+				date::to_string(buf, sizeof(buf), t);
+				expanded += buf;
+			} else if (strncmp(ch, "TMP", 3) == 0 && !isalnum((unsigned char)ch[3])) {
+				ch += 3;
+				TempAllocator256 ta;
+				DynamicString path(ta);
+				environment::tmp_dir(path);
+				if (path.empty())
+					return false;
+
+				expanded += path;
+			} else {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	StringView parent_dir(const char *path)
