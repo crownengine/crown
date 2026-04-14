@@ -49,6 +49,7 @@ ResourceLoader::~ResourceLoader()
 
 bool ResourceLoader::add_request(const ResourceRequest &rr)
 {
+	ScopedMutex sm(_mutex);
 	bool success = _requests.push(rr);
 	if (success)
 		_requests_condition.signal();
