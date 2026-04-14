@@ -54,9 +54,6 @@ struct ResourceLoader
 	ConditionVariable _requests_condition;
 	bool _exit;
 
-	///
-	void add_loaded(ResourceRequest rr);
-
 	/// Do not call explicitly.
 	s32 run();
 
