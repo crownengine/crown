@@ -54,7 +54,7 @@ void ResourcePackage::load()
 		// resources it contains.
 		for (u32 ii = _num_resources_queued; ii < _package_resource->num_resources; ++ii) {
 			const ResourceOffset *ro = package_resource::resource_offset(_package_resource, ii);
-			if (!_resource_manager->try_load(_package_resource_name, ro->type, ro->name, ro->online_order))
+			if (!_resource_manager->try_load(_package_resource_name, ro->type, ro->name, ro->online_order, _package_resource))
 				break;
 
 			++_num_resources_queued;

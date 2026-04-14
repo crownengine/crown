@@ -22,8 +22,8 @@ struct ResourceRequest
 {
 	typedef void * (*LoadFunction)(File &file, Allocator &a);
 
-	ResourceManager *resource_manager;
 	StringId64 package_name;
+	const PackageResource *package_resource;
 	StringId64 type;
 	StringId64 name;
 	u32 online_order;

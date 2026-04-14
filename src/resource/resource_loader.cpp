@@ -20,7 +20,6 @@
 #include "resource/package_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
-#include "resource/resource_manager.h"
 #include "resource/types.h"
 
 LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
@@ -102,8 +101,8 @@ s32 ResourceLoader::run()
 
 					_data_filesystem.close(*file);
 				} else {
-					// Get the package containing the resource.
-					const PackageResource *pkg = (PackageResource *)rr.resource_manager->get(RESOURCE_TYPE_PACKAGE, rr.package_name);
+					const PackageResource *pkg = rr.package_resource;
+					CE_ASSERT(pkg != NULL, "Missing package for bundled resource: " RESOURCE_ID_FMT, res_id._id);
 
 					// Find the resource inside the package.
 					for (u32 ii = 0; ii < pkg->num_resources; ++ii) {

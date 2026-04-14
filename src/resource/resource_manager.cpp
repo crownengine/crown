@@ -113,14 +113,14 @@ ResourceManager::~ResourceManager()
 	}
 }
 
-bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order)
+bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order, const PackageResource *package_resource)
 {
 	ResourcePair id = { type, name };
 	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
 	ResourceRequest rr;
-	rr.resource_manager = this;
 	rr.package_name = package_name;
+	rr.package_resource = package_resource;
 	rr.type = type;
 	rr.name = name;
 	rr.online_order = online_order;
@@ -165,6 +165,11 @@ void ResourceManager::unload(StringId64 type, StringId64 name)
 
 void *ResourceManager::reload(StringId64 type, StringId64 name)
 {
+	if (_resource_loader->_is_bundle) {
+		CE_ASSERT(false, "Reloading resources in bundle mode is not supported");
+		return NULL;
+	}
+
 	const ResourcePair id = { type, name };
 	const ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 

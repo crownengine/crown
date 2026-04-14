@@ -75,7 +75,7 @@ struct ResourceManager
 	/// When the load queue is full, it may fail returning false. In such case,
 	/// you must call complete_requests() and try again later until true is returned.
 	/// Use can_get() to check whether the resource can be used.
-	bool try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order);
+	bool try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order, const PackageResource *package_resource = NULL);
 
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);
