@@ -181,7 +181,10 @@ void ConsoleServer::shutdown()
 	if (!_server.is_open())
 		return;
 
-	_thread_exit = true;
+	_output_mutex.lock();
+	_thread_exit.store(true);
+	_output_condition.signal();
+	_output_mutex.unlock();
 
 	// Unlock input thread if it is stuck inside the select().
 	_handlers_semaphore.post();
@@ -191,7 +194,6 @@ void ConsoleServer::shutdown()
 	// Unlock execute_message_handlers in sync mode.
 	_input_semaphore.post();
 
-	_output_condition.signal();
 	if (_output_thread.is_running())
 		_output_thread.stop();
 

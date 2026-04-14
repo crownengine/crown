@@ -13,6 +13,7 @@
 #include "core/thread/mutex.h"
 #include "core/thread/semaphore.h"
 #include "core/thread/thread.h"
+#include <atomic>
 
 namespace crown
 {
@@ -51,7 +52,7 @@ struct ConsoleServer
 	HashMap<StringId32, CommandData> _messages;
 	HashMap<StringId32, CommandData> _commands;
 
-	bool _thread_exit;
+	std::atomic_bool _thread_exit;
 
 	Thread _input_thread;
 	Buffer _input_0;
