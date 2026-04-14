@@ -86,7 +86,7 @@ s32 ResourceLoader::run()
 		ResourceRequest rr;
 		while (!_exit && _requests.pop(rr)) {
 			ResourceId res_id = resource_id(rr.type, rr.name);
-			logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id);
+			logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id._id);
 
 			TempAllocator128 ta;
 			DynamicString path(ta);
@@ -95,7 +95,7 @@ s32 ResourceLoader::run()
 			if (_is_bundle) {
 				if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG) {
 					File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-					CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id);
+					CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id._id);
 
 					// Load the resource.
 					rr.data = rr.load_function(*file, *rr.allocator);
