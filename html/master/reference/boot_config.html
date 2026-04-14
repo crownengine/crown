@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-13T23:06:31+00:00" /><meta property="og:title" content="boot.config reference" />
+    <meta property="article:modified_time" content="2026-04-13T01:52:36+00:00" /><meta property="og:title" content="boot.config reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/boot_config.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
-<meta property="og:description" content="Generic configurations: boot_script = &quot;lua/game&quot;, Lua script to launch on boot.,, boot_package = &quot;boot&quot;, Package to load on boot.,, render_config = &quot;core/renderer/default&quot;, Render configuration to use.,, window_title = &quot;My window&quot;, Title..." />
+<meta property="og:description" content="Path templates: Some settings accept path templates. A path template is a path that may contain variables in the form$VARNAME. Supported variables:$DATE: The local date in YYYY-MM-DD format.,$UTC_DATE: The UTC date in YYYY-MM-DD format.,$TIME: The local time in HH-MM-SS format..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.63.0 Manual" />
-<meta name="description" content="Generic configurations: boot_script = &quot;lua/game&quot;, Lua script to launch on boot.,, boot_package = &quot;boot&quot;, Package to load on boot.,, render_config = &quot;core/renderer/default&quot;, Render configuration to use.,, window_title = &quot;My window&quot;, Title..." />
+<meta name="description" content="Path templates: Some settings accept path templates. A path template is a path that may contain variables in the form$VARNAME. Supported variables:$DATE: The local date in YYYY-MM-DD format.,$UTC_DATE: The UTC date in YYYY-MM-DD format.,$TIME: The local time in HH-MM-SS format..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -72,10 +72,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="console_commands.html">Console commands</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">boot.config reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#path-templates">Path templates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#generic-configurations">Generic configurations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#platform-specific-configurations">Platform-specific configurations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#renderer-configurations">Renderer configurations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#physics-configurations">Physics configurations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-settings">Other settings</a></li>
 </ul>
 </li>
 </ul>
@@ -116,6 +118,23 @@
              
   <section id="boot-config-reference">
 <h1>boot.config reference<a class="headerlink" href="#boot-config-reference" title="Permalink to this headline">¶</a></h1>
+<section id="path-templates">
+<h2>Path templates<a class="headerlink" href="#path-templates" title="Permalink to this headline">¶</a></h2>
+<p>Some settings accept path templates. A path template is a path that may contain
+variables in the form <code class="docutils literal notranslate"><span class="pre">$VARNAME</span></code>.</p>
+<p>Supported variables:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$DATE</span></code>: The local date in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$UTC_DATE</span></code>: The UTC date in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$TIME</span></code>: The local time in <code class="docutils literal notranslate"><span class="pre">HH-MM-SS</span></code> format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$UTC_TIME</span></code>: The UTC time in <code class="docutils literal notranslate"><span class="pre">HH-MM-SS</span></code> format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$USER_DATA</span></code>: The user data directory. On Android, this expands to the
+activity internal data path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$TMP</span></code>: The temporary directory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$RANDOM</span></code>: An 8-character random string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$OBB_PATH</span></code>: Android only. The activity OBB path.</p></li>
+</ul>
+</section>
 <section id="generic-configurations">
 <h2>Generic configurations<a class="headerlink" href="#generic-configurations" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
@@ -171,6 +190,14 @@ If one frame takes longer than <code class="docutils literal notranslate"><span 
 </dd>
 </dl>
 </section>
+<section id="other-settings">
+<h3>Other settings<a class="headerlink" href="#other-settings" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">save_dir</span> <span class="pre">=</span> <span class="pre">$USER_DATA/mygame</span></code></dt><dd><p>Sets the directory where save files will be stored. Setting the save
+directory is mandatory if you plan to use the SaveGame system.</p>
+</dd>
+</dl>
+</section>
 </section>
 </section>
 
@@ -186,7 +213,7 @@ If one frame takes longer than <code class="docutils literal notranslate"><span 
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 13, 2026.
+      <span class="lastupdated">Last updated on Apr 13, 2026.
       </span></p>
   </div>
 

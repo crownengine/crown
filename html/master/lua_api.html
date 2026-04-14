@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-12T20:44:30+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-04-13T01:52:36+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -152,6 +152,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#resourcepackage">ResourcePackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#savegame">SaveGame</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#saveerror">SaveError</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#scenegraph">SceneGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#soundworld">SoundWorld</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#unitmanager">UnitManager</a></li>
@@ -1340,6 +1344,48 @@ instead, you have to poll for completion with has_loaded().</p>
 </dd>
 </dl>
 </section>
+<section id="savegame">
+<h2>SaveGame<a class="headerlink" href="#savegame" title="Permalink to this headline">¶</a></h2>
+<p>Singleton to save and load savegames.</p>
+<dl>
+<dt><strong>save</strong> (filename, data)<span class="classifier">Id</span></dt><dd><p>Starts saving <em>data</em> to <em>filename</em> asynchronously and returns its request id.
+The function returns before the file has been written. Poll for completion
+with <code class="docutils literal notranslate"><span class="pre">SaveGame.status()</span></code>. <em>filename</em> must be a filename, not a path. <em>data</em>
+must be a table with string keys. Values can be bool, number, string, table,
+Vector3, Vector3Box, Matrix4x4 or Matrix4x4Box.</p>
+</dd>
+<dt><strong>load</strong> (filename)<span class="classifier">Id</span></dt><dd><p>Starts loading <em>filename</em> asynchronously and returns its request id. The
+function returns before the file has been read. Poll for completion with
+<code class="docutils literal notranslate"><span class="pre">SaveGame.status()</span></code>. <em>filename</em> must be a filename, not a path. When the
+request is done, the loaded table is returned in the <code class="docutils literal notranslate"><span class="pre">data</span></code> field of
+<code class="docutils literal notranslate"><span class="pre">SaveGame.status()</span></code>.</p>
+</dd>
+<dt><strong>status</strong> (request)<span class="classifier">table</span></dt><dd><p>Returns a table with the current status of <em>request</em>.</p>
+<p>The returned table has the following fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">done</span></code>: Whether the request has finished.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">progress</span></code>: Completion progress in the [0; 1] range.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: The loaded table. This field is present only for successful load requests.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code>: One of <a class="reference internal" href="#saveerror">SaveError</a>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code> if the request is done and no error has occurred.</p></li>
+</ul>
+</dd>
+<dt><strong>free</strong> (request)</dt><dd><p>Frees the resources held by <em>request</em>. Call this after the request is done.
+After this call, <em>request</em> is invalid.</p>
+</dd>
+</dl>
+<section id="saveerror">
+<h3>SaveError<a class="headerlink" href="#saveerror" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">INVALID_REQUEST</span></code>: The request id is invalid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SAVE_DIR_UNSET</span></code>: <code class="docutils literal notranslate"><span class="pre">save_dir</span></code> is not configured.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MISSING</span></code>: The save file does not exist.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">INVALID_FILENAME</span></code>: The filename is invalid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IO_ERROR</span></code>: File read/write failed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CORRUPTED</span></code>: Save data could not be parsed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code>: The request failed for an unknown reason.</p></li>
+</ul>
+</section>
+</section>
 <section id="scenegraph">
 <h2>SceneGraph<a class="headerlink" href="#scenegraph" title="Permalink to this headline">¶</a></h2>
 <p>Interface to the transform component in a unit.</p>
@@ -1594,7 +1640,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 12, 2026.
+      <span class="lastupdated">Last updated on Apr 13, 2026.
       </span></p>
   </div>
 
