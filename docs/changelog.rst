@@ -9,6 +9,8 @@ Changelog
 **Fixes**
 
 * Tools: fixed units not spawning correctly when opened in the Unit Editor.
+* Runtime: fixed a race conditions during application exit.
+* Runtime: fixed a race condition when loading resources.
 
 .. _v0.62.0:
 
