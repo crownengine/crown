@@ -171,7 +171,7 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 	}
 
 	const ResourcePair id = { type, name };
-	const ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
+	const ResourceData rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
 	if (rd == ResourceData::NOT_FOUND)
 		return NULL;
