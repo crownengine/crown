@@ -15,6 +15,7 @@
 #include "core/thread/thread.h"
 #include "core/types.h"
 #include "resource/types.h"
+#include <atomic>
 
 namespace crown
 {
@@ -52,7 +53,7 @@ struct ResourceLoader
 	Thread _thread;
 	Mutex _mutex;
 	ConditionVariable _requests_condition;
-	bool _exit;
+	std::atomic_bool _exit;
 
 	/// Do not call explicitly.
 	s32 run();

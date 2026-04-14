@@ -39,8 +39,11 @@ ResourceLoader::ResourceLoader(Filesystem &data_filesystem, bool is_bundle)
 
 ResourceLoader::~ResourceLoader()
 {
-	_exit = true;
-	_requests_condition.signal(); // Spurious wake to exit thread
+	_mutex.lock();
+	_exit.store(true);
+	_requests_condition.signal(); // Wake to exit thread.
+	_mutex.unlock();
+
 	_thread.stop();
 }
 
@@ -75,15 +78,15 @@ s32 ResourceLoader::run()
 {
 	while (1) {
 		_mutex.lock();
-		while (!_exit && _requests.empty())
+		while (!_exit.load() && _requests.empty())
 			_requests_condition.wait(_mutex);
 
 		_mutex.unlock();
-		if (_exit)
+		if (_exit.load())
 			break;
 
 		ResourceRequest rr;
-		while (!_exit && _requests.pop(rr)) {
+		while (!_exit.load() && _requests.pop(rr)) {
 			ResourceId res_id = resource_id(rr.type, rr.name);
 			logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id._id);
 
