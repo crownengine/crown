@@ -233,8 +233,20 @@ void ConsoleServer::error(u32 client_id, const char *msg)
 
 void ConsoleServer::broadcast(const char *json)
 {
-	for (u32 i = 0; i < vector::size(_clients); ++i)
-		send(_clients[i].id, json);
+	TempAllocator4096 ta;
+	Array<u32> clients(ta);
+
+	{
+		ScopedMutex scoped_mutex(_clients_mutex);
+
+		const u32 num_clients = vector::size(_clients);
+		array::reserve(clients, num_clients);
+		for (u32 i = 0; i < num_clients; ++i)
+			array::push_back(clients, _clients[i].id);
+	}
+
+	for (u32 i = 0; i < array::size(clients); ++i)
+		send(clients[i], json);
 }
 
 void ConsoleServer::execute_message_handlers(bool sync)
