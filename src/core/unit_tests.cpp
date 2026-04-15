@@ -25,6 +25,7 @@
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix3x3.inl"
+#include "core/environment.h"
 #include "core/math/matrix4x4.inl"
 #include "core/math/obb.inl"
 #include "core/math/quaternion.inl"
@@ -1864,31 +1865,39 @@ static void test_process()
 
 static void test_filesystem()
 {
-#if CROWN_PLATFORM_POSIX
+	memory_globals::init();
 	guid_globals::init();
 	{
-		Guid id = guid::new_guid();
-		char dir[5 + GUID_BUF_LEN] = "/tmp/";
-		guid::to_string(dir + 5, sizeof(dir) - 5, id);
+		TempAllocator256 ta;
+		DynamicString dir(ta);
+		char buf[GUID_BUF_LEN];
 
-		DeleteResult dr = os::delete_directory(dir);
+		environment::tmp_dir(dir);
+		dir += "/";
+		dir += guid::to_string(buf, sizeof(buf), guid::new_guid());
+
+		DeleteResult dr = os::delete_directory(dir.c_str());
 		ENSURE(dr.error == DeleteResult::NO_ENTRY);
 	}
 	{
-		Guid id = guid::new_guid();
-		char dir[5 + GUID_BUF_LEN] = "/tmp/";
-		guid::to_string(dir + 5, sizeof(dir) - 5, id);
+		TempAllocator256 ta;
+		DynamicString dir(ta);
+		char buf[GUID_BUF_LEN];
 
-		os::delete_directory(dir);
-		CreateResult cr = os::create_directory(dir);
+		environment::tmp_dir(dir);
+		dir += "/";
+		dir += guid::to_string(buf, sizeof(buf), guid::new_guid());
+
+		os::delete_directory(dir.c_str());
+		CreateResult cr = os::create_directory(dir.c_str());
 		ENSURE(cr.error == CreateResult::SUCCESS);
-		cr = os::create_directory(dir);
+		cr = os::create_directory(dir.c_str());
 		ENSURE(cr.error == CreateResult::ALREADY_EXISTS);
-		DeleteResult dr = os::delete_directory(dir);
+		DeleteResult dr = os::delete_directory(dir.c_str());
 		ENSURE(dr.error == DeleteResult::SUCCESS);
 	}
 	guid_globals::shutdown();
-#endif // if CROWN_PLATFORM_POSIX
+	memory_globals::shutdown();
 }
 
 static void test_file_monitor()
