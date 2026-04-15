@@ -1965,12 +1965,20 @@ static void test_file_monitor()
 
 		ScopedUniqueWorkingDir()
 		{
-			os::getcwd(_workdir, sizeof(_workdir));
+			TempAllocator256 ta;
+			DynamicString tmpdir(ta);
+			char buf[GUID_BUF_LEN];
 
-			char unique_name[GUID_BUF_LEN];
-			guid::to_string(unique_name, sizeof(unique_name), guid::new_guid());
-			os::create_directory(unique_name);
-			os::setcwd(unique_name);
+			os::getcwd(_workdir, sizeof(_workdir)); // Save current work dir.
+
+			// Create unique working dir.
+			environment::tmp_dir(tmpdir);
+			tmpdir += "/crown_unit_tests/";
+			os::create_directory(tmpdir.c_str());
+			tmpdir += guid::to_string(buf, sizeof(buf), guid::new_guid());
+			os::create_directory(tmpdir.c_str());
+
+			os::setcwd(tmpdir.c_str());
 		}
 
 		~ScopedUniqueWorkingDir()
