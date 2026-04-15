@@ -101,6 +101,10 @@ Options
 
 	When no port is specified, the engine uses the port 10001.
 
+``--port-file <path>``
+	Write the selected console port to <path>.
+	The file is written after the console server has bound a port if any.
+
 ``--wait-console``
 	Wait for a console connection before starting up.
 
