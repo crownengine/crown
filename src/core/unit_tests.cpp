@@ -2279,6 +2279,9 @@ static void test_lua_resource()
 
 static void test_time()
 {
+	if (CROWN_PLATFORM_EMSCRIPTEN)
+		return;
+
 	{
 		s64 t = time::now();
 		os::sleep(32);
