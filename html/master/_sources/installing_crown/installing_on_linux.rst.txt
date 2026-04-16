@@ -2,6 +2,15 @@
 Installing on Linux
 ===================
 
+Software requirements
+---------------------
+
+Any relatively recent Linux distribution with up-to-date graphics drivers should
+work, as long as the following dependencies are installed:
+
+* ``gtk3`` >= 3.24
+* ``gee`` >= 0.8
+
 Installing from crownengine.org
 -------------------------------
 
