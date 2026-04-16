@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-08T16:10:40+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-04-12T20:44:30+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
-<meta property="og:site_name" content="Crown 0.62.0 Manual" />
-<meta property="og:description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
+<meta property="og:site_name" content="Crown 0.62.1 Manual" />
+<meta property="og:description" content="AnimationStateMachine: Interface to the animation state machine component in a unit. create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.62.0 Manual" />
-<meta name="description" content="AnimationStateMachine: create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(asm, unit), Id, Returns the ID of the state machine owned by t..." />
+<meta property="og:image:alt" content="Crown 0.62.1 Manual" />
+<meta name="description" content="AnimationStateMachine: Interface to the animation state machine component in a unit. create(asm, unit, state_machine_resource), Id, Creates a new state machine instance for unit and returns its id.,, destroy(asm, state_machine), Destroys the state_machine instance.,, instance(..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lua API reference &mdash; Crown 0.62.0 Manual</title>
+  <title>Lua API reference &mdash; Crown 0.62.1 Manual</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -82,64 +82,61 @@
 <li class="toctree-l2"><a class="reference internal" href="#input">Input</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#inputevent">InputEvent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#inputeventtype">InputEventType</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#keyboard">Keyboard</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#keyboard-button-names">Keyboard Button Names</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#keyboard-axis-names">Keyboard Axis Names</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#mouse">Mouse</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#mouse-button-names">Mouse Button Names</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mouse-axis-names">Mouse Axis Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keyboard">Keyboard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keyboard-button-names">Keyboard Button Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keyboard-axis-names">Keyboard Axis Names</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#touch">Touch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pad1-pad2-pad3-pad4">Pad1, Pad2, Pad3, Pad4</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#pad-button-names">Pad Button Names</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pad-axis-names">Pad Axis Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse">Mouse</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mouse-button-names">Mouse Button Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mouse-axis-names">Mouse Axis Names</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#touch">Touch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pad1-pad2-pad3-pad4">Pad1, Pad2, Pad3, Pad4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pad-button-names">Pad Button Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pad-axis-names">Pad Axis Names</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#material">Material</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#math">Math</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vector3">Vector3</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#constructors">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vector3">Vector3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constructors">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#vector3box">Vector3Box</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id2">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vector3box">Vector3Box</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#quaternion">Quaternion</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id3">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quaternion">Quaternion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#quaternionbox">QuaternionBox</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id5">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id6">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quaternionbox">QuaternionBox</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#matrix4x4">Matrix4x4</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id7">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#matrix4x4">Matrix4x4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#matrix4x4box">Matrix4x4Box</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id9">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id10">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#matrix4x4box">Matrix4x4Box</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#color4">Color4</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id11">Constructors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id12">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#color4">Color4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id13">Math</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#math">Math</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#physicsworld">PhysicsWorld</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#raycasthit">RaycastHit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#actor">Actor</a></li>
@@ -178,7 +175,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.62.0 Manual</a>
+          <a href="index.html">Crown 0.62.1 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -200,6 +197,7 @@
 <h1>Lua API reference<a class="headerlink" href="#lua-api-reference" title="Permalink to this headline">¶</a></h1>
 <section id="animationstatemachine">
 <h2>AnimationStateMachine<a class="headerlink" href="#animationstatemachine" title="Permalink to this headline">¶</a></h2>
+<p>Interface to the animation state machine component in a unit.</p>
 <dl class="simple">
 <dt><strong>create</strong> (asm, unit, state_machine_resource)<span class="classifier">Id</span></dt><dd><p>Creates a new state machine instance for <em>unit</em> and returns its id.</p>
 </dd>
@@ -222,6 +220,7 @@ the variable does not exist.</p>
 </section>
 <section id="debugline">
 <h2>DebugLine<a class="headerlink" href="#debugline" title="Permalink to this headline">¶</a></h2>
+<p>Interface to draw various shapes for debugging purposes.</p>
 <dl class="simple">
 <dt><strong>add_line</strong> (debug_line, start, end, color)</dt><dd><p>Adds a line from <em>start</em> to <em>end</em> with the given <em>color</em>.</p>
 </dd>
@@ -248,6 +247,7 @@ the box. <em>half_extents</em> describes the size of the box along the axis.</p>
 </section>
 <section id="device">
 <h2>Device<a class="headerlink" href="#device" title="Permalink to this headline">¶</a></h2>
+<p>Interface to access global application-level functionalities.</p>
 <dl>
 <dt><strong>argv</strong> ()<span class="classifier">table</span></dt><dd><p>Returns a table containing the command line parameters the engine was started with.</p>
 </dd>
@@ -328,6 +328,7 @@ a previous average AVGp:</p>
 </section>
 <section id="display">
 <h2>Display<a class="headerlink" href="#display" title="Permalink to this headline">¶</a></h2>
+<p>Interface to access the graphical display.</p>
 <dl class="simple">
 <dt><strong>modes</strong> ()<span class="classifier">table</span></dt><dd><p>Returns an array of <a class="reference internal" href="#displaymode">DisplayMode</a> tables.</p>
 </dd>
@@ -347,6 +348,7 @@ The initial display mode is automatically reset when the program terminates.</p>
 </section>
 <section id="gui">
 <h2>Gui<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
+<p>An immediate-mode GUI to draw text and various primitive shapes either in 2D or 3D.</p>
 <dl class="simple">
 <dt><strong>move</strong> (gui, pos)</dt><dd><p>Moves the Gui to <em>pos</em>.</p>
 </dd>
@@ -393,6 +395,7 @@ to 0.</p>
 </section>
 <section id="input">
 <h2>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h2>
+<p>A singleton that exposes the full list of input events in each frame.</p>
 <dl class="simple">
 <dt><strong>events</strong> ()<span class="classifier">table</span></dt><dd><p>Returns an array of <a class="reference internal" href="#inputevent">InputEvent</a> tables.</p>
 </dd>
@@ -415,8 +418,10 @@ to 0.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">AXIS_CHANGED</span></code>: An axis changed its value.</p></li>
 </ul>
 </section>
+</section>
 <section id="keyboard">
-<h3>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this headline">¶</a></h3>
+<h2>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this headline">¶</a></h2>
+<p>Singleton that represents the default system keyboard.</p>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of keyboard.</p>
 </dd>
@@ -444,7 +449,7 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </dd>
 </dl>
 <section id="keyboard-button-names">
-<h4>Keyboard Button Names<a class="headerlink" href="#keyboard-button-names" title="Permalink to this headline">¶</a></h4>
+<h3>Keyboard Button Names<a class="headerlink" href="#keyboard-button-names" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tab</span></code>, <code class="docutils literal notranslate"><span class="pre">enter</span></code>, <code class="docutils literal notranslate"><span class="pre">escape</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">backspace</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_lock</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_enter</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_.</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_*</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_+</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_-</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_/</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_0</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_1</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_2</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_3</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_4</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_5</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_6</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_7</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_8</span></code>, <code class="docutils literal notranslate"><span class="pre">numpad_9</span></code></p></li>
@@ -457,12 +462,13 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </ul>
 </section>
 <section id="keyboard-axis-names">
-<h4>Keyboard Axis Names<a class="headerlink" href="#keyboard-axis-names" title="Permalink to this headline">¶</a></h4>
+<h3>Keyboard Axis Names<a class="headerlink" href="#keyboard-axis-names" title="Permalink to this headline">¶</a></h3>
 <p>None.</p>
 </section>
 </section>
 <section id="mouse">
-<h3>Mouse<a class="headerlink" href="#mouse" title="Permalink to this headline">¶</a></h3>
+<h2>Mouse<a class="headerlink" href="#mouse" title="Permalink to this headline">¶</a></h2>
+<p>Singleton that represents the default system mouse.</p>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the mouse.</p>
 </dd>
@@ -496,11 +502,11 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </dd>
 </dl>
 <section id="mouse-button-names">
-<h4>Mouse Button Names<a class="headerlink" href="#mouse-button-names" title="Permalink to this headline">¶</a></h4>
+<h3>Mouse Button Names<a class="headerlink" href="#mouse-button-names" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">middle</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>, <code class="docutils literal notranslate"><span class="pre">extra_1</span></code>, <code class="docutils literal notranslate"><span class="pre">extra_2</span></code></p>
 </section>
 <section id="mouse-axis-names">
-<h4>Mouse Axis Names<a class="headerlink" href="#mouse-axis-names" title="Permalink to this headline">¶</a></h4>
+<h3>Mouse Axis Names<a class="headerlink" href="#mouse-axis-names" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cursor</span></code>: Returns the cursor position (x, y) in screen coordinates.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cursor_delta</span></code>: Returns the delta of the cursor position (x, y) since last frame.</p></li>
@@ -509,7 +515,8 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </section>
 </section>
 <section id="touch">
-<h3>Touch<a class="headerlink" href="#touch" title="Permalink to this headline">¶</a></h3>
+<h2>Touch<a class="headerlink" href="#touch" title="Permalink to this headline">¶</a></h2>
+<p>Singleton that represents the default system touchscreen.</p>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the touch.</p>
 </dd>
@@ -544,7 +551,8 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </dl>
 </section>
 <section id="pad1-pad2-pad3-pad4">
-<h3>Pad1, Pad2, Pad3, Pad4<a class="headerlink" href="#pad1-pad2-pad3-pad4" title="Permalink to this headline">¶</a></h3>
+<h2>Pad1, Pad2, Pad3, Pad4<a class="headerlink" href="#pad1-pad2-pad3-pad4" title="Permalink to this headline">¶</a></h2>
+<p>Singleton that represents the connected gamepad(s).</p>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the pad.</p>
 </dd>
@@ -582,7 +590,7 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </dd>
 </dl>
 <section id="pad-button-names">
-<h4>Pad Button Names<a class="headerlink" href="#pad-button-names" title="Permalink to this headline">¶</a></h4>
+<h3>Pad Button Names<a class="headerlink" href="#pad-button-names" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">up</span></code>, <code class="docutils literal notranslate"><span class="pre">down</span></code>, <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">back</span></code>, <code class="docutils literal notranslate"><span class="pre">guide</span></code></p></li>
@@ -592,16 +600,16 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </ul>
 </section>
 <section id="pad-axis-names">
-<h4>Pad Axis Names<a class="headerlink" href="#pad-axis-names" title="Permalink to this headline">¶</a></h4>
+<h3>Pad Axis Names<a class="headerlink" href="#pad-axis-names" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>: Returns the direction (x, y) of the left or right thumbstick [-1; +1].</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trigger_left</span></code>, <code class="docutils literal notranslate"><span class="pre">trigger_right</span></code>: The z element represents the left or right trigger [0; +1].</p></li>
 </ul>
 </section>
 </section>
-</section>
 <section id="material">
 <h2>Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h2>
+<p>Interface to manipulate a rendering material.</p>
 <dl class="simple">
 <dt><strong>set_float</strong> (material, name, value)</dt><dd><p>Sets the <em>value</em> of the variable <em>name</em>.</p>
 </dd>
@@ -617,24 +625,20 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 </dd>
 </dl>
 </section>
-<section id="math">
-<h2>Math<a class="headerlink" href="#math" title="Permalink to this headline">¶</a></h2>
-<p>Math types and helper functions. <code class="docutils literal notranslate"><span class="pre">Vector3</span></code>, <code class="docutils literal notranslate"><span class="pre">Quaternion</span></code>, <code class="docutils literal notranslate"><span class="pre">Matrix4x4</span></code> and
-<code class="docutils literal notranslate"><span class="pre">Color4</span></code> are temporary Lua objects; use the corresponding <code class="docutils literal notranslate"><span class="pre">*Box</span></code> type to
-keep them across frames. See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="vector3">
-<h3>Vector3<a class="headerlink" href="#vector3" title="Permalink to this headline">¶</a></h3>
+<h2>Vector3<a class="headerlink" href="#vector3" title="Permalink to this headline">¶</a></h2>
 <p>Temporary 3D vector representing directions, positions etc. It is valid only in
-the current frame; use <code class="docutils literal notranslate"><span class="pre">Vector3Box</span></code> to store a copy for use in later frames.</p>
+the current frame; use <code class="docutils literal notranslate"><span class="pre">Vector3Box</span></code> to store a copy for use in later frames.
+See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="constructors">
-<h4>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Vector3</strong> (x, y, z)<span class="classifier">Vector3</span></dt><dd><p>Returns a new vector from individual elements.</p>
 </dd>
 </dl>
 </section>
 <section id="functions">
-<h4>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>x</strong> (v)<span class="classifier">float</span></dt><dd><p>Returns the x value of the vector.</p>
 </dd>
@@ -709,11 +713,11 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </section>
 </section>
 <section id="vector3box">
-<h3>Vector3Box<a class="headerlink" href="#vector3box" title="Permalink to this headline">¶</a></h3>
+<h2>Vector3Box<a class="headerlink" href="#vector3box" title="Permalink to this headline">¶</a></h2>
 <p>Boxed <code class="docutils literal notranslate"><span class="pre">Vector3</span></code> for storing vector values across frames. See
 <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id1">
-<h4>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Vector3Box</strong> ()<span class="classifier">Vector3Box</span></dt><dd><p>Returns a new Vector3Box initialized with the zero vector.</p>
 </dd>
@@ -724,7 +728,7 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </dl>
 </section>
 <section id="id2">
-<h4>Functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>store</strong> (v)</dt><dd><p>Stores the Vector3 <em>v</em> in the box.</p>
 </dd>
@@ -736,12 +740,12 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </section>
 </section>
 <section id="quaternion">
-<h3>Quaternion<a class="headerlink" href="#quaternion" title="Permalink to this headline">¶</a></h3>
+<h2>Quaternion<a class="headerlink" href="#quaternion" title="Permalink to this headline">¶</a></h2>
 <p>Temporary quaternion representing orientation in 3D space. It is valid only in
 the current frame; use <code class="docutils literal notranslate"><span class="pre">QuaternionBox</span></code> to store a copy for use in later
-frames.</p>
+frames. See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id3">
-<h4>Constructors<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Quaternion</strong> (axis, angle)<span class="classifier">Quaternion</span></dt><dd><p>Returns a new quaternion from <em>axis</em> and <em>angle</em>.</p>
 </dd>
@@ -752,7 +756,7 @@ frames.</p>
 </dl>
 </section>
 <section id="id4">
-<h4>Functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>negate</strong> (q)<span class="classifier">Quaternion</span></dt><dd><p>Negates the quaternion <em>q</em> and returns the result.</p>
 </dd>
@@ -794,11 +798,11 @@ It uses NLerp.</p>
 </section>
 </section>
 <section id="quaternionbox">
-<h3>QuaternionBox<a class="headerlink" href="#quaternionbox" title="Permalink to this headline">¶</a></h3>
+<h2>QuaternionBox<a class="headerlink" href="#quaternionbox" title="Permalink to this headline">¶</a></h2>
 <p>Boxed <code class="docutils literal notranslate"><span class="pre">Quaternion</span></code> for storing rotation values across frames. See
 <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id5">
-<h4>Constructors<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>QuaternionBox</strong> ()<span class="classifier">QuaternionBox</span></dt><dd><p>Returns a new QuaternionBox initialized with the identity quaternion.</p>
 </dd>
@@ -809,7 +813,7 @@ It uses NLerp.</p>
 </dl>
 </section>
 <section id="id6">
-<h4>Functions<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>store</strong> (q)</dt><dd><p>Stores the Quaternion <em>q</em> in the box.</p>
 </dd>
@@ -821,11 +825,12 @@ It uses NLerp.</p>
 </section>
 </section>
 <section id="matrix4x4">
-<h3>Matrix4x4<a class="headerlink" href="#matrix4x4" title="Permalink to this headline">¶</a></h3>
+<h2>Matrix4x4<a class="headerlink" href="#matrix4x4" title="Permalink to this headline">¶</a></h2>
 <p>Temporary 4x4 matrix representing rotation and translation. It is valid only in
-the current frame; use <code class="docutils literal notranslate"><span class="pre">Matrix4x4Box</span></code> to store a copy for use in later frames.</p>
+the current frame; use <code class="docutils literal notranslate"><span class="pre">Matrix4x4Box</span></code> to store a copy for use in later frames.
+See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id7">
-<h4>Constructors<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Matrix4x4</strong> (xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, tx, ty, tz, tw)<span class="classifier">Matrix4x4</span></dt><dd><p>Returns a new matrix from individual elements.</p>
 </dd>
@@ -840,7 +845,7 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </dl>
 </section>
 <section id="id8">
-<h4>Functions<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>copy</strong> (m)<span class="classifier">Matrix4x4</span></dt><dd><p>Returns a copy of the matrix <em>m</em>.</p>
 </dd>
@@ -890,11 +895,11 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </section>
 </section>
 <section id="matrix4x4box">
-<h3>Matrix4x4Box<a class="headerlink" href="#matrix4x4box" title="Permalink to this headline">¶</a></h3>
+<h2>Matrix4x4Box<a class="headerlink" href="#matrix4x4box" title="Permalink to this headline">¶</a></h2>
 <p>Boxed <code class="docutils literal notranslate"><span class="pre">Matrix4x4</span></code> for storing matrix values across frames. See
 <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id9">
-<h4>Constructors<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Matrix4x4Box</strong> ()<span class="classifier">Matrix4x4Box</span></dt><dd><p>Returns a new Matrix4x4Box initialized with the identity matrix.</p>
 </dd>
@@ -903,7 +908,7 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </dl>
 </section>
 <section id="id10">
-<h4>Functions<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>store</strong> (m)</dt><dd><p>Stores the Matrix4x4 <em>m</em> in the box.</p>
 </dd>
@@ -913,18 +918,19 @@ the current frame; use <code class="docutils literal notranslate"><span class="p
 </section>
 </section>
 <section id="color4">
-<h3>Color4<a class="headerlink" href="#color4" title="Permalink to this headline">¶</a></h3>
+<h2>Color4<a class="headerlink" href="#color4" title="Permalink to this headline">¶</a></h2>
 <p>Temporary RGBA color value. Elements range is [0; 255]. It is valid only in the
-current frame. Use <code class="docutils literal notranslate"><span class="pre">QuaternionBox</span></code> to store a copy for use in later frames.</p>
+current frame. Use <code class="docutils literal notranslate"><span class="pre">QuaternionBox</span></code> to store a copy for use in later frames.
+See <a class="reference internal" href="gameplay/objects_binding.html"><span class="doc">Objects binding and lifetime</span></a>.</p>
 <section id="id11">
-<h4>Constructors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<h3>Constructors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>Color4</strong> (r, g, b, a)<span class="classifier">Color4</span></dt><dd><p>Returns a new Color4 from individual elements.</p>
 </dd>
 </dl>
 </section>
 <section id="id12">
-<h4>Functions<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<h3>Functions<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><strong>lerp</strong> (a, b, t)<span class="classifier">Color4</span></dt><dd><p>Returns the linearly interpolated color between <em>a</em> and <em>b</em> at time <em>t</em> in [0, 1].</p>
 </dd>
@@ -947,8 +953,9 @@ current frame. Use <code class="docutils literal notranslate"><span class="pre">
 </dl>
 </section>
 </section>
-<section id="id13">
-<h3>Math<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<section id="math">
+<h2>Math<a class="headerlink" href="#math" title="Permalink to this headline">¶</a></h2>
+<p>Assorted math helper functions.</p>
 <dl class="simple">
 <dt><strong>ray_plane_intersection</strong> (from, dir, point, normal)<span class="classifier">float</span></dt><dd><p>Returns the distance along ray (from, dir) to intersection point with plane defined by
 <em>point</em> and <em>normal</em> or -1.0 if no intersection.</p>
@@ -978,9 +985,9 @@ necessarily be the smallest enclosing box.</p>
 </dd>
 </dl>
 </section>
-</section>
 <section id="physicsworld">
 <h2>PhysicsWorld<a class="headerlink" href="#physicsworld" title="Permalink to this headline">¶</a></h2>
+<p>Manages physics objects in a <a class="reference internal" href="#world">World</a>.</p>
 <dl class="simple">
 <dt><strong>gravity</strong> (pw)<span class="classifier">Vector3</span></dt><dd><p>Returns the gravity.</p>
 </dd>
@@ -1173,6 +1180,7 @@ The <em>mover</em> will slide against physical actors.</p>
 </section>
 <section id="profiler">
 <h2>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h2>
+<p>Interface to the integrated profiler.</p>
 <dl class="simple">
 <dt><strong>enter_scope</strong> (name)</dt><dd><p>Starts a new profile scope with the given <em>name</em>.</p>
 </dd>
@@ -1184,6 +1192,7 @@ The <em>mover</em> will slide against physical actors.</p>
 </section>
 <section id="renderworld">
 <h2>RenderWorld<a class="headerlink" href="#renderworld" title="Permalink to this headline">¶</a></h2>
+<p>Manages rendering objects in a <a class="reference internal" href="#world">World</a>.</p>
 <dl class="simple">
 <dt><strong>enable_debug_drawing</strong> (rw, enable)</dt><dd><p>Sets whether to <em>enable</em> debug drawing.</p>
 </dd>
@@ -1314,6 +1323,7 @@ to this function will overwrite any previously created fog instance.</p>
 </section>
 <section id="resourcepackage">
 <h2>ResourcePackage<a class="headerlink" href="#resourcepackage" title="Permalink to this headline">¶</a></h2>
+<p>Represents a collection of resources that can be loaded in group.</p>
 <dl>
 <dt><strong>load</strong> (package)</dt><dd><p>Loads all the resources in the <em>package</em>.</p>
 <div class="admonition note">
@@ -1332,6 +1342,7 @@ instead, you have to poll for completion with has_loaded().</p>
 </section>
 <section id="scenegraph">
 <h2>SceneGraph<a class="headerlink" href="#scenegraph" title="Permalink to this headline">¶</a></h2>
+<p>Interface to the transform component in a unit.</p>
 <dl class="simple">
 <dt><strong>create</strong> (sg, unit, position, rotation, scale)<span class="classifier">Id</span></dt><dd><p>Creates the transform for the <em>unit</em> and returns its ID.</p>
 </dd>
@@ -1384,6 +1395,7 @@ if <em>child</em> has no sibling.</p>
 </section>
 <section id="soundworld">
 <h2>SoundWorld<a class="headerlink" href="#soundworld" title="Permalink to this headline">¶</a></h2>
+<p>Manages sounds in a <a class="reference internal" href="#world">World</a>.</p>
 <dl class="simple">
 <dt><strong>stop_all</strong> (sound_world)</dt><dd><p>Stops all the sounds in the world.</p>
 </dd>
@@ -1400,6 +1412,7 @@ if <em>child</em> has no sibling.</p>
 </section>
 <section id="unitmanager">
 <h2>UnitManager<a class="headerlink" href="#unitmanager" title="Permalink to this headline">¶</a></h2>
+<p>Singleton to manage all units in the game.</p>
 <dl class="simple">
 <dt><strong>create</strong> ([world])<span class="classifier">UnitId</span></dt><dd><p>Creates a new empty unit. If <em>world</em> is specified, the unit will be owned by
 that world.</p>
@@ -1412,6 +1425,7 @@ that world.</p>
 </section>
 <section id="window">
 <h2>Window<a class="headerlink" href="#window" title="Permalink to this headline">¶</a></h2>
+<p>Represents the application window.</p>
 <dl class="simple">
 <dt><strong>show</strong> ()</dt><dd><p>Shows the window.</p>
 </dd>
@@ -1451,6 +1465,7 @@ inside the window rectangle).</p>
 </section>
 <section id="world">
 <h2>World<a class="headerlink" href="#world" title="Permalink to this headline">¶</a></h2>
+<p>Represents a game world.</p>
 <dl class="simple">
 <dt><strong>spawn_unit</strong> (world, name, [position, rotation, scale])<span class="classifier">UnitId</span></dt><dd><p>Spawns a new instance of the unit <em>name</em> at the given <em>position</em>, <em>rotation</em> and <em>scale</em>.</p>
 </dd>
@@ -1555,6 +1570,7 @@ After this call, the sound <em>id</em> will follow the unit <em>unit</em>.</p>
 </section>
 <section id="level">
 <h3>Level<a class="headerlink" href="#level" title="Permalink to this headline">¶</a></h3>
+<p>Interface to manage levels in a <a class="reference internal" href="#world">World</a>.</p>
 <dl class="simple">
 <dt><strong>load_level</strong> (world, name, [pos, rot])<span class="classifier">Level</span></dt><dd><p>Loads the level <em>name</em> into the world at the given <em>position</em> and <em>rotation</em>.</p>
 </dd>
@@ -1578,7 +1594,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 08, 2026.
+      <span class="lastupdated">Last updated on Apr 12, 2026.
       </span></p>
   </div>
 
