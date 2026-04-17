@@ -9,6 +9,7 @@ Changelog
 **New Features and Improvements**
 
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
+* Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 
 **Fixes**

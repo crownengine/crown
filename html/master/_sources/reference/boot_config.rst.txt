@@ -88,3 +88,6 @@ Other settings
 ``save_dir = $USER_DATA/mygame``
     Sets the directory where save files will be stored. Setting the save
     directory is mandatory if you plan to use the SaveGame system.
+
+``user_config = $USER_DATA/user.conf``
+    Sets the file where user-specific settings are stored.
