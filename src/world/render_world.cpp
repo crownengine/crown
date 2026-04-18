@@ -1494,13 +1494,51 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	_pipeline->_bloom = _bloom_desc;
 	_pipeline->_tonemap = _tonemap_desc;
 
+	// Count sprites in a separate pass so sprite rendering can be driven by any visible list.
+	u32 num_visible_sprites = 0;
+	for (u32 ii = 0; ii < array::size(_cullable_sprites.render); ++ii)
+		++num_visible_sprites;
+
+	bgfx::TransientVertexBuffer sprite_vertex_buffer;
+	bgfx::TransientIndexBuffer sprite_index_buffer;
+	f32 *sprite_vertex_data = NULL;
+	u16 *sprite_index_data = NULL;
+	bool sprite_buffer_allocated = num_visible_sprites == 0;
+
+	if (num_visible_sprites != 0) {
+		bgfx::VertexLayout layout;
+		layout.begin();
+		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
+		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
+		layout.end();
+
+		sprite_buffer_allocated = bgfx::allocTransientBuffers(&sprite_vertex_buffer
+			, layout
+			, 4*num_visible_sprites
+			, &sprite_index_buffer
+			, 6*num_visible_sprites
+			);
+
+		if (sprite_buffer_allocated) {
+			sprite_vertex_data = (f32 *)sprite_vertex_buffer.data;
+			sprite_index_data = (u16 *)sprite_index_buffer.data;
+		}
+	}
+
 	// Render objects.
 	_mesh_manager.draw_visibles(View::MESH, *_scene_graph, &cascaded_lights[0]);
-	_sprite_manager.draw_visibles(View::SPRITE_0);
+	if (num_visible_sprites != 0 && sprite_buffer_allocated)
+		_sprite_manager.draw_visibles(View::SPRITE_0
+			, sprite_vertex_buffer
+			, sprite_index_buffer
+			, &sprite_vertex_data
+			, &sprite_index_data
+			);
 
 	// Render outlines.
 	_mesh_manager.draw_selected(View::SELECTION, *_scene_graph);
-	_sprite_manager.draw_selected(View::SELECTION);
+	if (num_visible_sprites != 0 && sprite_buffer_allocated)
+		_sprite_manager.draw_selected(View::SELECTION, sprite_vertex_buffer, sprite_index_buffer);
 }
 
 void RenderWorld::debug_draw(DebugLine &dl)
@@ -2147,39 +2185,19 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 	bgfx::setIndexBuffer(&tib, slot*6, 6);
 }
 
-void RenderWorld::SpriteManager::draw_visibles(u8 view_id)
+void RenderWorld::SpriteManager::draw_visibles(u8 view_id, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, f32 **vdata, u16 **idata)
 {
 	u32 num = array::size(_render_world->_cullable_sprites.render);
-
-	bgfx::VertexLayout layout;
-	bgfx::TransientVertexBuffer tvb;
-	bgfx::TransientIndexBuffer tib;
-	f32 *vdata;
-	u16 *idata;
-
-	// Allocate vertex and index buffers.
-	if (num) {
-		layout.begin();
-		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
-		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
-		layout.end();
-
-		bgfx::allocTransientVertexBuffer(&tvb, 4*num, layout);
-		bgfx::allocTransientIndexBuffer(&tib, 6*num);
-
-		vdata = (f32 *)tvb.data;
-		idata = (u16 *)tib.data;
-	}
 
 	// Render all sprites.
 	for (u32 ii = 0; ii < num; ++ii) {
 		u32 sprite_id = _render_world->_cullable_sprites.id[_render_world->_cullable_sprites.render[ii]];
-		set_instance_data(&vdata, &idata, tvb, tib, sprite_id, ii);
+		set_instance_data(vdata, idata, tvb, tib, sprite_id, ii);
 		_data.material[sprite_id]->bind(_data.layer[sprite_id] + view_id, _data.depth[sprite_id]);
 	}
 }
 
-void RenderWorld::SpriteManager::draw_selected(u8 view_id)
+void RenderWorld::SpriteManager::draw_selected(u8 view_id, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib)
 {
 	union
 	{
@@ -2189,32 +2207,16 @@ void RenderWorld::SpriteManager::draw_selected(u8 view_id)
 
 	u32 num = array::size(_render_world->_cullable_sprites.render);
 
-	bgfx::VertexLayout layout;
-	bgfx::TransientVertexBuffer tvb;
-	bgfx::TransientIndexBuffer tib;
-	f32 *vdata;
-	u16 *idata;
-
-	if (num) {
-		layout.begin();
-		layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
-		layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, false);
-		layout.end();
-
-		bgfx::allocTransientVertexBuffer(&tvb, 4*num, layout);
-		bgfx::allocTransientIndexBuffer(&tib, 6*num);
-
-		vdata = (f32 *)tvb.data;
-		idata = (u16 *)tib.data;
-	}
-
 	for (u32 ii = 0; ii < num; ++ii) {
 		u32 sprite_id = _render_world->_cullable_sprites.id[_render_world->_cullable_sprites.render[ii]];
-		set_instance_data(&vdata, &idata, tvb, tib, sprite_id, ii);
 
 		UnitId unit_id = _data.unit[sprite_id];
 		if (!hash_set::has(_render_world->_selection, unit_id))
 			continue;
+
+		bgfx::setTransform(to_float_ptr(_data.world[sprite_id]));
+		bgfx::setVertexBuffer(0, &tvb);
+		bgfx::setIndexBuffer(&tib, ii*6, 6);
 
 		u2f.u = unit_id._idx;
 		Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };

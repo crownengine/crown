@@ -493,10 +493,10 @@ struct RenderWorld
 		void set_instance_data(f32 **vdata, u16 **idata, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 sprite_id, u32 slot);
 
 		///
-		void draw_visibles(u8 view);
+		void draw_visibles(u8 view, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, f32 **vdata, u16 **idata);
 
 		///
-		void draw_selected(u8 view);
+		void draw_selected(u8 view, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib);
 
 		///
 		SpriteId make_instance(u32 i)
