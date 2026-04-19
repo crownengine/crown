@@ -83,7 +83,7 @@ Features
 	* Undo/redo support, light/dark theme and customizable launchers.
 
 * Graphics
-	* D3D11, Vulkan and GLES 3.0 render backends.
+	* D3D11, GLES 3.0, OpenGL 3.2 and Vulkan render backends.
 	* High-level 3D & 2D objects (meshes, cameras, lights and sprites).
 	* Physically-based rendering pipeline with metallic workflow.
 	* GLSL-like shader programming language.

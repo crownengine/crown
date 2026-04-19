@@ -53,6 +53,10 @@ All configurations for a given *platform* are placed under a key named *platform
 Renderer configurations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+``type = "auto"``
+	Sets the renderer backend. Supported values are ``auto``, ``d3d11``,
+	``gl``, ``gles`` and ``vk``.
+
 ``resolution = [ 1280 720 ]``
 	Sets the width and height of the main window.
 

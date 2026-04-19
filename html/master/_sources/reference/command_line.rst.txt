@@ -124,6 +124,16 @@ Options
 ``--hidden``
 	Make the main window initially invisible.
 
+``--renderer <renderer>``
+	Set the renderer backend.
+	Possible values for <renderer> are:
+
+	* ``auto``
+	* ``d3d11``
+	* ``gl``
+	* ``gles``
+	* ``vk``
+
 ``--window-rect <x y w h>``
 	Sets the main window's position and size.
 
