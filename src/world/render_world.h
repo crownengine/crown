@@ -18,23 +18,36 @@
 
 namespace crown
 {
+struct CullableType
+{
+	enum Enum
+	{
+		MESH,
+		SPRITE,
+		LIGHT
+	};
+};
+
 struct Cullable
 {
-	Matrix4x4 world; ///< World pose of the object.
-	Sphere sphere;   ///< Culling sphere of the object in local space.
-	u32 id;          ///< ID of the object.
+	Matrix4x4 world;          ///< World pose of the object.
+	Sphere sphere;            ///< Culling sphere of the object in local space.
+	u32 id;                   ///< ID of the object.
+	CullableType::Enum type;  ///< Type of the object.
 };
 
 struct CullingSet
 {
 	Array<Sphere> sphere_w;
 	Array<u32> id;
+	Array<CullableType::Enum> type;
 	Array<u32> visible;
 	Array<u32> render;
 
 	explicit CullingSet(Allocator &a)
 		: sphere_w(a)
 		, id(a)
+		, type(a)
 		, visible(a)
 		, render(a)
 	{
@@ -408,12 +421,6 @@ struct RenderWorld
 		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
 
 		///
-		void draw_visibles(u8 view, SceneGraph &scene_graph, const Matrix4x4 *cascaded_lights);
-
-		///
-		void draw_selected(u8 view, SceneGraph &scene_graph);
-
-		///
 		MeshId make_instance(u32 i)
 		{
 			MeshId inst = { i }; return inst;
@@ -491,12 +498,6 @@ struct RenderWorld
 
 		///
 		void set_instance_data(f32 **vdata, u16 **idata, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, u32 sprite_id, u32 slot);
-
-		///
-		void draw_visibles(u8 view, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib, f32 **vdata, u16 **idata);
-
-		///
-		void draw_selected(u8 view, bgfx::TransientVertexBuffer &tvb, bgfx::TransientIndexBuffer &tib);
 
 		///
 		SpriteId make_instance(u32 i)
@@ -615,7 +616,6 @@ struct RenderWorld
 
 	CullingSet _cullable_objects;
 	CullingSet _cullable_shadow_casters;
-	CullingSet _cullable_sprites;
 	CullingSet _cullable_lights;
 
 	UnitDestroyCallback _unit_destroy_callback;
