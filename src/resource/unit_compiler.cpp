@@ -31,6 +31,18 @@ LOG_SYSTEM(UNIT_COMPILER, "unit_compiler")
 
 namespace crown
 {
+bool operator==(const ComponentKey &a, const ComponentKey &b)
+{
+	return a.component_id == b.component_id
+		&& a.root_unit_index == b.root_unit_index
+		;
+}
+
+u32 hash<ComponentKey>::operator()(const ComponentKey &key) const
+{
+	return u32(key.component_id.data1 ^ key.component_id.data2 ^ key.root_unit_index);
+}
+
 struct ProjectionInfo
 {
 	const char *name;
@@ -792,6 +804,55 @@ namespace unit_compiler
 
 	s32 flatten(UnitCompiler &c, CompileOptions &opts);
 
+	s32 assign_unit_indices(UnitCompiler &c, Unit *unit, u32 parent_unit_index, CompileOptions &opts)
+	{
+		const u32 unit_index = c._num_units;
+		const u32 root_unit_index = parent_unit_index == UINT32_MAX
+			? unit_index
+			: c._unit_roots[parent_unit_index]
+			;
+		unit->_index = unit_index;
+		array::push_back(c._unit_parents, parent_unit_index);
+		array::push_back(c._unit_roots, root_unit_index);
+		array::push_back(c._unit_names, unit->_editor_name);
+		++c._num_units;
+
+		for (u32 cc = 0; cc < array::size(unit->_merged_components); ++cc) {
+			TempAllocator512 ta;
+			JsonObject component(ta);
+			RETURN_IF_ERROR(sjson::parse(component, unit->_merged_components[cc]));
+
+			Guid component_id;
+			if (json_object::has(component, "id")) {
+				component_id = RETURN_IF_ERROR(sjson::parse_guid(component["id"]));
+			} else {
+				component_id = RETURN_IF_ERROR(sjson::parse_guid(component["_guid"]));
+			}
+
+			StringId32 comp_type;
+			if (!json_object::has(component, "_type")) {
+				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]));
+			} else {
+				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]));
+			}
+
+			const ComponentKey key = { component_id, root_unit_index };
+			hash_map::set(c._component_unit_index, key, unit_index);
+			hash_map::set(c._component_type, key, comp_type);
+		}
+
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			s32 err = assign_unit_indices(c, cur->second, unit_index, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
+
+		return 0;
+	}
+
 	s32 parse_unit_from_json(UnitCompiler &c, const char *unit_json, CompileOptions &opts)
 	{
 		s32 err = collect_prefabs(c, StringId64(), unit_json, true, opts);
@@ -834,7 +895,9 @@ namespace unit_compiler
 
 	s32 flatten_unit(UnitCompiler &c, Unit *unit, u32 parent_unit_index, CompileOptions &opts)
 	{
-		const u32 unit_index = c._num_units;
+		CE_UNUSED(parent_unit_index);
+
+		const u32 unit_index = unit->_index;
 		bool unit_has_transform = false;
 
 		// Compile component data for each component type found
@@ -864,6 +927,7 @@ namespace unit_compiler
 
 			// Compile component.
 			Buffer comp_data(default_allocator());
+			c._current_unit_index = unit_index;
 			s32 err = ctd._compiler(comp_data, unit->_flattened_components[cc], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 
@@ -883,10 +947,6 @@ namespace unit_compiler
 			array::push_back(ctd._unit_index, unit_index);
 			++ctd._num;
 		}
-
-		array::push_back(c._unit_parents, parent_unit_index);
-		array::push_back(c._unit_names, unit->_editor_name);
-		++c._num_units;
 
 		// Flatten children tree.
 		auto cur = hash_map::begin(unit->_children);
@@ -929,6 +989,15 @@ namespace unit_compiler
 	{
 		auto cur = hash_map::begin(c._units);
 		auto end = hash_map::end(c._units);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._units, cur);
+
+			s32 err = assign_unit_indices(c, cur->second, UINT32_MAX, opts);
+			ENSURE_OR_RETURN(err == 0, opts);
+		}
+
+		cur = hash_map::begin(c._units);
+		end = hash_map::end(c._units);
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(c._units, cur);
 
@@ -1000,7 +1069,8 @@ namespace unit_compiler
 } // namespace unit_compiler
 
 Unit::Unit(Allocator &a)
-	: _merged_components(a)
+	: _index(UINT32_MAX)
+	, _merged_components(a)
 	, _flattened_components(a)
 	, _children(a)
 	, _parent(NULL)
@@ -1013,9 +1083,13 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	, _prefab_offsets(a)
 	, _prefab_names(a)
 	, _component_data(a)
+	, _component_unit_index(a)
+	, _component_type(a)
 	, _component_info(a)
 	, _unit_names(a)
 	, _unit_parents(a)
+	, _unit_roots(a)
+	, _current_unit_index(UINT32_MAX)
 	, _num_units(0)
 {
 	unit_compiler::register_component_compiler(*this, "transform",               &compile_transform,                           0.0f);

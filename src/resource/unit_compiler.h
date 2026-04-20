@@ -18,6 +18,20 @@ namespace crown
 {
 typedef s32 (*CompileFunction)(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
 
+struct ComponentKey
+{
+	Guid component_id;
+	u32 root_unit_index;
+};
+
+bool operator==(const ComponentKey &a, const ComponentKey &b);
+
+template<>
+struct hash<ComponentKey>
+{
+	u32 operator()(const ComponentKey &key) const;
+};
+
 struct ComponentTypeData
 {
 	ALLOCATOR_AWARE;
@@ -52,6 +66,7 @@ struct Unit
 	ALLOCATOR_AWARE;
 
 	StringId32 _editor_name;
+	u32 _index;
 	JsonArray _merged_components;
 	Vector<FlatJsonObject> _flattened_components;
 	HashMap<Guid, Unit *> _children;
@@ -68,9 +83,13 @@ struct UnitCompiler
 	Array<u32> _prefab_offsets;
 	Array<StringId64> _prefab_names;
 	HashMap<StringId32, ComponentTypeData> _component_data;
+	HashMap<ComponentKey, u32> _component_unit_index;
+	HashMap<ComponentKey, StringId32> _component_type;
 	Array<ComponentTypeInfo> _component_info;
 	Array<StringId32> _unit_names;
 	Array<u32> _unit_parents;
+	Array<u32> _unit_roots;
+	u32 _current_unit_index;
 	u32 _num_units;
 
 	///
