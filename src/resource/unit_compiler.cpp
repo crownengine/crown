@@ -90,9 +90,9 @@ static LightType::Enum light_name_to_enum(const char *name)
 	return LightType::COUNT;
 }
 
-static s32 compile_transform(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_transform(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
-	CE_UNUSED(opts);
+	CE_UNUSED_2(compiler, opts);
 
 	TransformDesc td;
 	td.position = RETURN_IF_ERROR(sjson::parse_vector3   (flat_json_object::get(obj, "data.position")));
@@ -111,8 +111,10 @@ static s32 compile_transform(Buffer &output, FlatJsonObject &obj, CompileOptions
 	return 0;
 }
 
-static s32 compile_camera(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString type(ta);
 	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.projection")));
@@ -139,8 +141,10 @@ static s32 compile_camera(Buffer &output, FlatJsonObject &obj, CompileOptions &o
 	return 0;
 }
 
-static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, flat_json_object::get(obj, "data.mesh_resource")));
@@ -181,8 +185,10 @@ static s32 compile_mesh_renderer(Buffer &output, FlatJsonObject &obj, CompileOpt
 	return 0;
 }
 
-static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString sprite_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, flat_json_object::get(obj, "data.sprite_resource")));
@@ -232,8 +238,10 @@ static s32 compile_sprite_renderer(Buffer &output, FlatJsonObject &obj, CompileO
 	return 0;
 }
 
-static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString type(ta);
 	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")));
@@ -275,8 +283,10 @@ static s32 compile_light(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	return 0;
 }
 
-static s32 compile_script(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_script(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString script_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(script_resource, flat_json_object::get(obj, "data.script_resource")));
@@ -297,8 +307,10 @@ static s32 compile_script(Buffer &output, FlatJsonObject &obj, CompileOptions &o
 	return 0;
 }
 
-static s32 compile_animation_state_machine(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 	DynamicString state_machine_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, flat_json_object::get(obj, "data.state_machine_resource")));
@@ -317,9 +329,9 @@ static s32 compile_animation_state_machine(Buffer &output, FlatJsonObject &obj, 
 	return 0;
 }
 
-static s32 compile_fog(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_fog(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
-	CE_UNUSED(opts);
+	CE_UNUSED_2(compiler, opts);
 
 	TempAllocator4096 ta;
 
@@ -342,8 +354,10 @@ static s32 compile_fog(Buffer &output, FlatJsonObject &obj, CompileOptions &opts
 	return 0;
 }
 
-static s32 compile_global_lighting(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TempAllocator4096 ta;
 
 	DynamicString skydome_map(ta);
@@ -367,9 +381,9 @@ static s32 compile_global_lighting(Buffer &output, FlatJsonObject &obj, CompileO
 	return 0;
 }
 
-static s32 compile_bloom(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_bloom(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
-	CE_UNUSED(opts);
+	CE_UNUSED_2(compiler, opts);
 
 	TempAllocator4096 ta;
 
@@ -390,8 +404,10 @@ static s32 compile_bloom(Buffer &output, FlatJsonObject &obj, CompileOptions &op
 	return 0;
 }
 
-static s32 compile_tonemap(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
+	CE_UNUSED(compiler);
+
 	TonemapDesc desc;
 	StringId32 type = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(obj, "data.type")));
 
@@ -928,7 +944,7 @@ namespace unit_compiler
 			// Compile component.
 			Buffer comp_data(default_allocator());
 			c._current_unit_index = unit_index;
-			s32 err = ctd._compiler(comp_data, unit->_flattened_components[cc], opts);
+			s32 err = ctd._compiler(comp_data, c, unit->_flattened_components[cc], opts);
 			ENSURE_OR_RETURN(err == 0, opts);
 
 			// One component per unit max.

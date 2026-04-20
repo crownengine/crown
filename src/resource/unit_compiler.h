@@ -16,7 +16,9 @@
 
 namespace crown
 {
-typedef s32 (*CompileFunction)(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
+struct UnitCompiler;
+
+typedef s32 (*CompileFunction)(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 
 struct ComponentKey
 {

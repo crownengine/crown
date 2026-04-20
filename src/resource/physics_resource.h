@@ -15,12 +15,14 @@
 
 namespace crown
 {
+struct UnitCompiler;
+
 namespace physics_resource_internal
 {
-	s32 compile_collider(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
-	s32 compile_actor(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
-	s32 compile_mover(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
-	s32 compile_joint(Buffer &output, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_collider(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_actor(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_mover(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 
 } // namespace physics_resource_internal
 

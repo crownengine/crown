@@ -117,8 +117,10 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	s32 compile_collider(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_collider(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 	{
+		CE_UNUSED(compiler);
+
 		TempAllocator4096 ta;
 		DynamicString type(ta);
 		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.shape")));
@@ -262,9 +264,9 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_actor(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_actor(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 	{
-		CE_UNUSED(opts);
+		CE_UNUSED_2(compiler, opts);
 
 		u32 flags = 0;
 		if (flat_json_object::has(obj, "data.lock_translation_x")) {
@@ -309,9 +311,9 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_mover(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_mover(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 	{
-		CE_UNUSED(opts);
+		CE_UNUSED_2(compiler, opts);
 
 		MoverDesc md;
 		md.capsule.radius   = RETURN_IF_ERROR(sjson::parse_float    (flat_json_object::get(obj, "data.radius")));
@@ -340,8 +342,10 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_joint(Buffer &output, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 	{
+		CE_UNUSED(compiler);
+
 		TempAllocator4096 ta;
 		DynamicString type(ta);
 		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")));
