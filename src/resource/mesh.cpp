@@ -7,6 +7,7 @@
 
 #if CROWN_CAN_COMPILE
 #   include "core/containers/array.inl"
+#   include "core/containers/hash_map.inl"
 #   include "core/containers/vector.inl"
 #   include "core/filesystem/filesystem.h"
 #   include "core/json/json_object.inl"
@@ -20,12 +21,12 @@
 #   include "core/math/vector2.inl"
 #   include "core/math/vector3.inl"
 #   include "core/memory/temp_allocator.inl"
+#   include "core/murmur.h"
 #   include "core/strings/dynamic_string.inl"
 #   include "core/strings/string_id.inl"
 #   include "resource/compile_options.inl"
 #   include "resource/data_compiler.h"
 #   include "resource/mesh.h"
-#   include "core/murmur.h"
 #   include "resource/mesh_fbx.h"
 #   include "resource/mesh_resource.h"
 #   include <bx/error.h>
@@ -164,13 +165,42 @@ namespace mesh
 		return n;
 	}
 
+	struct VertexKey
+	{
+		const char *data;
+		u32 size;
+	};
+
+	struct VertexKeyHash
+	{
+		u32 operator()(const VertexKey &key) const
+		{
+			return u32(murmur64(key.data, key.size, 0u));
+		}
+	};
+
+	struct VertexKeyEqual
+	{
+		bool operator()(const VertexKey &a, const VertexKey &b) const
+		{
+			return a.size == b.size
+				&& memcmp(a.data, b.data, a.size) == 0
+				;
+		}
+	};
+
 	static s32 generate_vertex_and_index_buffers(Geometry &g, CompileOptions &opts)
 	{
 		TempAllocator512 ta;
 		Buffer vertex(ta);
+		HashMap<VertexKey, u32, VertexKeyHash, VertexKeyEqual> vertex_map(default_allocator());
 
-		u32 index = 0;
-		for (u32 i = 0; i < array::size(g._position_indices); ++i) {
+		const u32 num_indices = array::size(g._position_indices);
+		const u32 stride = vertex_stride(g);
+		array::reserve(g._vertex_buffer, num_indices * stride + 1);
+		array::reserve(g._index_buffer, num_indices);
+
+		for (u32 i = 0; i < num_indices; ++i) {
 			array::clear(vertex);
 
 			const u32 idx = g._position_indices[i] * 3;
@@ -239,28 +269,29 @@ namespace mesh
 				array::push(vertex, (char *)&v, sizeof(v));
 			}
 
-			// Insert vertex in vertex buffer if not duplicated.
-			u32 vertex_size = array::size(vertex);
-			char *vertex_data = array::begin(vertex);
-			u32 j = 0;
-			u32 n = array::size(g._vertex_buffer);
-			for (; j < n; j += vertex_size) {
-				if (memcmp(vertex_data, &g._vertex_buffer[j], vertex_size) == 0)
-					break;
-			}
+			const u32 vertex_size = array::size(vertex);
+			CE_ENSURE(vertex_size == stride);
 
-			if (j == n) {
+			const u32 INVALID_VERTEX_INDEX = UINT32_MAX;
+			VertexKey key = { array::begin(vertex), vertex_size };
+			u32 index = hash_map::get(vertex_map, key, INVALID_VERTEX_INDEX);
+
+			if (index == INVALID_VERTEX_INDEX) {
+				index = array::size(g._vertex_buffer) / vertex_size;
 				RETURN_IF_FALSE(index <= UINT16_MAX
 					, opts
 					, "Mesh has too many vertices: %u (max %u)"
 					, index + 1
 					, UINT16_MAX + 1u
 					);
-				array::push(g._vertex_buffer, vertex_data, vertex_size);
-				array::push_back(g._index_buffer, (u16)index++);
-			} else {
-				array::push_back(g._index_buffer, (u16)(j / vertex_size));
+
+				const u32 vertex_offset = array::size(g._vertex_buffer);
+				array::push(g._vertex_buffer, array::begin(vertex), vertex_size);
+				VertexKey stored_key = { array::begin(g._vertex_buffer) + vertex_offset, vertex_size };
+				hash_map::set(vertex_map, stored_key, index);
 			}
+
+			array::push_back(g._index_buffer, (u16)index);
 		}
 
 		return 0;
