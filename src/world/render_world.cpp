@@ -1049,6 +1049,32 @@ void RenderWorld::sync_cullable_sets()
 	LEAVE_PROFILE_SCOPE();
 }
 
+static void draw_mesh(RenderWorld::MeshManager &mesh
+	, u32 object_id
+	, Pipeline *pipeline
+	, const Vector4 &texel_sizes
+	, const FogDesc &fog_desc
+	, GlobalLightingDesc &global_lighting_desc
+	, SceneGraph *scene_graph
+	, Matrix4x4 *cascaded_lights
+	)
+{
+#if CROWN_PLATFORM_EMSCRIPTEN
+	bgfx::setTexture(0, pipeline->_html5_default_sampler, pipeline->_html5_default_texture);
+#endif
+	bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
+	bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
+	bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
+	bgfx::setUniform(pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
+	bgfx::setUniform(pipeline->_fog_data, (char *)&fog_desc, sizeof(fog_desc) / sizeof(Vector4));
+	pipeline->set_local_lights_params_uniform();
+	pipeline->set_global_lighting_params(&global_lighting_desc);
+	bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
+
+	mesh.set_instance_data(object_id, *scene_graph);
+	mesh._data.material[object_id]->bind(View::MESH);
+}
+
 void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
 {
 	LightManager &lm = _light_manager;
@@ -1544,20 +1570,15 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 		switch (_cullable_objects.type[ci]) {
 		case CullableType::MESH:
-#if CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setTexture(0, _pipeline->_html5_default_sampler, _pipeline->_html5_default_texture);
-#endif
-			bgfx::setTexture(LIGHTS_DATA_SLOT, _pipeline->_lights_data, _pipeline->_lights_data_texture);
-			bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, _pipeline->_u_cascaded_shadow_map, _pipeline->_sun_shadow_map_texture);
-			bgfx::setUniform(_pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
-			bgfx::setUniform(_pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
-			bgfx::setUniform(_pipeline->_fog_data, (char *)&_fog_desc, sizeof(_fog_desc) / sizeof(Vector4));
-			_pipeline->set_local_lights_params_uniform();
-			_pipeline->set_global_lighting_params(&_global_lighting_desc);
-			bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, _pipeline->_u_local_lights_shadow_map, _pipeline->_local_lights_shadow_map_texture);
-
-			_mesh_manager.set_instance_data(object_id, *_scene_graph);
-			_mesh_manager._data.material[object_id]->bind(View::MESH);
+			draw_mesh(_mesh_manager
+				, object_id
+				, _pipeline
+				, texel_sizes
+				, _fog_desc
+				, _global_lighting_desc
+				, _scene_graph
+				, cascaded_lights
+				);
 			break;
 
 		case CullableType::SPRITE:
