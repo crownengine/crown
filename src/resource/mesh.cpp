@@ -164,16 +164,16 @@ namespace mesh
 		return n;
 	}
 
-	static void generate_vertex_and_index_buffers(Geometry &g)
+	static s32 generate_vertex_and_index_buffers(Geometry &g, CompileOptions &opts)
 	{
 		TempAllocator512 ta;
 		Buffer vertex(ta);
 
-		u16 index = 0;
+		u32 index = 0;
 		for (u32 i = 0; i < array::size(g._position_indices); ++i) {
 			array::clear(vertex);
 
-			const u16 idx = g._position_indices[i] * 3;
+			const u32 idx = g._position_indices[i] * 3;
 			Vector3 v;
 			v.x = g._positions[idx + 0];
 			v.y = g._positions[idx + 1];
@@ -181,7 +181,7 @@ namespace mesh
 			array::push(vertex, (char *)&v, sizeof(v));
 
 			if (has_normals(g)) {
-				const u16 idx = g._normal_indices[i] * 3;
+				const u32 idx = g._normal_indices[i] * 3;
 				Vector3 v;
 				v.x = g._normals[idx + 0];
 				v.y = g._normals[idx + 1];
@@ -191,7 +191,7 @@ namespace mesh
 			}
 
 			if (has_tangents(g)) {
-				const u16 idx = g._tangent_indices[i] * 3;
+				const u32 idx = g._tangent_indices[i] * 3;
 				Vector3 v;
 				CE_ENSURE(idx < array::size(g._tangents));
 				v.x = g._tangents[idx + 0];
@@ -202,7 +202,7 @@ namespace mesh
 			}
 
 			if (has_bitangents(g)) {
-				const u16 idx = g._bitangent_indices[i] * 3;
+				const u32 idx = g._bitangent_indices[i] * 3;
 				CE_ENSURE(idx < array::size(g._bitangents));
 				Vector3 v;
 				v.x = g._bitangents[idx + 0];
@@ -213,7 +213,7 @@ namespace mesh
 			}
 
 			if (has_bones(g)) {
-				const u16 bidx = g._bone_indices[i] * 4;
+				const u32 bidx = g._bone_indices[i] * 4;
 				Vector4 b;
 				b.x = g._bones[bidx + 0];
 				b.y = g._bones[bidx + 1];
@@ -221,7 +221,7 @@ namespace mesh
 				b.w = g._bones[bidx + 3];
 				array::push(vertex, (char *)&b, sizeof(b));
 
-				const u16 widx = g._weight_indices[i] * 4;
+				const u32 widx = g._weight_indices[i] * 4;
 				Vector4 w;
 				w.x = g._weights[widx + 0];
 				w.y = g._weights[widx + 1];
@@ -231,7 +231,7 @@ namespace mesh
 			}
 
 			if (has_uvs(g)) {
-				const u16 idx = g._uv_indices[i] * 2;
+				const u32 idx = g._uv_indices[i] * 2;
 				CE_ENSURE(idx < array::size(g._uvs));
 				Vector2 v;
 				v.x = g._uvs[idx + 0];
@@ -250,12 +250,20 @@ namespace mesh
 			}
 
 			if (j == n) {
+				RETURN_IF_FALSE(index <= UINT16_MAX
+					, opts
+					, "Mesh has too many vertices: %u (max %u)"
+					, index + 1
+					, UINT16_MAX + 1u
+					);
 				array::push(g._vertex_buffer, vertex_data, vertex_size);
-				array::push_back(g._index_buffer, index++);
+				array::push_back(g._index_buffer, (u16)index++);
 			} else {
-				array::push_back(g._index_buffer, u16(j / vertex_size));
+				array::push_back(g._index_buffer, (u16)(j / vertex_size));
 			}
 		}
+
+		return 0;
 	}
 
 	static void geometry_names(Vector<DynamicString> &names, const Mesh &m, const DynamicString &geometry)
@@ -364,7 +372,7 @@ namespace mesh
 				opts.write(geo_names[i].to_string_id()._id);
 
 			Geometry *geo = (Geometry *)&cur->second;
-			mesh::generate_vertex_and_index_buffers(*geo);
+			ENSURE_OR_RETURN(mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
 			u32 stride = mesh::vertex_stride(*geo);

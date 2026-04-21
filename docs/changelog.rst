@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.2 --- DD MMM YYYY <v0.62.2>`
 ---------------------------------------
 
+**Fixes**
+
+* Data Compiler: fixed generation of meshes with high vertex count.
+
 .. _v0.62.1:
 
 :ref:`0.62.1 --- 16 Apr 2026 <v0.62.1>`
