@@ -23,6 +23,9 @@ namespace sphere
 	/// Creates the minimum enclosing sphere of a cone.
 	Sphere from_cone(const Vector3 &tip, const Vector3 &dir, f32 range, f32 angle);
 
+	/// Returns a new sphere which encloses both the sphere @a a and @a b.
+	Sphere merge(const Sphere &a, const Sphere &b);
+
 	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
 	void add_points(Sphere &s, u32 num, u32 stride, const void *points);
 

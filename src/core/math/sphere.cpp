@@ -35,6 +35,23 @@ namespace sphere
 		return s;
 	}
 
+	Sphere merge(const Sphere &a, const Sphere &b)
+	{
+		const Vector3 delta = b.c - a.c;
+		const f32 dist = length(delta);
+
+		if (dist + b.r <= a.r)
+			return a;
+
+		if (dist + a.r <= b.r)
+			return b;
+
+		Sphere s;
+		s.r = (a.r + dist + b.r) * 0.5f;
+		s.c = a.c + delta * ((s.r - a.r) / dist);
+		return s;
+	}
+
 	// Reference:
 	// https://web.archive.org/web/20170808221957/https://sharif.edu/~zarrabi/papers/cccg-06/meb.pdf
 	void add_points(Sphere &s, u32 num, u32 stride, const void *points)
