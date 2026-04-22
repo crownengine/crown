@@ -422,6 +422,14 @@ function UnitBox:set_tonemap(type)
 	end
 end
 
+function UnitBox:set_lod_group(level, mode)
+	local lod_group = RenderWorld.lod_group_instance(self._rw, self._unit_id)
+	if lod_group then
+		RenderWorld.lod_group_set_level(self._rw, lod_group, level)
+		RenderWorld.lod_group_set_mode(self._rw, lod_group, mode)
+	end
+end
+
 function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
 	self._mesh_visible = visible
 

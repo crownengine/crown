@@ -24,6 +24,7 @@ struct CullableType
 	{
 		MESH,
 		SPRITE,
+		LOD_GROUP,
 		LIGHT
 	};
 };
@@ -52,6 +53,19 @@ struct CullingSet
 		, render(a)
 	{
 	}
+};
+
+struct LodLevelData
+{
+	f32 screen_size; ///< Screen-height threshold in [0, 1].
+	u32 mesh_index;  ///< Index into MeshManager for this level.
+};
+
+struct LodGroupEntry
+{
+	LodLevelData levels[3]; ///<
+	u32 count;              ///< Occupied slots in this chunk.
+	u32 next;               ///< Next chunk index, or UINT32_MAX.
 };
 
 /// Manages graphics objects in a World.
@@ -151,6 +165,21 @@ struct RenderWorld
 	/// Returns the distance along ray (from, dir) to intersection point with
 	/// @a sprite or -1.0 if no intersection.
 	f32 sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vector3 &dir, u32 &layer, u32 &depth);
+
+	/// Returns the ID of the LOD group owned by the *unit*.
+	LodGroupId lod_group_instance(UnitId unit);
+
+	/// Returns the local-space Oriented-Bounding-Box of the @a lod_group.
+	OBB lod_group_obb(LodGroupId lod_group);
+
+	/// Sets the local-space Oriented-Bounding-Box of the @a lod_group.
+	void lod_group_set_obb(LodGroupId lod_group, const OBB &obb);
+
+	/// Sets the LOD level to render. Pass -1 to enable automatic LOD selection.
+	void lod_group_set_level(LodGroupId lod_group, s32 level);
+
+	/// Sets the fade @a mode of the @a lod_group.
+	void lod_group_set_mode(LodGroupId lod_group, LodFadeMode::Enum mode);
 
 	/// Creates a new light instance.
 	LightId light_create(UnitId unit, const LightDesc &ld);
@@ -319,7 +348,7 @@ struct RenderWorld
 	void sync_cullable_sets();
 
 	///
-	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl);
+	void render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
@@ -506,6 +535,91 @@ struct RenderWorld
 		}
 	};
 
+	struct LodGroupManager
+	{
+		struct LodGroupInstanceData
+		{
+			u32 size;
+			u32 capacity;
+			void *buffer;
+
+			UnitId *unit;
+			u32 *first_entry;
+			u32 *level_count;
+			s32 *level;
+			u32 *fade_mode;
+			Matrix4x4 *world;
+			OBB *obb;
+			Sphere *sphere;
+			u32 *current_level;
+			u32 *previous_level;
+			u32 *previous_mesh;
+			f32 *fade_time;
+			u32 *selected_mesh;
+		};
+
+		Allocator *_allocator;
+		RenderWorld *_render_world;
+		LodGroupInstanceData _data;
+		Array<LodGroupEntry> _entries;
+		u32 _free_list;
+		HashMap<UnitId, u32> _map;
+
+		///
+		LodGroupManager(Allocator &a, RenderWorld *rw)
+			: _allocator(&a)
+			, _render_world(rw)
+			, _entries(a)
+			, _free_list(UINT32_MAX)
+			, _map(a)
+		{
+			memset(&_data, 0, sizeof(_data));
+		}
+
+		///
+		void allocate(u32 num);
+
+		///
+		void grow();
+
+		///
+		void create_instances(const void *components_data
+			, u32 num
+			, const UnitId *unit_lookup
+			, const u32 *unit_index
+			);
+
+		///
+		void update_bounds(u32 lod_group);
+
+		///
+		void destroy(LodGroupId lod_group);
+
+		///
+		bool has(UnitId unit);
+
+		///
+		LodGroupId lod_group(UnitId unit);
+
+		///
+		void select_level(u32 lod_group, const Matrix4x4 &view_proj, f32 dt);
+
+		///
+		void destroy();
+
+		///
+		u32 alloc_entry();
+
+		///
+		void free_entry_chain(u32 entry);
+
+		///
+		LodGroupId make_instance(u32 i)
+		{
+			LodGroupId inst = { i }; return inst;
+		}
+	};
+
 	struct LightManager
 	{
 		// This data is fed to the shader as-is.
@@ -612,6 +726,7 @@ struct RenderWorld
 	bool _debug_drawing;
 	MeshManager _mesh_manager;
 	SpriteManager _sprite_manager;
+	LodGroupManager _lod_group_manager;
 	LightManager _light_manager;
 
 	CullingSet _cullable_objects;

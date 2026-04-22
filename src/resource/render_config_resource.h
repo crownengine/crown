@@ -32,6 +32,7 @@ struct RenderSettings
 	Vector2 local_lights_shadow_map_size;
 	f32 local_lights_distance_culling_fade;   ///< Distance from camera at which local lights start to fade.
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
+	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.
 	u32 msaa_quality;
 };
 

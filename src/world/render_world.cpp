@@ -13,9 +13,11 @@
 #include "core/math/frustum.inl"
 #include "core/math/intersection.h"
 #include "core/math/matrix4x4.inl"
+#include "core/math/obb.inl"
 #include "core/math/sphere.inl"
 #include "core/strings/string_id.inl"
 #include "core/profiler.h"
+#include "device/log.h"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/render_config_resource.h"
@@ -31,6 +33,9 @@
 #include <algorithm> // std::sort
 #include <bgfx/bgfx.h>
 #include <bx/math.h>
+#include <float.h> // FLT_MAX
+
+LOG_SYSTEM(RENDER_WORLD, "render_world")
 
 namespace crown
 {
@@ -51,6 +56,21 @@ static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
 		CE_FATAL("Unknown light type");
 	}
 
+	return s;
+}
+
+static Sphere obb_sphere(const OBB &obb)
+{
+	const Vector3 scl = scale(obb.tm);
+	const Vector3 half = {
+		obb.half_extents.x * scl.x,
+		obb.half_extents.y * scl.y,
+		obb.half_extents.z * scl.z
+	};
+
+	Sphere s;
+	s.c = translation(obb.tm);
+	s.r = length(half);
 	return s;
 }
 
@@ -211,6 +231,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _debug_drawing(false)
 	, _mesh_manager(a, this)
 	, _sprite_manager(a, this)
+	, _lod_group_manager(a, this)
 	, _light_manager(a, this)
 	, _cullable_objects(a)
 	, _cullable_shadow_casters(a)
@@ -246,6 +267,7 @@ RenderWorld::~RenderWorld()
 
 	_mesh_manager.destroy();
 	_sprite_manager.destroy();
+	_lod_group_manager.destroy();
 	_light_manager.destroy();
 
 	_marker = 0;
@@ -512,6 +534,50 @@ f32 RenderWorld::sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vec
 		, indices
 		, 6
 		);
+}
+
+LodGroupId RenderWorld::lod_group_instance(UnitId unit)
+{
+	return _lod_group_manager.lod_group(unit);
+}
+
+OBB RenderWorld::lod_group_obb(LodGroupId lod_group)
+{
+	CE_ASSERT(lod_group.i < _lod_group_manager._data.size, "Index out of bounds");
+	return _lod_group_manager._data.obb[lod_group.i];
+}
+
+void RenderWorld::lod_group_set_obb(LodGroupId lod_group, const OBB &obb)
+{
+	CE_ASSERT(lod_group.i < _lod_group_manager._data.size, "Index out of bounds");
+
+	_lod_group_manager._data.obb[lod_group.i] = obb;
+	_lod_group_manager._data.sphere[lod_group.i] = obb_sphere(_lod_group_manager._data.obb[lod_group.i]);
+
+	culling_set::update(_cullable_objects
+		, CullableType::LOD_GROUP
+		, lod_group.i
+		, _lod_group_manager._data.sphere[lod_group.i]
+		, _lod_group_manager._data.world[lod_group.i]
+		);
+}
+
+void RenderWorld::lod_group_set_level(LodGroupId lod_group, s32 level)
+{
+	CE_ASSERT(lod_group.i < _lod_group_manager._data.size, "Index out of bounds");
+	CE_ASSERT(level >= -1, "Level must be -1 or positive");
+	_lod_group_manager._data.level[lod_group.i] = clamp(level, -1, (s32)_lod_group_manager._data.level_count[lod_group.i] - 1);
+}
+
+void RenderWorld::lod_group_set_mode(LodGroupId lod_group, LodFadeMode::Enum mode)
+{
+	CE_ASSERT(lod_group.i < _lod_group_manager._data.size, "Index out of bounds");
+	CE_ASSERT(mode < LodFadeMode::COUNT, "Invalid LOD fade mode");
+
+	_lod_group_manager._data.fade_mode[lod_group.i] = mode;
+	_lod_group_manager._data.previous_level[lod_group.i] = UINT32_MAX;
+	_lod_group_manager._data.previous_mesh[lod_group.i] = UINT32_MAX;
+	_lod_group_manager._data.fade_time[lod_group.i] = 0.0f;
 }
 
 LightId RenderWorld::light_create(UnitId unit, const LightDesc &ld)
@@ -879,6 +945,7 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
 	SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
 	LightManager::LightInstanceData &lid = _light_manager._data;
+	LodGroupManager::LodGroupInstanceData &lgd = _lod_group_manager._data;
 
 	for (; begin != end; ++begin, ++world) {
 		if (_mesh_manager.has(*begin)) {
@@ -895,6 +962,18 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 
 			_sprite_manager._data.flags[sprite.i] |= RenderableFlags::DIRTY;
 			_sprite_manager._dirty = true;
+		}
+
+		if (_lod_group_manager.has(*begin)) {
+			LodGroupId lod_group = _lod_group_manager.lod_group(*begin);
+			lgd.world[lod_group.i] = *world;
+
+			culling_set::update(_cullable_objects
+				, CullableType::LOD_GROUP
+				, lod_group.i
+				, lgd.sphere[lod_group.i]
+				, lgd.world[lod_group.i]
+				);
 		}
 
 		if (_light_manager.has(*begin)) {
@@ -958,6 +1037,13 @@ void RenderWorld::sync_cullable_sets()
 			idata.flags[i] &= ~RenderableFlags::DIRTY;
 
 			u32 changed = idata.flags[i] ^ idata.prev_flags[i];
+
+			if ((idata.flags[i] & RenderableFlags::LOD_LEVEL) != 0) {
+				idata.prev_flags[i] = idata.flags[i];
+				culling_set::remove(_cullable_objects, CullableType::MESH, i);
+				culling_set::remove(_cullable_shadow_casters, CullableType::MESH, i);
+				continue;
+			}
 
 			if (changed) {
 				idata.prev_flags[i] = idata.flags[i];
@@ -1075,7 +1161,7 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	mesh._data.material[object_id]->bind(View::MESH);
 }
 
-void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
+void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -1086,6 +1172,7 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 	Matrix4x4 inv_view = view;
 	invert(inv_view);
 	const Vector3 camera_pos = translation(inv_view);
+	const Matrix4x4 view_proj = view * proj;
 
 	// Skydome.
 	if (skydome_unit.is_valid()) {
@@ -1112,16 +1199,20 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 
 	// Frustum culling of visible objects.
 	Frustum view_frustum;
-	frustum::from_matrix(view_frustum, view * proj, caps->homogeneousDepth, bx::Handedness::Right);
+	frustum::from_matrix(view_frustum, view_proj, caps->homogeneousDepth, bx::Handedness::Right);
 	culling_set::cull_spheres(_cullable_objects, view_frustum, 0, array::size(_cullable_objects.id));
 	u32 visible_objects = culling_set::remove_culled(_cullable_objects);
 	RECORD_FLOAT("world.visible_objects", (f32)visible_objects);
 
+	// Count sprites for transient buffer allocation and select LOD groups once
+	// before render/selection passes consume selected_mesh.
 	u32 num_visible_sprites = 0;
-	for (u32 ii = 0; ii < array::size(_cullable_objects.render); ++ii) {
+	for (u32 ii = 0; ii < visible_objects; ++ii) {
 		const u32 i = _cullable_objects.render[ii];
 		if (_cullable_objects.type[i] == CullableType::SPRITE)
 			++num_visible_sprites;
+		else if (_cullable_objects.type[i] == CullableType::LOD_GROUP)
+			_lod_group_manager.select_level(_cullable_objects.id[i], view_proj, dt);
 	}
 
 	const f32 sy = caps->originBottomLeft ? 0.5f : -0.5f;
@@ -1581,6 +1672,23 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 				);
 			break;
 
+		case CullableType::LOD_GROUP: {
+			u32 mesh_to_draw = _lod_group_manager._data.selected_mesh[object_id];
+			if (mesh_to_draw == UINT32_MAX)
+				break;
+
+			draw_mesh(_mesh_manager
+				, mesh_to_draw
+				, _pipeline
+				, texel_sizes
+				, _fog_desc
+				, _global_lighting_desc
+				, _scene_graph
+				, cascaded_lights
+				);
+			break;
+		}
+
 		case CullableType::SPRITE:
 			if (sprite_buffer_allocated) {
 				_sprite_manager.set_instance_data(&sprite_vertex_data
@@ -1625,6 +1733,25 @@ void RenderWorld::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Mat
 			bgfx::setUniform(_pipeline->_unit_id, &data);
 
 			_mesh_manager.set_instance_data(object_id, *_scene_graph);
+			bgfx::setState(_pipeline->_selection_shader.state);
+			bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+			break;
+		}
+
+		case CullableType::LOD_GROUP: {
+			UnitId unit_id = _lod_group_manager._data.unit[object_id];
+			if (!hash_set::has(_selection, unit_id))
+				break;
+
+			u32 mesh_to_draw = _lod_group_manager._data.selected_mesh[object_id];
+			if (mesh_to_draw == UINT32_MAX)
+				break;
+
+			u2f.u = unit_id._idx;
+			Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+			bgfx::setUniform(_pipeline->_unit_id, &data);
+
+			_mesh_manager.set_instance_data(mesh_to_draw, *_scene_graph);
 			bgfx::setState(_pipeline->_selection_shader.state);
 			bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
 			break;
@@ -1691,6 +1818,16 @@ void RenderWorld::debug_draw(DebugLine &dl)
 		dl.add_sphere(out.c, out.r, COLOR4_YELLOW);
 	}
 
+	const LodGroupManager::LodGroupInstanceData &lgd = _lod_group_manager._data;
+
+	for (u32 i = 0; i < lgd.size; ++i) {
+		dl.add_obb(lgd.obb[i].tm * lgd.world[i], lgd.obb[i].half_extents, COLOR4_GREEN);
+
+		Sphere out;
+		sphere::transform(out, lgd.sphere[i], lgd.world[i]);
+		dl.add_sphere(out.c, out.r, COLOR4_ORANGE);
+	}
+
 	_light_manager.debug_draw(0, _light_manager._data.size, dl);
 }
 
@@ -1701,6 +1838,13 @@ void RenderWorld::enable_debug_drawing(bool enable)
 
 void RenderWorld::unit_destroyed_callback(UnitId unit)
 {
+	{
+		LodGroupId first = lod_group_instance(unit);
+
+		if (is_valid(first))
+			_lod_group_manager.destroy(first);
+	}
+
 	{
 		MeshId first = mesh_instance(unit);
 
@@ -2241,6 +2385,416 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 	bgfx::setTransform(to_float_ptr(_data.world[sprite_id]));
 	bgfx::setVertexBuffer(0, &tvb);
 	bgfx::setIndexBuffer(&tib, slot*6, 6);
+}
+
+void RenderWorld::LodGroupManager::allocate(u32 num)
+{
+	CE_ENSURE(num > _data.size);
+
+	const u32 bytes = 0
+		+ num*sizeof(UnitId) + alignof(UnitId)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(s32) + alignof(s32)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
+		+ num*sizeof(OBB) + alignof(OBB)
+		+ num*sizeof(Sphere) + alignof(Sphere)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(f32) + alignof(f32)
+		+ num*sizeof(u32) + alignof(u32)
+		;
+
+	LodGroupInstanceData new_data;
+	new_data.size = _data.size;
+	new_data.capacity = num;
+	new_data.buffer = _allocator->allocate(bytes);
+
+	new_data.unit = (UnitId *)memory::align_top(new_data.buffer, alignof(UnitId));
+	new_data.first_entry = (u32 *)memory::align_top(new_data.unit + num, alignof(u32));
+	new_data.level_count = (u32 *)memory::align_top(new_data.first_entry + num, alignof(u32));
+	new_data.level = (s32 *)memory::align_top(new_data.level_count + num, alignof(s32));
+	new_data.fade_mode = (u32 *)memory::align_top(new_data.level + num, alignof(u32));
+	new_data.world = (Matrix4x4 *)memory::align_top(new_data.fade_mode + num, alignof(Matrix4x4));
+	new_data.obb = (OBB *)memory::align_top(new_data.world + num, alignof(OBB));
+	new_data.sphere = (Sphere *)memory::align_top(new_data.obb + num, alignof(Sphere));
+	new_data.current_level = (u32 *)memory::align_top(new_data.sphere + num, alignof(u32));
+	new_data.previous_level = (u32 *)memory::align_top(new_data.current_level + num, alignof(u32));
+	new_data.previous_mesh = (u32 *)memory::align_top(new_data.previous_level + num, alignof(u32));
+	new_data.fade_time = (f32 *)memory::align_top(new_data.previous_mesh + num, alignof(f32));
+	new_data.selected_mesh = (u32 *)memory::align_top(new_data.fade_time + num, alignof(u32));
+
+	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
+	memcpy(new_data.first_entry, _data.first_entry, _data.size * sizeof(u32));
+	memcpy(new_data.level_count, _data.level_count, _data.size * sizeof(u32));
+	memcpy(new_data.level, _data.level, _data.size * sizeof(s32));
+	memcpy(new_data.fade_mode, _data.fade_mode, _data.size * sizeof(u32));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
+	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
+	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
+	memcpy(new_data.current_level, _data.current_level, _data.size * sizeof(u32));
+	memcpy(new_data.previous_level, _data.previous_level, _data.size * sizeof(u32));
+	memcpy(new_data.previous_mesh, _data.previous_mesh, _data.size * sizeof(u32));
+	memcpy(new_data.fade_time, _data.fade_time, _data.size * sizeof(f32));
+	memcpy(new_data.selected_mesh, _data.selected_mesh, _data.size * sizeof(u32));
+
+	_allocator->deallocate(_data.buffer);
+	_data = new_data;
+}
+
+void RenderWorld::LodGroupManager::grow()
+{
+	allocate(_data.capacity * 2 + 1);
+}
+
+void RenderWorld::LodGroupManager::create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
+{
+	const char *data = (const char *)components_data;
+
+	// Create LOD groups.
+	for (u32 i = 0; i < num; ++i) {
+		const LodGroupDesc *desc = (const LodGroupDesc *)data;
+		const LodDesc *levels = (const LodDesc *)(desc + 1);
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		CE_ASSERT(desc->num_levels > 0, "LOD group must have at least one level");
+		CE_ASSERT(desc->level == -1 || (u32)desc->level < desc->num_levels, "Invalid LOD group level");
+		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a LOD group component");
+
+		TransformId ti = _render_world->_scene_graph->instance(unit);
+		CE_ASSERT(is_valid(ti), "LOD Group Component requires a Transform Component");
+
+		if (_data.size == _data.capacity)
+			grow();
+
+		const u32 group_idx = _data.size++;
+		_data.unit[group_idx] = unit;
+		_data.level_count[group_idx] = desc->num_levels;
+		_data.level[group_idx] = desc->level;
+		_data.fade_mode[group_idx] = desc->fade_mode;
+		_data.world[group_idx] = _render_world->_scene_graph->world_pose(ti);
+		_data.current_level[group_idx] = UINT32_MAX;
+		_data.previous_level[group_idx] = UINT32_MAX;
+		_data.previous_mesh[group_idx] = UINT32_MAX;
+		_data.fade_time[group_idx] = 0.0f;
+		_data.selected_mesh[group_idx] = UINT32_MAX;
+
+		u32 first_entry_idx = UINT32_MAX;
+		u32 prev_entry_idx = UINT32_MAX;
+		u32 l = 0;
+
+		// Allocate LOD entries.
+		while (l < desc->num_levels) {
+			const u32 entry_idx = alloc_entry();
+
+			if (first_entry_idx == UINT32_MAX)
+				first_entry_idx = entry_idx;
+			if (prev_entry_idx != UINT32_MAX)
+				_entries[prev_entry_idx].next = entry_idx;
+
+			LodGroupEntry &entry = _entries[entry_idx];
+
+			// Lookup mesh instances.
+			while (l < desc->num_levels && entry.count < countof(entry.levels)) {
+				const u32 slot = entry.count++;
+				entry.levels[slot].screen_size = levels[l].screen_size;
+				entry.levels[slot].mesh_index = UINT32_MAX;
+
+				if (levels[l].unit_index != UINT32_MAX) {
+					const UnitId mesh_unit = unit_lookup[levels[l].unit_index];
+					const MeshId mesh = _render_world->mesh_instance(mesh_unit);
+					CE_ASSERT(is_valid(mesh), "LOD group level requires a Mesh Renderer Component");
+
+					entry.levels[slot].mesh_index = mesh.i;
+
+					_render_world->_mesh_manager._data.flags[mesh.i] |= RenderableFlags::LOD_LEVEL | RenderableFlags::DIRTY;
+					_render_world->_mesh_manager._dirty = true;
+
+					culling_set::remove(_render_world->_cullable_objects, CullableType::MESH, mesh.i);
+					culling_set::remove(_render_world->_cullable_shadow_casters, CullableType::MESH, mesh.i);
+				}
+
+				++l;
+			}
+
+			prev_entry_idx = entry_idx;
+		}
+
+		_data.first_entry[group_idx] = first_entry_idx;
+		update_bounds(group_idx);
+
+		culling_set::add(_render_world->_cullable_objects
+			, { _data.world[group_idx]
+				, _data.sphere[group_idx]
+				, group_idx
+				, CullableType::LOD_GROUP
+			}
+			);
+
+		hash_map::set(_map, unit, group_idx);
+
+		data = (const char *)(levels + desc->num_levels);
+	}
+}
+
+void RenderWorld::LodGroupManager::update_bounds(u32 lod_group)
+{
+	CE_ASSERT(lod_group < _data.size, "Index out of bounds");
+
+	bool has_bounds = false;
+	OBB bounds;
+	Sphere bounds_sphere;
+	Matrix4x4 world_inv = _data.world[lod_group];
+	invert(world_inv);
+
+	u32 entry_idx = _data.first_entry[lod_group];
+	while (entry_idx != UINT32_MAX) {
+		const LodGroupEntry &entry = _entries[entry_idx];
+
+		for (u32 s = 0; s < entry.count; ++s) {
+			const u32 mesh_index = entry.levels[s].mesh_index;
+			if (mesh_index == UINT32_MAX)
+				continue;
+
+			OBB obb = _render_world->_mesh_manager._data.obb[mesh_index];
+			obb.tm = obb.tm * _render_world->_mesh_manager._data.world[mesh_index] * world_inv;
+
+			Sphere mesh_sphere;
+			sphere::transform(mesh_sphere
+				, _render_world->_mesh_manager._data.sphere[mesh_index]
+				, _render_world->_mesh_manager._data.world[mesh_index] * world_inv
+				);
+
+			if (!has_bounds) {
+				bounds = obb;
+				bounds_sphere = mesh_sphere;
+				has_bounds = true;
+			} else {
+				bounds = obb::merge(bounds, obb);
+				bounds_sphere = sphere::merge(bounds_sphere, mesh_sphere);
+			}
+		}
+
+		entry_idx = entry.next;
+	}
+
+	if (!has_bounds) {
+		_data.obb[lod_group].tm = MATRIX4X4_IDENTITY;
+		_data.obb[lod_group].half_extents = VECTOR3_ZERO;
+		_data.sphere[lod_group] = { VECTOR3_ZERO, 0.0f };
+	} else {
+		_data.obb[lod_group] = bounds;
+		_data.sphere[lod_group] = bounds_sphere;
+	}
+}
+
+void RenderWorld::LodGroupManager::destroy(LodGroupId lod_group)
+{
+	CE_ASSERT(lod_group.i < _data.size, "Index out of bounds");
+
+	const u32 last = _data.size - 1;
+	const UnitId u = _data.unit[lod_group.i];
+	const UnitId last_u = _data.unit[last];
+
+	culling_set::fixup(_render_world->_cullable_objects, CullableType::LOD_GROUP, lod_group.i, last);
+
+	u32 entry_idx = _data.first_entry[lod_group.i];
+	while (entry_idx != UINT32_MAX) {
+		LodGroupEntry &entry = _entries[entry_idx];
+
+		for (u32 i = 0; i < entry.count; ++i) {
+			const u32 mesh_index = entry.levels[i].mesh_index;
+			if (mesh_index == UINT32_MAX)
+				continue;
+
+			_render_world->_mesh_manager._data.flags[mesh_index] &= ~RenderableFlags::LOD_LEVEL;
+			_render_world->_mesh_manager._data.flags[mesh_index] |= RenderableFlags::DIRTY;
+			_render_world->_mesh_manager._data.prev_flags[mesh_index] = 0u;
+		}
+
+		entry_idx = entry.next;
+	}
+	_render_world->_mesh_manager._dirty = true;
+
+	free_entry_chain(_data.first_entry[lod_group.i]);
+
+	_data.unit[lod_group.i] = _data.unit[last];
+	_data.first_entry[lod_group.i] = _data.first_entry[last];
+	_data.level_count[lod_group.i] = _data.level_count[last];
+	_data.level[lod_group.i] = _data.level[last];
+	_data.fade_mode[lod_group.i] = _data.fade_mode[last];
+	_data.world[lod_group.i] = _data.world[last];
+	_data.obb[lod_group.i] = _data.obb[last];
+	_data.sphere[lod_group.i] = _data.sphere[last];
+	_data.current_level[lod_group.i] = _data.current_level[last];
+	_data.previous_level[lod_group.i] = _data.previous_level[last];
+	_data.previous_mesh[lod_group.i] = _data.previous_mesh[last];
+	_data.fade_time[lod_group.i] = _data.fade_time[last];
+	_data.selected_mesh[lod_group.i] = _data.selected_mesh[last];
+
+	--_data.size;
+
+	hash_map::set(_map, last_u, lod_group.i);
+	hash_map::remove(_map, u);
+}
+
+bool RenderWorld::LodGroupManager::has(UnitId unit)
+{
+	return is_valid(lod_group(unit));
+}
+
+LodGroupId RenderWorld::LodGroupManager::lod_group(UnitId unit)
+{
+	return make_instance(hash_map::get(_map, unit, UINT32_MAX));
+}
+
+void RenderWorld::LodGroupManager::select_level(u32 lod_group, const Matrix4x4 &view_proj, f32 dt)
+{
+	CE_ASSERT(lod_group < _data.size, "Index out of bounds");
+
+	const s32 level = _data.level[lod_group];
+	const bool automatic = level < 0;
+	f32 screen_size = 0.0f;
+
+	if (automatic) {
+		Vector3 vertices[8];
+		OBB obb = _data.obb[lod_group];
+		obb.tm = obb.tm * _data.world[lod_group];
+		obb::to_vertices(vertices, obb);
+
+		f32 min_y =  FLT_MAX;
+		f32 max_y = -FLT_MAX;
+
+		// Project OBB corners to compute the screen-space height.
+		for (u32 i = 0; i < countof(vertices); ++i) {
+			const Vector4 p = { vertices[i].x, vertices[i].y, vertices[i].z, 1.0f };
+			const Vector4 clip = p * view_proj;
+			const f32 inv_w = 1.0f / clip.w;
+			const f32 ndc_y = clip.y * inv_w;
+
+			min_y = min(min_y, ndc_y);
+			max_y = max(max_y, ndc_y);
+		}
+
+		const f32 screen_height = max_y - min_y;
+		screen_size = clamp(screen_height * 0.5f, 0.0f, 1.0f);
+	}
+
+	u32 target_level = 0;
+	u32 target_mesh = UINT32_MAX;
+	bool target_found = false;
+	u32 level_index = 0;
+	u32 entry_idx = _data.first_entry[lod_group];
+
+	// Resolve target level and mesh.
+	while (entry_idx != UINT32_MAX) {
+		const LodGroupEntry &entry = _entries[entry_idx];
+
+		for (u32 s = 0; s < entry.count; ++s) {
+			const LodLevelData &lod_level = entry.levels[s];
+
+			if (automatic) {
+				if (!target_found || screen_size <= lod_level.screen_size) {
+					target_level = level_index;
+					target_mesh = lod_level.mesh_index;
+					target_found = true;
+				}
+			} else if (level_index == (u32)level) {
+				target_level = level_index;
+				target_mesh = lod_level.mesh_index;
+				target_found = true;
+				break;
+			}
+
+			++level_index;
+		}
+
+		if (!automatic && target_found)
+			break;
+
+		entry_idx = entry.next;
+	}
+
+	CE_ASSERT(target_found, "LOD group has no selected level");
+
+	const u32 old_level = _data.current_level[lod_group];
+	if (target_level != old_level) {
+		const u32 old_mesh = _data.selected_mesh[lod_group];
+
+		_data.current_level[lod_group] = target_level;
+		_data.selected_mesh[lod_group] = target_mesh;
+
+		if (_data.fade_mode[lod_group] == LodFadeMode::CROSSFADE) {
+			_data.previous_level[lod_group] = old_level;
+			_data.previous_mesh[lod_group] = old_mesh;
+			_data.fade_time[lod_group] = 0.0f;
+		} else {
+			_data.previous_level[lod_group] = UINT32_MAX;
+			_data.previous_mesh[lod_group] = UINT32_MAX;
+			_data.fade_time[lod_group] = _render_world->_pipeline->_render_settings.lod_fade_duration;
+		}
+	}
+
+	if (_data.fade_mode[lod_group] == LodFadeMode::CROSSFADE
+		&& _data.previous_level[lod_group] != UINT32_MAX
+		) {
+		const f32 fade_duration = _render_world->_pipeline->_render_settings.lod_fade_duration;
+
+		if (fade_duration <= 0.0f) {
+			_data.fade_time[lod_group] = 0.0f;
+			_data.previous_level[lod_group] = UINT32_MAX;
+			_data.previous_mesh[lod_group] = UINT32_MAX;
+		} else {
+			_data.fade_time[lod_group] += dt;
+
+			const f32 current_fade = clamp(_data.fade_time[lod_group] / fade_duration, 0.0f, 1.0f);
+			if (current_fade >= 1.0f) {
+				_data.previous_level[lod_group] = UINT32_MAX;
+				_data.previous_mesh[lod_group] = UINT32_MAX;
+			}
+		}
+	}
+}
+
+void RenderWorld::LodGroupManager::destroy()
+{
+	_allocator->deallocate(_data.buffer);
+}
+
+u32 RenderWorld::LodGroupManager::alloc_entry()
+{
+	if (_free_list != UINT32_MAX) {
+		const u32 entry_idx = _free_list;
+		LodGroupEntry &entry = _entries[entry_idx];
+		_free_list = entry.next;
+		entry.count = 0;
+		entry.next = UINT32_MAX;
+		return entry_idx;
+	}
+
+	LodGroupEntry entry;
+	memset(&entry, 0, sizeof(entry));
+	entry.next = UINT32_MAX;
+	array::push_back(_entries, entry);
+	return array::size(_entries) - 1;
+}
+
+void RenderWorld::LodGroupManager::free_entry_chain(u32 entry_idx)
+{
+	while (entry_idx != UINT32_MAX) {
+		LodGroupEntry &entry = _entries[entry_idx];
+		const u32 next = entry.next;
+		entry.count = 0;
+		entry.next = _free_list;
+		_free_list = entry_idx;
+		entry_idx = next;
+	}
 }
 
 void RenderWorld::LightManager::allocate(u32 num)

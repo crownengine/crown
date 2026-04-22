@@ -80,6 +80,8 @@ static void create_components(World &w
 			render_world->_mesh_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {
 			render_world->_sprite_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
+		} else if (component->type == STRING_ID_32("lod_group", UINT32_C(0x22a1a9f0))) {
+			render_world->_lod_group_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("light", UINT32_C(0xbb9f08c2))) {
 			render_world->_light_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("fog", UINT32_C(0xf007ef0d))) {
@@ -154,6 +156,7 @@ World::World(Allocator &a
 	, _changed_world(a)
 	, _gui_buffer(sm)
 	, _skydome_unit(UNIT_INVALID)
+	, _dt(0.0f)
 #if CROWN_CAN_RELOAD
 	, _unit_resources(a)
 #endif
@@ -547,13 +550,15 @@ void World::update_scene(f32 dt)
 
 void World::update(f32 dt)
 {
+	_dt = dt;
+
 	update_animations(dt);
 	update_scene(dt);
 }
 
 void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp)
 {
-	_render_world->render(view, proj, persp, _skydome_unit, *_lines);
+	_render_world->render(_dt, view, proj, persp, _skydome_unit, *_lines);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

@@ -70,6 +70,19 @@ static const LightInfo s_light[] =
 };
 CE_STATIC_ASSERT(countof(s_light) == LightType::COUNT);
 
+struct LodFadeModeInfo
+{
+	const char *name;
+	LodFadeMode::Enum type;
+};
+
+static const LodFadeModeInfo s_lod_fade_mode[] =
+{
+	{ "none",      LodFadeMode::NONE      },
+	{ "crossfade", LodFadeMode::CROSSFADE }
+};
+CE_STATIC_ASSERT(countof(s_lod_fade_mode) == LodFadeMode::COUNT);
+
 static ProjectionType::Enum projection_name_to_enum(const char *name)
 {
 	for (u32 i = 0; i < countof(s_projection); ++i) {
@@ -88,6 +101,16 @@ static LightType::Enum light_name_to_enum(const char *name)
 	}
 
 	return LightType::COUNT;
+}
+
+static LodFadeMode::Enum lod_fade_mode_name_to_enum(const char *name)
+{
+	for (u32 i = 0; i < countof(s_lod_fade_mode); ++i) {
+		if (strcmp(name, s_lod_fade_mode[i].name) == 0)
+			return s_lod_fade_mode[i].type;
+	}
+
+	return LodFadeMode::COUNT;
 }
 
 static s32 compile_transform(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
@@ -235,6 +258,92 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 	bw.write(srd.depth);
 	bw.write(srd.flags);
 	bw.write(srd._pad);
+	return 0;
+}
+
+static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+{
+	TempAllocator4096 ta;
+	JsonArray lod_levels(ta);
+	RETURN_IF_ERROR(sjson::parse_array(lod_levels, flat_json_object::get(obj, "data.lod_levels")));
+	RETURN_IF_FALSE(array::size(lod_levels) > 0, opts, "LOD group must have at least one level");
+
+	DynamicString fade_mode_name(ta);
+	RETURN_IF_ERROR(sjson::parse_string(fade_mode_name, flat_json_object::get(obj, "data.fade_mode")));
+	LodFadeMode::Enum fade_mode = lod_fade_mode_name_to_enum(fade_mode_name.c_str());
+	RETURN_IF_FALSE(fade_mode != LodFadeMode::COUNT
+		, opts
+		, "Unknown LOD group fade mode: '%s'"
+		, fade_mode_name.c_str()
+		);
+
+	const s32 level = RETURN_IF_ERROR(sjson::parse_int(flat_json_object::get(obj, "data.level")));
+
+	Array<LodDesc> levels(default_allocator());
+
+	for (u32 i = 0; i < array::size(lod_levels); ++i) {
+		JsonObject level(ta);
+		RETURN_IF_ERROR(sjson::parse_object(level, lod_levels[i]));
+
+		JsonObject level_data(ta);
+		RETURN_IF_ERROR(sjson::parse_object(level_data, level["data"]));
+
+		const Guid mesh_renderer_id = RETURN_IF_ERROR(sjson::parse_guid(level_data["mesh_renderer"]));
+
+		LodDesc desc;
+		desc.unit_index   = UINT32_MAX;
+		desc.screen_size  = RETURN_IF_ERROR(sjson::parse_float(level_data["screen_size"]));
+
+		if (mesh_renderer_id != GUID_ZERO) {
+			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
+			const ComponentKey key = { mesh_renderer_id, root_unit_index };
+			const StringId32 mesh_renderer_type = hash_map::get(compiler._component_type, key, StringId32());
+			RETURN_IF_FALSE(mesh_renderer_type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))
+				, opts
+				, "LOD level references a non-mesh-renderer component"
+				);
+
+			desc.unit_index = hash_map::get(compiler._component_unit_index, key, UINT32_MAX);
+			RETURN_IF_FALSE(desc.unit_index != UINT32_MAX
+				, opts
+				, "LOD level references a mesh renderer outside this unit resource"
+				);
+		}
+
+		RETURN_IF_FALSE(desc.screen_size >= 0.0f && desc.screen_size <= 1.0f
+			, opts
+			, "LOD level screen_size height threshold must be in [0, 1]"
+			);
+
+		array::push_back(levels, desc);
+	}
+
+	std::sort(array::begin(levels)
+		, array::end(levels)
+		, [](const LodDesc &a, const LodDesc &b) {
+			return a.screen_size > b.screen_size;
+		}
+		);
+
+	LodGroupDesc desc;
+	desc.num_levels = array::size(levels);
+	desc.fade_mode = fade_mode;
+	desc.level = level;
+
+	RETURN_IF_FALSE(desc.level == -1 || (u32)desc.level < desc.num_levels
+		, opts
+		, "LOD group level must be -1 or a valid LOD index"
+		);
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(desc.num_levels);
+	bw.write(desc.fade_mode);
+	bw.write(desc.level);
+	for (u32 i = 0; i < array::size(levels); ++i) {
+		bw.write(levels[i].unit_index);
+		bw.write(levels[i].screen_size);
+	}
 	return 0;
 }
 
@@ -1113,6 +1222,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "mesh_renderer",           &compile_mesh_renderer,                       1.0f);
 	unit_compiler::register_component_compiler(*this, "sprite_renderer",         &compile_sprite_renderer,                     1.0f);
 	unit_compiler::register_component_compiler(*this, "light",                   &compile_light,                               1.0f);
+	unit_compiler::register_component_compiler(*this, "lod_group",               &compile_lod_group,                           2.0f);
 	unit_compiler::register_component_compiler(*this, "script",                  &compile_script,                              1.0f);
 	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider, 1.0f);
 	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,    2.0f);

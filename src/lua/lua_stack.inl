@@ -319,6 +319,12 @@ inline SpriteId LuaStack::get_sprite_instance(int i)
 	return inst;
 }
 
+inline LodGroupId LuaStack::get_lod_group_instance(int i)
+{
+	LodGroupId inst = { get_id(i) };
+	return inst;
+}
+
 inline LightId LuaStack::get_light_instance(int i)
 {
 	LightId inst = { get_id(i) };

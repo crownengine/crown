@@ -479,6 +479,17 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string set_lod_group(Guid id
+		, double level
+		, string mode
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_lod_group(%.17g, \"%s\")".printf(id.to_string()
+			, level
+			, mode
+			);
+	}
+
 	public string set_fog(Guid id
 		, Vector3 color
 		, double density

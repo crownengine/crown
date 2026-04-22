@@ -70,6 +70,7 @@ struct World
 
 	ListNode _node;
 	UnitId _skydome_unit;
+	f32 _dt;
 
 	UnitDestroyCallback _unit_destroy_callback;
 

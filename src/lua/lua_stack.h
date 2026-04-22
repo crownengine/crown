@@ -227,6 +227,9 @@ struct LuaStack
 	SpriteId get_sprite_instance(int i);
 
 	///
+	LodGroupId get_lod_group_instance(int i);
+
+	///
 	LightId get_light_instance(int i);
 
 	///

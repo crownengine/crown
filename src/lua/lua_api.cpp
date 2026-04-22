@@ -73,6 +73,29 @@ static LightType::Enum name_to_light_type(const char *name)
 	return LightType::COUNT;
 }
 
+struct LodFadeModeInfo
+{
+	const char *name;
+	LodFadeMode::Enum type;
+};
+
+static const LodFadeModeInfo s_lod_fade_mode[] =
+{
+	{ "none",      LodFadeMode::NONE      },
+	{ "crossfade", LodFadeMode::CROSSFADE }
+};
+CE_STATIC_ASSERT(countof(s_lod_fade_mode) == LodFadeMode::COUNT);
+
+static LodFadeMode::Enum name_to_lod_fade_mode(const char *name)
+{
+	for (u32 i = 0; i < countof(s_lod_fade_mode); ++i) {
+		if (strcmp(s_lod_fade_mode[i].name, name) == 0)
+			return s_lod_fade_mode[i].type;
+	}
+
+	return LodFadeMode::COUNT;
+}
+
 struct ProjectionInfo
 {
 	const char *name;
@@ -2523,6 +2546,42 @@ void load_api(LuaEnvironment &env)
 			stack.push_int(layer);
 			stack.push_int(depth);
 			return 3;
+		});
+	env.add_module_function("RenderWorld", "lod_group_instance", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			LodGroupId inst = stack.get_render_world(1)->lod_group_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "lod_group_obb", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			OBB obb = stack.get_render_world(1)->lod_group_obb(stack.get_lod_group_instance(2));
+			stack.push_matrix4x4(obb.tm);
+			stack.push_vector3(obb.half_extents);
+			return 2;
+		});
+	env.add_module_function("RenderWorld", "lod_group_set_obb", [](lua_State *L) {
+			LuaStack stack(L);
+			OBB obb = { stack.get_matrix4x4(3), stack.get_vector3(4) };
+			stack.get_render_world(1)->lod_group_set_obb(stack.get_lod_group_instance(2), obb);
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "lod_group_set_level", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->lod_group_set_level(stack.get_lod_group_instance(2), stack.get_int(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "lod_group_set_mode", [](lua_State *L) {
+			LuaStack stack(L);
+			const char *name = stack.get_string(3);
+			const LodFadeMode::Enum mode = name_to_lod_fade_mode(name);
+			LUA_ASSERT(mode != LodFadeMode::COUNT, stack, "Unknown LOD fade mode: '%s'", name);
+			stack.get_render_world(1)->lod_group_set_mode(stack.get_lod_group_instance(2), mode);
+			return 0;
 		});
 	env.add_module_function("RenderWorld", "light_create", [](lua_State *L) {
 			LuaStack stack(L, +1);

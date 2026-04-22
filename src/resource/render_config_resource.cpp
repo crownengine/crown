@@ -85,6 +85,9 @@ namespace render_settings
 			} else if (cur->first == "local_lights_distance_culling_cutoff") {
 				Value v; v.type = Value::FLOAT; v.value.f = RETURN_IF_ERROR(sjson::parse_float(cur->second));
 				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "lod_fade_duration") {
+				Value v; v.type = Value::FLOAT; v.value.f = RETURN_IF_ERROR(sjson::parse_float(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else {
 				logw(RENDER_CONFIG_RESOURCE
 					, "Unknown render_settings property '%.*s'"
@@ -137,6 +140,8 @@ namespace render_settings
 				rs.local_lights_distance_culling_fade = v.value.f;
 			} else if (key == STRING_ID_32("local_lights_distance_culling_cutoff", UINT32_C(0x8fa8d89a))) {
 				rs.local_lights_distance_culling_cutoff = v.value.f;
+			} else if (key == STRING_ID_32("lod_fade_duration", UINT32_C(0x98ff46dd))) {
+				rs.lod_fade_duration = v.value.f;
 			} else {
 				logw(RENDER_CONFIG_RESOURCE
 					, "Unknown render_settings property 0x%08x"
@@ -191,6 +196,7 @@ namespace render_config_resource_internal
 		rcr.render_settings.local_lights_shadow_map_size = { 2048.0f, 2048.0f };
 		rcr.render_settings.local_lights_distance_culling_fade = 30.0f;
 		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;
+		rcr.render_settings.lod_fade_duration = 0.2f;
 		rcr.render_settings.msaa_quality = msaa_quality_samples(STRING_ID_32("ultra", UINT32_C(0xf13839af)));
 
 		// Parse.
@@ -215,6 +221,7 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.local_lights_shadow_map_size);
 		opts.write(rcr.render_settings.local_lights_distance_culling_fade);
 		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
+		opts.write(rcr.render_settings.lod_fade_duration);
 		opts.write(rcr.render_settings.msaa_quality);
 
 		return 0;

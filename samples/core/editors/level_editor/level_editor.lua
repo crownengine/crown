@@ -1845,6 +1845,8 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "mover" then
 		local inst = PhysicsWorld.mover_instance(self._pw, unit_id)
 		if inst then PhysicsWorld.mover_destroy(self._pw, inst) end
+	elseif component_type == "lod_group" then
+		-- Nothing to do.
 	elseif component_type == "animation_state_machine" then
 		-- Nothing to do.
 	else

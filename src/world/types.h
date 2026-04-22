@@ -187,6 +187,7 @@ struct RenderableFlags
 	{
 		VISIBLE       = u32(1) << 0,
 		SHADOW_CASTER = u32(1) << 1,
+		LOD_LEVEL     = u32(1) << 2,
 
 		DIRTY         = u32(1) << 31,
 	};
@@ -201,6 +202,20 @@ struct SpriteFlags
 	{
 		FLIP_X = u32(1) << 31,
 		FLIP_Y = u32(1) << 30
+	};
+};
+
+/// Enumerates LOD group fade modes.
+///
+/// @ingroup World
+struct LodFadeMode
+{
+	enum Enum : u32
+	{
+		NONE,      ///< LODs are swapped immediately with no transition in-between.
+		CROSSFADE, ///< Time-based crossfading.
+
+		COUNT
 	};
 };
 
@@ -331,6 +346,7 @@ INSTANCE_ID(TransformId)
 INSTANCE_ID(CameraId)
 INSTANCE_ID(MeshId)
 INSTANCE_ID(SpriteId)
+INSTANCE_ID(LodGroupId)
 INSTANCE_ID(LightId)
 INSTANCE_ID(FogId)
 INSTANCE_ID(GlobalLightingId)
@@ -367,6 +383,25 @@ struct SpriteRendererDesc
 	u32 depth;                    ///< Depth in layer
 	u32 flags;                    ///< SpriteFlags::Enum | RenderableFlags::Enum
 	char _pad[4];
+};
+
+/// LOD group component header.
+///
+/// @ingroup World
+struct LodGroupDesc
+{
+	u32 num_levels; ///< Number of LodDesc entries following this header.
+	u32 fade_mode;  ///< LodFadeMode::Enum.
+	s32 level;      ///< Manual LOD level, or -1 for automatic selection.
+};
+
+/// LOD group level description.
+///
+/// @ingroup World
+struct LodDesc
+{
+	u32 unit_index;  ///< Index of unit that owns the mesh renderer component, or UINT32_MAX.
+	f32 screen_size; ///< Screen-height threshold in [0, 1].
 };
 
 /// Animation state machine description.

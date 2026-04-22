@@ -18,6 +18,8 @@ const string OBJECT_TYPE_FONT_GLYPH              = "font_glyph";
 const string OBJECT_TYPE_GLOBAL_LIGHTING         = "global_lighting";
 const string OBJECT_TYPE_LEVEL                   = "level";
 const string OBJECT_TYPE_LIGHT                   = "light";
+const string OBJECT_TYPE_LOD_GROUP               = "lod_group";
+const string OBJECT_TYPE_LOD_LEVEL               = "lod_level";
 const string OBJECT_TYPE_MATERIAL                = "material";
 const string OBJECT_TYPE_MESH                    = "mesh";
 const string OBJECT_TYPE_MESH_ANIMATION          = "mesh_animation";
@@ -51,7 +53,8 @@ const string OBJECT_TYPE_UNIT                    = "unit";
 //   light         1101
 //   mesh          1102
 //   sprite        1103
-//   fog           1104
+//   lod_group     1104
+//   fog           1105
 // physics         2000
 //   collider      2100
 //   actor         2101
@@ -375,6 +378,71 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_LIGHT
 		, properties
 		, 1101
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_TRANSFORM
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_MESH_RENDERER),
+			name = "data.mesh_renderer",
+			deffault = GUID_ZERO,
+			tooltip = "Mesh to render at this LOD level.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name =  "data.screen_size",
+			min = 0.0,
+			max = 1.0,
+			deffault = 1.0,
+			tooltip = "Activate this LOD level when the group height covers this screen percentage or less.",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_LOD_LEVEL
+		, properties
+		, 1104
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "data.lod_levels",
+			object_type = StringId64(OBJECT_TYPE_LOD_LEVEL),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.fade_mode",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "none", "crossfade" },
+			deffault = "none",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.level",
+			min = -1.0,
+			deffault = -1.0,
+			tooltip = "Manual LOD level to render. Use -1 for automatic selection.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 2.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_LOD_GROUP
+		, properties
+		, 1104
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -906,7 +974,7 @@ public static void create_object_types(Database database)
 	};
 	database.create_object_type(OBJECT_TYPE_FOG
 		, properties
-		, 1104
+		, 1105
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 

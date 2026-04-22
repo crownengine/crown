@@ -18,6 +18,9 @@ render_settings = {
 	// Distance from camera at which local lights disappear.
 	// local_lights_distance_culling_cutoff = 60
 
+	// Duration in seconds of LOD crossfades.
+	// lod_fade_duration = 0.2
+
 	// Whether bloom post-processing effect is enabled.
 	// bloom = true
 
