@@ -1,6 +1,16 @@
 Changelog
 =========
 
+.. _v0.62.2:
+
+:ref:`0.62.2 --- 22 Apr 2026 <v0.62.2>`
+---------------------------------------
+
+**Fixes**
+
+* Data Compiler: fixed generation of meshes with high vertex count.
+* Data Compiler: fixed slow mesh compilation.
+
 .. _v0.62.1:
 
 :ref:`0.62.1 --- 16 Apr 2026 <v0.62.1>`
