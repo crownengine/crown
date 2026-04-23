@@ -333,7 +333,7 @@ namespace mesh
 
 	// Finds the tightest bounding sphere by calling add_points() multiple times on the same
 	// randomly ordered positions. Uses a seed dependent on initial positions to guarantee stable
-	// reults.
+	// results.
 	static Sphere sphere(Geometry &g)
 	{
 		const u32 MAX_TRIES = 256;
