@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-13T01:52:36+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-04-22T20:39:16+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -147,6 +147,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#renderworld">RenderWorld</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mesh">Mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sprite">Sprite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lodgroup">LODGroup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#light">Light</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fog">Fog</a></li>
 </ul>
@@ -1258,6 +1259,22 @@ intersection point with the <em>sprite</em> or -1.0 if no intersection.</p>
 </dd>
 </dl>
 </section>
+<section id="lodgroup">
+<h3>LODGroup<a class="headerlink" href="#lodgroup" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt><strong>lod_group_instance</strong> (rw, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the LOD group owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</p>
+</dd>
+<dt><strong>lod_group_obb</strong> (rw, lod_group)<span class="classifier">Matrix4x4, Vector3</span></dt><dd><p>Returns the local-space Oriented-Bounding-Box of the <em>lod_group</em> as (pose, half_extents).</p>
+</dd>
+<dt><strong>lod_group_set_obb</strong> (rw, lod_group, pose, half_extents)</dt><dd><p>Sets the local-space Oriented-Bounding-Box of the <em>lod_group</em>.</p>
+</dd>
+<dt><strong>lod_group_set_level</strong> (rw, lod_group, level)</dt><dd><p>Sets the LOD <em>level</em> to render. Pass -1 to enable automatic LOD selection.</p>
+</dd>
+<dt><strong>lod_group_set_mode</strong> (rw, lod_group, mode)</dt><dd><p>Sets the fade <em>mode</em> of the <em>lod_group</em>.
+<em>mode</em> can be either <code class="docutils literal notranslate"><span class="pre">none</span></code> or <code class="docutils literal notranslate"><span class="pre">crossfade</span></code>.</p>
+</dd>
+</dl>
+</section>
 <section id="light">
 <h3>Light<a class="headerlink" href="#light" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
@@ -1640,7 +1657,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 13, 2026.
+      <span class="lastupdated">Last updated on Apr 22, 2026.
       </span></p>
   </div>
 

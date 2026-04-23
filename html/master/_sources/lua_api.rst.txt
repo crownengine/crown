@@ -1302,6 +1302,25 @@ Sprite
 	Returns (t, layer, depth), where *t* is the distance along ray (from, dir) to
 	intersection point with the *sprite* or -1.0 if no intersection.
 
+LODGroup
+--------
+
+**lod_group_instance** (rw, unit) : Id
+	Returns the ID of the LOD group owned by the *unit*, or ``nil``.
+
+**lod_group_obb** (rw, lod_group) : Matrix4x4, Vector3
+	Returns the local-space Oriented-Bounding-Box of the *lod_group* as (pose, half_extents).
+
+**lod_group_set_obb** (rw, lod_group, pose, half_extents)
+	Sets the local-space Oriented-Bounding-Box of the *lod_group*.
+
+**lod_group_set_level** (rw, lod_group, level)
+	Sets the LOD *level* to render. Pass -1 to enable automatic LOD selection.
+
+**lod_group_set_mode** (rw, lod_group, mode)
+	Sets the fade *mode* of the *lod_group*.
+	*mode* can be either ``none`` or ``crossfade``.
+
 Light
 -----
 
