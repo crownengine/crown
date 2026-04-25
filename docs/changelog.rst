@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.3 --- DD MMM YYYY <v0.62.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
+
 .. _v0.62.2:
 
 :ref:`0.62.2 --- 22 Apr 2026 <v0.62.2>`

@@ -902,6 +902,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.Button _btn_back;
 	public Gtk.Button _btn_forward;
 	public Gtk.Entry _address_bar;
+	public Gtk.EventControllerKey _controller_key;
 
 	public bool _hide_core_resources;
 	public BrowseMode _browse_mode;
@@ -909,6 +910,9 @@ public class ProjectBrowser : Gtk.Box
 	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
+
+		_controller_key = new Gtk.EventControllerKey(this);
+		_controller_key.key_pressed.connect(on_key_pressed);
 
 		// Data
 		_project_store = project_store;
@@ -1410,6 +1414,17 @@ public class ProjectBrowser : Gtk.Box
 	public void on_show()
 	{
 		_filter_entry_tree.set_visible(!_show_folder_view);
+	}
+
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Escape
+			&& _browse_mode == BrowseMode.SEARCH) {
+			on_stop_search();
+			return Gdk.EVENT_STOP;
+		}
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
