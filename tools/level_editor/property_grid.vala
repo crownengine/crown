@@ -197,6 +197,8 @@ public class PropertyGrid : Gtk.Grid
 			case PropertyType.VECTOR3:
 				if (def.editor == PropertyEditorType.COLOR)
 					p = new InputColor3();
+				else if (def.editor == PropertyEditorType.ANGLE)
+					p = new InputAngle3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				else
 					p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				break;
