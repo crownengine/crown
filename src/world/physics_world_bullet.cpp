@@ -86,6 +86,7 @@ namespace physics_globals
 	static ProxyAllocator *_heap_allocator;
 	static bool _debug_enabled;
 	static u32 _debug_flags;
+	static f32 _debug_scale;
 
 	static u32 parameter_flag(StringId32 parameter)
 	{
@@ -110,9 +111,15 @@ namespace physics_globals
 		return mode;
 	}
 
+	static btScalar scale_debug_primitive(btScalar size)
+	{
+		return _debug_scale > 0.0f ? size*_debug_scale : size;
+	}
+
 	static void command_help()
 	{
 		logi(PHYSICS, "debug <ON/OFF>      Enable or disable physics debug drawing.");
+		logi(PHYSICS, "scale <VALUE>       Scale debug primitives. 0 disables scaling.");
 		logi(PHYSICS, "show <PARAMETER>    Show a physics visualization parameter.");
 		logi(PHYSICS, "hide <PARAMETER>    Hide a physics visualization parameter.");
 	}
@@ -122,7 +129,7 @@ namespace physics_globals
 		TempAllocator1024 ta;
 
 		if (array::size(args) < 2) {
-			cs.error(client_id, "Usage: physics <debug|show|hide> ...");
+			cs.error(client_id, "Usage: physics <debug|scale|show|hide> ...");
 			return;
 		}
 
@@ -150,6 +157,23 @@ namespace physics_globals
 				cs.error(client_id, "Usage: physics debug <ON/OFF>");
 				return;
 			}
+			return;
+		}
+
+		if (subcmd == "scale") {
+			if (array::size(args) != 3) {
+				cs.error(client_id, "Usage: physics scale <VALUE>");
+				return;
+			}
+
+			DynamicString value(ta);
+			sjson::parse_string(value, args[2]);
+			const f32 scale = sjson::parse_float(value.c_str());
+			if (scale < 0.0f) {
+				cs.error(client_id, "Physics scale must be >= 0");
+				return;
+			}
+			_debug_scale = scale;
 			return;
 		}
 
@@ -219,6 +243,7 @@ namespace physics_globals
 		_linear_allocator = CE_NEW(linear, ProxyAllocator)(linear, "physics");
 		_heap_allocator = CE_NEW(*_linear_allocator, ProxyAllocator)(heap, "physics");
 		_debug_enabled = false;
+		_debug_scale = 0.0f;
 		_debug_flags = DebugFlags::COLLISION_SHAPES
 		;
 
@@ -378,10 +403,11 @@ struct MyDebugDrawer : public btIDebugDraw
 		const Vector3 from = to_vector3(pointOnB);
 		const Color4 debug_color = { color.x, color.y, color.z, 1.0f };
 		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_POINT)
-			_lines->add_sphere(from, 0.1f, debug_color);
+			_lines->add_sphere(from, (f32)physics_globals::scale_debug_primitive(0.1f), debug_color);
 		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_NORMAL) {
 			const Vector3 normal = to_vector3(normalOnB);
-			_lines->add_line(from, from + normal * 0.1f, debug_color);
+			const btScalar normal_length = physics_globals::scale_debug_primitive(btMax(btScalar(0.1f), btFabs(distance)));
+			_lines->add_line(from, from + normal * (f32)normal_length, debug_color);
 		}
 	}
 

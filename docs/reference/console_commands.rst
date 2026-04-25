@@ -109,6 +109,9 @@ parameters:
 ``debug <ON/OFF>``
 	Enable or disable physics debug drawing.
 
+``scale <value>``
+	Scale debug primitives. Collision shapes are never scaled. ``0`` disables scaling.
+
 ``show <parameter>``
 	Show a physics visualization parameter.
 
