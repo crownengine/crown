@@ -17,6 +17,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed units not spawning correctly when opened in the Unit Editor.
+* Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Data Compiler: fixed generation of meshes with high vertex count.
