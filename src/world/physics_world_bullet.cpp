@@ -241,7 +241,7 @@ struct MyDebugDrawer : public btIDebugDraw
 		: _lines(&dl)
 	{
 		_colors.m_activeObject = to_btVector3(COLOR4_ORANGE);
-		_colors.m_deactivatedObject = to_btVector3(COLOR4_ORANGE);
+		_colors.m_deactivatedObject = btVector3(0.45f, 0.65f, 1.0f);
 		_colors.m_wantsDeactivationObject = to_btVector3(COLOR4_ORANGE);
 		_colors.m_disabledDeactivationObject = to_btVector3(COLOR4_ORANGE);
 		_colors.m_disabledSimulationObject = to_btVector3(COLOR4_ORANGE);
