@@ -10,6 +10,7 @@
 #include "core/containers/hash_map.inl"
 #include "core/containers/hash_set.inl"
 #include "core/event_stream.inl"
+#include "core/json/sjson.h"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
@@ -17,8 +18,12 @@
 #include "core/math/vector3.inl"
 #include "core/memory/pool_allocator.h"
 #include "core/memory/proxy_allocator.h"
+#include "core/memory/temp_allocator.inl"
 #include "core/profiler.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string.h"
 #include "core/strings/string_id.inl"
+#include "device/console_server.h"
 #include "device/log.h"
 #include "resource/physics_resource.inl"
 #include "resource/resource_manager.h"
@@ -67,8 +72,111 @@ namespace crown
 {
 namespace physics_globals
 {
+	struct DebugFlags
+	{
+		enum Enum : u32
+		{
+			COLLISION_SHAPES = 1u << 0,
+			CONTACT_POINT    = 1u << 3,
+			CONTACT_NORMAL   = 1u << 4,
+		};
+	};
+
 	static ProxyAllocator *_linear_allocator;
 	static ProxyAllocator *_heap_allocator;
+	static bool _debug_enabled;
+	static u32 _debug_flags;
+
+	static u32 parameter_flag(StringId32 parameter)
+	{
+		if (parameter == STRING_ID_32("collision_shapes", UINT32_C(0xac134232)))
+			return DebugFlags::COLLISION_SHAPES;
+		if (parameter == STRING_ID_32("contact_point", UINT32_C(0x5766de26)))
+			return DebugFlags::CONTACT_POINT;
+		if (parameter == STRING_ID_32("contact_normal", UINT32_C(0x53b44275)))
+			return DebugFlags::CONTACT_NORMAL;
+		return 0u;
+	}
+
+	static int debug_mode()
+	{
+		int mode = btIDebugDraw::DBG_NoDebug;
+
+		if (_debug_flags & DebugFlags::COLLISION_SHAPES)
+			mode |= btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_FastWireframe;
+		if (_debug_flags & (DebugFlags::CONTACT_POINT | DebugFlags::CONTACT_NORMAL))
+			mode |= btIDebugDraw::DBG_DrawContactPoints;
+
+		return mode;
+	}
+
+	static void command_help()
+	{
+		logi(PHYSICS, "debug <ON/OFF>      Enable or disable physics debug drawing.");
+		logi(PHYSICS, "show <PARAMETER>    Show a physics visualization parameter.");
+		logi(PHYSICS, "hide <PARAMETER>    Hide a physics visualization parameter.");
+	}
+
+	static void console_command_physics(ConsoleServer &cs, u32 client_id, const JsonArray &args, void * /*user_data*/)
+	{
+		TempAllocator1024 ta;
+
+		if (array::size(args) < 2) {
+			cs.error(client_id, "Usage: physics <debug|show|hide> ...");
+			return;
+		}
+
+		DynamicString subcmd(ta);
+		sjson::parse_string(subcmd, args[1]);
+
+		if (subcmd == "help") {
+			command_help();
+			return;
+		}
+
+		if (subcmd == "debug") {
+			if (array::size(args) != 3) {
+				cs.error(client_id, "Usage: physics debug <ON/OFF>");
+				return;
+			}
+
+			DynamicString value(ta);
+			sjson::parse_string(value, args[2]);
+			if (value.length() == 2 && strncasecmp(value.c_str(), "on", 2) == 0) {
+				_debug_enabled = true;
+			} else if (value.length() == 3 && strncasecmp(value.c_str(), "off", 3) == 0) {
+				_debug_enabled = false;
+			} else {
+				cs.error(client_id, "Usage: physics debug <ON/OFF>");
+				return;
+			}
+			return;
+		}
+
+		if (subcmd == "show" || subcmd == "hide") {
+			if (array::size(args) != 3) {
+				cs.error(client_id, "Usage: physics <show|hide> <PARAMETER>");
+				return;
+			}
+
+			DynamicString parameter_name(ta);
+			sjson::parse_string(parameter_name, args[2]);
+
+			const u32 flag = parameter_flag(parameter_name.to_string_id());
+			if (flag == 0u) {
+				cs.error(client_id, "Unknown physics visualization parameter");
+				return;
+			}
+
+			if (subcmd == "show")
+				_debug_flags |= flag;
+			else
+				_debug_flags &= ~flag;
+			return;
+		}
+
+		cs.error(client_id, "Unknown physics command");
+	}
 
 	inline void *aligned_alloc_func(size_t size, int alignment)
 	{
@@ -106,10 +214,13 @@ namespace physics_globals
 	static btBroadphaseInterface *_bt_interface;
 	static btSequentialImpulseConstraintSolver *_bt_solver;
 
-	void init(Allocator &linear, Allocator &heap, const PhysicsSettings *settings)
+	void init(Allocator &linear, Allocator &heap, ConsoleServer &cs, const PhysicsSettings *settings)
 	{
 		_linear_allocator = CE_NEW(linear, ProxyAllocator)(linear, "physics");
 		_heap_allocator = CE_NEW(*_linear_allocator, ProxyAllocator)(heap, "physics");
+		_debug_enabled = false;
+		_debug_flags = DebugFlags::COLLISION_SHAPES
+		;
 
 		btAlignedAllocSetCustom(alloc_func, free_func);
 		btAlignedAllocSetCustomAligned(aligned_alloc_func, aligned_free_func);
@@ -122,6 +233,8 @@ namespace physics_globals
 		_bt_dispatcher    = CE_NEW(*_linear_allocator, btCollisionDispatcher)(_bt_configuration);
 		_bt_interface     = CE_NEW(*_linear_allocator, btDbvtBroadphase);
 		_bt_solver        = CE_NEW(*_linear_allocator, btSequentialImpulseConstraintSolver);
+
+		cs.register_command_name("physics", "Configure physics debug visualization.", console_command_physics, NULL);
 	}
 
 	void shutdown(Allocator &linear, Allocator &heap)
@@ -253,14 +366,23 @@ struct MyDebugDrawer : public btIDebugDraw
 	{
 		const Vector3 start = to_vector3(from);
 		const Vector3 end = to_vector3(to);
-		_lines->add_line(start, end, { color.x, color.y, color.z, 1.0f });
+		const btVector3 visible = color.length2() == btScalar(0.0f)
+			? to_btVector3(COLOR4_ORANGE)
+			: color;
+		_lines->add_line(start, end, { visible.x, visible.y, visible.z, 1.0f });
 	}
 
 	void drawContactPoint(const btVector3 &pointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color) override
 	{
-		CE_UNUSED_3(normalOnB, distance, lifeTime);
+		CE_UNUSED_2(distance, lifeTime);
 		const Vector3 from = to_vector3(pointOnB);
-		_lines->add_sphere(from, 0.1f, { color.x, color.y, color.z, 1.0f });
+		const Color4 debug_color = { color.x, color.y, color.z, 1.0f };
+		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_POINT)
+			_lines->add_sphere(from, 0.1f, debug_color);
+		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_NORMAL) {
+			const Vector3 normal = to_vector3(normalOnB);
+			_lines->add_line(from, from + normal * 0.1f, debug_color);
+		}
 	}
 
 	void reportErrorWarning(const char *warningString) override
@@ -278,11 +400,7 @@ struct MyDebugDrawer : public btIDebugDraw
 
 	int getDebugMode() const override
 	{
-		return DBG_DrawWireframe
-			| DBG_DrawConstraints
-			| DBG_DrawConstraintLimits
-			| DBG_FastWireframe
-			;
+		return physics_globals::debug_mode();
 	}
 
 	DefaultColors getDefaultColors() const override
@@ -2194,7 +2312,10 @@ struct PhysicsWorldImpl
 
 	void debug_draw()
 	{
-		if (!_debug_drawing)
+		if (!_debug_drawing && !physics_globals::_debug_enabled)
+			return;
+
+		if (_debug_drawer.getDebugMode() == btIDebugDraw::DBG_NoDebug)
 			return;
 
 		_dynamics_world->debugDrawWorld();

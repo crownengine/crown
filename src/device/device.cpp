@@ -801,7 +801,7 @@ int Device::main_loop()
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
 
-	physics_globals::init(_allocator, default_allocator(), &_boot_config.physics_settings);
+	physics_globals::init(_allocator, default_allocator(), *_console_server, &_boot_config.physics_settings);
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());

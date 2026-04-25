@@ -16,9 +16,9 @@ namespace crown
 {
 namespace physics_globals
 {
-	void init(Allocator &a, const PhysicsSettings *settings)
+	void init(Allocator &a, Allocator &heap, ConsoleServer &cs, const PhysicsSettings *settings)
 	{
-		CE_UNUSED_2(a, settings);
+		CE_UNUSED_4(a, heap, cs, settings);
 	}
 
 	void shutdown(Allocator &a)

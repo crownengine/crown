@@ -9,6 +9,8 @@
 
 namespace crown
 {
+struct ConsoleServer;
+
 /// Global physics settings.
 /// @ingroup World
 struct PhysicsSettings
@@ -24,7 +26,7 @@ namespace physics_globals
 {
 	/// Initializes the physics system.
 	/// This is the place where to create and initialize per-application objects.
-	void init(Allocator &linear, Allocator &heap, const PhysicsSettings *settings);
+	void init(Allocator &linear, Allocator &heap, ConsoleServer &cs, const PhysicsSettings *settings);
 
 	/// It should reverse the actions performed by physics_globals::init().
 	void shutdown(Allocator &linear, Allocator &heap);

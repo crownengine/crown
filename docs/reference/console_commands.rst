@@ -99,3 +99,24 @@ parameters:
 
 ``samples <graph> <samples>``
 	Set the number of samples to show in a graph.
+
+physics
+-------
+
+Configure physics debug visualization. The command accepts the following
+parameters:
+
+``debug <ON/OFF>``
+	Enable or disable physics debug drawing.
+
+``show <parameter>``
+	Show a physics visualization parameter.
+
+``hide <parameter>``
+	Hide a physics visualization parameter.
+
+The ``show`` and ``hide`` parameters can be one of:
+
+``collision_shapes``
+``contact_point``
+``contact_normal``
