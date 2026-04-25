@@ -32,7 +32,7 @@ BootConfig::BootConfig(Allocator &a)
 	, aspect_ratio(-1.0f)
 	, vsync(true)
 	, fullscreen(false)
-	, physics_settings({ 60, 4 })
+	, physics_settings({ 60, 4, 10, 0.5f })
 	, render_settings(a)
 {
 }
@@ -68,6 +68,10 @@ static void parse_physics(PhysicsSettings *settings, const char *json)
 			settings->step_frequency = sjson::parse_int(cur->second);
 		} else if (cur->first == "max_substeps") {
 			settings->max_substeps = sjson::parse_int(cur->second);
+		} else if (cur->first == "solver_iterations") {
+			settings->solver_iterations = sjson::parse_int(cur->second);
+		} else if (cur->first == "sleep_threshold") {
+			settings->sleep_threshold = sjson::parse_float(cur->second);
 		} else {
 			logw(BOOT_CONFIG
 				, "Unknown physics property '%.*s'"

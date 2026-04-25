@@ -17,6 +17,8 @@ struct PhysicsSettings
 {
 	s32 step_frequency;
 	s32 max_substeps;
+	s32 solver_iterations;
+	f32 sleep_threshold;
 };
 
 /// Global physics-related functions

@@ -1329,6 +1329,7 @@ struct PhysicsWorldImpl
 		_config_resource = (PhysicsConfigResource *)rm.get(RESOURCE_TYPE_PHYSICS_CONFIG, STRING_ID_64("global", 0x0b2f08fe66e395c0));
 
 		_dynamics_world->setGravity(to_btVector3(_config_resource->gravity));
+		_dynamics_world->getSolverInfo().m_numIterations = physics_globals::_settings.solver_iterations;
 		_dynamics_world->getCollisionWorld()->setDebugDrawer(&_debug_drawer);
 		_dynamics_world->setInternalTickCallback(tick_cb, this);
 		_dynamics_world->getPairCache()->setInternalGhostPairCallback(&_ghost_pair_callback);
@@ -1544,8 +1545,8 @@ struct PhysicsWorldImpl
 			rbinfo.m_friction                 = material->friction;
 			rbinfo.m_rollingFriction          = material->rolling_friction;
 			rbinfo.m_spinningFriction         = material->spinning_friction;
-			rbinfo.m_linearSleepingThreshold  = 0.5f; // FIXME
-			rbinfo.m_angularSleepingThreshold = 0.7f; // FIXME
+			rbinfo.m_linearSleepingThreshold  = physics_globals::_settings.sleep_threshold;
+			rbinfo.m_angularSleepingThreshold = physics_globals::_settings.sleep_threshold;
 
 			// Create rigid body
 			btRigidBody *body = CE_NEW(_bodies_pool, btRigidBody)(rbinfo);

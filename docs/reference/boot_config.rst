@@ -86,6 +86,13 @@ Physics configurations
 	A value of 4 at 60 Hz means the physics simulation is allowed to simulate up to ~0.067 seconds (4/60) worth of physics per frame.
 	If one frame takes longer than ``max_substeps/step_frequency`` then physics will appear slowed down.
 
+``solver_iterations = 10``
+	The number of global solver iterations used for physics constraints.
+	Higher values generally improve stability and joint accuracy at the expense of compute time.
+
+``sleep_threshold = 0.5``
+	The default sleeping threshold applied to rigid bodies.
+
 Other settings
 ~~~~~~~~~~~~~~
 
