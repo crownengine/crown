@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-18T18:14:43+00:00" /><meta property="og:title" content="boot.config reference" />
+    <meta property="article:modified_time" content="2026-04-25T17:37:03+00:00" /><meta property="og:title" content="boot.config reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/boot_config.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -191,6 +191,11 @@ Higher values means a more accurate simulation at the expense of compute time.</
 A value of 4 at 60 Hz means the physics simulation is allowed to simulate up to ~0.067 seconds (4/60) worth of physics per frame.
 If one frame takes longer than <code class="docutils literal notranslate"><span class="pre">max_substeps/step_frequency</span></code> then physics will appear slowed down.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">solver_iterations</span> <span class="pre">=</span> <span class="pre">10</span></code></dt><dd><p>The number of global solver iterations used for physics constraints.
+Higher values generally improve stability and joint accuracy at the expense of compute time.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">sleep_threshold</span> <span class="pre">=</span> <span class="pre">0.5</span></code></dt><dd><p>The default sleeping threshold applied to rigid bodies.</p>
+</dd>
 </dl>
 </section>
 <section id="other-settings">
@@ -218,7 +223,7 @@ directory is mandatory if you plan to use the SaveGame system.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 18, 2026.
+      <span class="lastupdated">Last updated on Apr 25, 2026.
       </span></p>
   </div>
 

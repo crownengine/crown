@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Console commands" />
+    <meta property="article:modified_time" content="2026-04-25T14:35:44+00:00" /><meta property="og:title" content="Console commands" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/console_commands.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -77,6 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#unpause">unpause</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pause">pause</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#graph">graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physics">physics</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
@@ -196,6 +197,25 @@ or <code class="docutils literal notranslate"><span class="pre">blue</span></cod
 </dd>
 </dl>
 </section>
+<section id="physics">
+<h2>physics<a class="headerlink" href="#physics" title="Permalink to this headline">¶</a></h2>
+<p>Configure physics debug visualization. The command accepts the following
+parameters:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">debug</span> <span class="pre">&lt;ON/OFF&gt;</span></code></dt><dd><p>Enable or disable physics debug drawing.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">scale</span> <span class="pre">&lt;value&gt;</span></code></dt><dd><p>Scale debug primitives. Collision shapes are never scaled. <code class="docutils literal notranslate"><span class="pre">0</span></code> disables scaling.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">&lt;parameter&gt;</span></code></dt><dd><p>Show a physics visualization parameter.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">hide</span> <span class="pre">&lt;parameter&gt;</span></code></dt><dd><p>Hide a physics visualization parameter.</p>
+</dd>
+</dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">show</span></code> and <code class="docutils literal notranslate"><span class="pre">hide</span></code> parameters can be one of:</p>
+<p><code class="docutils literal notranslate"><span class="pre">collision_shapes</span></code>
+<code class="docutils literal notranslate"><span class="pre">contact_point</span></code>
+<code class="docutils literal notranslate"><span class="pre">contact_normal</span></code></p>
+</section>
 </section>
 
 
@@ -210,7 +230,7 @@ or <code class="docutils literal notranslate"><span class="pre">blue</span></cod
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 16, 2026.
+      <span class="lastupdated">Last updated on Apr 25, 2026.
       </span></p>
   </div>
 
