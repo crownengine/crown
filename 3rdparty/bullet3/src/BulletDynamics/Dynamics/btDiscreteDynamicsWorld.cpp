@@ -1117,7 +1117,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 {
 	bool drawFrames = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawConstraints) != 0;
 	bool drawLimits = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawConstraintLimits) != 0;
-	btScalar dbgDrawSize = constraint->getDbgDrawSize();
+	btScalar dbgDrawSize = constraint->getDbgDrawSize() * getDebugDrawer()->constraintDebugDrawScale();
 	if (dbgDrawSize <= btScalar(0.f))
 	{
 		return;

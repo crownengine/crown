@@ -132,6 +132,11 @@ public:
 
 	virtual int getDebugMode() const = 0;
 
+	virtual btScalar constraintDebugDrawScale() const
+	{
+		return btScalar(1.0f);
+	}
+
 	virtual void drawAabb(const btVector3& from, const btVector3& to, const btVector3& color)
 	{
 		btVector3 halfExtents = (to - from) * 0.5f;
