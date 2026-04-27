@@ -1777,6 +1777,66 @@ function LevelEditor:add_mover_component(id, component_id, height, radius, max_s
 	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter)
 end
 
+function LevelEditor:add_joint_component(id, component_id, joint_type, pose, other_actor_unit_id, other_pose)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	if PhysicsWorld.joint_instance(self._pw, unit_id) ~= nil then return end
+
+	local actor = PhysicsWorld.actor_instance(self._pw, unit_id)
+	if actor == nil then return end
+
+	local other_actor = nil
+	if other_actor_unit_id ~= nil then
+		local other_actor_unit_box = self._objects[other_actor_unit_id]
+		if other_actor_unit_box == nil then return end
+
+		other_actor = PhysicsWorld.actor_instance(self._pw, other_actor_unit_box:unit_id())
+		if other_actor == nil then return end
+	end
+
+	local jt = nil
+	if joint_type == "fixed_joint" then
+		jt = JointType.FIXED
+	elseif joint_type == "hinge_joint" then
+		jt = JointType.HINGE
+	elseif joint_type == "spherical_joint" then
+		jt = JointType.SPHERICAL
+	elseif joint_type == "limb_joint" then
+		jt = JointType.LIMB
+	elseif joint_type == "spring_joint" then
+		jt = JointType.SPRING
+	elseif joint_type == "d6_joint" then
+		jt = JointType.D6
+	else
+		assert(false)
+	end
+
+	if joint_type == "fixed_joint" then
+		if other_actor ~= nil then
+			local actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, actor)
+			local other_actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, other_actor)
+			PhysicsWorld.joint_create(self._pw
+				, jt
+				, actor
+				, Matrix4x4.identity()
+				, other_actor
+				, Matrix4x4.multiply(Matrix4x4.invert(other_actor_world_pose), actor_world_pose)
+				)
+		else
+			PhysicsWorld.joint_create(self._pw
+				, jt
+				, actor
+				, Matrix4x4.identity()
+				, other_actor
+				, PhysicsWorld.actor_world_pose(self._pw, actor)
+				)
+		end
+		return
+	end
+
+	PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose)
+end
+
 function LevelEditor:add_fog_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1845,6 +1905,15 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "mover" then
 		local inst = PhysicsWorld.mover_instance(self._pw, unit_id)
 		if inst then PhysicsWorld.mover_destroy(self._pw, inst) end
+	elseif component_type == "joint"
+		or component_type == "fixed_joint"
+		or component_type == "hinge_joint"
+		or component_type == "spring_joint"
+		or component_type == "spherical_joint"
+		or component_type == "d6_joint"
+		or component_type == "limb_joint" then
+		local inst = PhysicsWorld.joint_instance(self._pw, unit_id)
+		if inst then PhysicsWorld.joint_destroy(self._pw, inst) end
 	elseif component_type == "lod_group" then
 		-- Nothing to do.
 	elseif component_type == "animation_state_machine" then

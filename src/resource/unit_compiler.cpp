@@ -1352,22 +1352,27 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	, _current_unit_index(UINT32_MAX)
 	, _num_units(0)
 {
-	unit_compiler::register_component_compiler(*this, "transform",               &compile_transform,                           0.0f);
-	unit_compiler::register_component_compiler(*this, "camera",                  &compile_camera,                              1.0f);
-	unit_compiler::register_component_compiler(*this, "mesh_renderer",           &compile_mesh_renderer,                       1.0f);
-	unit_compiler::register_component_compiler(*this, "sprite_renderer",         &compile_sprite_renderer,                     1.0f);
-	unit_compiler::register_component_compiler(*this, "light",                   &compile_light,                               1.0f);
-	unit_compiler::register_component_compiler(*this, "lod_group",               &compile_lod_group,                           2.0f);
-	unit_compiler::register_component_compiler(*this, "script",                  &compile_script,                              1.0f);
-	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider, 1.0f);
-	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,    2.0f);
-	unit_compiler::register_component_compiler(*this, "mover",                   &physics_resource_internal::compile_mover,    2.0f);
-	unit_compiler::register_component_compiler(*this, "joint",                   &physics_resource_internal::compile_joint,    3.0f);
-	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,             3.0f);
-	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                 0.0f);
-	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                     0.0f);
-	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                               0.0f);
-	unit_compiler::register_component_compiler(*this, "tonemap",                 &compile_tonemap,                             0.0f);
+	unit_compiler::register_component_compiler(*this, "transform",               &compile_transform,                                  0.0f);
+	unit_compiler::register_component_compiler(*this, "camera",                  &compile_camera,                                     1.0f);
+	unit_compiler::register_component_compiler(*this, "mesh_renderer",           &compile_mesh_renderer,                              1.0f);
+	unit_compiler::register_component_compiler(*this, "sprite_renderer",         &compile_sprite_renderer,                            1.0f);
+	unit_compiler::register_component_compiler(*this, "light",                   &compile_light,                                      1.0f);
+	unit_compiler::register_component_compiler(*this, "lod_group",               &compile_lod_group,                                  2.0f);
+	unit_compiler::register_component_compiler(*this, "script",                  &compile_script,                                     1.0f);
+	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider,        1.0f);
+	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,           2.0f);
+	unit_compiler::register_component_compiler(*this, "mover",                   &physics_resource_internal::compile_mover,           2.0f);
+	unit_compiler::register_component_compiler(*this, "fixed_joint",             &physics_resource_internal::compile_fixed_joint,     3.0f);
+	unit_compiler::register_component_compiler(*this, "hinge_joint",             &physics_resource_internal::compile_hinge_joint,     3.0f);
+	unit_compiler::register_component_compiler(*this, "spherical_joint",         &physics_resource_internal::compile_spherical_joint, 3.0f);
+	unit_compiler::register_component_compiler(*this, "limb_joint",              &physics_resource_internal::compile_limb_joint,      3.0f);
+	unit_compiler::register_component_compiler(*this, "spring_joint",            &physics_resource_internal::compile_spring_joint,    3.0f);
+	unit_compiler::register_component_compiler(*this, "d6_joint",                &physics_resource_internal::compile_d6_joint,        3.0f);
+	unit_compiler::register_component_compiler(*this, "animation_state_machine", &compile_animation_state_machine,                    3.0f);
+	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                        0.0f);
+	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                            0.0f);
+	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                                      0.0f);
+	unit_compiler::register_component_compiler(*this, "tonemap",                 &compile_tonemap,                                    0.0f);
 }
 
 UnitCompiler::~UnitCompiler()

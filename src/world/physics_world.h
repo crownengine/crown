@@ -245,8 +245,23 @@ struct PhysicsWorld
 	/// Adds the @a mover's debug geometry to @a lines.
 	void mover_debug_draw(MoverId actor, DebugLine *lines, const Color4 &color = COLOR4_ORANGE);
 
-	/// Creates joint
-	JointId joint_create(ActorId a0, ActorId a1, const JointDesc &jd);
+	///
+	void joint_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
+	/// Creates joint.
+	JointId joint_create(JointType::Enum type
+		, ActorId actor
+		, const Matrix4x4 &pose
+		, ActorId other_actor
+		, const Matrix4x4 &other_pose
+		);
+
+	/// Returns the ID of the joint owned by the *unit*.
+	JointId joint_instance(UnitId unit);
 
 	/// Destroys the @a joint.
 	void joint_destroy(JointId joint);

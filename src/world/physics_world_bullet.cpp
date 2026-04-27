@@ -51,10 +51,13 @@
 #include <BulletCollision/CollisionShapes/btSphereShape.h>
 #include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
+#include <BulletDynamics/ConstraintSolver/btConeTwistConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btFixedConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h>
 #include <BulletDynamics/ConstraintSolver/btHingeConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
 #include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
+#include <float.h>
 #include <BulletDynamics/ConstraintSolver/btSliderConstraint.h>
 #define BT_THREADSAFE 0
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
@@ -76,9 +79,11 @@ namespace physics_globals
 	{
 		enum Enum : u32
 		{
-			COLLISION_SHAPES = 1u << 0,
-			CONTACT_POINT    = 1u << 3,
-			CONTACT_NORMAL   = 1u << 4,
+			COLLISION_SHAPES  = u32(1) << 0,
+			JOINT_LOCAL_POSES = u32(1) << 1,
+			JOINT_LIMITS      = u32(1) << 2,
+			CONTACT_POINT     = u32(1) << 3,
+			CONTACT_NORMAL    = u32(1) << 4,
 		};
 	};
 
@@ -90,6 +95,10 @@ namespace physics_globals
 
 	static u32 parameter_flag(StringId32 parameter)
 	{
+		if (parameter == STRING_ID_32("joint_local_poses", UINT32_C(0xd9a44ea6)))
+			return DebugFlags::JOINT_LOCAL_POSES;
+		if (parameter == STRING_ID_32("joint_limits", UINT32_C(0x6e1f2dcd)))
+			return DebugFlags::JOINT_LIMITS;
 		if (parameter == STRING_ID_32("collision_shapes", UINT32_C(0xac134232)))
 			return DebugFlags::COLLISION_SHAPES;
 		if (parameter == STRING_ID_32("contact_point", UINT32_C(0x5766de26)))
@@ -105,15 +114,14 @@ namespace physics_globals
 
 		if (_debug_flags & DebugFlags::COLLISION_SHAPES)
 			mode |= btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_FastWireframe;
+		if (_debug_flags & DebugFlags::JOINT_LOCAL_POSES)
+			mode |= btIDebugDraw::DBG_DrawConstraints;
+		if (_debug_flags & DebugFlags::JOINT_LIMITS)
+			mode |= btIDebugDraw::DBG_DrawConstraintLimits;
 		if (_debug_flags & (DebugFlags::CONTACT_POINT | DebugFlags::CONTACT_NORMAL))
 			mode |= btIDebugDraw::DBG_DrawContactPoints;
 
 		return mode;
-	}
-
-	static btScalar scale_debug_primitive(btScalar size)
-	{
-		return _debug_scale > 0.0f ? size*_debug_scale : size;
 	}
 
 	static void command_help()
@@ -245,7 +253,9 @@ namespace physics_globals
 		_debug_enabled = false;
 		_debug_scale = 0.0f;
 		_debug_flags = DebugFlags::COLLISION_SHAPES
-		;
+			| DebugFlags::JOINT_LOCAL_POSES
+			| DebugFlags::JOINT_LIMITS
+			;
 
 		btAlignedAllocSetCustom(alloc_func, free_func);
 		btAlignedAllocSetCustomAligned(aligned_alloc_func, aligned_free_func);
@@ -300,6 +310,25 @@ static inline btTransform to_btTransform(const Matrix4x4 &m)
 		);
 	btVector3 pos(m.t.x, m.t.y, m.t.z);
 	return btTransform(basis, pos);
+}
+
+static inline btMatrix3x3 hinge_axis_basis(const btVector3 &axis)
+{
+	btVector3 hinge_axis = axis.normalized();
+	btVector3 axis_x;
+	btVector3 axis_y;
+	btPlaneSpace1(hinge_axis, axis_x, axis_y);
+	return btMatrix3x3(axis_x.x, axis_y.x, hinge_axis.x
+		, axis_x.y, axis_y.y, hinge_axis.y
+		, axis_x.z, axis_y.z, hinge_axis.z
+		);
+}
+
+static inline btTransform hinge_frame_from_pose(const btTransform &pose, const btVector3 &axis)
+{
+	btTransform frame = pose;
+	frame.m_basis = pose.m_basis * hinge_axis_basis(axis);
+	return frame;
 }
 
 static inline Vector3 to_vector3(const btVector3 &v)
@@ -402,11 +431,15 @@ struct MyDebugDrawer : public btIDebugDraw
 		CE_UNUSED_2(distance, lifeTime);
 		const Vector3 from = to_vector3(pointOnB);
 		const Color4 debug_color = { color.x, color.y, color.z, 1.0f };
+		const btScalar debug_scale = physics_globals::_debug_scale > 0.0f
+			? btScalar(physics_globals::_debug_scale)
+			: btScalar(1.0f)
+			;
 		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_POINT)
-			_lines->add_sphere(from, (f32)physics_globals::scale_debug_primitive(0.1f), debug_color);
+			_lines->add_sphere(from, (f32)(btScalar(0.1f) * debug_scale), debug_color);
 		if (physics_globals::_debug_flags & physics_globals::DebugFlags::CONTACT_NORMAL) {
 			const Vector3 normal = to_vector3(normalOnB);
-			const btScalar normal_length = physics_globals::scale_debug_primitive(btMax(btScalar(0.1f), btFabs(distance)));
+			const btScalar normal_length = btMax(btScalar(0.1f), btFabs(distance)) * debug_scale;
 			_lines->add_line(from, from + normal * (f32)normal_length, debug_color);
 		}
 	}
@@ -427,6 +460,14 @@ struct MyDebugDrawer : public btIDebugDraw
 	int getDebugMode() const override
 	{
 		return physics_globals::debug_mode();
+	}
+
+	btScalar constraintDebugDrawScale() const override
+	{
+		return physics_globals::_debug_scale > 0.0f
+			? btScalar(physics_globals::_debug_scale)
+			: btScalar(1.0f)
+			;
 	}
 
 	DefaultColors getDefaultColors() const override
@@ -1261,6 +1302,12 @@ struct PhysicsWorldImpl
 		Mover *mover;
 	};
 
+	struct JointInstanceData
+	{
+		UnitId unit;
+		btTypedConstraint *joint;
+	};
+
 	ProxyAllocator _proxy_allocator;
 	Allocator *_allocator;
 	UnitManager *_unit_manager;
@@ -1268,10 +1315,11 @@ struct PhysicsWorldImpl
 	HashMap<UnitId, u32> _collider_map;
 	HashMap<UnitId, u32> _actor_map;
 	HashMap<UnitId, u32> _mover_map;
+	HashMap<UnitId, u32> _joint_map;
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
 	Array<MoverInstanceData> _mover;
-	Array<btTypedConstraint *> _joints;
+	Array<JointInstanceData> _joints;
 
 	MyFilterCallback _filter_callback;
 	btGhostPairCallback _ghost_pair_callback;
@@ -1302,6 +1350,7 @@ struct PhysicsWorldImpl
 		, _collider_map(*_allocator)
 		, _actor_map(*_allocator)
 		, _mover_map(*_allocator)
+		, _joint_map(*_allocator)
 		, _collider(*_allocator)
 		, _actor(*_allocator)
 		, _mover(*_allocator)
@@ -1345,6 +1394,11 @@ struct PhysicsWorldImpl
 	~PhysicsWorldImpl()
 	{
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
+
+		for (u32 i = 0; i < array::size(_joints); ++i) {
+			_dynamics_world->removeConstraint(_joints[i].joint);
+			CE_DELETE(*_allocator, _joints[i].joint);
+		}
 
 		for (u32 i = 0; i < array::size(_mover); ++i) {
 			MoverInstanceData *inst = &_mover[i];
@@ -2085,71 +2139,363 @@ struct PhysicsWorldImpl
 		draw_mover_slope_lines(lines, bottom, up, capsule_radius, (f32)m->_detected_slope_radians, COLOR4_BLUE);
 	}
 
-	JointId joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
+	JointId joint_create(JointType::Enum type
+		, ActorId actor
+		, const Matrix4x4 &pose
+		, ActorId other_actor
+		, const Matrix4x4 &other_pose
+		)
 	{
-		const btVector3 anchor_0 = to_btVector3(jd.anchor_0);
-		const btVector3 anchor_1 = to_btVector3(jd.anchor_1);
-		btRigidBody *body_0 = _actor[a0.i].body;
-		btRigidBody *body_1 = is_valid(a1) ? _actor[a1.i].body : NULL;
+		CE_ASSERT(is_valid(actor) || is_valid(other_actor), "Joint must have at least one actor");
+		CE_ASSERT(!is_valid(actor) || actor.i < array::size(_actor), "Index out of bounds");
+		CE_ASSERT(!is_valid(other_actor) || other_actor.i < array::size(_actor), "Index out of bounds");
 
-		btTypedConstraint *joint = NULL;
-		switch (jd.type) {
-		case JointType::FIXED: {
-			const btTransform frame_0 = btTransform(btQuaternion::getIdentity(), anchor_0);
-			const btTransform frame_1 = btTransform(btQuaternion::getIdentity(), anchor_1);
-			joint = CE_NEW(*_allocator, btFixedConstraint)(*body_0
-				, *body_1
-				, frame_0
-				, frame_1
-				);
+		struct JointCreateData
+		{
+			JointDesc jd;
+			union
+			{
+				SpringJoint spring;
+				D6Joint d6;
+				LimbJoint limb;
+				HingeJoint hinge;
+			};
+		};
+
+		JointCreateData data = {};
+		data.jd.type_and_flags = (u32(type) << JOINT_TYPE_AND_FLAGS_TYPE_SHIFT);
+		data.jd.other_actor_unit_index = UINT32_MAX;
+		data.jd.pose = pose;
+		data.jd.other_pose = other_pose;
+		data.jd.break_force = FLT_MAX;
+
+		switch (type) {
+		case JointType::FIXED:
+			data.jd.type_and_flags |= JointFlags::USE_CUSTOM_POSES;
 			break;
-		}
 
 		case JointType::SPRING:
-			joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*body_0
-				, *body_1
-				, anchor_0
-				, anchor_1
-				);
+			data.spring.stiffness = 10.0f;
+			data.spring.damping = 0.0f;
 			break;
 
-		case JointType::HINGE: {
-			btHingeConstraint *hinge = CE_NEW(*_allocator, btHingeConstraint)(*body_0
-				, *body_1
-				, anchor_0
-				, anchor_1
-				, to_btVector3(jd.hinge.axis)
-				, to_btVector3(jd.hinge.axis)
-				);
-
-			hinge->enableAngularMotor(jd.hinge.use_motor
-				, jd.hinge.target_velocity
-				, jd.hinge.max_motor_impulse
-				);
-
-			hinge->setLimit(jd.hinge.lower_limit
-				, jd.hinge.upper_limit
-				, jd.hinge.bounciness
-				);
-
-			joint = hinge;
+		case JointType::HINGE:
+			data.hinge.axis = VECTOR3_ZAXIS;
+			data.hinge.target_velocity = 0.0f;
+			data.hinge.max_motor_impulse = 0.0f;
+			data.hinge.lower_limit = -PI * 0.25f;
+			data.hinge.upper_limit = PI * 0.25f;
+			data.hinge.bounciness = 0.0f;
 			break;
-		}
 
-		default:
+		case JointType::COUNT:
 			CE_FATAL("Unknown joint type");
 			break;
+		default:
+			break;
 		}
 
-		joint->setBreakingImpulseThreshold(jd.break_force);
-		_dynamics_world->addConstraint(joint);
+		UnitId units[2] = { UNIT_INVALID, UNIT_INVALID };
+		u32 instance_unit_index[1] = { 0 };
 
-		return make_joint_instance(UINT32_MAX);
+		if (is_valid(actor)) {
+			units[0] = _actor[actor.i].unit;
+
+			if (is_valid(other_actor)) {
+				units[1] = _actor[other_actor.i].unit;
+				data.jd.other_actor_unit_index = 1;
+			}
+		} else {
+			units[0] = _actor[other_actor.i].unit;
+			exchange(data.jd.pose, data.jd.other_pose);
+		}
+
+		const UnitId unit = units[0];
+
+		joint_create_instances(&data, 1, units, instance_unit_index);
+		return joint_instance(unit);
 	}
 
-	void joint_destroy(JointId /*i*/)
+	JointId joint_instance(UnitId unit)
 	{
-		CE_FATAL("Not implemented yet");
+		return make_joint_instance(hash_map::get(_joint_map, unit, UINT32_MAX));
+	}
+
+	void joint_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
+	{
+		const char *data = (const char *)components_data;
+
+		for (u32 i = 0; i < num; ++i) {
+			const JointDesc &jd = *(const JointDesc *)data;
+			data += sizeof(JointDesc);
+			const JointType::Enum type = (JointType::Enum)((jd.type_and_flags & JOINT_TYPE_AND_FLAGS_TYPE_MASK) >> JOINT_TYPE_AND_FLAGS_TYPE_SHIFT);
+			const u32 flags = (jd.type_and_flags & JOINT_TYPE_AND_FLAGS_FLAGS_MASK) >> JOINT_TYPE_AND_FLAGS_FLAGS_SHIFT;
+			const UnitId unit = unit_index[i] != UINT32_MAX ? unit_lookup[unit_index[i]] : UNIT_INVALID;
+			const UnitId other_actor_unit = jd.other_actor_unit_index != UINT32_MAX ? unit_lookup[jd.other_actor_unit_index] : UNIT_INVALID;
+			const ActorId actor = unit != UNIT_INVALID ? this->actor(unit) : make_actor_instance(UINT32_MAX);
+			const ActorId other_actor = other_actor_unit != UNIT_INVALID ? this->actor(other_actor_unit) : make_actor_instance(UINT32_MAX);
+			const btTransform frame = to_btTransform(jd.pose);
+			const btTransform other_frame = to_btTransform(jd.other_pose);
+			const bool has_actor = is_valid(actor);
+			const bool has_other_actor = is_valid(other_actor);
+			CE_ASSERT(unit == UNIT_INVALID || has_actor, "Unit has no actor component");
+			CE_ASSERT(other_actor_unit == UNIT_INVALID || has_other_actor, "Joint target unit has no actor component");
+			CE_ASSERT(has_actor || has_other_actor, "Joint must have at least one actor");
+			CE_ASSERT(!has_actor || actor.i < array::size(_actor), "Index out of bounds");
+			CE_ASSERT(!has_other_actor || other_actor.i < array::size(_actor), "Index out of bounds");
+			CE_ASSERT(unit == UNIT_INVALID || !hash_map::has(_joint_map, unit), "Unit already has a joint component");
+
+			btRigidBody *body = has_actor ? _actor[actor.i].body : NULL;
+			btRigidBody *other_body = has_other_actor ? _actor[other_actor.i].body : NULL;
+			const bool two_body = body != NULL && other_body != NULL;
+			btRigidBody *single_body = body != NULL ? body : other_body;
+			const btTransform single_body_frame = body != NULL ? frame : other_frame;
+			const btTransform world_frame = body != NULL ? other_frame : frame;
+
+			btTypedConstraint *joint = NULL;
+			switch (type) {
+			case JointType::FIXED: {
+				const bool use_custom_poses = (flags &JointFlags::USE_CUSTOM_POSES) != 0;
+				if (two_body) {
+					const btTransform fixed_frame = use_custom_poses ? frame : btTransform::getIdentity();
+					const btTransform fixed_other_frame = use_custom_poses ? other_frame : other_body->getCenterOfMassTransform().inverse() * body->getCenterOfMassTransform();
+					joint = CE_NEW(*_allocator, btFixedConstraint)(*body
+						, *other_body
+						, fixed_frame
+						, fixed_other_frame
+						);
+				} else {
+					const btTransform fixed_body_frame = use_custom_poses
+						? single_body_frame
+						: btTransform::getIdentity();
+
+					btGeneric6DofSpring2Constraint *fixed = CE_NEW(*_allocator, btGeneric6DofSpring2Constraint)(*single_body, fixed_body_frame);
+					if (use_custom_poses)
+						fixed->setFrames(world_frame, fixed_body_frame);
+					fixed->setLinearLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+					fixed->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+					fixed->setAngularLowerLimit(btVector3(0.0f, 0.0f, 0.0f));
+					fixed->setAngularUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+					joint = fixed;
+				}
+				break;
+			}
+
+			case JointType::HINGE: {
+				const HingeJoint &hj = *(const HingeJoint *)data;
+				data += sizeof(HingeJoint);
+				const btVector3 axis = to_btVector3(hj.axis);
+				CE_ASSERT(axis.length2() > 0.0f, "Hinge joint axis must not be zero");
+				const btTransform hinge_frame = hinge_frame_from_pose(frame, axis);
+				const btTransform hinge_other_frame = hinge_frame_from_pose(other_frame, axis);
+
+				btHingeConstraint *hinge = NULL;
+				if (two_body) {
+					hinge = CE_NEW(*_allocator, btHingeConstraint)(*body
+						, *other_body
+						, hinge_frame
+						, hinge_other_frame
+						);
+				} else {
+					const btTransform hinge_body_frame = body != NULL ? hinge_frame : hinge_other_frame;
+					const btTransform hinge_world_frame = body != NULL ? hinge_other_frame : hinge_frame;
+					hinge = CE_NEW(*_allocator, btHingeConstraint)(*single_body, hinge_body_frame);
+					hinge->setFrames(hinge_body_frame, hinge_world_frame);
+				}
+
+				hinge->enableAngularMotor((flags &JointFlags::HINGE_USE_MOTOR) != 0
+					, hj.target_velocity
+					, hj.max_motor_impulse
+					);
+
+				if ((flags &JointFlags::HINGE_USE_LIMITS) != 0) {
+					hinge->setLimit(hj.lower_limit
+						, hj.upper_limit
+						, hj.bounciness
+						);
+				}
+
+				joint = hinge;
+				break;
+			}
+
+			case JointType::SPHERICAL:
+				if (two_body) {
+					joint = CE_NEW(*_allocator, btPoint2PointConstraint)(*body, *other_body, frame.m_origin, other_frame.m_origin);
+				} else {
+					btPoint2PointConstraint *spherical = CE_NEW(*_allocator, btPoint2PointConstraint)(*single_body, single_body_frame.m_origin);
+					spherical->setPivotB(world_frame.m_origin);
+					joint = spherical;
+				}
+				break;
+
+			case JointType::LIMB: {
+				const LimbJoint &lj = *(const LimbJoint *)data;
+				data += sizeof(LimbJoint);
+
+				const D6Motion::Enum twist_motion   = (D6Motion::Enum)((lj.motion & LIMB_JOINT_TWIST_MOTION_MASK) >> LIMB_JOINT_TWIST_MOTION_SHIFT);
+				const D6Motion::Enum swing_y_motion = (D6Motion::Enum)((lj.motion & LIMB_JOINT_SWING_Y_MOTION_MASK) >> LIMB_JOINT_SWING_Y_MOTION_SHIFT);
+				const D6Motion::Enum swing_z_motion = (D6Motion::Enum)((lj.motion & LIMB_JOINT_SWING_Z_MOTION_MASK) >> LIMB_JOINT_SWING_Z_MOTION_SHIFT);
+
+				const f32 twist_center = twist_motion == D6Motion::LIMITED ? 0.5f * (lj.twist_upper_limit + lj.twist_lower_limit) : 0.0f;
+				const btQuaternion twist_center_rotation(btVector3(1.0f, 0.0f, 0.0f), twist_center);
+				const btMatrix3x3 twist_center_basis(twist_center_rotation);
+
+				btTransform limb_other_frame = other_frame;
+				limb_other_frame.m_basis *= twist_center_basis;
+
+				btConeTwistConstraint *limb = NULL;
+				if (two_body) {
+					limb = CE_NEW(*_allocator, btConeTwistConstraint)(*body, *other_body, frame, limb_other_frame);
+				} else {
+					btTransform limb_world_frame = world_frame;
+					limb_world_frame.m_basis *= twist_center_basis;
+					limb = CE_NEW(*_allocator, btConeTwistConstraint)(*single_body, single_body_frame);
+					limb->setFrames(single_body_frame, limb_world_frame);
+				}
+
+				const btScalar twist_span = twist_motion == D6Motion::LOCKED ? 0.0f : twist_motion == D6Motion::LIMITED ? max(0.0f, 0.5f * (lj.twist_upper_limit - lj.twist_lower_limit)) : BT_LARGE_FLOAT;
+				const btScalar swing_y_span = swing_y_motion == D6Motion::LOCKED ? 0.0f : swing_y_motion == D6Motion::LIMITED ? max(0.0f, lj.swing_y_limit) : BT_LARGE_FLOAT;
+				const btScalar swing_z_span = swing_z_motion == D6Motion::LOCKED ? 0.0f : swing_z_motion == D6Motion::LIMITED ? max(0.0f, lj.swing_z_limit) : BT_LARGE_FLOAT;
+				limb->setLimit(swing_z_span, swing_y_span, twist_span);
+				joint = limb;
+				break;
+			}
+
+			case JointType::SPRING: {
+				const SpringJoint &sj = *(const SpringJoint *)data;
+				data += sizeof(SpringJoint);
+				btGeneric6DofSpring2Constraint *spring = NULL;
+				if (two_body) {
+					spring = CE_NEW(*_allocator, btGeneric6DofSpring2Constraint)(*body, *other_body, frame, other_frame);
+				} else {
+					spring = CE_NEW(*_allocator, btGeneric6DofSpring2Constraint)(*single_body, single_body_frame);
+					spring->setFrames(world_frame, single_body_frame);
+				}
+
+				spring->setLinearLowerLimit(btVector3(1.0f, 1.0f, 1.0f));
+				spring->setLinearUpperLimit(btVector3(0.0f, 0.0f, 0.0f));
+				for (int axis = 0; axis < 3; ++axis) {
+					spring->enableSpring(axis, true);
+					spring->setStiffness(axis, sj.stiffness);
+					spring->setDamping(axis, sj.damping);
+					spring->setEquilibriumPoint(axis, 0.0f);
+				}
+
+				joint = spring;
+				break;
+			}
+
+			case JointType::D6: {
+				const D6Joint &dj = *(const D6Joint *)data;
+				data += sizeof(D6Joint);
+
+				btGeneric6DofSpring2Constraint *d6 = NULL;
+				if (two_body) {
+					d6 = CE_NEW(*_allocator, btGeneric6DofSpring2Constraint)(*body, *other_body, frame, other_frame);
+				} else {
+					d6 = CE_NEW(*_allocator, btGeneric6DofSpring2Constraint)(*single_body, single_body_frame);
+					d6->setFrames(world_frame, single_body_frame);
+				}
+
+				btVector3 linear_lower_limit(0.0f, 0.0f, 0.0f);
+				btVector3 linear_upper_limit(0.0f, 0.0f, 0.0f);
+				btVector3 angular_lower_limit(0.0f, 0.0f, 0.0f);
+				btVector3 angular_upper_limit(0.0f, 0.0f, 0.0f);
+
+				const u32 linear_motion_shift[]  = { D6_JOINT_LINEAR_X_MOTION_SHIFT, D6_JOINT_LINEAR_Y_MOTION_SHIFT, D6_JOINT_LINEAR_Z_MOTION_SHIFT };
+				const u32 linear_motion_mask[]   = { D6_JOINT_LINEAR_X_MOTION_MASK,  D6_JOINT_LINEAR_Y_MOTION_MASK,  D6_JOINT_LINEAR_Z_MOTION_MASK };
+				const u32 angular_motion_shift[] = { D6_JOINT_ANGULAR_X_MOTION_SHIFT, D6_JOINT_ANGULAR_Y_MOTION_SHIFT, D6_JOINT_ANGULAR_Z_MOTION_SHIFT };
+				const u32 angular_motion_mask[]  = { D6_JOINT_ANGULAR_X_MOTION_MASK,  D6_JOINT_ANGULAR_Y_MOTION_MASK,  D6_JOINT_ANGULAR_Z_MOTION_MASK };
+
+				for (u32 axis = 0; axis < 3; ++axis) {
+					const D6Motion::Enum lm = (D6Motion::Enum)((dj.motion_and_motor & linear_motion_mask[axis]) >> linear_motion_shift[axis]);
+					const D6Motion::Enum am = (D6Motion::Enum)((dj.motion_and_motor & angular_motion_mask[axis]) >> angular_motion_shift[axis]);
+
+					linear_lower_limit[axis] = lm == D6Motion::LOCKED ? 0.0f : lm == D6Motion::LIMITED ? to_float_ptr(dj.linear_lower_limit)[axis] : 1.0f;
+					linear_upper_limit[axis] = lm == D6Motion::LOCKED ? 0.0f : lm == D6Motion::LIMITED ? to_float_ptr(dj.linear_upper_limit)[axis] : 0.0f;
+
+					angular_lower_limit[axis] = am == D6Motion::LOCKED ? 0.0f : am == D6Motion::LIMITED ? to_float_ptr(dj.angular_lower_limit)[axis] : 1.0f;
+					angular_upper_limit[axis] = am == D6Motion::LOCKED ? 0.0f : am == D6Motion::LIMITED ? to_float_ptr(dj.angular_upper_limit)[axis] : 0.0f;
+				}
+
+				d6->setLinearLowerLimit(linear_lower_limit);
+				d6->setLinearUpperLimit(linear_upper_limit);
+				d6->setAngularLowerLimit(angular_lower_limit);
+				d6->setAngularUpperLimit(angular_upper_limit);
+
+				const u32 linear_motor_shift[]  = { D6_JOINT_LINEAR_X_MOTOR_SHIFT,  D6_JOINT_LINEAR_Y_MOTOR_SHIFT,  D6_JOINT_LINEAR_Z_MOTOR_SHIFT };
+				const u32 linear_motor_mask[]   = { D6_JOINT_LINEAR_X_MOTOR_MASK,   D6_JOINT_LINEAR_Y_MOTOR_MASK,   D6_JOINT_LINEAR_Z_MOTOR_MASK };
+				const u32 angular_motor_shift[] = { D6_JOINT_ANGULAR_X_MOTOR_SHIFT, D6_JOINT_ANGULAR_Y_MOTOR_SHIFT, D6_JOINT_ANGULAR_Z_MOTOR_SHIFT };
+				const u32 angular_motor_mask[]  = { D6_JOINT_ANGULAR_X_MOTOR_MASK,  D6_JOINT_ANGULAR_Y_MOTOR_MASK,  D6_JOINT_ANGULAR_Z_MOTOR_MASK };
+
+				for (u32 axis = 0; axis < 3; ++axis) {
+					const int lidx = (int)axis;
+					const int aidx = 3 + (int)axis;
+
+					const D6MotorMode::Enum lmotor = (D6MotorMode::Enum)((dj.motion_and_motor & linear_motor_mask[axis]) >> linear_motor_shift[axis]);
+					const D6MotorMode::Enum amotor = (D6MotorMode::Enum)((dj.motion_and_motor & angular_motor_mask[axis]) >> angular_motor_shift[axis]);
+
+					d6->enableMotor(lidx, lmotor != D6MotorMode::OFF);
+					d6->setServo(lidx, lmotor == D6MotorMode::POSITION);
+					if (lmotor == D6MotorMode::VELOCITY) {
+						d6->setTargetVelocity(lidx, to_float_ptr(dj.linear_target_velocity)[axis]);
+						d6->setMaxMotorForce(lidx, to_float_ptr(dj.linear_max_motor_force)[axis]);
+					} else if (lmotor == D6MotorMode::POSITION) {
+						d6->setServoTarget(lidx, to_float_ptr(dj.linear_target_position)[axis]);
+						d6->setMaxMotorForce(lidx, to_float_ptr(dj.linear_max_motor_force)[axis]);
+					}
+
+					d6->enableMotor(aidx, amotor != D6MotorMode::OFF);
+					d6->setServo(aidx, amotor == D6MotorMode::POSITION);
+					if (amotor == D6MotorMode::VELOCITY) {
+						d6->setTargetVelocity(aidx, to_float_ptr(dj.angular_target_velocity)[axis]);
+						d6->setMaxMotorForce(aidx, to_float_ptr(dj.angular_max_motor_force)[axis]);
+					} else if (amotor == D6MotorMode::POSITION) {
+						d6->setServoTarget(aidx, to_float_ptr(dj.angular_target_position)[axis]);
+						d6->setMaxMotorForce(aidx, to_float_ptr(dj.angular_max_motor_force)[axis]);
+					}
+				}
+
+				joint = d6;
+				break;
+			}
+
+			default:
+				CE_FATAL("Unknown joint type");
+				break;
+			}
+
+			if (jd.break_force < FLT_MAX)
+				joint->setBreakingImpulseThreshold(jd.break_force);
+
+			_dynamics_world->addConstraint(joint);
+			const u32 last = array::size(_joints);
+			array::push_back(_joints, { unit, joint });
+			if (unit != UNIT_INVALID)
+				hash_map::set(_joint_map, unit, last);
+		}
+	}
+
+	void joint_destroy(JointId i)
+	{
+		CE_ASSERT(i.i < array::size(_joints), "Index out of bounds");
+
+		const u32 last = array::size(_joints) - 1;
+
+		const UnitId unit = _joints[i.i].unit;
+		const UnitId last_unit = _joints[last].unit;
+
+		_dynamics_world->removeConstraint(_joints[i.i].joint);
+		CE_DELETE(*_allocator, _joints[i.i].joint);
+
+		_joints[i.i] = _joints[last];
+		array::pop_back(_joints);
+
+		if (i.i != last && last_unit != UNIT_INVALID)
+			hash_map::set(_joint_map, last_unit, i.i);
+		if (unit != UNIT_INVALID)
+			hash_map::remove(_joint_map, unit);
 	}
 
 	bool cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)
@@ -2487,6 +2833,12 @@ struct PhysicsWorldImpl
 
 	void unit_destroyed_callback(UnitId unit)
 	{
+		{
+			JointId ji = joint_instance(unit);
+			if (is_valid(ji))
+				joint_destroy(ji);
+		}
+
 		{
 			ActorId first = actor(unit);
 			if (is_valid(first))
@@ -2878,9 +3230,24 @@ void PhysicsWorld::mover_debug_draw(MoverId mover, DebugLine *lines, const Color
 	_impl->mover_debug_draw(mover, lines, color);
 }
 
-JointId PhysicsWorld::joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
+JointId PhysicsWorld::joint_create(JointType::Enum type
+	, ActorId actor
+	, const Matrix4x4 &pose
+	, ActorId other_actor
+	, const Matrix4x4 &other_pose
+	)
 {
-	return _impl->joint_create(a0, a1, jd);
+	return _impl->joint_create(type, actor, pose, other_actor, other_pose);
+}
+
+JointId PhysicsWorld::joint_instance(UnitId unit)
+{
+	return _impl->joint_instance(unit);
+}
+
+void PhysicsWorld::joint_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
+{
+	_impl->joint_create_instances(components_data, num, unit_lookup, unit_index);
 }
 
 void PhysicsWorld::joint_destroy(JointId i)

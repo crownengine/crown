@@ -28,6 +28,11 @@ namespace Lua
 		return "Quaternion.from_elements(%.17g, %.17g, %.17g, %.17g)".printf(q.x, q.y, q.z, q.w);
 	}
 
+	public string matrix4x4(Quaternion q, Vector3 t)
+	{
+		return "Matrix4x4.from_quaternion_translation(%s, %s)".printf(quaternion(q), vector3(t));
+	}
+
 } /* namespace Lua */
 
 namespace RuntimeApi
@@ -395,6 +400,25 @@ namespace LevelEditorApi
 			, radius
 			, max_slope_angle
 			, collision_filter
+			);
+	}
+
+	public string add_joint_component(Guid id
+		, Guid component_id
+		, string joint_type
+		, Vector3 position
+		, Quaternion rotation
+		, Guid other_actor_unit_id = GUID_ZERO
+		, Vector3 other_position = VECTOR3_ZERO
+		, Quaternion other_rotation = QUATERNION_IDENTITY
+		)
+	{
+		return "LevelEditor:add_joint_component(\"%s\", \"%s\", \"%s\", %s, %s, %s)".printf(id.to_string()
+			, component_id.to_string()
+			, joint_type
+			, Lua.matrix4x4(rotation, position)
+			, other_actor_unit_id == GUID_ZERO ? "nil" : "\"%s\"".printf(other_actor_unit_id.to_string())
+			, Lua.matrix4x4(other_rotation, other_position)
 			);
 	}
 

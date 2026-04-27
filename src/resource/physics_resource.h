@@ -22,7 +22,12 @@ namespace physics_resource_internal
 	s32 compile_collider(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 	s32 compile_actor(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 	s32 compile_mover(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
-	s32 compile_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_fixed_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_hinge_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_spherical_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_limb_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_spring_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 compile_d6_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 
 } // namespace physics_resource_internal
 

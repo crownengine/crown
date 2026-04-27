@@ -436,6 +436,24 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.max_slope_angle")
 				, unit.get_component_string(component_id, "data.collision_filter")
 				));
+		} else if (db.object_type(component_id) == OBJECT_TYPE_FIXED_JOINT
+			|| db.object_type(component_id) == OBJECT_TYPE_HINGE_JOINT
+			|| db.object_type(component_id) == OBJECT_TYPE_SPHERICAL_JOINT
+			|| db.object_type(component_id) == OBJECT_TYPE_SPRING_JOINT
+			|| db.object_type(component_id) == OBJECT_TYPE_LIMB_JOINT
+			|| db.object_type(component_id) == OBJECT_TYPE_D6_JOINT) {
+			Guid other_actor_unit_id = unit.get_component_reference(component_id, "data.other_actor");
+			if (other_actor_unit_id != GUID_ZERO && !db.is_alive(other_actor_unit_id))
+				other_actor_unit_id = GUID_ZERO;
+			sb.append(LevelEditorApi.add_joint_component(unit_id
+				, component_id
+				, db.object_type(component_id)
+				, unit.get_component_vector3(component_id, "data.position", VECTOR3_ZERO)
+				, unit.get_component_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY)
+				, other_actor_unit_id
+				, unit.get_component_vector3(component_id, "data.other_position", VECTOR3_ZERO)
+				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
+				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
 			sb.append(LevelEditorApi.set_lod_group(unit_id
 				, unit.get_component_double(component_id, "data.level", -1.0)
@@ -714,6 +732,13 @@ public struct Unit
 		} else if (component_type == OBJECT_TYPE_COLLIDER) {
 			/* No sync. */
 		} else if (component_type == OBJECT_TYPE_ACTOR) {
+			/* No sync. */
+		} else if (component_type == OBJECT_TYPE_FIXED_JOINT
+			|| component_type == OBJECT_TYPE_HINGE_JOINT
+			|| component_type == OBJECT_TYPE_SPHERICAL_JOINT
+			|| component_type == OBJECT_TYPE_SPRING_JOINT
+			|| component_type == OBJECT_TYPE_LIMB_JOINT
+			|| component_type == OBJECT_TYPE_D6_JOINT) {
 			/* No sync. */
 		} else if (component_type == OBJECT_TYPE_MOVER) {
 			sb.append(LevelEditorApi.set_mover(unit_id

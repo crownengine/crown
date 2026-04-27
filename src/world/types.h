@@ -121,21 +121,6 @@ struct ColliderType
 	};
 };
 
-/// Enumerates joint types.
-///
-/// @ingroup World
-struct JointType
-{
-	enum Enum
-	{
-		FIXED,
-		HINGE,
-		SPRING,
-
-		COUNT
-	};
-};
-
 /// Enumerates collision groups.
 ///
 /// @ingroup World
@@ -572,31 +557,145 @@ struct MoverDesc
 	Vector3 center;              ///< Center of the capsule relative to the transform's position.
 };
 
+/// Enumerates joint types.
+///
+/// @ingroup World
+struct JointType
+{
+	enum Enum
+	{
+		FIXED,
+		HINGE,
+		SPHERICAL,
+		LIMB,
+		SPRING,
+		D6,
+
+		COUNT
+	};
+};
+CE_STATIC_ASSERT(JointType::COUNT <= 16);
+
+struct JointFlags
+{
+	enum Enum
+	{
+		USE_CUSTOM_POSES = u32(1) << 0,
+		HINGE_USE_MOTOR  = u32(1) << 1,
+		HINGE_USE_LIMITS = u32(1) << 2,
+	};
+};
+
+struct D6Motion
+{
+	enum Enum : u32
+	{
+		LOCKED,
+		LIMITED,
+		FREE,
+
+		COUNT
+	};
+};
+CE_STATIC_ASSERT(D6Motion::COUNT <= 4);
+
+struct D6MotorMode
+{
+	enum Enum : u32
+	{
+		OFF,
+		VELOCITY,
+		POSITION,
+
+		COUNT
+	};
+};
+CE_STATIC_ASSERT(D6MotorMode::COUNT <= 4);
+
+#define JOINT_TYPE_AND_FLAGS_TYPE_SHIFT  28
+#define JOINT_TYPE_AND_FLAGS_TYPE_MASK   UINT32_C(0xf0000000)
+#define JOINT_TYPE_AND_FLAGS_FLAGS_SHIFT 0
+#define JOINT_TYPE_AND_FLAGS_FLAGS_MASK  UINT32_C(0x0fffffff)
+
+#define D6_JOINT_LINEAR_X_MOTION_SHIFT  0
+#define D6_JOINT_LINEAR_X_MOTION_MASK   UINT32_C(0x00000003)
+#define D6_JOINT_LINEAR_Y_MOTION_SHIFT  2
+#define D6_JOINT_LINEAR_Y_MOTION_MASK   UINT32_C(0x0000000c)
+#define D6_JOINT_LINEAR_Z_MOTION_SHIFT  4
+#define D6_JOINT_LINEAR_Z_MOTION_MASK   UINT32_C(0x00000030)
+#define D6_JOINT_ANGULAR_X_MOTION_SHIFT 6
+#define D6_JOINT_ANGULAR_X_MOTION_MASK  UINT32_C(0x000000c0)
+#define D6_JOINT_ANGULAR_Y_MOTION_SHIFT 8
+#define D6_JOINT_ANGULAR_Y_MOTION_MASK  UINT32_C(0x00000300)
+#define D6_JOINT_ANGULAR_Z_MOTION_SHIFT 10
+#define D6_JOINT_ANGULAR_Z_MOTION_MASK  UINT32_C(0x00000c00)
+#define D6_JOINT_LINEAR_X_MOTOR_SHIFT   12
+#define D6_JOINT_LINEAR_X_MOTOR_MASK    UINT32_C(0x00003000)
+#define D6_JOINT_LINEAR_Y_MOTOR_SHIFT   14
+#define D6_JOINT_LINEAR_Y_MOTOR_MASK    UINT32_C(0x0000c000)
+#define D6_JOINT_LINEAR_Z_MOTOR_SHIFT   16
+#define D6_JOINT_LINEAR_Z_MOTOR_MASK    UINT32_C(0x00030000)
+#define D6_JOINT_ANGULAR_X_MOTOR_SHIFT  18
+#define D6_JOINT_ANGULAR_X_MOTOR_MASK   UINT32_C(0x000c0000)
+#define D6_JOINT_ANGULAR_Y_MOTOR_SHIFT  20
+#define D6_JOINT_ANGULAR_Y_MOTOR_MASK   UINT32_C(0x00300000)
+#define D6_JOINT_ANGULAR_Z_MOTOR_SHIFT  22
+#define D6_JOINT_ANGULAR_Z_MOTOR_MASK   UINT32_C(0x00c00000)
+
+#define LIMB_JOINT_TWIST_MOTION_SHIFT   0
+#define LIMB_JOINT_TWIST_MOTION_MASK    UINT32_C(0x00000003)
+#define LIMB_JOINT_SWING_Y_MOTION_SHIFT 2
+#define LIMB_JOINT_SWING_Y_MOTION_MASK  UINT32_C(0x0000000c)
+#define LIMB_JOINT_SWING_Z_MOTION_SHIFT 4
+#define LIMB_JOINT_SWING_Z_MOTION_MASK  UINT32_C(0x00000030)
+
 struct HingeJoint
 {
 	Vector3 axis;
-
-	bool use_motor;
 	f32 target_velocity;
 	f32 max_motor_impulse;
-
-	bool use_limits;
 	f32 lower_limit;
 	f32 upper_limit;
 	f32 bounciness;
 };
 
+struct SpringJoint
+{
+	f32 stiffness;
+	f32 damping;
+};
+
+struct LimbJoint
+{
+	u32 motion;            ///< Packed. See LIMB_JOINT_TWIST_* and LIMB_JOINT_SWING_*.
+	f32 twist_lower_limit; ///<
+	f32 twist_upper_limit; ///<
+	f32 swing_y_limit;     ///<
+	f32 swing_z_limit;     ///<
+};
+
+struct D6Joint
+{
+	u32 motion_and_motor;            ///< Packed. See D6_JOINT_LINEAR_* and D6_JOINT_ANGULAR_*.
+	Vector3 linear_lower_limit;      ///<
+	Vector3 linear_upper_limit;      ///<
+	Vector3 angular_lower_limit;     ///<
+	Vector3 angular_upper_limit;     ///<
+	Vector3 linear_target_velocity;  ///<
+	Vector3 linear_target_position;  ///<
+	Vector3 linear_max_motor_force;  ///<
+	Vector3 angular_target_velocity; ///<
+	Vector3 angular_target_position; ///<
+	Vector3 angular_max_motor_force; ///<
+};
+
 struct JointDesc
 {
-	u32 type;         ///< JointType::Enum
-	Vector3 anchor_0; ///<
-	Vector3 anchor_1; ///<
-
-	bool breakable;   ///<
-	char _pad[3];     ///<
-	f32 break_force;  ///<
-
-	HingeJoint hinge; ///<
+	u32 type_and_flags;         ///< Packed. See JOINT_TYPE_AND_FLAGS_*.
+	u32 other_actor_unit_index; ///< Index of unit that owns the other actor component, or UINT32_MAX.
+	Matrix4x4 pose;             ///< Joint pose in owner actor local space.
+	Matrix4x4 other_pose;       ///< Joint pose in other actor local space, or world space when no other actor is set.
+	f32 break_force;            ///< Breaking threshold. Use FLT_MAX to disable breaking.
 };
 
 struct RaycastHit

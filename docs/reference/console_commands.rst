@@ -120,6 +120,8 @@ parameters:
 
 The ``show`` and ``hide`` parameters can be one of:
 
+``joint_local_poses``
+``joint_limits``
 ``collision_shapes``
 ``contact_point``
 ``contact_normal``

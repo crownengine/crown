@@ -76,6 +76,13 @@ static void create_components(World &w
 			physics_world->actor_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("mover", UINT32_C(0xac07d371))) {
 			physics_world->mover_create_instances(data, component->num_instances, unit_lookup, unit_index);
+		} else if (component->type == STRING_ID_32("fixed_joint", UINT32_C(0x9ada03c1))
+			|| component->type == STRING_ID_32("hinge_joint", UINT32_C(0xbb32c4e8))
+			|| component->type == STRING_ID_32("spherical_joint", UINT32_C(0x066c63e3))
+			|| component->type == STRING_ID_32("limb_joint", UINT32_C(0x7068fff7))
+			|| component->type == STRING_ID_32("spring_joint", UINT32_C(0x6ccbbba7))
+			|| component->type == STRING_ID_32("d6_joint", UINT32_C(0x1099cc71))) {
+			physics_world->joint_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))) {
 			render_world->_mesh_manager.create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("sprite_renderer", UINT32_C(0x6a1c2a3b))) {

@@ -3170,19 +3170,42 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
-	env.add_module_function("PhysicsWorld", "joint_create", [](lua_State *L) {
+	env.add_module_function("PhysicsWorld", "joint_instance", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			JointId inst = stack.get_physics_world(1)->joint_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_destroy", [](lua_State *L) {
 			LuaStack stack(L);
-			JointDesc jd;
-			jd.type = JointType::SPRING;
-			jd.anchor_0 = { 0.0f, -2.0f, 0.0f };
-			jd.anchor_1 = { 0.0f,  2.0f, 0.0f };
-			jd.break_force = 999999.0f;
-			jd.hinge.axis = { 1.0f, 0.0f, 0.0f };
-			jd.hinge.lower_limit = -3.14f / 4.0f;
-			jd.hinge.upper_limit = 3.14f / 4.0f;
-			jd.hinge.bounciness = 12.0f;
-			stack.get_physics_world(1)->joint_create(stack.get_actor_instance(2), stack.get_actor_instance(3), jd);
+			JointId joint = { stack.get_id(2) };
+			stack.get_physics_world(1)->joint_destroy(joint);
 			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_create", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const JointType::Enum type = (JointType::Enum)stack.get_int(2);
+			LUA_ASSERT(type < JointType::COUNT, stack, "Unknown joint type: %d", type);
+
+			ActorId actor = { UINT32_MAX };
+			ActorId other_actor = { UINT32_MAX };
+			if (!stack.is_nil(3))
+				actor = stack.get_actor_instance(3);
+			const Matrix4x4 &pose = stack.get_matrix4x4(4);
+			if (!stack.is_nil(5))
+				other_actor = stack.get_actor_instance(5);
+			const Matrix4x4 &other_pose = stack.get_matrix4x4(6);
+			LUA_ASSERT(is_valid(actor) || is_valid(other_actor), stack, "Joint must have at least one actor");
+
+			JointId joint = stack.get_physics_world(1)->joint_create(type, actor, pose, other_actor, other_pose);
+			if (is_valid(joint))
+				stack.push_id(joint.i);
+			else
+				stack.push_nil();
+			return 1;
 		});
 	env.add_module_function("PhysicsWorld", "gravity", [](lua_State *L) {
 			LuaStack stack(L, +1);
@@ -4065,6 +4088,12 @@ void load_api(LuaEnvironment &env)
 	env.set_module_number("InputEventType", "BUTTON_PRESSED", InputEventType::BUTTON_PRESSED);
 	env.set_module_number("InputEventType", "BUTTON_RELEASED", InputEventType::BUTTON_RELEASED);
 	env.set_module_number("InputEventType", "AXIS_CHANGED", InputEventType::AXIS_CHANGED);
+	env.set_module_number("JointType", "FIXED", JointType::FIXED);
+	env.set_module_number("JointType", "HINGE", JointType::HINGE);
+	env.set_module_number("JointType", "SPHERICAL", JointType::SPHERICAL);
+	env.set_module_number("JointType", "LIMB", JointType::LIMB);
+	env.set_module_number("JointType", "SPRING", JointType::SPRING);
+	env.set_module_number("JointType", "D6", JointType::D6);
 	env.set_module_number("SaveError", "INVALID_REQUEST", SaveError::INVALID_REQUEST);
 	env.set_module_number("SaveError", "SAVE_DIR_UNSET", SaveError::SAVE_DIR_UNSET);
 	env.set_module_number("SaveError", "MISSING", SaveError::MISSING);

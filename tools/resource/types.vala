@@ -11,13 +11,17 @@ const string OBJECT_TYPE_ANIMATION_STATE_MACHINE = "animation_state_machine";
 const string OBJECT_TYPE_BLOOM                   = "bloom";
 const string OBJECT_TYPE_CAMERA                  = "camera";
 const string OBJECT_TYPE_COLLIDER                = "collider";
+const string OBJECT_TYPE_D6_JOINT                = "d6_joint";
 const string OBJECT_TYPE_FILE                    = "file";
+const string OBJECT_TYPE_FIXED_JOINT             = "fixed_joint";
 const string OBJECT_TYPE_FOG                     = "fog";
 const string OBJECT_TYPE_FONT                    = "font";
 const string OBJECT_TYPE_FONT_GLYPH              = "font_glyph";
 const string OBJECT_TYPE_GLOBAL_LIGHTING         = "global_lighting";
+const string OBJECT_TYPE_HINGE_JOINT             = "hinge_joint";
 const string OBJECT_TYPE_LEVEL                   = "level";
 const string OBJECT_TYPE_LIGHT                   = "light";
+const string OBJECT_TYPE_LIMB_JOINT              = "limb_joint";
 const string OBJECT_TYPE_LOD_GROUP               = "lod_group";
 const string OBJECT_TYPE_LOD_LEVEL               = "lod_level";
 const string OBJECT_TYPE_MATERIAL                = "material";
@@ -32,6 +36,8 @@ const string OBJECT_TYPE_NODE_TRANSITION         = "node_transition";
 const string OBJECT_TYPE_SCRIPT                  = "script";
 const string OBJECT_TYPE_SOUND                   = "sound";
 const string OBJECT_TYPE_SOUND_SOURCE            = "sound_source";
+const string OBJECT_TYPE_SPHERICAL_JOINT         = "spherical_joint";
+const string OBJECT_TYPE_SPRING_JOINT            = "spring_joint";
 const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_SPRITE_ANIMATION        = "sprite_animation";
 const string OBJECT_TYPE_SPRITE_FRAME            = "sprite_frame";
@@ -59,6 +65,12 @@ const string OBJECT_TYPE_UNIT                    = "unit";
 //   collider      2100
 //   actor         2101
 //   mover         2102
+//   fixed_joint   2103
+//   hinge_joint   2104
+//   spring_joint  2105
+//   spherical_joint 2106
+//   d6_joint      2107
+//   limb_joint    2108
 // animation       3000
 //   state_machine 3100
 // scripting       7000
@@ -1053,6 +1065,660 @@ public static void create_object_types(Database database)
 		, 2102
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_FIXED_JOINT
+		, properties
+		, 2103
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.other_position",
+			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.position",
+			tooltip = "Position in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SPHERICAL_JOINT
+		, properties
+		, 2106
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.other_position",
+			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.other_rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.position",
+			tooltip = "Position in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Joint rotation in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motion_x",
+			label = "Linear X Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How motion along the joint X axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motion_y",
+			label = "Linear Y Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How motion along the joint Y axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motion_z",
+			label = "Linear Z Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How motion along the joint Z axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.linear_lower_limit",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Per-axis linear lower limits, used when the corresponding linear motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.linear_upper_limit",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Per-axis linear upper limits, used when the corresponding linear motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motion_x",
+			label = "Angular X Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How rotation around the joint X axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motion_y",
+			label = "Angular Y Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How rotation around the joint Y axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motion_z",
+			label = "Angular Z Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How rotation around the joint Z axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.angular_lower_limit",
+			deffault = VECTOR3_ZERO,
+			editor = PropertyEditorType.ANGLE,
+			tooltip = "Per-axis angular lower limits, used when the corresponding angular motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.angular_upper_limit",
+			deffault = VECTOR3_ZERO,
+			editor = PropertyEditorType.ANGLE,
+			tooltip = "Per-axis angular upper limits, used when the corresponding angular motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motor_x",
+			label = "Linear X Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for motion along the joint X axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motor_y",
+			label = "Linear Y Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for motion along the joint Y axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.linear_motor_z",
+			label = "Linear Z Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for motion along the joint Z axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.linear_target_velocity",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Linear motor target velocity, used by axes whose linear motor mode is Velocity.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.linear_target_position",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Linear motor target position, used by axes whose linear motor mode is Position.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.linear_max_motor_force",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Per-axis linear motor force limits.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motor_x",
+			label = "Angular X Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for rotation around the joint X axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motor_y",
+			label = "Angular Y Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for rotation around the joint Y axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.angular_motor_z",
+			label = "Angular Z Motor",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "off", "velocity", "position" },
+			deffault = "off",
+			tooltip = "Motor mode for rotation around the joint Z axis.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.angular_target_velocity",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Angular motor target velocity, used by axes whose angular motor mode is Velocity.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.angular_target_position",
+			deffault = VECTOR3_ZERO,
+			editor = PropertyEditorType.ANGLE,
+			tooltip = "Angular motor target position, used by axes whose angular motor mode is Position.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.angular_max_motor_force",
+			deffault = VECTOR3_ZERO,
+			tooltip = "Per-axis angular motor force limits.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_D6_JOINT
+		, properties
+		, 2107
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.other_position",
+			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.other_rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.position",
+			tooltip = "Position in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Joint rotation in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.twist_motion",
+			label = "Twist Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How twist around the joint X axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.swing_y_motion",
+			label = "Swing Y Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How swing around the joint Y axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.swing_z_motion",
+			label = "Swing Z Motion",
+			editor = PropertyEditorType.ENUM,
+			enum_values = { "locked", "limited", "free" },
+			deffault = "locked",
+			tooltip = "How swing around the joint Z axis is constrained.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.twist_lower_limit",
+			deffault = 0.0,
+			editor = PropertyEditorType.ANGLE,
+			tooltip = "Lower twist limit, used when Twist Motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.twist_upper_limit",
+			deffault = 0.0,
+			editor = PropertyEditorType.ANGLE,
+			tooltip = "Upper twist limit, used when Twist Motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.swing_y_limit",
+			deffault = 0.0,
+			editor = PropertyEditorType.ANGLE,
+			min = 0.0,
+			tooltip = "Symmetric swing limit around the joint Y axis, used when Swing Y Motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.swing_z_limit",
+			deffault = 0.0,
+			editor = PropertyEditorType.ANGLE,
+			min = 0.0,
+			tooltip = "Symmetric swing limit around the joint Z axis, used when Swing Z Motion is Limited.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_LIMB_JOINT
+		, properties
+		, 2108
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.other_position",
+			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.other_rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.position",
+			tooltip = "Position in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.axis",
+			deffault = Vector3(0, 0, 1),
+			tooltip = "Hinge axis in both joint frames.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Joint rotation in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.use_motor",
+			tooltip = "Enable the hinge motor.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.target_velocity",
+			tooltip = "Motor target angular velocity.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.max_motor_impulse",
+			min = 0.0,
+			tooltip = "Maximum motor impulse.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.use_limits",
+			tooltip = "Enable hinge limits.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.lower_limit",
+			editor = PropertyEditorType.ANGLE,
+			deffault = -MathUtils.rad(45.0),
+			tooltip = "Lower hinge limit.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.upper_limit",
+			editor = PropertyEditorType.ANGLE,
+			deffault = MathUtils.rad(45.0),
+			tooltip = "Upper hinge limit.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.bounciness",
+			min = 0.0,
+			tooltip = "Bounce factor applied at the limits.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_HINGE_JOINT
+		, properties
+		, 2104
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.REFERENCE,
+			object_type = StringId64(OBJECT_TYPE_UNIT),
+			name = "data.other_actor",
+			label = "Other Unit",
+			deffault = GUID_ZERO,
+			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.other_position",
+			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.other_rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.position",
+			tooltip = "Position in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.QUATERNION,
+			name = "data.rotation",
+			deffault = QUATERNION_IDENTITY,
+			tooltip = "Joint rotation in local space.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.break_force",
+			deffault = (double)float.MAX,
+			min = 0.0,
+			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.stiffness",
+			min = 0.0,
+			deffault = 10.0,
+			tooltip = "Linear spring stiffness.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.damping",
+			min = 0.0,
+			deffault = 0.0,
+			tooltip = "Linear spring damping.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 3.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_SPRING_JOINT
+		, properties
+		, 2105
+		, ObjectTypeFlags.UNIT_COMPONENT
+		, OBJECT_TYPE_ACTOR
 		);
 
 	properties =

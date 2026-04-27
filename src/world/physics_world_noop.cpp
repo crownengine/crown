@@ -307,8 +307,25 @@ struct PhysicsWorldImpl
 		return make_actor_instance(UINT32_MAX);
 	}
 
-	JointId joint_create(ActorId /*a0*/, ActorId /*a1*/, const JointDesc & /*jd*/)
+	JointId joint_create(JointType::Enum type
+		, ActorId actor
+		, const Matrix4x4 &pose
+		, ActorId other_actor
+		, const Matrix4x4 &other_pose
+		)
 	{
+		CE_UNUSED_5(type, actor, pose, other_actor, other_pose);
+		return make_joint_instance(UINT32_MAX);
+	}
+
+	void joint_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
+	{
+		CE_UNUSED_4(components_data, num, unit_lookup, unit_index);
+	}
+
+	JointId joint_instance(UnitId unit)
+	{
+		CE_UNUSED(unit);
 		return make_joint_instance(UINT32_MAX);
 	}
 
@@ -676,9 +693,24 @@ ActorId PhysicsWorld::mover_actor_colliding_down(MoverId mover)
 	return _impl->mover_actor_colliding_down(mover);
 }
 
-JointId PhysicsWorld::joint_create(ActorId a0, ActorId a1, const JointDesc &jd)
+JointId PhysicsWorld::joint_create(JointType::Enum type
+	, ActorId actor
+	, const Matrix4x4 &pose
+	, ActorId other_actor
+	, const Matrix4x4 &other_pose
+	)
 {
-	return _impl->joint_create(a0, a1, jd);
+	return _impl->joint_create(type, actor, pose, other_actor, other_pose);
+}
+
+void PhysicsWorld::joint_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
+{
+	_impl->joint_create_instances(components_data, num, unit_lookup, unit_index);
+}
+
+JointId PhysicsWorld::joint_instance(UnitId unit)
+{
+	return _impl->joint_instance(unit);
 }
 
 void PhysicsWorld::joint_destroy(JointId i)

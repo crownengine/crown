@@ -11,10 +11,12 @@
 #include "core/filesystem/file.h"
 #include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
+#include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/aabb.inl"
 #include "core/math/constants.h"
+#include "core/math/matrix4x4.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/sphere.inl"
 #include "core/memory/temp_allocator.inl"
@@ -25,6 +27,7 @@
 #include "resource/mesh.h"
 #include "resource/mesh_resource.h"
 #include "resource/physics_resource.h"
+#include "resource/unit_compiler.h"
 #include "world/types.h"
 
 namespace crown
@@ -48,19 +51,33 @@ namespace physics_resource_internal
 	};
 	CE_STATIC_ASSERT(countof(s_collider) == ColliderType::COUNT);
 
-	struct JointInfo
+	struct D6MotionInfo
 	{
 		const char *name;
-		JointType::Enum type;
+		D6Motion::Enum mode;
 	};
 
-	static const JointInfo s_joint[] =
+	static const D6MotionInfo s_d6_motion[] =
 	{
-		{ "fixed",  JointType::FIXED  },
-		{ "hinge",  JointType::HINGE  },
-		{ "spring", JointType::SPRING }
+		{ "locked",  D6Motion::LOCKED  },
+		{ "limited", D6Motion::LIMITED },
+		{ "free",    D6Motion::FREE    }
 	};
-	CE_STATIC_ASSERT(countof(s_joint) == JointType::COUNT);
+	CE_STATIC_ASSERT(countof(s_d6_motion) == D6Motion::COUNT);
+
+	struct D6MotorModeInfo
+	{
+		const char *name;
+		D6MotorMode::Enum mode;
+	};
+
+	static const D6MotorModeInfo s_d6_motor_mode[] =
+	{
+		{ "off",      D6MotorMode::OFF      },
+		{ "velocity", D6MotorMode::VELOCITY },
+		{ "position", D6MotorMode::POSITION }
+	};
+	CE_STATIC_ASSERT(countof(s_d6_motor_mode) == D6MotorMode::COUNT);
 
 	static ColliderType::Enum shape_type_to_enum(const char *type)
 	{
@@ -72,14 +89,24 @@ namespace physics_resource_internal
 		return ColliderType::COUNT;
 	}
 
-	static JointType::Enum joint_type_to_enum(const char *type)
+	static D6Motion::Enum d6_motion_to_enum(const char *name)
 	{
-		for (u32 i = 0; i < countof(s_joint); ++i) {
-			if (strcmp(type, s_joint[i].name) == 0)
-				return s_joint[i].type;
+		for (u32 i = 0; i < countof(s_d6_motion); ++i) {
+			if (strcmp(name, s_d6_motion[i].name) == 0)
+				return s_d6_motion[i].mode;
 		}
 
-		return JointType::COUNT;
+		return D6Motion::COUNT;
+	}
+
+	static D6MotorMode::Enum d6_motor_mode_to_enum(const char *name)
+	{
+		for (u32 i = 0; i < countof(s_d6_motor_mode); ++i) {
+			if (strcmp(name, s_d6_motor_mode[i].name) == 0)
+				return s_d6_motor_mode[i].mode;
+		}
+
+		return D6MotorMode::COUNT;
 	}
 
 	void compile_sphere(ColliderDesc &sd, const Array<Vector3> &points)
@@ -342,56 +369,284 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 joint_common_parse(JointDesc &jd, JointType::Enum jt, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 	{
-		CE_UNUSED(compiler);
+		const Guid other_unit_id = RETURN_IF_ERROR(sjson::parse_guid(flat_json_object::get(obj, "data.other_actor")));
 
-		TempAllocator4096 ta;
-		DynamicString type(ta);
-		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")));
+		jd = {};
+		jd.type_and_flags = u32(jt) << JOINT_TYPE_AND_FLAGS_TYPE_SHIFT;
+		jd.other_actor_unit_index = UINT32_MAX;
+		jd.pose = MATRIX4X4_IDENTITY;
+		jd.other_pose = MATRIX4X4_IDENTITY;
+		jd.break_force = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.break_force")));
 
-		JointType::Enum jt = joint_type_to_enum(type.c_str());
-		RETURN_IF_FALSE(jt != JointType::COUNT
-			, opts
-			, "Unknown joint type: '%s'"
-			, type.c_str()
-			);
+		if (jt != JointType::FIXED) {
+			Vector3 position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.position")));
+			Quaternion rotation = QUATERNION_IDENTITY;
+			Vector3 other_position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.other_position")));
+			Quaternion other_rotation = QUATERNION_IDENTITY;
 
-		JointDesc jd;
-		jd.type     = jt;
-		jd.anchor_0 = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.anchor_0")));
-		jd.anchor_1 = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.anchor_1")));
+			if (jt != JointType::SPHERICAL) {
+				rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.rotation")));
+				other_rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.other_rotation")));
+			}
 
-		switch (jd.type) {
-		case JointType::HINGE:
-			jd.hinge.use_motor         = RETURN_IF_ERROR(sjson::parse_bool (flat_json_object::get(obj, "data.use_motor")));
-			jd.hinge.target_velocity   = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.target_velocity")));
-			jd.hinge.max_motor_impulse = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.max_motor_impulse")));
-			jd.hinge.lower_limit       = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.lower_limit")));
-			jd.hinge.upper_limit       = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.upper_limit")));
-			jd.hinge.bounciness        = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.bounciness")));
-			break;
+			jd.pose = from_quaternion_translation(rotation, position);
+			jd.other_pose = from_quaternion_translation(other_rotation, other_position);
 		}
 
-		FileBuffer fb(output);
+		if (other_unit_id != GUID_ZERO) {
+			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
+			jd.other_actor_unit_index = unit_compiler::find_unit_index(compiler, other_unit_id, root_unit_index);
+			RETURN_IF_FALSE(jd.other_actor_unit_index != UINT32_MAX
+				, opts
+				, "Joint references a unit outside this unit resource"
+				);
+
+			Unit *other_unit = unit_compiler::find_unit(compiler, jd.other_actor_unit_index);
+			bool has_actor = false;
+			RETURN_IF_ERROR(unit_compiler::unit_has_component_type(has_actor
+				, other_unit
+				, STRING_ID_32("actor", UINT32_C(0x374cf583))
+				));
+			RETURN_IF_FALSE(has_actor
+				, opts
+				, "Joint references a unit without an actor component"
+				);
+		}
+
+		return 0;
+	}
+
+	s32 joint_common_write(FileBuffer &fb, JointDesc &jd)
+	{
 		BinaryWriter bw(fb);
-		bw.write(jd.type);
-		bw.write(jd.anchor_0);
-		bw.write(jd.anchor_1);
-		bw.write(jd.breakable);
-		bw.write(jd._pad[0]);
-		bw.write(jd._pad[1]);
-		bw.write(jd._pad[2]);
+		bw.write(jd.type_and_flags);
+		bw.write(jd.other_actor_unit_index);
+		bw.write(jd.pose);
+		bw.write(jd.other_pose);
 		bw.write(jd.break_force);
-		bw.write(jd.hinge);
-		bw.write(jd.hinge.axis);
-		bw.write(jd.hinge.use_motor);
-		bw.write(jd.hinge.target_velocity);
-		bw.write(jd.hinge.max_motor_impulse);
-		bw.write(jd.hinge.use_limits);
-		bw.write(jd.hinge.lower_limit);
-		bw.write(jd.hinge.upper_limit);
-		bw.write(jd.hinge.bounciness);
+		return 0;
+	}
+
+	s32 compile_fixed_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::FIXED, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		FileBuffer fb(output);
+		return joint_common_write(fb, jd);
+	}
+
+	s32 compile_hinge_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		HingeJoint hinge = {};
+		hinge.axis = VECTOR3_ZAXIS;
+		hinge.lower_limit = -PI_FOURTH;
+		hinge.upper_limit = PI_FOURTH;
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::HINGE, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		hinge.axis = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.axis")));
+
+		const bool use_motor = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.use_motor")));
+		jd.type_and_flags |= use_motor ? (u32)JointFlags::HINGE_USE_MOTOR : 0u;
+		hinge.target_velocity = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.target_velocity")));
+		hinge.max_motor_impulse = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.max_motor_impulse")));
+
+		const bool use_limits = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.use_limits")));
+		jd.type_and_flags |= use_limits ? (u32)JointFlags::HINGE_USE_LIMITS : 0u;
+		hinge.lower_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.lower_limit")));
+		hinge.upper_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.upper_limit")));
+		hinge.bounciness = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.bounciness")));
+
+		FileBuffer fb(output);
+		err = joint_common_write(fb, jd);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		BinaryWriter bw(fb);
+		bw.write(hinge.axis);
+		bw.write(hinge.target_velocity);
+		bw.write(hinge.max_motor_impulse);
+		bw.write(hinge.lower_limit);
+		bw.write(hinge.upper_limit);
+		bw.write(hinge.bounciness);
+		return 0;
+	}
+
+	s32 compile_spherical_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::SPHERICAL, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		FileBuffer fb(output);
+		return joint_common_write(fb, jd);
+	}
+
+	s32 compile_limb_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		LimbJoint limb = {};
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::LIMB, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		const char *limb_motion[] = { "data.twist_motion", "data.swing_y_motion", "data.swing_z_motion" };
+		const u32 limb_motion_shift[] = { LIMB_JOINT_TWIST_MOTION_SHIFT, LIMB_JOINT_SWING_Y_MOTION_SHIFT, LIMB_JOINT_SWING_Z_MOTION_SHIFT };
+
+		for (u32 i = 0; i < countof(limb_motion); ++i) {
+			TempAllocator64 ta;
+			DynamicString motion(ta);
+			RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, limb_motion[i])));
+			const D6Motion::Enum limb_motion = d6_motion_to_enum(motion.c_str());
+			RETURN_IF_FALSE(limb_motion != D6Motion::COUNT
+				, opts
+				, "Unknown limb motion: '%s'"
+				, motion.c_str()
+				);
+			limb.motion |= u32(limb_motion) << limb_motion_shift[i];
+		}
+
+		limb.twist_lower_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.twist_lower_limit")));
+		limb.twist_upper_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.twist_upper_limit")));
+		limb.swing_y_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.swing_y_limit")));
+		limb.swing_z_limit = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.swing_z_limit")));
+
+		FileBuffer fb(output);
+		err = joint_common_write(fb, jd);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		BinaryWriter bw(fb);
+		bw.write(limb.motion);
+		bw.write(limb.twist_lower_limit);
+		bw.write(limb.twist_upper_limit);
+		bw.write(limb.swing_y_limit);
+		bw.write(limb.swing_z_limit);
+		return 0;
+	}
+
+	s32 compile_spring_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		SpringJoint spring = {};
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::SPRING, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		spring.stiffness = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.stiffness")));
+		spring.damping = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.damping")));
+
+		FileBuffer fb(output);
+		err = joint_common_write(fb, jd);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		BinaryWriter bw(fb);
+		bw.write(spring.stiffness);
+		bw.write(spring.damping);
+		return 0;
+	}
+
+	s32 compile_d6_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	{
+		D6Joint d6 = {};
+		JointDesc jd;
+		s32 err = joint_common_parse(jd, JointType::D6, compiler, obj, opts);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		for (u32 axis = 0; axis < 3; ++axis) {
+			{
+				const char *linear_motion[] = { "data.linear_motion_x", "data.linear_motion_y", "data.linear_motion_z" };
+				const u32 linear_motion_shift[] = { D6_JOINT_LINEAR_X_MOTION_SHIFT, D6_JOINT_LINEAR_Y_MOTION_SHIFT, D6_JOINT_LINEAR_Z_MOTION_SHIFT };
+
+				TempAllocator64 ta;
+				DynamicString motion(ta);
+				RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, linear_motion[axis])));
+				const D6Motion::Enum mot = d6_motion_to_enum(motion.c_str());
+				RETURN_IF_FALSE(mot != D6Motion::COUNT
+					, opts
+					, "Unknown D6 linear motion: '%s'"
+					, motion.c_str()
+					);
+				d6.motion_and_motor |= u32(mot) << linear_motion_shift[axis];
+			}
+
+			{
+				const char *angular_motion[] = { "data.angular_motion_x", "data.angular_motion_y", "data.angular_motion_z" };
+				const u32 angular_motion_shift[] = { D6_JOINT_ANGULAR_X_MOTION_SHIFT, D6_JOINT_ANGULAR_Y_MOTION_SHIFT, D6_JOINT_ANGULAR_Z_MOTION_SHIFT };
+
+				TempAllocator64 ta;
+				DynamicString motion(ta);
+				RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, angular_motion[axis])));
+				const D6Motion::Enum mot = d6_motion_to_enum(motion.c_str());
+				RETURN_IF_FALSE(mot != D6Motion::COUNT
+					, opts
+					, "Unknown D6 angular motion: '%s'"
+					, motion.c_str()
+					);
+				d6.motion_and_motor |= u32(mot) << angular_motion_shift[axis];
+			}
+
+			{
+				const char *linear_motor[] = { "data.linear_motor_x", "data.linear_motor_y", "data.linear_motor_z" };
+				const u32 linear_motor_shift[] = { D6_JOINT_LINEAR_X_MOTOR_SHIFT, D6_JOINT_LINEAR_Y_MOTOR_SHIFT, D6_JOINT_LINEAR_Z_MOTOR_SHIFT };
+
+				TempAllocator64 ta;
+				DynamicString motor_mode(ta);
+				RETURN_IF_ERROR(sjson::parse_string(motor_mode, flat_json_object::get(obj, linear_motor[axis])));
+				const D6MotorMode::Enum mode = d6_motor_mode_to_enum(motor_mode.c_str());
+				RETURN_IF_FALSE(mode != D6MotorMode::COUNT
+					, opts
+					, "Unknown D6 linear motor mode: '%s'"
+					, motor_mode.c_str()
+					);
+				d6.motion_and_motor |= u32(mode) << linear_motor_shift[axis];
+			}
+
+			{
+				const char *angular_motor[] = { "data.angular_motor_x", "data.angular_motor_y", "data.angular_motor_z" };
+				const u32 angular_motor_shift[] = { D6_JOINT_ANGULAR_X_MOTOR_SHIFT, D6_JOINT_ANGULAR_Y_MOTOR_SHIFT, D6_JOINT_ANGULAR_Z_MOTOR_SHIFT };
+
+				TempAllocator64 ta;
+				DynamicString motor_mode(ta);
+				RETURN_IF_ERROR(sjson::parse_string(motor_mode, flat_json_object::get(obj, angular_motor[axis])));
+				const D6MotorMode::Enum mode = d6_motor_mode_to_enum(motor_mode.c_str());
+				RETURN_IF_FALSE(mode != D6MotorMode::COUNT
+					, opts
+					, "Unknown D6 angular motor mode: '%s'"
+					, motor_mode.c_str()
+					);
+				d6.motion_and_motor |= u32(mode) << angular_motor_shift[axis];
+			}
+		}
+
+		d6.linear_lower_limit = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.linear_lower_limit")));
+		d6.linear_upper_limit = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.linear_upper_limit")));
+		d6.angular_lower_limit = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.angular_lower_limit")));
+		d6.angular_upper_limit = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.angular_upper_limit")));
+		d6.linear_target_velocity = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.linear_target_velocity")));
+		d6.linear_target_position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.linear_target_position")));
+		d6.linear_max_motor_force = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.linear_max_motor_force")));
+		d6.angular_target_velocity = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.angular_target_velocity")));
+		d6.angular_target_position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.angular_target_position")));
+		d6.angular_max_motor_force = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.angular_max_motor_force")));
+
+		FileBuffer fb(output);
+		err = joint_common_write(fb, jd);
+		ENSURE_OR_RETURN(err == 0, opts);
+
+		BinaryWriter bw(fb);
+		bw.write(d6.motion_and_motor);
+		bw.write(d6.linear_lower_limit);
+		bw.write(d6.linear_upper_limit);
+		bw.write(d6.angular_lower_limit);
+		bw.write(d6.angular_upper_limit);
+		bw.write(d6.linear_target_velocity);
+		bw.write(d6.linear_target_position);
+		bw.write(d6.linear_max_motor_force);
+		bw.write(d6.angular_target_velocity);
+		bw.write(d6.angular_target_position);
+		bw.write(d6.angular_max_motor_force);
 		return 0;
 	}
 
