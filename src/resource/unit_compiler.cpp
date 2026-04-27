@@ -666,6 +666,141 @@ namespace unit_compiler
 		return NULL;
 	}
 
+	static u32 find_child_unit_index(Unit *unit, Guid id)
+	{
+		CE_ENSURE(unit != NULL);
+
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			if (cur->first == id)
+				return cur->second->_index;
+
+			const u32 child_index = find_child_unit_index(cur->second, id);
+			if (child_index != UINT32_MAX)
+				return child_index;
+		}
+
+		return UINT32_MAX;
+	}
+
+	static Unit *find_root_unit(UnitCompiler &c, u32 root_unit_index)
+	{
+		auto cur = hash_map::begin(c._units);
+		auto end = hash_map::end(c._units);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._units, cur);
+
+			if (cur->second->_index == root_unit_index)
+				return cur->second;
+		}
+
+		return NULL;
+	}
+
+	static Unit *find_unit_by_index(Unit *unit, u32 unit_index)
+	{
+		CE_ENSURE(unit != NULL);
+
+		if (unit->_index == unit_index)
+			return unit;
+
+		auto cur = hash_map::begin(unit->_children);
+		auto end = hash_map::end(unit->_children);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(unit->_children, cur);
+
+			Unit *child = find_unit_by_index(cur->second, unit_index);
+			if (child != NULL)
+				return child;
+		}
+
+		return NULL;
+	}
+
+	u32 find_unit_index(UnitCompiler &c, Guid unit_id, u32 root_unit_index)
+	{
+		Unit *root = find_root_unit(c, root_unit_index);
+		if (root != NULL) {
+			auto cur = hash_map::begin(c._units);
+			auto end = hash_map::end(c._units);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(c._units, cur);
+
+				if (cur->second != root)
+					continue;
+
+				if (cur->first == unit_id) {
+					return cur->second->_index;
+				}
+
+				const u32 child_index = find_child_unit_index(root, unit_id);
+				if (child_index != UINT32_MAX)
+					return child_index;
+
+				break;
+			}
+		}
+
+		auto cur = hash_map::begin(c._units);
+		auto end = hash_map::end(c._units);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._units, cur);
+
+			if (cur->first == unit_id)
+				return cur->second->_index;
+
+			const u32 child_index = find_child_unit_index(cur->second, unit_id);
+			if (child_index != UINT32_MAX)
+				return child_index;
+		}
+
+		return UINT32_MAX;
+	}
+
+	Unit *find_unit(UnitCompiler &c, u32 unit_index)
+	{
+		auto cur = hash_map::begin(c._units);
+		auto end = hash_map::end(c._units);
+		for (; cur != end; ++cur) {
+			HASH_MAP_SKIP_HOLE(c._units, cur);
+
+			Unit *unit = find_unit_by_index(cur->second, unit_index);
+			if (unit != NULL)
+				return unit;
+		}
+
+		return NULL;
+	}
+
+	s32 unit_has_component_type(bool &has_type, Unit *unit, StringId32 type)
+	{
+		CE_ENSURE(unit != NULL);
+		has_type = false;
+
+		for (u32 i = 0; i < array::size(unit->_merged_components); ++i) {
+			TempAllocator512 ta;
+			JsonObject component(ta);
+			RETURN_IF_ERROR(sjson::parse(component, unit->_merged_components[i]));
+
+			StringId32 component_type;
+			if (json_object::has(component, "_type")) {
+				component_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]));
+			} else {
+				component_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]));
+			}
+
+			if (component_type == type) {
+				has_type = true;
+				return 0;
+			}
+		}
+
+		return 0;
+	}
+
 	void delete_unit(Unit *unit)
 	{
 		auto cur = hash_map::begin(unit->_children);

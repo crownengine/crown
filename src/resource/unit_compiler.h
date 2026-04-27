@@ -110,6 +110,15 @@ namespace unit_compiler
 	s32 parse_unit_array_from_json(UnitCompiler &c, const char *units_array_json, CompileOptions &opts);
 
 	///
+	u32 find_unit_index(UnitCompiler &c, Guid unit_id, u32 root_unit_index);
+
+	///
+	Unit *find_unit(UnitCompiler &c, u32 unit_index);
+
+	///
+	s32 unit_has_component_type(bool &has_type, Unit *unit, StringId32 type);
+
+	///
 	s32 blob(Buffer &output, UnitCompiler &c);
 
 } // namespace unit_compiler
