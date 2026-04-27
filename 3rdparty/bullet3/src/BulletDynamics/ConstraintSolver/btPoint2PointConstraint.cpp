@@ -18,12 +18,12 @@ subject to the following restrictions:
 #include <new>
 
 btPoint2PointConstraint::btPoint2PointConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& pivotInA, const btVector3& pivotInB)
-	: btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE, rbA, rbB), m_pivotInA(pivotInA), m_pivotInB(pivotInB), m_flags(0), m_useSolveConstraintObsolete(false)
+	: btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE, rbA, rbB), m_pivotInA(pivotInA), m_pivotInB(pivotInB), m_flags(0)
 {
 }
 
 btPoint2PointConstraint::btPoint2PointConstraint(btRigidBody& rbA, const btVector3& pivotInA)
-	: btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE, rbA), m_pivotInA(pivotInA), m_pivotInB(rbA.getCenterOfMassTransform()(pivotInA)), m_flags(0), m_useSolveConstraintObsolete(false)
+	: btTypedConstraint(POINT2POINT_CONSTRAINT_TYPE, rbA), m_pivotInA(pivotInA), m_pivotInB(rbA.getCenterOfMassTransform()(pivotInA)), m_flags(0)
 {
 }
 
@@ -60,16 +60,8 @@ void btPoint2PointConstraint::getInfo1(btConstraintInfo1* info)
 
 void btPoint2PointConstraint::getInfo1NonVirtual(btConstraintInfo1* info)
 {
-	if (m_useSolveConstraintObsolete)
-	{
-		info->m_numConstraintRows = 0;
-		info->nub = 0;
-	}
-	else
-	{
-		info->m_numConstraintRows = 3;
-		info->nub = 3;
-	}
+	info->m_numConstraintRows = 3;
+	info->nub = 3;
 }
 
 void btPoint2PointConstraint::getInfo2(btConstraintInfo2* info)
@@ -79,8 +71,6 @@ void btPoint2PointConstraint::getInfo2(btConstraintInfo2* info)
 
 void btPoint2PointConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const btTransform& body0_trans, const btTransform& body1_trans)
 {
-	btAssert(!m_useSolveConstraintObsolete);
-
 	//retrieve matrices
 
 	// anchor points in global coordinates with respect to body PORs.

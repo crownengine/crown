@@ -67,9 +67,6 @@ public:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	///for backwards compatibility during the transition to 'getInfo/getInfo2'
-	bool m_useSolveConstraintObsolete;
-
 	btConstraintSetting m_setting;
 
 	btPoint2PointConstraint(btRigidBody & rbA, btRigidBody & rbB, const btVector3& pivotInA, const btVector3& pivotInB);
