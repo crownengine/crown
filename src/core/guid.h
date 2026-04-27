@@ -55,6 +55,9 @@ namespace guid
 /// Returns whether Guid @a and @b are equal.
 bool operator==(const Guid &a, const Guid &b);
 
+/// Returns whether Guid @a and @b differ.
+bool operator!=(const Guid &a, const Guid &b);
+
 /// Returns whether Guid @a is lesser than @b.
 bool operator<(const Guid &a, const Guid &b);
 

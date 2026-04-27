@@ -14,6 +14,11 @@ inline bool operator==(const Guid &a, const Guid &b)
 		;
 }
 
+inline bool operator!=(const Guid &a, const Guid &b)
+{
+	return !(a == b);
+}
+
 inline bool operator<(const Guid &a, const Guid &b)
 {
 	if (a.data1 != b.data1)
