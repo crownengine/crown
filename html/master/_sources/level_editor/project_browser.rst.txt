@@ -85,3 +85,11 @@ By default the search covers the project itself (i.e. the main source dir). If
 your project includes mapped source directories, those are excluded from
 search results unless you enable them explicitly by checking ``Show mapped
 dirs`` in the :ref:`visibility controls <Files Visibility>`.
+
+Navigating history
+==================
+
+Use the ``Go Back`` and ``Go Forward`` buttons in the navigation bar to move
+through the folder history of the Project Browser. If your mouse has dedicated
+``Back`` and ``Forward`` buttons, they can also be used to speed up navigation
+while the pointer is over the Project Browser.

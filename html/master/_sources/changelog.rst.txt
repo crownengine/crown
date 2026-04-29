@@ -10,6 +10,7 @@ Changelog
 
 * Tools: added the ability to import units from Wavefront OBJ files.
 * Tools: added a number new of physics joint components.
+* Tools: added the ability to navigate history in the Project Browser via dedicated mouse buttons.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
