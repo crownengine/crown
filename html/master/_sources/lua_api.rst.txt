@@ -1205,6 +1205,32 @@ Mover
 **mover_debug_draw** (pw, mover, debug_line [, color])
 	Adds the *mover*'s debug geometry to *lines*.
 
+Joint
+-----
+
+**joint_instance** (pw, unit) : Id
+	Returns the ID of the joint owned by the *unit*, or ``nil``.
+
+**joint_destroy** (pw, joint)
+	Destroys the *joint* instance.
+
+**joint_create** (pw, type, actor, pose, other_actor, other_pose) : Id
+    Creates a new joint between *actor* and *other_actor* and returns its ID.
+    *pose* and *other_pose* describe the joint pivot poses in the corresponding
+    actor's local space. If *actor* or *other_actor* is ``nil``, the valid actor
+    is attached to the world. At least one of *actor* or *other_actor* must be
+    non-``nil``. Type must be one of `JointType`_.
+
+JointType
+---------
+
+* ``FIXED``: Locks all relative translation and rotation.
+* ``HINGE``: Allows rotation around a single axis.
+* ``SPHERICAL``: Keeps the joint poses together while allowing free rotation.
+* ``LIMB``: Twist/swing joint suited for articulated limbs.
+* ``SPRING``: Keeps the joint poses together while allowing them to move as if they were connected by a spring.
+* ``D6``: Highly configurable generic 6-DoF joint.
+
 Profiler
 ========
 

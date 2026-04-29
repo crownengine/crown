@@ -9,12 +9,14 @@ Changelog
 **New Features and Improvements**
 
 * Tools: added the ability to import units from Wavefront OBJ files.
+* Tools: added a number new of physics joint components.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
 * Lua: added ``GameSave`` singleton to save/load savegames.
+* Lua: added ``PhysicsWorld.joint_instance()``,  ``PhysicsWorld.joint_destroy()`` and ``PhysicsWorld.joint_create()``.
 
 **Fixes**
 

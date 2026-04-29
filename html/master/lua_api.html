@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-22T20:39:16+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-04-29T13:35:36+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -141,6 +141,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#raycasthit">RaycastHit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#actor">Actor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mover">Mover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#joint">Joint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jointtype">JointType</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#profiler">Profiler</a></li>
@@ -1182,6 +1184,32 @@ The <em>mover</em> will slide against physical actors.</p>
 </dd>
 </dl>
 </section>
+<section id="joint">
+<h3>Joint<a class="headerlink" href="#joint" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt><strong>joint_instance</strong> (pw, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the joint owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</p>
+</dd>
+<dt><strong>joint_destroy</strong> (pw, joint)</dt><dd><p>Destroys the <em>joint</em> instance.</p>
+</dd>
+<dt><strong>joint_create</strong> (pw, type, actor, pose, other_actor, other_pose)<span class="classifier">Id</span></dt><dd><p>Creates a new joint between <em>actor</em> and <em>other_actor</em> and returns its ID.
+<em>pose</em> and <em>other_pose</em> describe the joint pivot poses in the corresponding
+actor’s local space. If <em>actor</em> or <em>other_actor</em> is <code class="docutils literal notranslate"><span class="pre">nil</span></code>, the valid actor
+is attached to the world. At least one of <em>actor</em> or <em>other_actor</em> must be
+non-<code class="docutils literal notranslate"><span class="pre">nil</span></code>. Type must be one of <a class="reference internal" href="#jointtype">JointType</a>.</p>
+</dd>
+</dl>
+</section>
+<section id="jointtype">
+<h3>JointType<a class="headerlink" href="#jointtype" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FIXED</span></code>: Locks all relative translation and rotation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HINGE</span></code>: Allows rotation around a single axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SPHERICAL</span></code>: Keeps the joint poses together while allowing free rotation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LIMB</span></code>: Twist/swing joint suited for articulated limbs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SPRING</span></code>: Keeps the joint poses together while allowing them to move as if they were connected by a spring.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D6</span></code>: Highly configurable generic 6-DoF joint.</p></li>
+</ul>
+</section>
 </section>
 <section id="profiler">
 <h2>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h2>
@@ -1657,7 +1685,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 22, 2026.
+      <span class="lastupdated">Last updated on Apr 29, 2026.
       </span></p>
   </div>
 
