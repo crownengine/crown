@@ -80,6 +80,16 @@ public class InputResource : InputField
 		_selector.set_can_focus(false);
 		_box.pack_end(_selector, false);
 
+		Gtk.drag_dest_set(_name._entry
+			, Gtk.DestDefaults.MOTION
+			| Gtk.DestDefaults.HIGHLIGHT
+			, dnd_targets
+			, Gdk.DragAction.COPY
+			);
+		_name._entry.drag_data_received.connect(on_drag_data_received);
+		_name._entry.drag_motion.connect(on_drag_motion);
+		_name._entry.drag_drop.connect(on_drag_drop);
+
 		this.value = null;
 
 		db._project.file_added.connect(on_file_added_or_changed);
@@ -127,6 +137,42 @@ public class InputResource : InputField
 	{
 		if (type == _type && name == _name.value)
 			value_changed(this);
+	}
+
+	public bool on_drag_motion(Gdk.DragContext context, int x, int y, uint time_)
+	{
+		Gdk.Atom target = Gtk.drag_dest_find_target(_name._entry, context, null);
+		Gdk.drag_status(context, target != Gdk.Atom.NONE ? Gdk.DragAction.COPY : 0, time_);
+		return true;
+	}
+
+	public bool on_drag_drop(Gdk.DragContext context, int x, int y, uint time_)
+	{
+		Gdk.Atom target = Gtk.drag_dest_find_target(_name._entry, context, null);
+		if (target == Gdk.Atom.NONE)
+			return false;
+
+		Gtk.drag_get_data(_name._entry, context, target, time_);
+		return true;
+	}
+
+	public void on_drag_data_received(Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time_)
+	{
+		unowned uint8[] raw_data = data.get_data_with_length();
+		bool success = false;
+
+		if (raw_data.length != -1) {
+			string resource_path = (string)raw_data;
+			if (ResourceId.type(resource_path) == _type) {
+				string? resource_name = ResourceId.name(resource_path);
+				if (resource_name != null) {
+					this.value = resource_name;
+					success = true;
+				}
+			}
+		}
+
+		Gtk.drag_finish(context, success, false, time_);
 	}
 }
 
