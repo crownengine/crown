@@ -334,6 +334,8 @@ public class EditorView : Gtk.EventBox
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
+		uint key = Gdk.keyval_to_lower(keyval);
+
 		if (keyval == Gdk.Key.Escape)
 			GLib.Application.get_default().activate_action("cancel-place", null);
 
@@ -346,25 +348,25 @@ public class EditorView : Gtk.EventBox
 		if (keyval == Gdk.Key.Left)
 			_buffer.append("LevelEditor:key_down(\"move_left\")");
 
-		if (_keys.has_key(keyval)) {
-			if (!_keys[keyval]) {
-				_buffer.append(LevelEditorApi.key_down(key_to_string(keyval)));
+		if (_keys.has_key(key)) {
+			if (!_keys[key]) {
+				_buffer.append(LevelEditorApi.key_down(key_to_string(key)));
 
-				if (keyval == Gdk.Key.w)
+				if (key == Gdk.Key.w)
 					_buffer.append("LevelEditor._camera.actions.forward = true;");
-				if (keyval == Gdk.Key.s)
+				if (key == Gdk.Key.s)
 					_buffer.append("LevelEditor._camera.actions.back = true;");
-				if (keyval == Gdk.Key.a)
+				if (key == Gdk.Key.a)
 					_buffer.append("LevelEditor._camera.actions.left = true;");
-				if (keyval == Gdk.Key.d)
+				if (key == Gdk.Key.d)
 					_buffer.append("LevelEditor._camera.actions.right = true;");
-				if (keyval == Gdk.Key.q)
+				if (key == Gdk.Key.q)
 					_buffer.append("LevelEditor._camera.actions.up = true;");
-				if (keyval == Gdk.Key.e)
+				if (key == Gdk.Key.e)
 					_buffer.append("LevelEditor._camera.actions.down = true;");
 			}
 
-			_keys[keyval] = true;
+			_keys[key] = true;
 		}
 
 		if (_buffer.len != 0) {
@@ -377,25 +379,27 @@ public class EditorView : Gtk.EventBox
 
 	public void on_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
-		if (_keys.has_key(keyval)) {
-			if (_keys[keyval]) {
-				_buffer.append(LevelEditorApi.key_up(key_to_string(keyval)));
+		uint key = Gdk.keyval_to_lower(keyval);
 
-				if (keyval == Gdk.Key.w)
+		if (_keys.has_key(key)) {
+			if (_keys[key]) {
+				_buffer.append(LevelEditorApi.key_up(key_to_string(key)));
+
+				if (key == Gdk.Key.w)
 					_buffer.append("LevelEditor._camera.actions.forward = false");
-				if (keyval == Gdk.Key.s)
+				if (key == Gdk.Key.s)
 					_buffer.append("LevelEditor._camera.actions.back = false");
-				if (keyval == Gdk.Key.a)
+				if (key == Gdk.Key.a)
 					_buffer.append("LevelEditor._camera.actions.left = false");
-				if (keyval == Gdk.Key.d)
+				if (key == Gdk.Key.d)
 					_buffer.append("LevelEditor._camera.actions.right = false");
-				if (keyval == Gdk.Key.q)
+				if (key == Gdk.Key.q)
 					_buffer.append("LevelEditor._camera.actions.up = false");
-				if (keyval == Gdk.Key.e)
+				if (key == Gdk.Key.e)
 					_buffer.append("LevelEditor._camera.actions.down = false");
 			}
 
-			_keys[keyval] = false;
+			_keys[key] = false;
 		}
 
 		if (_buffer.len != 0) {

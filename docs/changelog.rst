@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
+* Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
 
 .. _v0.62.2:
 
