@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-01T16:36:04+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-02T10:25:52+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -139,6 +139,7 @@
 <li><p>Tools: added a number new of physics joint components.</p></li>
 <li><p>Tools: added the ability to navigate history in the Project Browser via dedicated mouse buttons.</p></li>
 <li><p>Tools: added the ability to drag &amp; drop resource properties from the Project Browser to object views.</p></li>
+<li><p>Tools: while in flythrough camera mode you can now adjust the movement speed using the mouse wheel and temporarily speed up or slow down it by pressing Shift or Alt respectively.</p></li>
 <li><p>Runtime: added the ability to override render settings in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: added the ability to specify a configuration file with user-specific settings via the <code class="docutils literal notranslate"><span class="pre">user_config</span></code> setting in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.</p></li>
@@ -151,6 +152,7 @@
 <ul class="simple">
 <li><p>Tools: fixed units not spawning correctly when opened in the Unit Editor.</p></li>
 <li><p>Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.</p></li>
+<li><p>Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.</p></li>
 <li><p>Runtime: fixed a race conditions during application exit.</p></li>
 <li><p>Runtime: fixed a race condition when loading resources.</p></li>
 <li><p>Data Compiler: fixed generation of meshes with high vertex count.</p></li>
@@ -1017,7 +1019,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on May 01, 2026.
+      <span class="lastupdated">Last updated on May 02, 2026.
       </span></p>
   </div>
 
