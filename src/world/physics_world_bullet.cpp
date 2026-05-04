@@ -372,6 +372,16 @@ static inline Matrix4x4 to_matrix4x4(const btTransform &t)
 	return m;
 }
 
+CE_STATIC_ASSERT(SIMD_INFINITY == FLT_MAX);
+static const u32 s_d6_linear_motion_shift[D6Axis::COUNT]  = { D6_JOINT_LINEAR_X_MOTION_SHIFT,  D6_JOINT_LINEAR_Y_MOTION_SHIFT,  D6_JOINT_LINEAR_Z_MOTION_SHIFT };
+static const u32 s_d6_linear_motion_mask[D6Axis::COUNT]   = { D6_JOINT_LINEAR_X_MOTION_MASK,   D6_JOINT_LINEAR_Y_MOTION_MASK,   D6_JOINT_LINEAR_Z_MOTION_MASK };
+static const u32 s_d6_angular_motion_shift[D6Axis::COUNT] = { D6_JOINT_ANGULAR_X_MOTION_SHIFT, D6_JOINT_ANGULAR_Y_MOTION_SHIFT, D6_JOINT_ANGULAR_Z_MOTION_SHIFT };
+static const u32 s_d6_angular_motion_mask[D6Axis::COUNT]  = { D6_JOINT_ANGULAR_X_MOTION_MASK,  D6_JOINT_ANGULAR_Y_MOTION_MASK,  D6_JOINT_ANGULAR_Z_MOTION_MASK };
+static const u32 s_d6_linear_motor_shift[D6Axis::COUNT]   = { D6_JOINT_LINEAR_X_MOTOR_SHIFT,   D6_JOINT_LINEAR_Y_MOTOR_SHIFT,   D6_JOINT_LINEAR_Z_MOTOR_SHIFT };
+static const u32 s_d6_linear_motor_mask[D6Axis::COUNT]    = { D6_JOINT_LINEAR_X_MOTOR_MASK,    D6_JOINT_LINEAR_Y_MOTOR_MASK,    D6_JOINT_LINEAR_Z_MOTOR_MASK };
+static const u32 s_d6_angular_motor_shift[D6Axis::COUNT]  = { D6_JOINT_ANGULAR_X_MOTOR_SHIFT,  D6_JOINT_ANGULAR_Y_MOTOR_SHIFT,  D6_JOINT_ANGULAR_Z_MOTOR_SHIFT };
+static const u32 s_d6_angular_motor_mask[D6Axis::COUNT]   = { D6_JOINT_ANGULAR_X_MOTOR_MASK,   D6_JOINT_ANGULAR_Y_MOTOR_MASK,   D6_JOINT_ANGULAR_Z_MOTOR_MASK };
+
 static void draw_mover_step_quad(DebugLine *lines, const Vector3 &bottom, const Vector3 &up, f32 step_quad_half, f32 step_height, f32 half_scale, const Color4 &color)
 {
 	const Vector3 step_center = bottom + up * step_height;
@@ -2403,14 +2413,9 @@ struct PhysicsWorldImpl
 				btVector3 angular_lower_limit(0.0f, 0.0f, 0.0f);
 				btVector3 angular_upper_limit(0.0f, 0.0f, 0.0f);
 
-				const u32 linear_motion_shift[]  = { D6_JOINT_LINEAR_X_MOTION_SHIFT, D6_JOINT_LINEAR_Y_MOTION_SHIFT, D6_JOINT_LINEAR_Z_MOTION_SHIFT };
-				const u32 linear_motion_mask[]   = { D6_JOINT_LINEAR_X_MOTION_MASK,  D6_JOINT_LINEAR_Y_MOTION_MASK,  D6_JOINT_LINEAR_Z_MOTION_MASK };
-				const u32 angular_motion_shift[] = { D6_JOINT_ANGULAR_X_MOTION_SHIFT, D6_JOINT_ANGULAR_Y_MOTION_SHIFT, D6_JOINT_ANGULAR_Z_MOTION_SHIFT };
-				const u32 angular_motion_mask[]  = { D6_JOINT_ANGULAR_X_MOTION_MASK,  D6_JOINT_ANGULAR_Y_MOTION_MASK,  D6_JOINT_ANGULAR_Z_MOTION_MASK };
-
 				for (u32 axis = 0; axis < 3; ++axis) {
-					const D6Motion::Enum lm = (D6Motion::Enum)((dj.motion_and_motor & linear_motion_mask[axis]) >> linear_motion_shift[axis]);
-					const D6Motion::Enum am = (D6Motion::Enum)((dj.motion_and_motor & angular_motion_mask[axis]) >> angular_motion_shift[axis]);
+					const D6Motion::Enum lm = (D6Motion::Enum)((dj.motion_and_motor & s_d6_linear_motion_mask[axis]) >> s_d6_linear_motion_shift[axis]);
+					const D6Motion::Enum am = (D6Motion::Enum)((dj.motion_and_motor & s_d6_angular_motion_mask[axis]) >> s_d6_angular_motion_shift[axis]);
 
 					linear_lower_limit[axis] = lm == D6Motion::LOCKED ? 0.0f : lm == D6Motion::LIMITED ? to_float_ptr(dj.linear_lower_limit)[axis] : 1.0f;
 					linear_upper_limit[axis] = lm == D6Motion::LOCKED ? 0.0f : lm == D6Motion::LIMITED ? to_float_ptr(dj.linear_upper_limit)[axis] : 0.0f;
@@ -2424,37 +2429,24 @@ struct PhysicsWorldImpl
 				d6->setAngularLowerLimit(angular_lower_limit);
 				d6->setAngularUpperLimit(angular_upper_limit);
 
-				const u32 linear_motor_shift[]  = { D6_JOINT_LINEAR_X_MOTOR_SHIFT,  D6_JOINT_LINEAR_Y_MOTOR_SHIFT,  D6_JOINT_LINEAR_Z_MOTOR_SHIFT };
-				const u32 linear_motor_mask[]   = { D6_JOINT_LINEAR_X_MOTOR_MASK,   D6_JOINT_LINEAR_Y_MOTOR_MASK,   D6_JOINT_LINEAR_Z_MOTOR_MASK };
-				const u32 angular_motor_shift[] = { D6_JOINT_ANGULAR_X_MOTOR_SHIFT, D6_JOINT_ANGULAR_Y_MOTOR_SHIFT, D6_JOINT_ANGULAR_Z_MOTOR_SHIFT };
-				const u32 angular_motor_mask[]  = { D6_JOINT_ANGULAR_X_MOTOR_MASK,  D6_JOINT_ANGULAR_Y_MOTOR_MASK,  D6_JOINT_ANGULAR_Z_MOTOR_MASK };
-
 				for (u32 axis = 0; axis < 3; ++axis) {
 					const int lidx = (int)axis;
-					const int aidx = 3 + (int)axis;
+					const int aidx = 3 + lidx;
 
-					const D6MotorMode::Enum lmotor = (D6MotorMode::Enum)((dj.motion_and_motor & linear_motor_mask[axis]) >> linear_motor_shift[axis]);
-					const D6MotorMode::Enum amotor = (D6MotorMode::Enum)((dj.motion_and_motor & angular_motor_mask[axis]) >> angular_motor_shift[axis]);
+					const D6MotorMode::Enum lmotor = (D6MotorMode::Enum)((dj.motion_and_motor & s_d6_linear_motor_mask[axis]) >> s_d6_linear_motor_shift[axis]);
+					const D6MotorMode::Enum amotor = (D6MotorMode::Enum)((dj.motion_and_motor & s_d6_angular_motor_mask[axis]) >> s_d6_angular_motor_shift[axis]);
 
 					d6->enableMotor(lidx, lmotor != D6MotorMode::OFF);
 					d6->setServo(lidx, lmotor == D6MotorMode::POSITION);
-					if (lmotor == D6MotorMode::VELOCITY) {
-						d6->setTargetVelocity(lidx, to_float_ptr(dj.linear_target_velocity)[axis]);
-						d6->setMaxMotorForce(lidx, to_float_ptr(dj.linear_max_motor_force)[axis]);
-					} else if (lmotor == D6MotorMode::POSITION) {
-						d6->setServoTarget(lidx, to_float_ptr(dj.linear_target_position)[axis]);
-						d6->setMaxMotorForce(lidx, to_float_ptr(dj.linear_max_motor_force)[axis]);
-					}
+					d6->setTargetVelocity(lidx, to_float_ptr(dj.linear_target_velocity)[axis]);
+					d6->setServoTarget(lidx, to_float_ptr(dj.linear_target_position)[axis]);
+					d6->setMaxMotorForce(lidx, to_float_ptr(dj.linear_max_motor_force)[axis]);
 
 					d6->enableMotor(aidx, amotor != D6MotorMode::OFF);
 					d6->setServo(aidx, amotor == D6MotorMode::POSITION);
-					if (amotor == D6MotorMode::VELOCITY) {
-						d6->setTargetVelocity(aidx, to_float_ptr(dj.angular_target_velocity)[axis]);
-						d6->setMaxMotorForce(aidx, to_float_ptr(dj.angular_max_motor_force)[axis]);
-					} else if (amotor == D6MotorMode::POSITION) {
-						d6->setServoTarget(aidx, to_float_ptr(dj.angular_target_position)[axis]);
-						d6->setMaxMotorForce(aidx, to_float_ptr(dj.angular_max_motor_force)[axis]);
-					}
+					d6->setTargetVelocity(aidx, to_float_ptr(dj.angular_target_velocity)[axis]);
+					d6->setServoTarget(aidx, to_float_ptr(dj.angular_target_position)[axis]);
+					d6->setMaxMotorForce(aidx, to_float_ptr(dj.angular_max_motor_force)[axis]);
 				}
 
 				joint = d6;
@@ -2466,8 +2458,10 @@ struct PhysicsWorldImpl
 				break;
 			}
 
-			if (jd.break_force < FLT_MAX)
-				joint->setBreakingImpulseThreshold(jd.break_force);
+			joint->setBreakingImpulseThreshold(jd.break_force);
+
+			if (type == JointType::FIXED || type == JointType::SPRING || type == JointType::D6)
+				joint->setUserConstraintType((int)type);
 
 			_dynamics_world->addConstraint(joint);
 			const u32 last = array::size(_joints);
@@ -2496,6 +2490,425 @@ struct PhysicsWorldImpl
 			hash_map::set(_joint_map, last_unit, i.i);
 		if (unit != UNIT_INVALID)
 			hash_map::remove(_joint_map, unit);
+	}
+
+	void joint_set_break_force(JointId joint, f32 force)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		_joints[joint.i].joint->setBreakingImpulseThreshold(force);
+	}
+
+	void joint_spring_params(f32 &stiffness, f32 &damping, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(spring->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && spring->getUserConstraintType() == JointType::SPRING, "Invalid joint type");
+		btTranslationalLimitMotor2 *motor = spring->getTranslationalLimitMotor();
+		stiffness = (f32)motor->m_springStiffness[0];
+		damping = (f32)motor->m_springDamping[0];
+	}
+
+	void joint_spring_set_params(JointId joint, f32 stiffness, f32 damping)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(spring->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && spring->getUserConstraintType() == JointType::SPRING, "Invalid joint type");
+		for (int axis = 0; axis < 3; ++axis) {
+			spring->setStiffness(axis, stiffness);
+			spring->setDamping(axis, damping);
+		}
+	}
+
+	f32 joint_hinge_angle(JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		return (f32)hinge->getHingeAngle();
+	}
+
+	void joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		enabled = hinge->getEnableAngularMotor();
+		max_motor_impulse = (f32)hinge->getMaxMotorImpulse();
+	}
+
+	void joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		hinge->enableAngularMotor(enabled, hinge->getMotorTargetVelocity(), max_motor_impulse);
+	}
+
+	f32 joint_hinge_target_velocity(JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		return (f32)hinge->getMotorTargetVelocity();
+	}
+
+	void joint_hinge_set_target_velocity(JointId joint, f32 velocity)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		hinge->setMotorTargetVelocity(velocity);
+	}
+
+	void joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		enabled = hinge->hasLimit();
+		lower_limit = (f32)hinge->getLowerLimit();
+		upper_limit = (f32)hinge->getUpperLimit();
+		bounciness = (f32)hinge->getLimitSoftness();
+	}
+
+	void joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
+		hinge->setLimit(enabled ? lower_limit : 1.0f
+			, enabled ? upper_limit : -1.0f
+			, bounciness
+			);
+	}
+
+	f32 joint_limb_twist_angle(JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		btTransform other_frame = limb->getBFrame();
+		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
+		const btMatrix3x3 basis_b = (limb->getRigidBodyB().getCenterOfMassTransform() * other_frame).m_basis;
+		const btVector3 b1_axis1 = basis_a.getColumn(0);
+		const btVector3 b1_axis2 = basis_a.getColumn(1);
+		const btVector3 b1_axis3 = basis_a.getColumn(2);
+		const btVector3 b2_axis1 = basis_b.getColumn(0);
+		const btVector3 b2_axis2 = basis_b.getColumn(1);
+		const btQuaternion rotation_arc = shortestArcQuat(b2_axis1, b1_axis1);
+		const btVector3 twist_ref = quatRotate(rotation_arc, b2_axis2);
+		return (f32)btAtan2(twist_ref.dot(b1_axis3), twist_ref.dot(b1_axis2));
+	}
+
+	f32 joint_limb_swing_y_angle(JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		btTransform other_frame = limb->getBFrame();
+		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
+		const btMatrix3x3 basis_b = (limb->getRigidBodyB().getCenterOfMassTransform() * other_frame).m_basis;
+		const btVector3 b1_axis1 = basis_a.getColumn(0);
+		const btVector3 b1_axis3 = basis_a.getColumn(2);
+		const btVector3 b2_axis1 = basis_b.getColumn(0);
+		const btScalar fact = b2_axis1.dot(b1_axis1) >= 0.0f ? 1.0f : -1.0f;
+		return (f32)(btAtan2(b2_axis1.dot(b1_axis3), b2_axis1.dot(b1_axis1)) * fact);
+	}
+
+	f32 joint_limb_swing_z_angle(JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		btTransform other_frame = limb->getBFrame();
+		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
+		const btMatrix3x3 basis_b = (limb->getRigidBodyB().getCenterOfMassTransform() * other_frame).m_basis;
+		const btVector3 b1_axis1 = basis_a.getColumn(0);
+		const btVector3 b1_axis2 = basis_a.getColumn(1);
+		const btVector3 b2_axis1 = basis_b.getColumn(0);
+		const btScalar fact = b2_axis1.dot(b1_axis1) >= 0.0f ? 1.0f : -1.0f;
+		return (f32)(btAtan2(b2_axis1.dot(b1_axis2), b2_axis1.dot(b1_axis1)) * fact);
+	}
+
+	void joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		const btScalar twist_span = limb->getTwistSpan();
+		const btScalar swing_y_span = limb->getSwingSpan2();
+		const btScalar swing_z_span = limb->getSwingSpan1();
+		twist_motion = twist_span == 0.0f ? D6Motion::LOCKED : twist_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		swing_y_motion = swing_y_span == 0.0f ? D6Motion::LOCKED : swing_y_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		swing_z_motion = swing_z_span == 0.0f ? D6Motion::LOCKED : swing_z_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+	}
+
+	void joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(twist_motion < D6Motion::COUNT, "Unknown limb twist motion");
+		CE_ASSERT(swing_y_motion < D6Motion::COUNT, "Unknown limb swing Y motion");
+		CE_ASSERT(swing_z_motion < D6Motion::COUNT, "Unknown limb swing Z motion");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		const btScalar old_twist_span = limb->getTwistSpan();
+		const btScalar old_swing_y_span = limb->getSwingSpan2();
+		const btScalar old_swing_z_span = limb->getSwingSpan1();
+		const btScalar twist_span = twist_motion == D6Motion::LOCKED ? 0.0f : twist_motion == D6Motion::LIMITED ? old_twist_span : BT_LARGE_FLOAT;
+		const btScalar swing_y_span = swing_y_motion == D6Motion::LOCKED ? 0.0f : swing_y_motion == D6Motion::LIMITED ? old_swing_y_span : BT_LARGE_FLOAT;
+		const btScalar swing_z_span = swing_z_motion == D6Motion::LOCKED ? 0.0f : swing_z_motion == D6Motion::LIMITED ? old_swing_z_span : BT_LARGE_FLOAT;
+		limb->setLimit(swing_z_span, swing_y_span, twist_span);
+	}
+
+	void joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		const f32 twist_span = (f32)limb->getTwistSpan();
+		lower_limit = -twist_span;
+		upper_limit = twist_span;
+	}
+
+	void joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		const btScalar old_twist_span = limb->getTwistSpan();
+		const btScalar old_swing_y_span = limb->getSwingSpan2();
+		const btScalar old_swing_z_span = limb->getSwingSpan1();
+		const D6Motion::Enum twist_motion   = old_twist_span == 0.0f ? D6Motion::LOCKED : old_twist_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const D6Motion::Enum swing_y_motion = old_swing_y_span == 0.0f ? D6Motion::LOCKED : old_swing_y_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const D6Motion::Enum swing_z_motion = old_swing_z_span == 0.0f ? D6Motion::LOCKED : old_swing_z_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const btScalar twist_span = twist_motion == D6Motion::LOCKED ? 0.0f : twist_motion == D6Motion::LIMITED ? btMax(btFabs(lower_limit), btFabs(upper_limit)) : BT_LARGE_FLOAT;
+		const btScalar swing_y_span = swing_y_motion == D6Motion::LOCKED ? 0.0f : swing_y_motion == D6Motion::LIMITED ? old_swing_y_span : BT_LARGE_FLOAT;
+		const btScalar swing_z_span = swing_z_motion == D6Motion::LOCKED ? 0.0f : swing_z_motion == D6Motion::LIMITED ? old_swing_z_span : BT_LARGE_FLOAT;
+		limb->setLimit(swing_z_span, swing_y_span, twist_span);
+	}
+
+	void joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		y_limit = (f32)limb->getSwingSpan2();
+		z_limit = (f32)limb->getSwingSpan1();
+	}
+
+	void joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
+		const btScalar old_twist_span = limb->getTwistSpan();
+		const btScalar old_swing_y_span = limb->getSwingSpan2();
+		const btScalar old_swing_z_span = limb->getSwingSpan1();
+		const D6Motion::Enum twist_motion   = old_twist_span == 0.0f ? D6Motion::LOCKED : old_twist_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const D6Motion::Enum swing_y_motion = old_swing_y_span == 0.0f ? D6Motion::LOCKED : old_swing_y_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const D6Motion::Enum swing_z_motion = old_swing_z_span == 0.0f ? D6Motion::LOCKED : old_swing_z_span >= BT_LARGE_FLOAT * 0.5f ? D6Motion::FREE : D6Motion::LIMITED;
+		const btScalar twist_span = twist_motion == D6Motion::LOCKED ? 0.0f : twist_motion == D6Motion::LIMITED ? old_twist_span : BT_LARGE_FLOAT;
+		const btScalar swing_y_span = swing_y_motion == D6Motion::LOCKED ? 0.0f : swing_y_motion == D6Motion::LIMITED ? max(0.0f, y_limit) : BT_LARGE_FLOAT;
+		const btScalar swing_z_span = swing_z_motion == D6Motion::LOCKED ? 0.0f : swing_z_motion == D6Motion::LIMITED ? max(0.0f, z_limit) : BT_LARGE_FLOAT;
+		limb->setLimit(swing_z_span, swing_y_span, twist_span);
+	}
+
+	D6Motion::Enum joint_d6_linear_motion(JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btVector3 lower_limit;
+		btVector3 upper_limit;
+		d6->getLinearLowerLimit(lower_limit);
+		d6->getLinearUpperLimit(upper_limit);
+		return upper_limit[axis] < lower_limit[axis] ? D6Motion::FREE : upper_limit[axis] == lower_limit[axis] ? D6Motion::LOCKED : D6Motion::LIMITED;
+	}
+
+	void joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		CE_ASSERT(motion < D6Motion::COUNT, "Unknown D6 motion");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btVector3 lower_limit;
+		btVector3 upper_limit;
+		d6->getLinearLowerLimit(lower_limit);
+		d6->getLinearUpperLimit(upper_limit);
+		const f32 lower = (f32)lower_limit[axis];
+		const f32 upper = (f32)upper_limit[axis];
+		d6->setLimit((int)axis
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? lower : 1.0f
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? upper : 0.0f
+			);
+	}
+
+	D6Motion::Enum joint_d6_angular_motion(JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
+		return motor->m_hiLimit < motor->m_loLimit ? D6Motion::FREE : motor->m_hiLimit == motor->m_loLimit ? D6Motion::LOCKED : D6Motion::LIMITED;
+	}
+
+	void joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		CE_ASSERT(motion < D6Motion::COUNT, "Unknown D6 motion");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
+		const f32 lower = (f32)motor->m_loLimit;
+		const f32 upper = (f32)motor->m_hiLimit;
+		const int aidx = 3 + (int)axis;
+		d6->setLimit(aidx
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? lower : 1.0f
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? upper : 0.0f
+			);
+	}
+
+	void joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btVector3 lower_limit;
+		btVector3 upper_limit;
+		d6->getLinearLowerLimit(lower_limit);
+		d6->getLinearUpperLimit(upper_limit);
+		lower = (f32)lower_limit[axis];
+		upper = (f32)upper_limit[axis];
+	}
+
+	void joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btVector3 lower_limit;
+		btVector3 upper_limit;
+		d6->getLinearLowerLimit(lower_limit);
+		d6->getLinearUpperLimit(upper_limit);
+		const D6Motion::Enum motion = upper_limit[axis] < lower_limit[axis] ? D6Motion::FREE : upper_limit[axis] == lower_limit[axis] ? D6Motion::LOCKED : D6Motion::LIMITED;
+		d6->setLimit((int)axis
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? lower : 1.0f
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? upper : 0.0f
+			);
+	}
+
+	void joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
+		lower = (f32)motor->m_loLimit;
+		upper = (f32)motor->m_hiLimit;
+	}
+
+	void joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
+		const D6Motion::Enum motion = motor->m_hiLimit < motor->m_loLimit ? D6Motion::FREE : motor->m_hiLimit == motor->m_loLimit ? D6Motion::LOCKED : D6Motion::LIMITED;
+		const int aidx = 3 + (int)axis;
+		d6->setLimit(aidx
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? lower : 1.0f
+			, motion == D6Motion::LOCKED ? 0.0f : motion == D6Motion::LIMITED ? upper : 0.0f
+			);
+	}
+
+	void joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btTranslationalLimitMotor2 *linear_limit = d6->getTranslationalLimitMotor();
+		btRotationalLimitMotor2 *angular_limit = d6->getRotationalLimitMotor((int)axis);
+		linear_motor = !linear_limit->m_enableMotor[axis] ? D6MotorMode::OFF : linear_limit->m_servoMotor[axis] ? D6MotorMode::POSITION : D6MotorMode::VELOCITY;
+		linear_max_force = (f32)linear_limit->m_maxMotorForce[axis];
+		angular_motor = !angular_limit->m_enableMotor ? D6MotorMode::OFF : angular_limit->m_servoMotor ? D6MotorMode::POSITION : D6MotorMode::VELOCITY;
+		angular_max_force = (f32)angular_limit->m_maxMotorForce;
+	}
+
+	void joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		CE_ASSERT(linear_motor < D6MotorMode::COUNT, "Unknown D6 motor mode");
+		CE_ASSERT(angular_motor < D6MotorMode::COUNT, "Unknown D6 motor mode");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		btTranslationalLimitMotor2 *linear_limit = d6->getTranslationalLimitMotor();
+		btRotationalLimitMotor2 *angular_limit = d6->getRotationalLimitMotor((int)axis);
+		const int lidx = (int)axis;
+		const int aidx = 3 + lidx;
+		d6->enableMotor(lidx, linear_motor != D6MotorMode::OFF);
+		d6->setServo(lidx, linear_motor == D6MotorMode::POSITION);
+		d6->setTargetVelocity(lidx, linear_limit->m_targetVelocity[axis]);
+		d6->setServoTarget(lidx, linear_limit->m_servoTarget[axis]);
+		d6->setMaxMotorForce(lidx, linear_max_force);
+		d6->enableMotor(aidx, angular_motor != D6MotorMode::OFF);
+		d6->setServo(aidx, angular_motor == D6MotorMode::POSITION);
+		d6->setTargetVelocity(aidx, angular_limit->m_targetVelocity);
+		d6->setServoTarget(aidx, angular_limit->m_servoTarget);
+		d6->setMaxMotorForce(aidx, angular_max_force);
+	}
+
+	void joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		linear = (f32)d6->getTranslationalLimitMotor()->m_targetVelocity[axis];
+		angular = (f32)d6->getRotationalLimitMotor((int)axis)->m_targetVelocity;
+	}
+
+	void joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		const int lidx = (int)axis;
+		const int aidx = 3 + lidx;
+		d6->setTargetVelocity(lidx, linear);
+		d6->setTargetVelocity(aidx, angular);
+	}
+
+	void joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		linear = (f32)d6->getTranslationalLimitMotor()->m_servoTarget[axis];
+		angular = (f32)d6->getRotationalLimitMotor((int)axis)->m_servoTarget;
+	}
+
+	void joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+	{
+		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
+		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
+		const int lidx = (int)axis;
+		const int aidx = 3 + lidx;
+		d6->setServoTarget(lidx, linear);
+		d6->setServoTarget(aidx, angular);
 	}
 
 	bool cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)
@@ -3253,6 +3666,171 @@ void PhysicsWorld::joint_create_instances(const void *components_data, u32 num, 
 void PhysicsWorld::joint_destroy(JointId i)
 {
 	_impl->joint_destroy(i);
+}
+
+void PhysicsWorld::joint_set_break_force(JointId joint, f32 force)
+{
+	_impl->joint_set_break_force(joint, force);
+}
+
+void PhysicsWorld::joint_spring_params(f32 &stiffness, f32 &damping, JointId joint)
+{
+	_impl->joint_spring_params(stiffness, damping, joint);
+}
+
+void PhysicsWorld::joint_spring_set_params(JointId joint, f32 stiffness, f32 damping)
+{
+	_impl->joint_spring_set_params(joint, stiffness, damping);
+}
+
+f32 PhysicsWorld::joint_hinge_angle(JointId joint)
+{
+	return _impl->joint_hinge_angle(joint);
+}
+
+void PhysicsWorld::joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint)
+{
+	_impl->joint_hinge_motor(enabled, max_motor_impulse, joint);
+}
+
+void PhysicsWorld::joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse)
+{
+	_impl->joint_hinge_set_motor(joint, enabled, max_motor_impulse);
+}
+
+f32 PhysicsWorld::joint_hinge_target_velocity(JointId joint)
+{
+	return _impl->joint_hinge_target_velocity(joint);
+}
+
+void PhysicsWorld::joint_hinge_set_target_velocity(JointId joint, f32 velocity)
+{
+	_impl->joint_hinge_set_target_velocity(joint, velocity);
+}
+
+void PhysicsWorld::joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint)
+{
+	_impl->joint_hinge_limits(enabled, lower_limit, upper_limit, bounciness, joint);
+}
+
+void PhysicsWorld::joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness)
+{
+	_impl->joint_hinge_set_limits(joint, enabled, lower_limit, upper_limit, bounciness);
+}
+
+f32 PhysicsWorld::joint_limb_twist_angle(JointId joint)
+{
+	return _impl->joint_limb_twist_angle(joint);
+}
+
+f32 PhysicsWorld::joint_limb_swing_y_angle(JointId joint)
+{
+	return _impl->joint_limb_swing_y_angle(joint);
+}
+
+f32 PhysicsWorld::joint_limb_swing_z_angle(JointId joint)
+{
+	return _impl->joint_limb_swing_z_angle(joint);
+}
+
+void PhysicsWorld::joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint)
+{
+	_impl->joint_limb_motion(twist_motion, swing_y_motion, swing_z_motion, joint);
+}
+
+void PhysicsWorld::joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion)
+{
+	_impl->joint_limb_set_motion(joint, twist_motion, swing_y_motion, swing_z_motion);
+}
+
+void PhysicsWorld::joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint)
+{
+	_impl->joint_limb_twist_limit(lower_limit, upper_limit, joint);
+}
+
+void PhysicsWorld::joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit)
+{
+	_impl->joint_limb_set_twist_limit(joint, lower_limit, upper_limit);
+}
+
+void PhysicsWorld::joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint)
+{
+	_impl->joint_limb_swing_limit(y_limit, z_limit, joint);
+}
+
+void PhysicsWorld::joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit)
+{
+	_impl->joint_limb_set_swing_limit(joint, y_limit, z_limit);
+}
+
+D6Motion::Enum PhysicsWorld::joint_d6_linear_motion(JointId joint, D6Axis::Enum axis)
+{
+	return _impl->joint_d6_linear_motion(joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+{
+	_impl->joint_d6_set_linear_motion(joint, axis, motion);
+}
+
+D6Motion::Enum PhysicsWorld::joint_d6_angular_motion(JointId joint, D6Axis::Enum axis)
+{
+	return _impl->joint_d6_angular_motion(joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+{
+	_impl->joint_d6_set_angular_motion(joint, axis, motion);
+}
+
+void PhysicsWorld::joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_linear_limit(lower, upper, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+{
+	_impl->joint_d6_set_linear_limit(joint, axis, lower, upper);
+}
+
+void PhysicsWorld::joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_angular_limit(lower, upper, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+{
+	_impl->joint_d6_set_angular_limit(joint, axis, lower, upper);
+}
+
+void PhysicsWorld::joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_motor(linear_motor, linear_max_force, angular_motor, angular_max_force, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force)
+{
+	_impl->joint_d6_set_motor(joint, axis, linear_motor, linear_max_force, angular_motor, angular_max_force);
+}
+
+void PhysicsWorld::joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_target_velocity(linear, angular, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+{
+	_impl->joint_d6_set_target_velocity(joint, axis, linear, angular);
+}
+
+void PhysicsWorld::joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_target_position(linear, angular, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+{
+	_impl->joint_d6_set_target_position(joint, axis, linear, angular);
 }
 
 bool PhysicsWorld::cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)

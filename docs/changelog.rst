@@ -19,7 +19,7 @@ Changelog
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
 * Lua: added ``GameSave`` singleton to save/load savegames.
-* Lua: added ``PhysicsWorld.joint_instance()``,  ``PhysicsWorld.joint_destroy()`` and ``PhysicsWorld.joint_create()``.
+* Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
 
 **Fixes**
 

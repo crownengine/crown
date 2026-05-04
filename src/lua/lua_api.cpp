@@ -46,6 +46,8 @@
 #include "world/sound_world.h"
 #include "world/unit_manager.h"
 #include "world/world.h"
+#include <float.h> // FLT_MAX
+#include <math.h>  // HUGE_VAL
 
 namespace crown
 {
@@ -3206,6 +3208,283 @@ void load_api(LuaEnvironment &env)
 				stack.push_nil();
 			return 1;
 		});
+	env.add_module_function("PhysicsWorld", "joint_set_break_force", [](lua_State *L) {
+			LuaStack stack(L);
+			const f32 force = stack.get_float(3);
+			stack.get_physics_world(1)->joint_set_break_force({ stack.get_id(2) }, force == HUGE_VAL ? FLT_MAX : force);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_spring_params", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			f32 stiffness;
+			f32 damping;
+			stack.get_physics_world(1)->joint_spring_params(stiffness, damping, { stack.get_id(2) });
+			stack.push_float(stiffness);
+			stack.push_float(damping);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_spring_set_params", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_spring_set_params({ stack.get_id(2) }, stack.get_float(3), stack.get_float(4));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_angle", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->joint_hinge_angle({ stack.get_id(2) }));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_motor", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			bool enabled;
+			f32 max_motor_impulse;
+			stack.get_physics_world(1)->joint_hinge_motor(enabled, max_motor_impulse, { stack.get_id(2) });
+			stack.push_bool(enabled);
+			stack.push_float(max_motor_impulse);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_set_motor", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_hinge_set_motor({ stack.get_id(2) }, stack.get_bool(3), stack.get_float(4));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_target_velocity", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->joint_hinge_target_velocity({ stack.get_id(2) }));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_set_target_velocity", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_hinge_set_target_velocity({ stack.get_id(2) }, stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_limits", [](lua_State *L) {
+			LuaStack stack(L, +4);
+			bool enabled;
+			f32 lower_limit;
+			f32 upper_limit;
+			f32 bounciness;
+			stack.get_physics_world(1)->joint_hinge_limits(enabled, lower_limit, upper_limit, bounciness, { stack.get_id(2) });
+			stack.push_bool(enabled);
+			stack.push_float(lower_limit);
+			stack.push_float(upper_limit);
+			stack.push_float(bounciness);
+			return 4;
+		});
+	env.add_module_function("PhysicsWorld", "joint_hinge_set_limits", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_hinge_set_limits({ stack.get_id(2) }
+				, stack.get_bool(3)
+				, stack.get_float(4)
+				, stack.get_float(5)
+				, stack.get_float(6)
+				);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_twist_angle", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->joint_limb_twist_angle({ stack.get_id(2) }));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_swing_y_angle", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->joint_limb_swing_y_angle({ stack.get_id(2) }));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_swing_z_angle", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_float(stack.get_physics_world(1)->joint_limb_swing_z_angle({ stack.get_id(2) }));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_motion", [](lua_State *L) {
+			LuaStack stack(L, +3);
+			D6Motion::Enum twist_motion;
+			D6Motion::Enum swing_y_motion;
+			D6Motion::Enum swing_z_motion;
+			stack.get_physics_world(1)->joint_limb_motion(twist_motion, swing_y_motion, swing_z_motion, { stack.get_id(2) });
+			stack.push_int(twist_motion);
+			stack.push_int(swing_y_motion);
+			stack.push_int(swing_z_motion);
+			return 3;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_set_motion", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Motion::Enum twist_motion = (D6Motion::Enum)stack.get_int(3);
+			const D6Motion::Enum swing_y_motion = (D6Motion::Enum)stack.get_int(4);
+			const D6Motion::Enum swing_z_motion = (D6Motion::Enum)stack.get_int(5);
+			LUA_ASSERT(twist_motion < D6Motion::COUNT, stack, "Unknown D6 motion: %d", twist_motion);
+			LUA_ASSERT(swing_y_motion < D6Motion::COUNT, stack, "Unknown D6 motion: %d", swing_y_motion);
+			LUA_ASSERT(swing_z_motion < D6Motion::COUNT, stack, "Unknown D6 motion: %d", swing_z_motion);
+			stack.get_physics_world(1)->joint_limb_set_motion({ stack.get_id(2) }
+				, twist_motion
+				, swing_y_motion
+				, swing_z_motion
+				);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_twist_limit", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			f32 lower_limit;
+			f32 upper_limit;
+			stack.get_physics_world(1)->joint_limb_twist_limit(lower_limit, upper_limit, { stack.get_id(2) });
+			stack.push_float(lower_limit);
+			stack.push_float(upper_limit);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_set_twist_limit", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_limb_set_twist_limit({ stack.get_id(2) }, stack.get_float(3), stack.get_float(4));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_swing_limit", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			f32 y_limit;
+			f32 z_limit;
+			stack.get_physics_world(1)->joint_limb_swing_limit(y_limit, z_limit, { stack.get_id(2) });
+			stack.push_float(y_limit);
+			stack.push_float(z_limit);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_limb_set_swing_limit", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_physics_world(1)->joint_limb_set_swing_limit({ stack.get_id(2) }, stack.get_float(3), stack.get_float(4));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_linear_motion", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.push_int(stack.get_physics_world(1)->joint_d6_linear_motion({ stack.get_id(2) }, axis));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_linear_motion", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			const D6Motion::Enum motion = (D6Motion::Enum)stack.get_int(4);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			LUA_ASSERT(motion < D6Motion::COUNT, stack, "Unknown D6 motion: %d", motion);
+			stack.get_physics_world(1)->joint_d6_set_linear_motion({ stack.get_id(2) }, axis, motion);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_angular_motion", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.push_int(stack.get_physics_world(1)->joint_d6_angular_motion({ stack.get_id(2) }, axis));
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_angular_motion", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			const D6Motion::Enum motion = (D6Motion::Enum)stack.get_int(4);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			LUA_ASSERT(motion < D6Motion::COUNT, stack, "Unknown D6 motion: %d", motion);
+			stack.get_physics_world(1)->joint_d6_set_angular_motion({ stack.get_id(2) }, axis, motion);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_linear_limit", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			f32 lower;
+			f32 upper;
+			stack.get_physics_world(1)->joint_d6_linear_limit(lower, upper, { stack.get_id(2) }, axis);
+			stack.push_float(lower);
+			stack.push_float(upper);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_linear_limit", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.get_physics_world(1)->joint_d6_set_linear_limit({ stack.get_id(2) }, axis, stack.get_float(4), stack.get_float(5));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_angular_limit", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			f32 lower;
+			f32 upper;
+			stack.get_physics_world(1)->joint_d6_angular_limit(lower, upper, { stack.get_id(2) }, axis);
+			stack.push_float(lower);
+			stack.push_float(upper);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_angular_limit", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.get_physics_world(1)->joint_d6_set_angular_limit({ stack.get_id(2) }, axis, stack.get_float(4), stack.get_float(5));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_motor", [](lua_State *L) {
+			LuaStack stack(L, +4);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			D6MotorMode::Enum linear_motor;
+			D6MotorMode::Enum angular_motor;
+			f32 linear_max_force;
+			f32 angular_max_force;
+			stack.get_physics_world(1)->joint_d6_motor(linear_motor, linear_max_force, angular_motor, angular_max_force, { stack.get_id(2) }, axis);
+			stack.push_int(linear_motor);
+			stack.push_float(linear_max_force);
+			stack.push_int(angular_motor);
+			stack.push_float(angular_max_force);
+			return 4;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_motor", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			const D6MotorMode::Enum linear_motor = (D6MotorMode::Enum)stack.get_int(4);
+			const D6MotorMode::Enum angular_motor = (D6MotorMode::Enum)stack.get_int(6);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			LUA_ASSERT(linear_motor < D6MotorMode::COUNT, stack, "Unknown D6 motor: %d", linear_motor);
+			LUA_ASSERT(angular_motor < D6MotorMode::COUNT, stack, "Unknown D6 motor: %d", angular_motor);
+			stack.get_physics_world(1)->joint_d6_set_motor({ stack.get_id(2) }
+				, axis
+				, linear_motor
+				, stack.get_float(5)
+				, angular_motor
+				, stack.get_float(7)
+				);
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_target_velocity", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			f32 linear;
+			f32 angular;
+			stack.get_physics_world(1)->joint_d6_target_velocity(linear, angular, { stack.get_id(2) }, axis);
+			stack.push_float(linear);
+			stack.push_float(angular);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_target_velocity", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.get_physics_world(1)->joint_d6_set_target_velocity({ stack.get_id(2) }, axis, stack.get_float(4), stack.get_float(5));
+			return 0;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_target_position", [](lua_State *L) {
+			LuaStack stack(L, +2);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			f32 linear;
+			f32 angular;
+			stack.get_physics_world(1)->joint_d6_target_position(linear, angular, { stack.get_id(2) }, axis);
+			stack.push_float(linear);
+			stack.push_float(angular);
+			return 2;
+		});
+	env.add_module_function("PhysicsWorld", "joint_d6_set_target_position", [](lua_State *L) {
+			LuaStack stack(L);
+			const D6Axis::Enum axis = (D6Axis::Enum)stack.get_int(3);
+			LUA_ASSERT(axis < D6Axis::COUNT, stack, "Unknown D6 axis: %d", axis);
+			stack.get_physics_world(1)->joint_d6_set_target_position({ stack.get_id(2) }, axis, stack.get_float(4), stack.get_float(5));
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "gravity", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_vector3(stack.get_physics_world(1)->gravity());
@@ -3525,7 +3804,9 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("Device", "temp_count", [](lua_State *L) {
 			LuaStack stack(L, +3);
-			u32 nv, nq, nm;
+			u32 nv;
+			u32 nq;
+			u32 nm;
 			device()->_lua_environment->temp_count(nv, nq, nm);
 			stack.push_int(nv);
 			stack.push_int(nq);
@@ -4093,6 +4374,15 @@ void load_api(LuaEnvironment &env)
 	env.set_module_number("JointType", "LIMB", JointType::LIMB);
 	env.set_module_number("JointType", "SPRING", JointType::SPRING);
 	env.set_module_number("JointType", "D6", JointType::D6);
+	env.set_module_number("D6Axis", "X", D6Axis::X);
+	env.set_module_number("D6Axis", "Y", D6Axis::Y);
+	env.set_module_number("D6Axis", "Z", D6Axis::Z);
+	env.set_module_number("D6Motion", "LOCKED", D6Motion::LOCKED);
+	env.set_module_number("D6Motion", "LIMITED", D6Motion::LIMITED);
+	env.set_module_number("D6Motion", "FREE", D6Motion::FREE);
+	env.set_module_number("D6Motor", "OFF", D6MotorMode::OFF);
+	env.set_module_number("D6Motor", "VELOCITY", D6MotorMode::VELOCITY);
+	env.set_module_number("D6Motor", "POSITION", D6MotorMode::POSITION);
 	env.set_module_number("SaveError", "INVALID_REQUEST", SaveError::INVALID_REQUEST);
 	env.set_module_number("SaveError", "SAVE_DIR_UNSET", SaveError::SAVE_DIR_UNSET);
 	env.set_module_number("SaveError", "MISSING", SaveError::MISSING);

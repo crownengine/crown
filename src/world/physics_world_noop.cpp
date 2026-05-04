@@ -333,6 +333,205 @@ struct PhysicsWorldImpl
 	{
 	}
 
+	void joint_set_break_force(JointId joint, f32 force)
+	{
+		CE_UNUSED_2(joint, force);
+	}
+
+	void joint_spring_params(f32 &stiffness, f32 &damping, JointId joint)
+	{
+		CE_UNUSED(joint);
+		stiffness = 0.0f;
+		damping = 0.0f;
+	}
+
+	void joint_spring_set_params(JointId joint, f32 stiffness, f32 damping)
+	{
+		CE_UNUSED_3(joint, stiffness, damping);
+	}
+
+	f32 joint_hinge_angle(JointId joint)
+	{
+		CE_UNUSED(joint);
+		return 0.0f;
+	}
+
+	void joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint)
+	{
+		CE_UNUSED(joint);
+		enabled = false;
+		max_motor_impulse = 0.0f;
+	}
+
+	void joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse)
+	{
+		CE_UNUSED_3(joint, enabled, max_motor_impulse);
+	}
+
+	f32 joint_hinge_target_velocity(JointId joint)
+	{
+		CE_UNUSED(joint);
+		return 0.0f;
+	}
+
+	void joint_hinge_set_target_velocity(JointId joint, f32 velocity)
+	{
+		CE_UNUSED_2(joint, velocity);
+	}
+
+	void joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint)
+	{
+		CE_UNUSED(joint);
+		enabled = false;
+		lower_limit = 0.0f;
+		upper_limit = 0.0f;
+		bounciness = 0.0f;
+	}
+
+	void joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness)
+	{
+		CE_UNUSED_5(joint, enabled, lower_limit, upper_limit, bounciness);
+	}
+
+	f32 joint_limb_twist_angle(JointId joint)
+	{
+		CE_UNUSED(joint);
+		return 0.0f;
+	}
+
+	f32 joint_limb_swing_y_angle(JointId joint)
+	{
+		CE_UNUSED(joint);
+		return 0.0f;
+	}
+
+	f32 joint_limb_swing_z_angle(JointId joint)
+	{
+		CE_UNUSED(joint);
+		return 0.0f;
+	}
+
+	void joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint)
+	{
+		CE_UNUSED(joint);
+		twist_motion = D6Motion::LOCKED;
+		swing_y_motion = D6Motion::LOCKED;
+		swing_z_motion = D6Motion::LOCKED;
+	}
+
+	void joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion)
+	{
+		CE_UNUSED_4(joint, twist_motion, swing_y_motion, swing_z_motion);
+	}
+
+	void joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint)
+	{
+		CE_UNUSED(joint);
+		lower_limit = 0.0f;
+		upper_limit = 0.0f;
+	}
+
+	void joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit)
+	{
+		CE_UNUSED_3(joint, lower_limit, upper_limit);
+	}
+
+	void joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint)
+	{
+		CE_UNUSED(joint);
+		y_limit = 0.0f;
+		z_limit = 0.0f;
+	}
+
+	void joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit)
+	{
+		CE_UNUSED_3(joint, y_limit, z_limit);
+	}
+
+	D6Motion::Enum joint_d6_linear_motion(JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		return D6Motion::LOCKED;
+	}
+
+	void joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+	{
+		CE_UNUSED_3(joint, axis, motion);
+	}
+
+	D6Motion::Enum joint_d6_angular_motion(JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		return D6Motion::LOCKED;
+	}
+
+	void joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+	{
+		CE_UNUSED_3(joint, axis, motion);
+	}
+
+	void joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		lower = 0.0f;
+		upper = 0.0f;
+	}
+
+	void joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+	{
+		CE_UNUSED_4(joint, axis, lower, upper);
+	}
+
+	void joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		lower = 0.0f;
+		upper = 0.0f;
+	}
+
+	void joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+	{
+		CE_UNUSED_4(joint, axis, lower, upper);
+	}
+
+	void joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		linear_motor = D6MotorMode::OFF;
+		linear_max_force = 0.0f;
+		angular_motor = D6MotorMode::OFF;
+		angular_max_force = 0.0f;
+	}
+
+	void joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force)
+	{
+		CE_UNUSED_6(joint, axis, linear_motor, linear_max_force, angular_motor, angular_max_force);
+	}
+
+	void joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		linear = 0.0f;
+		angular = 0.0f;
+	}
+
+	void joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+	{
+		CE_UNUSED_4(joint, axis, linear, angular);
+	}
+
+	void joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+	{
+		CE_UNUSED_2(joint, axis);
+		linear = 0.0f;
+		angular = 0.0f;
+	}
+
+	void joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+	{
+		CE_UNUSED_4(joint, axis, linear, angular);
+	}
+
 	bool cast_ray(RaycastHit & /*hit*/, const Vector3 & /*from*/, const Vector3 & /*dir*/, f32 /*len*/)
 	{
 		return false;
@@ -716,6 +915,171 @@ JointId PhysicsWorld::joint_instance(UnitId unit)
 void PhysicsWorld::joint_destroy(JointId i)
 {
 	_impl->joint_destroy(i);
+}
+
+void PhysicsWorld::joint_set_break_force(JointId joint, f32 force)
+{
+	_impl->joint_set_break_force(joint, force);
+}
+
+void PhysicsWorld::joint_spring_params(f32 &stiffness, f32 &damping, JointId joint)
+{
+	_impl->joint_spring_params(stiffness, damping, joint);
+}
+
+void PhysicsWorld::joint_spring_set_params(JointId joint, f32 stiffness, f32 damping)
+{
+	_impl->joint_spring_set_params(joint, stiffness, damping);
+}
+
+f32 PhysicsWorld::joint_hinge_angle(JointId joint)
+{
+	return _impl->joint_hinge_angle(joint);
+}
+
+void PhysicsWorld::joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint)
+{
+	_impl->joint_hinge_motor(enabled, max_motor_impulse, joint);
+}
+
+void PhysicsWorld::joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse)
+{
+	_impl->joint_hinge_set_motor(joint, enabled, max_motor_impulse);
+}
+
+f32 PhysicsWorld::joint_hinge_target_velocity(JointId joint)
+{
+	return _impl->joint_hinge_target_velocity(joint);
+}
+
+void PhysicsWorld::joint_hinge_set_target_velocity(JointId joint, f32 velocity)
+{
+	_impl->joint_hinge_set_target_velocity(joint, velocity);
+}
+
+void PhysicsWorld::joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint)
+{
+	_impl->joint_hinge_limits(enabled, lower_limit, upper_limit, bounciness, joint);
+}
+
+void PhysicsWorld::joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness)
+{
+	_impl->joint_hinge_set_limits(joint, enabled, lower_limit, upper_limit, bounciness);
+}
+
+f32 PhysicsWorld::joint_limb_twist_angle(JointId joint)
+{
+	return _impl->joint_limb_twist_angle(joint);
+}
+
+f32 PhysicsWorld::joint_limb_swing_y_angle(JointId joint)
+{
+	return _impl->joint_limb_swing_y_angle(joint);
+}
+
+f32 PhysicsWorld::joint_limb_swing_z_angle(JointId joint)
+{
+	return _impl->joint_limb_swing_z_angle(joint);
+}
+
+void PhysicsWorld::joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint)
+{
+	_impl->joint_limb_motion(twist_motion, swing_y_motion, swing_z_motion, joint);
+}
+
+void PhysicsWorld::joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion)
+{
+	_impl->joint_limb_set_motion(joint, twist_motion, swing_y_motion, swing_z_motion);
+}
+
+void PhysicsWorld::joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint)
+{
+	_impl->joint_limb_twist_limit(lower_limit, upper_limit, joint);
+}
+
+void PhysicsWorld::joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit)
+{
+	_impl->joint_limb_set_twist_limit(joint, lower_limit, upper_limit);
+}
+
+void PhysicsWorld::joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint)
+{
+	_impl->joint_limb_swing_limit(y_limit, z_limit, joint);
+}
+
+void PhysicsWorld::joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit)
+{
+	_impl->joint_limb_set_swing_limit(joint, y_limit, z_limit);
+}
+
+D6Motion::Enum PhysicsWorld::joint_d6_linear_motion(JointId joint, D6Axis::Enum axis)
+{
+	return _impl->joint_d6_linear_motion(joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+{
+	_impl->joint_d6_set_linear_motion(joint, axis, motion);
+}
+
+D6Motion::Enum PhysicsWorld::joint_d6_angular_motion(JointId joint, D6Axis::Enum axis)
+{
+	return _impl->joint_d6_angular_motion(joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
+{
+	_impl->joint_d6_set_angular_motion(joint, axis, motion);
+}
+
+void PhysicsWorld::joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_linear_limit(lower, upper, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+{
+	_impl->joint_d6_set_linear_limit(joint, axis, lower, upper);
+}
+
+void PhysicsWorld::joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_angular_limit(lower, upper, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
+{
+	_impl->joint_d6_set_angular_limit(joint, axis, lower, upper);
+}
+
+void PhysicsWorld::joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_motor(linear_motor, linear_max_force, angular_motor, angular_max_force, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force)
+{
+	_impl->joint_d6_set_motor(joint, axis, linear_motor, linear_max_force, angular_motor, angular_max_force);
+}
+
+void PhysicsWorld::joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_target_velocity(linear, angular, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+{
+	_impl->joint_d6_set_target_velocity(joint, axis, linear, angular);
+}
+
+void PhysicsWorld::joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
+{
+	_impl->joint_d6_target_position(linear, angular, joint, axis);
+}
+
+void PhysicsWorld::joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
+{
+	_impl->joint_d6_set_target_position(joint, axis, linear, angular);
 }
 
 bool PhysicsWorld::cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len)

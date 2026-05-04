@@ -586,6 +586,18 @@ struct JointFlags
 	};
 };
 
+struct D6Axis
+{
+	enum Enum : u32
+	{
+		X,
+		Y,
+		Z,
+
+		COUNT
+	};
+};
+
 struct D6Motion
 {
 	enum Enum : u32

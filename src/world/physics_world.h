@@ -252,7 +252,7 @@ struct PhysicsWorld
 		, const u32 *unit_index
 		);
 
-	/// Creates joint.
+	/// Creates a new joint between @a actor and @a other_actor.
 	JointId joint_create(JointType::Enum type
 		, ActorId actor
 		, const Matrix4x4 &pose
@@ -260,11 +260,110 @@ struct PhysicsWorld
 		, const Matrix4x4 &other_pose
 		);
 
-	/// Returns the ID of the joint owned by the *unit*.
+	/// Returns the ID of the joint owned by @a unit.
 	JointId joint_instance(UnitId unit);
 
 	/// Destroys the @a joint.
 	void joint_destroy(JointId joint);
+
+	/// Sets the break @a force of the @a joint. Use FLT_MAX to disable breaking.
+	void joint_set_break_force(JointId joint, f32 force);
+
+	/// Returns the spring stiffness and damping of the @a joint.
+	void joint_spring_params(f32 &stiffness, f32 &damping, JointId joint);
+
+	/// Sets the spring @a stiffness and @a damping of the @a joint.
+	void joint_spring_set_params(JointId joint, f32 stiffness, f32 damping);
+
+	/// Returns the current hinge angle of the @a joint.
+	f32 joint_hinge_angle(JointId joint);
+
+	/// Returns whether the hinge motor is enabled and its max motor impulse.
+	void joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint);
+
+	/// Enables or disables the hinge motor and sets its max motor impulse.
+	void joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse);
+
+	/// Returns the hinge motor target velocity.
+	f32 joint_hinge_target_velocity(JointId joint);
+
+	/// Sets the hinge motor target @a velocity.
+	void joint_hinge_set_target_velocity(JointId joint, f32 velocity);
+
+	/// Returns whether hinge limits are enabled, the lower limit, upper limit and bounciness.
+	void joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint);
+
+	/// Enables or disables hinge limits and sets the lower limit, upper limit and bounciness.
+	void joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness);
+
+	/// Returns the current limb twist angle of the @a joint.
+	f32 joint_limb_twist_angle(JointId joint);
+
+	/// Returns the current limb swing angle around Y of the @a joint.
+	f32 joint_limb_swing_y_angle(JointId joint);
+
+	/// Returns the current limb swing angle around Z of the @a joint.
+	f32 joint_limb_swing_z_angle(JointId joint);
+
+	/// Returns the twist, swing Y and swing Z motion settings.
+	void joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint);
+
+	/// Sets the twist, swing Y and swing Z motion settings.
+	void joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion);
+
+	/// Returns the lower and upper twist limits.
+	void joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint);
+
+	/// Sets the lower and upper twist limits.
+	void joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit);
+
+	/// Returns the swing Y and swing Z limits.
+	void joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint);
+
+	/// Sets the swing Y and swing Z limits.
+	void joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit);
+
+	/// Returns the D6 linear motion for @a axis of the @a joint.
+	D6Motion::Enum joint_d6_linear_motion(JointId joint, D6Axis::Enum axis);
+
+	/// Sets the D6 linear @a motion for @a axis of the @a joint.
+	void joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion);
+
+	/// Returns the D6 angular motion for @a axis of the @a joint.
+	D6Motion::Enum joint_d6_angular_motion(JointId joint, D6Axis::Enum axis);
+
+	/// Sets the D6 angular @a motion for @a axis of the @a joint.
+	void joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion);
+
+	/// Returns the lower and upper D6 linear limits for @a axis of the @a joint.
+	void joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis);
+
+	/// Sets the lower and upper D6 linear limits for @a axis of the @a joint.
+	void joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper);
+
+	/// Returns the lower and upper D6 angular limits for @a axis of the @a joint.
+	void joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis);
+
+	/// Sets the lower and upper D6 angular limits for @a axis of the @a joint.
+	void joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper);
+
+	/// Returns the D6 linear motor, linear max force, angular motor and angular max force for @a axis of the @a joint.
+	void joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis);
+
+	/// Sets the D6 linear and angular motors and max forces for @a axis of the @a joint.
+	void joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force);
+
+	/// Returns the D6 linear and angular target velocities for @a axis of the @a joint.
+	void joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis);
+
+	/// Sets the D6 linear and angular target velocities for @a axis of the @a joint.
+	void joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular);
+
+	/// Returns the D6 linear and angular target positions for @a axis of the @a joint.
+	void joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis);
+
+	/// Sets the D6 linear and angular target positions for @a axis of the @a joint.
+	void joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular);
 
 	/// Casts a ray into the physics world and returns info about the closest collision if any.
 	bool cast_ray(RaycastHit &hit, const Vector3 &from, const Vector3 &dir, f32 len);
