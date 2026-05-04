@@ -10,6 +10,7 @@ Changelog
 
 * Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
 * Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
+* Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
 
 .. _v0.62.2:
 
