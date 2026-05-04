@@ -26,6 +26,7 @@ Changelog
 * Tools: fixed units not spawning correctly when opened in the Unit Editor.
 * Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
 * Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
+* Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Data Compiler: fixed generation of meshes with high vertex count.
