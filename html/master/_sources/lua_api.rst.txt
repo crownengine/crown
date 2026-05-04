@@ -1221,6 +1221,105 @@ Joint
     is attached to the world. At least one of *actor* or *other_actor* must be
     non-``nil``. Type must be one of `JointType`_.
 
+**joint_set_break_force** (pw, joint, force)
+	Sets the break *force* of the *joint*. Use ``math.huge`` to disable breaking.
+
+**joint_spring_params** (pw, joint) : number, number
+	Returns the spring stiffness and damping of the *joint*.
+
+**joint_spring_set_params** (pw, joint, stiffness, damping)
+	Sets the spring *stiffness* and *damping* of the *joint*.
+
+**joint_hinge_angle** (pw, joint) : number
+	Returns the current hinge angle of the *joint*.
+
+**joint_hinge_motor** (pw, joint) : bool, number
+	Returns whether the hinge motor is enabled and its max motor impulse.
+
+**joint_hinge_set_motor** (pw, joint, enabled, max_motor_impulse)
+	Enables or disables the hinge motor and sets its max motor impulse.
+
+**joint_hinge_target_velocity** (pw, joint) : number
+	Returns the hinge motor target velocity.
+
+**joint_hinge_set_target_velocity** (pw, joint, target_velocity)
+	Sets the hinge motor target velocity.
+
+**joint_hinge_limits** (pw, joint) : bool, number, number, number
+	Returns whether hinge limits are enabled, the lower limit, upper limit and bounciness.
+
+**joint_hinge_set_limits** (pw, joint, enabled, lower_limit, upper_limit, bounciness)
+	Enables or disables hinge limits and sets the lower limit, upper limit and bounciness.
+
+**joint_limb_twist_angle** (pw, joint) : number
+	Returns the current limb twist angle.
+
+**joint_limb_swing_y_angle** (pw, joint) : number
+	Returns the current limb swing angle around Y.
+
+**joint_limb_swing_z_angle** (pw, joint) : number
+	Returns the current limb swing angle around Z.
+
+**joint_limb_motion** (pw, joint) : D6Motion, D6Motion, D6Motion
+	Returns the twist, swing Y and swing Z motion settings.
+
+**joint_limb_set_motion** (pw, joint, twist_motion, swing_y_motion, swing_z_motion)
+	Sets the twist, swing Y and swing Z motion settings. Motions must be values from `D6Motion`_.
+
+**joint_limb_twist_limit** (pw, joint) : number, number
+	Returns the lower and upper twist limits.
+
+**joint_limb_set_twist_limit** (pw, joint, lower_limit, upper_limit)
+	Sets the lower and upper twist limits.
+
+**joint_limb_swing_limit** (pw, joint) : number, number
+	Returns the swing Y and swing Z limits.
+
+**joint_limb_set_swing_limit** (pw, joint, y_limit, z_limit)
+	Sets the swing Y and swing Z limits.
+
+**joint_d6_linear_motion** (pw, joint, axis) : D6Motion
+	Returns the linear motion for *axis*. Axis must be a value from `D6Axis`_.
+
+**joint_d6_set_linear_motion** (pw, joint, axis, motion)
+	Sets the linear *motion* for *axis*. Motion must be a value from `D6Motion`_.
+
+**joint_d6_angular_motion** (pw, joint, axis) : D6Motion
+	Returns the angular motion for *axis*. Axis must be a value from `D6Axis`_.
+
+**joint_d6_set_angular_motion** (pw, joint, axis, motion)
+	Sets the angular *motion* for *axis*. Motion must be a value from `D6Motion`_.
+
+**joint_d6_linear_limit** (pw, joint, axis) : number, number
+	Returns the lower and upper linear limits for *axis*.
+
+**joint_d6_set_linear_limit** (pw, joint, axis, lower, upper)
+	Sets the lower and upper linear limits for *axis*.
+
+**joint_d6_angular_limit** (pw, joint, axis) : number, number
+	Returns the lower and upper angular limits for *axis*.
+
+**joint_d6_set_angular_limit** (pw, joint, axis, lower, upper)
+	Sets the lower and upper angular limits for *axis*.
+
+**joint_d6_motor** (pw, joint, axis) : D6Motor, number, D6Motor, number
+	Returns the linear motor, linear max force, angular motor and angular max force for *axis*.
+
+**joint_d6_set_motor** (pw, joint, axis, linear_motor, linear_max_force, angular_motor, angular_max_force)
+	Sets the linear and angular motors and max forces for *axis*. Motors must be values from `D6Motor`_.
+
+**joint_d6_target_velocity** (pw, joint, axis) : number, number
+	Returns the linear and angular target velocities for *axis*.
+
+**joint_d6_set_target_velocity** (pw, joint, axis, linear, angular)
+	Sets the linear and angular target velocities for *axis*.
+
+**joint_d6_target_position** (pw, joint, axis) : number, number
+	Returns the linear and angular target positions for *axis*.
+
+**joint_d6_set_target_position** (pw, joint, axis, linear, angular)
+	Sets the linear and angular target positions for *axis*.
+
 JointType
 ---------
 
@@ -1230,6 +1329,27 @@ JointType
 * ``LIMB``: Twist/swing joint suited for articulated limbs.
 * ``SPRING``: Keeps the joint poses together while allowing them to move as if they were connected by a spring.
 * ``D6``: Highly configurable generic 6-DoF joint.
+
+D6Axis
+------
+
+* ``X``: X axis.
+* ``Y``: Y axis.
+* ``Z``: Z axis.
+
+D6Motion
+--------
+
+* ``LOCKED``: No motion is allowed.
+* ``LIMITED``: Motion is constrained by the configured limits.
+* ``FREE``: Motion is unconstrained.
+
+D6Motor
+-------
+
+* ``OFF``: Motor disabled.
+* ``VELOCITY``: Velocity motor.
+* ``POSITION``: Position motor.
 
 Profiler
 ========

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-29T13:35:36+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-05-04T12:36:00+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -143,6 +143,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#mover">Mover</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#joint">Joint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#jointtype">JointType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d6axis">D6Axis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d6motion">D6Motion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d6motor">D6Motor</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#profiler">Profiler</a></li>
@@ -1197,6 +1200,72 @@ actor’s local space. If <em>actor</em> or <em>other_actor</em> is <code class=
 is attached to the world. At least one of <em>actor</em> or <em>other_actor</em> must be
 non-<code class="docutils literal notranslate"><span class="pre">nil</span></code>. Type must be one of <a class="reference internal" href="#jointtype">JointType</a>.</p>
 </dd>
+<dt><strong>joint_set_break_force</strong> (pw, joint, force)</dt><dd><p>Sets the break <em>force</em> of the <em>joint</em>. Use <code class="docutils literal notranslate"><span class="pre">math.huge</span></code> to disable breaking.</p>
+</dd>
+<dt><strong>joint_spring_params</strong> (pw, joint)<span class="classifier">number, number</span></dt><dd><p>Returns the spring stiffness and damping of the <em>joint</em>.</p>
+</dd>
+<dt><strong>joint_spring_set_params</strong> (pw, joint, stiffness, damping)</dt><dd><p>Sets the spring <em>stiffness</em> and <em>damping</em> of the <em>joint</em>.</p>
+</dd>
+<dt><strong>joint_hinge_angle</strong> (pw, joint)<span class="classifier">number</span></dt><dd><p>Returns the current hinge angle of the <em>joint</em>.</p>
+</dd>
+<dt><strong>joint_hinge_motor</strong> (pw, joint)<span class="classifier">bool, number</span></dt><dd><p>Returns whether the hinge motor is enabled and its max motor impulse.</p>
+</dd>
+<dt><strong>joint_hinge_set_motor</strong> (pw, joint, enabled, max_motor_impulse)</dt><dd><p>Enables or disables the hinge motor and sets its max motor impulse.</p>
+</dd>
+<dt><strong>joint_hinge_target_velocity</strong> (pw, joint)<span class="classifier">number</span></dt><dd><p>Returns the hinge motor target velocity.</p>
+</dd>
+<dt><strong>joint_hinge_set_target_velocity</strong> (pw, joint, target_velocity)</dt><dd><p>Sets the hinge motor target velocity.</p>
+</dd>
+<dt><strong>joint_hinge_limits</strong> (pw, joint)<span class="classifier">bool, number, number, number</span></dt><dd><p>Returns whether hinge limits are enabled, the lower limit, upper limit and bounciness.</p>
+</dd>
+<dt><strong>joint_hinge_set_limits</strong> (pw, joint, enabled, lower_limit, upper_limit, bounciness)</dt><dd><p>Enables or disables hinge limits and sets the lower limit, upper limit and bounciness.</p>
+</dd>
+<dt><strong>joint_limb_twist_angle</strong> (pw, joint)<span class="classifier">number</span></dt><dd><p>Returns the current limb twist angle.</p>
+</dd>
+<dt><strong>joint_limb_swing_y_angle</strong> (pw, joint)<span class="classifier">number</span></dt><dd><p>Returns the current limb swing angle around Y.</p>
+</dd>
+<dt><strong>joint_limb_swing_z_angle</strong> (pw, joint)<span class="classifier">number</span></dt><dd><p>Returns the current limb swing angle around Z.</p>
+</dd>
+<dt><strong>joint_limb_motion</strong> (pw, joint)<span class="classifier">D6Motion, D6Motion, D6Motion</span></dt><dd><p>Returns the twist, swing Y and swing Z motion settings.</p>
+</dd>
+<dt><strong>joint_limb_set_motion</strong> (pw, joint, twist_motion, swing_y_motion, swing_z_motion)</dt><dd><p>Sets the twist, swing Y and swing Z motion settings. Motions must be values from <a class="reference internal" href="#d6motion">D6Motion</a>.</p>
+</dd>
+<dt><strong>joint_limb_twist_limit</strong> (pw, joint)<span class="classifier">number, number</span></dt><dd><p>Returns the lower and upper twist limits.</p>
+</dd>
+<dt><strong>joint_limb_set_twist_limit</strong> (pw, joint, lower_limit, upper_limit)</dt><dd><p>Sets the lower and upper twist limits.</p>
+</dd>
+<dt><strong>joint_limb_swing_limit</strong> (pw, joint)<span class="classifier">number, number</span></dt><dd><p>Returns the swing Y and swing Z limits.</p>
+</dd>
+<dt><strong>joint_limb_set_swing_limit</strong> (pw, joint, y_limit, z_limit)</dt><dd><p>Sets the swing Y and swing Z limits.</p>
+</dd>
+<dt><strong>joint_d6_linear_motion</strong> (pw, joint, axis)<span class="classifier">D6Motion</span></dt><dd><p>Returns the linear motion for <em>axis</em>. Axis must be a value from <a class="reference internal" href="#d6axis">D6Axis</a>.</p>
+</dd>
+<dt><strong>joint_d6_set_linear_motion</strong> (pw, joint, axis, motion)</dt><dd><p>Sets the linear <em>motion</em> for <em>axis</em>. Motion must be a value from <a class="reference internal" href="#d6motion">D6Motion</a>.</p>
+</dd>
+<dt><strong>joint_d6_angular_motion</strong> (pw, joint, axis)<span class="classifier">D6Motion</span></dt><dd><p>Returns the angular motion for <em>axis</em>. Axis must be a value from <a class="reference internal" href="#d6axis">D6Axis</a>.</p>
+</dd>
+<dt><strong>joint_d6_set_angular_motion</strong> (pw, joint, axis, motion)</dt><dd><p>Sets the angular <em>motion</em> for <em>axis</em>. Motion must be a value from <a class="reference internal" href="#d6motion">D6Motion</a>.</p>
+</dd>
+<dt><strong>joint_d6_linear_limit</strong> (pw, joint, axis)<span class="classifier">number, number</span></dt><dd><p>Returns the lower and upper linear limits for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_set_linear_limit</strong> (pw, joint, axis, lower, upper)</dt><dd><p>Sets the lower and upper linear limits for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_angular_limit</strong> (pw, joint, axis)<span class="classifier">number, number</span></dt><dd><p>Returns the lower and upper angular limits for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_set_angular_limit</strong> (pw, joint, axis, lower, upper)</dt><dd><p>Sets the lower and upper angular limits for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_motor</strong> (pw, joint, axis)<span class="classifier">D6Motor, number, D6Motor, number</span></dt><dd><p>Returns the linear motor, linear max force, angular motor and angular max force for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_set_motor</strong> (pw, joint, axis, linear_motor, linear_max_force, angular_motor, angular_max_force)</dt><dd><p>Sets the linear and angular motors and max forces for <em>axis</em>. Motors must be values from <a class="reference internal" href="#d6motor">D6Motor</a>.</p>
+</dd>
+<dt><strong>joint_d6_target_velocity</strong> (pw, joint, axis)<span class="classifier">number, number</span></dt><dd><p>Returns the linear and angular target velocities for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_set_target_velocity</strong> (pw, joint, axis, linear, angular)</dt><dd><p>Sets the linear and angular target velocities for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_target_position</strong> (pw, joint, axis)<span class="classifier">number, number</span></dt><dd><p>Returns the linear and angular target positions for <em>axis</em>.</p>
+</dd>
+<dt><strong>joint_d6_set_target_position</strong> (pw, joint, axis, linear, angular)</dt><dd><p>Sets the linear and angular target positions for <em>axis</em>.</p>
+</dd>
 </dl>
 </section>
 <section id="jointtype">
@@ -1208,6 +1277,30 @@ non-<code class="docutils literal notranslate"><span class="pre">nil</span></cod
 <li><p><code class="docutils literal notranslate"><span class="pre">LIMB</span></code>: Twist/swing joint suited for articulated limbs.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SPRING</span></code>: Keeps the joint poses together while allowing them to move as if they were connected by a spring.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">D6</span></code>: Highly configurable generic 6-DoF joint.</p></li>
+</ul>
+</section>
+<section id="d6axis">
+<h3>D6Axis<a class="headerlink" href="#d6axis" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code>: X axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Y</span></code>: Y axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Z</span></code>: Z axis.</p></li>
+</ul>
+</section>
+<section id="d6motion">
+<h3>D6Motion<a class="headerlink" href="#d6motion" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LOCKED</span></code>: No motion is allowed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LIMITED</span></code>: Motion is constrained by the configured limits.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FREE</span></code>: Motion is unconstrained.</p></li>
+</ul>
+</section>
+<section id="d6motor">
+<h3>D6Motor<a class="headerlink" href="#d6motor" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OFF</span></code>: Motor disabled.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VELOCITY</span></code>: Velocity motor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POSITION</span></code>: Position motor.</p></li>
 </ul>
 </section>
 </section>
@@ -1685,7 +1778,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 29, 2026.
+      <span class="lastupdated">Last updated on May 04, 2026.
       </span></p>
   </div>
 
