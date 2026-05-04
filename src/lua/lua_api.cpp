@@ -3181,8 +3181,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("PhysicsWorld", "joint_destroy", [](lua_State *L) {
 			LuaStack stack(L);
-			JointId joint = { stack.get_id(2) };
-			stack.get_physics_world(1)->joint_destroy(joint);
+			stack.get_physics_world(1)->joint_destroy({ stack.get_id(2) });
 			return 0;
 		});
 	env.add_module_function("PhysicsWorld", "joint_create", [](lua_State *L) {
