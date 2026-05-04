@@ -2196,7 +2196,7 @@ struct PhysicsWorldImpl
 		}
 
 		UnitId units[2] = { UNIT_INVALID, UNIT_INVALID };
-		u32 instance_unit_index[1] = { 0 };
+		u32 instance_unit_index = 0;
 
 		if (is_valid(actor)) {
 			units[0] = _actor[actor.i].unit;
@@ -2212,7 +2212,7 @@ struct PhysicsWorldImpl
 
 		const UnitId unit = units[0];
 
-		joint_create_instances(&data, 1, units, instance_unit_index);
+		joint_create_instances(&data, 1, units, &instance_unit_index);
 		return joint_instance(unit);
 	}
 
@@ -2860,13 +2860,13 @@ struct PhysicsWorldImpl
 
 	static void tick_cb(btDynamicsWorld *world, btScalar dt)
 	{
-		PhysicsWorldImpl *bw = static_cast<PhysicsWorldImpl *>(world->getWorldUserInfo());
+		PhysicsWorldImpl *bw = (PhysicsWorldImpl *)world->getWorldUserInfo();
 		bw->tick_callback(world, dt);
 	}
 
 	static void unit_destroyed_callback(UnitId unit, void *user_ptr)
 	{
-		static_cast<PhysicsWorldImpl *>(user_ptr)->unit_destroyed_callback(unit);
+		((PhysicsWorldImpl *)user_ptr)->unit_destroyed_callback(unit);
 	}
 
 	static ColliderId make_collider_instance(u32 i)
