@@ -1783,7 +1783,8 @@ public class LevelEditorApplication : Gtk.Application
 			port_file,
 			"--wait-console",
 			"--lua-string",
-			sg == StartGame.TEST ? "TEST=true" : ""
+			sg == StartGame.TEST ? "TEST=true" : "",
+			_preferences_dialog._game_keep_above.value ? "--keep-above" : ""
 		};
 
 		try {
