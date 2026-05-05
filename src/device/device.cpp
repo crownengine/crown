@@ -731,7 +731,11 @@ int Device::main_loop()
 	init.resolution.width  = _width;
 	init.resolution.height = _height;
 	init.resolution.reset  = _boot_config.vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE;
-	init.resolution.formatColor = bgfx::TextureFormat::RGB8; // Avoids gray text fringe on HTML5 and translucent window on OpenGL + Wayland.
+#if CROWN_PLATFORM_EMSCRIPTEN || CROWN_PLATFORM_LINUX
+	// Avoids gray text fringe on HTML5 and translucent window on OpenGL + Wayland.
+	// But it makes the d3d11 renderer on Windows fail at initialization.
+	init.resolution.formatColor = bgfx::TextureFormat::RGB8;
+#endif
 	init.callback  = _bgfx_callback;
 	init.allocator = _bgfx_allocator;
 	init.platformData.ndt = _window->native_display();
