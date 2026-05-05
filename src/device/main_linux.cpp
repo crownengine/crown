@@ -1396,6 +1396,7 @@ struct SystemX11 : public System
 	Atom net_wm_state_maximized_horz;
 	Atom net_wm_state_maximized_vert;
 	Atom net_wm_state_fullscreen;
+	Atom net_wm_state_above;
 	Cursor hidden_cursor;
 	Cursor cursors[MouseCursor::COUNT];
 	bool detectable_autorepeat;
@@ -1425,6 +1426,7 @@ struct SystemX11 : public System
 		, net_wm_state_maximized_horz(None)
 		, net_wm_state_maximized_vert(None)
 		, net_wm_state_fullscreen(None)
+		, net_wm_state_above(None)
 		, hidden_cursor(None)
 		, detectable_autorepeat(false)
 		, screen_config(NULL)
@@ -1487,6 +1489,7 @@ struct SystemX11 : public System
 		net_wm_state_maximized_horz = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
 		net_wm_state_maximized_vert = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 		net_wm_state_fullscreen = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+		net_wm_state_above = XInternAtom(display, "_NET_WM_STATE_ABOVE", False);
 
 		// Save screen configuration
 		screen_config = XRRGetScreenInfo(display, root_window);
@@ -1900,6 +1903,23 @@ struct WindowX11 : public Window
 	void show() override
 	{
 		XMapRaised(_x11->display, _x11->window);
+
+		if (s_linux_device->_options->_keep_above) {
+			XEvent xev;
+			xev.xclient.type = ClientMessage;
+			xev.xclient.window = _x11->window;
+			xev.xclient.message_type = _x11->net_wm_state;
+			xev.xclient.format = 32;
+			xev.xclient.data.l[0] = 1;
+			xev.xclient.data.l[1] = _x11->net_wm_state_above;
+			xev.xclient.data.l[2] = 0;
+			XSendEvent(_x11->display
+				, DefaultRootWindow(_x11->display)
+				, False
+				, SubstructureNotifyMask | SubstructureRedirectMask
+				, &xev
+				);
+		}
 	}
 
 	void hide() override

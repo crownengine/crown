@@ -387,6 +387,8 @@ struct WindowsDevice
 			style |= WS_POPUP;
 			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_NOACTIVATE;
 		}
+		if (_options->_keep_above)
+			exstyle |= WS_EX_TOPMOST;
 
 		RECT rect;
 		rect.left   = 0;

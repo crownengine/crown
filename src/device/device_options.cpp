@@ -49,6 +49,7 @@ static void help(const char *msg = NULL)
 		"  --server                        Run the engine in server mode.\n"
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"  --hidden                        Make the main window initially invisible.\n"
+		"  --keep-above                    Keep the main window above other windows.\n"
 		"  --renderer <renderer>           Set the renderer backend.\n"
 		"      auto\n"
 		"      d3d11\n"
@@ -85,6 +86,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _server(false)
 	, _pumped(false)
 	, _hidden(false)
+	, _keep_above(false)
 	, _parent_window(0)
 	, _console_port(0)
 	, _window_x(0)
@@ -167,6 +169,7 @@ int DeviceOptions::parse(bool *quit)
 
 	_pumped = cl.has_option("pumped");
 	_hidden = cl.has_option("hidden");
+	_keep_above = cl.has_option("keep-above");
 
 	if (cl.has_option("renderer")) {
 		const char *renderer = cl.get_parameter(0, "renderer");
