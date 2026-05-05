@@ -10,8 +10,13 @@ public const Gtk.TargetEntry[] dnd_targets =
 	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
 };
 
+#if CROWN_PLATFORM_WINDOWS
+public const uint BUTTON_BACK = 4;
+public const uint BUTTON_FORWARD = 5;
+#else
 public const uint BUTTON_BACK = 8;
 public const uint BUTTON_FORWARD = 9;
+#endif
 
 public string project_path(string type, string name)
 {
