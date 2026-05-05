@@ -13,6 +13,7 @@ Changelog
 * Tools: added the ability to navigate history in the Project Browser via dedicated mouse buttons.
 * Tools: added the ability to drag & drop resource properties from the Project Browser to object views.
 * Tools: while in flythrough camera mode you can now adjust the movement speed using the mouse wheel and temporarily speed up or slow down it by pressing Shift or Alt respectively.
+* Tools: added an option to keep the game window above other windows when running the game from the Level Editor.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.

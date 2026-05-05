@@ -25,6 +25,7 @@ public class PreferencesDialog : Gtk.Window
 	public InputDouble _camera_movement_speed;
 	public InputAngle _camera_rotation_speed;
 	public InputDouble _camera_speed_modifier;
+	public InputBool _game_keep_above;
 	public PropertyGridSet _viewport_set;
 
 	// System page.
@@ -123,6 +124,14 @@ public class PreferencesDialog : Gtk.Window
 		cv.column_homogeneous = true;
 		cv.add_row("Autosave (mins)", _level_autosave_spin_button, "Automatically save the currently open level.");
 		_viewport_set.add_property_grid(cv, "Level");
+
+		_game_keep_above = new InputBool();
+		_game_keep_above.value = false;
+
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row("Keep Above", _game_keep_above, "Keep the game window above other windows when running the game.");
+		_viewport_set.add_property_grid(cv, "Game");
 
 		_camera_movement_speed = new InputDouble(30, 0.001, 1000);
 		_camera_movement_speed.value_changed.connect(on_camera_settings_value_changed);
@@ -252,6 +261,7 @@ public class PreferencesDialog : Gtk.Window
 		_axis_selected_color_button.value = Vector3.from_array(preferences.has_key("axis_selected") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
 		_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
 		_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
+		_game_keep_above.value            = preferences.has_key("game_keep_above") ? (bool)preferences["game_keep_above"] : _game_keep_above.value;
 		_camera_movement_speed.value      = preferences.has_key("camera_movement_speed") ? (double)preferences["camera_movement_speed"] : _camera_movement_speed.value;
 		_camera_rotation_speed.value      = preferences.has_key("camera_rotation_speed") ? (double)preferences["camera_rotation_speed"] : _camera_rotation_speed.value;
 		_camera_speed_modifier.value      = preferences.has_key("camera_speed_modifier") ? (double)preferences["camera_speed_modifier"] : _camera_speed_modifier.value;
@@ -336,6 +346,7 @@ public class PreferencesDialog : Gtk.Window
 		preferences["axis_selected"]  = _axis_selected_color_button.value.to_array();
 		preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
+		preferences["game_keep_above"] = _game_keep_above.value;
 		preferences["camera_movement_speed"] = _camera_movement_speed.value;
 		preferences["camera_rotation_speed"] = _camera_rotation_speed.value;
 		preferences["camera_speed_modifier"] = _camera_speed_modifier.value;
