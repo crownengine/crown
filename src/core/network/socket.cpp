@@ -284,7 +284,10 @@ BindResult TCPSocket::bind(u16 port)
 {
 	close();
 	_priv->socket = socket_internal::open();
+#if !CROWN_PLATFORM_WINDOWS
+	// On Windows, SO_REUSEADDR allows duplicate listeners on the same port...
 	socket_internal::set_reuse_address(_priv->socket, true);
+#endif
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
