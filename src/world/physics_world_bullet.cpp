@@ -1312,12 +1312,6 @@ struct PhysicsWorldImpl
 		Mover *mover;
 	};
 
-	struct JointInstanceData
-	{
-		UnitId unit;
-		btTypedConstraint *joint;
-	};
-
 	ProxyAllocator _proxy_allocator;
 	Allocator *_allocator;
 	UnitManager *_unit_manager;
@@ -1329,7 +1323,7 @@ struct PhysicsWorldImpl
 	Array<ColliderInstanceData> _collider;
 	Array<ActorInstanceData> _actor;
 	Array<MoverInstanceData> _mover;
-	Array<JointInstanceData> _joints;
+	Array<btTypedConstraint *> _joints;
 
 	MyFilterCallback _filter_callback;
 	btGhostPairCallback _ghost_pair_callback;
@@ -1406,8 +1400,8 @@ struct PhysicsWorldImpl
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 		for (u32 i = 0; i < array::size(_joints); ++i) {
-			_dynamics_world->removeConstraint(_joints[i].joint);
-			CE_DELETE(*_allocator, _joints[i].joint);
+			_dynamics_world->removeConstraint(_joints[i]);
+			CE_DELETE(*_allocator, _joints[i]);
 		}
 
 		for (u32 i = 0; i < array::size(_mover); ++i) {
@@ -2248,12 +2242,14 @@ struct PhysicsWorldImpl
 			const btTransform other_frame = to_btTransform(jd.other_pose);
 			const bool has_actor = is_valid(actor);
 			const bool has_other_actor = is_valid(other_actor);
+			const UnitId owner_unit = unit != UNIT_INVALID ? unit : other_actor_unit;
 			CE_ASSERT(unit == UNIT_INVALID || has_actor, "Unit has no actor component");
 			CE_ASSERT(other_actor_unit == UNIT_INVALID || has_other_actor, "Joint target unit has no actor component");
 			CE_ASSERT(has_actor || has_other_actor, "Joint must have at least one actor");
 			CE_ASSERT(!has_actor || actor.i < array::size(_actor), "Index out of bounds");
 			CE_ASSERT(!has_other_actor || other_actor.i < array::size(_actor), "Index out of bounds");
-			CE_ASSERT(unit == UNIT_INVALID || !hash_map::has(_joint_map, unit), "Unit already has a joint component");
+			CE_ASSERT(owner_unit != UNIT_INVALID, "Joint must have an owner unit");
+			CE_ASSERT(!hash_map::has(_joint_map, owner_unit), "Unit already has a joint component");
 
 			btRigidBody *body = has_actor ? _actor[actor.i].body : NULL;
 			btRigidBody *other_body = has_other_actor ? _actor[other_actor.i].body : NULL;
@@ -2463,45 +2459,40 @@ struct PhysicsWorldImpl
 			if (type == JointType::FIXED || type == JointType::SPRING || type == JointType::D6)
 				joint->setUserConstraintType((int)type);
 
+			joint->setUserConstraintPtr((void *)(uintptr_t)owner_unit._idx);
 			_dynamics_world->addConstraint(joint);
 			const u32 last = array::size(_joints);
-			array::push_back(_joints, { unit, joint });
-			if (unit != UNIT_INVALID)
-				hash_map::set(_joint_map, unit, last);
+			array::push_back(_joints, joint);
+			hash_map::set(_joint_map, owner_unit, last);
 		}
 	}
 
 	void joint_destroy(JointId i)
 	{
-		CE_ASSERT(i.i < array::size(_joints), "Index out of bounds");
-
+		btTypedConstraint *constraint = _joints[i.i];
 		const u32 last = array::size(_joints) - 1;
+		const UnitId unit = { (u32)(uintptr_t)constraint->getUserConstraintPtr() };
+		const UnitId last_unit = { (u32)(uintptr_t)_joints[last]->getUserConstraintPtr() };
 
-		const UnitId unit = _joints[i.i].unit;
-		const UnitId last_unit = _joints[last].unit;
-
-		_dynamics_world->removeConstraint(_joints[i.i].joint);
-		CE_DELETE(*_allocator, _joints[i.i].joint);
+		_dynamics_world->removeConstraint(constraint);
+		CE_DELETE(*_allocator, constraint);
 
 		_joints[i.i] = _joints[last];
 		array::pop_back(_joints);
 
-		if (i.i != last && last_unit != UNIT_INVALID)
+		if (i.i != last)
 			hash_map::set(_joint_map, last_unit, i.i);
-		if (unit != UNIT_INVALID)
-			hash_map::remove(_joint_map, unit);
+		hash_map::remove(_joint_map, unit);
 	}
 
 	void joint_set_break_force(JointId joint, f32 force)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		_joints[joint.i].joint->setBreakingImpulseThreshold(force);
+		_joints[joint.i]->setBreakingImpulseThreshold(force);
 	}
 
 	void joint_spring_params(f32 &stiffness, f32 &damping, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(spring->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && spring->getUserConstraintType() == JointType::SPRING, "Invalid joint type");
 		btTranslationalLimitMotor2 *motor = spring->getTranslationalLimitMotor();
 		stiffness = (f32)motor->m_springStiffness[0];
@@ -2510,8 +2501,7 @@ struct PhysicsWorldImpl
 
 	void joint_spring_set_params(JointId joint, f32 stiffness, f32 damping)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *spring = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(spring->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && spring->getUserConstraintType() == JointType::SPRING, "Invalid joint type");
 		for (int axis = 0; axis < 3; ++axis) {
 			spring->setStiffness(axis, stiffness);
@@ -2521,16 +2511,14 @@ struct PhysicsWorldImpl
 
 	f32 joint_hinge_angle(JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		return (f32)hinge->getHingeAngle();
 	}
 
 	void joint_hinge_motor(bool &enabled, f32 &max_motor_impulse, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		enabled = hinge->getEnableAngularMotor();
 		max_motor_impulse = (f32)hinge->getMaxMotorImpulse();
@@ -2538,32 +2526,28 @@ struct PhysicsWorldImpl
 
 	void joint_hinge_set_motor(JointId joint, bool enabled, f32 max_motor_impulse)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		hinge->enableAngularMotor(enabled, hinge->getMotorTargetVelocity(), max_motor_impulse);
 	}
 
 	f32 joint_hinge_target_velocity(JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		return (f32)hinge->getMotorTargetVelocity();
 	}
 
 	void joint_hinge_set_target_velocity(JointId joint, f32 velocity)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		hinge->setMotorTargetVelocity(velocity);
 	}
 
 	void joint_hinge_limits(bool &enabled, f32 &lower_limit, f32 &upper_limit, f32 &bounciness, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		enabled = hinge->hasLimit();
 		lower_limit = (f32)hinge->getLowerLimit();
@@ -2573,8 +2557,7 @@ struct PhysicsWorldImpl
 
 	void joint_hinge_set_limits(JointId joint, bool enabled, f32 lower_limit, f32 upper_limit, f32 bounciness)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i].joint;
+		btHingeConstraint *hinge = (btHingeConstraint *)_joints[joint.i];
 		CE_ASSERT(hinge->getConstraintType() == HINGE_CONSTRAINT_TYPE, "Invalid joint type");
 		hinge->setLimit(enabled ? lower_limit : 1.0f
 			, enabled ? upper_limit : -1.0f
@@ -2584,8 +2567,7 @@ struct PhysicsWorldImpl
 
 	f32 joint_limb_twist_angle(JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		btTransform other_frame = limb->getBFrame();
 		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
@@ -2602,8 +2584,7 @@ struct PhysicsWorldImpl
 
 	f32 joint_limb_swing_y_angle(JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		btTransform other_frame = limb->getBFrame();
 		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
@@ -2617,8 +2598,7 @@ struct PhysicsWorldImpl
 
 	f32 joint_limb_swing_z_angle(JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		btTransform other_frame = limb->getBFrame();
 		const btMatrix3x3 basis_a = (limb->getRigidBodyA().getCenterOfMassTransform() * limb->getAFrame()).m_basis;
@@ -2632,8 +2612,7 @@ struct PhysicsWorldImpl
 
 	void joint_limb_motion(D6Motion::Enum &twist_motion, D6Motion::Enum &swing_y_motion, D6Motion::Enum &swing_z_motion, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		const btScalar twist_span = limb->getTwistSpan();
 		const btScalar swing_y_span = limb->getSwingSpan2();
@@ -2645,11 +2624,10 @@ struct PhysicsWorldImpl
 
 	void joint_limb_set_motion(JointId joint, D6Motion::Enum twist_motion, D6Motion::Enum swing_y_motion, D6Motion::Enum swing_z_motion)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(twist_motion < D6Motion::COUNT, "Unknown limb twist motion");
 		CE_ASSERT(swing_y_motion < D6Motion::COUNT, "Unknown limb swing Y motion");
 		CE_ASSERT(swing_z_motion < D6Motion::COUNT, "Unknown limb swing Z motion");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		const btScalar old_twist_span = limb->getTwistSpan();
 		const btScalar old_swing_y_span = limb->getSwingSpan2();
@@ -2662,8 +2640,7 @@ struct PhysicsWorldImpl
 
 	void joint_limb_twist_limit(f32 &lower_limit, f32 &upper_limit, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		const f32 twist_span = (f32)limb->getTwistSpan();
 		lower_limit = -twist_span;
@@ -2672,8 +2649,7 @@ struct PhysicsWorldImpl
 
 	void joint_limb_set_twist_limit(JointId joint, f32 lower_limit, f32 upper_limit)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		const btScalar old_twist_span = limb->getTwistSpan();
 		const btScalar old_swing_y_span = limb->getSwingSpan2();
@@ -2689,8 +2665,7 @@ struct PhysicsWorldImpl
 
 	void joint_limb_swing_limit(f32 &y_limit, f32 &z_limit, JointId joint)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		y_limit = (f32)limb->getSwingSpan2();
 		z_limit = (f32)limb->getSwingSpan1();
@@ -2698,8 +2673,7 @@ struct PhysicsWorldImpl
 
 	void joint_limb_set_swing_limit(JointId joint, f32 y_limit, f32 z_limit)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
-		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i].joint;
+		btConeTwistConstraint *limb = (btConeTwistConstraint *)_joints[joint.i];
 		CE_ASSERT(limb->getConstraintType() == CONETWIST_CONSTRAINT_TYPE, "Invalid joint type");
 		const btScalar old_twist_span = limb->getTwistSpan();
 		const btScalar old_swing_y_span = limb->getSwingSpan2();
@@ -2715,9 +2689,8 @@ struct PhysicsWorldImpl
 
 	D6Motion::Enum joint_d6_linear_motion(JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btVector3 lower_limit;
 		btVector3 upper_limit;
@@ -2728,10 +2701,9 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_linear_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
 		CE_ASSERT(motion < D6Motion::COUNT, "Unknown D6 motion");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btVector3 lower_limit;
 		btVector3 upper_limit;
@@ -2747,9 +2719,8 @@ struct PhysicsWorldImpl
 
 	D6Motion::Enum joint_d6_angular_motion(JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
 		return motor->m_hiLimit < motor->m_loLimit ? D6Motion::FREE : motor->m_hiLimit == motor->m_loLimit ? D6Motion::LOCKED : D6Motion::LIMITED;
@@ -2757,10 +2728,9 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_angular_motion(JointId joint, D6Axis::Enum axis, D6Motion::Enum motion)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
 		CE_ASSERT(motion < D6Motion::COUNT, "Unknown D6 motion");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
 		const f32 lower = (f32)motor->m_loLimit;
@@ -2774,9 +2744,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_linear_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btVector3 lower_limit;
 		btVector3 upper_limit;
@@ -2788,9 +2757,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_linear_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btVector3 lower_limit;
 		btVector3 upper_limit;
@@ -2805,9 +2773,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_angular_limit(f32 &lower, f32 &upper, JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
 		lower = (f32)motor->m_loLimit;
@@ -2816,9 +2783,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_angular_limit(JointId joint, D6Axis::Enum axis, f32 lower, f32 upper)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btRotationalLimitMotor2 *motor = d6->getRotationalLimitMotor((int)axis);
 		const D6Motion::Enum motion = motor->m_hiLimit < motor->m_loLimit ? D6Motion::FREE : motor->m_hiLimit == motor->m_loLimit ? D6Motion::LOCKED : D6Motion::LIMITED;
@@ -2831,9 +2797,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_motor(D6MotorMode::Enum &linear_motor, f32 &linear_max_force, D6MotorMode::Enum &angular_motor, f32 &angular_max_force, JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btTranslationalLimitMotor2 *linear_limit = d6->getTranslationalLimitMotor();
 		btRotationalLimitMotor2 *angular_limit = d6->getRotationalLimitMotor((int)axis);
@@ -2845,11 +2810,10 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_motor(JointId joint, D6Axis::Enum axis, D6MotorMode::Enum linear_motor, f32 linear_max_force, D6MotorMode::Enum angular_motor, f32 angular_max_force)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
 		CE_ASSERT(linear_motor < D6MotorMode::COUNT, "Unknown D6 motor mode");
 		CE_ASSERT(angular_motor < D6MotorMode::COUNT, "Unknown D6 motor mode");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		btTranslationalLimitMotor2 *linear_limit = d6->getTranslationalLimitMotor();
 		btRotationalLimitMotor2 *angular_limit = d6->getRotationalLimitMotor((int)axis);
@@ -2869,9 +2833,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_target_velocity(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		linear = (f32)d6->getTranslationalLimitMotor()->m_targetVelocity[axis];
 		angular = (f32)d6->getRotationalLimitMotor((int)axis)->m_targetVelocity;
@@ -2879,9 +2842,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_target_velocity(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		const int lidx = (int)axis;
 		const int aidx = 3 + lidx;
@@ -2891,9 +2853,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_target_position(f32 &linear, f32 &angular, JointId joint, D6Axis::Enum axis)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		linear = (f32)d6->getTranslationalLimitMotor()->m_servoTarget[axis];
 		angular = (f32)d6->getRotationalLimitMotor((int)axis)->m_servoTarget;
@@ -2901,9 +2862,8 @@ struct PhysicsWorldImpl
 
 	void joint_d6_set_target_position(JointId joint, D6Axis::Enum axis, f32 linear, f32 angular)
 	{
-		CE_ASSERT(joint.i < array::size(_joints), "Index out of bounds");
 		CE_ASSERT(axis < D6Axis::COUNT, "Unknown D6 axis");
-		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i].joint;
+		btGeneric6DofSpring2Constraint *d6 = (btGeneric6DofSpring2Constraint *)_joints[joint.i];
 		CE_ASSERT(d6->getConstraintType() == D6_SPRING_2_CONSTRAINT_TYPE && d6->getUserConstraintType() == JointType::D6, "Invalid joint type");
 		const int lidx = (int)axis;
 		const int aidx = 3 + lidx;
