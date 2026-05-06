@@ -7,9 +7,24 @@ namespace Crown
 {
 namespace MeshResource
 {
-	public static void create_components(Database db, Guid parent_unit_id, Guid unit_id, string material_name, string resource_name, string node_name, Hashtable node)
+	public static void create_components(Database db
+		, Guid parent_unit_id
+		, Guid unit_id
+		, string material_name
+		, string resource_name
+		, string import_path
+		, string node_name
+		, Hashtable node
+		)
 	{
 		Unit unit = Unit(db, unit_id);
+		if (!db.has_object(unit_id))
+			db.create(unit_id, OBJECT_TYPE_UNIT);
+		db.set_name(unit_id, node_name);
+		// editor.import_path is importer-owned metadata, not a filesystem path.
+		// It identifies the source node in the imported hierarchy so reimport
+		// can reuse the same unit and preserve component GUIDs.
+		db.set_string(unit_id, "editor.import_path", import_path);
 
 		Matrix4x4 matrix_local = Matrix4x4.from_array((Gee.ArrayList<Value?>)node["matrix_local"]);
 		Vector3 position = matrix_local.t.to_vector3();
@@ -80,10 +95,59 @@ namespace MeshResource
 
 		if (node.has_key("children")) {
 			Hashtable children = (Hashtable)node["children"];
+
+			// Reuse only children that existed before this import, and assign each
+			// existing child to at most one imported node.
+			Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+			Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+				? db.get_set(unit_id, "children")
+				: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+				;
+
 			foreach (var child in children.entries) {
-				Guid new_unit_id = Guid.new_guid();
-				db.create(new_unit_id, OBJECT_TYPE_UNIT);
-				create_components(db, unit_id, new_unit_id, material_name, resource_name, child.key, (Hashtable)child.value);
+				string child_import_path = import_path + "/" + child.key;
+				Guid child_unit_id = GUID_ZERO;
+
+				foreach (Guid child_id in old_children) {
+					if (matched_children.contains(child_id) || !db.is_alive(child_id))
+						continue;
+					if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
+						child_unit_id = child_id;
+						break;
+					}
+				}
+
+				if (child_unit_id == GUID_ZERO) {
+					foreach (Guid child_id in old_children) {
+						if (matched_children.contains(child_id) || !db.is_alive(child_id))
+							continue;
+
+						Unit child_unit = Unit(db, child_id);
+						Guid component_id = GUID_ZERO;
+						bool name_matches = db.name(child_id) == child.key;
+						if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+							name_matches = child_unit.get_component_string(component_id, "data.name", "") == child.key;
+
+						if (name_matches) {
+							child_unit_id = child_id;
+							break;
+						}
+					}
+				}
+
+				if (child_unit_id == GUID_ZERO)
+					child_unit_id = Guid.new_guid();
+				matched_children.add(child_unit_id);
+
+				create_components(db
+					, unit_id
+					, child_unit_id
+					, material_name
+					, resource_name
+					, child_import_path
+					, child.key
+					, (Hashtable)child.value
+					);
 			}
 		}
 	}
@@ -131,6 +195,7 @@ namespace MeshResource
 					// "root" unit will only have a transform centered at origin to allow other
 					// objects to be linked to it via the SceneGraph.
 					Unit unit = Unit(db, unit_id);
+					db.set_string(unit_id, "editor.import_path", "root");
 
 					Guid component_id;
 					if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
@@ -145,18 +210,55 @@ namespace MeshResource
 				}
 
 				Guid new_unit_id = unit_id;
+				Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+				Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+					? db.get_set(unit_id, "children")
+					: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+					;
 				foreach (var entry in mesh_nodes.entries) {
+					string import_path = mesh_nodes.size > 1 ? "root/" + entry.key : "root";
 					if (mesh_nodes.size > 1) {
 						// If the mesh contains multiple root objects, create a new unit for each
 						// one of those, otherwise put the components inside the base unit.
-						new_unit_id = Guid.new_guid();
-						db.create(new_unit_id, OBJECT_TYPE_UNIT);
+						new_unit_id = GUID_ZERO;
+
+						foreach (Guid child_id in old_children) {
+							if (matched_children.contains(child_id) || !db.is_alive(child_id))
+								continue;
+							if (db.get_string(child_id, "editor.import_path", "") == import_path) {
+								new_unit_id = child_id;
+								break;
+							}
+						}
+
+						if (new_unit_id == GUID_ZERO) {
+							foreach (Guid child_id in old_children) {
+								if (matched_children.contains(child_id) || !db.is_alive(child_id))
+									continue;
+
+								Unit child_unit = Unit(db, child_id);
+								Guid component_id = GUID_ZERO;
+								bool name_matches = db.name(child_id) == entry.key;
+								if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+									name_matches = child_unit.get_component_string(component_id, "data.name", "") == entry.key;
+
+								if (name_matches) {
+									new_unit_id = child_id;
+									break;
+								}
+							}
+						}
+
+						if (new_unit_id == GUID_ZERO)
+							new_unit_id = Guid.new_guid();
+						matched_children.add(new_unit_id);
 					}
 					create_components(db
 						, unit_id
 						, new_unit_id
 						, material_name
 						, resource_name
+						, import_path
 						, entry.key
 						, (Hashtable)entry.value
 						);
