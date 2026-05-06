@@ -11,8 +11,11 @@
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/memory/temp_allocator.inl"
+#include "device/log.h"
 #include "resource/mesh_skeleton_fbx.h"
 #include "resource/compile_options.inl"
+
+LOG_SYSTEM(MESH_SKELETON_RESOURCE, "mesh_skeleton_resource")
 
 namespace crown
 {
@@ -49,7 +52,7 @@ namespace mesh_skeleton_resource_internal
 	{
 		AnimationSkeleton s(default_allocator());
 		s32 err = mesh_skeleton::parse(s, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(MESH_SKELETON_RESOURCE, err == 0, opts);
 		return write(s, opts);
 	}
 

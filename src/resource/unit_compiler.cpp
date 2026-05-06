@@ -143,7 +143,7 @@ static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.projection")));
 
 	ProjectionType::Enum pt = projection_name_to_enum(type.c_str());
-	RETURN_IF_FALSE(pt != ProjectionType::COUNT
+	RETURN_IF_FALSE(UNIT_COMPILER, pt != ProjectionType::COUNT
 		, opts
 		, "Unknown projection type: '%s'"
 		, type.c_str()
@@ -172,12 +172,12 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, flat_json_object::get(obj, "data.mesh_resource")));
 
-	RETURN_IF_RESOURCE_MISSING("mesh", mesh_resource.c_str(), opts);
+	RETURN_IF_MISSING(UNIT_COMPILER, "mesh", mesh_resource.c_str(), opts);
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
-	RETURN_IF_RESOURCE_MISSING("material"
+	RETURN_IF_MISSING(UNIT_COMPILER, "material"
 		, material.c_str()
 		, opts
 		);
@@ -215,7 +215,7 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 	TempAllocator4096 ta;
 	DynamicString sprite_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, flat_json_object::get(obj, "data.sprite_resource")));
-	RETURN_IF_RESOURCE_MISSING("sprite"
+	RETURN_IF_MISSING(UNIT_COMPILER, "sprite"
 		, sprite_resource.c_str()
 		, opts
 		);
@@ -223,7 +223,7 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
-	RETURN_IF_RESOURCE_MISSING("material"
+	RETURN_IF_MISSING(UNIT_COMPILER, "material"
 		, material.c_str()
 		, opts
 		);
@@ -266,12 +266,12 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	TempAllocator4096 ta;
 	JsonArray lod_levels(ta);
 	RETURN_IF_ERROR(sjson::parse_array(lod_levels, flat_json_object::get(obj, "data.lod_levels")));
-	RETURN_IF_FALSE(array::size(lod_levels) > 0, opts, "LOD group must have at least one level");
+	RETURN_IF_FALSE(UNIT_COMPILER, array::size(lod_levels) > 0, opts, "LOD group must have at least one level");
 
 	DynamicString fade_mode_name(ta);
 	RETURN_IF_ERROR(sjson::parse_string(fade_mode_name, flat_json_object::get(obj, "data.fade_mode")));
 	LodFadeMode::Enum fade_mode = lod_fade_mode_name_to_enum(fade_mode_name.c_str());
-	RETURN_IF_FALSE(fade_mode != LodFadeMode::COUNT
+	RETURN_IF_FALSE(UNIT_COMPILER, fade_mode != LodFadeMode::COUNT
 		, opts
 		, "Unknown LOD group fade mode: '%s'"
 		, fade_mode_name.c_str()
@@ -298,19 +298,19 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
 			const ComponentKey key = { mesh_renderer_id, root_unit_index };
 			const StringId32 mesh_renderer_type = hash_map::get(compiler._component_type, key, StringId32());
-			RETURN_IF_FALSE(mesh_renderer_type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))
+			RETURN_IF_FALSE(UNIT_COMPILER, mesh_renderer_type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))
 				, opts
 				, "LOD level references a non-mesh-renderer component"
 				);
 
 			desc.unit_index = hash_map::get(compiler._component_unit_index, key, UINT32_MAX);
-			RETURN_IF_FALSE(desc.unit_index != UINT32_MAX
+			RETURN_IF_FALSE(UNIT_COMPILER, desc.unit_index != UINT32_MAX
 				, opts
 				, "LOD level references a mesh renderer outside this unit resource"
 				);
 		}
 
-		RETURN_IF_FALSE(desc.screen_size >= 0.0f && desc.screen_size <= 1.0f
+		RETURN_IF_FALSE(UNIT_COMPILER, desc.screen_size >= 0.0f && desc.screen_size <= 1.0f
 			, opts
 			, "LOD level screen_size height threshold must be in [0, 1]"
 			);
@@ -330,7 +330,7 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	desc.fade_mode = fade_mode;
 	desc.level = level;
 
-	RETURN_IF_FALSE(desc.level == -1 || (u32)desc.level < desc.num_levels
+	RETURN_IF_FALSE(UNIT_COMPILER, desc.level == -1 || (u32)desc.level < desc.num_levels
 		, opts
 		, "LOD group level must be -1 or a valid LOD index"
 		);
@@ -356,7 +356,7 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.type")));
 
 	LightType::Enum lt = light_name_to_enum(type.c_str());
-	RETURN_IF_FALSE(lt != LightType::COUNT
+	RETURN_IF_FALSE(UNIT_COMPILER, lt != LightType::COUNT
 		, opts
 		, "Unknown light type: '%s'"
 		, type.c_str()
@@ -399,7 +399,7 @@ static s32 compile_script(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	TempAllocator4096 ta;
 	DynamicString script_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(script_resource, flat_json_object::get(obj, "data.script_resource")));
-	RETURN_IF_RESOURCE_MISSING("lua"
+	RETURN_IF_MISSING(UNIT_COMPILER, "lua"
 		, script_resource.c_str()
 		, opts
 		);
@@ -423,7 +423,7 @@ static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compile
 	TempAllocator4096 ta;
 	DynamicString state_machine_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, flat_json_object::get(obj, "data.state_machine_resource")));
-	RETURN_IF_RESOURCE_MISSING("state_machine"
+	RETURN_IF_MISSING(UNIT_COMPILER, "state_machine"
 		, state_machine_resource.c_str()
 		, opts
 		);
@@ -471,7 +471,7 @@ static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJ
 
 	DynamicString skydome_map(ta);
 	RETURN_IF_ERROR(sjson::parse_string(skydome_map, flat_json_object::get(obj, "data.skydome_map")));
-	RETURN_IF_RESOURCE_MISSING("texture"
+	RETURN_IF_MISSING(UNIT_COMPILER, "texture"
 		, skydome_map.c_str()
 		, opts
 		);
@@ -529,7 +529,7 @@ static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, FlatJsonObjec
 	} else if (type == STRING_ID_32("aces", UINT32_C(0xe426fd33))) {
 		desc.type = (f32)TonemapType::ACES;
 	} else {
-		RETURN_IF_FALSE(false, opts, "Unknown tonemap type");
+		RETURN_IF_FALSE(UNIT_COMPILER, false, opts, "Unknown tonemap type");
 	}
 
 	memset(&desc.unused, 0, sizeof(desc.unused));
@@ -579,7 +579,7 @@ namespace unit_compiler
 
 			for (u32 i = 0; i < array::size(children); ++i) {
 				s32 err = collect_prefabs(c, unit_name, children[i], false, opts);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 			}
 		}
 
@@ -588,17 +588,17 @@ namespace unit_compiler
 			TempAllocator512 ta;
 			DynamicString path(ta);
 			RETURN_IF_ERROR(sjson::parse_string(path, prefab["prefab"]));
-			RETURN_IF_RESOURCE_MISSING("unit"
+			RETURN_IF_MISSING(UNIT_COMPILER, "unit"
 				, path.c_str()
 				, opts
 				);
 			StringId64 name(path.c_str());
-			RETURN_IF_FALSE(name != unit_name, opts, "Prefab derives from itself");
+			RETURN_IF_FALSE(UNIT_COMPILER, name != unit_name, opts, "Prefab derives from itself");
 			path += ".unit";
 
 			Buffer buf = read_unit(path.c_str(), opts);
 			s32 err = collect_prefabs(c, name, array::begin(buf), true, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		if (append_data) {
@@ -891,7 +891,7 @@ namespace unit_compiler
 					vector::pop_back(unit->_flattened_components);
 				} else {
 					char buf[GUID_BUF_LEN];
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(UNIT_COMPILER, false
 						, opts
 						, "Deletion of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
@@ -923,7 +923,7 @@ namespace unit_compiler
 					to_flat(unit->_flattened_components[comp_idx], cur->second, empty);
 				} else {
 					char buf[GUID_BUF_LEN];
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(UNIT_COMPILER, false
 						, opts
 						, "Modification of unexisting component ID: %s"
 						, guid::to_string(buf, sizeof(buf), component_id)
@@ -968,7 +968,7 @@ namespace unit_compiler
 			DynamicString prefab(ta);
 			RETURN_IF_ERROR(sjson::parse_string(prefab, obj["prefab"]));
 			const char *prefab_json_data = prefab_json(c, prefab.c_str());
-			RETURN_IF_FALSE(prefab_json_data != NULL
+			RETURN_IF_FALSE(UNIT_COMPILER, prefab_json_data != NULL
 				, opts
 				, "Unknown prefab: '%s'"
 				, prefab.c_str()
@@ -980,11 +980,11 @@ namespace unit_compiler
 				, NULL
 				, opts
 				);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		s32 err = modify_unit_components(unit, unit_json, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 		if (json_object::has(obj, "children")) {
 			JsonArray children(ta);
@@ -997,7 +997,7 @@ namespace unit_compiler
 					, unit
 					, opts
 					);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 			}
 		}
 
@@ -1014,7 +1014,7 @@ namespace unit_compiler
 				Unit *child = find_children(unit, id);
 
 				char buf[GUID_BUF_LEN];
-				RETURN_IF_FALSE(child != NULL
+				RETURN_IF_FALSE(UNIT_COMPILER, child != NULL
 					, opts
 					, "Deletion of unexisting child ID: %s"
 					, guid::to_string(buf, sizeof(buf), id)
@@ -1038,14 +1038,14 @@ namespace unit_compiler
 				Unit *child = find_children(unit, id);
 
 				char buf[GUID_BUF_LEN];
-				RETURN_IF_FALSE(child != NULL
+				RETURN_IF_FALSE(UNIT_COMPILER, child != NULL
 					, opts
 					, "Modification of unexisting child ID: %s"
 					, guid::to_string(buf, sizeof(buf), id)
 					);
 
 				s32 err = modify_unit_components(child, modified_children[ii], opts);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 			}
 		}
 
@@ -1107,7 +1107,7 @@ namespace unit_compiler
 			HASH_MAP_SKIP_HOLE(unit->_children, cur);
 
 			s32 err = assign_unit_indices(c, cur->second, unit_index, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		return 0;
@@ -1116,11 +1116,11 @@ namespace unit_compiler
 	s32 parse_unit_from_json(UnitCompiler &c, const char *unit_json, CompileOptions &opts)
 	{
 		s32 err = collect_prefabs(c, StringId64(), unit_json, true, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 		u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
 		err = parse_unit_internal(c, &c._prefab_data[original_unit], NULL, NULL, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 		return flatten(c, opts);
 	}
@@ -1140,14 +1140,14 @@ namespace unit_compiler
 
 		for (u32 i = 0; i < array::size(units); ++i) {
 			s32 err = collect_prefabs(c, StringId64(), units[i], true, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 			u32 original_unit = c._prefab_offsets[array::size(c._prefab_offsets) - 1];
 			array::push_back(original_units, original_unit);
 		}
 
 		for (u32 i = 0; i < array::size(units); ++i) {
 			s32 err = parse_unit_internal(c, &c._prefab_data[original_units[i]], NULL, NULL, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		return flatten(c, opts);
@@ -1183,20 +1183,20 @@ namespace unit_compiler
 			// Append data to the component data for the given type.
 			ComponentTypeData ctd_deffault(default_allocator());
 			ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(c._component_data, comp_type, ctd_deffault));
-			RETURN_IF_FALSE(&ctd != &ctd_deffault, opts, "Unknown component type");
+			RETURN_IF_FALSE(UNIT_COMPILER, &ctd != &ctd_deffault, opts, "Unknown component type");
 
 			// Compile component.
 			Buffer comp_data(default_allocator());
 			c._current_unit_index = unit_index;
 			s32 err = ctd._compiler(comp_data, c, unit->_flattened_components[cc], opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 			// One component per unit max.
 			auto cur = array::begin(ctd._unit_index);
 			auto end = array::end(ctd._unit_index);
 			if (std::find(cur, end, unit_index) != end) {
 				char buf[STRING_ID32_BUF_LEN];
-				RETURN_IF_FALSE(false
+				RETURN_IF_FALSE(UNIT_COMPILER, false
 					, opts
 					, "Unit already has a component of type: %s"
 					, comp_type.to_string(buf, sizeof(buf))
@@ -1214,12 +1214,12 @@ namespace unit_compiler
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(unit->_children, cur);
 
-			RETURN_IF_FALSE(unit_has_transform
+			RETURN_IF_FALSE(UNIT_COMPILER, unit_has_transform
 				, opts
 				, "Units with children must have 'transform' component"
 				);
 			s32 err = flatten_unit(c, cur->second, unit_index, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		return 0;
@@ -1253,7 +1253,7 @@ namespace unit_compiler
 			HASH_MAP_SKIP_HOLE(c._units, cur);
 
 			s32 err = assign_unit_indices(c, cur->second, UINT32_MAX, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		cur = hash_map::begin(c._units);
@@ -1262,7 +1262,7 @@ namespace unit_compiler
 			HASH_MAP_SKIP_HOLE(c._units, cur);
 
 			s32 err = flatten_unit(c, cur->second, UINT32_MAX, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 		}
 
 		return 0;

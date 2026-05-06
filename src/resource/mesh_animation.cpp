@@ -145,7 +145,7 @@ namespace mesh_animation
 		// Parse skeleton.
 		DynamicString target_skeleton(ta);
 		RETURN_IF_ERROR(sjson::parse_string(target_skeleton, obj["target_skeleton"]));
-		RETURN_IF_RESOURCE_MISSING("mesh_skeleton", target_skeleton.c_str(), opts);
+		RETURN_IF_MISSING(MESH_ANIMATION, "mesh_skeleton", target_skeleton.c_str(), opts);
 		opts.add_requirement("mesh_skeleton", target_skeleton.c_str());
 		ma.target_skeleton = RETURN_IF_ERROR(sjson::parse_resource_name(obj["target_skeleton"]));
 
@@ -156,12 +156,12 @@ namespace mesh_animation
 		if (json_object::has(obj, "source")) {
 			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]));
 
-			RETURN_IF_FILE_MISSING(source.c_str(), opts);
+			RETURN_IF_FILE_MISSING(MESH_ANIMATION, source.c_str(), opts);
 			Buffer fbx_buf = opts.read(source.c_str());
 			s32 err = fbx::parse(ma, fbx_buf, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(MESH_ANIMATION, err == 0, opts);
 		} else {
-			RETURN_IF_FALSE(false
+			RETURN_IF_FALSE(MESH_ANIMATION, false
 				, opts
 				, "Unknown source mesh '%s'"
 				, source.c_str()

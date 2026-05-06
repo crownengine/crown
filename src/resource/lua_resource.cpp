@@ -14,8 +14,11 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_stream.inl"
 #include "core/strings/string_view.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/lua_resource.h"
+
+LOG_SYSTEM(LUA_RESOURCE, "lua_resource")
 
 namespace crown
 {
@@ -126,7 +129,7 @@ namespace lua_resource_internal
 		Process pr;
 		s32 sc;
 		sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
-		RETURN_IF_FALSE(sc == 0
+		RETURN_IF_FALSE(LUA_RESOURCE, sc == 0
 			, opts
 			, "Failed to spawn `%s`"
 			, argv[0]
@@ -151,7 +154,7 @@ namespace lua_resource_internal
 		StringStream output(ta);
 		opts.read_output(output, pr);
 		s32 ec = pr.wait();
-		RETURN_IF_FALSE(ec == 0
+		RETURN_IF_FALSE(LUA_RESOURCE, ec == 0
 			, opts
 			, "Failed to compile lua:\n%s"
 			, string_stream::c_str(output)

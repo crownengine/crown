@@ -15,9 +15,12 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/level_resource.h"
 #include "resource/unit_compiler.h"
+
+LOG_SYSTEM(LEVEL_RESOURCE, "level_resource")
 
 namespace crown
 {
@@ -41,7 +44,7 @@ namespace level_resource_internal
 
 				DynamicString sound_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound["name"]));
-				RETURN_IF_RESOURCE_MISSING("sound"
+				RETURN_IF_MISSING(LEVEL_RESOURCE, "sound"
 					, sound_name.c_str()
 					, opts
 					);
@@ -66,12 +69,12 @@ namespace level_resource_internal
 
 		if (json_object::has(obj, "units")) {
 			s32 err = unit_compiler::parse_unit_array_from_json(uc, obj["units"], opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(LEVEL_RESOURCE, err == 0, opts);
 		}
 
 		Buffer units_blob(default_allocator());
 		s32 err = unit_compiler::blob(units_blob, uc);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(LEVEL_RESOURCE, err == 0, opts);
 
 		StringId64 skydome_unit;
 		if (json_object::has(obj, "skydome_unit")) {
@@ -79,7 +82,7 @@ namespace level_resource_internal
 			DynamicString skydome_unit_name(ta);
 
 			RETURN_IF_ERROR(sjson::parse_string(skydome_unit_name, obj["skydome_unit"]));
-			RETURN_IF_RESOURCE_MISSING("unit"
+			RETURN_IF_MISSING(LEVEL_RESOURCE, "unit"
 				, skydome_unit_name.c_str()
 				, opts
 				);

@@ -12,9 +12,12 @@
 #include "core/memory/globals.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/mesh_animation.h"
 #include "resource/mesh_skeleton.h"
+
+LOG_SYSTEM(MESH_ANIMATION_RESOURCE, "mesh_animation_resource")
 
 namespace crown
 {
@@ -58,7 +61,7 @@ namespace mesh_animation_resource_internal
 		MeshAnimation ma(default_allocator());
 
 		s32 err = mesh_animation::parse(ma, buf, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(MESH_ANIMATION_RESOURCE, err == 0, opts);
 		return write(ma, opts);
 	}
 

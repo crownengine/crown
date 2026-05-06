@@ -15,9 +15,12 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "core/strings/string_id.inl"
 #   include "resource/mesh_skeleton.h"
+#   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/fbx_document.h"
 #   include <ufbx.h>
+
+LOG_SYSTEM(MESH_SKELETON_FBX, "mesh_skeleton_fbx")
 
 namespace crown
 {
@@ -92,7 +95,7 @@ namespace fbx
 		for (size_t i = 0; i < bone->children.count; ++i) {
 			ufbx_node *child = bone->children.data[i];
 			s32 err = parse_skeleton(as, fbx, child, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(MESH_SKELETON_FBX, err == 0, opts);
 		}
 
 		return 0;
@@ -102,8 +105,8 @@ namespace fbx
 	{
 		FBXDocument fbx(default_allocator());
 		s32 err = fbx::parse(fbx, buf, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
-		RETURN_IF_FALSE(fbx.skeleton_root_node != NULL
+		ENSURE_OR_RETURN(MESH_SKELETON_FBX, err == 0, opts);
+		RETURN_IF_FALSE(MESH_SKELETON_FBX, fbx.skeleton_root_node != NULL
 			, opts
 			, "No skeleton in FBX source"
 			);

@@ -16,6 +16,7 @@
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string_stream.h"
 #include "core/strings/types.h"
+#include "device/log.h"
 #include "resource/resource_id.h"
 #include "resource/types.h"
 #include <stdarg.h>
@@ -60,10 +61,16 @@ struct CompileOptions
 	CompileOptions &operator=(const CompileOptions &) = delete;
 
 	///
-	void error(const char *msg, va_list args);
+	void error(log_internal::System system, const char *msg, va_list args);
 
 	///
-	void error(const char *msg, ...);
+	void error(log_internal::System system, const char *msg, ...);
+
+	///
+	void warning(log_internal::System system, const char *msg, va_list args);
+
+	///
+	void warning(log_internal::System system, const char *msg, ...);
 
 	///
 	const char *source_path();

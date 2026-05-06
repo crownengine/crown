@@ -23,12 +23,15 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/mesh.h"
 #include "resource/mesh_resource.h"
 #include "resource/physics_resource.h"
 #include "resource/unit_compiler.h"
 #include "world/types.h"
+
+LOG_SYSTEM(PHYSICS_RESOURCE, "physics_resource")
 
 namespace crown
 {
@@ -153,7 +156,7 @@ namespace physics_resource_internal
 		RETURN_IF_ERROR(sjson::parse_string(type, flat_json_object::get(obj, "data.shape")));
 
 		ColliderType::Enum st = shape_type_to_enum(type.c_str());
-		RETURN_IF_FALSE(st != ColliderType::COUNT
+		RETURN_IF_FALSE(PHYSICS_RESOURCE, st != ColliderType::COUNT
 			, opts
 			, "Unknown shape type: '%s'"
 			, type.c_str()
@@ -182,15 +185,15 @@ namespace physics_resource_internal
 			RETURN_IF_ERROR(sjson::parse_string(name, flat_json_object::get(obj, "data.name")));
 
 			// Parse mesh resource.
-			RETURN_IF_RESOURCE_MISSING("mesh", scene.c_str(), opts);
+			RETURN_IF_MISSING(PHYSICS_RESOURCE, "mesh", scene.c_str(), opts);
 			scene += ".mesh";
 			Mesh mesh(default_allocator());
 			s32 err = mesh::parse(mesh, scene.c_str(), opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 			Node deffault_node(default_allocator());
 			Node &node = hash_map::get(mesh._nodes, name, deffault_node);
-			RETURN_IF_FALSE(&node != &deffault_node
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, &node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
 				, name.c_str()
@@ -198,7 +201,7 @@ namespace physics_resource_internal
 
 			Geometry deffault_geometry(default_allocator());
 			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
-			RETURN_IF_FALSE(&geometry != &deffault_geometry
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, &geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"
 				, node._geometry.c_str()
@@ -211,7 +214,7 @@ namespace physics_resource_internal
 				p.z = geometry._positions[i + 2];
 				array::push_back(points, p);
 			}
-			RETURN_IF_FALSE(array::size(points) > 0
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, array::size(points) > 0
 				, opts
 				, "Collider is empty '%s'"
 				, name.c_str()
@@ -226,14 +229,14 @@ namespace physics_resource_internal
 			case ColliderType::CONVEX_HULL: break;
 			case ColliderType::MESH:        break;
 			case ColliderType::HEIGHTFIELD:
-				RETURN_IF_FALSE(false, opts, "Not implemented yet");
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, false, opts, "Not implemented yet");
 				break;
 			default:
-				RETURN_IF_FALSE(false, opts, "Invalid collider type");
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, false, opts, "Invalid collider type");
 				break;
 			}
 		} else {
-			RETURN_IF_FALSE(flat_json_object::has(obj, "data.collider_data")
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, flat_json_object::has(obj, "data.collider_data")
 				, opts
 				, "No collider_data found"
 				);
@@ -250,7 +253,7 @@ namespace physics_resource_internal
 				cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")));
 				cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.height")));
 			} else {
-				RETURN_IF_FALSE(false, opts, "Invalid collider type");
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, false, opts, "Invalid collider type");
 			}
 		}
 
@@ -398,7 +401,7 @@ namespace physics_resource_internal
 		if (other_unit_id != GUID_ZERO) {
 			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
 			jd.other_actor_unit_index = unit_compiler::find_unit_index(compiler, other_unit_id, root_unit_index);
-			RETURN_IF_FALSE(jd.other_actor_unit_index != UINT32_MAX
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, jd.other_actor_unit_index != UINT32_MAX
 				, opts
 				, "Joint references a unit outside this unit resource"
 				);
@@ -409,7 +412,7 @@ namespace physics_resource_internal
 				, other_unit
 				, STRING_ID_32("actor", UINT32_C(0x374cf583))
 				));
-			RETURN_IF_FALSE(has_actor
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, has_actor
 				, opts
 				, "Joint references a unit without an actor component"
 				);
@@ -433,7 +436,7 @@ namespace physics_resource_internal
 	{
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::FIXED, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		FileBuffer fb(output);
 		return joint_common_write(fb, jd);
@@ -447,7 +450,7 @@ namespace physics_resource_internal
 		hinge.upper_limit = PI_FOURTH;
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::HINGE, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		hinge.axis = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.axis")));
 
@@ -464,7 +467,7 @@ namespace physics_resource_internal
 
 		FileBuffer fb(output);
 		err = joint_common_write(fb, jd);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		BinaryWriter bw(fb);
 		bw.write(hinge.axis);
@@ -480,7 +483,7 @@ namespace physics_resource_internal
 	{
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::SPHERICAL, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		FileBuffer fb(output);
 		return joint_common_write(fb, jd);
@@ -491,7 +494,7 @@ namespace physics_resource_internal
 		LimbJoint limb = {};
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::LIMB, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		const char *limb_motion[] = { "data.twist_motion", "data.swing_y_motion", "data.swing_z_motion" };
 		const u32 limb_motion_shift[] = { LIMB_JOINT_TWIST_MOTION_SHIFT, LIMB_JOINT_SWING_Y_MOTION_SHIFT, LIMB_JOINT_SWING_Z_MOTION_SHIFT };
@@ -501,7 +504,7 @@ namespace physics_resource_internal
 			DynamicString motion(ta);
 			RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, limb_motion[i])));
 			const D6Motion::Enum limb_motion = d6_motion_to_enum(motion.c_str());
-			RETURN_IF_FALSE(limb_motion != D6Motion::COUNT
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, limb_motion != D6Motion::COUNT
 				, opts
 				, "Unknown limb motion: '%s'"
 				, motion.c_str()
@@ -516,7 +519,7 @@ namespace physics_resource_internal
 
 		FileBuffer fb(output);
 		err = joint_common_write(fb, jd);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		BinaryWriter bw(fb);
 		bw.write(limb.motion);
@@ -532,14 +535,14 @@ namespace physics_resource_internal
 		SpringJoint spring = {};
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::SPRING, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		spring.stiffness = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.stiffness")));
 		spring.damping = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.damping")));
 
 		FileBuffer fb(output);
 		err = joint_common_write(fb, jd);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		BinaryWriter bw(fb);
 		bw.write(spring.stiffness);
@@ -552,7 +555,7 @@ namespace physics_resource_internal
 		D6Joint d6 = {};
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::D6, compiler, obj, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		for (u32 axis = 0; axis < 3; ++axis) {
 			{
@@ -563,7 +566,7 @@ namespace physics_resource_internal
 				DynamicString motion(ta);
 				RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, linear_motion[axis])));
 				const D6Motion::Enum mot = d6_motion_to_enum(motion.c_str());
-				RETURN_IF_FALSE(mot != D6Motion::COUNT
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, mot != D6Motion::COUNT
 					, opts
 					, "Unknown D6 linear motion: '%s'"
 					, motion.c_str()
@@ -579,7 +582,7 @@ namespace physics_resource_internal
 				DynamicString motion(ta);
 				RETURN_IF_ERROR(sjson::parse_string(motion, flat_json_object::get(obj, angular_motion[axis])));
 				const D6Motion::Enum mot = d6_motion_to_enum(motion.c_str());
-				RETURN_IF_FALSE(mot != D6Motion::COUNT
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, mot != D6Motion::COUNT
 					, opts
 					, "Unknown D6 angular motion: '%s'"
 					, motion.c_str()
@@ -595,7 +598,7 @@ namespace physics_resource_internal
 				DynamicString motor_mode(ta);
 				RETURN_IF_ERROR(sjson::parse_string(motor_mode, flat_json_object::get(obj, linear_motor[axis])));
 				const D6MotorMode::Enum mode = d6_motor_mode_to_enum(motor_mode.c_str());
-				RETURN_IF_FALSE(mode != D6MotorMode::COUNT
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, mode != D6MotorMode::COUNT
 					, opts
 					, "Unknown D6 linear motor mode: '%s'"
 					, motor_mode.c_str()
@@ -611,7 +614,7 @@ namespace physics_resource_internal
 				DynamicString motor_mode(ta);
 				RETURN_IF_ERROR(sjson::parse_string(motor_mode, flat_json_object::get(obj, angular_motor[axis])));
 				const D6MotorMode::Enum mode = d6_motor_mode_to_enum(motor_mode.c_str());
-				RETURN_IF_FALSE(mode != D6MotorMode::COUNT
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, mode != D6MotorMode::COUNT
 					, opts
 					, "Unknown D6 angular motor mode: '%s'"
 					, motor_mode.c_str()
@@ -633,7 +636,7 @@ namespace physics_resource_internal
 
 		FileBuffer fb(output);
 		err = joint_common_write(fb, jd);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 		BinaryWriter bw(fb);
 		bw.write(d6.motion_and_motor);
@@ -829,7 +832,7 @@ namespace physics_config_resource_internal
 
 		u32 new_filter_mask()
 		{
-			RETURN_IF_FALSE(_filter != 0x80000000u
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, _filter != 0x80000000u
 				, _opts
 				, "Too many collision filters"
 				);
@@ -841,7 +844,7 @@ namespace physics_config_resource_internal
 
 		u32 filter_to_mask(StringId32 filter)
 		{
-			RETURN_IF_FALSE(hash_map::has(_filter_map, filter)
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, hash_map::has(_filter_map, filter)
 				, _opts
 				, "Filter not found"
 				);
@@ -866,15 +869,15 @@ namespace physics_config_resource_internal
 		s32 err = 0;
 		if (json_object::has(obj, "collision_filters")) {
 			err = cfc.parse(obj["collision_filters"]);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 		}
 		if (json_object::has(obj, "materials")) {
 			err = parse_materials(obj["materials"], materials, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 		}
 		if (json_object::has(obj, "actors")) {
 			err = parse_actors(obj["actors"], actors, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 		}
 		if (json_object::has(obj, "gravity")) {
 			pcr.gravity = RETURN_IF_ERROR(sjson::parse_vector3(obj["gravity"]));

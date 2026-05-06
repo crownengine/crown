@@ -169,7 +169,7 @@ namespace render_config_resource_internal
 			DynamicString shader_name(ta);
 
 			RETURN_IF_ERROR(sjson::parse_string(shader_name, arr[i]));
-			RETURN_IF_RESOURCE_MISSING("shader", shader_name.c_str(), opts);
+			RETURN_IF_MISSING(RENDER_CONFIG_RESOURCE, "shader", shader_name.c_str(), opts);
 			opts.add_requirement("shader", shader_name.c_str());
 		}
 
@@ -204,14 +204,14 @@ namespace render_config_resource_internal
 			TempAllocator1024 ta;
 			HashMap<StringId32, Value> render_settings(ta);
 			s32 err = render_settings::parse(render_settings, obj["render_settings"]);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(RENDER_CONFIG_RESOURCE, err == 0, opts);
 			err = render_settings::write(rcr.render_settings, render_settings);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(RENDER_CONFIG_RESOURCE, err == 0, opts);
 		}
 
 		if (json_object::has(obj, "shaders")) {
 			s32 err = parse_shaders(obj["shaders"], opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(RENDER_CONFIG_RESOURCE, err == 0, opts);
 		}
 
 		// Write.

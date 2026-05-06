@@ -181,12 +181,12 @@ namespace fbx
 			Geometry geo(default_allocator());
 
 			s32 err = fbx::parse_geometry(geo, fbx, mesh);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(FBX_RESOURCE, err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
 			geometry_name.from_string_id(StringId32((const char *)&mesh, sizeof(mesh)));
 
-			RETURN_IF_FALSE(!hash_map::has(m._geometries, geometry_name)
+			RETURN_IF_FALSE(FBX_RESOURCE, !hash_map::has(m._geometries, geometry_name)
 				, opts
 				, "Geometry redefined: '%s'"
 				, geometry_name.c_str()
@@ -235,7 +235,7 @@ namespace fbx
 			node_name.set(node->name.data, (u32)node->name.length);
 
 			s32 err = fbx::parse_node(new_node, node);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(FBX_RESOURCE, err == 0, opts);
 
 			hash_map::set(m._nodes, node_name, new_node);
 		}
@@ -247,10 +247,10 @@ namespace fbx
 	{
 		FBXDocument fbx(default_allocator());
 		s32 err = fbx::parse(fbx, buf, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(FBX_RESOURCE, err == 0, opts);
 
 		err = parse_geometries(m, fbx, &fbx.scene->meshes, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(FBX_RESOURCE, err == 0, opts);
 
 		return parse_nodes(m, &fbx.scene->nodes, opts);
 	}

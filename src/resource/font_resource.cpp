@@ -14,10 +14,13 @@
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/font_resource.h"
 #include "resource/types.h"
 #include <algorithm>
+
+LOG_SYSTEM(FONT_RESOURCE, "font_resource")
 
 namespace crown
 {
@@ -70,7 +73,7 @@ namespace font_resource_internal
 
 		const u32 texture_size = RETURN_IF_ERROR(sjson::parse_int(obj["size"]));
 		const u32 font_size    = RETURN_IF_ERROR(sjson::parse_int(obj["font_size"]));
-		RETURN_IF_FALSE(font_size > 0
+		RETURN_IF_FALSE(FONT_RESOURCE, font_size > 0
 			, opts
 			, "Font size must be > 0"
 			);
@@ -78,7 +81,7 @@ namespace font_resource_internal
 		s32 err = 0;
 		Array<GlyphInfo> _glyphs(default_allocator());
 		err = parse_glyphs(_glyphs, glyphs);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(FONT_RESOURCE, err == 0, opts);
 		std::sort(array::begin(_glyphs), array::end(_glyphs));
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_FONT));

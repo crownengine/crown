@@ -65,7 +65,7 @@ namespace sound
 		} else if (sr.bit_depth == 32) {
 			opts.write(array::begin(s._samples), sr.pcm_size);
 		} else {
-			RETURN_IF_FALSE(false, opts, "Unsupported bit depth");
+			RETURN_IF_FALSE(SOUND, false, opts, "Unsupported bit depth");
 		}
 
 		return 0;
@@ -79,7 +79,7 @@ namespace sound
 
 		DynamicString source(ta);
 		RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]));
-		RETURN_IF_FILE_MISSING(source.c_str(), opts);
+		RETURN_IF_FILE_MISSING(SOUND, source.c_str(), opts);
 		Buffer sound_data = opts.read(source.c_str());
 
 		if (source.has_suffix("wav") || source.has_suffix("WAV")) {
@@ -88,12 +88,12 @@ namespace sound
 			return ogg::parse(s, sound_data, opts);
 		}
 
-		RETURN_IF_FALSE(false, opts, "Unsupported format");
+		RETURN_IF_FALSE(SOUND, false, opts, "Unsupported format");
 	}
 
 	s32 parse(Sound &s, const char *path, CompileOptions &opts)
 	{
-		RETURN_IF_FILE_MISSING(path, opts);
+		RETURN_IF_FILE_MISSING(SOUND, path, opts);
 		Buffer buf = opts.read(path);
 		return parse_internal(s, buf, opts);
 	}
