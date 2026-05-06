@@ -78,3 +78,19 @@ geometry:
    :align: center
 
    Imported animation clips in the dedicated ``animations`` folder.
+
+Axes Orientation
+----------------
+
+Crown uses Y-forward Z-up axes. In order for models to be oriented correctly
+when imported into Crown, use those settings when exporting them from DCC
+programs whenever possible.
+
+This is especially important when working with OBJ scenes, because the format
+generally does not store the axes used at export time. In that case, Crown has
+no way to know whether it should insert an extra root node to correct the
+orientation, so the imported unit may look wrong.
+
+FBX scenes, on the other hand, include this information, and Crown uses it to
+insert a corrective root node when necessary. Even so, it is best to export with
+the correct settings.

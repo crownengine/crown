@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Importing Scenes" />
+    <meta property="article:modified_time" content="2026-05-06T21:47:31+00:00" /><meta property="og:title" content="Importing Scenes" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_scenes.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -72,6 +72,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#importing-animation-clips">2) Importing animation clips</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#axes-orientation">Axes Orientation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
@@ -190,6 +191,19 @@ geometry:</p>
 </figure>
 </section>
 </section>
+<section id="axes-orientation">
+<h2>Axes Orientation<a class="headerlink" href="#axes-orientation" title="Permalink to this headline">¶</a></h2>
+<p>Crown uses Y-forward Z-up axes. In order for models to be oriented correctly
+when imported into Crown, use those settings when exporting them from DCC
+programs whenever possible.</p>
+<p>This is especially important when working with OBJ scenes, because the format
+generally does not store the axes used at export time. In that case, Crown has
+no way to know whether it should insert an extra root node to correct the
+orientation, so the imported unit may look wrong.</p>
+<p>FBX scenes, on the other hand, include this information, and Crown uses it to
+insert a corrective root node when necessary. Even so, it is best to export with
+the correct settings.</p>
+</section>
 </section>
 
 
@@ -204,7 +218,7 @@ geometry:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 16, 2026.
+      <span class="lastupdated">Last updated on May 06, 2026.
       </span></p>
   </div>
 
