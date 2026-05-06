@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-22T13:59:31+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-06T23:11:56+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
-<meta property="og:site_name" content="Crown 0.62.2 Manual" />
-<meta property="og:description" content="0.62.2 — 22 Apr 2026: Fixes Data Compiler: fixed generation of meshes with high vertex count., Data Compiler: fixed slow mesh compilation.. 0.62.1 — 16 Apr 2026: Fixes Tools: fixed units not spawning correctly when opened in the Unit Editor., Runtime: fixed a race conditions d..." />
+<meta property="og:site_name" content="Crown 0.62.3 Manual" />
+<meta property="og:description" content="0.62.3 — 07 May 2026: Fixes Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases., Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed., Tools: fixed an issue that caused a new resou..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.62.2 Manual" />
-<meta name="description" content="0.62.2 — 22 Apr 2026: Fixes Data Compiler: fixed generation of meshes with high vertex count., Data Compiler: fixed slow mesh compilation.. 0.62.1 — 16 Apr 2026: Fixes Tools: fixed units not spawning correctly when opened in the Unit Editor., Runtime: fixed a race conditions d..." />
+<meta property="og:image:alt" content="Crown 0.62.3 Manual" />
+<meta name="description" content="0.62.3 — 07 May 2026: Fixes Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases., Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed., Tools: fixed an issue that caused a new resou..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.62.2 Manual</title>
+  <title>Changelog &mdash; Crown 0.62.3 Manual</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -34,7 +34,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.62.2 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.62.3 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,6 +59,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#may-2026"><span class="xref std std-ref">0.62.3 — 07 May 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#apr-2026"><span class="xref std std-ref">0.62.2 — 22 Apr 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-62-1"><span class="xref std std-ref">0.62.1 — 16 Apr 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-62-0"><span class="xref std std-ref">0.62.0 — 09 Apr 2026</span></a></li>
@@ -112,7 +113,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.62.2 Manual</a>
+          <a href="index.html">Crown 0.62.3 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -132,6 +133,18 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<section id="may-2026">
+<span id="v0-62-3"></span><h2><a class="reference internal" href="#v0-62-3"><span class="std std-ref">0.62.3 — 07 May 2026</span></a><a class="headerlink" href="#may-2026" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li><p>Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.</p></li>
+<li><p>Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.</p></li>
+<li><p>Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.</p></li>
+<li><p>Tools: fixed re-importing of units from 3D scene files.</p></li>
+<li><p>Tools: fixed transforms in unit resource losing the ‘name’ property if saved in the Unit Editor.</p></li>
+<li><p>Runtime: fixed a potential buffer overflow when raycasting animated sprites.</p></li>
+</ul>
+</section>
 <section id="apr-2026">
 <span id="v0-62-2"></span><h2><a class="reference internal" href="#v0-62-2"><span class="std std-ref">0.62.2 — 22 Apr 2026</span></a><a class="headerlink" href="#apr-2026" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
@@ -1001,7 +1014,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.62.2 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.62.3 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -1009,7 +1022,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 22, 2026.
+      <span class="lastupdated">Last updated on May 06, 2026.
       </span></p>
   </div>
 

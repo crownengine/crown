@@ -1,6 +1,20 @@
 Changelog
 =========
 
+.. _v0.62.3:
+
+:ref:`0.62.3 --- 07 May 2026 <v0.62.3>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: the Project Browser will now exit search mode correctly when ESC is pressed in all cases.
+* Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
+* Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
+* Tools: fixed re-importing of units from 3D scene files.
+* Tools: fixed transforms in unit resource losing the 'name' property if saved in the Unit Editor.
+* Runtime: fixed a potential buffer overflow when raycasting animated sprites.
+
 .. _v0.62.2:
 
 :ref:`0.62.2 --- 22 Apr 2026 <v0.62.2>`
