@@ -145,7 +145,7 @@ namespace mesh_animation
 		// Parse skeleton.
 		DynamicString target_skeleton(ta);
 		RETURN_IF_ERROR(sjson::parse_string(target_skeleton, obj["target_skeleton"]));
-		RETURN_IF_MISSING(MESH_ANIMATION, "mesh_skeleton", target_skeleton.c_str(), opts);
+		WARN_IF_MISSING(MESH_ANIMATION, "mesh_skeleton", target_skeleton.c_str(), opts);
 		opts.add_requirement("mesh_skeleton", target_skeleton.c_str());
 		ma.target_skeleton = RETURN_IF_ERROR(sjson::parse_resource_name(obj["target_skeleton"]));
 

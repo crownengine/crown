@@ -1,0 +1,23 @@
+_guid = "d60d824f-8fea-4eaa-bfe0-a6c9822ca680"
+_type = "sprite"
+frames = [
+	{
+		_guid = "5cdca2fc-380f-4c7f-a660-28db8601f50d"
+		_type = "sprite_frame"
+		index = 0
+		name = "frame_0"
+		pivot = [
+			16
+			16
+			0
+		]
+		region = [
+			0
+			0
+			32
+			32
+		]
+	}
+]
+height = 32
+width = 32

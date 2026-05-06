@@ -1,0 +1,17 @@
+_guid = "203922ad-7b25-446a-a48b-342298e5b547"
+_type = "state_machine"
+animation_type = "sprite_animation"
+initial_state = "4bca4e70-d945-4bd1-b2a3-c39a0895d53d"
+skeleton_name = null
+states = [
+	{
+		_guid = "4bca4e70-d945-4bd1-b2a3-c39a0895d53d"
+		_type = "state_machine_node"
+		animations = []
+		loop = true
+		name = "fallback"
+		speed = "1"
+		transitions = []
+	}
+]
+variables = []

@@ -170,7 +170,7 @@ namespace state_machine_resource_internal
 					&& sjson::type(animation["name"]) == JsonValueType::STRING) {
 					DynamicString animation_resource(ta);
 					RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]));
-					RETURN_IF_MISSING(STATE_MACHINE_RESOURCE, _animation_type.c_str()
+					WARN_IF_MISSING(STATE_MACHINE_RESOURCE, _animation_type.c_str()
 						, animation_resource.c_str()
 						, _opts
 						);
@@ -384,7 +384,7 @@ namespace state_machine_resource_internal
 				&& sjson::type(obj["skeleton_name"]) == JsonValueType::STRING) {
 				DynamicString skeleton_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(skeleton_name, obj["skeleton_name"]));
-				RETURN_IF_MISSING(STATE_MACHINE_RESOURCE, "mesh_skeleton", skeleton_name.c_str(), _opts);
+				WARN_IF_MISSING(STATE_MACHINE_RESOURCE, "mesh_skeleton", skeleton_name.c_str(), _opts);
 				_opts.add_requirement("mesh_skeleton", skeleton_name.c_str());
 				_skeleton_name = StringId64(skeleton_name.c_str());
 			}

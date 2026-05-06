@@ -19,6 +19,7 @@ Changelog
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
+* Data Compiler: missing resource references no longer stop data compilation and print a warning instead.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 * Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
 

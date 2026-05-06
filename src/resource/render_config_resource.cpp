@@ -169,7 +169,7 @@ namespace render_config_resource_internal
 			DynamicString shader_name(ta);
 
 			RETURN_IF_ERROR(sjson::parse_string(shader_name, arr[i]));
-			RETURN_IF_MISSING(RENDER_CONFIG_RESOURCE, "shader", shader_name.c_str(), opts);
+			WARN_IF_MISSING(RENDER_CONFIG_RESOURCE, "shader", shader_name.c_str(), opts);
 			opts.add_requirement("shader", shader_name.c_str());
 		}
 

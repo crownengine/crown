@@ -16,6 +16,7 @@
 #include "resource/compile_options.inl"
 #include "resource/mesh_animation.h"
 #include "resource/mesh_skeleton.h"
+#include "resource/resource_id.inl"
 
 LOG_SYSTEM(MESH_ANIMATION_RESOURCE, "mesh_animation_resource")
 
@@ -59,6 +60,11 @@ namespace mesh_animation_resource_internal
 	{
 		Buffer buf = opts.read();
 		MeshAnimation ma(default_allocator());
+
+		if (opts._resource_id._id == resource_id(RESOURCE_TYPE_MESH_ANIMATION, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248))._id) {
+			ma.total_time = 1.0f;
+			return write(ma, opts);
+		}
 
 		s32 err = mesh_animation::parse(ma, buf, opts);
 		ENSURE_OR_RETURN(MESH_ANIMATION_RESOURCE, err == 0, opts);

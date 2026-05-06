@@ -622,9 +622,18 @@ int Device::main_loop()
 	_shader_manager   = CE_NEW(_allocator, ShaderManager)(default_allocator());
 
 	_resource_loader  = CE_NEW(_allocator, ResourceLoader)(*_data_filesystem, is_bundle);
-	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,  STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
-	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
-	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,     STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_FONT,             STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MESH,             STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_TEXTURE,          STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MATERIAL,         STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MESH_SKELETON,    STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_MESH_ANIMATION,   STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_SHADER,           STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_SOUND,            STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_SPRITE,           STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_SPRITE_ANIMATION, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_STATE_MACHINE,    STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
+	_resource_loader->register_fallback(RESOURCE_TYPE_UNIT,             STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248));
 
 	_resource_manager = CE_NEW(_allocator, ResourceManager)(*_resource_loader);
 	_resource_manager->register_type(RESOURCE_TYPE_CONFIG,           RESOURCE_VERSION_CONFIG,           config_resource_internal::load,  config_resource_internal::unload,  NULL,                               NULL);
