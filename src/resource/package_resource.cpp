@@ -17,12 +17,15 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
 #include "resource/package_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/simple_resource.h"
 #include <lz4.h>
+
+LOG_SYSTEM(PACKAGE_RESOURCE, "package_resource")
 
 namespace crown
 {
@@ -102,7 +105,7 @@ namespace package_resource_internal
 			TempAllocator256 ta;
 			DynamicString name(ta);
 			RETURN_IF_ERROR(sjson::parse_string(name, names[i]));
-			RETURN_IF_RESOURCE_MISSING(type, name.c_str(), opts);
+			RETURN_IF_MISSING(PACKAGE_RESOURCE, type, name.c_str(), opts);
 			name += ".";
 			name += type;
 			opts.fake_read(name.c_str());
@@ -189,31 +192,31 @@ namespace package_resource_internal
 
 		s32 err = 0;
 		err = compile_resources(resources_set, "texture", texture, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "lua", script, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "sound", sound, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "mesh", mesh, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "unit", unit, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "sprite", sprite, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "material", material, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "font", font, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "level", level, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "physics_config", phyconf, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "shader", shader, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "sprite_animation", sprite_animation, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "render_config", render_config, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 
 		// Generate resource list
 		auto cur = hash_set::begin(resources_set);
@@ -233,7 +236,7 @@ namespace package_resource_internal
 					resources[j].online_order = online_order++;
 			}
 		}
-		ENSURE_OR_RETURN(online_order == array::size(resources), opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, online_order == array::size(resources), opts);
 
 		Buffer header_data(default_allocator());
 		Buffer bundle_data(default_allocator());
@@ -259,7 +262,7 @@ namespace package_resource_internal
 				File *data_file = opts._data_filesystem.open(dest.c_str(), FileOpenMode::READ);
 				if (!data_file->is_open()) {
 					opts._data_filesystem.close(*data_file);
-					RETURN_IF_FALSE(false, opts, "Failed to open data");
+					RETURN_IF_FALSE(PACKAGE_RESOURCE, false, opts, "Failed to open data");
 				}
 
 				bbw.align(16);
@@ -272,7 +275,7 @@ namespace package_resource_internal
 				File *stream = opts._data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
 				if (stream->is_open()) {
 					File *bundle_stream = opts._output_filesystem.open(stream_dest.c_str(), FileOpenMode::WRITE);
-					RETURN_IF_FALSE(bundle_stream->is_open(), opts, "Failed to open bundle stream");
+					RETURN_IF_FALSE(PACKAGE_RESOURCE, bundle_stream->is_open(), opts, "Failed to open bundle stream");
 					file::copy(*bundle_stream, *stream, stream->size());
 					opts._output_filesystem.close(*bundle_stream);
 				}
@@ -293,7 +296,7 @@ namespace package_resource_internal
 			int max_dst_size = LZ4_compressBound(array::size(bundle_data));
 			array::reserve(compressed_data, u32(max_dst_size));
 			int compressed_data_size = LZ4_compress_default(array::begin(bundle_data), array::begin(compressed_data), array::size(bundle_data), max_dst_size);
-			RETURN_IF_FALSE(compressed_data_size > 0, opts, "Failed to compress data");
+			RETURN_IF_FALSE(PACKAGE_RESOURCE, compressed_data_size > 0, opts, "Failed to compress data");
 			array::resize(compressed_data, u32(compressed_data_size));
 		}
 

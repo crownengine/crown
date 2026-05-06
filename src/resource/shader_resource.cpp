@@ -688,7 +688,7 @@ namespace shader_resource_internal
 		Array<const char *> argv(default_allocator());
 
 		const char *shaderc = opts.exe_path(shaderc_paths, countof(shaderc_paths));
-		RETURN_IF_FALSE(shaderc != NULL, opts, "shaderc not found");
+		RETURN_IF_FALSE(SHADER_RESOURCE, shaderc != NULL, opts, "shaderc not found");
 
 		array::push_back(argv, shaderc);
 		array::push_back(argv, (const char *)"-f");
@@ -1126,7 +1126,7 @@ namespace shader_resource_internal
 				return 0;
 
 			s32 err = parse(_opts.read(path), is_include);
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			hash_set::insert(_parsed_includes, path_str);
 			return err;
 		}
@@ -1145,34 +1145,34 @@ namespace shader_resource_internal
 					DynamicString path(ta);
 					RETURN_IF_ERROR(sjson::parse_string(path, arr[i]));
 					s32 err = parse(path.c_str(), true);
-					ENSURE_OR_RETURN(err == 0, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				}
 			}
 
 			if (json_object::has(obj, "render_states")) {
 				s32 err = parse_render_states(obj["render_states"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			if (json_object::has(obj, "sampler_states")) {
 				s32 err = parse_sampler_states(obj["sampler_states"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			if (json_object::has(obj, "bgfx_shaders")) {
 				s32 err = parse_bgfx_shaders(obj["bgfx_shaders"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			if (json_object::has(obj, "shaders")) {
 				s32 err = parse_shaders(obj["shaders"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			if (!is_include) { // Do not merge static_compile entries.
 				if (json_object::has(obj, "static_compile")) {
 					s32 err = parse_static_compile(obj["static_compile"]);
-					ENSURE_OR_RETURN(err == 0, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				}
 			}
 
@@ -1227,7 +1227,7 @@ namespace shader_resource_internal
 				DynamicString depth_func(ta);
 				RETURN_IF_ERROR(sjson::parse_string(depth_func, obj["depth_func"]));
 				state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
-				RETURN_IF_FALSE(state._depth_func.value() != DepthFunc::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._depth_func.value() != DepthFunc::COUNT
 					, _opts
 					, "Unknown depth test: '%s'"
 					, depth_func.c_str()
@@ -1239,7 +1239,7 @@ namespace shader_resource_internal
 				DynamicString blend_src(ta);
 				RETURN_IF_ERROR(sjson::parse_string(blend_src, obj["blend_src"]));
 				state._blend_src.set_value(name_to_blend_func(blend_src.c_str()));
-				RETURN_IF_FALSE(state._blend_src.value() != BlendFunc::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_src.value() != BlendFunc::COUNT
 					, _opts
 					, "Unknown blend function: '%s'"
 					, blend_src.c_str()
@@ -1251,7 +1251,7 @@ namespace shader_resource_internal
 				DynamicString blend_dst(ta);
 				RETURN_IF_ERROR(sjson::parse_string(blend_dst, obj["blend_dst"]));
 				state._blend_dst.set_value(name_to_blend_func(blend_dst.c_str()));
-				RETURN_IF_FALSE(state._blend_dst.value() != BlendFunc::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_dst.value() != BlendFunc::COUNT
 					, _opts
 					, "Unknown blend function: '%s'"
 					, blend_dst.c_str()
@@ -1263,7 +1263,7 @@ namespace shader_resource_internal
 				DynamicString blend_equation(ta);
 				RETURN_IF_ERROR(sjson::parse_string(blend_equation, obj["blend_equation"]));
 				state._blend_equation.set_value(name_to_blend_equation(blend_equation.c_str()));
-				RETURN_IF_FALSE(state._blend_equation.value() != BlendEquation::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_equation.value() != BlendEquation::COUNT
 					, _opts
 					, "Unknown blend equation: '%s'"
 					, blend_equation.c_str()
@@ -1275,7 +1275,7 @@ namespace shader_resource_internal
 				DynamicString cull_mode(ta);
 				RETURN_IF_ERROR(sjson::parse_string(cull_mode, obj["cull_mode"]));
 				state._cull_mode.set_value(name_to_cull_mode(cull_mode.c_str()));
-				RETURN_IF_FALSE(state._cull_mode.value() != CullMode::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._cull_mode.value() != CullMode::COUNT
 					, _opts
 					, "Unknown cull mode: '%s'"
 					, cull_mode.c_str()
@@ -1287,7 +1287,7 @@ namespace shader_resource_internal
 				DynamicString primitive_type(ta);
 				RETURN_IF_ERROR(sjson::parse_string(primitive_type, obj["primitive_type"]));
 				state._primitive_type.set_value(name_to_primitive_type(primitive_type.c_str()));
-				RETURN_IF_FALSE(state._primitive_type.value() != PrimitiveType::COUNT
+				RETURN_IF_FALSE(SHADER_RESOURCE, state._primitive_type.value() != PrimitiveType::COUNT
 					, _opts
 					, "Unknown primitive type: '%s'"
 					, primitive_type.c_str()
@@ -1339,7 +1339,7 @@ namespace shader_resource_internal
 					DynamicString depth_func(ta);
 					RETURN_IF_ERROR(sjson::parse_string(depth_func, states["depth_func"]));
 					state._depth_func.set_value(name_to_depth_func(depth_func.c_str()));
-					RETURN_IF_FALSE(state._depth_func.value() != DepthFunc::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._depth_func.value() != DepthFunc::COUNT
 						, _opts
 						, "Unknown depth test: '%s'"
 						, depth_func.c_str()
@@ -1348,7 +1348,7 @@ namespace shader_resource_internal
 					DynamicString blend_src(ta);
 					RETURN_IF_ERROR(sjson::parse_string(blend_src, states["blend_src"]));
 					state._blend_src.set_value(name_to_blend_func(blend_src.c_str()));
-					RETURN_IF_FALSE(state._blend_src.value() != BlendFunc::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_src.value() != BlendFunc::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_src.c_str()
@@ -1357,7 +1357,7 @@ namespace shader_resource_internal
 					DynamicString blend_dst(ta);
 					RETURN_IF_ERROR(sjson::parse_string(blend_dst, states["blend_dst"]));
 					state._blend_dst.set_value(name_to_blend_func(blend_dst.c_str()));
-					RETURN_IF_FALSE(state._blend_dst.value() != BlendFunc::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_dst.value() != BlendFunc::COUNT
 						, _opts
 						, "Unknown blend function: '%s'"
 						, blend_dst.c_str()
@@ -1366,7 +1366,7 @@ namespace shader_resource_internal
 					DynamicString blend_equation(ta);
 					RETURN_IF_ERROR(sjson::parse_string(blend_equation, states["blend_equation"]));
 					state._blend_equation.set_value(name_to_blend_equation(blend_equation.c_str()));
-					RETURN_IF_FALSE(state._blend_equation.value() != BlendEquation::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._blend_equation.value() != BlendEquation::COUNT
 						, _opts
 						, "Unknown blend equation: '%s'"
 						, blend_equation.c_str()
@@ -1375,7 +1375,7 @@ namespace shader_resource_internal
 					DynamicString cull_mode(ta);
 					RETURN_IF_ERROR(sjson::parse_string(cull_mode, states["cull_mode"]));
 					state._cull_mode.set_value(name_to_cull_mode(cull_mode.c_str()));
-					RETURN_IF_FALSE(state._cull_mode.value() != CullMode::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._cull_mode.value() != CullMode::COUNT
 						, _opts
 						, "Unknown cull mode: '%s'"
 						, cull_mode.c_str()
@@ -1384,7 +1384,7 @@ namespace shader_resource_internal
 					DynamicString primitive_type(ta);
 					RETURN_IF_ERROR(sjson::parse_string(primitive_type, states["primitive_type"]));
 					state._primitive_type.set_value(name_to_primitive_type(primitive_type.c_str()));
-					RETURN_IF_FALSE(state._primitive_type.value() != PrimitiveType::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, state._primitive_type.value() != PrimitiveType::COUNT
 						, _opts
 						, "Unknown primitive type: '%s'"
 						, primitive_type.c_str()
@@ -1396,7 +1396,7 @@ namespace shader_resource_internal
 					DynamicString func(ta);
 					RETURN_IF_ERROR(sjson::parse_string(func, states[cur->first]));
 					StencilFunc::Enum sf = name_to_stencil_func(func.c_str());
-					RETURN_IF_FALSE(sf != StencilFunc::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, sf != StencilFunc::COUNT
 						, _opts
 						, "Unknown stencil test: '%s'"
 						, func.c_str()
@@ -1413,13 +1413,13 @@ namespace shader_resource_internal
 					DynamicString hexstr(ta);
 					RETURN_IF_ERROR(sjson::parse_string(hexstr, states[cur->first]));
 					int err = from_hex(value, hexstr.c_str());
-					RETURN_IF_FALSE(err == 0
+					RETURN_IF_FALSE(SHADER_RESOURCE, err == 0
 						, _opts
 						, "Failed to parse '%.*s'"
 						, cur->first.length()
 						, cur->first.data()
 						);
-					RETURN_IF_FALSE(value >= 0x00 && value <= 0xff
+					RETURN_IF_FALSE(SHADER_RESOURCE, value >= 0x00 && value <= 0xff
 						, _opts
 						, "'%.*s' must be in [0x00; 0xff] range"
 						, cur->first.length()
@@ -1442,7 +1442,7 @@ namespace shader_resource_internal
 					DynamicString op(ta);
 					RETURN_IF_ERROR(sjson::parse_string(op, states[cur->first]));
 					StencilOp::Enum so = name_to_stencil_op(op.c_str());
-					RETURN_IF_FALSE(so != StencilOp::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, so != StencilOp::COUNT
 						, _opts
 						, "Unknown stencil op: '%s'"
 						, op.c_str()
@@ -1462,7 +1462,7 @@ namespace shader_resource_internal
 				} else {
 					// Skip conditionals state objects, error out on anything else.
 					if (sjson::type(cur->second) != JsonValueType::OBJECT) {
-						RETURN_IF_FALSE(false
+						RETURN_IF_FALSE(SHADER_RESOURCE, false
 							, _opts
 							, "Unknown state property: '%.*s'"
 							, cur->first.length()
@@ -1502,7 +1502,7 @@ namespace shader_resource_internal
 					// It must be a conditional expression: "expr()" = { ... }
 					RenderState::State states;
 					s32 err = parse_states(states, cur->second);
-					ENSURE_OR_RETURN(err == 0, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
 					DynamicString expr(default_allocator());
 					expr = cur->first;
@@ -1539,14 +1539,14 @@ namespace shader_resource_internal
 			// Read states from render state object itself; for backwards compatibility.
 			RenderState::State states_compat;
 			err = parse_states_compat(states_compat, obj);
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			rs.push_back_states("1", states_compat, 0u); // Always applied.
 
 			// Read states from new, dedicated "states" object.
 			if (json_object::has(obj, "states")) {
 				RenderState::State states;
 				err = parse_states(states, obj["states"]);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				rs.push_back_states("1", states, 1u); // Always applied.
 
 				err = parse_conditional_states(rs, obj["states"]);
@@ -1571,12 +1571,12 @@ namespace shader_resource_internal
 
 				RenderState rs(default_allocator());
 				s32 err = parse_render_state(rs, cur->second);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
 				DynamicString key(ta);
 				key = cur->first;
 
-				RETURN_IF_FALSE(!hash_map::has(_render_states, key)
+				RETURN_IF_FALSE(SHADER_RESOURCE, !hash_map::has(_render_states, key)
 					, _opts
 					, "Render state redefined: '%s'"
 					, key.c_str()
@@ -1619,7 +1619,7 @@ namespace shader_resource_internal
 				if (has_filter_min) {
 					RETURN_IF_ERROR(sjson::parse_string(filter_min, obj["filter_min"]));
 					ss._filter_min = name_to_sampler_filter(filter_min.c_str());
-					RETURN_IF_FALSE(ss._filter_min != SamplerFilter::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, ss._filter_min != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
 						, filter_min.c_str()
@@ -1629,7 +1629,7 @@ namespace shader_resource_internal
 				if (has_filter_mag) {
 					RETURN_IF_ERROR(sjson::parse_string(filter_mag, obj["filter_mag"]));
 					ss._filter_mag = name_to_sampler_filter(filter_mag.c_str());
-					RETURN_IF_FALSE(ss._filter_mag != SamplerFilter::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, ss._filter_mag != SamplerFilter::COUNT
 						, _opts
 						, "Unknown sampler filter: '%s'"
 						, filter_mag.c_str()
@@ -1639,7 +1639,7 @@ namespace shader_resource_internal
 				if (has_wrap_u) {
 					RETURN_IF_ERROR(sjson::parse_string(wrap_u, obj["wrap_u"]));
 					ss._wrap_u = name_to_sampler_wrap(wrap_u.c_str());
-					RETURN_IF_FALSE(ss._wrap_u != SamplerWrap::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, ss._wrap_u != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_u.c_str()
@@ -1649,7 +1649,7 @@ namespace shader_resource_internal
 				if (has_wrap_v) {
 					RETURN_IF_ERROR(sjson::parse_string(wrap_v, obj["wrap_v"]));
 					ss._wrap_v = name_to_sampler_wrap(wrap_v.c_str());
-					RETURN_IF_FALSE(ss._wrap_v != SamplerWrap::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, ss._wrap_v != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_v.c_str()
@@ -1659,7 +1659,7 @@ namespace shader_resource_internal
 				if (has_wrap_w) {
 					RETURN_IF_ERROR(sjson::parse_string(wrap_w, obj["wrap_w"]));
 					ss._wrap_w = name_to_sampler_wrap(wrap_w.c_str());
-					RETURN_IF_FALSE(ss._wrap_w != SamplerWrap::COUNT
+					RETURN_IF_FALSE(SHADER_RESOURCE, ss._wrap_w != SamplerWrap::COUNT
 						, _opts
 						, "Unknown wrap mode: '%s'"
 						, wrap_w.c_str()
@@ -1669,7 +1669,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				RETURN_IF_FALSE(!hash_map::has(_sampler_states, key)
+				RETURN_IF_FALSE(SHADER_RESOURCE, !hash_map::has(_sampler_states, key)
 					, _opts
 					, "Sampler state redefined: '%s'"
 					, key.c_str()
@@ -1697,7 +1697,7 @@ namespace shader_resource_internal
 				BgfxShader bgfxshader(default_allocator());
 				if (json_object::has(shader, "includes")) {
 					s32 err = parse_bgfx_includes(bgfxshader, shader["includes"]);
-					ENSURE_OR_RETURN(err == 0, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				}
 				if (json_object::has(shader, "code")) {
 					RETURN_IF_ERROR(sjson::parse_verbatim(bgfxshader._code, shader["code"]));
@@ -1719,13 +1719,13 @@ namespace shader_resource_internal
 				}
 				if (json_object::has(shader, "samplers")) {
 					s32 err = parse_bgfx_samplers(bgfxshader, shader["samplers"]);
-					ENSURE_OR_RETURN(err == 0, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				}
 
 				DynamicString key(ta);
 				key = cur->first;
 
-				RETURN_IF_FALSE(!hash_map::has(_bgfx_shaders, key)
+				RETURN_IF_FALSE(SHADER_RESOURCE, !hash_map::has(_bgfx_shaders, key)
 					, _opts
 					, "Bgfx shader redefined: '%s'"
 					, key.c_str()
@@ -1753,7 +1753,7 @@ namespace shader_resource_internal
 				DynamicString sampler_state(ta);
 				RETURN_IF_ERROR(sjson::parse_string(sampler_state, sampler["sampler_state"]));
 
-				RETURN_IF_FALSE(hash_map::has(_sampler_states, sampler_state)
+				RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_sampler_states, sampler_state)
 					, _opts
 					, "Unknown sampler state: '%s'"
 					, sampler_state.c_str()
@@ -1762,7 +1762,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				RETURN_IF_FALSE(!hash_map::has(bgfxshader._samplers, key)
+				RETURN_IF_FALSE(SHADER_RESOURCE, !hash_map::has(bgfxshader._samplers, key)
 					, _opts
 					, "Bgfx sampler redefined: '%s'"
 					, key.c_str()
@@ -1796,7 +1796,7 @@ namespace shader_resource_internal
 				return 0;
 			}
 
-			RETURN_IF_FALSE(false, _opts, "'includes' must be either an array-of-strings or a string");
+			RETURN_IF_FALSE(SHADER_RESOURCE, false, _opts, "'includes' must be either an array-of-strings or a string");
 		}
 
 		s32 parse_shaders(const char *json)
@@ -1820,7 +1820,7 @@ namespace shader_resource_internal
 				DynamicString key(ta);
 				key = cur->first;
 
-				RETURN_IF_FALSE(!hash_map::has(_shaders, key)
+				RETURN_IF_FALSE(SHADER_RESOURCE, !hash_map::has(_shaders, key)
 					, _opts
 					, "Shader redefined: '%s'"
 					, key.c_str()
@@ -1897,12 +1897,12 @@ namespace shader_resource_internal
 			const DynamicString &bgfx_shader  = sp._bgfx_shader;
 			const DynamicString &render_state = sp._render_state;
 
-			RETURN_IF_FALSE(hash_map::has(_bgfx_shaders, sp._bgfx_shader)
+			RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_bgfx_shaders, sp._bgfx_shader)
 				, _opts
 				, "Unknown bgfx shader: '%s'"
 				, bgfx_shader.c_str()
 				);
-			RETURN_IF_FALSE(hash_map::has(_render_states, sp._render_state)
+			RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_render_states, sp._render_state)
 				, _opts
 				, "Unknown render state: '%s'"
 				, render_state.c_str()
@@ -1910,7 +1910,7 @@ namespace shader_resource_internal
 
 			RenderState::State state;
 			s32 err = compile_render_state(state, render_state.c_str(), defines);
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
 			u32 stencil_front;
 			u32 stencil_back;
@@ -1940,14 +1940,14 @@ namespace shader_resource_internal
 				const DynamicString &shader          = sc._shader;
 				const Vector<DynamicString> &defines = sc._defines;
 
-				RETURN_IF_FALSE(hash_map::has(_shaders, shader)
+				RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_shaders, shader)
 					, _opts
 					, "Unknown shader: '%s'"
 					, shader.c_str()
 					);
 
 				s32 err = compile_variant(fb, NULL, shader, defines, false);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			_opts.write(variants);
@@ -1988,7 +1988,7 @@ namespace shader_resource_internal
 				const BgfxShader included_default(default_allocator());
 				const BgfxShader &included = hash_map::get(_bgfx_shaders, shader._includes[i], included_default);
 				s32 err = bgfx_shader_collect_code(code, included);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			code << shader._code.c_str();
@@ -2026,7 +2026,7 @@ namespace shader_resource_internal
 						RETURN_IF_ERROR(sjson::parse_array(arr, cur->second));
 
 						const u32 val_size = array::size(arr);
-						RETURN_IF_FALSE(val_size <= 4 || val_size == 0
+						RETURN_IF_FALSE(SHADER_RESOURCE, val_size <= 4 || val_size == 0
 							, opts
 							, "Invalid 'val' array size"
 							);
@@ -2040,7 +2040,7 @@ namespace shader_resource_internal
 						um.val.x = RETURN_IF_ERROR(sjson::parse_float(cur->second));
 						um.type = UniformType::FLOAT;
 					} else {
-						RETURN_IF_FALSE(false, opts, "'val' must be either an array of numbers or a number");
+						RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "'val' must be either an array of numbers or a number");
 					}
 				}
 			}
@@ -2063,7 +2063,7 @@ namespace shader_resource_internal
 
 				const char *semicol = strchr(name, ';');
 				if (!semicol)
-					RETURN_IF_FALSE(false, opts, "Malformed uniform declaration");
+					RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "Malformed uniform declaration");
 
 				const char *name_end = name;
 				while (name_end != semicol && !isspace(*name_end)) ++name_end;
@@ -2073,7 +2073,7 @@ namespace shader_resource_internal
 
 			if ((comment = strstr(decl, "//")) != NULL) {
 				s32 err = parse_decl_comment(um, comment, opts);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 			} else {
 				um.type = UniformType::COUNT; // Do not add to metadata.
 			}
@@ -2099,7 +2099,7 @@ namespace shader_resource_internal
 				// This is a uniform declaration of the form:
 				// "uniform <type> <name>; // { val=... min=... }"
 				s32 err = parse_uniform_decl(um, str.c_str(), opts);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 				if (um.type != UniformType::COUNT)
 					vector::push_back(meta, um);
 			}
@@ -2118,7 +2118,7 @@ namespace shader_resource_internal
 
 			StringStream code(default_allocator());
 			s32 err = bgfx_shader_collect_code(code, shader);
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
 			// Generate final shader code.
 			StringStream varying_code(default_allocator());
@@ -2159,7 +2159,7 @@ namespace shader_resource_internal
 					);
 				if (sc != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(sc == 0
+					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
 						);
@@ -2177,7 +2177,7 @@ namespace shader_resource_internal
 					);
 				if (sc != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(sc == 0
+					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
 						);
@@ -2194,7 +2194,7 @@ namespace shader_resource_internal
 				if (ec != 0) {
 					pr_frag.wait();
 					delete_temp_files();
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to preprocess vertex shader `%s`:\n%s"
 						, bgfx_shader
@@ -2206,7 +2206,7 @@ namespace shader_resource_internal
 				ec = pr_frag.wait();
 				if (ec != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to preprocess fragment shader `%s`:\n%s"
 						, bgfx_shader
@@ -2222,9 +2222,9 @@ namespace shader_resource_internal
 
 				s32 err = 0;
 				err = parse_metadata(*meta, vs_pp_data, _opts);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				err = parse_metadata(*meta, fs_pp_data, _opts);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			if (metadata_only) {
@@ -2252,7 +2252,7 @@ namespace shader_resource_internal
 					);
 				if (sc != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(sc == 0
+					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
 						);
@@ -2269,7 +2269,7 @@ namespace shader_resource_internal
 					);
 				if (sc != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(sc == 0
+					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
 						);
@@ -2286,7 +2286,7 @@ namespace shader_resource_internal
 				if (ec != 0) {
 					pr_frag.wait();
 					delete_temp_files();
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to compile vertex shader `%s` for %s/%s:\n%s"
 						, bgfx_shader
@@ -2300,7 +2300,7 @@ namespace shader_resource_internal
 				ec = pr_frag.wait();
 				if (ec != 0) {
 					delete_temp_files();
-					RETURN_IF_FALSE(false
+					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to compile fragment shader `%s` for %s/%s:\n%s"
 						, bgfx_shader
@@ -2370,10 +2370,10 @@ namespace shader_resource_internal
 				, byte_code
 				, countof(byte_code)
 				);
-			ENSURE_OR_RETURN(num <= countof(byte_code), opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, num <= countof(byte_code), opts);
 
 			bool ok = expression_language::run(byte_code, variables, stack);
-			RETURN_IF_FALSE(ok && stack.size > 0
+			RETURN_IF_FALSE(SHADER_RESOURCE, ok && stack.size > 0
 				, opts
 				, "Failed to evaluate expression: '%s'"
 				, expr
@@ -2391,14 +2391,14 @@ namespace shader_resource_internal
 
 			// Compile inherited state if any.
 			if (!(rs._inherit == "")) {
-				RETURN_IF_FALSE(hash_map::has(_render_states, rs._inherit)
+				RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_render_states, rs._inherit)
 					, _opts
 					, "Unknown inherit render state: '%s'"
 					, rs._inherit.c_str()
 					);
 
 				s32 err = compile_render_state(state, rs._inherit.c_str(), defines);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			// Evaluate expressions and apply states.
@@ -2441,7 +2441,7 @@ namespace shader_resource_internal
 	{
 		ShaderCompiler sc(opts);
 		s32 err = sc.parse(opts.source_path(), false);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 
 		return sc.compile();
 	}
@@ -2486,7 +2486,7 @@ namespace shader_compiler
 
 				sc.reset();
 				s32 err = sc.parse(shader_library_path.c_str(), false);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 
 				if (sc.has_shader(shader)) {
 					const char *sp = shader_library_path.c_str();
@@ -2495,7 +2495,7 @@ namespace shader_compiler
 				}
 			}
 
-			RETURN_IF_FALSE(i < n, opts, "Shader not found");
+			RETURN_IF_FALSE(SHADER_RESOURCE, i < n, opts, "Shader not found");
 		} else {
 			shader_library_path = shader_library;
 			shader_library_path += ".shader";

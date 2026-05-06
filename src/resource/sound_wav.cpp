@@ -44,34 +44,34 @@ namespace wav
 
 	s32 parse(Sound &s, Buffer &buf, CompileOptions &opts)
 	{
-		RETURN_IF_FALSE(array::size(buf) >= sizeof(WavHeader), opts, "Malformed source");
+		RETURN_IF_FALSE(WAV, array::size(buf) >= sizeof(WavHeader), opts, "Malformed source");
 		const WavHeader *wav = (WavHeader *)array::begin(buf);
 
 		// Validate header chunk.
-		RETURN_IF_FALSE(strncmp(wav->riff, "RIFF", 4) == 0, opts, "Bad header chunk");
-		RETURN_IF_FALSE(strncmp(wav->wave, "WAVE", 4) == 0, opts, "Bad header chunk");
-		RETURN_IF_FALSE((s32)array::size(buf) == wav->file_size + 8, opts, "Truncated source");
+		RETURN_IF_FALSE(WAV, strncmp(wav->riff, "RIFF", 4) == 0, opts, "Bad header chunk");
+		RETURN_IF_FALSE(WAV, strncmp(wav->wave, "WAVE", 4) == 0, opts, "Bad header chunk");
+		RETURN_IF_FALSE(WAV, (s32)array::size(buf) == wav->file_size + 8, opts, "Truncated source");
 
 		// Validate format chunk.
-		RETURN_IF_FALSE(strncmp(wav->fmt, "fmt ", 4) == 0, opts, "Bad data format chunk");
-		RETURN_IF_FALSE(wav->fmt_chunk_size == 16, opts, "Bad data format chunk size");
+		RETURN_IF_FALSE(WAV, strncmp(wav->fmt, "fmt ", 4) == 0, opts, "Bad data format chunk");
+		RETURN_IF_FALSE(WAV, wav->fmt_chunk_size == 16, opts, "Bad data format chunk size");
 
-		RETURN_IF_FALSE(wav->tag == 1, opts, "Unsupported data format");
+		RETURN_IF_FALSE(WAV, wav->tag == 1, opts, "Unsupported data format");
 
-		RETURN_IF_FALSE(wav->channels > 0
+		RETURN_IF_FALSE(WAV, wav->channels > 0
 			&& wav->channels <= 2
 			, opts
 			, "Unsupported number of channels"
 			);
-		RETURN_IF_FALSE(wav->bit_depth == 8
+		RETURN_IF_FALSE(WAV, wav->bit_depth == 8
 			|| wav->bit_depth == 16
 			, opts
 			, "Unsupported bit depth"
 			);
 
 		// Validate data chunk.
-		RETURN_IF_FALSE(strncmp(wav->data, "data", 4) == 0, opts, "Bad data chunk");
-		RETURN_IF_FALSE(wav->data_size <= s32(array::size(buf) - sizeof(*wav)), opts, "Bad data chunk size");
+		RETURN_IF_FALSE(WAV, strncmp(wav->data, "data", 4) == 0, opts, "Bad data chunk");
+		RETURN_IF_FALSE(WAV, wav->data_size <= s32(array::size(buf) - sizeof(*wav)), opts, "Bad data chunk size");
 
 		// Convert to intermediate 32-bit float.
 		if (wav->bit_depth == 8) {

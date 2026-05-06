@@ -17,11 +17,14 @@
 #include "core/strings/string_id.inl"
 #include "core/strings/string_view.inl"
 #include "device/device.h"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/material_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/shader_resource.h"
 #include "world/material_manager.h"
+
+LOG_SYSTEM(MATERIAL_RESOURCE, "material_resource")
 
 namespace crown
 {
@@ -181,7 +184,7 @@ namespace material_resource_internal
 			if (meta != NULL) {
 				// Uniform has been added already by add_shader_uniforms().
 				// Just check for type or range mismatch and overwrite value.
-				RETURN_IF_FALSE(type == meta->type, opts, "Uniform %s: type mismatch", meta->name);
+				RETURN_IF_FALSE(MATERIAL_RESOURCE, type == meta->type, opts, "Uniform %s: type mismatch", meta->name);
 				u32 in = uniform_index(name);
 				CE_ENSURE(in != UINT32_MAX);
 				uniform_values[in] = value;
@@ -232,7 +235,7 @@ namespace material_resource_internal
 
 			DynamicString texture(ta);
 			RETURN_IF_ERROR(sjson::parse_string(texture, value));
-			RETURN_IF_RESOURCE_MISSING("texture", texture.c_str(), opts);
+			RETURN_IF_MISSING(MATERIAL_RESOURCE, "texture", texture.c_str(), opts);
 			opts.add_requirement("texture", texture.c_str());
 
 			data.add_texture(key, StringId64(texture.c_str()));
@@ -262,7 +265,7 @@ namespace material_resource_internal
 			RETURN_IF_ERROR(sjson::parse_string(type, uniform["type"]));
 
 			const UniformType::Enum ut = name_to_uniform_type(type.c_str());
-			RETURN_IF_FALSE(ut != UniformType::COUNT
+			RETURN_IF_FALSE(MATERIAL_RESOURCE, ut != UniformType::COUNT
 				, opts
 				, "Unknown uniform type: '%s'"
 				, type.c_str()
@@ -310,7 +313,7 @@ namespace material_resource_internal
 				break;
 			}
 
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 
 		return 0;
@@ -370,11 +373,11 @@ namespace material_resource_internal
 		// Parse uniforms and textures.
 		if (json_object::has(obj, "textures")) {
 			s32 err = parse_textures(data, obj["textures"], opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 		if (json_object::has(obj, "uniforms")) {
 			s32 err = parse_uniforms(data, obj["uniforms"], opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 
 		data.alloc_blob();

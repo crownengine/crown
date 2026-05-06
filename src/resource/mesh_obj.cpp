@@ -72,7 +72,7 @@ namespace obj
 			, &load_opts
 			, &error
 			);
-		RETURN_IF_FALSE(obj.scene != NULL
+		RETURN_IF_FALSE(OBJ_RESOURCE, obj.scene != NULL
 			, opts
 			, "ufbx: %s"
 			, error.description.data
@@ -197,12 +197,12 @@ namespace obj
 			Geometry geo(default_allocator());
 
 			s32 err = parse_geometry(geo, mesh);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
 			geometry_name.from_string_id(StringId32((const char *)&mesh, sizeof(mesh)));
 
-			RETURN_IF_FALSE(!hash_map::has(m._geometries, geometry_name)
+			RETURN_IF_FALSE(OBJ_RESOURCE, !hash_map::has(m._geometries, geometry_name)
 				, opts
 				, "Geometry redefined: '%s'"
 				, geometry_name.c_str()
@@ -251,7 +251,7 @@ namespace obj
 			node_name.set(node->name.data, (u32)node->name.length);
 
 			s32 err = parse_node(new_node, node);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 
 			hash_map::set(m._nodes, node_name, new_node);
 		}
@@ -263,10 +263,10 @@ namespace obj
 	{
 		OBJDocument obj;
 		s32 err = parse_scene(obj, buf, opts, filename);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 
 		err = parse_geometries(m, &obj.scene->meshes, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 
 		return parse_nodes(m, &obj.scene->nodes, opts);
 	}
@@ -278,7 +278,7 @@ namespace obj
 
 	s32 parse(Mesh &m, const char *path, CompileOptions &opts)
 	{
-		RETURN_IF_FILE_MISSING(path, opts);
+		RETURN_IF_FILE_MISSING(OBJ_RESOURCE, path, opts);
 		Buffer buf = opts.read(path);
 		return parse_internal(m, buf, opts, path);
 	}

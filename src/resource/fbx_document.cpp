@@ -9,8 +9,11 @@
 #   include "core/containers/array.inl"
 #   include "core/containers/hash_map.inl"
 #   include "core/strings/string_id.inl"
+#   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include <ufbx.h>
+
+LOG_SYSTEM(FBX_DOCUMENT, "fbx_document")
 
 namespace crown
 {
@@ -59,7 +62,7 @@ namespace fbx
 		for (size_t i = 0; i < bone->children.count; ++i) {
 			ufbx_node *child = bone->children.data[i];
 			s32 err = populate_bone_ids(fbx, child, opts, debug_num_bones);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(FBX_DOCUMENT, err == 0, opts);
 		}
 
 		return 0;
@@ -91,7 +94,7 @@ namespace fbx
 			, &load_opts
 			, &error
 			);
-		RETURN_IF_FALSE(fbx.scene != NULL
+		RETURN_IF_FALSE(FBX_DOCUMENT, fbx.scene != NULL
 			, opts
 			, "ufbx: %s"
 			, error.description.data
@@ -101,8 +104,8 @@ namespace fbx
 		if (fbx.skeleton_root_node != NULL) {
 			u32 debug_num_bones = 0;
 			s32 err = populate_bone_ids(fbx, fbx.skeleton_root_node, opts, &debug_num_bones);
-			ENSURE_OR_RETURN(err == 0, opts);
-			RETURN_IF_FALSE(debug_num_bones == hash_map::size(fbx.bone_ids)
+			ENSURE_OR_RETURN(FBX_DOCUMENT, err == 0, opts);
+			RETURN_IF_FALSE(FBX_DOCUMENT, debug_num_bones == hash_map::size(fbx.bone_ids)
 				, opts
 				, "Bone mismatch expected/actual %u/%u"
 				, debug_num_bones
@@ -116,7 +119,7 @@ namespace fbx
 	///
 	s32 parse(FBXDocument &fbx, const char *path, CompileOptions &opts)
 	{
-		RETURN_IF_FILE_MISSING(path, opts);
+		RETURN_IF_FILE_MISSING(FBX_DOCUMENT, path, opts);
 		Buffer buf = opts.read(path);
 		return parse(fbx, buf, opts);
 	}

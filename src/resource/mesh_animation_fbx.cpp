@@ -8,11 +8,14 @@
 #if CROWN_CAN_COMPILE
 #   include "core/memory/globals.h"
 #   include "core/strings/dynamic_string.inl"
+#   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/fbx_document.h"
 #   include "resource/mesh_animation.h"
 #   include "resource/mesh_skeleton.h"
 #   include <ufbx.h>
+
+LOG_SYSTEM(MESH_ANIMATION_FBX, "mesh_animation_fbx")
 
 namespace crown
 {
@@ -22,7 +25,7 @@ namespace fbx
 	{
 		ufbx_error bake_error;
 		ufbx_baked_anim *bake = ufbx_bake_anim(fbx.scene, anim, NULL, &bake_error);
-		RETURN_IF_FALSE(fbx.scene != NULL
+		RETURN_IF_FALSE(MESH_ANIMATION_FBX, fbx.scene != NULL
 			, opts
 			, "ufbx: %s"
 			, bake_error.description.data
@@ -35,12 +38,12 @@ namespace fbx
 			ufbx_node *scene_node = fbx.scene->nodes.data[bake_node->typed_id];
 
 			u16 bone_id = fbx::bone_id(fbx, scene_node->name.data);
-			RETURN_IF_FALSE(bone_id != UINT16_MAX
+			RETURN_IF_FALSE(MESH_ANIMATION_FBX, bone_id != UINT16_MAX
 				, opts
 				, "Bone '%s' not found in FBX source"
 				, scene_node->name.data
 				);
-			RETURN_IF_FALSE(bone_id < MESH_SKELETON_MAX_BONES
+			RETURN_IF_FALSE(MESH_ANIMATION_FBX, bone_id < MESH_SKELETON_MAX_BONES
 				, opts
 				, "Maximum number of bones reached %u"
 				, MESH_SKELETON_MAX_BONES
@@ -114,7 +117,7 @@ namespace fbx
 				return parse_animation(ma, fbx, stack->anim, opts);
 		}
 
-		opts.error("No matching animation '%s' in FBX source", ma.stack_name.c_str());
+		opts.error(MESH_ANIMATION_FBX, "No matching animation '%s' in FBX source", ma.stack_name.c_str());
 		return -1;
 	}
 
@@ -122,7 +125,7 @@ namespace fbx
 	{
 		FBXDocument fbx(default_allocator());
 		s32 err = fbx::parse(fbx, buf, opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(MESH_ANIMATION_FBX, err == 0, opts);
 
 		return parse_animations(ma, fbx, opts);
 	}

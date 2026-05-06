@@ -11,8 +11,11 @@
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/types.h"
+
+LOG_SYSTEM(CONFIG_RESOURCE, "config_resource")
 
 namespace crown
 {
@@ -47,15 +50,15 @@ namespace config_resource_internal
 
 		const char *boot_script_json  = boot["boot_script"];
 		const char *boot_package_json = boot["boot_package"];
-		RETURN_IF_FALSE(boot_script_json != NULL, opts, "'boot_script' must be specified.");
-		RETURN_IF_FALSE(boot_package_json != NULL, opts, "'boot_package' must be specified.");
+		RETURN_IF_FALSE(CONFIG_RESOURCE, boot_script_json != NULL, opts, "'boot_script' must be specified.");
+		RETURN_IF_FALSE(CONFIG_RESOURCE, boot_package_json != NULL, opts, "'boot_package' must be specified.");
 
 		DynamicString boot_script(ta);
 		DynamicString boot_package(ta);
 		RETURN_IF_ERROR(sjson::parse_string(boot_script, boot_script_json));
 		RETURN_IF_ERROR(sjson::parse_string(boot_package, boot_package_json));
-		RETURN_IF_RESOURCE_MISSING("lua", boot_script.c_str(), opts);
-		RETURN_IF_RESOURCE_MISSING("package", boot_package.c_str(), opts);
+		RETURN_IF_MISSING(CONFIG_RESOURCE, "lua", boot_script.c_str(), opts);
+		RETURN_IF_MISSING(CONFIG_RESOURCE, "package", boot_package.c_str(), opts);
 
 		if (opts._bundle) {
 			TempAllocator256 ta;

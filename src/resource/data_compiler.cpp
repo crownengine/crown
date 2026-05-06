@@ -1470,11 +1470,6 @@ bool DataCompiler::can_compile(StringId64 type)
 	return hash_map::has(_compilers, type);
 }
 
-void DataCompiler::error(const char *msg, va_list args)
-{
-	vloge(DATA_COMPILER, msg, args);
-}
-
 /// Converts @a path to the corresponding resource name.
 /// On Linux, no transformation is needed. On Windows,
 /// backslashes are converted to slashes.

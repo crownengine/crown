@@ -50,7 +50,7 @@ namespace ogg
 			if (v != NULL)
 				break;
 
-			RETURN_IF_FALSE(error == VORBIS_need_more_data
+			RETURN_IF_FALSE(OGG, error == VORBIS_need_more_data
 				, opts
 				, "stb_vorbis_open_pushdata: error: %d"
 				, error
@@ -58,7 +58,7 @@ namespace ogg
 			q += 1;
 		}
 
-		RETURN_IF_FALSE(v != NULL, opts, "stb_vorbis_open_pushdata: error: %d", error);
+		RETURN_IF_FALSE(OGG, v != NULL, opts, "stb_vorbis_open_pushdata: error: %d", error);
 		p += used;
 		ogg.headers_size = p;
 

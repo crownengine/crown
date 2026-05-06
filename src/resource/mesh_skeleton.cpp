@@ -11,7 +11,10 @@
 #   include "core/memory/temp_allocator.inl"
 #   include "core/strings/dynamic_string.inl"
 #   include "resource/mesh_skeleton_fbx.h"
+#   include "device/log.h"
 #   include "resource/compile_options.inl"
+
+LOG_SYSTEM(MESH_SKELETON, "mesh_skeleton")
 
 namespace crown
 {
@@ -26,14 +29,14 @@ namespace mesh_skeleton
 		DynamicString source(ta);
 		RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]));
 
-		RETURN_IF_FILE_MISSING(source.c_str(), opts);
+		RETURN_IF_FILE_MISSING(MESH_SKELETON, source.c_str(), opts);
 		Buffer fbx_buf = opts.read(source.c_str());
 		return fbx::parse(s, fbx_buf, opts);
 	}
 
 	s32 parse(AnimationSkeleton &s, const char *path, CompileOptions &opts)
 	{
-		RETURN_IF_FILE_MISSING(path, opts);
+		RETURN_IF_FILE_MISSING(MESH_SKELETON, path, opts);
 		Buffer buf = opts.read(path);
 		return parse_internal(s, buf, opts);
 	}

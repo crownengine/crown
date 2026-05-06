@@ -16,10 +16,13 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/expression_language.h"
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
+
+LOG_SYSTEM(STATE_MACHINE_RESOURCE, "state_machine_resource")
 
 namespace crown
 {
@@ -167,7 +170,7 @@ namespace state_machine_resource_internal
 					&& sjson::type(animation["name"]) == JsonValueType::STRING) {
 					DynamicString animation_resource(ta);
 					RETURN_IF_ERROR(sjson::parse_string(animation_resource, animation["name"]));
-					RETURN_IF_RESOURCE_MISSING(_animation_type.c_str()
+					RETURN_IF_MISSING(STATE_MACHINE_RESOURCE, _animation_type.c_str()
 						, animation_resource.c_str()
 						, _opts
 						);
@@ -194,7 +197,7 @@ namespace state_machine_resource_internal
 				DynamicString mode_str(ta);
 				RETURN_IF_ERROR(sjson::parse_string(mode_str, transition["mode"]));
 				const u32 mode = name_to_transition_mode(mode_str.c_str());
-				RETURN_IF_FALSE(mode != TransitionMode::COUNT
+				RETURN_IF_FALSE(STATE_MACHINE_RESOURCE, mode != TransitionMode::COUNT
 					, _opts
 					, "Unknown transition mode: '%s'"
 					, mode_str.c_str()
@@ -229,9 +232,9 @@ namespace state_machine_resource_internal
 
 				s32 err = 0;
 				err = parse_transitions(si, transitions);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
 				err = parse_animations(si, animations);
-				ENSURE_OR_RETURN(err == 0, _opts);
+				ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
 
 				Guid guid;
 				if (json_object::has(state, "id")) {
@@ -240,7 +243,7 @@ namespace state_machine_resource_internal
 					guid = RETURN_IF_ERROR(sjson::parse_guid(state["_guid"]));
 				}
 
-				RETURN_IF_FALSE(!hash_map::has(_states, guid)
+				RETURN_IF_FALSE(STATE_MACHINE_RESOURCE, !hash_map::has(_states, guid)
 					, _opts
 					, "State GUID duplicated"
 					);
@@ -355,7 +358,7 @@ namespace state_machine_resource_internal
 			} else {
 				_animation_type = "sprite_animation"; // For backwards compatibility.
 			}
-			RETURN_IF_FALSE(StringId64(_animation_type.c_str()) == RESOURCE_TYPE_SPRITE_ANIMATION
+			RETURN_IF_FALSE(STATE_MACHINE_RESOURCE, StringId64(_animation_type.c_str()) == RESOURCE_TYPE_SPRITE_ANIMATION
 				|| StringId64(_animation_type.c_str()) == RESOURCE_TYPE_MESH_ANIMATION
 				, _opts
 				, "Unknown animation type '%s'"
@@ -364,14 +367,14 @@ namespace state_machine_resource_internal
 
 			s32 err = 0;
 			err = parse_states(states);
-			ENSURE_OR_RETURN(err == 0, _opts);
-			RETURN_IF_FALSE(hash_map::size(_states) > 0
+			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
+			RETURN_IF_FALSE(STATE_MACHINE_RESOURCE, hash_map::size(_states) > 0
 				, _opts
 				, "States cannot be empty"
 				);
 
 			_initial_state = RETURN_IF_ERROR(sjson::parse_guid(obj["initial_state"]));
-			RETURN_IF_FALSE(hash_map::has(_states, _initial_state)
+			RETURN_IF_FALSE(STATE_MACHINE_RESOURCE, hash_map::has(_states, _initial_state)
 				, _opts
 				, "Initial state references non-existing state"
 				);
@@ -381,16 +384,16 @@ namespace state_machine_resource_internal
 				&& sjson::type(obj["skeleton_name"]) == JsonValueType::STRING) {
 				DynamicString skeleton_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(skeleton_name, obj["skeleton_name"]));
-				RETURN_IF_RESOURCE_MISSING("mesh_skeleton", skeleton_name.c_str(), _opts);
+				RETURN_IF_MISSING(STATE_MACHINE_RESOURCE, "mesh_skeleton", skeleton_name.c_str(), _opts);
 				_opts.add_requirement("mesh_skeleton", skeleton_name.c_str());
 				_skeleton_name = StringId64(skeleton_name.c_str());
 			}
 
 			err = parse_variables(variables);
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
 
 			err = compute_state_offsets();
-			ENSURE_OR_RETURN(err == 0, _opts);
+			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
 
 			return 0;
 		}
@@ -481,7 +484,7 @@ namespace state_machine_resource_internal
 		StateMachineCompiler smc(opts);
 		s32 err = 0;
 		err = smc.parse(buf);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, opts);
 
 		return smc.write();
 	}

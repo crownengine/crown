@@ -12,9 +12,12 @@
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
+
+LOG_SYSTEM(TEXTURE_RESOURCE, "texture_resource")
 
 namespace crown
 {
@@ -157,7 +160,7 @@ namespace texture_resource_internal
 			if (json_object::has(obj, "format")) {
 				RETURN_IF_ERROR(sjson::parse_string(format, obj["format"]));
 				os.format = texture_format_to_enum(format.c_str());
-				RETURN_IF_FALSE(os.format != TextureFormat::COUNT
+				RETURN_IF_FALSE(TEXTURE_RESOURCE, os.format != TextureFormat::COUNT
 					, opts
 					, "Unknown texture format: '%s'"
 					, format.c_str()
@@ -193,7 +196,7 @@ namespace texture_resource_internal
 
 		DynamicString name(ta);
 		RETURN_IF_ERROR(sjson::parse_string(name, obj["source"]));
-		RETURN_IF_FILE_MISSING(name.c_str(), opts);
+		RETURN_IF_FILE_MISSING(TEXTURE_RESOURCE, name.c_str(), opts);
 		opts.fake_read(name.c_str());
 
 		OutputSettings os;
@@ -209,7 +212,7 @@ namespace texture_resource_internal
 		if (json_object::has(obj, "output")) {
 			RETURN_IF_ERROR(sjson::parse_object(output, obj["output"]));
 			s32 err = parse_output(os, output, opts);
-			ENSURE_OR_RETURN(err == 0, opts);
+			ENSURE_OR_RETURN(TEXTURE_RESOURCE, err == 0, opts);
 		}
 
 		DynamicString tex_src(ta);
@@ -218,7 +221,7 @@ namespace texture_resource_internal
 		opts.temporary_path(tex_out, "ktx");
 
 		const char *texturec = opts.exe_path(texturec_paths, countof(texturec_paths));
-		RETURN_IF_FALSE(texturec != NULL
+		RETURN_IF_FALSE(TEXTURE_RESOURCE, texturec != NULL
 			, opts
 			, "texturec not found"
 			);
@@ -245,7 +248,7 @@ namespace texture_resource_internal
 		};
 		Process pr;
 		s32 sc = pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
-		RETURN_IF_FALSE(sc == 0
+		RETURN_IF_FALSE(TEXTURE_RESOURCE, sc == 0
 			, opts
 			, "Failed to spawn `%s`"
 			, argv[0]
@@ -253,7 +256,7 @@ namespace texture_resource_internal
 		StringStream texturec_output(ta);
 		opts.read_output(texturec_output, pr);
 		s32 ec = pr.wait();
-		RETURN_IF_FALSE(ec == 0
+		RETURN_IF_FALSE(TEXTURE_RESOURCE, ec == 0
 			, opts
 			, "Failed to compile texture:\n%s"
 			, string_stream::c_str(texturec_output)

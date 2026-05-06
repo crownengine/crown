@@ -7,9 +7,12 @@
 #include "core/containers/array.inl"
 #include "core/memory/globals.h"
 #include "core/memory/memory.inl"
+#include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/unit_compiler.h"
 #include "resource/unit_resource.h"
+
+LOG_SYSTEM(UNIT_RESOURCE, "unit_resource")
 
 namespace crown
 {
@@ -20,10 +23,10 @@ namespace unit_resource_internal
 	{
 		UnitCompiler uc(default_allocator());
 		s32 err = unit_compiler::parse_unit(uc, opts.source_path(), opts);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(UNIT_RESOURCE, err == 0, opts);
 		Buffer blob(default_allocator());
 		err = unit_compiler::blob(blob, uc);
-		ENSURE_OR_RETURN(err == 0, opts);
+		ENSURE_OR_RETURN(UNIT_RESOURCE, err == 0, opts);
 		opts.write(blob);
 		return 0;
 	}

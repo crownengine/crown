@@ -25,6 +25,8 @@
 #include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
 
+LOG_SYSTEM(COMPILE_OPTIONS, "compile_options")
+
 namespace crown
 {
 static const char *s_platforms[] =
@@ -40,7 +42,7 @@ CE_STATIC_ASSERT(countof(s_platforms) == Platform::COUNT);
 static void sjson_error(const char *msg, void *user_data)
 {
 	CompileOptions *opts = (CompileOptions *)user_data;
-	opts->error("%s", msg);
+	opts->error(COMPILE_OPTIONS, "%s", msg);
 }
 
 CompileOptions::CompileOptions(File &output
@@ -73,16 +75,29 @@ CompileOptions::CompileOptions(File &output
 	sjson::set_error_callback(sjson_error, this);
 }
 
-void CompileOptions::error(const char *msg, va_list args)
+void CompileOptions::error(log_internal::System system, const char *msg, va_list args)
 {
-	_data_compiler.error(msg, args);
+	vloge(system, msg, args);
 }
 
-void CompileOptions::error(const char *msg, ...)
+void CompileOptions::error(log_internal::System system, const char *msg, ...)
 {
 	va_list args;
 	va_start(args, msg);
-	error(msg, args);
+	error(system, msg, args);
+	va_end(args);
+}
+
+void CompileOptions::warning(log_internal::System system, const char *msg, va_list args)
+{
+	vlogw(system, msg, args);
+}
+
+void CompileOptions::warning(log_internal::System system, const char *msg, ...)
+{
+	va_list args;
+	va_start(args, msg);
+	warning(system, msg, args);
 	va_end(args);
 }
 

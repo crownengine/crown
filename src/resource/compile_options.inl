@@ -12,24 +12,26 @@
 #include "resource/compile_options.h"
 #include "resource/resource_id.inl"
 
-#define RETURN_IF_FALSE(condition, opts, msg, ...) \
-	do                                             \
-	{                                              \
-		if (!(condition))                          \
-		{                                          \
-			opts.error(msg, ## __VA_ARGS__);       \
-			return -1;                             \
-		}                                          \
+#define RETURN_IF_FALSE(system, condition, opts, msg, ...) \
+	do                                                     \
+	{                                                      \
+		if (!(condition))                                  \
+		{                                                  \
+			opts.error(system, msg, ## __VA_ARGS__);       \
+			return -1;                                     \
+		}                                                  \
 	} while (0)
 
-#define ENSURE_OR_RETURN(condition, opts) \
-	RETURN_IF_FALSE(condition             \
-		, opts                            \
-		, # condition " failed."          \
+#define ENSURE_OR_RETURN(system, condition, opts) \
+	RETURN_IF_FALSE(system                        \
+		, condition                               \
+		, opts                                    \
+		, # condition " failed."                  \
 		)
 
-#define RETURN_IF_RESOURCE_MISSING(type, name, opts)      \
-	RETURN_IF_FALSE(opts.resource_exists(type, name)      \
+#define RETURN_IF_MISSING(system, type, name, opts)       \
+	RETURN_IF_FALSE(system                                \
+		, opts.resource_exists(type, name)                \
 		, opts                                            \
 		, opts._server                                    \
 		? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR \
@@ -38,13 +40,29 @@
 		, type                                            \
 		)
 
-#define RETURN_IF_FILE_MISSING(name, opts) \
-	RETURN_IF_FALSE(opts.file_exists(name) \
-		, opts                             \
-		, opts._server                     \
-		? "File not found: #FILE(%s)"      \
-		: "File not found: %s"             \
-		, name                             \
+#define WARN_IF_MISSING(system, type, name, opts)                 \
+	do                                                            \
+	{                                                             \
+		if (!opts.resource_exists(type, name))                    \
+		{                                                         \
+			opts.warning(system                                   \
+				, opts._server                                    \
+				? "Resource not found: " RESOURCE_ID_FMT_STR_PAIR \
+				: "Resource not found: %s.%s"                     \
+				, name                                            \
+				, type                                            \
+				);                                                \
+		}                                                         \
+	} while (0)
+
+#define RETURN_IF_FILE_MISSING(system, name, opts) \
+	RETURN_IF_FALSE(system                         \
+		, opts.file_exists(name)                   \
+		, opts                                     \
+		, opts._server                             \
+		? "File not found: #FILE(%s)"              \
+		: "File not found: %s"                     \
+		, name                                     \
 		)
 
 namespace crown

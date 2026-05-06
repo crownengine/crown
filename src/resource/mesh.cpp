@@ -25,6 +25,7 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "core/strings/string.inl"
 #   include "core/strings/string_id.inl"
+#   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/data_compiler.h"
 #   include "resource/mesh.h"
@@ -34,6 +35,8 @@
 #   include <bx/error.h>
 #   include <bx/readerwriter.h>
 #   include <vertexlayout.h> // bgfx::write, bgfx::read
+
+LOG_SYSTEM(MESH, "mesh")
 
 namespace crown
 {
@@ -280,7 +283,7 @@ namespace mesh
 
 			if (index == INVALID_VERTEX_INDEX) {
 				index = array::size(g._vertex_buffer) / vertex_size;
-				RETURN_IF_FALSE(index <= UINT16_MAX
+				RETURN_IF_FALSE(MESH, index <= UINT16_MAX
 					, opts
 					, "Mesh has too many vertices: %u (max %u)"
 					, index + 1
@@ -405,7 +408,7 @@ namespace mesh
 				opts.write(geo_names[i].to_string_id()._id);
 
 			Geometry *geo = (Geometry *)&cur->second;
-			ENSURE_OR_RETURN(mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
+			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
 			u32 stride = mesh::vertex_stride(*geo);
@@ -436,7 +439,7 @@ namespace mesh
 		if (json_object::has(obj, "source")) {
 			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]));
 
-			RETURN_IF_FILE_MISSING(source.c_str(), opts);
+			RETURN_IF_FILE_MISSING(MESH, source.c_str(), opts);
 			if (str_has_suffix_case(source.c_str(), ".obj"))
 				return crown::obj::parse(m, source.c_str(), opts);
 
@@ -452,7 +455,7 @@ namespace mesh
 		MeshCache *cache = (MeshCache *)opts._data_compiler.user_data(RESOURCE_TYPE_MESH);
 
 		if (cache == NULL) {
-			RETURN_IF_FILE_MISSING(path, opts);
+			RETURN_IF_FILE_MISSING(MESH, path, opts);
 			Buffer buf = opts.read(path);
 			return parse_internal(m, buf, opts);
 		} else {
@@ -461,10 +464,10 @@ namespace mesh
 			Mesh *mesh = mesh_cache::get(*cache, path);
 			if (mesh == NULL) {
 				mesh = CE_NEW(default_allocator(), Mesh)(default_allocator());
-				RETURN_IF_FILE_MISSING(path, opts);
+				RETURN_IF_FILE_MISSING(MESH, path, opts);
 				Buffer buf = opts.read(path);
 				err = parse_internal(*mesh, buf, opts);
-				ENSURE_OR_RETURN(err == 0, opts);
+				ENSURE_OR_RETURN(MESH, err == 0, opts);
 				mesh->_path = path_id;
 				mesh_cache::add(*cache, mesh);
 			}

@@ -14,7 +14,6 @@
 #include "device/device_options.h"
 #include "resource/resource_id.h"
 #include "resource/types.h"
-#include <stdarg.h>
 
 namespace crown
 {
@@ -143,9 +142,6 @@ struct DataCompiler
 
 	/// Returns all resource paths of the specified @a type.
 	void all_paths_of_type(Vector<DynamicString> &paths, const char *type);
-
-	///
-	void error(const char *msg, va_list args);
 
 	static const u32 COMPILER_NOT_FOUND = UINT32_MAX;
 };
