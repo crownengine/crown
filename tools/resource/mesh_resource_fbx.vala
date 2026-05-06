@@ -349,6 +349,7 @@ public class FBXImporter
 		, Guid parent_unit_id
 		, Guid unit_id
 		, string resource_name
+		, string import_path
 		, ufbx.Node node
 		, Gee.HashMap<unowned ufbx.Material, string> imported_materials
 		)
@@ -357,12 +358,12 @@ public class FBXImporter
 		Quaternion rot = quaternion(node.local_transform.rotation);
 		Vector3 scl = vector3(node.local_transform.scale);
 		string editor_name = node.name.data.length == 0 ? OBJECT_NAME_UNNAMED : (string)node.name.data;
+		Unit unit = Unit(db, unit_id);
 
 		// Create mesh_renderer.
 		if (node.mesh != null) {
-			Unit unit = Unit(db, unit_id);
-			db.create(unit_id, OBJECT_TYPE_UNIT);
-			db.set_name(unit_id, editor_name);
+			if (!db.has_object(unit_id))
+				db.create(unit_id, OBJECT_TYPE_UNIT);
 
 			// Create transform.
 			{
@@ -433,9 +434,10 @@ public class FBXImporter
 			if (!options.import_lights.value)
 				return;
 
-			Unit unit = Unit(db, unit_id);
-			unit.create("core/units/light");
-			db.set_name(unit_id, editor_name);
+			if (!db.has_object(unit_id))
+				unit.create("core/units/light");
+			else
+				db.set_resource(unit_id, "prefab", "core/units/light");
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
@@ -454,9 +456,10 @@ public class FBXImporter
 			if (!options.import_cameras.value)
 				return;
 
-			Unit unit = Unit(db, unit_id);
-			unit.create("core/units/camera");
-			db.set_name(unit_id, editor_name);
+			if (!db.has_object(unit_id))
+				unit.create("core/units/camera");
+			else
+				db.set_resource(unit_id, "prefab", "core/units/camera");
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
@@ -471,9 +474,8 @@ public class FBXImporter
 		} else if (node.bone != null) {
 			return;
 		} else {
-			Unit unit = Unit(db, unit_id);
-			db.create(unit_id, OBJECT_TYPE_UNIT);
-			db.set_name(unit_id, editor_name);
+			if (!db.has_object(unit_id))
+				db.create(unit_id, OBJECT_TYPE_UNIT);
 
 			// Create transform.
 			Guid component_id;
@@ -486,18 +488,70 @@ public class FBXImporter
 			unit.set_component_vector3   (component_id, "data.position", pos);
 			unit.set_component_quaternion(component_id, "data.rotation", rot);
 			unit.set_component_vector3   (component_id, "data.scale", scl);
+			unit.set_component_string    (component_id, "data.name", editor_name);
 		}
+
+		db.set_name(unit_id, editor_name);
+		// editor.import_path is importer-owned metadata, not a filesystem path.
+		// It identifies the source node in the imported hierarchy so reimport
+		// can reuse the same unit and preserve component GUIDs.
+		db.set_string(unit_id, "editor.import_path", import_path);
 
 		if (parent_unit_id != GUID_ZERO)
 			db.add_to_set(parent_unit_id, "children", unit_id);
 
+		// Reuse only children that existed before this import, and assign each
+		// existing child to at most one imported node.
+		Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+			? db.get_set(unit_id, "children")
+			: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+			;
+
 		for (size_t i = 0; i < node.children.data.length; ++i) {
+			unowned ufbx.Node child_node = node.children.data[i];
+			string child_editor_name = child_node.name.data.length == 0 ? OBJECT_NAME_UNNAMED : (string)child_node.name.data;
+			string child_import_path = import_path
+				+ "/"
+				+ ((uint)i).to_string()
+				+ ":"
+				+ child_editor_name
+				;
+			Guid child_unit_id = GUID_ZERO;
+
+			foreach (Guid child_id in old_children) {
+				if (matched_children.contains(child_id) || !db.is_alive(child_id))
+					continue;
+				if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
+					child_unit_id = child_id;
+					break;
+				}
+			}
+
+			if (child_unit_id == GUID_ZERO) {
+				foreach (Guid child_id in old_children) {
+					if (matched_children.contains(child_id)
+						|| !db.is_alive(child_id)
+						|| db.name(child_id) != child_editor_name
+						)
+						continue;
+
+					child_unit_id = child_id;
+					break;
+				}
+			}
+
+			if (child_unit_id == GUID_ZERO)
+				child_unit_id = Guid.new_guid();
+			matched_children.add(child_unit_id);
+
 			unit_create_components(options
 				, db
 				, unit_id
-				, Guid.new_guid()
+				, child_unit_id
 				, resource_name
-				, node.children.data[i]
+				, child_import_path
+				, child_node
 				, imported_materials
 				);
 		}
@@ -917,12 +971,15 @@ public class FBXImporter
 
 			if (options.import_units.value) {
 				// Generate or modify existing .unit.
-				Guid unit_id = Guid.new_guid();
+				Guid unit_id;
+				if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0)
+					unit_id = Guid.new_guid();
 				unit_create_components(options
 					, db
 					, GUID_ZERO
 					, unit_id
 					, resource_name
+					, "root"
 					, scene.root_node
 					, imported_materials
 					);
