@@ -31,6 +31,7 @@ Changelog
 * Tools: fixed re-importing of units from 3D scene files.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
+* Runtime: fidex a potential buffer overflow when raycasting animated sprites.
 * Data Compiler: fixed generation of meshes with high vertex count.
 * Data Compiler: fixed slow mesh compilation.
 
