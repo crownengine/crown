@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
 * Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
 * Tools: fixed re-importing of units from 3D scene files.
+* Runtime: fidex a potential buffer overflow when raycasting animated sprites.
 
 .. _v0.62.2:
 

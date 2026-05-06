@@ -483,7 +483,7 @@ f32 RenderWorld::sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vec
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
 	const SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
-	const f32 *frame = sprite_resource::frame_data(sid.resource[sprite.i], sid.frame[sprite.i]);
+	const f32 *frame = sprite_resource::frame_data(sid.resource[sprite.i], sid.frame[sprite.i] % sid.resource[sprite.i]->num_frames);
 
 	const f32 vertices[] =
 	{
