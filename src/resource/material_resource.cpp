@@ -235,7 +235,7 @@ namespace material_resource_internal
 
 			DynamicString texture(ta);
 			RETURN_IF_ERROR(sjson::parse_string(texture, value));
-			RETURN_IF_MISSING(MATERIAL_RESOURCE, "texture", texture.c_str(), opts);
+			WARN_IF_MISSING(MATERIAL_RESOURCE, "texture", texture.c_str(), opts);
 			opts.add_requirement("texture", texture.c_str());
 
 			data.add_texture(key, StringId64(texture.c_str()));

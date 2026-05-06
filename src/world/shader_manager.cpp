@@ -188,7 +188,11 @@ void ShaderManager::unload(Allocator &a, void *res)
 
 ShaderData ShaderManager::shader(StringId32 name)
 {
-	return hash_map::get(_shader_map, name, SHADER_DATA_INVALID);
+	const ShaderData fallback = hash_map::get(_shader_map
+		, STRING_ID_32("fallback", UINT32_C(0x251fc0cd))
+		, SHADER_DATA_INVALID
+		);
+	return hash_map::get(_shader_map, name, fallback);
 }
 
 } // namespace crown

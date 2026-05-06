@@ -44,7 +44,7 @@ namespace level_resource_internal
 
 				DynamicString sound_name(ta);
 				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound["name"]));
-				RETURN_IF_MISSING(LEVEL_RESOURCE, "sound"
+				WARN_IF_MISSING(LEVEL_RESOURCE, "sound"
 					, sound_name.c_str()
 					, opts
 					);
@@ -82,7 +82,7 @@ namespace level_resource_internal
 			DynamicString skydome_unit_name(ta);
 
 			RETURN_IF_ERROR(sjson::parse_string(skydome_unit_name, obj["skydome_unit"]));
-			RETURN_IF_MISSING(LEVEL_RESOURCE, "unit"
+			WARN_IF_MISSING(LEVEL_RESOURCE, "unit"
 				, skydome_unit_name.c_str()
 				, opts
 				);

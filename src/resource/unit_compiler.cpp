@@ -172,12 +172,12 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, flat_json_object::get(obj, "data.mesh_resource")));
 
-	RETURN_IF_MISSING(UNIT_COMPILER, "mesh", mesh_resource.c_str(), opts);
+	WARN_IF_MISSING(UNIT_COMPILER, "mesh", mesh_resource.c_str(), opts);
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
-	RETURN_IF_MISSING(UNIT_COMPILER, "material"
+	WARN_IF_MISSING(UNIT_COMPILER, "material"
 		, material.c_str()
 		, opts
 		);
@@ -215,7 +215,7 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 	TempAllocator4096 ta;
 	DynamicString sprite_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(sprite_resource, flat_json_object::get(obj, "data.sprite_resource")));
-	RETURN_IF_MISSING(UNIT_COMPILER, "sprite"
+	WARN_IF_MISSING(UNIT_COMPILER, "sprite"
 		, sprite_resource.c_str()
 		, opts
 		);
@@ -223,7 +223,7 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 
 	DynamicString material(ta);
 	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
-	RETURN_IF_MISSING(UNIT_COMPILER, "material"
+	WARN_IF_MISSING(UNIT_COMPILER, "material"
 		, material.c_str()
 		, opts
 		);
@@ -423,7 +423,7 @@ static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compile
 	TempAllocator4096 ta;
 	DynamicString state_machine_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(state_machine_resource, flat_json_object::get(obj, "data.state_machine_resource")));
-	RETURN_IF_MISSING(UNIT_COMPILER, "state_machine"
+	WARN_IF_MISSING(UNIT_COMPILER, "state_machine"
 		, state_machine_resource.c_str()
 		, opts
 		);
@@ -471,7 +471,7 @@ static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJ
 
 	DynamicString skydome_map(ta);
 	RETURN_IF_ERROR(sjson::parse_string(skydome_map, flat_json_object::get(obj, "data.skydome_map")));
-	RETURN_IF_MISSING(UNIT_COMPILER, "texture"
+	WARN_IF_MISSING(UNIT_COMPILER, "texture"
 		, skydome_map.c_str()
 		, opts
 		);

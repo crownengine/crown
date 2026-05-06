@@ -1,0 +1,18 @@
+_guid = "3bff34a1-176d-43c1-b597-e93b74cbd3a6"
+_type = "font"
+font_size = 16
+glyphs = [
+	{
+		_guid = "6cfae8eb-b7db-46e8-bdc2-8737daeb7f8f"
+		_type = "font_glyph"
+		cp = 63
+		height = 16
+		width = 8
+		x = 0
+		x_advance = 8
+		x_offset = 0
+		y = 0
+		y_offset = 16
+	}
+]
+size = 32

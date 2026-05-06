@@ -67,6 +67,12 @@ const MeshGeometry *MeshResource::geometry(StringId32 name) const
 			return geometries[nodes[i].geometry_index];
 	}
 
+	if (array::size(geometries) > 0) {
+		char name_str[STRING_ID32_BUF_LEN];
+		logw(MESH_RESOURCE, "Mesh geometry not found: #ID(%s). Falling back...", name.to_string(name_str, sizeof(name_str)));
+		return geometries[0];
+	}
+
 	CE_FATAL("Mesh name not found");
 	return NULL;
 }

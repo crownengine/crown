@@ -6,14 +6,17 @@
 #include "config.h"
 
 #if CROWN_CAN_COMPILE
-#include "resource/mesh_skeleton_resource.h"
 #include "core/containers/array.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
+#include "core/math/constants.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/strings/string_id.inl"
 #include "device/log.h"
-#include "resource/mesh_skeleton_fbx.h"
 #include "resource/compile_options.inl"
+#include "resource/mesh_skeleton_fbx.h"
+#include "resource/mesh_skeleton_resource.h"
+#include "resource/resource_id.inl"
 
 LOG_SYSTEM(MESH_SKELETON_RESOURCE, "mesh_skeleton_resource")
 
@@ -51,6 +54,24 @@ namespace mesh_skeleton_resource_internal
 	s32 compile(CompileOptions &opts)
 	{
 		AnimationSkeleton s(default_allocator());
+
+		if (opts._resource_id._id == resource_id(RESOURCE_TYPE_MESH_SKELETON, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248))._id) {
+			opts.read();
+
+			BoneTransform bone_tm;
+			bone_tm.position = VECTOR3_ZERO;
+			bone_tm.rotation = QUATERNION_IDENTITY;
+			bone_tm.scale = VECTOR3_ONE;
+
+			for (u32 i = 0; i < MESH_SKELETON_MAX_BONES; ++i) {
+				array::push_back(s.local_transforms, bone_tm);
+				array::push_back(s.parents, (u32)UINT16_MAX);
+				array::push_back(s.binding_matrices, MATRIX4X4_IDENTITY);
+			}
+
+			return write(s, opts);
+		}
+
 		s32 err = mesh_skeleton::parse(s, opts);
 		ENSURE_OR_RETURN(MESH_SKELETON_RESOURCE, err == 0, opts);
 		return write(s, opts);
