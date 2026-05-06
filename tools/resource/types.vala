@@ -172,6 +172,12 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.STRING,
+			name = "data.name",
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "spawn_order",
 			deffault = 0.0,
