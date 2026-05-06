@@ -29,9 +29,10 @@ Changelog
 * Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.
 * Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
 * Tools: fixed re-importing of units from 3D scene files.
+* Tools: fixed transforms in unit resource losing the 'name' property if saved in the Unit Editor.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
-* Runtime: fidex a potential buffer overflow when raycasting animated sprites.
+* Runtime: fixed a potential buffer overflow when raycasting animated sprites.
 * Data Compiler: fixed generation of meshes with high vertex count.
 * Data Compiler: fixed slow mesh compilation.
 
