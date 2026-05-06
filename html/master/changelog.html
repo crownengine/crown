@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-06T21:39:00+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-06T22:23:28+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -146,6 +146,7 @@
 <li><p>Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.</p></li>
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">physics</span></code> console command to control debug visualizations.</p></li>
 <li><p>Runtime: added configurable physics <cite>solver_iterations</cite> and <cite>sleep_threshold</cite> via the <cite>physics</cite> property of <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
+<li><p>Data Compiler: missing resource references no longer stop data compilation and print a warning instead.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">GameSave</span></code> singleton to save/load savegames.</p></li>
 <li><p>Lua: added a comprehensive set of <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.joint_*</span></code> functions for creating and manipulating various joint types.</p></li>
 </ul>
@@ -156,8 +157,10 @@
 <li><p>Tools: fixed an issue where the flythrough camera could continue moving after the Shift key was pressed.</p></li>
 <li><p>Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.</p></li>
 <li><p>Tools: fixed re-importing of units from 3D scene files.</p></li>
+<li><p>Tools: fixed transforms in unit resource losing the ‘name’ property if saved in the Unit Editor.</p></li>
 <li><p>Runtime: fixed a race conditions during application exit.</p></li>
 <li><p>Runtime: fixed a race condition when loading resources.</p></li>
+<li><p>Runtime: fixed a potential buffer overflow when raycasting animated sprites.</p></li>
 <li><p>Data Compiler: fixed generation of meshes with high vertex count.</p></li>
 <li><p>Data Compiler: fixed slow mesh compilation.</p></li>
 </ul>
