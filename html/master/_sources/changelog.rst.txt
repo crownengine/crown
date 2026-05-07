@@ -22,6 +22,7 @@ Changelog
 * Data Compiler: missing resource references no longer stop data compilation and print a warning instead.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 * Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
+* Lua: ``print()`` now shows tables in a more readable format.
 
 **Fixes**
 
