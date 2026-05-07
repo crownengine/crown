@@ -34,22 +34,74 @@ static int luaB_print(lua_State *L)
 
 	int n = lua_gettop(L); /* number of arguments */
 	lua_getglobal(L, "tostring");
-	for (int i = 1; i <= n; ++i) {
-		const char *s;
-		lua_pushvalue(L, -1); /* function to be called */
-		lua_pushvalue(L, i);  /* value to print */
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1); /* get result */
-		if (s == NULL)
-			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 
-		if (i > 1)
-			ss << "\t";
-		ss << s;
-		lua_pop(L, 1); /* pop result */
+	if (n == 0) {
+		logi(LUA, "");
+		return 0;
 	}
 
-	logi(LUA, string_stream::c_str(ss));
+	bool have_line = false;
+	for (int i = 1; i <= n; ++i) {
+		const char *s;
+		if (lua_istable(L, i)) {
+			if (have_line) {
+				logi(LUA, string_stream::c_str(ss));
+				array::clear(ss);
+				have_line = false;
+			}
+			size_t max_key_len = 0;
+			lua_pushnil(L);
+			while (lua_next(L, i) != 0) {
+				size_t key_len;
+				lua_pushvalue(L, n + 1); /* function to be called */
+				lua_pushvalue(L, -3);    /* key to print */
+				lua_call(L, 1, 1);
+				s = lua_tolstring(L, -1, &key_len); /* get result */
+				if (s == NULL)
+					return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+				if (key_len > max_key_len)
+					max_key_len = key_len;
+				lua_pop(L, 2); /* pop result and value, keep key */
+			}
+			lua_pushnil(L);
+			while (lua_next(L, i) != 0) {
+				size_t key_len;
+				lua_pushvalue(L, n + 1); /* function to be called */
+				lua_pushvalue(L, -3);    /* key to print */
+				lua_call(L, 1, 1);
+				s = lua_tolstring(L, -1, &key_len); /* get result */
+				if (s == NULL)
+					return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+				ss << s;
+				for (size_t column = key_len; column < max_key_len + 4; ++column)
+					ss << " ";
+				lua_pushvalue(L, n + 1); /* function to be called */
+				lua_pushvalue(L, -3);    /* value to print */
+				lua_call(L, 1, 1);
+				s = lua_tostring(L, -1); /* get result */
+				if (s == NULL)
+					return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+				ss << s;
+				lua_pop(L, 3); /* pop result, key string and value, keep key */
+				logi(LUA, string_stream::c_str(ss));
+				array::clear(ss);
+			}
+		} else {
+			if (have_line)
+				ss << "\t";
+			lua_pushvalue(L, n + 1); /* function to be called */
+			lua_pushvalue(L, i);     /* value to print */
+			lua_call(L, 1, 1);
+			s = lua_tostring(L, -1); /* get result */
+			if (s == NULL)
+				return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+			ss << s;
+			have_line = true;
+			lua_pop(L, 1); /* pop result */
+		}
+	}
+	if (have_line)
+		logi(LUA, string_stream::c_str(ss));
 	return 0;
 }
 
