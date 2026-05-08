@@ -41,14 +41,14 @@ public class LevelLayersTreeView : Gtk.Box
 
 		_list_store = new Gtk.ListStore(3, typeof(string), typeof(string), typeof(string));
 		_list_store.insert_with_values(null, -1
-			, 0, "layer-visible"
-			, 1, "layer-locked"
+			, 0, IconTheme.LAYER_VISIBLE
+			, 1, IconTheme.LAYER_LOCKED
 			, 2, "Background"
 			, -1
 			);
 		_list_store.insert_with_values(null, -1
-			, 0, "layer-visible"
-			, 1, "layer-locked"
+			, 0, IconTheme.LAYER_VISIBLE
+			, 1, IconTheme.LAYER_LOCKED
 			, 2, "Default"
 			, -1
 			);

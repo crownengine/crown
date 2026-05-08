@@ -32,6 +32,7 @@ Changelog
 * Tools: fixed an issue that caused a new resource to be erratically created when the ESC key was pressed in the specification dialog.
 * Tools: fixed re-importing of units from 3D scene files.
 * Tools: fixed transforms in unit resource losing the 'name' property if saved in the Unit Editor.
+* Tools: Linux: fixed a number of UI theming issues.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Runtime: fixed a potential buffer overflow when raycasting animated sprites.

@@ -23,33 +23,33 @@ public class Toolbar : Gtk.Box
 
 	public void add_tool_buttons()
 	{
-		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.PLACE), "tool-place"));
-		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.MOVE), "tool-move"));
-		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.ROTATE), "tool-rotate"));
-		var last = make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.SCALE), "tool-scale");
+		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.PLACE), IconTheme.TOOL_PLACE));
+		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.MOVE), IconTheme.TOOL_MOVE));
+		this.pack_start(make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.ROTATE), IconTheme.TOOL_ROTATE));
+		var last = make_toggle_button("app.tool", new GLib.Variant.int32(ToolType.SCALE), IconTheme.TOOL_SCALE);
 		last.margin_bottom = last.margin_bottom + 8;
 		this.pack_start(last);
 	}
 
 	public void add_snap_buttons()
 	{
-		this.pack_start(make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.RELATIVE), "reference-local"));
-		var last = make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.ABSOLUTE), "reference-world");
+		this.pack_start(make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.RELATIVE), IconTheme.REFERENCE_LOCAL));
+		var last = make_toggle_button("app.snap", new GLib.Variant.int32(SnapMode.ABSOLUTE), IconTheme.REFERENCE_WORLD);
 		last.margin_bottom = last.margin_bottom + 8;
 		this.pack_start(last);
 	}
 
 	public void add_reference_system_buttons()
 	{
-		this.pack_start(make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.LOCAL), "axis-local"));
-		var last = make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.WORLD), "axis-world");
+		this.pack_start(make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.LOCAL), IconTheme.AXIS_LOCAL));
+		var last = make_toggle_button("app.reference-system", new GLib.Variant.int32(ReferenceSystem.WORLD), IconTheme.AXIS_WORLD);
 		last.margin_bottom = last.margin_bottom + 8;
 		this.pack_start(last);
 	}
 
 	public void add_snap_to_grid_buttons()
 	{
-		var last = make_toggle_button("app.snap-to-grid", null, "snap-to-grid");
+		var last = make_toggle_button("app.snap-to-grid", null, IconTheme.SNAP_TO_GRID);
 		last.margin_bottom = last.margin_bottom + 8;
 		this.pack_start(last);
 	}
