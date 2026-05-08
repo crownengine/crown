@@ -181,57 +181,57 @@ public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int i
 {
 	// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 	if (type == "<folder>")
-		cell.set_property("icon-name", "browser-folder-symbolic");
+		cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
 	else if ((string)type == "<favorites>")
-		cell.set_property("icon-name", "browser-favorites");
+		cell.set_property("icon-name", IconTheme.BROWSER_FAVORITES);
 	else if ((string)type == OBJECT_TYPE_STATE_MACHINE)
-		cell.set_property("icon-name", "object-state-machine");
+		cell.set_property("icon-name", IconTheme.OBJECT_STATE_MACHINE);
 	else if ((string)type == "config")
-		cell.set_property("icon-name", "object-config");
+		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
 	else if ((string)type == OBJECT_TYPE_FONT)
-		cell.set_property("icon-name", "object-font");
+		cell.set_property("icon-name", IconTheme.OBJECT_FONT);
 	else if ((string)type == OBJECT_TYPE_LEVEL)
-		cell.set_property("icon-name", "object-level");
+		cell.set_property("icon-name", IconTheme.OBJECT_LEVEL);
 	else if ((string)type == OBJECT_TYPE_MATERIAL)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_MESH)
-		cell.set_property("icon-name", "object-mesh");
+		cell.set_property("icon-name", IconTheme.OBJECT_MESH);
 	else if ((string)type == "package")
-		cell.set_property("icon-name", "object-package");
+		cell.set_property("icon-name", IconTheme.OBJECT_PACKAGE);
 	else if ((string)type == "physics_config")
-		cell.set_property("icon-name", "object-config");
+		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
 	else if ((string)type == "render_config")
-		cell.set_property("icon-name", "object-config");
+		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
 	else if ((string)type == "lua")
-		cell.set_property("icon-name", "object-script");
+		cell.set_property("icon-name", IconTheme.OBJECT_SCRIPT);
 	else if ((string)type == OBJECT_TYPE_UNIT)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == "shader")
-		cell.set_property("icon-name", "object-shader");
+		cell.set_property("icon-name", IconTheme.OBJECT_SHADER);
 	else if ((string)type == OBJECT_TYPE_SOUND)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_SPRITE_ANIMATION)
-		cell.set_property("icon-name", "object-animation");
+		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
 	else if ((string)type == OBJECT_TYPE_SPRITE)
-		cell.set_property("icon-name", "object-sprite");
+		cell.set_property("icon-name", IconTheme.OBJECT_SPRITE);
 	else if ((string)type == OBJECT_TYPE_TEXTURE)
 		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
 	else if ((string)type == OBJECT_TYPE_MESH_ANIMATION)
-		cell.set_property("icon-name", "object-animation");
+		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
 	else if ((string)type == OBJECT_TYPE_MESH_SKELETON)
-		cell.set_property("icon-name", "object-skeleton");
+		cell.set_property("icon-name", IconTheme.OBJECT_SKELETON);
 	else {
 		Project project = thumbnail_cache._project;
 		string td = type.down();
 
 		if (project.is_type_image(td))
-			cell.set_property("icon-name", "object-texture");
+			cell.set_property("icon-name", IconTheme.OBJECT_TEXTURE);
 		else if (project.is_type_mesh(td))
-			cell.set_property("icon-name", "object-mesh");
+			cell.set_property("icon-name", IconTheme.OBJECT_MESH);
 		else if (project.is_type_sound(td))
-			cell.set_property("icon-name", "object-sound");
+			cell.set_property("icon-name", IconTheme.OBJECT_SOUND);
 		else if (project.is_type_font(td))
-			cell.set_property("icon-name", "object-font");
+			cell.set_property("icon-name", IconTheme.OBJECT_FONT);
 		else
 			cell.set_property("icon-name", "text-x-generic-symbolic");
 	}
@@ -1099,7 +1099,7 @@ public class ProjectBrowser : Gtk.Box
 
 		// Create switch button.
 		_show_folder_view = true;
-		_toggle_folder_view_image = new Gtk.Image.from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_folder_view_image = new Gtk.Image.from_icon_name(IconTheme.LEVEL_TREE, Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_folder_view = new Gtk.Button();
 		_toggle_folder_view.set_tooltip_text("Tree view.");
 		_toggle_folder_view.add(_toggle_folder_view_image);
@@ -1141,7 +1141,7 @@ public class ProjectBrowser : Gtk.Box
 					}
 
 					_folder_view_content.show_all();
-					_toggle_folder_view_image.set_from_icon_name("level-tree-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+					_toggle_folder_view_image.set_from_icon_name(IconTheme.LEVEL_TREE, Gtk.IconSize.SMALL_TOOLBAR);
 
 					_filter_entry_tree.search_changed.disconnect(on_filter_entry_text_changed);
 					_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
@@ -1166,7 +1166,7 @@ public class ProjectBrowser : Gtk.Box
 						select_resource(selected_type, selected_name);
 
 					_folder_view_content.hide();
-					_toggle_folder_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
+					_toggle_folder_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
 
 					_tree_view.queue_draw(); // It doesn't draw by itself sometimes...
 
@@ -1263,7 +1263,7 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
 		_sort_items.set_tooltip_text("Sort and filter items.");
-		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
+		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
@@ -1279,7 +1279,7 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_box.show_all();
 
 		bool _show_icon_view = true;
-		_toggle_icon_view_image = new Gtk.Image.from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
+		_toggle_icon_view_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_icon_view = new Gtk.Button();
 		_toggle_icon_view.set_tooltip_text("List view.");
 		_toggle_icon_view.add(_toggle_icon_view_image);
@@ -1298,13 +1298,13 @@ public class ProjectBrowser : Gtk.Box
 					}
 
 					_folder_view._stack.set_visible_child_full("list-view", Gtk.StackTransitionType.NONE);
-					_toggle_icon_view_image.set_from_icon_name("browser-icon-view", Gtk.IconSize.SMALL_TOOLBAR);
+					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
 				} else {
 					if (any_selected)
 						_folder_view._icon_view.select_path(path);
 
 					_folder_view._stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
-					_toggle_icon_view_image.set_from_icon_name("browser-list-view", Gtk.IconSize.SMALL_TOOLBAR);
+					_toggle_icon_view_image.set_from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
 				}
 
 				_show_icon_view = !_show_icon_view;
@@ -1318,7 +1318,7 @@ public class ProjectBrowser : Gtk.Box
 
 		_empty_favorites_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_empty_favorites_box.valign = Gtk.Align.CENTER;
-		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name("browser-favorites", Gtk.IconSize.DIALOG), false, false);
+		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name(IconTheme.BROWSER_FAVORITES, Gtk.IconSize.DIALOG), false, false);
 		_empty_favorites_box.pack_start(new Gtk.Label("Favorites is empty"), false, false);
 
 		_folder_stack = new Gtk.Stack();

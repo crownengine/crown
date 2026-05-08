@@ -29,7 +29,7 @@ public class Statusbar : Gtk.Box
 		// Widgets
 		clear_status();
 		_temporary_message = new Gtk.Label("");
-		_donate = new Gtk.Button.from_icon_name("hearth-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		_donate = new Gtk.Button.from_icon_name(IconTheme.HEARTH, Gtk.IconSize.SMALL_TOOLBAR);
 		_donate.can_focus = false;
 		_donate.get_style_context().add_class("flat");
 		_donate.clicked.connect(() => {
