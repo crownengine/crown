@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.4 --- DD MMM YYYY <v0.62.4>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: Linux: fixed a number of UI theming issues.
+
 .. _v0.62.3:
 
 :ref:`0.62.3 --- 07 May 2026 <v0.62.3>`

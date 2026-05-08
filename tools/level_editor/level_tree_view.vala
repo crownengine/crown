@@ -123,17 +123,17 @@ public class LevelTreeView : Gtk.Box
 				model.get_value(iter, LevelTreeView.Column.TYPE, out type);
 
 				if ((int)type == LevelTreeView.ItemType.FOLDER)
-					cell.set_property("icon-name", "browser-folder-symbolic");
+					cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
 				else if ((int)type == LevelTreeView.ItemType.UNIT)
-					cell.set_property("icon-name", "level-object-unit");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNIT);
 				else if ((int)type == LevelTreeView.ItemType.SOUND)
-					cell.set_property("icon-name", "level-object-sound");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_SOUND);
 				else if ((int)type == LevelTreeView.ItemType.LIGHT)
-					cell.set_property("icon-name", "level-object-light");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_LIGHT);
 				else if ((int)type == LevelTreeView.ItemType.CAMERA)
-					cell.set_property("icon-name", "level-object-camera");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_CAMERA);
 				else
-					cell.set_property("icon-name", "level-object-unknown");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNKNOWN);
 			});
 		_name_column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
 				Value name;
@@ -161,7 +161,7 @@ public class LevelTreeView : Gtk.Box
 				Value object_visible;
 				model.get_value(iter, LevelTreeView.Column.OBJECT_VISIBLE, out object_visible);
 
-				cell.set_property("icon-name", "layer-visible");
+				cell.set_property("icon-name", IconTheme.LAYER_VISIBLE);
 				cell.set_property("sensitive", (bool)object_visible);
 			});
 
@@ -185,7 +185,7 @@ public class LevelTreeView : Gtk.Box
 				Value selection_locked;
 				model.get_value(iter, LevelTreeView.Column.SELECTION_LOCKED, out selection_locked);
 
-				cell.set_property("icon-name", "layer-locked");
+				cell.set_property("icon-name", IconTheme.LAYER_LOCKED);
 				cell.set_property("sensitive", (bool)selection_locked);
 			});
 
@@ -256,7 +256,7 @@ public class LevelTreeView : Gtk.Box
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
 		_sort_items.set_tooltip_text("Sort items.");
-		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
+		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;

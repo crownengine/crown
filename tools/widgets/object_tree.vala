@@ -111,11 +111,11 @@ public class ObjectTree : Gtk.Box
 				model.get_value(iter, Column.ITEM_TYPE, out type);
 
 				if ((ItemType)type == ItemType.OBJECTS_SET)
-					cell.set_property("icon-name", "browser-folder-symbolic");
+					cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
 				else if ((ItemType)type == ItemType.OBJECT)
-					cell.set_property("icon-name", "level-object-unit");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNIT);
 				else
-					cell.set_property("icon-name", "level-object-unknown");
+					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNKNOWN);
 			});
 		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
 				Value name;
@@ -157,7 +157,7 @@ public class ObjectTree : Gtk.Box
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
 		_sort_items.set_tooltip_text("Sort items.");
-		_sort_items.add(new Gtk.Image.from_icon_name("list-sort", Gtk.IconSize.SMALL_TOOLBAR));
+		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
 		_sort_items.can_focus = false;
