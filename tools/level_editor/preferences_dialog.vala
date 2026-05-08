@@ -135,7 +135,7 @@ public class PreferencesDialog : Gtk.Window
 
 		_camera_movement_speed = new InputDouble(30, 0.001, 1000);
 		_camera_movement_speed.value_changed.connect(on_camera_settings_value_changed);
-		_camera_rotation_speed = new InputAngle(0.002, 0.001, 15);
+		_camera_rotation_speed = new InputAngle(0.115, 0.001, 15);
 		_camera_rotation_speed.value_changed.connect(on_camera_settings_value_changed);
 		_camera_speed_modifier = new InputDouble(4, 1.001, 10);
 		_camera_speed_modifier.value_changed.connect(on_camera_settings_value_changed);
