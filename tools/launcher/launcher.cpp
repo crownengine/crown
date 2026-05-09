@@ -46,7 +46,6 @@ int main_internal(int argc, char **argv)
 
 	editor_dir = StringView("platforms/linux64/bin");
 	os::setenv("UBUNTU_MENUPROXY", "");
-	os::setenv("GTK_THEME", "none"); // Disable foreign theming (hopefully).
 #elif CROWN_PLATFORM_WINDOWS
 	wchar_t buf[MAX_PATH];
 	DWORD buf_size = (DWORD)sizeof(buf);
@@ -65,6 +64,7 @@ int main_internal(int argc, char **argv)
 #else
 	#error "Unsupported platform."
 #endif
+	os::setenv("GTK_THEME", "none"); // Disable foreign theming (hopefully).
 
 	launcher_dir = path::parent_dir(launcher_path);
 	path::join(editor_cwd, launcher_dir, editor_dir);
