@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: Linux: fixed a number of UI theming issues.
+* Tools: fixed a minor serialization issue affecting the .importer_settings file when importing FBX scenes.
 
 .. _v0.62.3:
 
