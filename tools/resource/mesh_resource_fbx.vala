@@ -726,6 +726,92 @@ public class FBXImporter
 				}
 			}
 
+			// Import animations.
+			StateMachineResource? smr = null;
+
+			if (options.import_animation.value) {
+				string target_skeleton = options.target_skeleton.value;
+
+				// Import animation skeleton.
+				if (options.new_skeleton.value) {
+					// Create .animation_skeleton resource.
+					unowned ufbx.Node? skeleton_root_node = find_skeleton_root(scene.root_node);
+					if (skeleton_root_node != null) {
+						Guid skeleton_hierarchy_id = Guid.new_guid();
+						import_skeleton(options
+							, db
+							, GUID_ZERO
+							, skeleton_hierarchy_id
+							, skeleton_root_node
+							);
+
+						Guid animation_skeleton_id = Guid.new_guid();
+						db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
+						db.set_string(animation_skeleton_id, "source", resource_path);
+						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
+						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
+							return ImportResult.ERROR;
+
+						target_skeleton = resource_name;
+
+						// Create .state_machine resource to drive the skeleton.
+						Guid state_machine_id = Guid.new_guid();
+						smr = StateMachineResource.mesh(db
+							, state_machine_id
+							, target_skeleton
+							);
+						if (smr.save(project, resource_name) != 0)
+							return ImportResult.ERROR;
+					}
+				}
+
+				// Import animation clip.
+				if (options.import_clips.value) {
+					if (target_skeleton == "") {
+						logw("Animation must have a target skeleton. Animation clips won't be imported.");
+					} else {
+						// Create 'animations' folder.
+						string directory_name = "animations";
+						string animations_path = destination_dir;
+						if (options.create_animations_folder.value && scene.anim_stacks.data.length != 0) {
+							GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
+							try {
+								animations_file.make_directory();
+							} catch (GLib.IOError.EXISTS e) {
+								// Ignore.
+							} catch (GLib.Error e) {
+								loge(e.message);
+								return ImportResult.ERROR;
+							}
+
+							animations_path = animations_file.get_path();
+						}
+
+						// Extract clips.
+						if (scene.anim_stacks.data.length > 0) {
+							unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[0];
+
+							string anim_filename = Path.build_filename(animations_path, resource_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
+							GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
+							string anim_path     = anim_file.get_path();
+
+							string anim_resource_filename = project.resource_filename(anim_path);
+							string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
+							string anim_resource_name     = ResourceId.name(anim_resource_path);
+
+							// Create .mesh_animation resource.
+							Guid anim_id = Guid.new_guid();
+							db.create(anim_id, OBJECT_TYPE_MESH_ANIMATION);
+							db.set_string(anim_id, "source", resource_path);
+							db.set_string(anim_id, "target_skeleton", target_skeleton);
+							db.set_string(anim_id, "stack_name", (string)anim_stack.name.data);
+							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
+								return ImportResult.ERROR;
+						}
+					}
+				}
+			}
+
 			// Import materials.
 			if (options.import_units.value && options.import_materials.value) {
 				// Create 'materials' folder.
@@ -857,7 +943,7 @@ public class FBXImporter
 						}
 					}
 
-					if (options.import_animation.value)
+					if (smr != null)
 						shader += "+SKINNING";
 
 					// Create .material resource.
@@ -880,92 +966,6 @@ public class FBXImporter
 						return ImportResult.ERROR;
 
 					imported_materials.set(material, material_resource_name);
-				}
-			}
-
-			// Import animations.
-			StateMachineResource? smr = null;
-
-			if (options.import_animation.value) {
-				string target_skeleton = options.target_skeleton.value;
-
-				// Import animation skeleton.
-				if (options.new_skeleton.value) {
-					// Create .animation_skeleton resource.
-					unowned ufbx.Node? skeleton_root_node = find_skeleton_root(scene.root_node);
-					if (skeleton_root_node != null) {
-						Guid skeleton_hierarchy_id = Guid.new_guid();
-						import_skeleton(options
-							, db
-							, GUID_ZERO
-							, skeleton_hierarchy_id
-							, skeleton_root_node
-							);
-
-						Guid animation_skeleton_id = Guid.new_guid();
-						db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
-						db.set_string(animation_skeleton_id, "source", resource_path);
-						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
-						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
-							return ImportResult.ERROR;
-
-						target_skeleton = resource_name;
-
-						// Create .state_machine resource to drive the skeleton.
-						Guid state_machine_id = Guid.new_guid();
-						smr = StateMachineResource.mesh(db
-							, state_machine_id
-							, target_skeleton
-							);
-						if (smr.save(project, resource_name) != 0)
-							return ImportResult.ERROR;
-					}
-				}
-
-				// Import animation clip.
-				if (options.import_clips.value) {
-					if (target_skeleton == "") {
-						logw("Animation must have a target skeleton. Animation clips won't be imported.");
-					} else {
-						// Create 'animations' folder.
-						string directory_name = "animations";
-						string animations_path = destination_dir;
-						if (options.create_animations_folder.value && scene.anim_stacks.data.length != 0) {
-							GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
-							try {
-								animations_file.make_directory();
-							} catch (GLib.IOError.EXISTS e) {
-								// Ignore.
-							} catch (GLib.Error e) {
-								loge(e.message);
-								return ImportResult.ERROR;
-							}
-
-							animations_path = animations_file.get_path();
-						}
-
-						// Extract clips.
-						if (scene.anim_stacks.data.length > 0) {
-							unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[0];
-
-							string anim_filename = Path.build_filename(animations_path, resource_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
-							GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
-							string anim_path     = anim_file.get_path();
-
-							string anim_resource_filename = project.resource_filename(anim_path);
-							string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
-							string anim_resource_name     = ResourceId.name(anim_resource_path);
-
-							// Create .mesh_animation resource.
-							Guid anim_id = Guid.new_guid();
-							db.create(anim_id, OBJECT_TYPE_MESH_ANIMATION);
-							db.set_string(anim_id, "source", resource_path);
-							db.set_string(anim_id, "target_skeleton", target_skeleton);
-							db.set_string(anim_id, "stack_name", (string)anim_stack.name.data);
-							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
-								return ImportResult.ERROR;
-						}
-					}
 				}
 			}
 

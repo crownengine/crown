@@ -10,6 +10,7 @@ Changelog
 
 * Tools: Linux: fixed a number of UI theming issues.
 * Tools: fixed a minor serialization issue affecting the .importer_settings file when importing FBX scenes.
+* Tools: fixed an issue that caused non-skinned FBX scenes to import materials with SKINNED option enabled in some cases.
 
 .. _v0.62.3:
 
