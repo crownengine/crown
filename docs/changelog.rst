@@ -33,6 +33,7 @@ Changelog
 * Tools: fixed re-importing of units from 3D scene files.
 * Tools: fixed transforms in unit resource losing the 'name' property if saved in the Unit Editor.
 * Tools: Linux: fixed a number of UI theming issues.
+* Tools: fixed a minor serialization issue affecting the .importer_settings file when importing FBX scenes.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Runtime: fixed a potential buffer overflow when raycasting animated sprites.
