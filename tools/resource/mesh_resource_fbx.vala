@@ -316,11 +316,11 @@ public class FBXImportDialog : Gtk.Window
 		if (res == ImportResult.SUCCESS && _filenames.size > 0) {
 			GLib.File file_dst;
 			string resource_path;
-			
+
 			get_destination_file(out file_dst, _destination_dir, File.new_for_path(_filenames[0]));
 			get_resource_path(out resource_path, file_dst, _project);
 			string resource_name = ResourceId.name(resource_path);
-			
+
 			primary_path = ResourceId.path(OBJECT_TYPE_UNIT, resource_name);
 		}
 
