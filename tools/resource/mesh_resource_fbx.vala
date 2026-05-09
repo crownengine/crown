@@ -73,6 +73,7 @@ public class FBXImportOptions
 	public InputBool create_textures_folder;
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
+	public InputBool create_colliders;
 
 	public InputBool import_animation;
 	public InputBool new_skeleton;
@@ -99,6 +100,8 @@ public class FBXImportOptions
 		import_materials.value_changed.connect(on_import_materials_changed);
 		create_materials_folder = new InputBool();
 		create_materials_folder.value = true;
+		create_colliders = new InputBool();
+		create_colliders.value = false;
 		import_animation = new InputBool();
 		import_animation.value = true;
 		import_animation.value_changed.connect(on_import_animation_changed);
@@ -122,6 +125,7 @@ public class FBXImportOptions
 		create_textures_folder.sensitive = import_units.value;
 		import_materials.sensitive = import_units.value;
 		create_materials_folder.sensitive = import_units.value;
+		create_colliders.sensitive = import_units.value;
 	}
 
 	public void on_import_textures_changed()
@@ -166,6 +170,8 @@ public class FBXImportOptions
 					import_materials.value = (bool)g.value;
 				else if (g.key == "create_materials_folder")
 					create_materials_folder.value = (bool)g.value;
+				else if (g.key == "create_colliders")
+					create_colliders.value = (bool)g.value;
 				else if (g.key == "new_skeleton")
 					new_skeleton.value = (bool)g.value;
 				else if (g.key == "target_skeleton")
@@ -206,6 +212,7 @@ public class FBXImportOptions
 		obj.set("create_textures_folder", skip_units ? false : create_textures_folder.value);
 		obj.set("import_materials", skip_units ? false : import_materials.value);
 		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
+		obj.set("create_colliders", skip_units ? false : create_colliders.value);
 		obj.set("new_skeleton", skip_anims ? false : new_skeleton.value);
 		obj.set("target_skeleton", (skip_anims || target_skeleton.value == null) ? "" : target_skeleton.value);
 		obj.set("import_clips", skip_anims ? false : import_clips.value);
@@ -265,6 +272,7 @@ public class FBXImportDialog : Gtk.Window
 		cv.add_row("Create Textures Folder", _options.create_textures_folder, "Put imported textures in a sub-folder.");
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
+		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
 		_general_set.add_property_grid_optional(cv, "Units", _options.import_units, "Import nodes as units, materials and textures.");
 
 		cv = new PropertyGrid();
@@ -401,33 +409,35 @@ public class FBXImporter
 					unit.set_component_bool  (component_id, "data.visible", true);
 				}
 
-				// Create collider.
-				{
-					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
-						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_COLLIDER);
-						db.add_to_set(unit_id, "components", component_id);
+				if (options.create_colliders.value) {
+					// Create collider.
+					{
+						Guid component_id;
+						if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+							component_id = Guid.new_guid();
+							db.create(component_id, OBJECT_TYPE_COLLIDER);
+							db.add_to_set(unit_id, "components", component_id);
+						}
+
+						unit.set_component_string(component_id, "data.shape", "mesh");
+						unit.set_component_string(component_id, "data.scene", resource_name);
+						unit.set_component_string(component_id, "data.name", editor_name);
 					}
 
-					unit.set_component_string(component_id, "data.shape", "mesh");
-					unit.set_component_string(component_id, "data.scene", resource_name);
-					unit.set_component_string(component_id, "data.name", editor_name);
-				}
+					// Create actor.
+					{
+						Guid component_id;
+						if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+							component_id = Guid.new_guid();
+							db.create(component_id, OBJECT_TYPE_ACTOR);
+							db.add_to_set(unit_id, "components", component_id);
+						}
 
-				// Create actor.
-				{
-					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
-						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_ACTOR);
-						db.add_to_set(unit_id, "components", component_id);
+						unit.set_component_string(component_id, "data.class", "static");
+						unit.set_component_string(component_id, "data.collision_filter", "default");
+						unit.set_component_double(component_id, "data.mass", 1.0);
+						unit.set_component_string(component_id, "data.material", "default");
 					}
-
-					unit.set_component_string(component_id, "data.class", "static");
-					unit.set_component_string(component_id, "data.collision_filter", "default");
-					unit.set_component_double(component_id, "data.mass", 1.0);
-					unit.set_component_string(component_id, "data.material", "default");
 				}
 			}
 		} else if (node.light != null) {

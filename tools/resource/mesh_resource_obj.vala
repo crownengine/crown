@@ -85,6 +85,7 @@ public class OBJImportOptions
 	public InputBool create_textures_folder;
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
+	public InputBool create_colliders;
 
 	public OBJImportOptions()
 	{
@@ -98,6 +99,8 @@ public class OBJImportOptions
 		import_materials.value_changed.connect(on_import_materials_changed);
 		create_materials_folder = new InputBool();
 		create_materials_folder.value = true;
+		create_colliders = new InputBool();
+		create_colliders.value = false;
 	}
 
 	public void on_import_textures_changed()
@@ -121,6 +124,8 @@ public class OBJImportOptions
 					import_materials.value = (bool)g.value;
 				else if (g.key == "create_materials_folder")
 					create_materials_folder.value = (bool)g.value;
+				else if (g.key == "create_colliders")
+					create_colliders.value = (bool)g.value;
 				else
 					logw("Unknown option '%s'".printf(g.key));
 
@@ -139,6 +144,7 @@ public class OBJImportOptions
 		obj.set("create_textures_folder", import_textures.value ? create_textures_folder.value : false);
 		obj.set("import_materials", import_materials.value);
 		obj.set("create_materials_folder", import_materials.value ? create_materials_folder.value : false);
+		obj.set("create_colliders", create_colliders.value ? create_colliders.value : false);
 
 		return obj;
 	}
@@ -192,6 +198,7 @@ public class OBJImportDialog : Gtk.Window
 		cv.add_row("Create Textures Folder", _options.create_textures_folder, "Put imported textures in a sub-folder.");
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
+		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
 		_general_set.add_property_grid(cv, "Units");
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -245,7 +252,8 @@ public class OBJImportDialog : Gtk.Window
 
 public class OBJImporter
 {
-	public static void unit_create_components(Database db
+	public static void unit_create_components(OBJImportOptions options
+		, Database db
 		, Guid parent_unit_id
 		, Guid unit_id
 		, string resource_name
@@ -307,33 +315,35 @@ public class OBJImporter
 					unit.set_component_bool  (component_id, "data.visible", true);
 				}
 
-				// Create collider.
-				{
-					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
-						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_COLLIDER);
-						db.add_to_set(unit_id, "components", component_id);
+				if (options.create_colliders.value) {
+					// Create collider.
+					{
+						Guid component_id;
+						if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+							component_id = Guid.new_guid();
+							db.create(component_id, OBJECT_TYPE_COLLIDER);
+							db.add_to_set(unit_id, "components", component_id);
+						}
+
+						unit.set_component_string(component_id, "data.shape", "mesh");
+						unit.set_component_string(component_id, "data.scene", resource_name);
+						unit.set_component_string(component_id, "data.name", editor_name);
 					}
 
-					unit.set_component_string(component_id, "data.shape", "mesh");
-					unit.set_component_string(component_id, "data.scene", resource_name);
-					unit.set_component_string(component_id, "data.name", editor_name);
-				}
+					// Create actor.
+					{
+						Guid component_id;
+						if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+							component_id = Guid.new_guid();
+							db.create(component_id, OBJECT_TYPE_ACTOR);
+							db.add_to_set(unit_id, "components", component_id);
+						}
 
-				// Create actor.
-				{
-					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
-						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_ACTOR);
-						db.add_to_set(unit_id, "components", component_id);
+						unit.set_component_string(component_id, "data.class", "static");
+						unit.set_component_string(component_id, "data.collision_filter", "default");
+						unit.set_component_double(component_id, "data.mass", 1.0);
+						unit.set_component_string(component_id, "data.material", "default");
 					}
-
-					unit.set_component_string(component_id, "data.class", "static");
-					unit.set_component_string(component_id, "data.collision_filter", "default");
-					unit.set_component_double(component_id, "data.mass", 1.0);
-					unit.set_component_string(component_id, "data.material", "default");
 				}
 			}
 		} else {
@@ -399,7 +409,8 @@ public class OBJImporter
 				child_unit_id = Guid.new_guid();
 			matched_children.add(child_unit_id);
 
-			unit_create_components(db
+			unit_create_components(options
+				, db
 				, unit_id
 				, child_unit_id
 				, resource_name
@@ -679,7 +690,8 @@ public class OBJImporter
 			Guid unit_id;
 			if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0)
 				unit_id = Guid.new_guid();
-			unit_create_components(db
+			unit_create_components(options
+				, db
 				, GUID_ZERO
 				, unit_id
 				, resource_name
