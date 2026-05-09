@@ -43,7 +43,11 @@ public class SaveResourceDialog : Gtk.FileChooserDialog
 
 	public void on_response(int response_id)
 	{
-		string? path = this.get_file().get_path();
+		GLib.File? file = this.get_file();
+		if (file == null)
+			return;
+
+		string? path = file.get_path();
 
 		if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
 			if (!path.has_suffix("." + _resource_type))
