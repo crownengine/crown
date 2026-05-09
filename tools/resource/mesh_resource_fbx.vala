@@ -169,7 +169,7 @@ public class FBXImportOptions
 				else if (g.key == "new_skeleton")
 					new_skeleton.value = (bool)g.value;
 				else if (g.key == "target_skeleton")
-					target_skeleton.value = (string)g.value;
+					target_skeleton.value = (string)g.value != "" ? (string)g.value : null;
 				else if (g.key == "import_clips")
 					import_clips.value = (bool)g.value;
 				else if (g.key == "create_animations_folder")
@@ -207,7 +207,7 @@ public class FBXImportOptions
 		obj.set("import_materials", skip_units ? false : import_materials.value);
 		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
 		obj.set("new_skeleton", skip_anims ? false : new_skeleton.value);
-		obj.set("target_skeleton", skip_anims ? "" : target_skeleton.value);
+		obj.set("target_skeleton", (skip_anims || target_skeleton.value == null) ? "" : target_skeleton.value);
 		obj.set("import_clips", skip_anims ? false : import_clips.value);
 		obj.set("create_animations_folder", skip_anims ? false : create_animations_folder.value);
 
