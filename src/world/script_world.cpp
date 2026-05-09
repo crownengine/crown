@@ -66,9 +66,7 @@ namespace script_world
 				script_i = array::size(sw._script);
 
 				LuaStack stack = sw._lua_environment->require(scripts[i].script_resource_name, 1);
-				stack.push_value(0);
 				sd.module_ref = luaL_ref(stack.L, LUA_REGISTRYINDEX);
-				stack.pop(1);
 
 				array::push_back(sw._script, sd);
 				hash_map::set(sw._cache, scripts[i].script_resource, script_i);

@@ -601,6 +601,7 @@ inline void LuaStack::push_matrix4x4box(const Matrix4x4 &m)
 
 inline void LuaStack::push_value(int i)
 {
+	CE_ASSERT(i != 0, "Invalid stack index");
 	lua_pushvalue(L, i);
 }
 
