@@ -882,7 +882,7 @@ public class Database
 				return Vector3(0.0, 0.0, 0.0);
 		} else if (value.holds(typeof(string))) {
 			Guid id;
-			if (Guid.try_parse((string)value, out id))
+			if (Guid.try_parse(out id, (string)value))
 				return id;
 			return value;
 		} else if (value == null
