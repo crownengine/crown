@@ -9,11 +9,8 @@ public class InputResource : InputField
 {
 	public const string UNSET_RESOURCE = "(None)";
 
-	// Data
 	public string _type;
 	public bool _name_unset;
-
-	// Widgets
 	public InputString _name;
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
