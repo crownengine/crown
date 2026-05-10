@@ -32,7 +32,7 @@ public class InputObject : InputEnum
 
 			if (active_id == null)
 				return GUID_ZERO;
-			return Guid.try_parse(active_id, out id) ? id : GUID_ZERO;
+			return Guid.try_parse(out id, active_id) ? id : GUID_ZERO;
 		}
 		set
 		{

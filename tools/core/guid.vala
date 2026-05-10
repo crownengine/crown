@@ -35,12 +35,12 @@ public struct Guid
 	public static Guid parse(string guid)
 	{
 		Guid g;
-		bool success = Guid.try_parse(guid, out g);
+		bool success = Guid.try_parse(out g, guid);
 		assert(success);
 		return g;
 	}
 
-	public static bool try_parse(string str, out Guid guid)
+	public static bool try_parse(out Guid guid, string str)
 	{
 		uint32 a = 0;
 		uint32 b = 0;
