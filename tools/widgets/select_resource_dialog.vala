@@ -42,7 +42,7 @@ public class SelectResourceDialog : Gtk.Window
 		_header_bar.show_close_button = true;
 		this.set_titlebar(_header_bar);
 
-		_chooser = new ResourceChooser(null, project_store);
+		_chooser = new ResourceChooser(project_store);
 		_chooser.set_type_filter(on_resource_chooser_filter);
 		_chooser.resource_selected.connect(on_resource_chooser_resource_selected);
 		this.add(_chooser);

@@ -5,18 +5,17 @@
 
 namespace Crown
 {
-// Returns true if the item should be filtered out
-public bool user_filter(string type, string name)
-{
-	return (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) && !name.has_prefix("core/");
-}
-
-public delegate bool UserFilter(string type, string name);
-
 public class ResourceChooser : Gtk.Box
 {
+	// Returns true if the item should be filtered out
+	public bool user_filter(string type, string name)
+	{
+		return (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND) && !name.has_prefix("core/");
+	}
+
+	public delegate bool UserFilter(string type, string name);
+
 	// Data
-	public Project _project;
 	public Gtk.ListStore _list_store;
 	public Gtk.Stack? _editor_stack;
 	public RuntimeInstance? _resource_preview;
@@ -36,16 +35,12 @@ public class ResourceChooser : Gtk.Box
 	// Signals
 	public signal void resource_selected(string type, string name);
 
-	public ResourceChooser(Project? project
-		, ProjectStore project_store
+	public ResourceChooser(ProjectStore project_store
 		, Gtk.Stack? editor_stack = null
 		, RuntimeInstance? resource_preview = null
 		)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
-
-		// Data
-		_project = project;
 
 		_list_store = project_store._list_store;
 		_editor_stack = editor_stack;
