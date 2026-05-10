@@ -1135,8 +1135,9 @@ public class Database
 
 	public bool is_alive(Guid id)
 	{
-		assert(has_object(id));
-		return id == GUID_ZERO || (bool)get_data(id)["_alive"];
+		return id == GUID_ZERO
+			|| has_object(id) && (bool)get_data(id)["_alive"]
+			;
 	}
 
 	public void _init_object(Guid id, PropertyDefinition[] properties)
