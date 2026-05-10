@@ -155,8 +155,9 @@ static int loader(lua_State *L)
 #if CROWN_DEBUG
 static int require_internal(lua_State *L)
 {
-	const char *module_name = lua_tostring(L, 1);
 	bool already_loaded = false;
+	const char *module_name = lua_tostring(L, 1);
+	lua_settop(L, 1);
 
 	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
 	lua_getfield(L, -1, module_name);
@@ -164,12 +165,11 @@ static int require_internal(lua_State *L)
 	lua_pop(L, 2);
 
 	lua_getglobal(L, "original_require");
-	lua_pushvalue(L, -2);
-	lua_remove(L, -3);
+	lua_pushvalue(L, 1);
 	lua_call(L, 1, 1);
 
 	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
-	lua_getfield(L, 2, module_name);
+	lua_getfield(L, -1, module_name);
 	if (lua_toboolean(L, -1) && !already_loaded) {
 		lua_pop(L, 2);
 		lua_getglobal(L, "package");
@@ -177,8 +177,11 @@ static int require_internal(lua_State *L)
 		lua_pushstring(L, module_name);
 		lua_rawseti(L, -2, int(lua_objlen(L, -2) + 1));
 		lua_pop(L, 2); // Pop "package.load_order" and "package"
+	} else {
+		lua_pop(L, 2); // Pop "_LOADED" and "_LOADED[module]"
 	}
 
+	lua_remove(L, 1);
 	return 1;
 }
 #endif // if CROWN_DEBUG
@@ -404,7 +407,7 @@ void LuaEnvironment::add_module_metafunction(const char *module, const char *nam
 	lua_getglobal(L, module);
 	lua_pushvalue(L, -2);
 	lua_setmetatable(L, -2);
-	lua_pop(L, -1);
+	lua_pop(L, 2);
 }
 
 void LuaEnvironment::set_module_number(const char *module, const char *name, f64 value)
