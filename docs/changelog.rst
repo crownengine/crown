@@ -15,6 +15,8 @@ Changelog
 * Tools: while in flythrough camera mode you can now adjust the movement speed using the mouse wheel and temporarily speed up or slow down it by pressing Shift or Alt respectively.
 * Tools: added an option to keep the game window above other windows when running the game from the Level Editor.
 * Tools: scenes imported from FBX or OBJ will no longer create colliders by default. An option named 'Create Colliders' has been added to the importer dialogs to enable the previous behavior.
+* Tools: added a new object selector dialog with searching support for picking objects in reference properties.
+* Tools: it is now possible to unset the current object in reference properties by pressing the Delete key.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
