@@ -859,14 +859,11 @@ public class ProjectBrowser : Gtk.Box
 		}
 	}
 
-	// Data
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
-	private Gee.ArrayList<string> _nav_history_back = new Gee.ArrayList<string>();
-	private Gee.ArrayList<string> _nav_history_forward = new Gee.ArrayList<string>();
-	private bool _navigating_history = false;
-
-	// Widgets
+	public Gee.ArrayList<string> _nav_history_back;
+	public Gee.ArrayList<string> _nav_history_forward;
+	public bool _navigating_history;
 	public string _needle;
 	public Gtk.EntryBuffer _filter_buffer;
 	public EntrySearch _filter_entry_tree;
@@ -922,6 +919,10 @@ public class ProjectBrowser : Gtk.Box
 			_folder_view._icon_view.queue_draw();
 			_folder_view._list_view.queue_draw();
 		});
+
+		_nav_history_back = new Gee.ArrayList<string>();
+		_nav_history_forward = new Gee.ArrayList<string>();
+		_navigating_history = false;
 
 		_needle = "";
 
