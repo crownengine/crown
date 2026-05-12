@@ -7,6 +7,11 @@ namespace Crown
 {
 public class LevelTreeView : Gtk.Box
 {
+	public const Gtk.TargetEntry[] DND_TARGETS =
+	{
+		{ "GUID", Gtk.TargetFlags.SAME_APP, TargetInfo.GUID },
+	};
+
 	public enum ItemType
 	{
 		FOLDER,
@@ -67,6 +72,13 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
 	public Gtk.TreeSelection _tree_selection;
+	public ulong _selection_changed_id;
+	public GLib.List<Gtk.TreePath>? _saved_paths;
+	public bool _drag_started;
+	public bool _selection_changed_blocked;
+	public Gtk.TreePath? _drag_path;
+	public double _press_x;
+	public double _press_y;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
@@ -238,14 +250,19 @@ public class LevelTreeView : Gtk.Box
 				return true;
 			});
 
+		Gtk.drag_source_set(_tree_view, Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
+		_tree_view.drag_begin.connect(on_drag_begin);
+		_tree_view.drag_data_get.connect(on_drag_data_get);
+
 		_gesture_click = new Gtk.GestureMultiPress(_tree_view);
 		_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect(on_button_pressed);
+		_gesture_click.released.connect(on_button_released);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
@@ -284,6 +301,16 @@ public class LevelTreeView : Gtk.Box
 			int by;
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
+
+			_saved_paths = _tree_selection.get_selected_rows(null);
+			_press_x = x;
+			_press_y = y;
+			_drag_started = false;
+			if (!_selection_changed_blocked) {
+				GLib.SignalHandler.block(_tree_selection, _selection_changed_id);
+				_selection_changed_blocked = true;
+			}
+
 			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
 			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
 				return; // Clicked on empty space.
@@ -409,6 +436,66 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
+	public void on_button_released(int n_press, double x, double y)
+	{
+		if (!_drag_started) {
+			if (_selection_changed_blocked) {
+				GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
+				_selection_changed_blocked = false;
+			}
+			_tree_selection.changed();
+		}
+	}
+
+	public void on_drag_begin(Gdk.DragContext ctx)
+	{
+		_drag_started = true;
+
+		// Record the actual row under the cursor.
+		int bx;
+		int by;
+		Gtk.TreePath? path;
+		_tree_view.convert_widget_to_bin_window_coords((int)_press_x, (int)_press_y, out bx, out by);
+		if (!_tree_view.get_path_at_pos(bx, by, out path, null, null, null))
+			path = null;
+		_drag_path = path;
+
+		// Defer selection restore so it doesn't interfere with drag setup.
+		GLib.Idle.add (() => {
+			_tree_selection.unselect_all();
+			if (_saved_paths != null) {
+				foreach (var saved_path in _saved_paths)
+					_tree_selection.select_path(saved_path);
+			}
+			if (_selection_changed_blocked) {
+				GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
+				_selection_changed_blocked = false;
+			}
+			return GLib.Source.REMOVE;
+		});
+	}
+
+	public void on_drag_data_get(Gdk.DragContext ctx, Gtk.SelectionData data, uint info, uint time_)
+	{
+		if (_drag_path == null)
+			return;
+
+		Gtk.TreeIter iter;
+		if (_tree_view.model.get_iter(out iter, _drag_path)) {
+			Gtk.TreeIter iter_filter;
+			Gtk.TreeIter iter_model;
+			_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+			_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+			Value guid_val;
+			_tree_store.get_value(iter_model, Column.GUID, out guid_val);
+			Guid guid = (Guid)guid_val;
+			uint8[] buf = new uint8[sizeof(Guid)];
+			Memory.copy(buf, &guid, sizeof(Guid));
+			data.set(data.get_target(), 8, buf);
+		}
+	}
+
 	public void on_tree_selection_changed()
 	{
 		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
@@ -456,7 +543,7 @@ public class LevelTreeView : Gtk.Box
 		if (last_selected != null)
 			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
 
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags)
@@ -690,7 +777,7 @@ public class LevelTreeView : Gtk.Box
 			}
 		}
 
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 		on_tree_selection_changed();
 
 		return i;
@@ -711,7 +798,7 @@ public class LevelTreeView : Gtk.Box
 			remove_item(object_ids[i], parent_iter);
 		}
 
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 		on_tree_selection_changed();
 
 		return i;
@@ -886,14 +973,14 @@ public class LevelTreeView : Gtk.Box
 		// to restore it later when the search is done.
 		_tree_store.foreach(save_tree_state);
 		filter(_needle);
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
 	public void on_search_changed()
 	{
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		filter(_needle);
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
 	public void on_search_stopped()
@@ -913,7 +1000,7 @@ public class LevelTreeView : Gtk.Box
 		// Restore the previous tree state (old expanded branches + old selection).
 		_tree_view.get_selection().unselect_all();
 		_tree_store.foreach(restore_tree_state);
-		_tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 
 		// If the selection changed while searching, restore it as well.
 		for (int i = 0; i < selected_refs.length; ++i) {
