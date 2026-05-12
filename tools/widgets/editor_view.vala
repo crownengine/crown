@@ -13,9 +13,9 @@ namespace Crown
 {
 public class EditorView : Gtk.EventBox
 {
-	public const Gtk.TargetEntry[] dnd_targets =
+	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
-		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
+		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
 	};
 
 	// Data
@@ -170,7 +170,7 @@ public class EditorView : Gtk.EventBox
 				return Gdk.EVENT_PROPAGATE;
 			});
 
-		Gtk.drag_dest_set(this, Gtk.DestDefaults.MOTION, dnd_targets, Gdk.DragAction.COPY);
+		Gtk.drag_dest_set(this, Gtk.DestDefaults.MOTION, DND_TARGETS, Gdk.DragAction.COPY);
 		this.drag_data_received.connect(on_drag_data_received);
 		this.drag_motion.connect(on_drag_motion);
 		this.drag_drop.connect(on_drag_drop);

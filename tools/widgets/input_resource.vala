@@ -7,6 +7,11 @@ namespace Crown
 {
 public class InputResource : InputField
 {
+	public const Gtk.TargetEntry[] DND_TARGETS =
+	{
+		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
+	};
+
 	public const string UNSET_RESOURCE = "(None)";
 
 	public string _type;
@@ -80,7 +85,7 @@ public class InputResource : InputField
 		Gtk.drag_dest_set(_name._entry
 			, Gtk.DestDefaults.MOTION
 			| Gtk.DestDefaults.HIGHLIGHT
-			, dnd_targets
+			, DND_TARGETS
 			, Gdk.DragAction.COPY
 			);
 		_name._entry.drag_data_received.connect(on_drag_data_received);
