@@ -5,11 +5,6 @@
 
 namespace Crown
 {
-public const Gtk.TargetEntry[] dnd_targets =
-{
-	{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, 0 },
-};
-
 #if CROWN_PLATFORM_WINDOWS
 public const uint BUTTON_BACK = 4;
 public const uint BUTTON_FORWARD = 5;
@@ -247,6 +242,16 @@ public enum BrowseMode
 
 public class ProjectFolderView : Gtk.Box
 {
+	public const Gtk.TargetEntry[] DND_TARGETS_SOURCE =
+	{
+		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
+	};
+
+	public const Gtk.TargetEntry[] DND_TARGETS_DEST =
+	{
+		{ "text/uri-list", 0, TargetInfo.URI_LIST },
+	};
+
 	public string _selected_type;
 	public string _selected_name;
 	public ProjectBrowser _project_browser;
@@ -284,7 +289,8 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view = new Gtk.IconView();
 		_icon_view.set_model(_list_store);
 		_icon_view.set_item_width(80);
-		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
+		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
+		_icon_view.enable_model_drag_dest(DND_TARGETS_DEST, Gdk.DragAction.COPY | Gdk.DragAction.MOVE);
 		_icon_view.drag_data_get.connect(on_drag_data_get);
 		_icon_view.drag_begin.connect_after(on_drag_begin);
 		_icon_view.drag_end.connect(on_drag_end);
@@ -306,15 +312,6 @@ public class ProjectFolderView : Gtk.Box
 				return on_button_pressed(ev.button, n_press, ev.x, ev.y);
 			});
 
-		const Gtk.TargetEntry targets[] =
-		{
-			{ "text/uri-list", 0, 0 },
-		};
-		_icon_view.enable_model_drag_dest(targets
-			, Gdk.DragAction.COPY
-			| Gdk.DragAction.MOVE
-			);
-
 		// https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gtk/gtkiconview.c#L5147
 		_cell_renderer_text = new Gtk.CellRendererText();
 		_cell_renderer_text.set("wrap-mode", Pango.WrapMode.WORD_CHAR);
@@ -335,7 +332,7 @@ public class ProjectFolderView : Gtk.Box
 
 		_list_view = new Gtk.TreeView();
 		_list_view.set_model(_list_store);
-		_list_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
+		_list_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
 		_list_view.drag_data_get.connect(on_drag_data_get);
 		_list_view.drag_begin.connect_after(on_drag_begin);
 		_list_view.drag_end.connect(on_drag_end);
@@ -833,6 +830,11 @@ public class ProjectFolderView : Gtk.Box
 
 public class ProjectBrowser : Gtk.Box
 {
+	public const Gtk.TargetEntry[] DND_TARGETS =
+	{
+		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
+	};
+
 	public enum SortMode
 	{
 		NAME_AZ,
@@ -1051,7 +1053,7 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view_gesture_click.set_button(0);
 		_tree_view_gesture_click.pressed.connect(on_button_pressed);
 
-		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, dnd_targets, Gdk.DragAction.COPY);
+		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
 		_tree_view.drag_data_get.connect(on_drag_data_get);
 		_tree_view.drag_begin.connect_after(on_drag_begin);
 		_tree_view.drag_end.connect(on_drag_end);
