@@ -4837,6 +4837,11 @@ public class LevelEditorApplication : Gtk.Application
 		return new SelectResourceDialog(resource_type, _project_store, this.active_window);
 	}
 
+	public SelectObjectDialog new_select_object_dialog(StringId64 object_type, Database database)
+	{
+		return new SelectObjectDialog(object_type, database, this.active_window);
+	}
+
 	public void on_level_treeview_selection_changed(Gee.ArrayList<Guid?> selection)
 	{
 		_database_editor.selection_read(selection.to_array());
