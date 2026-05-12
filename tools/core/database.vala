@@ -453,6 +453,7 @@ public class UndoRedo
 }
 
 const string OBJECT_NAME_UNNAMED = "Unnamed";
+public const StringId64 OBJECT_TYPE_ANY = { 0u };
 
 public enum ObjectTypeFlags
 {
@@ -2084,7 +2085,7 @@ public class Database
 			Guid id = item.key;
 
 			if (id != GUID_ZERO
-				&& StringId64(object_type(id)) == type
+				&& (type == OBJECT_TYPE_ANY || StringId64(object_type(id)) == type)
 				&& is_alive(id)) {
 				all.add(id);
 			}
