@@ -142,6 +142,7 @@ public class ConsoleView : Gtk.Box
 	public Gtk.TextMark _scroll_mark;
 	public Gtk.TextMark _time_mark;
 	public GLib.Mutex _mutex;
+	public uint _scroll_to_bottom_source_id;
 	public uint _completion_request_id;
 	public bool _completion_updating_entry;
 	public bool _completion_suppress_autofill_once;
@@ -161,6 +162,7 @@ public class ConsoleView : Gtk.Box
 		_completion_suppress_autofill_once = false;
 		_completion_query_text = "";
 		_history_navigation_active = false;
+		_scroll_to_bottom_source_id = 0;
 
 		// Widgets
 		_text_cursor = new Gdk.Cursor.from_name(this.get_display(), "text");
@@ -562,6 +564,11 @@ public class ConsoleView : Gtk.Box
 
 	public void on_destroy()
 	{
+		if (_scroll_to_bottom_source_id != 0) {
+			GLib.Source.remove(_scroll_to_bottom_source_id);
+			_scroll_to_bottom_source_id = 0;
+		}
+
 		_console_view_valid = false;
 	}
 
@@ -882,9 +889,14 @@ public class ConsoleView : Gtk.Box
 
 	public void scroll_to_bottom()
 	{
+		if (_scroll_to_bottom_source_id != 0)
+			return;
+
 		// Line height is computed in an idle handler, wait a bit before scrolling to bottom.
 		// See: https://valadoc.org/gtk+-3.0/Gtk.TextView.scroll_to_iter.html
-		GLib.Idle.add(() => {
+		_scroll_to_bottom_source_id = GLib.Idle.add(() => {
+				_scroll_to_bottom_source_id = 0;
+
 				Gtk.TextIter end_iter;
 				_text_view.buffer.get_end_iter(out end_iter);
 
