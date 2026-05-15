@@ -882,9 +882,16 @@ public class ConsoleView : Gtk.Box
 
 	public void log(string time, string severity, string message)
 	{
-		_mutex.lock();
-		do_log(time, severity, message);
-		_mutex.unlock();
+		GLib.Idle.add(() => {
+				if (!_console_view_valid)
+					return GLib.Source.REMOVE;
+
+				_mutex.lock();
+				do_log(time, severity, message);
+				_mutex.unlock();
+
+				return GLib.Source.REMOVE;
+			});
 	}
 
 	public void scroll_to_bottom()
