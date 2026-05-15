@@ -39,6 +39,7 @@ Changelog
 * Tools: Linux: fixed a number of UI theming issues.
 * Tools: fixed a minor serialization issue affecting the .importer_settings file when importing FBX scenes.
 * Tools: fixed an issue that caused non-skinned FBX scenes to import materials with SKINNED option enabled in some cases.
+* Tools: fixed occasional crashes when closing projects.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Runtime: fixed a potential buffer overflow when raycasting animated sprites.
