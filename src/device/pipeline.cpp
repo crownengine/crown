@@ -143,6 +143,7 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._debug_line_depth_enabled_shader = pl._shader_manager->shader(STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848)));
 	pl._debug_line_shader = pl._shader_manager->shader(STRING_ID_32("debug_line", UINT32_C(0xbc06e973)));
 	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
+	pl._outline_msaa_shader = pl._shader_manager->shader(STRING_ID_32("outline+MSAA_DEPTH", UINT32_C(0xeb4b24a0)));
 	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
 	pl._blit_blend_shader = pl._shader_manager->shader(STRING_ID_32("blit+BLEND_ENABLED", UINT32_C(0xb4fe5db5)));
 	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
@@ -170,6 +171,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _outline_color_map(BGFX_INVALID_HANDLE)
 	, _outline_color(BGFX_INVALID_HANDLE)
 	, _unit_id(BGFX_INVALID_HANDLE)
+	, _outline_msaa_samples(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
@@ -207,6 +209,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 	_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
 	_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
+	_outline_msaa_samples = bgfx::createUniform("u_outline_msaa_samples", bgfx::UniformType::Vec4);
 
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
@@ -350,6 +353,8 @@ void Pipeline::destroy()
 
 	bgfx::destroy(_unit_id);
 	_unit_id = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_outline_msaa_samples);
+	_outline_msaa_samples = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color);
 	_outline_color = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_outline_color_map);
@@ -400,7 +405,11 @@ void Pipeline::reset(u16 width, u16 height)
 	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
 		u64 msaa_flags = u64(1 + _render_settings.msaa_quality) << BGFX_TEXTURE_RT_MSAA_SHIFT;
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_MSAA_SAMPLE;
+#else
 		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
+#endif
 		color_texture_flags |= msaa_flags;
 	} else {
 		depth_texture_flags |= BGFX_TEXTURE_RT;
@@ -844,17 +853,23 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setState(_tonemap_shader.state);
 	bgfx::submit(View::TONEMAP, _tonemap_shader.program);
 
-#if !CROWN_PLATFORM_EMSCRIPTEN
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
 	bgfx::setTexture(1, _selection_depth_map, _selection_depth_texture, samplerFlags);
+	const bool msaa = (_render_settings.flags & RenderSettingsFlags::MSAA) != 0;
 	bgfx::setTexture(2, _depth_map, _depth_texture, samplerFlags);
+	if (msaa) {
+		const Vector4 outline_msaa_samples = { f32(1u << _render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
+		bgfx::setUniform(_outline_msaa_samples, &outline_msaa_samples);
+	}
 	bgfx::setViewRect(View::OUTLINE, 0, 0, width, height);
 	bgfx::setViewTransform(View::OUTLINE, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color, outline_color);
-	bgfx::setState(_outline_shader.state);
-	bgfx::submit(View::OUTLINE, _outline_shader.program);
+	const ShaderData &outline_shader = msaa ? _outline_msaa_shader : _outline_shader;
+	bgfx::setState(outline_shader.state);
+	bgfx::submit(View::OUTLINE, outline_shader.program);
 
 	bgfx::setViewFrameBuffer(View::OUTLINE_BLIT, _color_sdr);
 	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
@@ -863,7 +878,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_blend_shader.state);
 	bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
-#endif // if !CROWN_PLATFORM_EMSCRIPTEN
+#endif // if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 
 	// Blit to backbuffer.
 	bgfx::setViewFrameBuffer(View::BLIT, BGFX_INVALID_HANDLE);
