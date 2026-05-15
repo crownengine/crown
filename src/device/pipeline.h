@@ -92,6 +92,7 @@ struct Pipeline
 	bgfx::UniformHandle _outline_color_map;
 	bgfx::UniformHandle _outline_color;
 	bgfx::UniformHandle _unit_id;
+	bgfx::UniformHandle _outline_msaa_samples;
 
 	// Cascaded shadow mapping.
 	bgfx::TextureHandle _sun_shadow_map_texture;
@@ -138,6 +139,7 @@ struct Pipeline
 	ShaderData _debug_line_depth_enabled_shader;
 	ShaderData _debug_line_shader;
 	ShaderData _outline_shader;
+	ShaderData _outline_msaa_shader;
 	ShaderData _selection_shader;
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;

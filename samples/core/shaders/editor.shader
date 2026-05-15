@@ -73,10 +73,15 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-		#if !BX_PLATFORM_EMSCRIPTEN
+		#if BX_PLATFORM_LINUX || BX_PLATFORM_WINDOWS
 			USAMPLER2D(s_selection_map, 0);
 			SAMPLER2D(s_selection_depth_map, 1);
+		#if defined(MSAA_DEPTH)
+			SAMPLER2DMS(s_depth_map, 2);
+			uniform vec4 u_outline_msaa_samples;
+		#else
 			SAMPLER2D(s_depth_map, 2);
+		#endif
 			uniform vec4 u_outline_color;
 
 			void main()
@@ -123,7 +128,20 @@ bgfx_shaders = {
 				depth = min(depth, texelFetch(s_selection_depth_map, ivec2(v_texcoord0 * tex_size + vec2( 0,  0)), 0).r);
 
 				// Dim alpha if selected object is behind another object.
-				if (depth > texelFetch(s_depth_map, ivec2(v_texcoord0 * tex_size), 0).r)
+				ivec2 coord = ivec2(v_texcoord0 * tex_size);
+			#if defined(MSAA_DEPTH)
+				float scene_depth = 0.0;
+				for (int ii = 0; ii < 16; ++ii)
+				{
+					if (ii >= int(u_outline_msaa_samples.x))
+						break;
+
+					scene_depth = max(scene_depth, texelFetch(s_depth_map, coord, ii).r);
+				}
+			#else
+				float scene_depth = texelFetch(s_depth_map, coord, 0).r;
+			#endif
+				if (depth > scene_depth)
 					alpha *= 0.35;
 
 				gl_FragColor = vec4(u_outline_color.xyz, alpha);
@@ -155,6 +173,6 @@ shaders = {
 static_compile = [
 	{ shader = "selection" defines = [] }
 	{ shader = "outline" defines = [] }
+	{ shader = "outline" defines = ["MSAA_DEPTH"] }
 
 ]
-
