@@ -918,41 +918,8 @@ public class ProjectBrowser : Gtk.Box
 	public bool _hide_core_resources;
 	public BrowseMode _browse_mode;
 
-	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
+	void create_tree_models()
 	{
-		Object(orientation: Gtk.Orientation.VERTICAL);
-
-		_controller_key = new Gtk.EventControllerKey(this);
-		_controller_key.key_pressed.connect(on_key_pressed);
-
-		// Data
-		_project_store = project_store;
-		_thumbnail_cache = thumbnail_cache;
-		_thumbnail_cache.changed.connect(() => {
-			_tree_view.queue_draw();
-			_folder_view._icon_view.queue_draw();
-			_folder_view._list_view.queue_draw();
-		});
-
-		_nav_history_back = new Gee.ArrayList<string>();
-		_nav_history_forward = new Gee.ArrayList<string>();
-		_navigating_history = false;
-
-		_needle = "";
-
-		_filter_buffer = new Gtk.EntryBuffer();
-
-		_filter_entry_tree = new EntrySearch();
-		_filter_entry_tree._entry.set_buffer(_filter_buffer);
-		_filter_entry_tree.set_placeholder_text("Search...");
-		_filter_entry_tree._entry.stop_search.connect(on_stop_search);
-
-		_filter_entry_folder = new EntrySearch();
-		_filter_entry_folder._entry.set_buffer(_filter_buffer);
-		_filter_entry_folder.set_placeholder_text("Search...");
-		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
-		_filter_entry_folder._entry.stop_search.connect(on_stop_search);
-
 		_tree_filter = new Gtk.TreeModelFilter(_project_store._tree_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
 				if (_project_store.project_root_path() != null)
@@ -1012,6 +979,52 @@ public class ProjectBrowser : Gtk.Box
 				model.get_value(iter_b, ProjectStore.Column.NAME, out id_b);
 				return strcmp(GLib.Path.get_basename((string)id_a), GLib.Path.get_basename((string)id_b));
 			});
+
+		_tree_view.model = _tree_sort;
+	}
+
+	void destroy_tree_models()
+	{
+		_tree_view.model = null;
+		_tree_sort = null;
+		_tree_search = null;
+		_tree_filter = null;
+	}
+
+	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
+	{
+		Object(orientation: Gtk.Orientation.VERTICAL);
+
+		_controller_key = new Gtk.EventControllerKey(this);
+		_controller_key.key_pressed.connect(on_key_pressed);
+
+		// Data
+		_project_store = project_store;
+		_thumbnail_cache = thumbnail_cache;
+		_thumbnail_cache.changed.connect(() => {
+			_tree_view.queue_draw();
+			_folder_view._icon_view.queue_draw();
+			_folder_view._list_view.queue_draw();
+		});
+
+		_nav_history_back = new Gee.ArrayList<string>();
+		_nav_history_forward = new Gee.ArrayList<string>();
+		_navigating_history = false;
+
+		_needle = "";
+
+		_filter_buffer = new Gtk.EntryBuffer();
+
+		_filter_entry_tree = new EntrySearch();
+		_filter_entry_tree._entry.set_buffer(_filter_buffer);
+		_filter_entry_tree.set_placeholder_text("Search...");
+		_filter_entry_tree._entry.stop_search.connect(on_stop_search);
+
+		_filter_entry_folder = new EntrySearch();
+		_filter_entry_folder._entry.set_buffer(_filter_buffer);
+		_filter_entry_folder.set_placeholder_text("Search...");
+		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
+		_filter_entry_folder._entry.stop_search.connect(on_stop_search);
 
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		cell_pixbuf.stock_size = Gtk.IconSize.SMALL_TOOLBAR;
@@ -1422,7 +1435,9 @@ public class ProjectBrowser : Gtk.Box
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 
-		_tree_view.model = _tree_sort;
+		create_tree_models();
+		_project_store.reset_started.connect(on_project_store_reset_started);
+		_project_store.reset_finished.connect(on_project_store_reset_finished);
 		this.pack_start(_paned);
 		this.show.connect(on_show);
 	}
@@ -2168,6 +2183,18 @@ public class ProjectBrowser : Gtk.Box
 		_project_store._tree_store.row_inserted.connect(on_project_store_row_inserted);
 		_project_store._tree_store.row_changed.connect(on_project_store_row_changed);
 		_project_store._tree_store.row_deleted.connect(on_project_store_row_deleted);
+	}
+
+	void on_project_store_reset_started()
+	{
+		disconnect_project_store_signals();
+		destroy_tree_models();
+	}
+
+	void on_project_store_reset_finished()
+	{
+		create_tree_models();
+		connect_project_store_signals();
 	}
 
 	void filter_and_update_folder_view()
