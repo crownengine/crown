@@ -28,6 +28,9 @@ public class ProjectStore
 	public Gee.HashMap<string, Gtk.TreeRowReference> _folders;
 	public Gtk.TreeRowReference _favorites_root;
 
+	public signal void reset_started();
+	public signal void reset_finished();
+
 	public ProjectStore(Project project)
 	{
 		// Data
@@ -64,6 +67,8 @@ public class ProjectStore
 
 	public void reset()
 	{
+		reset_started();
+
 		_folders.clear();
 		_tree_store.clear();
 		_list_store.clear();
@@ -104,6 +109,8 @@ public class ProjectStore
 			);
 
 		_folders[ROOT_FOLDER] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+
+		reset_finished();
 	}
 
 	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
