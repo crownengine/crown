@@ -54,6 +54,7 @@ public struct TextureResource
 		, TextureFormat output_format
 		, bool generate_mips
 		, bool is_normal_map
+		, bool is_linear = false
 		)
 	{
 		_db = db;
@@ -67,6 +68,7 @@ public struct TextureResource
 			_db.set_string(_id, "output." + platform + ".format", output_format.to_key());
 			_db.set_bool(_id, "output." + platform + ".generate_mips", generate_mips);
 			_db.set_bool(_id, "output." + platform + ".normal_map", is_normal_map);
+			_db.set_bool(_id, "output." + platform + ".linear", is_linear);
 			_db.set_double(_id, "output." + platform + ".mip_skip_smallest", 0);
 		}
 	}
@@ -79,6 +81,11 @@ public struct TextureResource
 	public TextureResource.normal_map(Database db, Guid texture_id, string source_image)
 	{
 		this(db, texture_id, source_image, TextureFormat.BC5, true, true);
+	}
+
+	public TextureResource.data_map(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.BC4, true, false, true);
 	}
 
 	public TextureResource.font_atlas(Database db, Guid texture_id, string source_image)
