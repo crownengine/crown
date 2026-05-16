@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed a minor serialization issue affecting the .importer_settings file when importing FBX scenes.
 * Tools: fixed an issue that caused non-skinned FBX scenes to import materials with SKINNED option enabled in some cases.
 * Tools: fixed occasional crashes when closing projects.
+* Tools: FBX: fixed reading material properties when the imported scene don't have those defined.
 * Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
 * Lua: fixed undefined behavior during instantiation of script components.
 
