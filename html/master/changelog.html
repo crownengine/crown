@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-15T16:50:34+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-16T15:59:58+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -151,6 +151,7 @@
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">physics</span></code> console command to control debug visualizations.</p></li>
 <li><p>Runtime: added configurable physics <cite>solver_iterations</cite> and <cite>sleep_threshold</cite> via the <cite>physics</cite> property of <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Data Compiler: missing resource references no longer stop data compilation and print a warning instead.</p></li>
+<li><p>Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">GameSave</span></code> singleton to save/load savegames.</p></li>
 <li><p>Lua: added a comprehensive set of <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.joint_*</span></code> functions for creating and manipulating various joint types.</p></li>
 <li><p>Lua: <code class="docutils literal notranslate"><span class="pre">print()</span></code> now shows tables in a more readable format.</p></li>
@@ -1035,7 +1036,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on May 15, 2026.
+      <span class="lastupdated">Last updated on May 16, 2026.
       </span></p>
   </div>
 
