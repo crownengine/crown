@@ -1012,9 +1012,26 @@ static void test_sphere()
 		a.c = { -2.3f, 1.2f, -4.5f };
 		a.r = 1.0f;
 		ENSURE(sphere::contains_point(a, { -2.9f, 1.6f, -4.0f }));
+		ENSURE(sphere::contains_point(a, { -1.3f, 1.2f, -4.5f }));
 		ENSURE(!sphere::contains_point(a, { -3.9f, 1.6f, -4.0f }));
 		ENSURE(!sphere::contains_point(a, { -2.9f, 2.6f, -4.0f }));
 		ENSURE(!sphere::contains_point(a, { -2.9f, 1.6f, -6.0f }));
+	}
+	{
+		const Vector3 points[] =
+		{
+			{ -15.0f, -1.0f, -1.0f },
+			{ -15.0f, -1.0f, -1.0f },
+			{ -17.0f, -1.0f, -1.0f }
+		};
+
+		Sphere a;
+		sphere::reset(a);
+		sphere::add_points(a, countof(points), points);
+		ENSURE(fequal(a.c.x, -16.0f, 0.00001f));
+		ENSURE(fequal(a.c.y,  -1.0f, 0.00001f));
+		ENSURE(fequal(a.c.z,  -1.0f, 0.00001f));
+		ENSURE(fequal(a.r, 1.0f + FLOAT_EPSILON * 10.0f, 0.00001f));
 	}
 	{
 		const Vector3 points[] =

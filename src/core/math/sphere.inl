@@ -27,7 +27,7 @@ namespace sphere
 	inline bool contains_point(const Sphere &s, const Vector3 &p)
 	{
 		f32 dist = length_squared(p - s.c);
-		return dist < s.r*s.r;
+		return dist <= s.r*s.r;
 	}
 
 	inline void transform(Sphere &out, const Sphere &s, const Matrix4x4 &m)
