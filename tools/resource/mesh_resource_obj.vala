@@ -586,7 +586,8 @@ public class OBJImporter
 
 						switch (mm) {
 						case ufbx.MaterialPbrMap.BASE_COLOR: {
-								albedo = OBJImport.vector3(map.value_vec3);
+								if (map.has_value)
+									albedo = OBJImport.vector3(map.value_vec3);
 
 								// Lookup matching imported texture, if any.
 								if (map.texture_enabled
@@ -609,7 +610,8 @@ public class OBJImporter
 							break;
 
 						case ufbx.MaterialPbrMap.METALNESS:
-							metallic = map.value_real;
+							if (map.has_value)
+								metallic = map.value_real;
 
 							// Lookup matching imported texture, if any.
 							if (map.texture_enabled
@@ -621,7 +623,8 @@ public class OBJImporter
 							break;
 
 						case ufbx.MaterialPbrMap.ROUGHNESS:
-							roughness = map.value_real;
+							if (map.has_value)
+								roughness = map.value_real;
 
 							// Lookup matching imported texture, if any.
 							if (map.texture_enabled
@@ -643,7 +646,8 @@ public class OBJImporter
 							break;
 
 						case ufbx.MaterialPbrMap.EMISSION_COLOR:
-							emission_color = OBJImport.vector3(map.value_vec3);
+							if (map.has_value)
+								emission_color = OBJImport.vector3(map.value_vec3);
 
 							// Lookup matching imported texture, if any.
 							if (map.texture_enabled
@@ -655,7 +659,8 @@ public class OBJImporter
 							break;
 
 						case ufbx.MaterialPbrMap.EMISSION_FACTOR:
-							emission_intensity = (double)map.value_real;
+							if (map.has_value)
+								emission_intensity = (double)map.value_real;
 							break;
 
 						default:
