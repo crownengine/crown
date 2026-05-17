@@ -35,14 +35,17 @@ void Material::bind(u8 view, u32 depth) const
 		bgfx::TextureHandle texture;
 		sampler.idx = th->sampler_handle;
 		texture.idx = th->texture_handle;
-		u32 sampler_state = 0u;
 
-		for (u32 i = 0; i < countof(_shader.samplers); ++i) {
-			if (_shader.samplers[i].name == td->name._id)
-				sampler_state = _shader.samplers[i].state;
+		for (u32 si = 0; si < _shader.num_samplers; ++si) {
+			if (_shader.samplers[si].name == td[i].name._id) {
+				bgfx::setTexture(_shader.samplers[si].stage
+					, sampler
+					, texture
+					, _shader.samplers[si].state
+					);
+				break;
+			}
 		}
-
-		bgfx::setTexture(i, sampler, texture, sampler_state);
 	}
 
 	// Set uniforms.

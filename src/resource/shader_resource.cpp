@@ -29,6 +29,8 @@
 #include "resource/shader_resource.h"
 #include "world/shader_manager.h"
 #include <algorithm> // std::sort
+#include <ctype.h>   // isalnum, isalpha, isdigit
+#include <stdlib.h>  // strtoull
 
 LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
@@ -1001,6 +1003,236 @@ namespace shader_resource_internal
 		}
 	};
 
+	static const char *CROWN_SAMPLER_STAGE_MARKER = "CROWN_SAMPLER_STAGE";
+
+	static const char *_sampler_macros[] =
+	{
+		"SAMPLER2D",
+		"ISAMPLER2D",
+		"USAMPLER2D",
+		"SAMPLER2DARRAY",
+		"SAMPLER2DMS",
+		"SAMPLER2DMSARRAY",
+		"SAMPLER2DSHADOW",
+		"SAMPLER2DARRAYSHADOW",
+		"SAMPLER3D",
+		"ISAMPLER3D",
+		"USAMPLER3D",
+		"SAMPLERCUBE",
+		"SAMPLERCUBEARRAY",
+		"SAMPLERCUBESHADOW"
+	};
+
+	static s32 inject_sampler_stage_comments(StringStream &ss, const char *src, CompileOptions &opts)
+	{
+		bool line_start = true;
+		const char *p = src;
+
+		while (*p != '\0') {
+			// Skip preprocessor directives.
+			if (line_start) {
+				const char *directive = p;
+				while (*directive == ' ' || *directive == '\t' || *directive == '\r')
+					++directive;
+
+				if (*directive == '#') {
+					const char *line_begin = p;
+					const char *end = NULL;
+
+					for (;;) {
+						const char *nl = strchr(line_begin, '\n');
+						if (nl == NULL) {
+							end = p + strlen32(p);
+							break;
+						}
+
+						const char *last_non_space = NULL;
+						for (const char *ch = line_begin; ch != nl; ++ch) {
+							if (*ch != ' ' && *ch != '\t' && *ch != '\r')
+								last_non_space = ch;
+						}
+
+						if (last_non_space != NULL && *last_non_space == '\\') {
+							line_begin = nl + 1;
+							continue;
+						}
+
+						end = nl + 1;
+						break;
+					}
+
+					array::push(ss, p, u32(end - p));
+					p = end;
+					line_start = true;
+					continue;
+				}
+			}
+
+			// Skip line comments.
+			if (p[0] == '/' && p[1] == '/') {
+				const char *end = strnl(p);
+				array::push(ss, p, u32(end - p));
+				p = end;
+				line_start = true;
+				continue;
+			}
+
+			// Skip block comments.
+			if (p[0] == '/' && p[1] == '*') {
+				for (;;) {
+					const char c = *p;
+					array::push_back(ss, c);
+					if (c == '\0')
+						return 0;
+					line_start = c == '\n'
+						|| (line_start && (c == ' ' || c == '\t' || c == '\r'))
+						;
+
+					if (p[0] == '*' && p[1] == '/') {
+						array::push_back(ss, '/');
+						p += 2;
+						break;
+					}
+
+					++p;
+				}
+				continue;
+			}
+
+			// Skip string and character literals.
+			if (*p == '"' || *p == '\'') {
+				const char quote = *p;
+				array::push_back(ss, *p++);
+				line_start = false;
+
+				while (*p != '\0') {
+					const char c = *p;
+					array::push_back(ss, c);
+					++p;
+
+					if (c == '\\' && *p != '\0') {
+						array::push_back(ss, *p++);
+						continue;
+					}
+
+					if (c == quote)
+						break;
+				}
+				continue;
+			}
+
+			// Annotate sampler declarations with texture stage markers.
+			if (isalpha((unsigned char)*p) || *p == '_') {
+				const char *identifier = p;
+				do {
+					++p;
+				} while (isalnum((unsigned char)*p) || *p == '_');
+
+				const u32 identifier_len = u32(p - identifier);
+				bool sampler_macro = false;
+				for (u32 i = 0; i < countof(_sampler_macros); ++i) {
+					const u32 macro_len = strlen32(_sampler_macros[i]);
+					if (macro_len == identifier_len && strncmp(identifier, _sampler_macros[i], macro_len) == 0) {
+						sampler_macro = true;
+						break;
+					}
+				}
+
+				if (sampler_macro) {
+					const char *q = skip_spaces(p);
+					if (*q == '(') {
+						q = skip_spaces(q + 1);
+						RETURN_IF_FALSE(SHADER_RESOURCE, isalpha((unsigned char)*q) || *q == '_', opts, "Malformed sampler declaration");
+
+						const char *name = q;
+						do {
+							++q;
+						} while (isalnum((unsigned char)*q) || *q == '_');
+
+						const u32 name_len = u32(q - name);
+						q = skip_spaces(q);
+						RETURN_IF_FALSE(SHADER_RESOURCE, *q == ',', opts, "Malformed sampler declaration");
+						q = skip_spaces(q + 1);
+
+						const char *stage_begin = q;
+						RETURN_IF_FALSE(SHADER_RESOURCE, isdigit((unsigned char)*stage_begin), opts, "Expected integer sampler stage");
+						char *stage_end = NULL;
+						const u64 stage64 = strtoull(stage_begin, &stage_end, 10);
+						RETURN_IF_FALSE(SHADER_RESOURCE, stage64 <= UINT32_MAX, opts, "Sampler stage out of range");
+						const u32 stage = u32(stage64);
+						q = skip_spaces(stage_end);
+						RETURN_IF_FALSE(SHADER_RESOURCE, *q == ')', opts, "Malformed sampler declaration");
+
+						array::push(ss, identifier, u32(q + 1 - identifier));
+						ss << " /* " << CROWN_SAMPLER_STAGE_MARKER << " ";
+						array::push(ss, name, name_len);
+						ss << " " << stage << " */";
+						p = q + 1;
+						line_start = false;
+						continue;
+					}
+				}
+
+				array::push(ss, identifier, u32(p - identifier));
+				line_start = false;
+				continue;
+			}
+
+			// Copy everything else verbatim.
+			const char c = *p++;
+			array::push_back(ss, c);
+			line_start = c == '\n'
+				|| (line_start && (c == ' ' || c == '\t' || c == '\r'))
+				;
+		}
+
+		return 0;
+	}
+
+	static s32 parse_sampler_stage_markers(HashMap<DynamicString, u32> &stages, const Buffer &pp, CompileOptions &opts)
+	{
+		const char *p = array::begin(pp);
+		const u32 prefix_len = strlen32(CROWN_SAMPLER_STAGE_MARKER);
+
+		while ((p = strstr(p, CROWN_SAMPLER_STAGE_MARKER)) != NULL) {
+			const char *name_begin = skip_spaces(p + prefix_len);
+			RETURN_IF_FALSE(SHADER_RESOURCE, isalpha((unsigned char)*name_begin) || *name_begin == '_', opts, "Malformed sampler stage marker");
+
+			const char *name_end = name_begin + 1;
+			while (isalnum((unsigned char)*name_end) || *name_end == '_')
+				++name_end;
+
+			const char *stage_begin = skip_spaces(name_end);
+			RETURN_IF_FALSE(SHADER_RESOURCE, isdigit((unsigned char)*stage_begin), opts, "Expected integer sampler stage");
+			char *stage_end = NULL;
+			const u64 stage64 = strtoull(stage_begin, &stage_end, 10);
+			RETURN_IF_FALSE(SHADER_RESOURCE, stage64 <= UINT32_MAX, opts, "Sampler stage out of range");
+			const u32 stage = u32(stage64);
+
+			TempAllocator256 ta;
+			DynamicString key(ta);
+			key.set(name_begin, u32(name_end - name_begin));
+
+			if (hash_map::has(stages, key)) {
+				const u32 existing = hash_map::get(stages, key, UINT32_MAX);
+				RETURN_IF_FALSE(SHADER_RESOURCE, existing == stage
+					, opts
+					, "Sampler '%s' declared with conflicting texture stages: %u and %u"
+					, key.c_str()
+					, existing
+					, stage
+					);
+			} else {
+				hash_map::set(stages, key, stage);
+				// logi(SHADER_RESOURCE, "Sampler '%s' texture stage: %u", key.c_str(), stage);
+			}
+
+			p += prefix_len;
+		}
+
+		return 0;
+	}
+
 	struct BgfxShader
 	{
 		ALLOCATOR_AWARE;
@@ -1887,7 +2119,13 @@ namespace shader_resource_internal
 			return StringId32(variant.c_str());
 		}
 
-		s32 compile_variant(FileBuffer &fb, Vector<UniformMetadata> *meta, const DynamicString &shader, const Vector<DynamicString> &defines, bool metadata_only)
+		s32 compile_variant(FileBuffer &fb
+			, Vector<UniformMetadata> *meta
+			, Vector<ShaderResource::Sampler> *sampler_meta
+			, const DynamicString &shader
+			, const Vector<DynamicString> &defines
+			, bool metadata_only
+			)
 		{
 			BinaryWriter bw(fb);
 
@@ -1920,8 +2158,7 @@ namespace shader_resource_internal
 			bw.write(state.encode());                                // Render state
 			bw.write(stencil_front);                                 // Stencil
 			bw.write(stencil_back);                                  //
-			compile_sampler_states(fb, bgfx_shader.c_str());         // Sampler states
-			return compile_bgfx_shader(fb, meta, bgfx_shader.c_str(), defines, metadata_only); // Shader code
+			return compile_bgfx_shader(fb, meta, sampler_meta, bgfx_shader.c_str(), defines, metadata_only); // Sampler states and shader code
 		}
 
 		s32 compile()
@@ -1946,39 +2183,13 @@ namespace shader_resource_internal
 					, shader.c_str()
 					);
 
-				s32 err = compile_variant(fb, NULL, shader, defines, false);
+				s32 err = compile_variant(fb, NULL, NULL, shader, defines, false);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
 			_opts.write(variants);
 
 			return 0;
-		}
-
-		void compile_sampler_states(FileBuffer &fb, const char *bgfx_shader)
-		{
-			BinaryWriter bw(fb);
-			TempAllocator512 ta;
-			DynamicString key(ta);
-			key = bgfx_shader;
-			const BgfxShader shader_default(default_allocator());
-			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
-
-			bw.write(hash_map::size(shader._samplers));
-
-			auto cur = hash_map::begin(shader._samplers);
-			auto end = hash_map::end(shader._samplers);
-			for (; cur != end; ++cur) {
-				HASH_MAP_SKIP_HOLE(shader._samplers, cur);
-
-				const DynamicString &name = cur->first;
-				const DynamicString &sampler_state = cur->second;
-				const SamplerState ss_default;
-				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
-
-				bw.write(name.to_string_id());
-				bw.write(ss.encode());
-			}
 		}
 
 		// Collects code from @a shader and its includes recursively.
@@ -2107,7 +2318,13 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		s32 compile_bgfx_shader(FileBuffer &fb, Vector<UniformMetadata> *meta, const char *bgfx_shader, const Vector<DynamicString> &defines, bool metadata_only)
+		s32 compile_bgfx_shader(FileBuffer &fb
+			, Vector<UniformMetadata> *meta
+			, Vector<ShaderResource::Sampler> *sampler_meta
+			, const char *bgfx_shader
+			, const Vector<DynamicString> &defines
+			, bool metadata_only
+			)
 		{
 			BinaryWriter bw(fb);
 			TempAllocator512 taa;
@@ -2135,14 +2352,22 @@ namespace shader_resource_internal
 			fs_code << string_stream::c_str(code);
 			fs_code << shader._fs_code.c_str();
 
-			_opts.write_temporary(_vs_path.c_str(), vs_code);
-			_opts.write_temporary(_fs_path.c_str(), fs_code);
+			StringStream vs_source(default_allocator());
+			StringStream fs_source(default_allocator());
+			err = inject_sampler_stage_comments(vs_source, string_stream::c_str(vs_code), _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+			err = inject_sampler_stage_comments(fs_source, string_stream::c_str(fs_code), _opts);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+
+			_opts.write_temporary(_vs_path.c_str(), vs_source);
+			_opts.write_temporary(_fs_path.c_str(), fs_source);
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
 			const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
+			HashMap<DynamicString, u32> sampler_stages(default_allocator());
 
 			// Run preprocess pass on shaders.
-			if (meta != NULL) {
+			{
 				s32 sc;
 				Process pr_vert;
 				Process pr_frag;
@@ -2214,22 +2439,66 @@ namespace shader_resource_internal
 						);
 				}
 
-				// Parse metadata from preprocessed shaders.
+				// Parse sampler stages and metadata from preprocessed shaders.
 				Buffer vs_pp_data = _opts.read_temporary(_vs_pp_path.c_str());
 				array::push_back(vs_pp_data, '\0');
 				Buffer fs_pp_data = _opts.read_temporary(_fs_pp_path.c_str());
 				array::push_back(fs_pp_data, '\0');
 
-				s32 err = 0;
-				err = parse_metadata(*meta, vs_pp_data, _opts);
+				err = parse_sampler_stage_markers(sampler_stages, vs_pp_data, _opts);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
-				err = parse_metadata(*meta, fs_pp_data, _opts);
+				err = parse_sampler_stage_markers(sampler_stages, fs_pp_data, _opts);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+
+				if (meta != NULL) {
+					err = parse_metadata(*meta, vs_pp_data, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+					err = parse_metadata(*meta, fs_pp_data, _opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				}
 			}
+
+			Vector<ShaderResource::Sampler> local_samplers(default_allocator());
+			Vector<ShaderResource::Sampler> &samplers = sampler_meta != NULL ? *sampler_meta : local_samplers;
+			vector::clear(samplers);
+
+			auto cur = hash_map::begin(shader._samplers);
+			auto end = hash_map::end(shader._samplers);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(shader._samplers, cur);
+
+				const DynamicString &name = cur->first;
+				if (!hash_map::has(sampler_stages, name))
+					continue;
+
+				const DynamicString &sampler_state = cur->second;
+				const SamplerState ss_default;
+				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
+
+				ShaderResource::Sampler sampler;
+				sampler.name = name.to_string_id()._id;
+				sampler.state = ss.encode();
+				sampler.stage = hash_map::get(sampler_stages, name, 0u);
+				vector::push_back(samplers, sampler);
+			}
+
+			RETURN_IF_FALSE(SHADER_RESOURCE, vector::size(samplers) <= ShaderResource::MAX_SAMPLERS
+				, _opts
+				, "Too many active samplers in shader '%s': %u"
+				, bgfx_shader
+				, vector::size(samplers)
+				);
 
 			if (metadata_only) {
 				delete_temp_files();
 				return 0;
+			}
+
+			bw.write(vector::size(samplers));
+			for (u32 si = 0; si < vector::size(samplers); ++si) {
+				bw.write(samplers[si].name);
+				bw.write(samplers[si].state);
+				bw.write(samplers[si].stage);
 			}
 
 			// Compile shader binaries.
@@ -2459,6 +2728,7 @@ namespace shader_compiler
 		, Vector<StringView> &defines
 		, CompileOptions &opts
 		, bool metadata_only
+		, Vector<ShaderResource::Sampler> *sampler_meta
 		)
 	{
 		ShaderCompiler sc(opts);
@@ -2503,7 +2773,7 @@ namespace shader_compiler
 		}
 
 		shader_name = shader;
-		return sc.compile_variant(fb, uniform_meta, shader_name, defines_dyn, metadata_only);
+		return sc.compile_variant(fb, uniform_meta, sampler_meta, shader_name, defines_dyn, metadata_only);
 	}
 
 } // namespace shader_compiler
