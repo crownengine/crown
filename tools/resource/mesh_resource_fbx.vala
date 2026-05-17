@@ -63,6 +63,14 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 	}
 }
 
+public enum TextureUsage
+{
+	NONE   = 0,
+	COLOR  = 1 << 0,
+	NORMAL = 1 << 1,
+	DATA   = 1 << 2,
+}
+
 [Compact]
 public class FBXImportOptions
 {
@@ -352,6 +360,94 @@ public class FBXImportDialog : Gtk.Window
 
 public class FBXImporter
 {
+	public static int get_or_import_texture_resource_name(out string? resource_name
+		, Database db
+		, Project project
+		, string filename
+		, string destination_dir
+		, bool create_textures_folder
+		, ufbx.MaterialMap map
+		, TextureUsage usage
+		, Gee.HashMap<unowned ufbx.Texture, string> imported_textures
+		)
+	{
+		resource_name = null;
+		if (!map.texture_enabled || map.texture == null)
+			return 0;
+
+		unowned ufbx.Texture? texture = map.texture;
+		if (imported_textures.has_key(texture)) {
+			resource_name = imported_textures[texture];
+			return 0;
+		}
+
+		string textures_path = destination_dir;
+		if (create_textures_folder) {
+			GLib.File textures_file = File.new_for_path(Path.build_filename(destination_dir, "textures"));
+			try {
+				textures_file.make_directory();
+			} catch (GLib.IOError.EXISTS e) {
+				// Ignore.
+			} catch (GLib.Error e) {
+				loge(e.message);
+				return 1;
+			}
+
+			textures_path = textures_file.get_path();
+		}
+
+		string source_image_filename = Path.build_filename(textures_path, (string)texture.name.data + ".png");
+		GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
+		string source_image_path     = source_image_file.get_path();
+
+		FileStream fs;
+		// Extract embedded texture data or copy external texture files into textures_path.
+		if (texture.content.data.length > 0) {
+			// Extract embedded PNG data.
+			fs = FileStream.open(source_image_path, "wb");
+			if (fs == null) {
+				loge("Failed to open texture '%s'".printf(source_image_path));
+				return 1;
+			}
+
+			size_t num_written = fs.write((uint8[])texture.content.data);
+			if (num_written != texture.content.data.length) {
+				loge("Failed to write texture '%s'".printf(source_image_path));
+				return 1;
+			}
+		} else {
+			// TODO: Copy external texture file.
+			fs = null;
+		}
+
+		// Only create .texture resource if source image exists.
+		if (fs == null) {
+			logw("'%s' references non-existing texture '%s'".printf(filename, (string)texture.name.data));
+			return 0;
+		}
+
+		string texture_resource_filename = project.resource_filename(source_image_path);
+		string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
+		string texture_resource_name     = ResourceId.name(texture_resource_path);
+
+		// Create .texture resource.
+		Guid texture_id = Guid.new_guid();
+		TextureResource texture_resource;
+		if ((usage & TextureUsage.NORMAL) != 0)
+			texture_resource = TextureResource.normal_map(db, texture_id, texture_resource_name + ".png");
+		else if ((usage & TextureUsage.DATA) != 0)
+			texture_resource = TextureResource.data_map(db, texture_id, texture_resource_name + ".png");
+		else
+			texture_resource = TextureResource.color_map(db, texture_id, texture_resource_name + ".png");
+
+		if (texture_resource.save(project, texture_resource_name) != 0)
+			return 1;
+
+		imported_textures.set(texture, texture_resource_name);
+		resource_name = texture_resource_name;
+		return 0;
+	}
+
 	public static void unit_create_components(FBXImportOptions options
 		, Database db
 		, Guid parent_unit_id
@@ -665,77 +761,6 @@ public class FBXImporter
 			Gee.HashMap<unowned ufbx.Texture, string> imported_textures = new Gee.HashMap<unowned ufbx.Texture, string>();
 			Gee.HashMap<unowned ufbx.Material, string> imported_materials = new Gee.HashMap<unowned ufbx.Material, string>();
 
-			// Import textures.
-			if (options.import_units.value && options.import_textures.value) {
-				// Create 'textures' folder.
-				string directory_name = "textures";
-				string textures_path = destination_dir;
-				if (options.create_textures_folder.value && scene.textures.data.length != 0) {
-					GLib.File textures_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
-					try {
-						textures_file.make_directory();
-					} catch (GLib.IOError.EXISTS e) {
-						// Ignore.
-					} catch (GLib.Error e) {
-						loge(e.message);
-						return ImportResult.ERROR;
-					}
-
-					textures_path = textures_file.get_path();
-				}
-
-				// Import textures.
-				for (size_t i = 0; i < scene.textures.data.length; ++i) {
-					unowned ufbx.Texture texture = scene.textures.data[i];
-
-					string source_image_filename = Path.build_filename(textures_path, (string)texture.name.data + ".png");
-					GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
-					string source_image_path     = source_image_file.get_path();
-
-					FileStream fs;
-					// Extract embedded texture data or copy external
-					// texture files into textures_path.
-					if (texture.content.data.length > 0) {
-						// Extract embedded PNG data.
-						fs = FileStream.open(source_image_path, "wb");
-						if (fs == null) {
-							loge("Failed to open texture '%s'".printf(source_image_path));
-							return ImportResult.ERROR;
-						}
-
-						size_t num_written = fs.write((uint8[])texture.content.data);
-						if (num_written != texture.content.data.length) {
-							loge("Failed to write texture '%s'".printf(source_image_path));
-							return ImportResult.ERROR;
-						}
-					} else {
-						// TODO: Copy external texture file.
-						fs = null;
-					}
-
-					// Only create .texture resource if source image exists.
-					if (fs == null) {
-						logw("'%s' references non-existing texture '%s'".printf(filename_i, (string)texture.name.data));
-					} else {
-						string texture_resource_filename = project.resource_filename(source_image_path);
-						string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
-						string texture_resource_name     = ResourceId.name(texture_resource_path);
-
-						// Create .texture resource.
-						Guid texture_id = Guid.new_guid();
-						// FIXME: detect texture type.
-						TextureResource texture_resource = TextureResource.color_map(db
-							, texture_id
-							, texture_resource_name + ".png"
-							);
-						if (texture_resource.save(project, texture_resource_name) != 0)
-							return ImportResult.ERROR;
-
-						imported_textures.set(texture, texture_resource_name);
-					}
-				}
-			}
-
 			// Import animations.
 			StateMachineResource? smr = null;
 
@@ -874,24 +899,34 @@ public class FBXImporter
 							if (map.has_value)
 								albedo = vector3(map.value_vec3);
 
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								albedo_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out albedo_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.COLOR
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 
 						case ufbx.MaterialPbrMap.NORMAL_MAP: {
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								normal_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out normal_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.NORMAL
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 
@@ -899,13 +934,18 @@ public class FBXImporter
 							if (map.has_value)
 								metallic = map.value_real;
 
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								metallic_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out metallic_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.DATA
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 
@@ -913,24 +953,34 @@ public class FBXImporter
 							if (map.has_value)
 								roughness = map.value_real;
 
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								roughness_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out roughness_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.DATA
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 
 						case ufbx.MaterialPbrMap.AMBIENT_OCCLUSION: {
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								ao_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out ao_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.DATA
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 
@@ -938,13 +988,18 @@ public class FBXImporter
 							if (map.has_value)
 								emission_color = vector3(map.value_vec3);
 
-							// Lookup matching imported texture, if any.
-							if (map.texture_enabled
-								&& map.texture != null
-								&& imported_textures.has_key(map.texture)
-								) {
-								emission_map = imported_textures[map.texture];
-							}
+							if (options.import_textures.value
+								&& get_or_import_texture_resource_name(out emission_map
+									, db
+									, project
+									, filename_i
+									, destination_dir
+									, options.create_textures_folder.value
+									, map
+									, TextureUsage.COLOR
+									, imported_textures
+									) != 0)
+								return ImportResult.ERROR;
 							break;
 						}
 

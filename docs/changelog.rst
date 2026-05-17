@@ -42,6 +42,7 @@ Changelog
 * Tools: fixed an issue that caused non-skinned FBX scenes to import materials with SKINNED option enabled in some cases.
 * Tools: fixed occasional crashes when closing projects.
 * Tools: FBX: fixed reading material properties when the imported scene don't have those defined.
+* Tools: FBX: texture are now imported with correct settings based on their usage as specified in the materials.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
 * Runtime: fixed a potential buffer overflow when raycasting animated sprites.
