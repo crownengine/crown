@@ -356,6 +356,7 @@ namespace material_resource_internal
 
 		Data data(default_allocator());
 		Vector<StringView> defines(default_allocator());
+		Vector<ShaderResource::Sampler> samplers_meta(default_allocator());
 		Buffer shader_code(default_allocator());
 		FileBuffer shader_fb(shader_code);
 		StringView shader_name;
@@ -365,18 +366,34 @@ namespace material_resource_internal
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]));
 		shader_name_defines(shader_name, defines, shader.c_str());
 
-		shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_name, defines, opts, true);
+		s32 err = shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_name, defines, opts, true, &samplers_meta);
+		ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		opts.add_requirement("shader", shader_library.c_str());
 
 		data.add_shader_uniforms();
 
 		// Parse uniforms and textures.
 		if (json_object::has(obj, "textures")) {
-			s32 err = parse_textures(data, obj["textures"], opts);
+			err = parse_textures(data, obj["textures"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
+		for (u32 i = 0; i < array::size(data.textures); ++i) {
+			u32 si = 0;
+			for (; si < vector::size(samplers_meta); ++si) {
+				if (samplers_meta[si].name == data.textures[i].name._id)
+					break;
+			}
+
+			if (si == vector::size(samplers_meta)) {
+				logw(MATERIAL_RESOURCE
+					, "Texture references inactive or unknown sampler '%s' in shader '%s'"
+					, (char *)array::begin(data.names) + data.textures[i].sampler_name_offset
+					, shader.c_str()
+					);
+			}
+		}
 		if (json_object::has(obj, "uniforms")) {
-			s32 err = parse_uniforms(data, obj["uniforms"], opts);
+			err = parse_uniforms(data, obj["uniforms"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 

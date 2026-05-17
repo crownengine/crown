@@ -19,18 +19,10 @@ static ShaderData SHADER_DATA_INVALID =
 	BGFX_STATE_DEFAULT,
 	BGFX_STENCIL_NONE,
 	BGFX_STENCIL_NONE,
+	0u,
 	{
 		{
-			0u, 0u
-		},
-		{
-			0u, 0u
-		},
-		{
-			0u, 0u
-		},
-		{
-			0u, 0u
+			0u, 0u, 0u
 		}
 	},
 	BGFX_INVALID_HANDLE,
@@ -86,17 +78,14 @@ void *ShaderManager::load(File &file, Allocator &a)
 
 		u32 num_samplers;
 		br.read(num_samplers);
-		CE_ENSURE(num_samplers < countof(sr->_data[i].samplers));
+		CE_ENSURE(num_samplers <= countof(sr->_data[i].samplers));
+		sr->_data[i].num_samplers = num_samplers;
 
 		for (u32 s = 0; s < num_samplers; ++s) {
-			u32 sampler_name;
-			br.read(sampler_name);
-
-			u32 sampler_state;
-			br.read(sampler_state);
-
-			sr->_data[i].samplers[s].name = sampler_name;
-			sr->_data[i].samplers[s].state = sampler_state;
+			ShaderResource::Sampler &sampler = sr->_data[i].samplers[s];
+			br.read(sampler.name);
+			br.read(sampler.state);
+			br.read(sampler.stage);
 		}
 
 		u32 num_codes;
@@ -154,7 +143,8 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 		sd.state = data.state;
 		sd.stencil_front = data.stencil_front;
 		sd.stencil_back = data.stencil_back;
-		memcpy(sd.samplers, data.samplers, sizeof(sd.samplers));
+		sd.num_samplers = data.num_samplers;
+		memcpy(sd.samplers, data.samplers, sizeof(sd.samplers[0])*data.num_samplers);
 		sd.program = program;
 #if CROWN_CAN_RELOAD
 		sd.resource = shader;
@@ -172,6 +162,9 @@ void ShaderManager::offline(StringId64 id, ResourceManager &rm)
 
 		ShaderData sd;
 		sd.state = BGFX_STATE_DEFAULT;
+		sd.stencil_front = BGFX_STENCIL_NONE;
+		sd.stencil_back = BGFX_STENCIL_NONE;
+		sd.num_samplers = 0;
 		sd.program = BGFX_INVALID_HANDLE;
 		sd = hash_map::get(_shader_map, data.name, sd);
 
