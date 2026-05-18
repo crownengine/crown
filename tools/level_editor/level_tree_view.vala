@@ -302,15 +302,6 @@ public class LevelTreeView : Gtk.Box
 			Gtk.TreePath path;
 			Gtk.TreeViewColumn column;
 
-			_saved_paths = _tree_selection.get_selected_rows(null);
-			_press_x = x;
-			_press_y = y;
-			_drag_started = false;
-			if (!_selection_changed_blocked) {
-				GLib.SignalHandler.block(_tree_selection, _selection_changed_id);
-				_selection_changed_blocked = true;
-			}
-
 			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
 			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
 				return; // Clicked on empty space.
@@ -358,6 +349,16 @@ public class LevelTreeView : Gtk.Box
 
 				_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				return;
+			} else {
+				_saved_paths = _tree_selection.get_selected_rows(null);
+				_press_x = x;
+				_press_y = y;
+				_drag_started = false;
+
+				if (!_selection_changed_blocked) {
+					GLib.SignalHandler.block(_tree_selection, _selection_changed_id);
+					_selection_changed_blocked = true;
+				}
 			}
 		}
 
