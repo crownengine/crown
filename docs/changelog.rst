@@ -43,6 +43,7 @@ Changelog
 * Tools: fixed occasional crashes when closing projects.
 * Tools: FBX: fixed reading material properties when the imported scene don't have those defined.
 * Tools: FBX: texture are now imported with correct settings based on their usage as specified in the materials.
+* Tools: FBX: fixed missing textures in some cases.
 * Tools: fixed a crash when rendering outlines while MSAA was enabled.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.
