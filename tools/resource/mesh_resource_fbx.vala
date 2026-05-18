@@ -75,6 +75,29 @@ public static string texture_filename(ufbx.Texture texture)
 		return "";
 }
 
+public static GLib.File? texture_source_file(ufbx.Texture texture, GLib.File fbx_file)
+{
+	if (texture.relative_filename.data.length > 0) {
+		string filename = ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+		if (Path.is_absolute(filename))
+			return File.new_for_path(filename);
+
+		GLib.File? parent = fbx_file.get_parent();
+		return parent != null
+			? parent.resolve_relative_path(filename)
+			: File.new_for_path(filename)
+			;
+	}
+
+	if (texture.filename.data.length > 0)
+		return File.new_for_path(((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S));
+
+	if (texture.absolute_filename.data.length > 0)
+		return File.new_for_path(((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S));
+
+	return null;
+}
+
 public enum TextureUsage
 {
 	NONE   = 0,
@@ -376,6 +399,7 @@ public class FBXImporter
 		, Database db
 		, Project project
 		, string filename
+		, GLib.File fbx_file
 		, string destination_dir
 		, bool create_textures_folder
 		, ufbx.MaterialMap map
@@ -417,11 +441,11 @@ public class FBXImporter
 		GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
 		string source_image_path     = source_image_file.get_path();
 
-		FileStream fs;
+		bool source_image_exists = false;
 		// Extract embedded texture data or copy external texture files into textures_path.
 		if (texture.content.data.length > 0) {
 			// Extract embedded PNG data.
-			fs = FileStream.open(source_image_path, "wb");
+			FileStream fs = FileStream.open(source_image_path, "wb");
 			if (fs == null) {
 				loge("Failed to open texture '%s'".printf(source_image_path));
 				return 1;
@@ -432,13 +456,24 @@ public class FBXImporter
 				loge("Failed to write texture '%s'".printf(source_image_path));
 				return 1;
 			}
+
+			source_image_exists = true;
 		} else {
-			// TODO: Copy external texture file.
-			fs = null;
+			GLib.File? texture_file = Crown.texture_source_file(texture, fbx_file);
+			if (texture_file != null) {
+				try {
+					if (!texture_file.equal(source_image_file))
+						texture_file.copy(source_image_file, FileCopyFlags.OVERWRITE);
+
+					source_image_exists = source_image_file.query_exists();
+				} catch (Error e) {
+					logw(e.message);
+				}
+			}
 		}
 
 		// Only create .texture resource if source image exists.
-		if (fs == null) {
+		if (!source_image_exists) {
 			logw("'%s' references non-existing texture '%s'".printf(filename, texture_basename));
 			return 0;
 		}
@@ -923,6 +958,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
@@ -939,6 +975,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
@@ -958,6 +995,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
@@ -977,6 +1015,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
@@ -993,6 +1032,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
@@ -1012,6 +1052,7 @@ public class FBXImporter
 									, db
 									, project
 									, filename_i
+									, file_src
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
