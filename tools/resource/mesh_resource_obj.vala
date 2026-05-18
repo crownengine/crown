@@ -62,18 +62,25 @@ namespace OBJImport
 
 	public static GLib.File? texture_source_file(ufbx.Texture texture, GLib.File obj_file)
 	{
-		string filename = texture_filename(texture);
-		if (filename.length == 0)
-			return null;
+		if (texture.relative_filename.data.length > 0) {
+			string filename = ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+			if (Path.is_absolute(filename))
+				return File.new_for_path(filename);
 
-		if (Path.is_absolute(filename))
-			return File.new_for_path(filename);
+			GLib.File? parent = obj_file.get_parent();
+			return parent != null
+				? parent.resolve_relative_path(filename)
+				: File.new_for_path(filename)
+				;
+		}
 
-		GLib.File? parent = obj_file.get_parent();
-		return parent != null
-			? parent.resolve_relative_path(filename)
-			: File.new_for_path(filename)
-			;
+		if (texture.filename.data.length > 0)
+			return File.new_for_path(((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S));
+
+		if (texture.absolute_filename.data.length > 0)
+			return File.new_for_path(((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S));
+
+		return null;
 	}
 
 	public static int get_or_import_texture_resource_name(out string? resource_name
@@ -128,12 +135,10 @@ namespace OBJImport
 		GLib.File? texture_file = OBJImport.texture_source_file(texture, obj_file);
 		if (texture_file != null) {
 			try {
-				if (texture_file.equal(source_image_file)) {
-					source_image_exists = texture_file.query_exists();
-				} else {
+				if (!texture_file.equal(source_image_file))
 					texture_file.copy(source_image_file, FileCopyFlags.OVERWRITE);
-					source_image_exists = true;
-				}
+
+				source_image_exists = source_image_file.query_exists();
 			} catch (Error e) {
 				logw(e.message);
 			}
