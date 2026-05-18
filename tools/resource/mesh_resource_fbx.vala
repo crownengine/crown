@@ -63,6 +63,18 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 	}
 }
 
+public static string texture_filename(ufbx.Texture texture)
+{
+	if (texture.relative_filename.data.length > 0)
+		return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+	else if (texture.filename.data.length > 0)
+		return ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+	else if (texture.absolute_filename.data.length > 0)
+		return ((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+	else
+		return "";
+}
+
 public enum TextureUsage
 {
 	NONE   = 0,
@@ -396,7 +408,12 @@ public class FBXImporter
 			textures_path = textures_file.get_path();
 		}
 
-		string source_image_filename = Path.build_filename(textures_path, (string)texture.name.data + ".png");
+		string texture_filename = Crown.texture_filename(texture);
+		string texture_basename = texture_filename.length > 0
+			? GLib.File.new_for_path(texture_filename).get_basename()
+			: (string)texture.name.data + ".png"
+			;
+		string source_image_filename = Path.build_filename(textures_path, texture_basename);
 		GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
 		string source_image_path     = source_image_file.get_path();
 
@@ -422,7 +439,7 @@ public class FBXImporter
 
 		// Only create .texture resource if source image exists.
 		if (fs == null) {
-			logw("'%s' references non-existing texture '%s'".printf(filename, (string)texture.name.data));
+			logw("'%s' references non-existing texture '%s'".printf(filename, texture_basename));
 			return 0;
 		}
 
