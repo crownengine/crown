@@ -18,6 +18,7 @@ Changelog
 * Tools: added a new object selector dialog with searching support for picking objects in reference properties.
 * Tools: it is now possible to unset the current object in reference properties by pressing the Delete key.
 * Tools: added drag & drop support to the Level Tree and other object trees.
+* Tools: added the ability to import external textures from FBX scenes.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
@@ -43,6 +44,7 @@ Changelog
 * Tools: fixed occasional crashes when closing projects.
 * Tools: FBX: fixed reading material properties when the imported scene don't have those defined.
 * Tools: FBX: texture are now imported with correct settings based on their usage as specified in the materials.
+* Tools: FBX: fixed missing textures in some cases.
 * Tools: fixed a crash when rendering outlines while MSAA was enabled.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.

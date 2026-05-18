@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-15T17:55:29+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-18T17:17:36+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -145,6 +145,7 @@
 <li><p>Tools: added a new object selector dialog with searching support for picking objects in reference properties.</p></li>
 <li><p>Tools: it is now possible to unset the current object in reference properties by pressing the Delete key.</p></li>
 <li><p>Tools: added drag &amp; drop support to the Level Tree and other object trees.</p></li>
+<li><p>Tools: added the ability to import external textures from FBX scenes.</p></li>
 <li><p>Runtime: added the ability to override render settings in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: added the ability to specify a configuration file with user-specific settings via the <code class="docutils literal notranslate"><span class="pre">user_config</span></code> setting in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.</p></li>
@@ -170,6 +171,7 @@
 <li><p>Tools: fixed occasional crashes when closing projects.</p></li>
 <li><p>Tools: FBX: fixed reading material properties when the imported scene don’t have those defined.</p></li>
 <li><p>Tools: FBX: texture are now imported with correct settings based on their usage as specified in the materials.</p></li>
+<li><p>Tools: FBX: fixed missing textures in some cases.</p></li>
 <li><p>Tools: fixed a crash when rendering outlines while MSAA was enabled.</p></li>
 <li><p>Runtime: fixed an issue that caused materials to bind textures to the wrong stage.</p></li>
 <li><p>Runtime: fixed a race conditions during application exit.</p></li>
@@ -1041,7 +1043,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on May 15, 2026.
+      <span class="lastupdated">Last updated on May 18, 2026.
       </span></p>
   </div>
 
