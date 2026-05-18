@@ -446,16 +446,18 @@ public class FBXImporter
 		string texture_resource_filename = project.resource_filename(source_image_path);
 		string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
 		string texture_resource_name     = ResourceId.name(texture_resource_path);
+		string? texture_resource_type    = ResourceId.type(texture_resource_path);
+		string source_image              = texture_resource_name + "." + (texture_resource_type != null ? texture_resource_type : "png");
 
 		// Create .texture resource.
 		Guid texture_id = Guid.new_guid();
 		TextureResource texture_resource;
 		if ((usage & TextureUsage.NORMAL) != 0)
-			texture_resource = TextureResource.normal_map(db, texture_id, texture_resource_name + ".png");
+			texture_resource = TextureResource.normal_map(db, texture_id, source_image);
 		else if ((usage & TextureUsage.DATA) != 0)
-			texture_resource = TextureResource.data_map(db, texture_id, texture_resource_name + ".png");
+			texture_resource = TextureResource.data_map(db, texture_id, source_image);
 		else
-			texture_resource = TextureResource.color_map(db, texture_id, texture_resource_name + ".png");
+			texture_resource = TextureResource.color_map(db, texture_id, source_image);
 
 		if (texture_resource.save(project, texture_resource_name) != 0)
 			return 1;
