@@ -196,6 +196,9 @@ namespace obj
 			const ufbx_mesh *mesh = meshes->data[i];
 			Geometry geo(default_allocator());
 
+			if (mesh->num_faces == 0)
+				continue;
+
 			s32 err = parse_geometry(geo, mesh);
 			ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 

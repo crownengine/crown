@@ -49,6 +49,7 @@ Changelog
 * Runtime: fixed a potential buffer overflow when raycasting animated sprites.
 * Data Compiler: fixed generation of meshes with high vertex count.
 * Data Compiler: fixed slow mesh compilation.
+* Data Compiler: fixed an issue that caused empty meshes to be included in compiled data (leading to runtime crashes on some backends).
 * Lua: fixed undefined behavior during instantiation of script components.
 
 .. _v0.62.0:
