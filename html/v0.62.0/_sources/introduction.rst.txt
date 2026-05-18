@@ -101,7 +101,7 @@ Features
 	* Collision begin/stay/end events.
 	* Triggers with enter/leave events.
 	* Spatial queries: ray-, sphere- and box-casts.
-	* Joints (fixed, spring and hinge).
+	* Joints (fixed, hinge, limb, spherical, spring and d6).
 
 * Audio
 	* 3D audio sources with position and range-based attenuation.
