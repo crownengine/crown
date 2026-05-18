@@ -14,6 +14,7 @@ Changelog
 * Tools: fixed occasional crashes when closing projects.
 * Tools: FBX: fixed reading material properties when the imported scene don't have those defined.
 * Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
+* Data Compiler: fixed an issue that caused empty meshes to be included in compiled data (leading to runtime crashes on some backends).
 * Lua: fixed undefined behavior during instantiation of script components.
 
 .. _v0.62.3:
