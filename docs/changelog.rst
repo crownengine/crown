@@ -6,6 +6,10 @@ Changelog
 :ref:`0.62.5 --- DD MMM YYYY <v0.62.5>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: the Project Browser will now exit search mode when asked to navigate history.
+
 .. _v0.62.4:
 
 :ref:`0.62.4 --- 18 May 2026 <v0.62.4>`

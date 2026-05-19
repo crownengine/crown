@@ -1548,6 +1548,11 @@ public class ProjectBrowser : Gtk.Box
 
 	public void navigate_back()
 	{
+		if (_browse_mode == BrowseMode.SEARCH) {
+			exit_search();
+			return;
+		}
+
 		if (_nav_history_back.is_empty)
 			return;
 		_navigating_history = true;
@@ -1559,6 +1564,11 @@ public class ProjectBrowser : Gtk.Box
 
 	public void navigate_forward()
 	{
+		if (_browse_mode == BrowseMode.SEARCH) {
+			exit_search();
+			return;
+		}
+
 		if (_nav_history_forward.is_empty)
 			return;
 		_navigating_history = true;
