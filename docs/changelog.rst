@@ -25,7 +25,6 @@ Changelog
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
 * Data Compiler: missing resource references no longer stop data compilation and print a warning instead.
-* Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 * Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
 * Lua: ``print()`` now shows tables in a more readable format.
@@ -53,6 +52,7 @@ Changelog
 * Data Compiler: fixed generation of meshes with high vertex count.
 * Data Compiler: fixed slow mesh compilation.
 * Data Compiler: fixed an issue that caused empty meshes to be included in compiled data (leading to runtime crashes on some backends).
+* Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
 * Lua: fixed undefined behavior during instantiation of script components.
 
 .. _v0.62.0:
