@@ -767,6 +767,11 @@ MD5 (Zlib)
 
 Independent implementation of MD5 (RFC 1321).
 
+MikkTSpace (Zlib)
+-----------------
+
+Tangent space generator for normal mapping.
+
 OpenAL soft (LGPL)
 ------------------
 

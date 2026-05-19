@@ -34,6 +34,7 @@
 #   include "resource/mesh_resource.h"
 #   include <bx/error.h>
 #   include <bx/readerwriter.h>
+#   include <mikktspace.h>
 #   include <vertexlayout.h> // bgfx::write, bgfx::read
 
 LOG_SYSTEM(MESH, "mesh")
@@ -193,6 +194,87 @@ namespace mesh
 				;
 		}
 	};
+
+	static int mikk_get_num_faces(const SMikkTSpaceContext *context)
+	{
+		const Geometry &g = *(Geometry *)context->m_pUserData;
+		return int(array::size(g._position_indices) / 3);
+	}
+
+	static int mikk_get_num_vertices_of_face(const SMikkTSpaceContext *, const int)
+	{
+		return 3;
+	}
+
+	static void mikk_get_position(const SMikkTSpaceContext *context, float fvPosOut[], const int iFace, const int iVert)
+	{
+		const Geometry &g = *(Geometry *)context->m_pUserData;
+		const f32 *position = &g._positions[g._position_indices[iFace*3 + iVert] * 3];
+		fvPosOut[0] = position[0];
+		fvPosOut[1] = position[1];
+		fvPosOut[2] = position[2];
+	}
+
+	static void mikk_get_normal(const SMikkTSpaceContext *context, float fvNormOut[], const int iFace, const int iVert)
+	{
+		const Geometry &g = *(Geometry *)context->m_pUserData;
+		const f32 *normal = &g._normals[g._normal_indices[iFace*3 + iVert] * 3];
+		fvNormOut[0] = normal[0];
+		fvNormOut[1] = normal[1];
+		fvNormOut[2] = normal[2];
+	}
+
+	static void mikk_get_texcoord(const SMikkTSpaceContext *context, float fvTexcOut[], const int iFace, const int iVert)
+	{
+		const Geometry &g = *(Geometry *)context->m_pUserData;
+		const f32 *uv = &g._uvs[g._uv_indices[iFace*3 + iVert] * 2];
+		fvTexcOut[0] = uv[0];
+		fvTexcOut[1] = 1.0f - uv[1];
+	}
+
+	static void mikk_set_tspace_basic(const SMikkTSpaceContext *context, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+	{
+		Geometry &g = *(Geometry *)context->m_pUserData;
+		const u32 corner = iFace*3 + iVert;
+		const f32 *normal = &g._normals[g._normal_indices[corner] * 3];
+		f32 *tangent = &g._tangents[corner * 3];
+		f32 *bitangent = &g._bitangents[corner * 3];
+
+		tangent[0] = fvTangent[0];
+		tangent[1] = fvTangent[1];
+		tangent[2] = fvTangent[2];
+		bitangent[0] = (normal[1]*fvTangent[2] - normal[2]*fvTangent[1]) * fSign;
+		bitangent[1] = (normal[2]*fvTangent[0] - normal[0]*fvTangent[2]) * fSign;
+		bitangent[2] = (normal[0]*fvTangent[1] - normal[1]*fvTangent[0]) * fSign;
+	}
+
+	static void generate_tangent_space(Geometry &g)
+	{
+		if (!has_normals(g) || !has_uvs(g))
+			return;
+
+		const u32 num_indices = array::size(g._position_indices);
+		array::resize(g._tangents, num_indices * 3);
+		array::resize(g._bitangents, num_indices * 3);
+		array::resize(g._tangent_indices, num_indices);
+		array::resize(g._bitangent_indices, num_indices);
+
+		for (u32 i = 0; i < num_indices; ++i)
+			g._tangent_indices[i] = g._bitangent_indices[i] = i;
+
+		SMikkTSpaceInterface iface =
+		{
+			mikk_get_num_faces,
+			mikk_get_num_vertices_of_face,
+			mikk_get_position,
+			mikk_get_normal,
+			mikk_get_texcoord,
+			mikk_set_tspace_basic,
+			0
+		};
+		SMikkTSpaceContext context = { &iface, &g };
+		genTangSpaceDefault(&context);
+	}
 
 	static s32 generate_vertex_and_index_buffers(Geometry &g, CompileOptions &opts)
 	{
@@ -391,6 +473,21 @@ namespace mesh
 
 	s32 write(Mesh &m, CompileOptions &opts)
 	{
+		TempAllocator4096 ta;
+		bool calculate_tangents = true;
+		DynamicString importer_settings(ta);
+		importer_settings.set(opts.source_path(), u32(strrchr(opts.source_path(), '.') - opts.source_path()));
+		importer_settings += ".importer_settings";
+		Buffer settings_buf = opts.read(importer_settings.c_str());
+		JsonObject settings(ta);
+		RETURN_IF_ERROR(sjson::parse(settings, settings_buf));
+
+		if (json_object::has(settings, "tangents")) {
+			DynamicString tangents(ta);
+			RETURN_IF_ERROR(sjson::parse_string(tangents, settings["tangents"]));
+			calculate_tangents = tangents == "calculate";
+		}
+
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(hash_map::size(m._geometries));
 
@@ -408,6 +505,8 @@ namespace mesh
 				opts.write(geo_names[i].to_string_id()._id);
 
 			Geometry *geo = (Geometry *)&cur->second;
+			if (calculate_tangents)
+				generate_tangent_space(*geo);
 			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);

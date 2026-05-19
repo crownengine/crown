@@ -117,6 +117,7 @@ public class FBXImportOptions
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
 	public InputBool create_colliders;
+	public InputEnum tangents;
 
 	public InputBool import_animation;
 	public InputBool new_skeleton;
@@ -145,6 +146,10 @@ public class FBXImportOptions
 		create_materials_folder.value = true;
 		create_colliders = new InputBool();
 		create_colliders.value = false;
+		tangents = new InputEnum("calculate"
+			, new string[] { "Calculate", "Import" }
+			, new string[] { "calculate", "import" }
+			);
 		import_animation = new InputBool();
 		import_animation.value = true;
 		import_animation.value_changed.connect(on_import_animation_changed);
@@ -215,6 +220,8 @@ public class FBXImportOptions
 					create_materials_folder.value = (bool)g.value;
 				else if (g.key == "create_colliders")
 					create_colliders.value = (bool)g.value;
+				else if (g.key == "tangents")
+					tangents.value = (string)g.value;
 				else if (g.key == "new_skeleton")
 					new_skeleton.value = (bool)g.value;
 				else if (g.key == "target_skeleton")
@@ -256,6 +263,7 @@ public class FBXImportOptions
 		obj.set("import_materials", skip_units ? false : import_materials.value);
 		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
 		obj.set("create_colliders", skip_units ? false : create_colliders.value);
+		obj.set("tangents", tangents.value);
 		obj.set("new_skeleton", skip_anims ? false : new_skeleton.value);
 		obj.set("target_skeleton", (skip_anims || target_skeleton.value == null) ? "" : target_skeleton.value);
 		obj.set("import_clips", skip_anims ? false : import_clips.value);
@@ -316,6 +324,7 @@ public class FBXImportDialog : Gtk.Window
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
 		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
+		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
 		_general_set.add_property_grid_optional(cv, "Units", _options.import_units, "Import nodes as units, materials and textures.");
 
 		cv = new PropertyGrid();
