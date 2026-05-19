@@ -21,7 +21,6 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "3rdparty/stb",
 			CROWN_DIR .. "3rdparty/bullet3/src",
 			CROWN_DIR .. "3rdparty/openal/include",
-			CROWN_DIR .. "3rdparty/ufbx",
 			CROWN_DIR .. "3rdparty/lz4/lib",
 		}
 
@@ -139,12 +138,19 @@ function crown_project(_name, _kind, _defines)
 				"gdi32",
 			}
 
+		configuration { "linux-* or mingw* or vs*" }
+			includedirs {
+				CROWN_DIR .. "3rdparty/ufbx",
+			}
+			files {
+				CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
+			}
+
 		configuration {}
 
 		files {
 			CROWN_DIR .. "src/**.h",
 			CROWN_DIR .. "src/**.cpp",
-			CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
 			CROWN_DIR .. "3rdparty/lz4/lib/*.c",
 		}
 
