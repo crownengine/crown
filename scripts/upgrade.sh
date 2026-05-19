@@ -692,6 +692,21 @@ update_lz4 () {
 	git commit -m "3rdparty: update lz4"
 }
 
+update_mikktspace () {
+	local REPO=https://github.com/mmikk/MikkTSpace
+	local DEST=3rdparty/mikktspace
+	local BRANCH=master
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Cleanup.
+	rm -rf "${DEST}"/.git
+	rm -rf "${DEST}"/.gitignore
+
+	git add -f "${DEST}"
+}
+
 wayland_scanner () {
 	local filename
 	local protocol="$1"
@@ -765,6 +780,10 @@ while true; do
 		;;
 	lz4)
 		update_lz4
+		exit $?
+		;;
+	mikktspace)
+		update_mikktspace
 		exit $?
 		;;
 	wayland)

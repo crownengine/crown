@@ -183,6 +183,7 @@ public class OBJImportOptions
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
 	public InputBool create_colliders;
+	public InputEnum tangents;
 
 	public OBJImportOptions()
 	{
@@ -198,6 +199,10 @@ public class OBJImportOptions
 		create_materials_folder.value = true;
 		create_colliders = new InputBool();
 		create_colliders.value = false;
+		tangents = new InputEnum("calculate"
+			, new string[] { "Calculate", "Import" }
+			, new string[] { "calculate", "import" }
+			);
 	}
 
 	public void on_import_textures_changed()
@@ -223,6 +228,8 @@ public class OBJImportOptions
 					create_materials_folder.value = (bool)g.value;
 				else if (g.key == "create_colliders")
 					create_colliders.value = (bool)g.value;
+				else if (g.key == "tangents")
+					tangents.value = (string)g.value;
 				else
 					logw("Unknown option '%s'".printf(g.key));
 
@@ -242,6 +249,7 @@ public class OBJImportOptions
 		obj.set("import_materials", import_materials.value);
 		obj.set("create_materials_folder", import_materials.value ? create_materials_folder.value : false);
 		obj.set("create_colliders", create_colliders.value ? create_colliders.value : false);
+		obj.set("tangents", tangents.value);
 
 		return obj;
 	}
@@ -296,6 +304,7 @@ public class OBJImportDialog : Gtk.Window
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
 		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
+		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
 		_general_set.add_property_grid(cv, "Units");
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);

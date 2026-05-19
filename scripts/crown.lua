@@ -141,9 +141,14 @@ function crown_project(_name, _kind, _defines)
 		configuration { "linux-* or mingw* or vs*" }
 			includedirs {
 				CROWN_DIR .. "3rdparty/ufbx",
+				CROWN_DIR .. "3rdparty/mikktspace",
 			}
 			files {
 				CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
+				CROWN_DIR .. "3rdparty/mikktspace/mikktspace.c",
+			}
+			buildoptions_c {
+				"-Wno-unused-but-set-variable", -- mikktspace.c
 			}
 
 		configuration {}
