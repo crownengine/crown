@@ -46,6 +46,7 @@ Changelog
 * Tools: FBX: texture are now imported with correct settings based on their usage as specified in the materials.
 * Tools: FBX: fixed missing textures in some cases.
 * Tools: fixed a crash when rendering outlines while MSAA was enabled.
+* Tools: the Project Browser will now exit search mode when asked to navigate history.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
