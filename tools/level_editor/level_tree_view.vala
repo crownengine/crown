@@ -89,6 +89,11 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.TreeViewColumn _name_column;
 	public Gtk.TreeViewColumn _visibility_column;
 	public Gtk.TreeViewColumn _lock_column;
+	public Gtk.TreeViewColumn? _toggle_drag_column;
+	public bool _toggle_drag_state;
+	public Gee.ArrayList<Guid?> _toggle_drag_changed;
+	public double _toggle_drag_last_x;
+	public double _toggle_drag_last_y;
 
 	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
 
@@ -103,6 +108,11 @@ public class LevelTreeView : Gtk.Box
 
 		// Widgets
 		_needle = "";
+		_toggle_drag_column = null;
+		_toggle_drag_state = false;
+		_toggle_drag_changed = new Gee.ArrayList<Guid?>(Guid.equal_func);
+		_toggle_drag_last_x = 0.0;
+		_toggle_drag_last_y = 0.0;
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text("Search...");
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
@@ -259,6 +269,7 @@ public class LevelTreeView : Gtk.Box
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
+		_gesture_click.update.connect(on_button_update);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
@@ -316,37 +327,23 @@ public class LevelTreeView : Gtk.Box
 				if ((int)val == ItemType.FOLDER)
 					return;
 
-				_tree_view.model.get_value(iter, Column.GUID, out val);
-				Guid object_id = (Guid)val;
+				bool state;
+				if (column == _visibility_column) {
+					_tree_view.model.get_value(iter, Column.OBJECT_VISIBLE, out val);
+					state = (bool)val;
+				} else {
+					_tree_view.model.get_value(iter, Column.SELECTION_LOCKED, out val);
+					state = !(bool)val;
+				}
 
-				Gtk.TreeIter iter_filter;
-				Gtk.TreeIter iter_model;
-				_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
-				_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+				_toggle_drag_column = column;
+				_toggle_drag_state = state;
+				_toggle_drag_changed.clear();
+				_toggle_drag_last_x = x;
+				_toggle_drag_last_y = y;
 
-					if (column == _visibility_column) {
-						_tree_view.model.get_value(iter, Column.OBJECT_VISIBLE, out val);
-						bool object_visible = (bool)val;
-						object_visible = !object_visible;
-						_tree_store.set(iter_model, Column.OBJECT_VISIBLE, object_visible, -1);
-
-						bool object_hidden = !object_visible;
-						if (_level.object_hidden(object_id) != object_hidden) {
-							_level.set_object_hidden(object_id, object_hidden);
-							_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
-						}
-					} else if (column == _lock_column) {
-						_tree_view.model.get_value(iter, Column.SELECTION_LOCKED, out val);
-						bool selection_locked = (bool)val;
-						selection_locked = !selection_locked;
-						_tree_store.set(iter_model, Column.SELECTION_LOCKED, selection_locked, -1);
-
-						if (_level.object_locked(object_id) != selection_locked) {
-							_level.set_object_locked(object_id, selection_locked);
-							_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, new Guid?[] { object_id });
-						}
-					}
-
+				Gtk.drag_source_unset(_tree_view);
+				toggle_drag_at(x, y);
 				_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				return;
 			} else {
@@ -439,6 +436,19 @@ public class LevelTreeView : Gtk.Box
 
 	public void on_button_released(int n_press, double x, double y)
 	{
+		if (_toggle_drag_column != null) {
+			if (_toggle_drag_changed.size > 0)
+				_db.add_restore_point((int)ActionType.CHANGE_OBJECTS
+					, _toggle_drag_changed.to_array()
+					, ActionTypeFlags.FROM_SERVER
+					);
+
+			_toggle_drag_column = null;
+			_toggle_drag_changed.clear();
+			Gtk.drag_source_set(_tree_view, Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
+			return;
+		}
+
 		if (!_drag_started) {
 			if (_selection_changed_blocked) {
 				GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
@@ -446,6 +456,79 @@ public class LevelTreeView : Gtk.Box
 			}
 			_tree_selection.changed();
 		}
+	}
+
+	public void on_button_update(Gdk.EventSequence? sequence)
+	{
+		if (_toggle_drag_column == null)
+			return;
+
+		double x;
+		double y;
+		if (!_gesture_click.get_point(sequence, out x, out y))
+			return;
+
+		double dy = y - _toggle_drag_last_y;
+		int steps = int.max(1, (int)((dy < 0.0 ? -dy : dy) / 4.0));
+		for (int i = 1; i <= steps; ++i) {
+			double t = (double)i / (double)steps;
+			toggle_drag_at(_toggle_drag_last_x + (x - _toggle_drag_last_x) * t
+				, _toggle_drag_last_y + dy * t
+				);
+		}
+
+		_toggle_drag_last_x = x;
+		_toggle_drag_last_y = y;
+	}
+
+	public void toggle_drag_at(double x, double y)
+	{
+		Gtk.Allocation alloc;
+		_tree_view.get_allocation(out alloc);
+		if (x < 0.0 || x >= alloc.width || y < 0.0 || y >= alloc.height)
+			return;
+
+		int bx;
+		int by;
+		Gtk.TreePath path;
+		_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
+		if (!_tree_view.get_path_at_pos(bx, by, out path, null, null, null)
+			&& !_tree_view.get_path_at_pos(1, by, out path, null, null, null))
+			return;
+
+		Gtk.TreeIter iter;
+		if (!_tree_view.model.get_iter(out iter, path))
+			return;
+
+		Value val;
+		_tree_view.model.get_value(iter, Column.TYPE, out val);
+		if ((int)val == ItemType.FOLDER)
+			return;
+
+		_tree_view.model.get_value(iter, Column.GUID, out val);
+		Guid object_id = (Guid)val;
+
+		Gtk.TreeIter iter_filter;
+		Gtk.TreeIter iter_model;
+		_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
+		_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+
+		if (_toggle_drag_column == _visibility_column) {
+			if (_level.object_hidden(object_id) == _toggle_drag_state)
+				return;
+
+			_tree_store.set(iter_model, Column.OBJECT_VISIBLE, !_toggle_drag_state, -1);
+			_level.set_object_hidden(object_id, _toggle_drag_state);
+		} else {
+			if (_level.object_locked(object_id) == _toggle_drag_state)
+				return;
+
+			_tree_store.set(iter_model, Column.SELECTION_LOCKED, _toggle_drag_state, -1);
+			_level.set_object_locked(object_id, _toggle_drag_state);
+		}
+
+		_toggle_drag_changed.add(object_id);
+		_db.objects_changed(new Guid?[] { object_id }, 0u);
 	}
 
 	public void on_drag_begin(Gdk.DragContext ctx)
