@@ -19,13 +19,13 @@ Changelog
 * Tools: it is now possible to unset the current object in reference properties by pressing the Delete key.
 * Tools: added drag & drop support to the Level Tree and other object trees.
 * Tools: added the ability to import external textures from FBX scenes.
+* Tools: added an option to calculate mesh tangents when importing scenes.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
 * Data Compiler: missing resource references no longer stop data compilation and print a warning instead.
-* Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 * Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
 * Lua: ``print()`` now shows tables in a more readable format.
@@ -53,6 +53,7 @@ Changelog
 * Data Compiler: fixed generation of meshes with high vertex count.
 * Data Compiler: fixed slow mesh compilation.
 * Data Compiler: fixed an issue that caused empty meshes to be included in compiled data (leading to runtime crashes on some backends).
+* Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.
 * Lua: fixed undefined behavior during instantiation of script components.
 
 .. _v0.62.0:

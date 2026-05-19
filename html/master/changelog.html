@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-18T17:17:36+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-05-19T14:39:51+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
@@ -146,13 +146,13 @@
 <li><p>Tools: it is now possible to unset the current object in reference properties by pressing the Delete key.</p></li>
 <li><p>Tools: added drag &amp; drop support to the Level Tree and other object trees.</p></li>
 <li><p>Tools: added the ability to import external textures from FBX scenes.</p></li>
+<li><p>Tools: added an option to calculate mesh tangents when importing scenes.</p></li>
 <li><p>Runtime: added the ability to override render settings in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: added the ability to specify a configuration file with user-specific settings via the <code class="docutils literal notranslate"><span class="pre">user_config</span></code> setting in <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.</p></li>
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">physics</span></code> console command to control debug visualizations.</p></li>
 <li><p>Runtime: added configurable physics <cite>solver_iterations</cite> and <cite>sleep_threshold</cite> via the <cite>physics</cite> property of <a class="reference internal" href="reference/boot_config.html"><span class="doc">boot.config</span></a>.</p></li>
 <li><p>Data Compiler: missing resource references no longer stop data compilation and print a warning instead.</p></li>
-<li><p>Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">GameSave</span></code> singleton to save/load savegames.</p></li>
 <li><p>Lua: added a comprehensive set of <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.joint_*</span></code> functions for creating and manipulating various joint types.</p></li>
 <li><p>Lua: <code class="docutils literal notranslate"><span class="pre">print()</span></code> now shows tables in a more readable format.</p></li>
@@ -180,6 +180,7 @@
 <li><p>Data Compiler: fixed generation of meshes with high vertex count.</p></li>
 <li><p>Data Compiler: fixed slow mesh compilation.</p></li>
 <li><p>Data Compiler: fixed an issue that caused empty meshes to be included in compiled data (leading to runtime crashes on some backends).</p></li>
+<li><p>Data Compiler: fixed an issue that caused some meshes to become invisible at runtime due to an error when computing sphere bounds.</p></li>
 <li><p>Lua: fixed undefined behavior during instantiation of script components.</p></li>
 </ul>
 </section>
@@ -1043,7 +1044,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on May 18, 2026.
+      <span class="lastupdated">Last updated on May 19, 2026.
       </span></p>
   </div>
 
