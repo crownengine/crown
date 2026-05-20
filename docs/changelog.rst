@@ -48,6 +48,7 @@ Changelog
 * Tools: FBX: fixed missing textures in some cases.
 * Tools: fixed a crash when rendering outlines while MSAA was enabled.
 * Tools: the Project Browser will now exit search mode when asked to navigate history.
+* Tools: fixed an issue that caused the Level Tree to scroll to the currently selected item while interacting with other rows.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
