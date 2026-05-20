@@ -624,9 +624,6 @@ public class LevelTreeView : Gtk.Box
 				return false;
 			});
 
-		if (last_selected != null)
-			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
-
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 	}
 
