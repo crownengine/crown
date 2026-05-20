@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: the Project Browser will now exit search mode when asked to navigate history.
+* Tools: fixed an issue that caused the Level Tree to scroll to the currently selected item while interacting with other rows.
 
 .. _v0.62.4:
 
