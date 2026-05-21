@@ -413,6 +413,7 @@ public class FBXImporter
 		, bool create_textures_folder
 		, ufbx.MaterialMap map
 		, TextureUsage usage
+		, bool preserve_alpha
 		, Gee.HashMap<unowned ufbx.Texture, string> imported_textures
 		)
 	{
@@ -421,7 +422,7 @@ public class FBXImporter
 			return 0;
 
 		unowned ufbx.Texture? texture = map.texture;
-		if (imported_textures.has_key(texture)) {
+		if (imported_textures.has_key(texture) && !preserve_alpha) {
 			resource_name = imported_textures[texture];
 			return 0;
 		}
@@ -500,6 +501,8 @@ public class FBXImporter
 			texture_resource = TextureResource.normal_map(db, texture_id, source_image);
 		else if ((usage & TextureUsage.DATA) != 0)
 			texture_resource = TextureResource.data_map(db, texture_id, source_image);
+		else if (preserve_alpha)
+			texture_resource = TextureResource(db, texture_id, source_image, TextureFormat.BC3, true, false);
 		else
 			texture_resource = TextureResource.color_map(db, texture_id, source_image);
 
@@ -953,6 +956,7 @@ public class FBXImporter
 					string? roughness_map = null;
 					string? ao_map = null;
 					string? emission_map = null;
+					bool masking = false;
 
 					for (int mm = 0; mm < ufbx.MaterialPbrMap.MAP_COUNT; ++mm) {
 						unowned ufbx.MaterialMap map = material.pbr.maps[mm];
@@ -961,6 +965,20 @@ public class FBXImporter
 						case ufbx.MaterialPbrMap.BASE_COLOR: {
 							if (map.has_value)
 								albedo = vector3(map.value_vec3);
+
+							unowned ufbx.MaterialMap opacity = material.pbr.opacity;
+							masking = map.texture_enabled
+								&& opacity.texture_enabled
+								&& map.texture != null
+								&& opacity.texture != null
+								;
+							if (masking) {
+								string color_texture_filename = texture_filename(map.texture);
+								string opacity_texture_filename = texture_filename(opacity.texture);
+								masking = map.texture == opacity.texture
+									|| (color_texture_filename.length > 0 && color_texture_filename == opacity_texture_filename)
+									;
+							}
 
 							if (options.import_textures.value
 								&& get_or_import_texture_resource_name(out albedo_map
@@ -972,6 +990,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.COLOR
+									, masking
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -989,6 +1008,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.NORMAL
+									, false
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -1009,6 +1029,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.DATA
+									, false
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -1029,6 +1050,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.DATA
+									, false
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -1046,6 +1068,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.DATA
+									, false
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -1066,6 +1089,7 @@ public class FBXImporter
 									, options.create_textures_folder.value
 									, map
 									, TextureUsage.COLOR
+									, false
 									, imported_textures
 									) != 0)
 								return ImportResult.ERROR;
@@ -1085,6 +1109,8 @@ public class FBXImporter
 					if (smr != null)
 						shader += "+SKINNING";
 
+					masking = masking && albedo_map != null;
+
 					// Create .material resource.
 					MaterialResource material_resource = MaterialResource.mesh(db
 						, Guid.new_guid()
@@ -1100,6 +1126,7 @@ public class FBXImporter
 						, emission_color
 						, emission_intensity
 						, shader
+						, masking
 						);
 					if (material_resource.save(project, material_resource_name) != 0)
 						return ImportResult.ERROR;
