@@ -21,6 +21,7 @@ Changelog
 * Tools: added the ability to import external textures from FBX scenes.
 * Tools: added an option to calculate mesh tangents when importing scenes.
 * Tools: it is now possible to toggle multiple hide/lock controls in the Level Tree via single click + drag gesture.
+* Tools: added masked alpha texture support when importing scenes.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.

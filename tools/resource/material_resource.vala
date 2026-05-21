@@ -33,9 +33,14 @@ public struct MaterialResource
 		, Vector3 emission_color = VECTOR3_ZERO
 		, double emission_intensity = 1.0
 		, string? shader = null
+		, bool masking = false
 		)
 	{
-		this(db, material_id, shader != null ? shader : "mesh");
+		string mesh_shader = shader != null ? shader : "mesh";
+		if (masking)
+			mesh_shader += "+MASKED";
+
+		this(db, material_id, mesh_shader);
 
 		set_vector3("u_albedo", albedo);
 		set_float("u_metallic", metallic);
@@ -56,6 +61,7 @@ public struct MaterialResource
 		set_float("u_use_roughness_map", (double)(roughness_map != null));
 		set_float("u_use_ao_map", (double)(ao_map != null));
 		set_float("u_use_emission_map", (double)(emission_map != null));
+		set_float("u_use_opacity_map", (double)masking);
 	}
 
 	public MaterialResource.sprite(Database db

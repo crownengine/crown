@@ -43,6 +43,11 @@ render_states = {
 
 	mesh = {
 		inherit = "default"
+		states = {
+			"defined(MASKED)" = {
+				cull_mode = "none"
+			}
+		}
 	}
 
 	skydome = {
@@ -314,13 +319,19 @@ bgfx_shaders = {
 			uniform vec4 u_use_roughness_map;
 			uniform vec4 u_use_ao_map;
 			uniform vec4 u_use_emission_map;
+			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 }
 
 			void main()
 			{
-				vec3 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0).rgb : u_albedo.rgb;
-
+				vec4 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0) : vec4(u_albedo.rgb, 1.0);
+		#if defined(MASKED)
+		#	define MASK_ALPHA_CUTOFF 0.5
+				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
+				if (opacity < MASK_ALPHA_CUTOFF)
+					discard;
+		#endif // MASKED
 		#if defined(NO_LIGHT)
-				vec3 radiance = albedo;
+				vec3 radiance = albedo.rgb;
 		#else
 				vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
@@ -342,8 +353,8 @@ bgfx_shaders = {
 
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
-				vec3 f0 = mix(vec3_splat(0.04), albedo, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo, metallic, roughness, ao, emission, f0);
+				vec3 f0 = mix(vec3_splat(0.04), albedo.rgb, metallic);
+				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
 		#endif // !defined(NO_LIGHT)
 
 				gl_FragColor = vec4(radiance, 1.0);
@@ -546,10 +557,13 @@ static_compile = [
 	{ shader = "sprite" defines = [] }
 	{ shader = "mesh" defines = [] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP"] }
+	{ shader = "mesh" defines = ["MASKED"] }
 	{ shader = "mesh" defines = ["SKINNING"] }
 	{ shader = "mesh" defines = ["NO_LIGHT"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "SKINNING"] }
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
+	{ shader = "mesh" defines = ["SKINNING" "MASKED"] }
+	{ shader = "mesh" defines = ["NO_LIGHT" "MASKED"] }
 	{ shader = "skydome" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "blit" defines = ["BLEND_ENABLED"] }
