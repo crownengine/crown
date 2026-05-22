@@ -169,6 +169,12 @@ struct RenderWorld
 	/// Returns the ID of the LOD group owned by the *unit*.
 	LodGroupId lod_group_instance(UnitId unit);
 
+	/// Creates a new LOD group instance.
+	LodGroupId lod_group_create(UnitId unit, s32 level, LodFadeMode::Enum mode, const UnitId *mesh_units, const f32 *screen_sizes, u32 num_levels);
+
+	/// Destroys the @a lod_group.
+	void lod_group_destroy(LodGroupId lod_group);
+
 	/// Returns the local-space Oriented-Bounding-Box of the @a lod_group.
 	OBB lod_group_obb(LodGroupId lod_group);
 

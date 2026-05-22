@@ -455,9 +455,27 @@ public struct Unit
 				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
-			sb.append(LevelEditorApi.set_lod_group(unit_id
+			Gee.ArrayList<Guid?> lod_levels = new Gee.ArrayList<Guid?>();
+			lod_levels.add_all(db.get_set(component_id, "data.lod_levels", new Gee.HashSet<Guid?>()));
+			lod_levels.sort((a, b) => {
+					double screen_size_a = db.get_double(a, "data.screen_size");
+					double screen_size_b = db.get_double(b, "data.screen_size");
+					return screen_size_a > screen_size_b ? -1 : (screen_size_a < screen_size_b ? 1 : 0);
+				});
+
+			Guid[] mesh_renderer_ids = new Guid[lod_levels.size];
+			double[] screen_sizes = new double[lod_levels.size];
+			for (int i = 0; i < lod_levels.size; ++i) {
+				mesh_renderer_ids[i] = db.get_reference(lod_levels[i], "data.mesh_renderer");
+				screen_sizes[i] = db.get_double(lod_levels[i], "data.screen_size");
+			}
+
+			sb.append(LevelEditorApi.add_lod_group_component(unit_id
+				, component_id
 				, unit.get_component_double(component_id, "data.level", -1.0)
 				, unit.get_component_string(component_id, "data.fade_mode", "none")
+				, mesh_renderer_ids
+				, screen_sizes
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_FOG) {
 			sb.append(LevelEditorApi.add_fog_component(unit_id, component_id));
@@ -608,6 +626,16 @@ public struct Unit
 		sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 	}
 
+	public static bool generate_lod_group_subobject_commands(StringBuilder sb, Guid object_id, Database db)
+	{
+		Guid component_id = db.owner(object_id);
+		if (component_id == GUID_ZERO || db.object_type(component_id) != OBJECT_TYPE_LOD_GROUP)
+			return false;
+
+		generate_add_component_commands(sb, db.owner(component_id), component_id, db);
+		return true;
+	}
+
 	public static int generate_spawn_unit_commands(StringBuilder sb, Guid?[] object_ids, Database db)
 	{
 		int i;
@@ -625,7 +653,7 @@ public struct Unit
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);
 				generate_add_component_commands(sb, unit_id, component_id, db);
-			} else {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}
@@ -643,7 +671,7 @@ public struct Unit
 			} else if (is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
 				sb.append(LevelEditorApi.unit_destroy_component_type(db.owner(component_id), db.object_type(component_id)));
-			} else {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}
@@ -796,7 +824,7 @@ public struct Unit
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);
 				generate_set_component_commands(sb, unit_id, component_id, db);
-			} else {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}

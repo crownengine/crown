@@ -436,7 +436,7 @@ public class PropertyGrid : Gtk.Grid
 					label.valign = Gtk.Align.START;
 				}
 				continue;
-			default:
+				default:
 				assert(false);
 				break;
 			}
