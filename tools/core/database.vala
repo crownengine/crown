@@ -2160,7 +2160,7 @@ public void default_name_aspect(out string name, Database database, Guid id)
 	else if (database.find_property(ref name_index, object_type, PropertyType.STRING, "editor.name"))
 		name = database.get_string(id, properties[name_index].name);
 	else
-		name = OBJECT_NAME_UNNAMED;
+		name = "(%s)".printf(database.type_info(object_type).ui_name);
 }
 
 } /* namespace Crown */
