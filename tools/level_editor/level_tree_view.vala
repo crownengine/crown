@@ -314,8 +314,10 @@ public class LevelTreeView : Gtk.Box
 			Gtk.TreeViewColumn column;
 
 			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
-			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
+			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null)) {
+				_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				return; // Clicked on empty space.
+			}
 
 			if (column == _visibility_column || column == _lock_column) {
 				Gtk.TreeIter iter;
