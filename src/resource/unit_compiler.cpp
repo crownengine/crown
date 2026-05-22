@@ -266,7 +266,6 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	TempAllocator4096 ta;
 	JsonArray lod_levels(ta);
 	RETURN_IF_ERROR(sjson::parse_array(lod_levels, flat_json_object::get(obj, "data.lod_levels")));
-	RETURN_IF_FALSE(UNIT_COMPILER, array::size(lod_levels) > 0, opts, "LOD group must have at least one level");
 
 	DynamicString fade_mode_name(ta);
 	RETURN_IF_ERROR(sjson::parse_string(fade_mode_name, flat_json_object::get(obj, "data.fade_mode")));
@@ -280,6 +279,11 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	const s32 level = RETURN_IF_ERROR(sjson::parse_int(flat_json_object::get(obj, "data.level")));
 
 	Array<LodDesc> levels(default_allocator());
+
+	if (array::size(lod_levels) == 0) {
+		opts.warning(UNIT_COMPILER, "LOD Group has no levels: inserting an empty LOD level");
+		array::push_back(levels, { UINT32_MAX, 1.0f });
+	}
 
 	for (u32 i = 0; i < array::size(lod_levels); ++i) {
 		JsonObject level(ta);
