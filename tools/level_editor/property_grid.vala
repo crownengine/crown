@@ -5,6 +5,207 @@
 
 namespace Crown
 {
+class ObjectsSetEditor : Gtk.Box
+{
+	public PropertyGrid _grid;
+	public PropertyDefinition _definition;
+	public Guid _object_id;
+	public PropertyGrid? _editor_grid;
+	public bool _refreshing;
+	public Gtk.Button _add;
+	public Gtk.Label _read_only_note;
+	public Gtk.ListBox _list;
+	public Gtk.Box _editor;
+
+	public ObjectsSetEditor(PropertyGrid grid, PropertyDefinition definition)
+	{
+		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 6);
+
+		_grid = grid;
+		_definition = definition;
+		_object_id = GUID_ZERO;
+		_editor_grid = null;
+		_refreshing = false;
+
+		_add = new Gtk.Button.from_icon_name("list-add-symbolic");
+		_add.clicked.connect(on_add_clicked);
+
+		_read_only_note = new Gtk.Label("Inherited sub-objects are read-only here. Edit the unit in Unit Editor.");
+		_read_only_note.wrap = true;
+		_read_only_note.xalign = 0.0f;
+		_read_only_note.visible = false;
+		_read_only_note.get_style_context().add_class("dim-label");
+
+		_list = new Gtk.ListBox();
+		_list.selection_mode = Gtk.SelectionMode.SINGLE;
+		_list.row_selected.connect(on_row_selected);
+
+		_editor = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		this.pack_start(_add, false, false);
+		this.pack_start(_read_only_note, false, false);
+		this.pack_start(_list, false, true);
+		this.pack_start(_editor, false, true);
+
+		_grid._db.objects_created.connect((object_ids, flags) => { read(); });
+		_grid._db.objects_destroyed.connect((object_ids, flags) => { read(); });
+		_grid._db.objects_changed.connect((object_ids, flags) => { read(); });
+	}
+
+	public bool is_read_only()
+	{
+		return _grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT
+			&& _grid._component_id != GUID_ZERO
+			&& _grid._id != _grid._db.owner(_grid._component_id)
+			;
+	}
+
+	public string object_name(Guid id)
+	{
+		StringId64 object_type = StringId64(_grid._db.object_type(id));
+		Aspect? name_aspect = _grid._db.get_aspect(object_type, StringId64("name"));
+		if (name_aspect == null)
+			name_aspect = default_name_aspect;
+
+		string name;
+		name_aspect(out name, _grid._db, id);
+		return name;
+	}
+
+	public void on_add_clicked()
+	{
+		if (is_read_only())
+			return;
+
+		string object_type = _grid._db.type_name(_definition.object_type);
+		Guid object_id = Guid.new_guid();
+		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
+		_object_id = object_id;
+
+		_grid._db.create(object_id, object_type);
+		_grid._db.add_to_set(owner_id, _definition.name, object_id);
+		_grid._db.add_restore_point((int)ActionType.CREATE_OBJECTS, { object_id });
+	}
+
+	public void on_delete_clicked(Guid object_id)
+	{
+		if (is_read_only())
+			return;
+
+		if (Guid.equal_func(_object_id, object_id))
+			_object_id = GUID_ZERO;
+
+		_grid._db.destroy(object_id);
+		_grid._db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
+	}
+
+	public void on_row_selected(Gtk.ListBoxRow? row)
+	{
+		if (_refreshing)
+			return;
+
+		if (row == null) {
+			_object_id = GUID_ZERO;
+			_editor_grid = null;
+			_editor.foreach((widget) => {
+					widget.destroy();
+				});
+			return;
+		}
+
+		_object_id = Guid.parse(row.get_data<string>("id"));
+		if (_editor_grid == null || !Guid.equal_func(_editor_grid._id, _object_id)) {
+			_editor.foreach((widget) => {
+					widget.destroy();
+				});
+
+			Guid selection_anchor_id = _grid._selection_anchor_id != GUID_ZERO ? _grid._selection_anchor_id : _grid._id;
+			_editor_grid = new PropertyGrid.from_object(_object_id, _grid._db, _grid._database_editor, selection_anchor_id);
+			_editor.pack_start(_editor_grid, false, true);
+		}
+		_editor_grid.sensitive = !is_read_only();
+		_editor_grid.read_properties();
+		_editor.show_all();
+	}
+
+	public void read()
+	{
+		_refreshing = true;
+		_list.foreach((widget) => {
+				widget.destroy();
+			});
+
+		if (_grid._id == GUID_ZERO) {
+			_editor_grid = null;
+			_editor.foreach((widget) => {
+					widget.destroy();
+				});
+			_refreshing = false;
+			return;
+		}
+
+		bool read_only = is_read_only();
+		_add.sensitive = !read_only;
+		_read_only_note.visible = read_only;
+
+		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
+		Gee.HashSet<Guid?> children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		if (_grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT && _grid._component_id != GUID_ZERO) {
+			Unit unit = Unit(_grid._db, _grid._id);
+			children = (Gee.HashSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, children);
+		} else {
+			children = _grid._db.get_set(owner_id, _definition.name, children);
+		}
+
+		Gee.ArrayList<Guid?> items = new Gee.ArrayList<Guid?>();
+		foreach (Guid child_id in children) {
+			if (_grid._db.is_alive(child_id))
+				items.add(child_id);
+		}
+		items.sort((a, b) => {
+				return strcmp(object_name(a), object_name(b));
+			});
+
+		Gtk.ListBoxRow? row_to_select = null;
+		foreach (Guid child_id in items) {
+			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+			row.set_data("id", child_id.to_string());
+
+			Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+			Gtk.Label label = new Gtk.Label(object_name(child_id));
+			label.hexpand = true;
+			label.xalign = 0.0f;
+			box.pack_start(label, true, true);
+
+			Gtk.Button remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
+			remove.sensitive = !read_only;
+			remove.clicked.connect(() => {
+					on_delete_clicked(child_id);
+				});
+			box.pack_end(remove, false);
+
+			row.add(box);
+			_list.add(row);
+
+			if (Guid.equal_func(_object_id, child_id))
+				row_to_select = row;
+		}
+
+		_list.show_all();
+		_refreshing = false;
+		if (row_to_select != null) {
+			_list.select_row(row_to_select);
+			on_row_selected(row_to_select);
+		} else {
+			_object_id = GUID_ZERO;
+			_editor_grid = null;
+			_editor.foreach((widget) => {
+					widget.destroy();
+				});
+		}
+	}
+}
+
 public class PropertyGrid : Gtk.Grid
 {
 	GLib.ActionEntry[] actions =
@@ -24,10 +225,13 @@ public class PropertyGrid : Gtk.Grid
 	public double _order;
 	public bool _visible;
 	public int label_width_chars;
+	public DatabaseEditor? _database_editor;
+	public Guid _selection_anchor_id;
 
 	public Gee.HashMap<string, Gtk.GestureMultiPress> _gestures;
 	public Gee.HashMap<string, InputField> _widgets;
 	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
+	Gee.ArrayList<ObjectsSetEditor> _object_sets;
 
 	public void on_remove(GLib.SimpleAction action, GLib.Variant? param)
 	{
@@ -104,7 +308,7 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
-	public PropertyGrid(Database? db = null)
+	public PropertyGrid(Database? db = null, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
 	{
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
@@ -114,33 +318,36 @@ public class PropertyGrid : Gtk.Grid
 		// Data
 		_expander = null;
 		_db = db;
+		_database_editor = database_editor;
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
 		_order = 0.0;
 		_visible = true;
+		_selection_anchor_id = selection_anchor_id;
 
 		_gestures = new Gee.HashMap<string, Gtk.GestureMultiPress>();
 		_widgets = new Gee.HashMap<string, InputField>();
 		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
+		_object_sets = new Gee.ArrayList<ObjectsSetEditor>();
 
 		_action_group = new GLib.SimpleActionGroup();
 		_action_group.add_action_entries(actions, this);
 		this.insert_action_group("object", _action_group);
 	}
 
-	public PropertyGrid.from_object_type(StringId64 type, Database db)
+	public PropertyGrid.from_object_type(StringId64 type, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
 	{
-		this(db);
+		this(db, database_editor, selection_anchor_id);
 
 		_order = db.type_info(type).ui_order;
 		_type = type;
 		add_object_type(db.object_definition(type));
 	}
 
-	public PropertyGrid.from_object(Guid id, Database db)
+	public PropertyGrid.from_object(Guid id, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
 	{
-		this.from_object_type(StringId64(db.object_type(id)), db);
+		this.from_object_type(StringId64(db.object_type(id)), db, database_editor, selection_anchor_id);
 		_id = id;
 	}
 
@@ -218,6 +425,16 @@ public class PropertyGrid : Gtk.Grid
 				p = new InputObject(def.object_type, _db);
 				break;
 			case PropertyType.OBJECTS_SET:
+				if (_database_editor == null)
+					continue;
+				this.row_homogeneous = false;
+				ObjectsSetEditor set_editor = new ObjectsSetEditor(this, def);
+				_object_sets.add(set_editor);
+
+				if (!def.hidden) {
+					Gtk.Widget label = add_row(def.label, set_editor, def.tooltip);
+					label.valign = Gtk.Align.START;
+				}
 				continue;
 			default:
 				assert(false);
@@ -391,6 +608,9 @@ public class PropertyGrid : Gtk.Grid
 
 		if (undo_redo == 0)
 			_db.restore_undo(ur);
+
+		if (_database_editor != null && _selection_anchor_id != GUID_ZERO)
+			_database_editor.selection_set({ _selection_anchor_id });
 	}
 
 	public void read_all_properties()
@@ -463,6 +683,8 @@ public class PropertyGrid : Gtk.Grid
 		read_all_properties();
 		read_dynamic_properties_ranges();
 		read_all_properties();
+		foreach (ObjectsSetEditor editor in _object_sets)
+			editor.read();
 	}
 
 	public void read_dynamic_properties_ranges_except(PropertyDefinition[] excluded)

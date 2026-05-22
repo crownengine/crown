@@ -144,7 +144,7 @@ public class PropertiesView : Gtk.Box
 	{
 		PropertyGrid? grid = cv;
 		if (grid == null)
-			grid = new PropertyGrid.from_object_type(StringId64(object_type), _database);
+			grid = new PropertyGrid.from_object_type(StringId64(object_type), _database, _database_editor);
 
 		_object_view.add_property_grid(grid, camel_case(object_type));
 		_objects[object_type] = grid;
