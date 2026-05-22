@@ -422,6 +422,31 @@ namespace LevelEditorApi
 			);
 	}
 
+	public string add_lod_group_component(Guid id
+		, Guid component_id
+		, double level
+		, string mode
+		, Guid[] mesh_renderer_ids
+		, double[] screen_sizes
+		)
+	{
+		StringBuilder mesh_units = new StringBuilder();
+		for (int i = 0; i < mesh_renderer_ids.length; ++i)
+			mesh_units.append("\"%s\",".printf(mesh_renderer_ids[i].to_string()));
+
+		StringBuilder sizes = new StringBuilder();
+		for (int i = 0; i < screen_sizes.length; ++i)
+			sizes.append("%.17g,".printf(screen_sizes[i]));
+
+		return "LevelEditor:add_lod_group_component(\"%s\", \"%s\", %.17g, \"%s\", {%s}, {%s})".printf(id.to_string()
+			, component_id.to_string()
+			, level
+			, mode
+			, mesh_units.str
+			, sizes.str
+			);
+	}
+
 	public string add_fog_component(Guid id, Guid component_id)
 	{
 		return "LevelEditor:add_fog_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());

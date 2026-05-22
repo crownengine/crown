@@ -2559,6 +2559,48 @@ void load_api(LuaEnvironment &env)
 
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "lod_group_create", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			LUA_ASSERT(stack.is_table(5), stack, "Table expected");
+			LUA_ASSERT(stack.is_table(6), stack, "Table expected");
+
+			const char *name = stack.get_string(4);
+			const LodFadeMode::Enum mode = name_to_lod_fade_mode(name);
+			LUA_ASSERT(mode != LodFadeMode::COUNT, stack, "Unknown LOD fade mode: '%s'", name);
+
+			const u32 num_levels = (u32)lua_objlen(L, 5);
+			LUA_ASSERT(lua_objlen(L, 6) == num_levels, stack, "Mismatched LOD group array size");
+
+			TempAllocator4096 ta;
+			Array<UnitId> mesh_units(ta);
+			Array<f32> screen_sizes(ta);
+			array::resize(mesh_units, num_levels);
+			array::resize(screen_sizes, num_levels);
+
+			for (u32 i = 0; i < num_levels; ++i) {
+				lua_rawgeti(L, 5, i + 1);
+				mesh_units[i] = lua_toboolean(L, -1) ? stack.get_unit(-1) : UNIT_INVALID;
+				stack.pop(1);
+
+				lua_rawgeti(L, 6, i + 1);
+				screen_sizes[i] = stack.get_float(-1);
+				stack.pop(1);
+			}
+
+			stack.push_id(stack.get_render_world(1)->lod_group_create(stack.get_unit(2)
+				, stack.get_int(3)
+				, mode
+				, array::begin(mesh_units)
+				, array::begin(screen_sizes)
+				, num_levels
+				).i);
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "lod_group_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->lod_group_destroy(stack.get_lod_group_instance(2));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "lod_group_obb", [](lua_State *L) {
 			LuaStack stack(L, +2);
 			OBB obb = stack.get_render_world(1)->lod_group_obb(stack.get_lod_group_instance(2));

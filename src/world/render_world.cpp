@@ -15,6 +15,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/obb.inl"
 #include "core/math/sphere.inl"
+#include "core/memory/temp_allocator.inl"
 #include "core/strings/string_id.inl"
 #include "core/profiler.h"
 #include "device/log.h"
@@ -538,6 +539,44 @@ f32 RenderWorld::sprite_cast_ray(SpriteId sprite, const Vector3 &from, const Vec
 LodGroupId RenderWorld::lod_group_instance(UnitId unit)
 {
 	return _lod_group_manager.lod_group(unit);
+}
+
+LodGroupId RenderWorld::lod_group_create(UnitId unit, s32 level, LodFadeMode::Enum mode, const UnitId *mesh_units, const f32 *screen_sizes, u32 num_levels)
+{
+	CE_ASSERT(mode < LodFadeMode::COUNT, "Invalid LOD fade mode");
+
+	const u32 level_count = max(num_levels, 1u);
+
+	TempAllocator4096 ta;
+	Array<UnitId> unit_lookup(ta);
+	Array<char> data(ta);
+	array::resize(unit_lookup, level_count + 1);
+	array::resize(data, sizeof(LodGroupDesc) + level_count * sizeof(LodDesc));
+
+	unit_lookup[0] = unit;
+	const u32 unit_index = 0;
+
+	LodGroupDesc *desc = (LodGroupDesc *)array::begin(data);
+	desc->num_levels = level_count;
+	desc->fade_mode = mode;
+	desc->level = level;
+
+	LodDesc *levels = (LodDesc *)(desc + 1);
+	for (u32 i = 0; i < level_count; ++i) {
+		const bool has_mesh = i < num_levels && mesh_units[i] != UNIT_INVALID;
+		unit_lookup[i + 1] = has_mesh ? mesh_units[i] : UNIT_INVALID;
+		levels[i].unit_index = has_mesh ? i + 1 : UINT32_MAX;
+		levels[i].screen_size = i < num_levels ? screen_sizes[i] : 1.0f;
+	}
+
+	_lod_group_manager.create_instances(array::begin(data), 1, array::begin(unit_lookup), &unit_index);
+	return lod_group_instance(unit);
+}
+
+void RenderWorld::lod_group_destroy(LodGroupId lod_group)
+{
+	CE_ASSERT(lod_group.i < _lod_group_manager._data.size, "Index out of bounds");
+	_lod_group_manager.destroy(lod_group);
 }
 
 OBB RenderWorld::lod_group_obb(LodGroupId lod_group)

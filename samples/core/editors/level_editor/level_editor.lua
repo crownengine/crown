@@ -1839,6 +1839,33 @@ function LevelEditor:add_joint_component(id, component_id, joint_type, pose, oth
 	PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose)
 end
 
+function LevelEditor:add_lod_group_component(id, component_id, level, mode, mesh_renderer_ids, screen_sizes)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	local lod_group = RenderWorld.lod_group_instance(self._rw, unit_id)
+
+	local mesh_units = {}
+	for i = 1, #mesh_renderer_ids do
+		local mesh_renderer_id = mesh_renderer_ids[i]
+		if mesh_renderer_id ~= "00000000-0000-0000-0000-000000000000" then
+			local mesh_unit_box = self._objects[mesh_renderer_id]
+			if mesh_unit_box == nil then
+				return
+			end
+
+			mesh_units[i] = mesh_unit_box:unit_id()
+		else
+			mesh_units[i] = false
+		end
+	end
+
+	if lod_group ~= nil then
+		RenderWorld.lod_group_destroy(self._rw, lod_group)
+	end
+
+	RenderWorld.lod_group_create(self._rw, unit_id, level, mode, mesh_units, screen_sizes)
+end
+
 function LevelEditor:add_fog_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1917,7 +1944,8 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 		local inst = PhysicsWorld.joint_instance(self._pw, unit_id)
 		if inst then PhysicsWorld.joint_destroy(self._pw, inst) end
 	elseif component_type == "lod_group" then
-		-- Nothing to do.
+		local inst = RenderWorld.lod_group_instance(self._rw, unit_id)
+		if inst then RenderWorld.lod_group_destroy(self._rw, inst) end
 	elseif component_type == "animation_state_machine" then
 		-- Nothing to do.
 	else
