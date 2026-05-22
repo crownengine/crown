@@ -429,9 +429,11 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.OBJECTS_SET,
-			name = "data.lod_levels",
-			object_type = StringId64(OBJECT_TYPE_LOD_LEVEL),
+			type = PropertyType.DOUBLE,
+			name = "data.level",
+			min = -1.0,
+			deffault = -1.0,
+			tooltip = "Select the LOD level to render. Use -1 for automatic selection.",
 		},
 		PropertyDefinition()
 		{
@@ -443,11 +445,9 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
-			type = PropertyType.DOUBLE,
-			name = "data.level",
-			min = -1.0,
-			deffault = -1.0,
-			tooltip = "Manual LOD level to render. Use -1 for automatic selection.",
+			type = PropertyType.OBJECTS_SET,
+			name = "data.lod_levels",
+			object_type = StringId64(OBJECT_TYPE_LOD_LEVEL),
 		},
 		PropertyDefinition()
 		{
