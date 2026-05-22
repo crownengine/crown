@@ -405,7 +405,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_MESH_RENDERER),
+			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.mesh_renderer",
 			deffault = GUID_ZERO,
 			tooltip = "Mesh to render at this LOD level.",

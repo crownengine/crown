@@ -288,25 +288,29 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 		JsonObject level_data(ta);
 		RETURN_IF_ERROR(sjson::parse_object(level_data, level["data"]));
 
-		const Guid mesh_renderer_id = RETURN_IF_ERROR(sjson::parse_guid(level_data["mesh_renderer"]));
+		const Guid mesh_renderer_unit_id = RETURN_IF_ERROR(sjson::parse_guid(level_data["mesh_renderer"]));
 
 		LodDesc desc;
 		desc.unit_index   = UINT32_MAX;
 		desc.screen_size  = RETURN_IF_ERROR(sjson::parse_float(level_data["screen_size"]));
 
-		if (mesh_renderer_id != GUID_ZERO) {
+		if (mesh_renderer_unit_id != GUID_ZERO) {
 			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
-			const ComponentKey key = { mesh_renderer_id, root_unit_index };
-			const StringId32 mesh_renderer_type = hash_map::get(compiler._component_type, key, StringId32());
-			RETURN_IF_FALSE(UNIT_COMPILER, mesh_renderer_type == STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))
-				, opts
-				, "LOD level references a non-mesh-renderer component"
-				);
-
-			desc.unit_index = hash_map::get(compiler._component_unit_index, key, UINT32_MAX);
+			desc.unit_index = unit_compiler::find_unit_index(compiler, mesh_renderer_unit_id, root_unit_index);
 			RETURN_IF_FALSE(UNIT_COMPILER, desc.unit_index != UINT32_MAX
 				, opts
-				, "LOD level references a mesh renderer outside this unit resource"
+				, "LOD level references a unit outside this unit resource"
+				);
+
+			Unit *mesh_renderer_unit = unit_compiler::find_unit(compiler, desc.unit_index);
+			bool has_mesh_renderer = false;
+			RETURN_IF_ERROR(unit_compiler::unit_has_component_type(has_mesh_renderer
+				, mesh_renderer_unit
+				, STRING_ID_32("mesh_renderer", UINT32_C(0xdf017893))
+				));
+			RETURN_IF_FALSE(UNIT_COMPILER, has_mesh_renderer
+				, opts
+				, "LOD level references a unit without a mesh renderer component"
 				);
 		}
 
