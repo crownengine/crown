@@ -23,6 +23,15 @@
 
 namespace crown
 {
+struct DependencyFlags
+{
+	enum Enum : u32
+	{
+		OPTIONAL = u32(1) << 0,
+		EXISTS   = u32(1) << 1
+	};
+};
+
 struct CompileOptions
 {
 	File &_output;
@@ -93,6 +102,10 @@ struct CompileOptions
 	/// Reads the data at @a path and returns it.
 	/// It also registers @a path as a dependency.
 	Buffer read(const char *path);
+
+	/// Reads the data at @a path, if it exists, and returns it.
+	/// It also registers @a path as an optional dependency.
+	Buffer read_optional(const char *path);
 
 	/// Reads the source data and returns it.
 	/// It also registers the source path as a dependency.
