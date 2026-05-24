@@ -478,7 +478,7 @@ namespace mesh
 		DynamicString importer_settings(ta);
 		importer_settings.set(opts.source_path(), u32(strrchr(opts.source_path(), '.') - opts.source_path()));
 		importer_settings += ".importer_settings";
-		Buffer settings_buf = opts.read(importer_settings.c_str());
+		Buffer settings_buf = opts.read_optional(importer_settings.c_str());
 		JsonObject settings(ta);
 		RETURN_IF_ERROR(sjson::parse(settings, settings_buf));
 

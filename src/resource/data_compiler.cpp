@@ -42,6 +42,7 @@
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
+	#undef OPTIONAL // DependencyFlags::OPTIONAL
 #else
 	#include <signal.h>
 #endif
@@ -380,24 +381,24 @@ static void read_data_mtimes(HashMap<StringId64, u64> &mtimes
 	parse_data_mtimes(mtimes, data_index, json);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const DynamicString &dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const DynamicString &dependency, u32 flags)
 {
 	HashMap<DynamicString, u32> deps_deffault(default_allocator());
 	HashMap<DynamicString, u32> &deps = hash_map::get(dependencies, id, deps_deffault);
 
-	hash_map::set(deps, dependency, 0u);
+	hash_map::set(deps, dependency, flags);
 
 	if (&deps == &deps_deffault)
 		hash_map::set(dependencies, id, deps);
 }
 
-static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const char *dependency)
+static void add_dependency_internal(HashMap<StringId64, HashMap<DynamicString, u32>> &dependencies, ResourceId id, const char *dependency, u32 flags = 0)
 {
 	TempAllocator512 ta;
 	DynamicString dependency_str(ta);
 	dependency_str = dependency;
 
-	add_dependency_internal(dependencies, id, dependency_str);
+	add_dependency_internal(dependencies, id, dependency_str, flags);
 }
 
 static void read_data_dependencies(DataCompiler &dc
@@ -437,6 +438,15 @@ static void read_data_dependencies(DataCompiler &dc
 				add_dependency_internal(dc._data_requirements, id, path.c_str() + 4);
 			} else if (path.has_prefix("//- ")) {
 				add_dependency_internal(dc._data_dependencies, id, path.c_str() + 4);
+			} else if (path.has_prefix("//? ")) {
+				const char *dependency = path.c_str() + 4;
+				u32 flags = DependencyFlags::OPTIONAL;
+				if ((dependency[0] == '0' || dependency[0] == '1') && dependency[1] == ' ') {
+					if (dependency[0] == '1')
+						flags |= DependencyFlags::EXISTS;
+					dependency += 2;
+				}
+				add_dependency_internal(dc._data_dependencies, id, dependency, flags);
 			} else { // Assume regular dependency
 				add_dependency_internal(dc._data_dependencies, id, path.c_str());
 			}
@@ -571,7 +581,10 @@ static s32 write_data_dependencies(FilesystemDisk &data_fs, const char *filename
 			for (; deps_cur != deps_end; ++deps_cur) {
 				HASH_MAP_SKIP_HOLE(deps, deps_cur);
 
-				ss << "    \"//- " << deps_cur->first.c_str() << "\"\n";
+				if (deps_cur->second & DependencyFlags::OPTIONAL)
+					ss << "    \"//? " << ((deps_cur->second & DependencyFlags::EXISTS) ? '1' : '0') << " " << deps_cur->first.c_str() << "\"\n";
+				else
+					ss << "    \"//- " << deps_cur->first.c_str() << "\"\n";
 			}
 
 			// Write all requirements
@@ -849,14 +862,24 @@ void DataCompiler::scan_and_restore(const char *data_dir)
 		default_allocator().deallocate((void *)directories[n - 1 - i]);
 }
 
-bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, u64 dst_mtime)
+bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, u64 dst_mtime, u32 flags)
 {
 	Stat st;
 	st.file_type = Stat::FileType::NO_ENTRY;
 	st.size = 0;
 	st.mtime = 0;
 	st = hash_map::get(_source_index._paths, path, st);
-	if (st.file_type == Stat::FileType::NO_ENTRY || st.mtime > dst_mtime)
+	if (flags & DependencyFlags::OPTIONAL) {
+		const bool exists = st.file_type != Stat::FileType::NO_ENTRY;
+		const bool existed = (flags &DependencyFlags::EXISTS) != 0;
+		if (exists != existed)
+			return true;
+		if (!exists)
+			return false;
+	} else if (st.file_type == Stat::FileType::NO_ENTRY) {
+		return true;
+	}
+	if (st.mtime > dst_mtime)
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
@@ -869,7 +892,7 @@ bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, 
 		if (path == cur->first)
 			continue;
 
-		if (dependency_changed(cur->first, resource_id(cur->first.c_str()), dst_mtime))
+		if (dependency_changed(cur->first, resource_id(cur->first.c_str()), dst_mtime, cur->second))
 			return true;
 	}
 

@@ -170,6 +170,31 @@ Buffer CompileOptions::read(const char *path)
 	return buf;
 }
 
+Buffer CompileOptions::read_optional(const char *path)
+{
+	TempAllocator256 ta;
+	DynamicString source_dir(ta);
+	_data_compiler.source_dir(path, source_dir);
+
+	FilesystemDisk source_filesystem(ta);
+	source_filesystem.set_prefix(source_dir.c_str());
+
+	Buffer buf(default_allocator());
+	File *file = source_filesystem.open(path, FileOpenMode::READ);
+
+	DynamicString path_str(ta);
+	path_str = path;
+	hash_map::set(_new_dependencies
+		, path_str
+		, DependencyFlags::OPTIONAL | (file->is_open() ? u32(DependencyFlags::EXISTS) : 0u)
+		);
+
+	if (file->is_open())
+		file->read_all(buf);
+	source_filesystem.close(*file);
+	return buf;
+}
+
 Buffer CompileOptions::read()
 {
 	return read(_source_path.c_str());

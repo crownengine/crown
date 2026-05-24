@@ -125,7 +125,7 @@ struct DataCompiler
 
 	/// Returns whether any dependency of @a path, including itself, has changed
 	/// since last call to compile().
-	bool dependency_changed(const DynamicString &path, ResourceId id, u64 mtime);
+	bool dependency_changed(const DynamicString &path, ResourceId id, u64 mtime, u32 flags = 0);
 
 	/// Returns whether the data version for @a path or any of its dependencies
 	/// has changed since last call to compile().
