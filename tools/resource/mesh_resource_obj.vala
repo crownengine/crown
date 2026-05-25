@@ -186,6 +186,7 @@ public class OBJImportOptions
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
 	public InputBool create_colliders;
+	public InputBool import_lods;
 	public InputEnum tangents;
 
 	public OBJImportOptions()
@@ -202,6 +203,8 @@ public class OBJImportOptions
 		create_materials_folder.value = true;
 		create_colliders = new InputBool();
 		create_colliders.value = false;
+		import_lods = new InputBool();
+		import_lods.value = true;
 		tangents = new InputEnum("calculate"
 			, new string[] { "Calculate", "Import" }
 			, new string[] { "calculate", "import" }
@@ -231,6 +234,8 @@ public class OBJImportOptions
 					create_materials_folder.value = (bool)g.value;
 				else if (g.key == "create_colliders")
 					create_colliders.value = (bool)g.value;
+				else if (g.key == "import_lods")
+					import_lods.value = (bool)g.value;
 				else if (g.key == "tangents")
 					tangents.value = (string)g.value;
 				else
@@ -252,6 +257,7 @@ public class OBJImportOptions
 		obj.set("import_materials", import_materials.value);
 		obj.set("create_materials_folder", import_materials.value ? create_materials_folder.value : false);
 		obj.set("create_colliders", create_colliders.value ? create_colliders.value : false);
+		obj.set("import_lods", import_lods.value);
 		obj.set("tangents", tangents.value);
 
 		return obj;
@@ -307,6 +313,7 @@ public class OBJImportDialog : Gtk.Window
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
 		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
+		cv.add_row("Import LODs", _options.import_lods, "Create LOD Group component in the root unit if any LOD exists.");
 		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
 		_general_set.add_property_grid(cv, "Units");
 
@@ -480,6 +487,7 @@ public class OBJImporter
 			? db.get_set(unit_id, "children")
 			: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
 			;
+		Gee.ArrayList<Guid?> child_unit_ids = new Gee.ArrayList<Guid?>();
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
 			unowned ufbx.Node child_node = node.children.data[i];
@@ -517,6 +525,7 @@ public class OBJImporter
 			if (child_unit_id == GUID_ZERO)
 				child_unit_id = Guid.new_guid();
 			matched_children.add(child_unit_id);
+			child_unit_ids.add(child_unit_id);
 
 			unit_create_components(options
 				, db
@@ -527,6 +536,60 @@ public class OBJImporter
 				, child_node
 				, imported_materials
 				);
+		}
+
+		if (options.import_lods.value) {
+			// Build one LOD group from sibling meshes named *_LOD0, *_LOD1, ...
+			for (int i = 0; i < child_unit_ids.size; ++i) {
+				unowned ufbx.Node child_node = node.children.data[i];
+				if (child_node.name.data.length == 0)
+					continue;
+
+				string name = (string)child_node.name.data;
+				if (!name.down().has_suffix("_lod0"))
+					continue;
+
+				Guid component_id;
+				if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+					component_id = Guid.new_guid();
+					db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+					db.add_to_set(unit_id, "components", component_id);
+				}
+
+				unit.set_component_string(component_id, "data.fade_mode", "none");
+				unit.set_component_double(component_id, "data.level", -1.0);
+				db.create_empty_set(component_id, "data.lod_levels");
+
+				double screen_size = 1.0;
+				string base_name = name.substring(0, name.length - 5);
+				// Add levels by suffix until the next LOD mesh is missing.
+				for (int lod_i = 0; ; ++lod_i) {
+					Guid lod_unit_id = GUID_ZERO;
+					string lod_name = (base_name + "_lod" + lod_i.to_string()).down();
+					for (int ci = 0; ci < child_unit_ids.size; ++ci) {
+						unowned ufbx.Node n = node.children.data[ci];
+						if (n.name.data.length == 0)
+							continue;
+
+						string child_name = (string)n.name.data;
+						if (child_name.down() != lod_name)
+							continue;
+
+						lod_unit_id = child_unit_ids[ci];
+						break;
+					}
+					if (lod_unit_id == GUID_ZERO)
+						break;
+
+					Guid level_id = Guid.new_guid();
+					db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+					db.set_reference(level_id, "data.mesh_renderer", lod_unit_id);
+					db.set_double(level_id, "data.screen_size", screen_size);
+					db.add_to_set(component_id, "data.lod_levels", level_id);
+					screen_size *= 0.5;
+				}
+				return;
+			}
 		}
 	}
 

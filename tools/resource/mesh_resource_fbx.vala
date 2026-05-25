@@ -117,6 +117,7 @@ public class FBXImportOptions
 	public InputBool import_materials;
 	public InputBool create_materials_folder;
 	public InputBool create_colliders;
+	public InputBool import_lods;
 	public InputEnum tangents;
 
 	public InputBool import_animation;
@@ -146,6 +147,8 @@ public class FBXImportOptions
 		create_materials_folder.value = true;
 		create_colliders = new InputBool();
 		create_colliders.value = false;
+		import_lods = new InputBool();
+		import_lods.value = true;
 		tangents = new InputEnum("calculate"
 			, new string[] { "Calculate", "Import" }
 			, new string[] { "calculate", "import" }
@@ -174,6 +177,7 @@ public class FBXImportOptions
 		import_materials.sensitive = import_units.value;
 		create_materials_folder.sensitive = import_units.value;
 		create_colliders.sensitive = import_units.value;
+		import_lods.sensitive = import_units.value;
 	}
 
 	public void on_import_textures_changed()
@@ -220,6 +224,8 @@ public class FBXImportOptions
 					create_materials_folder.value = (bool)g.value;
 				else if (g.key == "create_colliders")
 					create_colliders.value = (bool)g.value;
+				else if (g.key == "import_lods")
+					import_lods.value = (bool)g.value;
 				else if (g.key == "tangents")
 					tangents.value = (string)g.value;
 				else if (g.key == "new_skeleton")
@@ -240,6 +246,7 @@ public class FBXImportOptions
 			|| import_cameras.value
 			|| import_textures.value
 			|| import_materials.value
+			|| import_lods.value
 			;
 		import_units.value_changed(import_animation);
 
@@ -263,6 +270,7 @@ public class FBXImportOptions
 		obj.set("import_materials", skip_units ? false : import_materials.value);
 		obj.set("create_materials_folder", skip_units ? false : create_materials_folder.value);
 		obj.set("create_colliders", skip_units ? false : create_colliders.value);
+		obj.set("import_lods", skip_units ? false : import_lods.value);
 		obj.set("tangents", tangents.value);
 		obj.set("new_skeleton", skip_anims ? false : new_skeleton.value);
 		obj.set("target_skeleton", (skip_anims || target_skeleton.value == null) ? "" : target_skeleton.value);
@@ -324,6 +332,7 @@ public class FBXImportDialog : Gtk.Window
 		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
 		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
 		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
+		cv.add_row("Import LODs", _options.import_lods, "Create LOD Group component in the root unit if any LOD exists.");
 		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
 		_general_set.add_property_grid_optional(cv, "Units", _options.import_units, "Import nodes as units, materials and textures.");
 
@@ -520,6 +529,7 @@ public class FBXImporter
 		, Guid unit_id
 		, string resource_name
 		, string import_path
+		, ufbx.Scene scene
 		, ufbx.Node node
 		, Gee.HashMap<unowned ufbx.Material, string> imported_materials
 		)
@@ -679,6 +689,7 @@ public class FBXImporter
 			? db.get_set(unit_id, "children")
 			: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
 			;
+		Gee.ArrayList<Guid?> child_unit_ids = new Gee.ArrayList<Guid?>();
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
 			unowned ufbx.Node child_node = node.children.data[i];
@@ -716,6 +727,7 @@ public class FBXImporter
 			if (child_unit_id == GUID_ZERO)
 				child_unit_id = Guid.new_guid();
 			matched_children.add(child_unit_id);
+			child_unit_ids.add(child_unit_id);
 
 			unit_create_components(options
 				, db
@@ -723,9 +735,102 @@ public class FBXImporter
 				, child_unit_id
 				, resource_name
 				, child_import_path
+				, scene
 				, child_node
 				, imported_materials
 				);
+		}
+
+		if (options.import_lods.value) {
+			// Use LOD groups authored in the FBX file.
+			for (size_t gi = 0; gi < scene.lod_groups.data.length; ++gi) {
+				unowned ufbx.LodGroup lod_group = scene.lod_groups.data[gi];
+				for (size_t ii = 0; ii < lod_group.instances.data.length; ++ii) {
+					if (lod_group.instances.data[ii] != node)
+						continue;
+
+					Guid component_id;
+					if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+						component_id = Guid.new_guid();
+						db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+						db.add_to_set(unit_id, "components", component_id);
+					}
+
+					unit.set_component_string(component_id, "data.fade_mode", "none");
+					unit.set_component_double(component_id, "data.level", -1.0);
+					db.create_empty_set(component_id, "data.lod_levels");
+
+					// Add levels in source order, using FBX distances when available.
+					for (size_t li = 0; li < lod_group.lod_levels.data.length && (int)li < child_unit_ids.size; ++li) {
+						double screen_size = lod_group.relative_distances
+							? (double)lod_group.lod_levels.data[li].distance / 100.0
+							: 1.0 / (1 << (int)li)
+							;
+
+						Guid level_id = Guid.new_guid();
+						db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+						db.set_reference(level_id, "data.mesh_renderer", child_unit_ids[(int)li]);
+						db.set_double(level_id, "data.screen_size", screen_size);
+						db.add_to_set(component_id, "data.lod_levels", level_id);
+					}
+					return;
+				}
+			}
+
+			if (scene.lod_groups.data.length > 0)
+				return;
+
+			// Fall back to sibling meshes named *_LOD0, *_LOD1, ...
+			for (int i = 0; i < child_unit_ids.size; ++i) {
+				unowned ufbx.Node child_node = node.children.data[i];
+				if (child_node.name.data.length == 0)
+					continue;
+
+				string name = (string)child_node.name.data;
+				if (!name.down().has_suffix("_lod0"))
+					continue;
+
+				Guid component_id;
+				if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+					component_id = Guid.new_guid();
+					db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+					db.add_to_set(unit_id, "components", component_id);
+				}
+
+				unit.set_component_string(component_id, "data.fade_mode", "none");
+				unit.set_component_double(component_id, "data.level", -1.0);
+				db.create_empty_set(component_id, "data.lod_levels");
+
+				double screen_size = 1.0;
+				string base_name = name.substring(0, name.length - 5);
+				// Add levels by suffix until the next LOD mesh is missing.
+				for (int lod_i = 0; ; ++lod_i) {
+					Guid lod_unit_id = GUID_ZERO;
+					string lod_name = (base_name + "_lod" + lod_i.to_string()).down();
+					for (int ci = 0; ci < child_unit_ids.size; ++ci) {
+						unowned ufbx.Node n = node.children.data[ci];
+						if (n.name.data.length == 0)
+							continue;
+
+						string child_name = (string)n.name.data;
+						if (child_name.down() != lod_name)
+							continue;
+
+						lod_unit_id = child_unit_ids[ci];
+						break;
+					}
+					if (lod_unit_id == GUID_ZERO)
+						break;
+
+					Guid level_id = Guid.new_guid();
+					db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+					db.set_reference(level_id, "data.mesh_renderer", lod_unit_id);
+					db.set_double(level_id, "data.screen_size", screen_size);
+					db.add_to_set(component_id, "data.lod_levels", level_id);
+					screen_size *= 0.5;
+				}
+				return;
+			}
 		}
 	}
 
@@ -1146,6 +1251,7 @@ public class FBXImporter
 					, unit_id
 					, resource_name
 					, "root"
+					, scene
 					, scene.root_node
 					, imported_materials
 					);
