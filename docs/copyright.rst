@@ -2,6 +2,8 @@
 License
 =======
 
+.. _license_crown_runtime:
+
 Crown Runtime
 =============
 
@@ -31,6 +33,8 @@ The Crown Runtime is released under the MIT License:
 	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 	OTHER DEALINGS IN THE SOFTWARE.
+
+.. _license_crown_tools:
 
 Crown Tools
 ===========
@@ -713,6 +717,8 @@ The Crown Tools are released under the GPL-3.0-or-later license:
 	the library.  If this is what you want to do, use the GNU Lesser General
 	Public License instead of this License.  But first, please read
 	<https://www.gnu.org/licenses/why-not-lgpl.html>.
+
+.. _license_crown_manual:
 
 Crown Manual
 ============
