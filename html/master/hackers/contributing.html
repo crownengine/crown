@@ -5,26 +5,26 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-25T20:29:39+00:00" /><meta property="og:title" content="Engine Hackers" />
+    <meta property="article:modified_time" content="2026-05-25T20:29:39+00:00" /><meta property="og:title" content="Contributing" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/index.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/contributing.html" />
 <meta property="og:site_name" content="Crown 0.63.0 Manual" />
-<meta property="og:description" content="This section of the manual is intended for those who want to understand the low-level engine structure in order to modify/extend it. Contributing- Legal Requirements, Submitting Patches., Building- Getting Source, Prerequisites, Build., Console API- TCP protocol, JSON messages..." />
+<meta property="og:description" content="Everyone is welcome to contribute to Crown. You can help by submitting patches, testing features, promoting the project online, sponsoring it, and more. Legal Requirements: Crown is distributed under different licenses for different parts of the project: Runtime, Tools, Manual..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.63.0 Manual" />
-<meta name="description" content="This section of the manual is intended for those who want to understand the low-level engine structure in order to modify/extend it. Contributing- Legal Requirements, Submitting Patches., Building- Getting Source, Prerequisites, Build., Console API- TCP protocol, JSON messages..." />
+<meta name="description" content="Everyone is welcome to contribute to Crown. You can help by submitting patches, testing features, promoting the project online, sponsoring it, and more. Legal Requirements: Crown is distributed under different licenses for different parts of the project: Runtime, Tools, Manual..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Engine Hackers &mdash; Crown 0.63.0 Manual</title>
+  <title>Contributing &mdash; Crown 0.63.0 Manual</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
 
   
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/hackers/index.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/hackers/contributing.html" />
       <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
       <script src="../_static/jquery.js"></script>
       <script src="../_static/underscore.js"></script>
@@ -33,8 +33,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Contributing" href="contributing.html" />
-    <link rel="prev" title="License" href="../copyright.html" /> 
+    <link rel="next" title="Building" href="building.html" />
+    <link rel="prev" title="Engine Hackers" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -73,8 +73,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Engine Hackers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Engine Hackers</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#legal-requirements">Legal Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submitting-patches">Submitting Patches</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
 <li class="toctree-l2"><a class="reference internal" href="console_api.html">Console API</a></li>
 </ul>
@@ -95,9 +99,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Engine Hackers</li>
+          <li class="breadcrumb-item"><a href="index.html">Engine Hackers</a></li>
+      <li class="breadcrumb-item active">Contributing</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/hackers/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/hackers/contributing.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -105,39 +110,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="engine-hackers">
-<h1>Engine Hackers<a class="headerlink" href="#engine-hackers" title="Permalink to this headline">¶</a></h1>
-<p>This section of the manual is intended for those who want to understand
-the low-level engine structure in order to modify/extend it.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html#legal-requirements">Legal Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html#submitting-patches">Submitting Patches</a></li>
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>Everyone is welcome to contribute to Crown. You can help by submitting patches,
+testing features, promoting the project online, sponsoring it, and more.</p>
+<section id="legal-requirements">
+<h2>Legal Requirements<a class="headerlink" href="#legal-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Crown is distributed under different licenses for different parts of the
+project:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../copyright.html#license-crown-runtime"><span class="std std-ref">Runtime</span></a></p></li>
+<li><p><a class="reference internal" href="../copyright.html#license-crown-tools"><span class="std std-ref">Tools</span></a></p></li>
+<li><p><a class="reference internal" href="../copyright.html#license-crown-manual"><span class="std std-ref">Manual</span></a></p></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="building.html">Building</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="building.html#getting-source">Getting Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="building.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="building.html#build">Build</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="console_api.html">Console API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#tcp-protocol">TCP protocol</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#json-messages">JSON messages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="console_api.html#execute-lua-scripts">Execute Lua scripts</a></li>
-</ul>
-</li>
-</ul>
-</div>
+<p>By submitting a contribution, you state that you have the right to do so and
+that the work does not infringe any copyright or violate any license. If
+accepted, it will be distributed under the terms that apply to the part of Crown
+it modifies.</p>
+</section>
+<section id="submitting-patches">
+<h2>Submitting Patches<a class="headerlink" href="#submitting-patches" title="Permalink to this headline">¶</a></h2>
+<p>For trivial patches, just send a pull request on GitHub. For more complex
+changes, it is better to discuss the idea beforehand by joining our Discord
+server or opening an issue on GitHub.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../copyright.html" class="btn btn-neutral float-left" title="License" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Engine Hackers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="building.html" class="btn btn-neutral float-right" title="Building" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
