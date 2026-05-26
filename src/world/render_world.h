@@ -58,7 +58,7 @@ struct CullingSet
 struct LodLevelData
 {
 	f32 screen_size; ///< Screen-height threshold in [0, 1].
-	u32 mesh_index;  ///< Index into MeshManager for this level.
+	MeshId mesh;     ///< Mesh instance for this level.
 };
 
 struct LodGroupEntry
@@ -405,7 +405,23 @@ struct RenderWorld
 
 		Allocator *_allocator;
 		RenderWorld *_render_world;
-		HashMap<UnitId, u32> _map;
+		struct Index
+		{
+			MeshId id;
+			u32 index;
+			u32 next;
+		};
+
+		enum
+		{
+			MAX_MESHES      = 1 << 20,
+			MESH_INDEX_MASK = MAX_MESHES - 1,
+			MESH_ID_ADD     = MAX_MESHES
+		};
+
+		HashMap<UnitId, MeshId> _map;
+		Array<Index> _indices;
+		u32 _free_list;
 		MeshInstanceData _data;
 		bool _dirty;
 
@@ -414,6 +430,8 @@ struct RenderWorld
 			: _allocator(&a)
 			, _render_world(rw)
 			, _map(a)
+			, _indices(a)
+			, _free_list(UINT32_MAX)
 			, _dirty(true)
 		{
 			memset(&_data, 0, sizeof(_data));
@@ -439,7 +457,7 @@ struct RenderWorld
 		bool has(UnitId unit);
 
 		///
-		void set_geometry(MeshId mesh, const MeshResource *mr, StringId32 geometry);
+		void set_geometry(u32 mesh_i, const MeshResource *mr, StringId32 geometry);
 
 		///
 		MeshId mesh(UnitId unit);
@@ -451,16 +469,18 @@ struct RenderWorld
 		void swap(u32 inst_a, u32 inst_b);
 
 		///
+		MeshId alloc_id(u32 index);
+
+		///
+		u32 index(MeshId mesh);
+
+		///
 		void set_instance_data(u32 ii, SceneGraph &scene_graph);
 
 		///
 		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
 
 		///
-		MeshId make_instance(u32 i)
-		{
-			MeshId inst = { i }; return inst;
-		}
 	};
 
 	/// List of meshes to be rendered.
@@ -560,9 +580,9 @@ struct RenderWorld
 			Sphere *sphere;
 			u32 *current_level;
 			u32 *previous_level;
-			u32 *previous_mesh;
+			MeshId *previous_mesh;
 			f32 *fade_time;
-			u32 *selected_mesh;
+			MeshId *selected_mesh;
 		};
 
 		Allocator *_allocator;
