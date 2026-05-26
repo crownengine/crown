@@ -1679,6 +1679,8 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				break;
 
 			const u32 mesh_i = _mesh_manager.index(mesh_to_draw);
+			if ((_mesh_manager._data.flags[mesh_i] & RenderableFlags::VISIBLE) == 0)
+				break;
 
 			draw_mesh(_mesh_manager
 				, mesh_i
@@ -1751,6 +1753,8 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				break;
 
 			const u32 mesh_i = _mesh_manager.index(mesh_to_draw);
+			if ((_mesh_manager._data.flags[mesh_i] & RenderableFlags::VISIBLE) == 0)
+				break;
 
 			u2f.u = unit_id._idx;
 			Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
