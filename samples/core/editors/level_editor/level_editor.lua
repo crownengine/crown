@@ -672,6 +672,8 @@ function PlaceTool:mouse_up(x, y)
 		return
 	end
 
+	self:destroy_placeable()
+
 	local level_object = nil
 	if self._placeable_type == "unit" then
 		local guid = Device.guid()
