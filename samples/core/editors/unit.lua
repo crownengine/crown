@@ -35,13 +35,7 @@ function UnitUtils.freeze(world, unit_id)
 end
 
 function UnitUtils.destroy_tree(world, unit_id)
-	local scene_graph = World.scene_graph(world)
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
-
-	for _, child_id in ipairs(children) do
-		World.destroy_unit(world, child_id)
-	end
+	World.destroy_unit(world, unit_id)
 end
 
 UnitBox = class(UnitBox)
