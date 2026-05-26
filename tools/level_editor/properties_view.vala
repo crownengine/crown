@@ -181,6 +181,8 @@ public class PropertiesView : Gtk.Box
 				cv._expander.expanded = was_expanded;
 			} else {
 				cv._visible = false;
+				cv._id = GUID_ZERO;
+				cv._component_id = GUID_ZERO;
 			}
 		}
 
@@ -210,6 +212,8 @@ public class PropertiesView : Gtk.Box
 				cv._expander.expanded = was_expanded;
 			} else {
 				cv._visible = false;
+				cv._id = GUID_ZERO;
+				cv._component_id = GUID_ZERO;
 			}
 		}
 
