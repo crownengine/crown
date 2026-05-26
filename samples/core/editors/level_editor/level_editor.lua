@@ -1612,11 +1612,11 @@ function LevelEditor:multiple_selection_enabled()
 end
 
 function LevelEditor:snap_to_grid_enabled()
-	return self._snap_to_grid and not self._keyboard.ctrl
+	return self._snap_to_grid ~= self._keyboard.ctrl
 end
 
 function LevelEditor:rotation_snap_enabled()
-	return self._snap_to_grid and not self._keyboard.ctrl
+	return self._snap_to_grid ~= self._keyboard.ctrl
 end
 
 function LevelEditor:enable_show_grid(enabled)
