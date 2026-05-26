@@ -108,14 +108,19 @@ function UnitBox:set_hidden(hidden)
 		self:on_selected(false)
 	end
 
-	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
-	if mesh then
-		RenderWorld.mesh_set_visible(self._rw, mesh, self._mesh_visible and not self._hidden)
-	end
+	local children = {}
+	UnitUtils.collect_children(self._sg, self._unit_id, children)
 
-	local sprite = RenderWorld.sprite_instance(self._rw, self._unit_id)
-	if sprite then
-		RenderWorld.sprite_set_visible(self._rw, sprite, self._sprite_visible and not self._hidden)
+	for _, child_id in ipairs(children) do
+		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
+		if mesh then
+			RenderWorld.mesh_set_visible(self._rw, mesh, not self._hidden)
+		end
+
+		local sprite = RenderWorld.sprite_instance(self._rw, child_id)
+		if sprite then
+			RenderWorld.sprite_set_visible(self._rw, sprite, not self._hidden)
+		end
 	end
 end
 
