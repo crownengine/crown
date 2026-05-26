@@ -191,9 +191,9 @@ toolbar:
 
    The Snap To Grid control in the toolbar.
 
-With snapping enabled, movement and rotation will snap to the configured grid
-size and snap angle. Hold ``Left Ctrl`` while performing a transform to
-temporarily disable snapping and make a single free adjustment.
+Movement and rotation snap to the configured grid size and snap angle whenever
+snapping is active. Hold ``Left Ctrl`` while performing a transform to
+temporarily invert snapping.
 
 Change the grid cell size or the snap angle with ``Ctrl+G`` and ``Ctrl+H``
 respectively. These shortcuts open dialogs where you can type exact numeric

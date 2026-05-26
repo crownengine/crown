@@ -22,6 +22,7 @@ Changelog
 * Tools: added an option to calculate mesh tangents when importing scenes.
 * Tools: it is now possible to toggle multiple hide/lock controls in the Level Tree via single click + drag gesture.
 * Tools: added masked alpha texture support when importing scenes.
+* Tools: holding Ctrl while performing a transform will now temporarily invert the current snapping setting. Previously it would only disable it when snapping was enabled.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
