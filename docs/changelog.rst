@@ -8,6 +8,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added a new LOD Group component for managing mesh Level Of Detail. The new component can be automatically imported from scene files or setup manually in the Unit Editor.
 * Tools: added the ability to import units from Wavefront OBJ files.
 * Tools: added a number new of physics joint components.
 * Tools: added the ability to navigate history in the Project Browser via dedicated mouse buttons.
@@ -23,6 +24,7 @@ Changelog
 * Tools: it is now possible to toggle multiple hide/lock controls in the Level Tree via single click + drag gesture.
 * Tools: added masked alpha texture support when importing scenes.
 * Tools: holding Ctrl while performing a transform will now temporarily invert the current snapping setting. Previously it would only disable it when snapping was enabled.
+* Runtime: added hot-reloading support for meshes, sounds, fonts, sprites and sprite animations.
 * Runtime: added the ability to override render settings in :doc:`boot.config <reference/boot_config>`.
 * Runtime: added the ability to specify a configuration file with user-specific settings via the ``user_config`` setting in :doc:`boot.config <reference/boot_config>`.
 * Runtime: Linux: it is now possible to run with either OpenGL or Vulkan rendering backends.
