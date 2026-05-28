@@ -1,6 +1,17 @@
 Changelog
 =========
 
+.. _v0.62.5:
+
+:ref:`0.62.5 --- 28 May 2026 <v0.62.5>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: the Project Browser will now exit search mode when asked to navigate history.
+* Tools: fixed an issue that caused the Level Tree to scroll to the currently selected item while interacting with other rows.
+* Tools: fixed hiding trees of units.
+
 .. _v0.62.4:
 
 :ref:`0.62.4 --- 18 May 2026 <v0.62.4>`
