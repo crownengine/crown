@@ -822,7 +822,7 @@ public class LevelEditorApplication : Gtk.Application
 	public LevelEditorApplication()
 	{
 		Object(application_id: "org.crownengine.Crown"
-			, flags: GLib.ApplicationFlags.NON_UNIQUE
+			, flags: GLib.ApplicationFlags.FLAGS_NONE
 			);
 
 		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
