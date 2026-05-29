@@ -2034,6 +2034,10 @@ function LevelEditor:frame_objects(ids)
 
 	-- Compute AABB from OBB.
 	local obb_tm, obb_he = self._objects[ids[1]]:obb()
+	if Vector3.equal(obb_he, Vector3.zero()) then
+		obb_he = Vector3(0.5, 0.5, 0.5)
+	end
+
 	local v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
 
 	local aabb_center = Vector3.zero()
@@ -2059,6 +2063,10 @@ function LevelEditor:frame_objects(ids)
 	for i = 2, num_objects do
 		local nv, nq, nm = Device.temp_count()
 		obb_tm, obb_he = self._objects[ids[i]]:obb()
+		if Vector3.equal(obb_he, Vector3.zero()) then
+			obb_he = Vector3(0.5, 0.5, 0.5)
+		end
+
 		v0, v1, v2, v3, v4, v5, v6, v7 = Math.obb_vertices(obb_tm, obb_he)
 
 		aabb_min = Vector3.min(aabb_min, v1)

@@ -230,7 +230,7 @@ function UnitBox:mesh_tree_obb()
 	local scene_graph = self._sg
 	local unit_id = self._unit_id
 	local obb_tm = self:local_pose()
-	local obb_he = Vector3(0.01, 0.01, 0.01)
+	local obb_he = Vector3.zero()
 	local children = {}
 	UnitUtils.collect_children(scene_graph, unit_id, children)
 
@@ -248,7 +248,7 @@ function UnitBox:sprite_tree_obb()
 	local scene_graph = self._sg
 	local unit_id = self._unit_id
 	local obb_tm = self:local_pose()
-	local obb_he = Vector3(0.01, 0.01, 0.01)
+	local obb_he = Vector3.zero()
 	local children = {}
 	UnitUtils.collect_children(scene_graph, unit_id, children)
 
