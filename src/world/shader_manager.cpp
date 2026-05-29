@@ -132,6 +132,13 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 			continue;
 		}
 
+		char buf[STRING_ID32_BUF_LEN + STRING_ID64_BUF_LEN];
+		CE_ASSERT(!hash_map::has(_shader_map, data.name)
+			, "Duplicate shader variant: #ID(%s) in shader resource #ID(%s)"
+			, data.name.to_string(buf, STRING_ID32_BUF_LEN)
+			, id.to_string(buf + STRING_ID32_BUF_LEN, STRING_ID64_BUF_LEN)
+			);
+
 		bgfx::ShaderHandle vs = bgfx::createShader(bgfx::makeRef(code->vs_data, code->vs_size));
 		CE_ASSERT(bgfx::isValid(vs), "Failed to create vertex shader");
 		bgfx::ShaderHandle fs = bgfx::createShader(bgfx::makeRef(code->fs_data, code->fs_size));
