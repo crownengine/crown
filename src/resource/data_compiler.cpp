@@ -1028,6 +1028,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			hash_map::clear(_data_mtimes);
 			hash_map::clear(_data_dependencies);
 			hash_map::clear(_data_requirements);
+			hash_map::clear(_data_revisions);
 			hash_map::clear(_data_versions);
 		}
 
