@@ -1053,8 +1053,23 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		}
 
 		// Create sub-directories.
-		data_fs.create_directory(CROWN_DATA_DIRECTORY);
+		CreateResult data_cr = data_fs.create_directory(CROWN_DATA_DIRECTORY);
 		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
+
+		if (data_cr.error != CreateResult::SUCCESS && data_cr.error != CreateResult::ALREADY_EXISTS) {
+			loge(DATA_COMPILER, "Failed to create the data directory: `%s/%s`", data_dir, CROWN_DATA_DIRECTORY);
+			return false;
+		}
+
+		if (data_cr.error == CreateResult::SUCCESS) {
+			// Don't trust tracking if the data directory was deleted while the compiler was running.
+			hash_map::clear(_data_index);
+			hash_map::clear(_data_mtimes);
+			hash_map::clear(_data_dependencies);
+			hash_map::clear(_data_requirements);
+			hash_map::clear(_data_revisions);
+			hash_map::clear(_data_versions);
+		}
 	} else {
 		loge(DATA_COMPILER, "Failed to create the data directory: `%s`", data_dir);
 		return false;
