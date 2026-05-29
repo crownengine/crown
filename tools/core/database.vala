@@ -1191,8 +1191,9 @@ public class Database
 		}
 
 		_data[id] = new Gee.HashMap<string, Value?>();
-		set_alive(id, true);
 		set_type(id, type);
+		set_owner(id, GUID_ZERO);
+		set_alive(id, true);
 
 		StringId64 type_hash = StringId64(type);
 		if (has_type(type_hash))
