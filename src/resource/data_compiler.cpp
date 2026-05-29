@@ -840,6 +840,26 @@ void DataCompiler::scan_and_restore(const char *data_dir)
 	data_fs.set_prefix(data_dir);
 
 	read_data_index(_data_index, data_fs, _source_index, CROWN_DATA_INDEX);
+
+	// Validate data index.
+	Array<ResourceId> missing(default_allocator());
+
+	auto data_cur = hash_map::begin(_data_index);
+	auto data_end = hash_map::end(_data_index);
+	for (; data_cur != data_end; ++data_cur) {
+		HASH_MAP_SKIP_HOLE(_data_index, data_cur);
+
+		TempAllocator256 ta;
+		DynamicString dest(ta);
+		destination_path(dest, data_cur->first);
+
+		if (!data_fs.is_file(dest.c_str()))
+			array::push_back(missing, data_cur->first);
+	}
+
+	for (u32 i = 0; i < array::size(missing); ++i)
+		hash_map::remove(_data_index, missing[i]);
+
 	read_data_mtimes(_data_mtimes, data_fs, _data_index, CROWN_DATA_MTIMES);
 	read_data_dependencies(*this, data_fs, _data_index, CROWN_DATA_DEPENDENCIES);
 	read_data_versions(_data_versions, data_fs, CROWN_DATA_VERSIONS);
