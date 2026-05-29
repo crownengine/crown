@@ -180,6 +180,9 @@ namespace mesh_resource_internal
 			bgfx::destroy(mg.vertex_buffer);
 			bgfx::destroy(mg.index_buffer);
 		}
+
+		bgfx::frame();
+		bgfx::frame();
 	}
 
 	void unload(Allocator &a, void *res)

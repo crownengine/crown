@@ -172,6 +172,9 @@ void ShaderManager::offline(StringId64 id, ResourceManager &rm)
 
 		hash_map::remove(_shader_map, data.name);
 	}
+
+	bgfx::frame();
+	bgfx::frame();
 }
 
 void ShaderManager::unload(Allocator &a, void *res)
