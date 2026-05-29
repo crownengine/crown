@@ -172,6 +172,18 @@ public GLib.Menu? favorites_entry_menu_create(string type, string name)
 	return menu;
 }
 
+public void set_pixbuf_or_icon(Gtk.CellRenderer cell, Gdk.Pixbuf? pixbuf, string icon_name)
+{
+	string? no_icon = null;
+	if (pixbuf != null) {
+		cell.set_property("icon-name", no_icon);
+		cell.set_property("pixbuf", pixbuf);
+	} else {
+		cell.set_property("pixbuf", pixbuf);
+		cell.set_property("icon-name", icon_name);
+	}
+}
+
 public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
 {
 	// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
@@ -188,7 +200,7 @@ public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int i
 	else if ((string)type == OBJECT_TYPE_LEVEL)
 		cell.set_property("icon-name", IconTheme.OBJECT_LEVEL);
 	else if ((string)type == OBJECT_TYPE_MATERIAL)
-		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
+		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_TEXTURE);
 	else if ((string)type == OBJECT_TYPE_MESH)
 		cell.set_property("icon-name", IconTheme.OBJECT_MESH);
 	else if ((string)type == "package")
@@ -200,17 +212,17 @@ public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int i
 	else if ((string)type == "lua")
 		cell.set_property("icon-name", IconTheme.OBJECT_SCRIPT);
 	else if ((string)type == OBJECT_TYPE_UNIT)
-		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
+		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.LEVEL_OBJECT_UNIT);
 	else if ((string)type == "shader")
 		cell.set_property("icon-name", IconTheme.OBJECT_SHADER);
 	else if ((string)type == OBJECT_TYPE_SOUND)
-		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
+		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_SOUND);
 	else if ((string)type == OBJECT_TYPE_SPRITE_ANIMATION)
 		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
 	else if ((string)type == OBJECT_TYPE_SPRITE)
 		cell.set_property("icon-name", IconTheme.OBJECT_SPRITE);
 	else if ((string)type == OBJECT_TYPE_TEXTURE)
-		cell.set_property("pixbuf", thumbnail_cache.get(type, name, icon_size));
+		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_TEXTURE);
 	else if ((string)type == OBJECT_TYPE_MESH_ANIMATION)
 		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
 	else if ((string)type == OBJECT_TYPE_MESH_SKELETON)
@@ -1002,6 +1014,10 @@ public class ProjectBrowser : Gtk.Box
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
 		_thumbnail_cache.changed.connect(() => {
+			_tree_view.queue_resize();
+			_folder_view._icon_view.queue_resize();
+			_folder_view._list_view.queue_resize();
+
 			_tree_view.queue_draw();
 			_folder_view._icon_view.queue_draw();
 			_folder_view._list_view.queue_draw();

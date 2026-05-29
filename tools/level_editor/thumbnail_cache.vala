@@ -206,6 +206,7 @@ public class ThumbnailCache
 		changed();
 	}
 
+	// Returns null if no thumbnail is available.
 	public Gdk.Pixbuf? get(string type, string name, int thumb_size = THUMBNAIL_SIZE)
 	{
 		if (!_project.is_loaded())
@@ -283,7 +284,7 @@ public class ThumbnailCache
 			}
 		}
 
-		return thumbnail_subpixbuf(entry.id, thumb_size);
+		return entry.mtime != 0 ? thumbnail_subpixbuf(entry.id, thumb_size) : null;
 	}
 
 	public void show_debug_window(Gtk.Window? parent_window)
