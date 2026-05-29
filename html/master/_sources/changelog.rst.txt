@@ -31,6 +31,7 @@ Changelog
 * Runtime: added ``physics`` console command to control debug visualizations.
 * Runtime: added configurable physics `solver_iterations` and `sleep_threshold` via the `physics` property of :doc:`boot.config <reference/boot_config>`.
 * Data Compiler: missing resource references no longer stop data compilation and print a warning instead.
+* Data Compiler: the data index is now validated at startup to catch missing data blobs and other edge cases.
 * Lua: added ``GameSave`` singleton to save/load savegames.
 * Lua: added a comprehensive set of ``PhysicsWorld.joint_*`` functions for creating and manipulating various joint types.
 * Lua: ``print()`` now shows tables in a more readable format.
