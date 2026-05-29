@@ -138,6 +138,7 @@ void ShaderManager::online(StringId64 id, ResourceManager &rm)
 			, data.name.to_string(buf, STRING_ID32_BUF_LEN)
 			, id.to_string(buf + STRING_ID32_BUF_LEN, STRING_ID64_BUF_LEN)
 			);
+		CE_UNUSED(buf);
 
 		bgfx::ShaderHandle vs = bgfx::createShader(bgfx::makeRef(code->vs_data, code->vs_size));
 		CE_ASSERT(bgfx::isValid(vs), "Failed to create vertex shader");
