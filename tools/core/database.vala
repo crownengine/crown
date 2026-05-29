@@ -32,6 +32,13 @@ public enum InputDoubleFlags
 	INFINITY = 1 << 0,
 }
 
+public enum LoadError
+{
+	SUCCESS   = 0,
+	CORRUPTED = -1,
+	NOT_FOUND = -2,
+}
+
 public delegate void EnumCallback(InputField enum_property, InputEnum property, Project project);
 public delegate void ResourceCallback(InputField enum_property, InputResource property, Project project);
 
@@ -593,12 +600,17 @@ public class Database
 	}
 
 	// See: add_from_path().
-	public int add_from_file(out Guid object_id, FileStream? fs, string resource_path)
+	public LoadError add_from_file(out Guid object_id, GLib.File file, string resource_path)
 	{
-		UndoRedo undo_redo = disable_undo();
+		object_id = GUID_ZERO;
 
 		try {
-			Hashtable json = SJSON.load_from_file(fs);
+			uint8[] bytes;
+			string? etag;
+			file.load_contents(null, out bytes, out etag);
+			Hashtable json = SJSON.decode(bytes);
+
+			UndoRedo undo_redo = disable_undo();
 
 			// Parse the object's ID or generate a new one if none is found.
 			if (json.has_key("id"))
@@ -625,11 +637,16 @@ public class Database
 			set(0, GUID_ZERO, resource_path, object_id);
 
 			restore_undo(undo_redo);
-			return 0;
+			return LoadError.SUCCESS;
+		} catch (GLib.IOError.NOT_FOUND e) {
+			return LoadError.NOT_FOUND;
+		} catch (GLib.IOError.NOT_DIRECTORY e) {
+			return LoadError.NOT_FOUND;
 		} catch (JsonSyntaxError e) {
 			object_id = GUID_ZERO;
-			restore_undo(undo_redo);
-			return -1;
+			return LoadError.CORRUPTED;
+		} catch (GLib.Error e) {
+			return LoadError.CORRUPTED;
 		}
 	}
 
@@ -639,38 +656,32 @@ public class Database
 	// database to refer to the object that has been loaded. This is useful when
 	// you do not have the object ID but only its path, as it is often the case
 	// since resources use paths and not IDs to reference each other.
-	public int add_from_path(out Guid object_id, string path, string resource_path)
+	public LoadError add_from_path(out Guid object_id, string path, string resource_path)
 	{
-		object_id = GUID_ZERO;
-
-		FileStream fs = FileStream.open(path, "rb");
-		if (fs == null)
-			return 1;
-
-		return add_from_file(out object_id, fs, resource_path);
+		return add_from_file(out object_id, GLib.File.new_for_path(path), resource_path);
 	}
 
-	public int add_from_resource_path(out Guid object_id, string resource_path)
+	public LoadError add_from_resource_path(out Guid object_id, string resource_path)
 	{
 		// If the resource is already loaded.
 		if (has_property(GUID_ZERO, resource_path)) {
 			object_id = get_reference(GUID_ZERO, resource_path);
-			return 0;
+			return LoadError.SUCCESS;
 		}
 
 		string path = _project.absolute_path(resource_path);
 		return add_from_path(out object_id, path, resource_path);
 	}
 
-	/// Loads the database with the object stored at @a path.
-	public int load_from_file(out Guid object_id, FileStream fs, string resource_path)
+	/// Loads the database with the object stored at @a file.
+	public LoadError load_from_file(out Guid object_id, GLib.File file, string resource_path)
 	{
 		reset();
-		return add_from_file(out object_id, fs, resource_path);
+		return add_from_file(out object_id, file, resource_path);
 	}
 
 	/// Loads the database with the object stored at @a path.
-	public int load_from_path(out Guid object_id, string path, string resource_path)
+	public LoadError load_from_path(out Guid object_id, string path, string resource_path)
 	{
 		reset();
 		return add_from_path(out object_id, path, resource_path);
