@@ -25,6 +25,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public Gtk.Box _box;
 
 	public string _unit_name;
+	public string? _unit_path;
 	public Guid _unit_id;
 
 	public signal void saved();
@@ -81,7 +82,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 			});
 		_save = new Gtk.Button.with_label("Save & Reload");
 		_save.get_style_context().add_class("suggested-action");
-		_save.clicked.connect(save);
+		_save.clicked.connect(() => {
+				save();
+			});
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.title = "Unit Editor";
@@ -154,6 +157,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_level.send_level();
 
+		if (_unit_id == GUID_ZERO || !_database.has_object(_unit_id) || !_database.is_alive(_unit_id))
+			return;
+
 		Unit.generate_spawn_unit_commands(sb, { _unit_id, }, _database);
 
 		if (sb.len > 0)
@@ -190,18 +196,74 @@ public class UnitEditor : Gtk.ApplicationWindow
 	{
 		_database.reset();
 		_unit_name = "";
+		_unit_path = null;
 		_unit_id = GUID_ZERO;
 	}
 
-	public void save()
+	public bool do_save(string path)
+	{
+		if (_unit_id == GUID_ZERO)
+			return false;
+
+		string display_name      = _unit_name;
+		string? resource_name    = ResourceId.name(ResourceId.normalize(_database._project.resource_filename(path)));
+		if (resource_name != null)
+			display_name = resource_name;
+
+		if (_database.save(path, _unit_id) != 0) {
+			_unit_path = null;
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "Unable to save unit '%s'".printf(display_name)
+				);
+			md.add_button("_Ok", Gtk.ResponseType.OK);
+			md.set_default_response(Gtk.ResponseType.OK);
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			update_window_title();
+			return false;
+		}
+
+		_unit_name = display_name;
+		_unit_path = path;
+		saved();
+		update_window_title();
+		return true;
+	}
+
+	public void save_as(string? filename, string? unit_name_to_open_after_save = null)
+	{
+		if (filename != null) {
+			if (do_save(filename) && unit_name_to_open_after_save != null)
+				do_set_unit(unit_name_to_open_after_save);
+			return;
+		}
+
+		string current_name = _unit_name == "" ? "" : GLib.Path.get_basename(_unit_name);
+		SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+			, this
+			, OBJECT_TYPE_UNIT
+			, current_name
+			, _database._project
+		);
+		srd.safer_response.connect((response_id, path) => {
+				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+					if (do_save(path) && unit_name_to_open_after_save != null)
+						do_set_unit(unit_name_to_open_after_save);
+				}
+				srd.destroy();
+			});
+		srd.show_all();
+	}
+
+	public void save(string? unit_name_to_open_after_save = null)
 	{
 		if (_unit_id == GUID_ZERO)
 			return;
 
-		if (_database.save(_database._project.absolute_path(_unit_name) + "." + OBJECT_TYPE_UNIT, _unit_id) == 0)
-			saved();
-
-		update_window_title();
+		save_as(_unit_path, unit_name_to_open_after_save);
 	}
 
 	public void on_object_type_added(ObjectTypeInfo info)
@@ -299,10 +361,23 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_level.load(LEVEL_EMPTY);
 
-		if (Unit.load_unit(out _unit_id, _database, unit_name) != 0)
-			return;
+		string path = _database._project.absolute_path(unit_name + "." + OBJECT_TYPE_UNIT);
 
 		_unit_name = unit_name;
+		_unit_path = path;
+
+		LoadError err = Unit.load_unit(out _unit_id, _database, unit_name);
+		if (err == LoadError.NOT_FOUND) {
+			UndoRedo undo_redo = _database.disable_undo();
+			_unit_id = Guid.new_guid();
+			Unit new_unit = Unit(_database, _unit_id);
+			new_unit.create_empty();
+			_database.set_name(_unit_id, GLib.Path.get_basename(unit_name));
+			_database.restore_undo(undo_redo);
+		} else if (err != LoadError.SUCCESS) {
+			return;
+		}
+
 		Unit unit = Unit(_database, _unit_id);
 		UndoRedo undo_redo = _database.disable_undo();
 		unit.set_local_position(VECTOR3_ZERO);
@@ -327,8 +402,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_unit(unit_name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.do_set_unit(unit_name);
+						this.save(unit_name);
 					}
 					dlg.destroy();
 				});

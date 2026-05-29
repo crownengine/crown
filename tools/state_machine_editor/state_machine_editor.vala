@@ -29,6 +29,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public InputResource _unit;
 
 	public string _state_machine_name;
+	public string? _state_machine_path;
 	public Guid _state_machine_id;
 
 	public signal void saved();
@@ -82,7 +83,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			});
 		_save = new Gtk.Button.with_label("Save & Reload");
 		_save.get_style_context().add_class("suggested-action");
-		_save.clicked.connect(save);
+		_save.clicked.connect(() => {
+				save();
+			});
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.title = "State Machine Editor";
@@ -179,7 +182,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void send()
 	{
-		if (_unit.value == null)
+		if (_state_machine_id == GUID_ZERO || !_database.has_object(_state_machine_id) || !_database.is_alive(_state_machine_id) || _unit.value == null)
 			return;
 
 		_runtime.send_script(StateMachineEditorApi.set_unit(_unit.value));
@@ -207,13 +210,74 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		_database.reset();
 		_state_machine_name = "";
+		_state_machine_path = null;
 		_state_machine_id = GUID_ZERO;
 	}
 
-	public void save()
+	public bool do_save(string path)
 	{
-		if (_database.save(_database._project.absolute_path(_state_machine_name) + "." + OBJECT_TYPE_STATE_MACHINE, _state_machine_id) == 0)
-			saved();
+		if (_state_machine_id == GUID_ZERO)
+			return false;
+
+		string display_name      = _state_machine_name;
+		string? resource_name    = ResourceId.name(ResourceId.normalize(_database._project.resource_filename(path)));
+		if (resource_name != null)
+			display_name = resource_name;
+
+		if (_database.save(path, _state_machine_id) != 0) {
+			_state_machine_path = null;
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "Unable to save state machine '%s'".printf(display_name)
+				);
+			md.add_button("_Ok", Gtk.ResponseType.OK);
+			md.set_default_response(Gtk.ResponseType.OK);
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			update_window_title();
+			return false;
+		}
+
+		_state_machine_name = display_name;
+		_state_machine_path = path;
+		saved();
+		update_window_title();
+		return true;
+	}
+
+	public void save_as(string? filename, string? state_machine_name_to_open_after_save = null)
+	{
+		if (filename != null) {
+			if (do_save(filename) && state_machine_name_to_open_after_save != null)
+				do_set_state_machine(state_machine_name_to_open_after_save);
+			return;
+		}
+
+		string current_name = _state_machine_name == "" ? "" : GLib.Path.get_basename(_state_machine_name);
+		SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+			, this
+			, OBJECT_TYPE_STATE_MACHINE
+			, current_name
+			, _database._project
+		);
+		srd.safer_response.connect((response_id, path) => {
+				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+					if (do_save(path) && state_machine_name_to_open_after_save != null)
+						do_set_state_machine(state_machine_name_to_open_after_save);
+				}
+				srd.destroy();
+			});
+		srd.show_all();
+	}
+
+	public void save(string? state_machine_name_to_open_after_save = null)
+	{
+		if (_state_machine_id == GUID_ZERO)
+			return;
+
+		save_as(_state_machine_path, state_machine_name_to_open_after_save);
 	}
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
@@ -254,10 +318,20 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		string resource_path = ResourceId.path(OBJECT_TYPE_STATE_MACHINE, state_machine_name);
 		string path = _database._project.absolute_path(resource_path);
 
-		if (_database.load_from_path(out _state_machine_id, path, resource_path) != 0)
-			return;
-
 		_state_machine_name = state_machine_name;
+		_state_machine_path = path;
+
+		LoadError err = _database.load_from_path(out _state_machine_id, path, resource_path);
+		if (err == LoadError.NOT_FOUND) {
+			UndoRedo undo_redo = _database.disable_undo();
+			_state_machine_id = Guid.new_guid();
+			StateMachineResource.sprite(_database, _state_machine_id, null);
+			_database.set_name(_state_machine_id, GLib.Path.get_basename(state_machine_name));
+			_database.restore_undo(undo_redo);
+		} else if (err != LoadError.SUCCESS) {
+			return;
+		}
+
 		_unit.value = state_machine_name;
 		_objects_tree.set_object(_state_machine_id);
 		_database_editor.selection_set({ _state_machine_id });
@@ -280,8 +354,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_state_machine(state_machine_name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.do_set_state_machine(state_machine_name);
+						this.save(state_machine_name);
 					}
 					dlg.destroy();
 				});

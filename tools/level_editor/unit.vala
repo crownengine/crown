@@ -18,7 +18,7 @@ public struct Unit
 	}
 
 	/// Loads the unit @a name.
-	public static int load_unit(out Guid prefab_id, Database db, string name)
+	public static LoadError load_unit(out Guid prefab_id, Database db, string name)
 	{
 		return db.add_from_resource_path(out prefab_id, name + ".unit");
 	}

@@ -19,7 +19,9 @@ public class ObjectEditor : Gtk.ApplicationWindow
 	public Gtk.HeaderBar _header_bar;
 	public Gtk.Box _box;
 
+	public string _object_type;
 	public string _object_name;
+	public string? _object_path;
 	public Guid _object_id;
 
 	public signal void saved();
@@ -56,7 +58,9 @@ public class ObjectEditor : Gtk.ApplicationWindow
 			});
 		_save = new Gtk.Button.with_label("Save & Reload");
 		_save.get_style_context().add_class("suggested-action");
-		_save.clicked.connect(save);
+		_save.clicked.connect(() => {
+				save();
+			});
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.title = "Object Editor";
@@ -115,17 +119,76 @@ public class ObjectEditor : Gtk.ApplicationWindow
 	public void reset()
 	{
 		_database.reset();
+		_object_type = "";
 		_object_name = "";
+		_object_path = null;
 		_object_id = GUID_ZERO;
 	}
 
-	public void save()
+	public bool do_save(string path)
 	{
-		assert(_object_id != GUID_ZERO);
+		if (_object_id == GUID_ZERO)
+			return false;
 
-		ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(_object_id)));
-		if (_database.save(_database._project.absolute_path(_object_name) + "." + info.name, _object_id) == 0)
-			saved();
+		string display_name      = _object_name;
+		string? resource_name    = ResourceId.name(ResourceId.normalize(_database._project.resource_filename(path)));
+		if (resource_name != null)
+			display_name = resource_name;
+
+		if (_database.save(path, _object_id) != 0) {
+			_object_path = null;
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.WARNING
+				, Gtk.ButtonsType.NONE
+				, "Unable to save object '%s'".printf(display_name)
+				);
+			md.add_button("_Ok", Gtk.ResponseType.OK);
+			md.set_default_response(Gtk.ResponseType.OK);
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			update_window_title();
+			return false;
+		}
+
+		_object_name = display_name;
+		_object_path = path;
+		saved();
+		update_window_title();
+		return true;
+	}
+
+	public void save_as(string? filename, string? object_type_to_open_after_save = null, string? object_name_to_open_after_save = null)
+	{
+		if (filename != null) {
+			if (do_save(filename) && object_type_to_open_after_save != null && object_name_to_open_after_save != null)
+				do_set_object(object_type_to_open_after_save, object_name_to_open_after_save);
+			return;
+		}
+
+		string current_name = _object_name == "" ? "" : GLib.Path.get_basename(_object_name);
+		SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+			, this
+			, _object_type
+			, current_name
+			, _database._project
+		);
+		srd.safer_response.connect((response_id, path) => {
+				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
+					if (do_save(path) && object_type_to_open_after_save != null && object_name_to_open_after_save != null)
+						do_set_object(object_type_to_open_after_save, object_name_to_open_after_save);
+				}
+				srd.destroy();
+			});
+		srd.show_all();
+	}
+
+	public void save(string? object_type_to_open_after_save = null, string? object_name_to_open_after_save = null)
+	{
+		if (_object_id == GUID_ZERO)
+			return;
+
+		save_as(_object_path, object_type_to_open_after_save, object_name_to_open_after_save);
 	}
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
@@ -160,10 +223,21 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		string resource_path = ResourceId.path(type, name);
 		string path = _database._project.absolute_path(resource_path);
 
-		if (_database.load_from_path(out _object_id, path, resource_path) != 0)
-			return;
-
+		_object_type = type;
 		_object_name = name;
+		_object_path = path;
+
+		LoadError err = _database.load_from_path(out _object_id, path, resource_path);
+		if (err == LoadError.NOT_FOUND) {
+			UndoRedo undo_redo = _database.disable_undo();
+			_object_id = Guid.new_guid();
+			_database.create(_object_id, type);
+			_database.set_name(_object_id, GLib.Path.get_basename(name));
+			_database.restore_undo(undo_redo);
+		} else if (err != LoadError.SUCCESS) {
+			return;
+		}
+
 		_objects_tree.set_object(_object_id);
 		_database_editor.selection_set({ _object_id });
 		update_window_title();
@@ -171,7 +245,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public void set_object(string type, string name)
 	{
-		if (_object_name == name)
+		if (_object_type == type && _object_name == name)
 			return;
 
 		if (!_database.changed()) {
@@ -182,8 +256,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_object(type, name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save();
-						this.do_set_object(type, name);
+						this.save(type, name);
 					}
 					dlg.destroy();
 				});
