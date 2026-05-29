@@ -5,6 +5,8 @@
 
 namespace Crown
 {
+public delegate void StateMachineEditorSaveCallback();
+
 public class StateMachineEditor : Gtk.ApplicationWindow
 {
 	public LevelEditorApplication _application;
@@ -212,6 +214,23 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_state_machine_name = "";
 		_state_machine_path = null;
 		_state_machine_id = GUID_ZERO;
+		_unit.value = null;
+		destroy_event_buttons();
+		destroy_variable_sliders();
+	}
+
+	public void unload()
+	{
+		if (_runtime.is_connected()) {
+			_runtime.send_script(LevelEditorApi.reset());
+			_editor_viewport.frame();
+		}
+
+		reset();
+		_database_editor.selection_read({});
+		_objects_tree.set_object(GUID_ZERO);
+		_objects_properties.set_object(GUID_ZERO);
+		update_window_title();
 	}
 
 	public bool do_save(string path)
@@ -247,11 +266,11 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		return true;
 	}
 
-	public void save_as(string? filename, string? state_machine_name_to_open_after_save = null)
+	public void save_as(string? filename, owned StateMachineEditorSaveCallback? on_save_success = null)
 	{
 		if (filename != null) {
-			if (do_save(filename) && state_machine_name_to_open_after_save != null)
-				do_set_state_machine(state_machine_name_to_open_after_save);
+			if (do_save(filename) && on_save_success != null)
+				on_save_success();
 			return;
 		}
 
@@ -261,23 +280,23 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			, OBJECT_TYPE_STATE_MACHINE
 			, current_name
 			, _database._project
-		);
+			);
 		srd.safer_response.connect((response_id, path) => {
 				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
-					if (do_save(path) && state_machine_name_to_open_after_save != null)
-						do_set_state_machine(state_machine_name_to_open_after_save);
+					if (do_save(path) && on_save_success != null)
+						on_save_success();
 				}
 				srd.destroy();
 			});
 		srd.show_all();
 	}
 
-	public void save(string? state_machine_name_to_open_after_save = null)
+	public void save(owned StateMachineEditorSaveCallback? on_save_success = null)
 	{
 		if (_state_machine_id == GUID_ZERO)
 			return;
 
-		save_as(_state_machine_path, state_machine_name_to_open_after_save);
+		save_as(_state_machine_path, (owned)on_save_success);
 	}
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
@@ -354,7 +373,9 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_state_machine(state_machine_name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save(state_machine_name);
+						this.save(() => {
+							do_set_state_machine(state_machine_name);
+						});
 					}
 					dlg.destroy();
 				});
@@ -372,9 +393,31 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
 	}
 
-	public bool on_close_request(Gdk.EventAny event)
+	public void close_and_unload()
 	{
 		this.hide();
+		unload();
+	}
+
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		if (!_database.changed()) {
+			close_and_unload();
+			return Gdk.EVENT_STOP;
+		}
+
+		Gtk.Dialog dlg = new_resource_changed_dialog(this, _state_machine_name);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.NO) {
+					close_and_unload();
+				} else if (response_id == Gtk.ResponseType.YES) {
+					save(() => {
+						close_and_unload();
+					});
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
 		return Gdk.EVENT_STOP;
 	}
 

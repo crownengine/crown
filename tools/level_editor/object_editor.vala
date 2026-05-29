@@ -5,6 +5,8 @@
 
 namespace Crown
 {
+public delegate void ObjectEditorSaveCallback();
+
 public class ObjectEditor : Gtk.ApplicationWindow
 {
 	public DatabaseEditor _database_editor;
@@ -125,6 +127,15 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_object_id = GUID_ZERO;
 	}
 
+	public void unload()
+	{
+		reset();
+		_database_editor.selection_read({});
+		_objects_tree.set_object(GUID_ZERO);
+		_objects_properties.set_object(GUID_ZERO);
+		update_window_title();
+	}
+
 	public bool do_save(string path)
 	{
 		if (_object_id == GUID_ZERO)
@@ -158,11 +169,11 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		return true;
 	}
 
-	public void save_as(string? filename, string? object_type_to_open_after_save = null, string? object_name_to_open_after_save = null)
+	public void save_as(string? filename, owned ObjectEditorSaveCallback? on_save_success = null)
 	{
 		if (filename != null) {
-			if (do_save(filename) && object_type_to_open_after_save != null && object_name_to_open_after_save != null)
-				do_set_object(object_type_to_open_after_save, object_name_to_open_after_save);
+			if (do_save(filename) && on_save_success != null)
+				on_save_success();
 			return;
 		}
 
@@ -172,23 +183,23 @@ public class ObjectEditor : Gtk.ApplicationWindow
 			, _object_type
 			, current_name
 			, _database._project
-		);
+			);
 		srd.safer_response.connect((response_id, path) => {
 				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
-					if (do_save(path) && object_type_to_open_after_save != null && object_name_to_open_after_save != null)
-						do_set_object(object_type_to_open_after_save, object_name_to_open_after_save);
+					if (do_save(path) && on_save_success != null)
+						on_save_success();
 				}
 				srd.destroy();
 			});
 		srd.show_all();
 	}
 
-	public void save(string? object_type_to_open_after_save = null, string? object_name_to_open_after_save = null)
+	public void save(owned ObjectEditorSaveCallback? on_save_success = null)
 	{
 		if (_object_id == GUID_ZERO)
 			return;
 
-		save_as(_object_path, object_type_to_open_after_save, object_name_to_open_after_save);
+		save_as(_object_path, (owned)on_save_success);
 	}
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
@@ -256,7 +267,9 @@ public class ObjectEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_object(type, name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save(type, name);
+						this.save(() => {
+							do_set_object(type, name);
+						});
 					}
 					dlg.destroy();
 				});
@@ -279,9 +292,31 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
 	}
 
-	public bool on_close_request(Gdk.EventAny event)
+	public void close_and_unload()
 	{
 		this.hide();
+		unload();
+	}
+
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		if (!_database.changed()) {
+			close_and_unload();
+			return Gdk.EVENT_STOP;
+		}
+
+		Gtk.Dialog dlg = new_resource_changed_dialog(this, _object_name);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.NO) {
+					close_and_unload();
+				} else if (response_id == Gtk.ResponseType.YES) {
+					save(() => {
+						close_and_unload();
+					});
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
 		return Gdk.EVENT_STOP;
 	}
 }

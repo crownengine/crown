@@ -5,6 +5,8 @@
 
 namespace Crown
 {
+public delegate void UnitEditorSaveCallback();
+
 public class UnitEditor : Gtk.ApplicationWindow
 {
 	public LevelEditorApplication _application;
@@ -153,12 +155,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void send()
 	{
+		if (_unit_id == GUID_ZERO || !_database.has_object(_unit_id) || !_database.is_alive(_unit_id))
+			return;
+
 		StringBuilder sb = new StringBuilder();
 
 		_level.send_level();
-
-		if (_unit_id == GUID_ZERO || !_database.has_object(_unit_id) || !_database.is_alive(_unit_id))
-			return;
 
 		Unit.generate_spawn_unit_commands(sb, { _unit_id, }, _database);
 
@@ -194,10 +196,24 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void reset()
 	{
-		_database.reset();
+		_level.reset();
 		_unit_name = "";
 		_unit_path = null;
 		_unit_id = GUID_ZERO;
+	}
+
+	public void unload()
+	{
+		if (_runtime.is_connected()) {
+			_runtime.send_script(LevelEditorApi.reset());
+			_editor_viewport.frame();
+		}
+
+		reset();
+		_database_editor.selection_read({});
+		_objects_tree.set_object(GUID_ZERO);
+		_properties_view.set_objects({});
+		update_window_title();
 	}
 
 	public bool do_save(string path)
@@ -233,11 +249,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 		return true;
 	}
 
-	public void save_as(string? filename, string? unit_name_to_open_after_save = null)
+	public void save_as(string? filename, owned UnitEditorSaveCallback? on_save_success = null)
 	{
 		if (filename != null) {
-			if (do_save(filename) && unit_name_to_open_after_save != null)
-				do_set_unit(unit_name_to_open_after_save);
+			if (do_save(filename) && on_save_success != null)
+				on_save_success();
 			return;
 		}
 
@@ -247,23 +263,23 @@ public class UnitEditor : Gtk.ApplicationWindow
 			, OBJECT_TYPE_UNIT
 			, current_name
 			, _database._project
-		);
+			);
 		srd.safer_response.connect((response_id, path) => {
 				if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
-					if (do_save(path) && unit_name_to_open_after_save != null)
-						do_set_unit(unit_name_to_open_after_save);
+					if (do_save(path) && on_save_success != null)
+						on_save_success();
 				}
 				srd.destroy();
 			});
 		srd.show_all();
 	}
 
-	public void save(string? unit_name_to_open_after_save = null)
+	public void save(owned UnitEditorSaveCallback? on_save_success = null)
 	{
 		if (_unit_id == GUID_ZERO)
 			return;
 
-		save_as(_unit_path, unit_name_to_open_after_save);
+		save_as(_unit_path, (owned)on_save_success);
 	}
 
 	public void on_object_type_added(ObjectTypeInfo info)
@@ -402,7 +418,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 					if (response_id == Gtk.ResponseType.NO) {
 						this.do_set_unit(unit_name);
 					} else if (response_id == Gtk.ResponseType.YES) {
-						this.save(unit_name);
+						this.save(() => {
+							do_set_unit(unit_name);
+						});
 					}
 					dlg.destroy();
 				});
@@ -420,9 +438,31 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
 	}
 
-	public bool on_close_request(Gdk.EventAny event)
+	public void close_and_unload()
 	{
 		this.hide();
+		unload();
+	}
+
+	public bool on_close_request(Gdk.EventAny event)
+	{
+		if (!_database.changed()) {
+			close_and_unload();
+			return Gdk.EVENT_STOP;
+		}
+
+		Gtk.Dialog dlg = new_resource_changed_dialog(this, _unit_name);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.NO) {
+					close_and_unload();
+				} else if (response_id == Gtk.ResponseType.YES) {
+					save(() => {
+						close_and_unload();
+					});
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
 		return Gdk.EVENT_STOP;
 	}
 }
