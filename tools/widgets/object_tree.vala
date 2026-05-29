@@ -490,6 +490,7 @@ public class ObjectTree : Gtk.Box
 		}
 	}
 
+	/// Setting @a id to GUID_ZERO resets the tree.
 	public void set_object(Guid id)
 	{
 		Gtk.TreeStore? old_tree_store = null;
@@ -516,6 +517,11 @@ public class ObjectTree : Gtk.Box
 		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
 		_tree_sort.set_sort_column_id(sort_column_id, sort_order);
 		_tree_view.model = _tree_sort;
+
+		if (id == GUID_ZERO) {
+			_object_id = GUID_ZERO;
+			return;
+		}
 
 		uint32 root_saved_state = 0u;
 		bool can_restore_state = false;
