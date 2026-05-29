@@ -190,11 +190,11 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 	}
 
 	// Wait until the new resource has been loaded.
-	ResourceData new_rd;
-	while ((new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND)) == ResourceData::NOT_FOUND)
+	while (!hash_map::has(_resources, id))
 		complete_requests();
 
 	// Restore old state into the new resource.
+	ResourceData &new_rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 	new_rd.references = old_refs;
 	return new_rd.data;
 }
