@@ -43,11 +43,6 @@ render_states = {
 
 	mesh = {
 		inherit = "default"
-		states = {
-			"defined(MASKED)" = {
-				cull_mode = "none"
-			}
-		}
 	}
 
 	skydome = {
