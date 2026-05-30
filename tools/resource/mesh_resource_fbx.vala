@@ -421,9 +421,10 @@ public class FBXImporter
 		, string destination_dir
 		, bool create_textures_folder
 		, ufbx.MaterialMap map
+		, string semantic_suffix
 		, TextureUsage usage
 		, bool preserve_alpha
-		, Gee.HashMap<unowned ufbx.Texture, string> imported_textures
+		, Gee.HashMap<string, string> imported_textures
 		)
 	{
 		resource_name = null;
@@ -431,11 +432,6 @@ public class FBXImporter
 			return 0;
 
 		unowned ufbx.Texture? texture = map.texture;
-		if (imported_textures.has_key(texture) && !preserve_alpha) {
-			resource_name = imported_textures[texture];
-			return 0;
-		}
-
 		string textures_path = destination_dir;
 		if (create_textures_folder) {
 			GLib.File textures_file = File.new_for_path(Path.build_filename(destination_dir, "textures"));
@@ -459,6 +455,18 @@ public class FBXImporter
 		string source_image_filename = Path.build_filename(textures_path, texture_basename);
 		GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
 		string source_image_path     = source_image_file.get_path();
+
+		string texture_resource_filename = project.resource_filename(source_image_path);
+		string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
+		string texture_source_name       = ResourceId.name(texture_resource_path);
+		string texture_resource_name     = texture_source_name + semantic_suffix;
+		string? texture_resource_type    = ResourceId.type(texture_resource_path);
+		string source_image              = texture_source_name + "." + (texture_resource_type != null ? texture_resource_type : "png");
+
+		if (imported_textures.has_key(texture_resource_name) && !preserve_alpha) {
+			resource_name = imported_textures[texture_resource_name];
+			return 0;
+		}
 
 		bool source_image_exists = false;
 		// Extract embedded texture data or copy external texture files into textures_path.
@@ -497,12 +505,6 @@ public class FBXImporter
 			return 0;
 		}
 
-		string texture_resource_filename = project.resource_filename(source_image_path);
-		string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
-		string texture_resource_name     = ResourceId.name(texture_resource_path);
-		string? texture_resource_type    = ResourceId.type(texture_resource_path);
-		string source_image              = texture_resource_name + "." + (texture_resource_type != null ? texture_resource_type : "png");
-
 		// Create .texture resource.
 		Guid texture_id = Guid.new_guid();
 		TextureResource texture_resource;
@@ -518,7 +520,7 @@ public class FBXImporter
 		if (texture_resource.save(project, texture_resource_name) != 0)
 			return 1;
 
-		imported_textures.set(texture, texture_resource_name);
+		imported_textures.set(texture_resource_name, texture_resource_name);
 		resource_name = texture_resource_name;
 		return 0;
 	}
@@ -929,7 +931,7 @@ public class FBXImporter
 			ufbx.Scene? scene = ufbx.Scene.load_file(filename_i, load_opts, ref error);
 
 			Database db = new Database(project);
-			Gee.HashMap<unowned ufbx.Texture, string> imported_textures = new Gee.HashMap<unowned ufbx.Texture, string>();
+			Gee.HashMap<string, string> imported_textures = new Gee.HashMap<string, string>();
 			Gee.HashMap<unowned ufbx.Material, string> imported_materials = new Gee.HashMap<unowned ufbx.Material, string>();
 
 			// Import animations.
@@ -1126,6 +1128,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_df"
 									, TextureUsage.COLOR
 									, masking
 									, imported_textures
@@ -1144,6 +1147,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_nr"
 									, TextureUsage.NORMAL
 									, false
 									, imported_textures
@@ -1165,6 +1169,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_mt"
 									, TextureUsage.DATA
 									, false
 									, imported_textures
@@ -1186,6 +1191,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_rg"
 									, TextureUsage.DATA
 									, false
 									, imported_textures
@@ -1204,6 +1210,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_ao"
 									, TextureUsage.DATA
 									, false
 									, imported_textures
@@ -1225,6 +1232,7 @@ public class FBXImporter
 									, destination_dir
 									, options.create_textures_folder.value
 									, map
+									, "_em"
 									, TextureUsage.COLOR
 									, false
 									, imported_textures
