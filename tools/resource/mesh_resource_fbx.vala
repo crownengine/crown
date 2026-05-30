@@ -65,10 +65,10 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 
 public static string texture_filename(ufbx.Texture texture)
 {
-	if (texture.relative_filename.data.length > 0)
-		return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-	else if (texture.filename.data.length > 0)
+	if (texture.filename.data.length > 0)
 		return ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+	else if (texture.relative_filename.data.length > 0)
+		return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
 	else if (texture.absolute_filename.data.length > 0)
 		return ((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
 	else
@@ -1083,6 +1083,38 @@ public class FBXImporter
 								masking = map.texture == opacity.texture
 									|| (color_texture_filename.length > 0 && color_texture_filename == opacity_texture_filename)
 									;
+							}
+
+							if (!masking) {
+								unowned ufbx.MaterialMap transparency = material.fbx.transparency_factor;
+								masking = map.texture_enabled
+									&& transparency.texture_enabled
+									&& map.texture != null
+									&& transparency.texture != null
+									;
+								if (masking) {
+									string color_texture_filename = texture_filename(map.texture);
+									string transparency_texture_filename = texture_filename(transparency.texture);
+									masking = map.texture == transparency.texture
+										|| (color_texture_filename.length > 0 && color_texture_filename == transparency_texture_filename)
+										;
+								}
+							}
+
+							if (!masking) {
+								unowned ufbx.MaterialMap transparency = material.fbx.transparency_color;
+								masking = map.texture_enabled
+									&& transparency.texture_enabled
+									&& map.texture != null
+									&& transparency.texture != null
+									;
+								if (masking) {
+									string color_texture_filename = texture_filename(map.texture);
+									string transparency_texture_filename = texture_filename(transparency.texture);
+									masking = map.texture == transparency.texture
+										|| (color_texture_filename.length > 0 && color_texture_filename == transparency_texture_filename)
+										;
+								}
 							}
 
 							if (options.import_textures.value
