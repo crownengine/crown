@@ -380,8 +380,12 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:camera_drag_start('flythrough')");
 			_flythrough_mouse_x = x;
 			_flythrough_mouse_y = y;
-			_flythrough_anchor_x = x;
-			_flythrough_anchor_y = y;
+			Gdk.Screen screen;
+			int pointer_root_x;
+			int pointer_root_y;
+			this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
+			_flythrough_anchor_x = (double)pointer_root_x;
+			_flythrough_anchor_y = (double)pointer_root_y;
 
 			if (_tick_callback_id == 0)
 				_tick_callback_id = add_tick_callback(on_tick);
@@ -599,13 +603,13 @@ public class EditorView : Gtk.EventBox
 
 	public bool on_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock)
 	{
-		double x;
-		double y;
-		Gdk.ModifierType mask = 0;
-		this.get_window().get_device_position_double(this.get_display().get_default_seat().get_pointer(), out x, out y, out mask);
+		Gdk.Screen screen;
+		int pointer_root_x;
+		int pointer_root_y;
+		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
 
-		_flythrough_mouse_x += x - _flythrough_anchor_x;
-		_flythrough_mouse_y += y - _flythrough_anchor_y;
+		_flythrough_mouse_x += (double)pointer_root_x - _flythrough_anchor_x;
+		_flythrough_mouse_y += (double)pointer_root_y - _flythrough_anchor_y;
 
 		int scale = this.get_scale_factor();
 		_buffer.append(LevelEditorApi.set_mouse_state((int)_flythrough_mouse_x*scale
@@ -617,12 +621,9 @@ public class EditorView : Gtk.EventBox
 		_runtime.send_script(_buffer.str);
 		_buffer.erase();
 
-		int root_x;
-		int root_y;
-		this.get_window().get_origin(out root_x, out root_y);
-		this.get_display().get_default_seat().get_pointer().warp(this.get_display().get_default_screen()
-			, root_x + (int)_flythrough_anchor_x
-			, root_y + (int)_flythrough_anchor_y
+		this.get_display().get_default_seat().get_pointer().warp(screen
+			, (int)_flythrough_anchor_x
+			, (int)_flythrough_anchor_y
 			);
 
 		_runtime.send(DeviceApi.frame());
