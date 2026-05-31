@@ -50,6 +50,9 @@ public class EditorView : Gtk.EventBox
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
+#if !CROWN_GTK3
+	public Gtk.EventControllerLegacy _controller_legacy;
+#endif
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
@@ -135,7 +138,12 @@ public class EditorView : Gtk.EventBox
 
 		// Widgets
 		this.can_focus = true;
-		this.events |= Gdk.EventMask.POINTER_MOTION_MASK
+		this.events |= 0
+#if CROWN_GTK3
+			| Gdk.EventMask.BUTTON_PRESS_MASK
+			| Gdk.EventMask.BUTTON_RELEASE_MASK
+#endif
+			| Gdk.EventMask.POINTER_MOTION_MASK
 			| Gdk.EventMask.KEY_PRESS_MASK
 			| Gdk.EventMask.KEY_RELEASE_MASK
 			| Gdk.EventMask.FOCUS_CHANGE_MASK
@@ -145,6 +153,16 @@ public class EditorView : Gtk.EventBox
 		this.size_allocate.connect(on_size_allocate);
 
 		if (input_enabled) {
+#if CROWN_GTK3
+			this.button_press_event.connect(on_event_box_button_event);
+			this.button_release_event.connect(on_event_box_button_event);
+#else
+			_controller_legacy = new Gtk.EventControllerLegacy();
+			_controller_legacy.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+			_controller_legacy.event.connect(on_event_controller_legacy_event);
+			this.add_controller(_controller_legacy);
+#endif
+
 			_controller_key = new Gtk.EventControllerKey(this);
 			_controller_key.key_pressed.connect(on_key_pressed);
 			_controller_key.key_released.connect(on_key_released);
@@ -245,6 +263,49 @@ public class EditorView : Gtk.EventBox
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_leave.html
 		_drag_enter = false;
 	}
+
+	public bool on_button_event(uint button)
+	{
+		// Hack: GtkGestureSingle cancels the active button sequence when another mouse button
+		// reaches it. Let the first handled button own the gesture until release, and swallow
+		// competing button events while active.
+		// See: https://gitlab.gnome.org/GNOME/gtk/-/work_items/7752
+
+		if (button != Gdk.BUTTON_PRIMARY
+			&& button != Gdk.BUTTON_MIDDLE
+			&& button != Gdk.BUTTON_SECONDARY
+			)
+			return Gdk.EVENT_PROPAGATE;
+
+		uint owner_button = 0;
+		if (_mouse_left)
+			owner_button = Gdk.BUTTON_PRIMARY;
+		else if (_mouse_middle)
+			owner_button = Gdk.BUTTON_MIDDLE;
+		else if (_mouse_right)
+			owner_button = Gdk.BUTTON_SECONDARY;
+
+		return owner_button != 0 && button != owner_button
+			? Gdk.EVENT_STOP
+			: Gdk.EVENT_PROPAGATE
+			;
+	}
+
+#if CROWN_GTK3
+	public bool on_event_box_button_event(Gdk.EventButton ev)
+	{
+		return on_button_event(ev.button);
+	}
+#else
+	public bool on_event_controller_legacy_event(Gdk.Event ev)
+	{
+		Gdk.EventType type = ev.get_event_type();
+		if (type != Gdk.EventType.BUTTON_PRESS && type != Gdk.EventType.BUTTON_RELEASE)
+			return Gdk.EVENT_PROPAGATE;
+
+		return on_button_event(((Gdk.ButtonEvent)ev).get_button());
+	}
+#endif
 
 	public void on_button_released(int n_press, double x, double y)
 	{
@@ -447,6 +508,20 @@ public class EditorView : Gtk.EventBox
 
 	public void on_scroll(double dx, double dy)
 	{
+		Gdk.ModifierType state = 0;
+		bool has_state = true;
+#if CROWN_GTK3
+		has_state = Gtk.get_current_event_state(out state);
+#else
+		state = _controller_scroll.get_current_event_state();
+#endif
+
+		if (_tick_callback_id == 0
+			&& has_state
+			&& (state & (Gdk.ModifierType.BUTTON1_MASK | Gdk.ModifierType.BUTTON2_MASK | Gdk.ModifierType.BUTTON3_MASK)) != 0
+			)
+			return;
+
 		if (_tick_callback_id != 0 || _keys[Gdk.Key.Shift_L] || _keys[Gdk.Key.Shift_R]) {
 			_runtime.send_script(LevelEditorApi.mouse_wheel(-dy));
 		} else {
