@@ -57,6 +57,7 @@ Changelog
 * Tools: fixed an issue that caused the Level Tree to scroll to the currently selected item while interacting with other rows.
 * Tools: fixed hiding trees of units.
 * Tools: fixed viewport camera getting stuck in the current mode when other mouse buttons were pressed.
+* Tools: fixed flythrough camera rotating by itself in some circumnstances.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
