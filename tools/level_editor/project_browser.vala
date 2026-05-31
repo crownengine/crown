@@ -309,6 +309,7 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view.drag_data_received.connect(on_drag_data_received);
 		_icon_view.has_tooltip = true;
 		_icon_view.query_tooltip.connect(on_icon_view_query_tooltip);
+		_icon_view.item_activated.connect(activate_path);
 
 		/*
 		_icon_view_gesture_click = new Gtk.GestureMultiPress(_icon_view);
@@ -348,6 +349,7 @@ public class ProjectFolderView : Gtk.Box
 		_list_view.drag_data_get.connect(on_drag_data_get);
 		_list_view.drag_begin.connect_after(on_drag_begin);
 		_list_view.drag_end.connect(on_drag_end);
+		_list_view.row_activated.connect(on_row_activated);
 
 		_list_view_gesture_click = new Gtk.GestureMultiPress(_list_view);
 		_list_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
@@ -519,28 +521,33 @@ public class ProjectFolderView : Gtk.Box
 			}
 
 			return Gdk.EVENT_STOP; // Stop the event. Otherwise, popover menu won't show on _icon_view.
-		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
-			if (path != null) {
-				string type;
-				string name;
-
-				resource_at_path(out type, out name, path);
-
-				if (type == "<folder>") {
-					string dir_name;
-					if (name == "..")
-						dir_name = ResourceId.parent_folder((string)_selected_name);
-					else
-						dir_name = name;
-
-					GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
-				} else {
-					GLib.Application.get_default().activate_action("open-resource", ResourceId.path(type, name));
-				}
-			}
 		}
 
 		return Gdk.EVENT_PROPAGATE;
+	}
+
+	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+	{
+		activate_path(path);
+	}
+
+	public void activate_path(Gtk.TreePath path)
+	{
+		string type;
+		string name;
+		resource_at_path(out type, out name, path);
+
+		if (type == "<folder>") {
+			string dir_name;
+			if (name == "..")
+				dir_name = ResourceId.parent_folder((string)_selected_name);
+			else
+				dir_name = name;
+
+			GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(dir_name));
+		} else {
+			GLib.Application.get_default().activate_action("open-resource", ResourceId.path(type, name));
+		}
 	}
 
 	public void icon_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -1077,6 +1084,7 @@ public class ProjectBrowser : Gtk.Box
 			);
 #endif /* if 0 */
 		_tree_view.headers_visible = false;
+		_tree_view.row_activated.connect(on_tree_row_activated);
 
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
 		_tree_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
@@ -1708,22 +1716,25 @@ public class ProjectBrowser : Gtk.Box
 				menu.set_position(Gtk.PositionType.BOTTOM);
 				menu.popup();
 			}
-		} else if (button == Gdk.BUTTON_PRIMARY && n_press == 2) {
-			Gtk.TreeIter iter;
-			_tree_view.model.get_iter(out iter, path);
-
-			Value type;
-			_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-			if ((string)type == "<folder>")
-				return;
-
-			Value name;
-			_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
-
-			GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 		}
 
 		return;
+	}
+
+	public void on_tree_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
+	{
+		Gtk.TreeIter iter;
+		_tree_view.model.get_iter(out iter, path);
+
+		Value type;
+		_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
+		if ((string)type == "<folder>")
+			return;
+
+		Value name;
+		_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+
+		GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
 	}
 
 	public void update_folder_view()
