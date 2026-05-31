@@ -492,8 +492,13 @@ public class ProjectFolderView : Gtk.Box
 			string name;
 
 			if (path != null) {
-				_icon_view.select_path(path);
-				_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
+				if (_stack.get_visible_child() == _icon_view_window) {
+					_icon_view.select_path(path);
+					_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
+				} else if (_stack.get_visible_child() == _list_view_window) {
+					_list_view.get_selection().select_path(path);
+					_list_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
+				}
 			} else if (_browse_mode == BrowseMode.SEARCH) {
 				return Gdk.EVENT_PROPAGATE;
 			}
@@ -1691,6 +1696,9 @@ public class ProjectBrowser : Gtk.Box
 			return;
 
 		if (button == Gdk.BUTTON_SECONDARY) {
+			if (!_tree_selection.path_is_selected(path))
+				_tree_selection.select_path(path);
+
 			Gtk.TreeIter iter;
 			_tree_view.model.get_iter(out iter, path);
 
