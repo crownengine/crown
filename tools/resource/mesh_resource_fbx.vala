@@ -887,6 +887,20 @@ public class FBXImporter
 		}
 	}
 
+	public static bool material_uses_skinning(ufbx.Scene scene, ufbx.Material material)
+	{
+		for (size_t i = 0; i < scene.nodes.data.length; ++i) {
+			unowned ufbx.Node node = scene.nodes.data[i];
+			if (node.mesh == null || node.mesh.skin_deformers.data.length != 1 || node.materials.data.length == 0)
+				continue;
+
+			if (node.materials.data[0] == material)
+				return true;
+		}
+
+		return false;
+	}
+
 	public static ImportResult do_import(FBXImportOptions options, Project project, string destination_dir, Gee.ArrayList<string> filenames)
 	{
 		foreach (string filename_i in filenames) {
@@ -1251,7 +1265,7 @@ public class FBXImporter
 						}
 					}
 
-					if (smr != null)
+					if (smr != null && material_uses_skinning(scene, material))
 						shader += "+SKINNING";
 
 					masking = masking && albedo_map != null;
