@@ -664,7 +664,7 @@ public class ConsoleView : Gtk.Box
 							open_directory(item_data[5 : item_data.length]);
 						} else {
 							try {
-								GLib.AppInfo.launch_default_for_uri(item_data, null);
+								GLib.AppInfo.launch_default_for_uri(item_data, Gdk.Display.get_default().get_app_launch_context());
 							} catch (GLib.Error e) {
 								loge(e.message);
 							}
