@@ -2340,6 +2340,7 @@ namespace shader_resource_internal
 			key = bgfx_shader;
 			const BgfxShader shader_default(default_allocator());
 			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
+			const bool has_sampler_metadata = hash_map::size(shader._samplers) > 0;
 
 			StringStream code(default_allocator());
 			s32 err = bgfx_shader_collect_code(code, shader);
@@ -2359,23 +2360,29 @@ namespace shader_resource_internal
 			fs_code << shader._fs_input_output.c_str();
 			fs_code << string_stream::c_str(code);
 			fs_code << shader._fs_code.c_str();
+			const bool need_preprocess = meta != NULL || has_sampler_metadata;
 
-			StringStream vs_source(default_allocator());
-			StringStream fs_source(default_allocator());
-			err = inject_sampler_stage_comments(vs_source, string_stream::c_str(vs_code), _opts);
-			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
-			err = inject_sampler_stage_comments(fs_source, string_stream::c_str(fs_code), _opts);
-			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+			if (need_preprocess) {
+				StringStream vs_source(default_allocator());
+				StringStream fs_source(default_allocator());
+				err = inject_sampler_stage_comments(vs_source, string_stream::c_str(vs_code), _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				err = inject_sampler_stage_comments(fs_source, string_stream::c_str(fs_code), _opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
-			_opts.write_temporary(_vs_path.c_str(), vs_source);
-			_opts.write_temporary(_fs_path.c_str(), fs_source);
+				_opts.write_temporary(_vs_path.c_str(), vs_source);
+				_opts.write_temporary(_fs_path.c_str(), fs_source);
+			} else {
+				_opts.write_temporary(_vs_path.c_str(), vs_code);
+				_opts.write_temporary(_fs_path.c_str(), fs_code);
+			}
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
-			const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
 			HashMap<DynamicString, u32> sampler_stages(default_allocator());
 
 			// Run preprocess pass on shaders.
-			{
+			if (need_preprocess) {
+				const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
 				s32 sc;
 				Process pr_vert;
 				Process pr_frag;
