@@ -60,6 +60,7 @@ Changelog
 * Tools: fixed viewport camera getting stuck in the current mode when other mouse buttons were pressed.
 * Tools: fixed flythrough camera rotating by itself in some circumnstances.
 * Tools: fixed tree and list view in the Project Browser not selecting the item under the cursor when the right mouse button is clicked.
+* Tools: Windows: fixed warnings when opening external URIs or some resource types.
 * Runtime: fixed an issue that caused materials to bind textures to the wrong stage.
 * Runtime: fixed a race conditions during application exit.
 * Runtime: fixed a race condition when loading resources.
