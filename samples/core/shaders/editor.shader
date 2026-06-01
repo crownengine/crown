@@ -76,7 +76,7 @@ bgfx_shaders = {
 		#if BX_PLATFORM_LINUX || BX_PLATFORM_WINDOWS
 			USAMPLER2D(s_selection_map, 0);
 			SAMPLER2D(s_selection_depth_map, 1);
-		#if defined(MSAA_DEPTH)
+		#if defined(MSAA_DEPTH) && !defined(BX_PLATFORM_WINDOWS)
 			SAMPLER2DMS(s_depth_map, 2);
 			uniform vec4 u_outline_msaa_samples;
 		#else
@@ -129,7 +129,7 @@ bgfx_shaders = {
 
 				// Dim alpha if selected object is behind another object.
 				ivec2 coord = ivec2(v_texcoord0 * tex_size);
-			#if defined(MSAA_DEPTH)
+			#if defined(MSAA_DEPTH) && !defined(BX_PLATFORM_WINDOWS)
 				float scene_depth = 0.0;
 				for (int ii = 0; ii < 16; ++ii)
 				{

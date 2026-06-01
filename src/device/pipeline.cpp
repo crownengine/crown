@@ -405,7 +405,7 @@ void Pipeline::reset(u16 width, u16 height)
 	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
 		u64 msaa_flags = u64(1 + _render_settings.msaa_quality) << BGFX_TEXTURE_RT_MSAA_SHIFT;
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_LINUX /* || CROWN_PLATFORM_WINDOWS */
 		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_MSAA_SAMPLE;
 #else
 		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
