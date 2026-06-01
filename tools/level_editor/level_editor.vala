@@ -776,6 +776,7 @@ public class LevelEditorApplication : Gtk.Application
 	public DataCompiler _data_compiler;
 
 	// Widgets
+	public Gdk.AppLaunchContext _app_launch_context;
 	public Gtk.CssProvider _css_provider;
 	public ProjectBrowser _project_browser;
 	public EditorViewport _editor_viewport;
@@ -858,6 +859,8 @@ public class LevelEditorApplication : Gtk.Application
 		base.startup();
 
 		Intl.setlocale(LocaleCategory.ALL, "C");
+
+		_app_launch_context = Gdk.Display.get_default().get_app_launch_context();
 
 		_css_provider = new Gtk.CssProvider();
 		var default_screen = Gdk.Display.get_default().get_default_screen();
@@ -2713,7 +2716,7 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.List<GLib.File> files = new GLib.List<GLib.File>();
 			files.append(file);
 			try {
-				app.launch(files, null);
+				app.launch(files, _app_launch_context);
 			} catch (GLib.Error e) {
 				open_text_editor(file.get_path());
 			}
@@ -3080,7 +3083,7 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_manual(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri(CROWN_LATEST_DOCS_URL, null);
+			AppInfo.launch_default_for_uri(CROWN_LATEST_DOCS_URL, _app_launch_context);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -3089,7 +3092,7 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_report_issue(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri("https://github.com/crownengine/crown/issues", null);
+			AppInfo.launch_default_for_uri("https://github.com/crownengine/crown/issues", _app_launch_context);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -3103,7 +3106,7 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri(CROWN_LATEST_CHANGELOG_URL, null);
+			AppInfo.launch_default_for_uri(CROWN_LATEST_CHANGELOG_URL, _app_launch_context);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -3112,7 +3115,7 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_donate(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri(CROWN_FUND_URL, null);
+			AppInfo.launch_default_for_uri(CROWN_FUND_URL, _app_launch_context);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -3121,7 +3124,7 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_credits(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
-			AppInfo.launch_default_for_uri(CROWN_CREDITS_URL, null);
+			AppInfo.launch_default_for_uri(CROWN_CREDITS_URL, _app_launch_context);
 		} catch (Error e) {
 			loge(e.message);
 		}
@@ -4930,7 +4933,7 @@ public void open_directory(string directory)
 {
 #if CROWN_PLATFORM_LINUX
 	try {
-		GLib.AppInfo.launch_default_for_uri("file://" + directory, null);
+		GLib.AppInfo.launch_default_for_uri("file://" + directory, Gdk.Display.get_default().get_app_launch_context());
 	} catch (Error e) {
 		loge(e.message);
 	}
