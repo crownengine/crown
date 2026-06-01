@@ -110,6 +110,9 @@ struct ShaderData
 #if CROWN_CAN_COMPILE
 namespace shader_compiler
 {
+	/// Clears cached shader metadata used by material compilation.
+	void clear_metadata_cache();
+
 	/// Compiles a @a shader variant and writes it to @a fb. The shader must be defined inside @a
 	/// shader_library. If @a shader_library is empty it tries to find a suitable one in the source
 	/// directories and returns it via @a shader_library itself.

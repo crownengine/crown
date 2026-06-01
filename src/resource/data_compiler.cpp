@@ -34,6 +34,7 @@
 #include "resource/data_compiler.h"
 #include "resource/mesh.h"
 #include "resource/resource_id.inl"
+#include "resource/shader_resource.h"
 #include "resource/types.h"
 #include <algorithm>
 #include <inttypes.h>
@@ -1481,7 +1482,9 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 {
 	profiler_globals::clear();
+	shader_compiler::clear_metadata_cache();
 	bool success = compile_internal(data_dir, platform_name);
+	shader_compiler::clear_metadata_cache();
 	profiler_globals::flush();
 	return success;
 }
