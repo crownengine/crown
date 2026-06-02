@@ -2063,11 +2063,22 @@ namespace shader_resource_internal
 			return 0;
 		}
 
+		static void shader_variant(DynamicString &variant, const char *shader, const Vector<DynamicString> &defines)
+		{
+			variant = shader;
+
+			for (u32 jj = 0; jj < vector::size(defines); ++jj) {
+				variant += "+";
+				variant += defines[jj];
+			}
+		}
+
 		s32 parse_static_compile(const char *json)
 		{
 			TempAllocator4096 ta;
 			JsonArray static_compile(ta);
 			RETURN_IF_ERROR(sjson::parse_array(static_compile, json));
+			HashSet<DynamicString> static_compile_variants(default_allocator());
 
 			for (u32 ii = 0; ii < array::size(static_compile); ++ii) {
 				JsonObject obj(ta);
@@ -2083,6 +2094,13 @@ namespace shader_resource_internal
 					RETURN_IF_ERROR(sjson::parse_string(def, defines[jj]));
 					vector::push_back(sc._defines, def);
 				}
+				std::sort(vector::begin(sc._defines), vector::end(sc._defines));
+
+				DynamicString variant(ta);
+				shader_variant(variant, sc._shader.c_str(), sc._defines);
+				if (hash_set::has(static_compile_variants, variant))
+					continue;
+				hash_set::insert(static_compile_variants, variant);
 
 				vector::push_back(_static_compile, sc);
 			}
@@ -2099,16 +2117,6 @@ namespace shader_resource_internal
 			_opts.delete_file(_fs_pp_path.c_str());
 			_opts.delete_file(_vs_bin_path.c_str());
 			_opts.delete_file(_fs_bin_path.c_str());
-		}
-
-		static void shader_variant(DynamicString &variant, const char *shader, const Vector<DynamicString> &defines)
-		{
-			variant = shader;
-
-			for (u32 jj = 0; jj < vector::size(defines); ++jj) {
-				variant += "+";
-				variant += defines[jj];
-			}
 		}
 
 		static StringId32 shader_variant_id(const char *shader, const Vector<DynamicString> &defines)
@@ -2724,6 +2732,7 @@ namespace shader_compiler
 	s32 compile_variant(FileBuffer &fb
 		, Vector<UniformMetadata> *uniform_meta
 		, DynamicString &shader_library
+		, StringId32 &shader_id
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
@@ -2742,6 +2751,10 @@ namespace shader_compiler
 			tmp = defines[i];
 			vector::push_back(defines_dyn, tmp);
 		}
+		std::sort(vector::begin(defines_dyn), vector::end(defines_dyn));
+
+		shader_name = shader;
+		shader_id = ShaderCompiler::shader_variant_id(shader_name.c_str(), defines_dyn);
 
 		// Find a shader library that contains the specified shader if none provided. This is slow
 		// and ugly and it only exists for backwards compatibility with older material formats.
@@ -2772,7 +2785,6 @@ namespace shader_compiler
 			sc.parse(shader_library_path.c_str(), false);
 		}
 
-		shader_name = shader;
 		return sc.compile_variant(fb, uniform_meta, sampler_meta, shader_name, defines_dyn, metadata_only);
 	}
 

@@ -360,13 +360,14 @@ namespace material_resource_internal
 		Buffer shader_code(default_allocator());
 		FileBuffer shader_fb(shader_code);
 		StringView shader_name;
+		StringId32 shader_id;
 		DynamicString shader_library(ta);
 		DynamicString shader(ta);
 
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]));
 		shader_name_defines(shader_name, defines, shader.c_str());
 
-		s32 err = shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_name, defines, opts, true, &samplers_meta);
+		s32 err = shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_id, shader_name, defines, opts, true, &samplers_meta);
 		ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		opts.add_requirement("shader", shader_library.c_str());
 
@@ -401,7 +402,7 @@ namespace material_resource_internal
 
 		MaterialResource mr;
 		mr.version             = RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL);
-		mr.shader              = shader.to_string_id();
+		mr.shader              = shader_id;
 		mr.num_textures        = array::size(data.textures);
 		mr.texture_data_offset = sizeof(mr);
 		mr.num_uniforms        = array::size(data.uniforms);
