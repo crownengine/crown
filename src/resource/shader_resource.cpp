@@ -724,6 +724,26 @@ namespace shader_resource_internal
 		return pr.spawn(array::begin(argv), CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE);
 	}
 
+	static void wait_shaderc_process(CompileOptions &opts, Process &pr)
+	{
+		if (!pr.spawned())
+			return;
+
+		// Drain output before wait() when abandoning overlapping shaderc work.
+		TempAllocator4096 ta;
+		StringStream output(ta);
+		opts.read_output(output, pr);
+		pr.wait();
+	}
+
+	static void wait_shaderc_processes(CompileOptions &opts, Process *pr_vert, Process *pr_frag, u32 count)
+	{
+		for (u32 i = 0; i < count; ++i) {
+			wait_shaderc_process(opts, pr_vert[i]);
+			wait_shaderc_process(opts, pr_frag[i]);
+		}
+	}
+
 	struct RenderState
 	{
 		ALLOCATOR_AWARE;
@@ -2251,6 +2271,16 @@ namespace shader_resource_internal
 			_opts.delete_file(_fs_bin_path.c_str());
 		}
 
+		void delete_temp_files(DynamicString * const *vs_bin_paths, DynamicString * const *fs_bin_paths, u32 count)
+		{
+			for (u32 i = 1; i < count; ++i) {
+				_opts.delete_file(vs_bin_paths[i]->c_str());
+				_opts.delete_file(fs_bin_paths[i]->c_str());
+			}
+
+			delete_temp_files();
+		}
+
 		static StringId32 shader_variant_id(const char *shader, const Vector<DynamicString> &defines)
 		{
 			TempAllocator1024 ta;
@@ -2519,13 +2549,97 @@ namespace shader_resource_internal
 			}
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
+			const ShadercTargetList targets = shaderc_targets(_opts._platform);
+			Process binary_pr_vert[ShaderBackend::COUNT];
+			Process binary_pr_frag[ShaderBackend::COUNT];
+			// Each target needs a unique output path because all binary compiles are spawned before
+			// their outputs are read back.
+			DynamicString vs_bin_path_0(default_allocator());
+			DynamicString vs_bin_path_1(default_allocator());
+			DynamicString vs_bin_path_2(default_allocator());
+			DynamicString vs_bin_path_3(default_allocator());
+			DynamicString fs_bin_path_0(default_allocator());
+			DynamicString fs_bin_path_1(default_allocator());
+			DynamicString fs_bin_path_2(default_allocator());
+			DynamicString fs_bin_path_3(default_allocator());
+			DynamicString *vs_bin_paths[ShaderBackend::COUNT] =
+			{
+				&vs_bin_path_0,
+				&vs_bin_path_1,
+				&vs_bin_path_2,
+				&vs_bin_path_3
+			};
+			DynamicString *fs_bin_paths[ShaderBackend::COUNT] =
+			{
+				&fs_bin_path_0,
+				&fs_bin_path_1,
+				&fs_bin_path_2,
+				&fs_bin_path_3
+			};
+
+			for (u32 ti = 0; ti < targets.count; ++ti) {
+				const ShadercTarget &target = targets.targets[ti];
+				*vs_bin_paths[ti] = _vs_bin_path.c_str();
+				*fs_bin_paths[ti] = _fs_bin_path.c_str();
+
+				if (ti > 0) {
+					*vs_bin_paths[ti] += ".";
+					*vs_bin_paths[ti] += target.profile;
+					*fs_bin_paths[ti] += ".";
+					*fs_bin_paths[ti] += target.profile;
+				}
+			}
+
+			if (!metadata_only) {
+				// Start binary shaderc work up front so it overlaps with the preprocess pass below.
+				for (u32 ti = 0; ti < targets.count; ++ti) {
+					const ShadercTarget &target = targets.targets[ti];
+
+					s32 sc = run_shaderc(binary_pr_vert[ti]
+						, _opts
+						, target
+						, _vs_path.c_str()
+						, vs_bin_paths[ti]->c_str()
+						, _varying_path.c_str()
+						, "vertex"
+						, defines
+						);
+					if (sc != 0) {
+						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
+							, _opts
+							, "Failed to spawn shaderc"
+							);
+					}
+
+					sc = run_shaderc(binary_pr_frag[ti]
+						, _opts
+						, target
+						, _fs_path.c_str()
+						, fs_bin_paths[ti]->c_str()
+						, _varying_path.c_str()
+						, "fragment"
+						, defines
+						);
+					if (sc != 0) {
+						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
+							, _opts
+							, "Failed to spawn shaderc"
+							);
+					}
+				}
+			}
+
+			const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
 			HashMap<DynamicString, u32> sampler_stages(default_allocator());
 			Vector<UniformMetadata> cached_uniform_meta(default_allocator());
 			const bool collect_uniform_metadata = meta != NULL || cache_static_metadata;
 
 			// Run preprocess pass on shaders.
 			if (need_preprocess) {
-				const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
 				s32 sc;
 				Process pr_vert;
 				Process pr_frag;
@@ -2541,7 +2655,8 @@ namespace shader_resource_internal
 					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
 					);
 				if (sc != 0) {
-					delete_temp_files();
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
@@ -2559,7 +2674,8 @@ namespace shader_resource_internal
 					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
 					);
 				if (sc != 0) {
-					delete_temp_files();
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
@@ -2575,8 +2691,9 @@ namespace shader_resource_internal
 				_opts.read_output(output_vert, pr_vert);
 				ec = pr_vert.wait();
 				if (ec != 0) {
-					pr_frag.wait();
-					delete_temp_files();
+					wait_shaderc_process(_opts, pr_frag);
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to preprocess vertex shader `%s`:\n%s"
@@ -2588,7 +2705,8 @@ namespace shader_resource_internal
 				_opts.read_output(output_frag, pr_frag);
 				ec = pr_frag.wait();
 				if (ec != 0) {
-					delete_temp_files();
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to preprocess fragment shader `%s`:\n%s"
@@ -2604,17 +2722,33 @@ namespace shader_resource_internal
 				array::push_back(fs_pp_data, '\0');
 
 				err = parse_sampler_stage_markers(sampler_stages, vs_pp_data, _opts);
-				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				if (err != 0) {
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					return err;
+				}
 				err = parse_sampler_stage_markers(sampler_stages, fs_pp_data, _opts);
-				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				if (err != 0) {
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					return err;
+				}
 
 				if (collect_uniform_metadata) {
 					// Static compiles do not request material metadata, so collect it locally for caching.
 					Vector<UniformMetadata> &metadata = meta != NULL ? *meta : cached_uniform_meta;
 					err = parse_metadata(metadata, vs_pp_data, _opts);
-					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+					if (err != 0) {
+						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						return err;
+					}
 					err = parse_metadata(metadata, fs_pp_data, _opts);
-					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+					if (err != 0) {
+						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						return err;
+					}
 				}
 			}
 
@@ -2642,14 +2776,19 @@ namespace shader_resource_internal
 				vector::push_back(samplers, sampler);
 			}
 
-			RETURN_IF_FALSE(SHADER_RESOURCE, vector::size(samplers) <= ShaderResource::MAX_SAMPLERS
-				, _opts
-				, "Too many active samplers in shader '%s': %u"
-				, bgfx_shader
-				, vector::size(samplers)
-				);
+			if (vector::size(samplers) > ShaderResource::MAX_SAMPLERS) {
+				wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+				delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+				RETURN_IF_FALSE(SHADER_RESOURCE, false
+					, _opts
+					, "Too many active samplers in shader '%s': %u"
+					, bgfx_shader
+					, vector::size(samplers)
+					);
+			}
 
 			if (metadata_only) {
+				// Metadata-only compiles do not spawn the binary jobs or per-target output paths.
 				delete_temp_files();
 				return 0;
 			}
@@ -2661,48 +2800,11 @@ namespace shader_resource_internal
 				bw.write(samplers[si].stage);
 			}
 
-			// Compile shader binaries.
-			const ShadercTargetList targets = shaderc_targets(_opts._platform);
+			// The binary jobs were spawned above; wait and serialize them in target order.
 			bw.write(targets.count);
 
 			for (u32 ti = 0; ti < targets.count; ++ti) {
 				const ShadercTarget &target = targets.targets[ti];
-				Process pr_vert;
-				Process pr_frag;
-
-				s32 sc = run_shaderc(pr_vert
-					, _opts
-					, target
-					, _vs_path.c_str()
-					, _vs_bin_path.c_str()
-					, _varying_path.c_str()
-					, "vertex"
-					, defines
-					);
-				if (sc != 0) {
-					delete_temp_files();
-					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
-						, _opts
-						, "Failed to spawn shaderc"
-						);
-				}
-
-				sc = run_shaderc(pr_frag
-					, _opts
-					, target
-					, _fs_path.c_str()
-					, _fs_bin_path.c_str()
-					, _varying_path.c_str()
-					, "fragment"
-					, defines
-					);
-				if (sc != 0) {
-					delete_temp_files();
-					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
-						, _opts
-						, "Failed to spawn shaderc"
-						);
-				}
 
 				// Check exit code.
 				s32 ec;
@@ -2710,11 +2812,11 @@ namespace shader_resource_internal
 				StringStream output_vert(ta);
 				StringStream output_frag(ta);
 
-				_opts.read_output(output_vert, pr_vert);
-				ec = pr_vert.wait();
+				_opts.read_output(output_vert, binary_pr_vert[ti]);
+				ec = binary_pr_vert[ti].wait();
 				if (ec != 0) {
-					pr_frag.wait();
-					delete_temp_files();
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to compile vertex shader `%s` for %s/%s:\n%s"
@@ -2725,10 +2827,11 @@ namespace shader_resource_internal
 						);
 				}
 
-				_opts.read_output(output_frag, pr_frag);
-				ec = pr_frag.wait();
+				_opts.read_output(output_frag, binary_pr_frag[ti]);
+				ec = binary_pr_frag[ti].wait();
 				if (ec != 0) {
-					delete_temp_files();
+					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
+					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
 						, "Failed to compile fragment shader `%s` for %s/%s:\n%s"
@@ -2739,8 +2842,8 @@ namespace shader_resource_internal
 						);
 				}
 
-				Buffer vs_data = _opts.read_temporary(_vs_bin_path.c_str());
-				Buffer fs_data = _opts.read_temporary(_fs_bin_path.c_str());
+				Buffer vs_data = _opts.read_temporary(vs_bin_paths[ti]->c_str());
+				Buffer fs_data = _opts.read_temporary(fs_bin_paths[ti]->c_str());
 
 				bw.write(u32(target.backend));
 				bw.write(array::size(vs_data));
@@ -2756,7 +2859,7 @@ namespace shader_resource_internal
 				store_metadata_cache(cache_key, _shader_library, _parsed_includes, &cached_uniform_meta, &samplers);
 			}
 
-			delete_temp_files();
+			delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 
 			return 0;
 		}
