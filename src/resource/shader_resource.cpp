@@ -1252,8 +1252,10 @@ namespace shader_resource_internal
 	};
 
 	typedef HashMap<DynamicString, MetadataCacheEntry> MetadataCache;
+	typedef HashMap<DynamicString, DynamicString> ShaderLibraryCache;
 
 	static MetadataCache *s_metadata_cache = NULL;
+	static ShaderLibraryCache *s_shader_library_cache = NULL;
 
 	static MetadataCache &metadata_cache()
 	{
@@ -1261,6 +1263,14 @@ namespace shader_resource_internal
 			s_metadata_cache = CE_NEW(default_allocator(), MetadataCache)(default_allocator());
 
 		return *s_metadata_cache;
+	}
+
+	static ShaderLibraryCache &shader_library_cache()
+	{
+		if (s_shader_library_cache == NULL)
+			s_shader_library_cache = CE_NEW(default_allocator(), ShaderLibraryCache)(default_allocator());
+
+		return *s_shader_library_cache;
 	}
 
 	static void metadata_cache_key(DynamicString &key
@@ -1307,6 +1317,12 @@ namespace shader_resource_internal
 			*sampler_meta = entry.sampler_meta;
 
 		return true;
+	}
+
+	static void cache_shader_library(const DynamicString &shader, const DynamicString &shader_library)
+	{
+		if (!hash_map::has(shader_library_cache(), shader))
+			hash_map::set(shader_library_cache(), shader, shader_library);
 	}
 
 	struct BgfxShader
@@ -1373,6 +1389,7 @@ namespace shader_resource_internal
 		HashMap<DynamicString, ShaderPermutation> _shaders;
 		Vector<StaticCompile> _static_compile;
 
+		DynamicString _shader_library;
 		DynamicString _vs_path;
 		DynamicString _fs_path;
 		DynamicString _varying_path;
@@ -1397,6 +1414,7 @@ namespace shader_resource_internal
 			, _bgfx_shaders(default_allocator())
 			, _shaders(default_allocator())
 			, _static_compile(default_allocator())
+			, _shader_library(default_allocator())
 			, _vs_path(default_allocator())
 			, _fs_path(default_allocator())
 			, _varying_path(default_allocator())
@@ -1422,6 +1440,7 @@ namespace shader_resource_internal
 			hash_map::clear(_bgfx_shaders);
 			hash_map::clear(_shaders);
 			vector::clear(_static_compile);
+			_shader_library = "";
 		}
 
 		s32 parse(const char *path, bool is_include)
@@ -1429,6 +1448,14 @@ namespace shader_resource_internal
 			TempAllocator256 ta;
 			DynamicString path_str(ta);
 			path_str = path;
+
+			if (!is_include) {
+				const char *type = resource_type(path);
+				if (type != NULL)
+					_shader_library.set(path, u32(type - path - 1));
+				else
+					_shader_library = path;
+			}
 
 			if (hash_set::has(_parsed_includes, path_str))
 				return 0;
@@ -2261,6 +2288,8 @@ namespace shader_resource_internal
 				const DynamicString &shader          = sc._shader;
 				const Vector<DynamicString> &defines = sc._defines;
 
+				cache_shader_library(shader, _shader_library);
+
 				RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_shaders, shader)
 					, _opts
 					, "Unknown shader: '%s'"
@@ -2818,6 +2847,11 @@ namespace shader_compiler
 			CE_DELETE(default_allocator(), s_metadata_cache);
 			s_metadata_cache = NULL;
 		}
+
+		if (s_shader_library_cache != NULL) {
+			CE_DELETE(default_allocator(), s_shader_library_cache);
+			s_shader_library_cache = NULL;
+		}
 	}
 
 	s32 compile_variant(FileBuffer &fb
@@ -2853,6 +2887,15 @@ namespace shader_compiler
 
 			if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
 				return 0;
+
+			if (shader_library.empty() && s_shader_library_cache != NULL && hash_map::has(*s_shader_library_cache, shader_name)) {
+				const DynamicString empty(default_allocator());
+				shader_library = hash_map::get(*s_shader_library_cache, shader_name, empty);
+				metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
+				if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
+					return 0;
+				shader_library = "";
+			}
 		}
 
 		// Find a shader library that contains the specified shader if none provided. This is slow
@@ -2873,6 +2916,9 @@ namespace shader_compiler
 				if (sc.has_shader(shader)) {
 					const char *sp = shader_library_path.c_str();
 					shader_library.set(sp, (u32)(resource_type(sp) - sp - 1));
+					cache_shader_library(shader_name, shader_library);
+					if (metadata_only)
+						metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
 					break;
 				}
 			}
