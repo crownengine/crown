@@ -116,6 +116,7 @@ namespace shader_compiler
 	s32 compile_variant(FileBuffer &fb
 		, Vector<UniformMetadata> *uniform_meta
 		, DynamicString &shader_library
+		, StringId32 &shader_id
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
