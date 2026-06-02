@@ -1319,6 +1319,35 @@ namespace shader_resource_internal
 		return true;
 	}
 
+	static void store_metadata_cache(const DynamicString &cache_key
+		, const DynamicString &shader_library
+		, const HashSet<DynamicString> &dependencies
+		, const Vector<UniformMetadata> *uniform_meta
+		, const Vector<ShaderResource::Sampler> *sampler_meta
+		)
+	{
+		if (hash_map::has(metadata_cache(), cache_key))
+			return;
+
+		MetadataCacheEntry entry(default_allocator());
+		entry.shader_library = shader_library;
+
+		auto cur = hash_set::begin(dependencies);
+		auto end = hash_set::end(dependencies);
+		for (; cur != end; ++cur) {
+			HASH_SET_SKIP_HOLE(dependencies, cur);
+			vector::push_back(entry.dependencies, *cur);
+		}
+
+		if (uniform_meta != NULL)
+			entry.uniform_meta = *uniform_meta;
+
+		if (sampler_meta != NULL)
+			entry.sampler_meta = *sampler_meta;
+
+		hash_map::set(metadata_cache(), cache_key, entry);
+	}
+
 	static void cache_shader_library(const DynamicString &shader, const DynamicString &shader_library)
 	{
 		if (!hash_map::has(shader_library_cache(), shader))
@@ -2269,7 +2298,7 @@ namespace shader_resource_internal
 			bw.write(state.encode());                                // Render state
 			bw.write(stencil_front);                                 // Stencil
 			bw.write(stencil_back);                                  //
-			return compile_bgfx_shader(fb, meta, sampler_meta, bgfx_shader.c_str(), defines, metadata_only); // Sampler states and shader code
+			return compile_bgfx_shader(fb, meta, sampler_meta, shader, bgfx_shader.c_str(), defines, metadata_only); // Sampler states and shader code
 		}
 
 		s32 compile()
@@ -2434,6 +2463,7 @@ namespace shader_resource_internal
 		s32 compile_bgfx_shader(FileBuffer &fb
 			, Vector<UniformMetadata> *meta
 			, Vector<ShaderResource::Sampler> *sampler_meta
+			, const DynamicString &shader_name
 			, const char *bgfx_shader
 			, const Vector<DynamicString> &defines
 			, bool metadata_only
@@ -2446,6 +2476,12 @@ namespace shader_resource_internal
 			const BgfxShader shader_default(default_allocator());
 			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
 			const bool has_sampler_metadata = hash_map::size(shader._samplers) > 0;
+			// Full static compiles can seed metadata for later material-only compiles.
+			const bool cache_static_metadata = !metadata_only
+				&& meta == NULL
+				&& has_sampler_metadata
+				&& !_shader_library.empty()
+				;
 
 			StringStream code(default_allocator());
 			s32 err = bgfx_shader_collect_code(code, shader);
@@ -2484,6 +2520,8 @@ namespace shader_resource_internal
 			_opts.write_temporary(_varying_path.c_str(), varying_code);
 
 			HashMap<DynamicString, u32> sampler_stages(default_allocator());
+			Vector<UniformMetadata> cached_uniform_meta(default_allocator());
+			const bool collect_uniform_metadata = meta != NULL || cache_static_metadata;
 
 			// Run preprocess pass on shaders.
 			if (need_preprocess) {
@@ -2570,10 +2608,12 @@ namespace shader_resource_internal
 				err = parse_sampler_stage_markers(sampler_stages, fs_pp_data, _opts);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
-				if (meta != NULL) {
-					err = parse_metadata(*meta, vs_pp_data, _opts);
+				if (collect_uniform_metadata) {
+					// Static compiles do not request material metadata, so collect it locally for caching.
+					Vector<UniformMetadata> &metadata = meta != NULL ? *meta : cached_uniform_meta;
+					err = parse_metadata(metadata, vs_pp_data, _opts);
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
-					err = parse_metadata(*meta, fs_pp_data, _opts);
+					err = parse_metadata(metadata, fs_pp_data, _opts);
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 				}
 			}
@@ -2707,6 +2747,13 @@ namespace shader_resource_internal
 				bw.write(vs_data);
 				bw.write(array::size(fs_data));
 				bw.write(fs_data);
+			}
+
+			if (cache_static_metadata) {
+				// Reuse metadata parsed during static compiles when compiling matching materials.
+				DynamicString cache_key(default_allocator());
+				metadata_cache_key(cache_key, _opts._platform, _shader_library, shader_name, defines);
+				store_metadata_cache(cache_key, _shader_library, _parsed_includes, &cached_uniform_meta, &samplers);
 			}
 
 			delete_temp_files();
@@ -2934,23 +2981,12 @@ namespace shader_compiler
 		ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 
 		if (metadata_only) {
-			MetadataCacheEntry entry(default_allocator());
-			entry.shader_library = shader_library;
-
-			auto cur = hash_set::begin(sc._parsed_includes);
-			auto end = hash_set::end(sc._parsed_includes);
-			for (; cur != end; ++cur) {
-				HASH_SET_SKIP_HOLE(sc._parsed_includes, cur);
-				vector::push_back(entry.dependencies, *cur);
-			}
-
-			if (uniform_meta != NULL)
-				entry.uniform_meta = *uniform_meta;
-
-			if (sampler_meta != NULL)
-				entry.sampler_meta = *sampler_meta;
-
-			hash_map::set(metadata_cache(), cache_key, entry);
+			store_metadata_cache(cache_key
+				, shader_library
+				, sc._parsed_includes
+				, uniform_meta
+				, sampler_meta
+				);
 		}
 
 		return 0;
