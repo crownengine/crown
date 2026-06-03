@@ -6,7 +6,7 @@
 namespace Crown
 {
 const string CROWN_VERSION_MAJOR = "0";
-const string CROWN_VERSION_MINOR = "63";
+const string CROWN_VERSION_MINOR = "64";
 const string CROWN_VERSION_PATCH = "0";
 
 const string CROWN_FEATURES_VERSION = CROWN_VERSION_MAJOR + "." + CROWN_VERSION_MINOR;
