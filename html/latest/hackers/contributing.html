@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-05-25T20:29:39+00:00" /><meta property="og:title" content="Contributing" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/contributing.html" />
+<meta property="og:site_name" content="Crown 0.63.0 Manual" />
+<meta property="og:description" content="Everyone is welcome to contribute to Crown. You can help by submitting patches, testing features, promoting the project online, sponsoring it, and more. Legal Requirements: Crown is distributed under different licenses for different parts of the project: Runtime, Tools, Manual..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
+<meta property="og:image:alt" content="Crown 0.63.0 Manual" />
+<meta name="description" content="Everyone is welcome to contribute to Crown. You can help by submitting patches, testing features, promoting the project online, sponsoring it, and more. Legal Requirements: Crown is distributed under different licenses for different parts of the project: Runtime, Tools, Manual..." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@crown_engine" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; Crown 0.63.0 Manual</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/hackers/contributing.html" />
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Building" href="building.html" />
+    <link rel="prev" title="Engine Hackers" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Engine Hackers</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#legal-requirements">Legal Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submitting-patches">Submitting Patches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="console_api.html">Console API</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.63.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Engine Hackers</a></li>
+      <li class="breadcrumb-item active">Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/hackers/contributing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>Everyone is welcome to contribute to Crown. You can help by submitting patches,
+testing features, promoting the project online, sponsoring it, and more.</p>
+<section id="legal-requirements">
+<h2>Legal Requirements<a class="headerlink" href="#legal-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Crown is distributed under different licenses for different parts of the
+project:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../copyright.html#license-crown-runtime"><span class="std std-ref">Runtime</span></a></p></li>
+<li><p><a class="reference internal" href="../copyright.html#license-crown-tools"><span class="std std-ref">Tools</span></a></p></li>
+<li><p><a class="reference internal" href="../copyright.html#license-crown-manual"><span class="std std-ref">Manual</span></a></p></li>
+</ul>
+<p>By submitting a contribution, you state that you have the right to do so and
+that the work does not infringe any copyright or violate any license. If
+accepted, it will be distributed under the terms that apply to the part of Crown
+it modifies.</p>
+</section>
+<section id="submitting-patches">
+<h2>Submitting Patches<a class="headerlink" href="#submitting-patches" title="Permalink to this headline">¶</a></h2>
+<p>For trivial patches, just send a pull request on GitHub. For more complex
+changes, it is better to discuss the idea beforehand by joining our Discord
+server or opening an issue on GitHub.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Engine Hackers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="building.html" class="btn btn-neutral float-right" title="Building" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on May 25, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
