@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.1 --- DD MMM YYYY <v0.63.1>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
+
 .. _v0.63.0:
 
 :ref:`0.63.0 --- 03 Jun 2026 <v0.63.0>`

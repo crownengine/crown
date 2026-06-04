@@ -1577,7 +1577,7 @@ struct PhysicsWorldImpl
 			const bool is_static    = !is_kinematic && !is_dynamic;
 			const bool is_trigger   = (actor_class->flags & CROWN_PHYSICS_ACTOR_TRIGGER) != 0;
 
-			const f32 mass = is_dynamic ? actors[i].mass : 0.0f;
+			const f32 mass = (is_dynamic && !is_kinematic) ? actors[i].mass : 0.0f;
 
 			// Create compound shape
 			ColliderId ci = collider_instance(unit);
@@ -1591,7 +1591,7 @@ struct PhysicsWorldImpl
 				;
 
 			// If dynamic, calculate inertia
-			btVector3 inertia;
+			btVector3 inertia(0.0f, 0.0f, 0.0f);
 			if (mass != 0.0f) // Actor is dynamic iff mass != 0
 				shape->calculateLocalInertia(mass, inertia);
 
