@@ -1783,7 +1783,7 @@ struct PhysicsWorldImpl
 			body->setMassProps(mass, inertia);
 			body->updateInertiaTensor();
 			body->m_collisionFlags = (body->m_collisionFlags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
-			body->setActivationState(ACTIVE_TAG);
+			body->forceActivationState(ACTIVE_TAG);
 		}
 	}
 
