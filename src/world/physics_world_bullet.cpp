@@ -1762,13 +1762,27 @@ struct PhysicsWorldImpl
 	void actor_set_kinematic(ActorId actor, bool kinematic)
 	{
 		btRigidBody *body = _actor[actor.i].body;
-		int flags = body->m_collisionFlags;
-
 		if (kinematic) {
-			body->m_collisionFlags = (flags | btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setMassProps(0.0f, btVector3(0.0f, 0.0f, 0.0f));
+			body->updateInertiaTensor();
+			body->m_collisionFlags = (body->m_collisionFlags | btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(DISABLE_DEACTIVATION);
 		} else {
-			body->m_collisionFlags = (flags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			ActorInstanceData &a = _actor[actor.i];
+			const PhysicsActor *actor_classes = physics_config_resource::actors_array(_config_resource);
+			const u32 actor_i = physics_config_resource::actor_index(actor_classes, _config_resource->num_actors, a.resource->actor_class);
+			btVector3 inertia(0.0f, 0.0f, 0.0f);
+			f32 mass = 0.0f;
+
+			if (actor_classes[actor_i].flags & CROWN_PHYSICS_ACTOR_DYNAMIC)
+				mass = a.resource->mass;
+
+			if (mass != 0.0f)
+				body->m_collisionShape->calculateLocalInertia(mass, inertia);
+
+			body->setMassProps(mass, inertia);
+			body->updateInertiaTensor();
+			body->m_collisionFlags = (body->m_collisionFlags & ~btCollisionObject::CF_KINEMATIC_OBJECT);
 			body->setActivationState(ACTIVE_TAG);
 		}
 	}
