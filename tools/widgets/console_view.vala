@@ -174,7 +174,7 @@ public class ConsoleView : Gtk.Box
 		_text_view.can_focus = true;
 
 		Gtk.Button clear_button = new Gtk.Button.from_icon_name("edit-clear");
-		clear_button.set_tooltip_text("Clear the console.");
+		clear_button.set_tooltip_text(_("Clear the console."));
 		clear_button.margin_top = 8;
 		clear_button.margin_end = 16;
 		clear_button.valign = Gtk.Align.START;
@@ -212,7 +212,7 @@ public class ConsoleView : Gtk.Box
 		_entry.changed.connect(on_entry_changed);
 		_entry.focus_in_event.connect(on_entry_focus_in);
 		_entry.focus_out_event.connect(on_entry_focus_out);
-		_entry.set_placeholder_text("Enter Command or Lua expression");
+		_entry.set_placeholder_text(_("Enter Command or Lua expression"));
 
 		_entry_suggestions_list = new Gtk.ListBox();
 		_entry_suggestions_list.selection_mode = Gtk.SelectionMode.SINGLE;
@@ -609,12 +609,12 @@ public class ConsoleView : Gtk.Box
 						string? resource_name = ResourceId.name(resource_path);
 
 						if (resource_type != null && resource_name != null) {
-							mi = new GLib.MenuItem("Reveal in Project Browser", null);
+							mi = new GLib.MenuItem(_("Reveal in Project Browser"), null);
 							mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({ resource_type, resource_name }));
 							menu_model.append_item(mi);
 						}
 
-						mi = new GLib.MenuItem("Open Containing Folder...", null);
+						mi = new GLib.MenuItem(_("Open Containing Folder..."), null);
 						mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(resource_path));
 						menu_model.append_item(mi);
 

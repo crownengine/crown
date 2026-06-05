@@ -61,7 +61,7 @@ public class TextureSettingsDialog : Gtk.Window
 		}
 
 		Gtk.CellRendererText text_renderer = new Gtk.CellRendererText();
-		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn.with_attributes("Target Platform", text_renderer, null);
+		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn.with_attributes(_("Target Platform"), text_renderer, null);
 		column.set_cell_data_func(text_renderer, text_func);
 
 		_platforms = new Gtk.TreeView.with_model(_platforms_store);
@@ -85,13 +85,13 @@ public class TextureSettingsDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Name", _texture_name, "Resource name.");
-		_texture_set.add_property_grid(cv, "Texture");
+		cv.add_row(_("Name"), _texture_name, _("Resource name."));
+		_texture_set.add_property_grid(cv, _("Texture"));
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Source", _source, "Source image.");
-		_texture_set.add_property_grid(cv, "Input");
+		cv.add_row(_("Source"), _source, _("Source image."));
+		_texture_set.add_property_grid(cv, _("Input"));
 
 		// Output grid.
 		string[] texture_formats = new string[TextureFormat.COUNT];
@@ -125,16 +125,16 @@ public class TextureSettingsDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Format", _format, "Output format.");
-		cv.add_row("Generate Mips", _generate_mips, "Generate mip-maps.");
-		cv.add_row("Skip Smallest Mips", _mip_skip_smallest, "Skip generation of the N smallest mip-maps.");
-		cv.add_row("Normal Map", _normal_map, "Skip gamma correction and mark as normal map.");
-		cv.add_row("Linear", _linear, "Skip gamma correction.");
-		cv.add_row("Premultiply Alpha", _premultiply_alpha, "Premultiply alpha into RGB channels.");
-		_texture_set.add_property_grid(cv, "Output");
+		cv.add_row(_("Format"), _format, _("Output format."));
+		cv.add_row(_("Generate Mips"), _generate_mips, _("Generate mip-maps."));
+		cv.add_row(_("Skip Smallest Mips"), _mip_skip_smallest, _("Skip generation of the N smallest mip-maps."));
+		cv.add_row(_("Normal Map"), _normal_map, _("Skip gamma correction and mark as normal map."));
+		cv.add_row(_("Linear"), _linear, _("Skip gamma correction."));
+		cv.add_row(_("Premultiply Alpha"), _premultiply_alpha, _("Premultiply alpha into RGB channels."));
+		_texture_set.add_property_grid(cv, _("Output"));
 
 		_stack = new Gtk.Stack();
-		_stack.add_named(new Gtk.Label("Select one or more platforms to change its settings"), "none-selected");
+		_stack.add_named(new Gtk.Label(_("Select one or more platforms to change its settings")), "none-selected");
 		_stack.add_named(_texture_set, "some-selected");
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
@@ -154,17 +154,17 @@ public class TextureSettingsDialog : Gtk.Window
 				return Gdk.EVENT_PROPAGATE;
 			});
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_save = new Gtk.Button.with_label("Save & Reload");
+		_save = new Gtk.Button.with_label(_("Save & Reload"));
 		_save.get_style_context().add_class("suggested-action");
 		_save.clicked.connect(() => {
 				save();
 			});
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Texture Settings";
+		_header_bar.title = _("Texture Settings");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_save);

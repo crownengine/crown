@@ -48,7 +48,7 @@ public class ObjectChooser : Gtk.Box
 
 		// Widgets
 		_filter_entry = new EntrySearch();
-		_filter_entry.set_placeholder_text("Search...");
+		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry);
@@ -85,7 +85,7 @@ public class ObjectChooser : Gtk.Box
 
 		_tree_view = new Gtk.TreeView();
 		_tree_view.insert_column_with_attributes(-1
-			, "Name"
+			, _("Name")
 			, new Gtk.CellRendererText()
 			, "text"
 			, DatabaseModel.Column.NAME

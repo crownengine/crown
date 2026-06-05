@@ -43,7 +43,7 @@ public class UnitView : PropertyGrid
 		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
 		_prefab._selector.sensitive = false;
 
-		_open_prefab = new Gtk.Button.with_label("Open Prefab");
+		_open_prefab = new Gtk.Button.with_label(_("Open Prefab"));
 		_open_prefab.sensitive = false;
 		_open_prefab.clicked.connect(on_open_prefab_clicked);
 
@@ -62,16 +62,16 @@ public class UnitView : PropertyGrid
 		_add_popover = new Gtk.Popover.from_model(null, menu_model);
 
 		_component_add = new Gtk.MenuButton();
-		_component_add.label = "Add Component";
+		_component_add.label = _("Add Component");
 		_component_add.set_popover(_add_popover);
 
 		_components = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		_components.homogeneous = true;
 		_components.pack_start(_component_add);
 
-		add_row("Prefab", _prefab);
-		add_row("Prefab", _open_prefab);
-		add_row("Components", _components);
+		add_row(_("Prefab"), _prefab);
+		add_row(_("Prefab"), _open_prefab);
+		add_row(_("Components"), _components);
 	}
 
 	public override void read_properties()
@@ -130,8 +130,8 @@ public class PropertiesView : Gtk.Box
 		_scrolled_window.add(_viewport);
 
 		_stack = new Gtk.Stack();
-		_stack.add_named(new Gtk.Label("Select an object to start editing"), NOTHING_TO_SHOW);
-		_stack.add_named(new Gtk.Label("Unknown object type"), UNKNOWN_OBJECT_TYPE);
+		_stack.add_named(new Gtk.Label(_("Select an object to start editing")), NOTHING_TO_SHOW);
+		_stack.add_named(new Gtk.Label(_("Unknown object type")), UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
 
 		this.pack_start(_stack);

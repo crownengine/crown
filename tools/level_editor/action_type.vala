@@ -16,9 +16,9 @@ public enum ActionType
 
 public const string ActionNames[] =
 {
-	"Create Objects",
-	"Destroy Objects",
-	"Change Objects",
+	N_("Create Objects"),
+	N_("Destroy Objects"),
+	N_("Change Objects"),
 };
 
 public enum ActionTypeFlags

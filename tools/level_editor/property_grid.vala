@@ -30,7 +30,7 @@ class ObjectsSetEditor : Gtk.Box
 		_add = new Gtk.Button.from_icon_name("list-add-symbolic");
 		_add.clicked.connect(on_add_clicked);
 
-		_read_only_note = new Gtk.Label("Inherited sub-objects are read-only here. Edit the unit in Unit Editor.");
+		_read_only_note = new Gtk.Label(_("Inherited sub-objects are read-only here. Edit the unit in Unit Editor."));
 		_read_only_note.wrap = true;
 		_read_only_note.xalign = 0.0f;
 		_read_only_note.visible = false;
@@ -257,7 +257,7 @@ public class PropertyGrid : Gtk.Grid
 
 		if (dependents.size > 0) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("Cannot remove %s due to the following dependencies:\n\n".printf(component_type));
+			sb.append(_("Cannot remove %s due to the following dependencies:\n\n").printf(component_type));
 			foreach (var item in dependents)
 				sb.append("• %s\n".printf(item));
 
@@ -293,7 +293,7 @@ public class PropertyGrid : Gtk.Grid
 			GLib.MenuItem mi;
 
 			if (_db != null && _db.object_type(_id) == OBJECT_TYPE_UNIT && _component_id != GUID_ZERO) {
-				mi = new GLib.MenuItem("Remove Component", null);
+				mi = new GLib.MenuItem(_("Remove Component"), null);
 				mi.set_action_and_target_value("object.remove", null);
 				menu.append_item(mi);
 			}
@@ -454,7 +454,7 @@ public class PropertyGrid : Gtk.Grid
 					GLib.MenuItem mi;
 
 					if (_db != null) {
-						mi = new GLib.MenuItem("Reset to default", null);
+						mi = new GLib.MenuItem(_("Reset to default"), null);
 						mi.set_action_and_target_value("object.reset_property", new GLib.Variant.string(def.name));
 						menu.append_item(mi);
 					}

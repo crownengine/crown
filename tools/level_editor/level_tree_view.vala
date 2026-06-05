@@ -47,15 +47,15 @@ public class LevelTreeView : Gtk.Box
 		{
 			switch (this) {
 			case NAME_AZ:
-				return "Name A-Z";
+				return _("Name A-Z");
 			case NAME_ZA:
-				return "Name Z-A";
+				return _("Name Z-A");
 			case TYPE_AZ:
-				return "Type A-Z";
+				return _("Type A-Z");
 			case TYPE_ZA:
-				return "Type Z-A";
+				return _("Type Z-A");
 			default:
-				return "Unknown";
+				return _("Unknown");
 			}
 		}
 	}
@@ -114,7 +114,7 @@ public class LevelTreeView : Gtk.Box
 		_toggle_drag_last_x = 0.0;
 		_toggle_drag_last_y = 0.0;
 		_filter_entry = new EntrySearch();
-		_filter_entry.set_placeholder_text("Search...");
+		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry._entry.stop_search.connect(on_stop_search);
 
@@ -254,9 +254,9 @@ public class LevelTreeView : Gtk.Box
 					return false;
 
 				if (column == _visibility_column)
-					tooltip.set_text("Toggle visibility.");
+					tooltip.set_text(_("Toggle visibility."));
 				else
-					tooltip.set_text("Toggle selection lock.");
+					tooltip.set_text(_("Toggle selection lock."));
 				return true;
 			});
 
@@ -283,7 +283,7 @@ public class LevelTreeView : Gtk.Box
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
-		_sort_items.set_tooltip_text("Sort items.");
+		_sort_items.set_tooltip_text(_("Sort items."));
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
@@ -390,18 +390,18 @@ public class LevelTreeView : Gtk.Box
 						_tree_view.model.get_value(iter, Column.GUID, out val);
 						Guid object_id = (Guid)val;
 
-						mi = new GLib.MenuItem("Rename...", null);
+						mi = new GLib.MenuItem(_("Rename..."), null);
 						mi.set_action_and_target_value("app.rename", new GLib.Variant.tuple({ object_id.to_string(), "" }));
 						menu_model.append_item(mi);
 					}
 				}
 			}
 
-			mi = new GLib.MenuItem("Duplicate", null);
+			mi = new GLib.MenuItem(_("Duplicate"), null);
 			mi.set_action_and_target_value("database.duplicate", null);
 			menu_model.append_item(mi);
 
-			mi = new GLib.MenuItem("Delete", null);
+			mi = new GLib.MenuItem(_("Delete"), null);
 			mi.set_action_and_target_value("database.delete", null);
 			menu_model.append_item(mi);
 
@@ -417,7 +417,7 @@ public class LevelTreeView : Gtk.Box
 					string name = (string)val;
 
 					if (_db.object_type(object_id) == OBJECT_TYPE_UNIT) {
-						mi = new GLib.MenuItem("Save as Prefab...", null);
+						mi = new GLib.MenuItem(_("Save as Prefab..."), null);
 						mi.set_action_and_target_value("app.unit-save-as-prefab", new GLib.Variant.tuple({ object_id.to_string(), name }));
 						menu_model.append_item(mi);
 					}

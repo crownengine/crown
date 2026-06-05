@@ -254,17 +254,17 @@ public class FontImportDialog : Gtk.Window
 
 		PropertyGrid cv;
 		cv = new PropertyGrid();
-		cv.add_row("Source", _font_path, "Source font path.");
-		sprite_set.add_property_grid(cv, "File");
+		cv.add_row(_("Source"), _font_path, _("Source font path."));
+		sprite_set.add_property_grid(cv, _("File"));
 
 		cv = new PropertyGrid();
-		cv.add_row("Name", _font_name, "Name of the imported resource.");
-		cv.add_row("Atlas size", _atlas_size, "Resolution of the generated texture.");
-		cv.add_row("Size", _font_size, "Size of characters.");
-		cv.add_row("Charset", _font_chars, "Generate characters within this set.");
-		cv.add_row("Range min", _font_range_min, "First character to generate (included).");
-		cv.add_row("Range max", _font_range_max, "Last character to generate (included).");
-		sprite_set.add_property_grid(cv, "Font");
+		cv.add_row(_("Name"), _font_name, _("Name of the imported resource."));
+		cv.add_row(_("Atlas size"), _atlas_size, _("Resolution of the generated texture."));
+		cv.add_row(_("Size"), _font_size, _("Size of characters."));
+		cv.add_row(_("Charset"), _font_chars, _("Generate characters within this set."));
+		cv.add_row(_("Range min"), _font_range_min, _("First character to generate (included)."));
+		cv.add_row(_("Range max"), _font_range_max, _("Last character to generate (included)."));
+		sprite_set.add_property_grid(cv, _("Font"));
 
 		Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		box.pack_start(_scrolled_window, true, true);
@@ -280,16 +280,16 @@ public class FontImportDialog : Gtk.Window
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(pane, false, false);
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_import = new Gtk.Button.with_label("Import");
+		_import = new Gtk.Button.with_label(_("Import"));
 		_import.get_style_context().add_class("suggested-action");
 		_import.clicked.connect(on_import);
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Import Font...";
+		_header_bar.title = _("Import Font...");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);

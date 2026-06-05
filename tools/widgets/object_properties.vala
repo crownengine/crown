@@ -46,8 +46,8 @@ public class ObjectProperties : Gtk.Box
 		_scrolled_window.add(_viewport);
 
 		_stack = new Gtk.Stack();
-		_stack.add_named(new Gtk.Label("Select an object to start editing"), NOTHING_TO_SHOW);
-		_stack.add_named(new Gtk.Label("Unknown object type"), UNKNOWN_OBJECT_TYPE);
+		_stack.add_named(new Gtk.Label(_("Select an object to start editing")), NOTHING_TO_SHOW);
+		_stack.add_named(new Gtk.Label(_("Unknown object type")), UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
 
 		this.pack_start(_stack);
@@ -90,7 +90,7 @@ public class ObjectProperties : Gtk.Box
 			grid._visible = true;
 			grid.read_properties();
 
-			_object_view.add_property_grid(grid, "General");
+			_object_view.add_property_grid(grid, _("General"));
 			_grids.add(grid);
 		}
 

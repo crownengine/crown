@@ -154,13 +154,13 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Local Position.",
+			tooltip = _("Local Position."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
-			tooltip = "Local Rotation.",
+			tooltip = _("Local Rotation."),
 		},
 		PropertyDefinition()
 		{
@@ -168,7 +168,7 @@ public static void create_object_types(Database database)
 			name = "data.scale",
 			min = VECTOR3_ZERO,
 			deffault = VECTOR3_ONE,
-			tooltip = "Local Scale.",
+			tooltip = _("Local Scale."),
 		},
 		PropertyDefinition()
 		{
@@ -197,21 +197,21 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "data.mesh_resource",
-			label = "Scene",
+			label = _("Scene"),
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
-			tooltip = "Mesh resource where to read geometries from.",
+			tooltip = _("Mesh resource where to read geometries from."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.geometry_name",
-			label = "Node",
+			label = _("Node"),
 			editor = PropertyEditorType.ENUM,
 			enum_property = "data.mesh_resource",
 			enum_callback = node_name_enum_callback,
 			deffault = "Noop",
-			tooltip = "Geometry to render.",
+			tooltip = _("Geometry to render."),
 		},
 		PropertyDefinition()
 		{
@@ -219,21 +219,21 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
-			tooltip = "Material used to render to the geometry.",
+			tooltip = _("Material used to render to the geometry."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
 			deffault = true,
-			tooltip = "Enable geometry rendering. If disabled it skips any rendering, for example shadow casting.",
+			tooltip = _("Enable geometry rendering. If disabled it skips any rendering, for example shadow casting."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.cast_shadows",
 			deffault = true,
-			tooltip = "Enable geometry shadow rendering.",
+			tooltip = _("Enable geometry shadow rendering."),
 		},
 		PropertyDefinition()
 		{
@@ -257,10 +257,10 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "data.sprite_resource",
-			label = "Sprite",
+			label = _("Sprite"),
 			resource_type = OBJECT_TYPE_SPRITE,
 			deffault = "core/components/noop",
-			tooltip = "Sprite resource containing frames.",
+			tooltip = _("Sprite resource containing frames."),
 		},
 		PropertyDefinition()
 		{
@@ -268,7 +268,7 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
-			tooltip = "Material used to render the sprite.",
+			tooltip = _("Material used to render the sprite."),
 		},
 		PropertyDefinition()
 		{
@@ -276,7 +276,7 @@ public static void create_object_types(Database database)
 			name = "data.layer",
 			min = 0.0,
 			max = 7.0,
-			tooltip = "Sorting layer. Higher values makes the sprite appear in front.",
+			tooltip = _("Sorting layer. Higher values makes the sprite appear in front."),
 		},
 		PropertyDefinition()
 		{
@@ -284,26 +284,26 @@ public static void create_object_types(Database database)
 			name = "data.depth",
 			min = 0.0,
 			max = (double)uint32.MAX,
-			tooltip = "Higher values make the sprite apper in front of other sprites in the same layer.",
+			tooltip = _("Higher values make the sprite apper in front of other sprites in the same layer."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.visible",
 			deffault = true,
-			tooltip = "Enable sprite rendering.",
+			tooltip = _("Enable sprite rendering."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.flip_x",
-			tooltip = "Flips the sprite on the X axis.",
+			tooltip = _("Flips the sprite on the X axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.flip_y",
-			tooltip = "Flips the sprite on the Y axis.",
+			tooltip = _("Flips the sprite on the Y axis."),
 		},
 		PropertyDefinition()
 		{
@@ -330,7 +330,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "directional", "omni", "spot" },
 			deffault = "omni",
-			tooltip = "Light type.",
+			tooltip = _("Light type."),
 		},
 		PropertyDefinition()
 		{
@@ -338,7 +338,7 @@ public static void create_object_types(Database database)
 			name =  "data.range",
 			min = 0.0,
 			deffault = 15.0,
-			tooltip = "Objects farther than this value won't be lit.",
+			tooltip = _("Objects farther than this value won't be lit."),
 		},
 		PropertyDefinition()
 		{
@@ -346,7 +346,7 @@ public static void create_object_types(Database database)
 			name = "data.intensity",
 			min = 0.0,
 			deffault = 500.0,
-			tooltip = "Light intensity.",
+			tooltip = _("Light intensity."),
 		},
 		PropertyDefinition()
 		{
@@ -356,7 +356,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0),
-			tooltip = "Angle of the light's outer cone (Spot only).",
+			tooltip = _("Angle of the light's outer cone (Spot only)."),
 		},
 		PropertyDefinition()
 		{
@@ -366,7 +366,7 @@ public static void create_object_types(Database database)
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
 			deffault = VECTOR3_ONE,
-			tooltip = "Light color.",
+			tooltip = _("Light color."),
 		},
 		PropertyDefinition()
 		{
@@ -375,14 +375,14 @@ public static void create_object_types(Database database)
 			min =  0.0,
 			max =  1.0,
 			deffault = 0.0004,
-			tooltip = "Too low values increase shadow acne. Too high values cause peter-panning.",
+			tooltip = _("Too low values increase shadow acne. Too high values cause peter-panning."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name =  "data.cast_shadows",
 			deffault = true,
-			tooltip = "Enable shadow casting."
+			tooltip = _("Enable shadow casting.")
 		},
 		PropertyDefinition()
 		{
@@ -408,7 +408,7 @@ public static void create_object_types(Database database)
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.mesh_renderer",
 			deffault = GUID_ZERO,
-			tooltip = "Mesh to render at this LOD level.",
+			tooltip = _("Mesh to render at this LOD level."),
 		},
 		PropertyDefinition()
 		{
@@ -417,7 +417,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 1.0,
 			deffault = 1.0,
-			tooltip = "Activate this LOD level when the group height covers this screen percentage or less.",
+			tooltip = _("Activate this LOD level when the group height covers this screen percentage or less."),
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_LOD_LEVEL
@@ -433,7 +433,7 @@ public static void create_object_types(Database database)
 			name = "data.level",
 			min = -1.0,
 			deffault = -1.0,
-			tooltip = "Select the LOD level to render. Use -1 for automatic selection.",
+			tooltip = _("Select the LOD level to render. Use -1 for automatic selection."),
 		},
 		PropertyDefinition()
 		{
@@ -474,32 +474,32 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "orthographic", "perspective" },
 			deffault = "perspective",
-			tooltip = "Camera projection type.",
+			tooltip = _("Camera projection type."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.fov",
-			label = "FOV",
+			label = _("FOV"),
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0),
-			tooltip = "Vertical Field of View.",
+			tooltip = _("Vertical Field of View."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.near_range",
 			deffault = 0.1,
-			tooltip = "Objects closer than this value will not be rendered.",
+			tooltip = _("Objects closer than this value will not be rendered."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.far_range",
 			deffault = 1000.0,
-			tooltip = "Objects farther than this value will not be rendered.",
+			tooltip = _("Objects farther than this value will not be rendered."),
 		},
 		PropertyDefinition()
 		{
@@ -526,7 +526,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "mesh", "inline" },
 			deffault = "mesh",
-			tooltip = "Collider type. Inline let you specify the geometry manually.",
+			tooltip = _("Collider type. Inline let you specify the geometry manually."),
 		},
 		PropertyDefinition()
 		{
@@ -534,18 +534,18 @@ public static void create_object_types(Database database)
 			name = "data.scene",
 			resource_type = OBJECT_TYPE_MESH,
 			deffault = "core/components/noop",
-			tooltip = "Mesh resource where to read geometries from.",
+			tooltip = _("Mesh resource where to read geometries from."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.name",
-			label = "Node",
+			label = _("Node"),
 			editor = PropertyEditorType.ENUM,
 			enum_property = "data.scene",
 			enum_callback = node_name_enum_callback,
 			deffault = "Noop",
-			tooltip = "Geometry to use as collider (Mesh only).",
+			tooltip = _("Geometry to use as collider (Mesh only)."),
 		},
 		PropertyDefinition()
 		{
@@ -554,19 +554,19 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "sphere", "capsule", "box", "convex_hull", "mesh" },
 			deffault = "box",
-			tooltip = "Shape to use as collider (Inline only).",
+			tooltip = _("Shape to use as collider (Inline only)."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.collider_data.position",
-			tooltip = "Shape's local position.",
+			tooltip = _("Shape's local position."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.collider_data.rotation",
-			tooltip = "Shape's local rotation.",
+			tooltip = _("Shape's local rotation."),
 		},
 		PropertyDefinition()
 		{
@@ -574,7 +574,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.half_extents",     // Box only.
 			min = VECTOR3_ZERO,
 			deffault = Vector3(0.5, 0.5, 0.5),
-			tooltip = "Box radius.",
+			tooltip = _("Box radius."),
 		},
 		PropertyDefinition()
 		{
@@ -582,7 +582,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.radius",     // Sphere and capsule only.
 			min = 0.0,
 			deffault = 0.5,
-			tooltip = "Sphere or Capsule radius.",
+			tooltip = _("Sphere or Capsule radius."),
 		},
 		PropertyDefinition()
 		{
@@ -590,7 +590,7 @@ public static void create_object_types(Database database)
 			name = "data.collider_data.height",     // Capsule only.
 			min = 0.0,
 			deffault = 1.0,
-			tooltip = "Capsule height.",
+			tooltip = _("Capsule height."),
 		},
 		PropertyDefinition()
 		{
@@ -627,7 +627,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = class_enum_callback,
 			deffault = "static",
-			tooltip = "Actor class.",
+			tooltip = _("Actor class."),
 		},
 		PropertyDefinition()
 		{
@@ -637,7 +637,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = collision_filter_enum_callback,
 			deffault = "default",
-			tooltip = "Actor collision filter.",
+			tooltip = _("Actor collision filter."),
 		},
 		PropertyDefinition()
 		{
@@ -647,7 +647,7 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = material_enum_callback,
 			deffault = "default",
-			tooltip = "Actor physics material.",
+			tooltip = _("Actor physics material."),
 		},
 		PropertyDefinition()
 		{
@@ -655,43 +655,43 @@ public static void create_object_types(Database database)
 			name = "data.mass",
 			min = 0.0,
 			deffault = 1.0,
-			tooltip = "Actor physical mass.",
+			tooltip = _("Actor physical mass."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_x",
-			tooltip = "Prevent the actor from moving along the X axis.",
+			tooltip = _("Prevent the actor from moving along the X axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_y",
-			tooltip = "Prevent the actor from moving along the Y axis.",
+			tooltip = _("Prevent the actor from moving along the Y axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_translation_z",
-			tooltip = "Prevent the actor from moving along the Z axis.",
+			tooltip = _("Prevent the actor from moving along the Z axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_x",
-			tooltip = "Prevent the actor from rotating around the X axis.",
+			tooltip = _("Prevent the actor from rotating around the X axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_y",
-			tooltip = "Prevent the actor from rotating around the Y axis.",
+			tooltip = _("Prevent the actor from rotating around the Y axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.lock_rotation_z",
-			tooltip = "Prevent the actor from rotating around the Z axis.",
+			tooltip = _("Prevent the actor from rotating around the Z axis."),
 		},
 		PropertyDefinition()
 		{
@@ -715,10 +715,10 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "data.script_resource",
-			label = "Script",
+			label = _("Script"),
 			resource_type = "lua",
 			deffault = "core/components/noop",
-			tooltip = "Script.",
+			tooltip = _("Script."),
 		},
 		PropertyDefinition()
 		{
@@ -741,10 +741,10 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "data.state_machine_resource",
-			label = "State Machine",
+			label = _("State Machine"),
 			resource_type = OBJECT_TYPE_STATE_MACHINE,
 			deffault = "core/components/noop",
-			tooltip = "State Machine.",
+			tooltip = _("State Machine."),
 		},
 		PropertyDefinition()
 		{
@@ -777,13 +777,13 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.VECTOR3,
 			name = "position",
-			tooltip = "Local position.",
+			tooltip = _("Local position."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "rotation",
-			tooltip = "Local rotation.",
+			tooltip = _("Local rotation."),
 		},
 		PropertyDefinition()
 		{
@@ -791,7 +791,7 @@ public static void create_object_types(Database database)
 			name = "name",
 			resource_type = OBJECT_TYPE_SOUND,
 			deffault = "",
-			tooltip = "Sound resource to play.",
+			tooltip = _("Sound resource to play."),
 		},
 		PropertyDefinition()
 		{
@@ -799,7 +799,7 @@ public static void create_object_types(Database database)
 			name = "range",
 			min = 0.0,
 			deffault = 10.0,
-			tooltip = "Listeners farther than this value will not hear the sound.",
+			tooltip = _("Listeners farther than this value will not hear the sound."),
 		},
 		PropertyDefinition()
 		{
@@ -808,20 +808,20 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 1.0,
 			deffault = 1.0,
-			tooltip = "Sound volume.",
+			tooltip = _("Sound volume."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "loop",
-			tooltip = "Restart playback at the end.",
+			tooltip = _("Restart playback at the end."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "group",
 			deffault = "music",
-			tooltip = "Mixing group this sound belongs to.",
+			tooltip = _("Mixing group this sound belongs to."),
 		},
 		PropertyDefinition()
 		{
@@ -829,7 +829,7 @@ public static void create_object_types(Database database)
 			name = "editor.name",
 			deffault = "sound",
 			hidden = true,
-			tooltip = "Instance name inside the level.",
+			tooltip = _("Instance name inside the level."),
 		},
 		PropertyDefinition()
 		{
@@ -878,7 +878,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.DOUBLE,
 			name = "frames_per_second",
 			min = 0.0,
-			tooltip = "Speed at which the animation will be played.",
+			tooltip = _("Speed at which the animation will be played."),
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_SPRITE_ANIMATION, properties);
@@ -942,7 +942,7 @@ public static void create_object_types(Database database)
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
 			deffault = Vector3(0.83, 0.83, 0.83),
-			tooltip = "Fog color.",
+			tooltip = _("Fog color."),
 		},
 		PropertyDefinition()
 		{
@@ -950,14 +950,14 @@ public static void create_object_types(Database database)
 			name = "data.density",
 			min = 0.0,
 			deffault = 0.02,
-			tooltip = "Fog density.",
+			tooltip = _("Fog density."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name =  "data.range_min",
 			min = 0.0,
-			tooltip = "Distance from the camera where the fog starts.",
+			tooltip = _("Distance from the camera where the fog starts."),
 		},
 		PropertyDefinition()
 		{
@@ -965,7 +965,7 @@ public static void create_object_types(Database database)
 			name =  "data.range_max",
 			min = 0.0,
 			deffault = 1000.0,
-			tooltip = "Distance from the camera where the fog ends.",
+			tooltip = _("Distance from the camera where the fog ends."),
 		},
 		PropertyDefinition()
 		{
@@ -973,13 +973,13 @@ public static void create_object_types(Database database)
 			name = "data.sun_blend",
 			min =  0.0,
 			max =  1.0,
-			tooltip = "Blend sun and fog colors.",
+			tooltip = _("Blend sun and fog colors."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.enabled",
-			tooltip = "Enable fog effect.",
+			tooltip = _("Enable fog effect."),
 		},
 		PropertyDefinition()
 		{
@@ -1013,7 +1013,7 @@ public static void create_object_types(Database database)
 			name = "data.height",
 			min = 0.0,
 			deffault = 1.80,
-			tooltip = "Mover capsule height.",
+			tooltip = _("Mover capsule height."),
 		},
 		PropertyDefinition()
 		{
@@ -1021,7 +1021,7 @@ public static void create_object_types(Database database)
 			name = "data.radius",
 			min = 0.0,
 			deffault = 0.50,
-			tooltip = "Mover capsule radius.",
+			tooltip = _("Mover capsule radius."),
 		},
 		PropertyDefinition()
 		{
@@ -1031,7 +1031,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 90.0,
 			deffault = MathUtils.rad(45.0f),
-			tooltip = "Mover won't climb slopes steeper than this angle.",
+			tooltip = _("Mover won't climb slopes steeper than this angle."),
 		},
 		PropertyDefinition()
 		{
@@ -1039,7 +1039,7 @@ public static void create_object_types(Database database)
 			name = "data.step_height",
 			min = 0.0,
 			deffault = 0.5,
-			tooltip = "Mover step height.",
+			tooltip = _("Mover step height."),
 		},
 		PropertyDefinition()
 		{
@@ -1049,13 +1049,13 @@ public static void create_object_types(Database database)
 			enum_property = "_global_physics_config",
 			enum_callback = collision_filter_enum_callback,
 			deffault = "default",
-			tooltip = "Mover collision filter.",
+			tooltip = _("Mover collision filter."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.center",
-			tooltip = "Capsule center relative to the local position.",
+			tooltip = _("Capsule center relative to the local position."),
 		},
 		PropertyDefinition()
 		{
@@ -1080,9 +1080,9 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
@@ -1091,7 +1091,7 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
@@ -1116,21 +1116,21 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.other_position",
-			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other position in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Position in local space.",
+			tooltip = _("Position in local space."),
 		},
 		PropertyDefinition()
 		{
@@ -1139,7 +1139,7 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
@@ -1164,109 +1164,109 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.other_position",
-			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other position in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.other_rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other rotation in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Position in local space.",
+			tooltip = _("Position in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Joint rotation in local space.",
+			tooltip = _("Joint rotation in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motion_x",
-			label = "Linear X Motion",
+			label = _("Linear X Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How motion along the joint X axis is constrained.",
+			tooltip = _("How motion along the joint X axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motion_y",
-			label = "Linear Y Motion",
+			label = _("Linear Y Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How motion along the joint Y axis is constrained.",
+			tooltip = _("How motion along the joint Y axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motion_z",
-			label = "Linear Z Motion",
+			label = _("Linear Z Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How motion along the joint Z axis is constrained.",
+			tooltip = _("How motion along the joint Z axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.linear_lower_limit",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Per-axis linear lower limits, used when the corresponding linear motion is Limited.",
+			tooltip = _("Per-axis linear lower limits, used when the corresponding linear motion is Limited."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.linear_upper_limit",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Per-axis linear upper limits, used when the corresponding linear motion is Limited.",
+			tooltip = _("Per-axis linear upper limits, used when the corresponding linear motion is Limited."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motion_x",
-			label = "Angular X Motion",
+			label = _("Angular X Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How rotation around the joint X axis is constrained.",
+			tooltip = _("How rotation around the joint X axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motion_y",
-			label = "Angular Y Motion",
+			label = _("Angular Y Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How rotation around the joint Y axis is constrained.",
+			tooltip = _("How rotation around the joint Y axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motion_z",
-			label = "Angular Z Motion",
+			label = _("Angular Z Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How rotation around the joint Z axis is constrained.",
+			tooltip = _("How rotation around the joint Z axis is constrained."),
 		},
 		PropertyDefinition()
 		{
@@ -1274,7 +1274,7 @@ public static void create_object_types(Database database)
 			name = "data.angular_lower_limit",
 			deffault = VECTOR3_ZERO,
 			editor = PropertyEditorType.ANGLE,
-			tooltip = "Per-axis angular lower limits, used when the corresponding angular motion is Limited.",
+			tooltip = _("Per-axis angular lower limits, used when the corresponding angular motion is Limited."),
 		},
 		PropertyDefinition()
 		{
@@ -1282,95 +1282,95 @@ public static void create_object_types(Database database)
 			name = "data.angular_upper_limit",
 			deffault = VECTOR3_ZERO,
 			editor = PropertyEditorType.ANGLE,
-			tooltip = "Per-axis angular upper limits, used when the corresponding angular motion is Limited.",
+			tooltip = _("Per-axis angular upper limits, used when the corresponding angular motion is Limited."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motor_x",
-			label = "Linear X Motor",
+			label = _("Linear X Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for motion along the joint X axis.",
+			tooltip = _("Motor mode for motion along the joint X axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motor_y",
-			label = "Linear Y Motor",
+			label = _("Linear Y Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for motion along the joint Y axis.",
+			tooltip = _("Motor mode for motion along the joint Y axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.linear_motor_z",
-			label = "Linear Z Motor",
+			label = _("Linear Z Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for motion along the joint Z axis.",
+			tooltip = _("Motor mode for motion along the joint Z axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.linear_target_velocity",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Linear motor target velocity, used by axes whose linear motor mode is Velocity.",
+			tooltip = _("Linear motor target velocity, used by axes whose linear motor mode is Velocity."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.linear_target_position",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Linear motor target position, used by axes whose linear motor mode is Position.",
+			tooltip = _("Linear motor target position, used by axes whose linear motor mode is Position."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.linear_max_motor_force",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Per-axis linear motor force limits.",
+			tooltip = _("Per-axis linear motor force limits."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motor_x",
-			label = "Angular X Motor",
+			label = _("Angular X Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for rotation around the joint X axis.",
+			tooltip = _("Motor mode for rotation around the joint X axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motor_y",
-			label = "Angular Y Motor",
+			label = _("Angular Y Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for rotation around the joint Y axis.",
+			tooltip = _("Motor mode for rotation around the joint Y axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.angular_motor_z",
-			label = "Angular Z Motor",
+			label = _("Angular Z Motor"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "off", "velocity", "position" },
 			deffault = "off",
-			tooltip = "Motor mode for rotation around the joint Z axis.",
+			tooltip = _("Motor mode for rotation around the joint Z axis."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.angular_target_velocity",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Angular motor target velocity, used by axes whose angular motor mode is Velocity.",
+			tooltip = _("Angular motor target velocity, used by axes whose angular motor mode is Velocity."),
 		},
 		PropertyDefinition()
 		{
@@ -1378,14 +1378,14 @@ public static void create_object_types(Database database)
 			name = "data.angular_target_position",
 			deffault = VECTOR3_ZERO,
 			editor = PropertyEditorType.ANGLE,
-			tooltip = "Angular motor target position, used by axes whose angular motor mode is Position.",
+			tooltip = _("Angular motor target position, used by axes whose angular motor mode is Position."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.angular_max_motor_force",
 			deffault = VECTOR3_ZERO,
-			tooltip = "Per-axis angular motor force limits.",
+			tooltip = _("Per-axis angular motor force limits."),
 		},
 		PropertyDefinition()
 		{
@@ -1394,7 +1394,7 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
@@ -1419,65 +1419,65 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.other_position",
-			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other position in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.other_rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other rotation in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Position in local space.",
+			tooltip = _("Position in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Joint rotation in local space.",
+			tooltip = _("Joint rotation in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.twist_motion",
-			label = "Twist Motion",
+			label = _("Twist Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How twist around the joint X axis is constrained.",
+			tooltip = _("How twist around the joint X axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.swing_y_motion",
-			label = "Swing Y Motion",
+			label = _("Swing Y Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How swing around the joint Y axis is constrained.",
+			tooltip = _("How swing around the joint Y axis is constrained."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "data.swing_z_motion",
-			label = "Swing Z Motion",
+			label = _("Swing Z Motion"),
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "locked", "limited", "free" },
 			deffault = "locked",
-			tooltip = "How swing around the joint Z axis is constrained.",
+			tooltip = _("How swing around the joint Z axis is constrained."),
 		},
 		PropertyDefinition()
 		{
@@ -1485,7 +1485,7 @@ public static void create_object_types(Database database)
 			name = "data.twist_lower_limit",
 			deffault = 0.0,
 			editor = PropertyEditorType.ANGLE,
-			tooltip = "Lower twist limit, used when Twist Motion is Limited.",
+			tooltip = _("Lower twist limit, used when Twist Motion is Limited."),
 		},
 		PropertyDefinition()
 		{
@@ -1493,7 +1493,7 @@ public static void create_object_types(Database database)
 			name = "data.twist_upper_limit",
 			deffault = 0.0,
 			editor = PropertyEditorType.ANGLE,
-			tooltip = "Upper twist limit, used when Twist Motion is Limited.",
+			tooltip = _("Upper twist limit, used when Twist Motion is Limited."),
 		},
 		PropertyDefinition()
 		{
@@ -1502,7 +1502,7 @@ public static void create_object_types(Database database)
 			deffault = 0.0,
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
-			tooltip = "Symmetric swing limit around the joint Y axis, used when Swing Y Motion is Limited.",
+			tooltip = _("Symmetric swing limit around the joint Y axis, used when Swing Y Motion is Limited."),
 		},
 		PropertyDefinition()
 		{
@@ -1511,7 +1511,7 @@ public static void create_object_types(Database database)
 			deffault = 0.0,
 			editor = PropertyEditorType.ANGLE,
 			min = 0.0,
-			tooltip = "Symmetric swing limit around the joint Z axis, used when Swing Z Motion is Limited.",
+			tooltip = _("Symmetric swing limit around the joint Z axis, used when Swing Z Motion is Limited."),
 		},
 		PropertyDefinition()
 		{
@@ -1520,7 +1520,7 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
@@ -1545,42 +1545,42 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.other_position",
-			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other position in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.other_rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other rotation in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Position in local space.",
+			tooltip = _("Position in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.axis",
 			deffault = Vector3(0, 0, 1),
-			tooltip = "Hinge axis in both joint frames.",
+			tooltip = _("Hinge axis in both joint frames."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Joint rotation in local space.",
+			tooltip = _("Joint rotation in local space."),
 		},
 		PropertyDefinition()
 		{
@@ -1589,32 +1589,32 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.use_motor",
-			tooltip = "Enable the hinge motor.",
+			tooltip = _("Enable the hinge motor."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.target_velocity",
-			tooltip = "Motor target angular velocity.",
+			tooltip = _("Motor target angular velocity."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.max_motor_impulse",
 			min = 0.0,
-			tooltip = "Maximum motor impulse.",
+			tooltip = _("Maximum motor impulse."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.BOOL,
 			name = "data.use_limits",
-			tooltip = "Enable hinge limits.",
+			tooltip = _("Enable hinge limits."),
 		},
 		PropertyDefinition()
 		{
@@ -1622,7 +1622,7 @@ public static void create_object_types(Database database)
 			name = "data.lower_limit",
 			editor = PropertyEditorType.ANGLE,
 			deffault = -MathUtils.rad(45.0),
-			tooltip = "Lower hinge limit.",
+			tooltip = _("Lower hinge limit."),
 		},
 		PropertyDefinition()
 		{
@@ -1630,14 +1630,14 @@ public static void create_object_types(Database database)
 			name = "data.upper_limit",
 			editor = PropertyEditorType.ANGLE,
 			deffault = MathUtils.rad(45.0),
-			tooltip = "Upper hinge limit.",
+			tooltip = _("Upper hinge limit."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.bounciness",
 			min = 0.0,
-			tooltip = "Bounce factor applied at the limits.",
+			tooltip = _("Bounce factor applied at the limits."),
 		},
 		PropertyDefinition()
 		{
@@ -1662,35 +1662,35 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_UNIT),
 			name = "data.other_actor",
-			label = "Other Unit",
+			label = _("Other Unit"),
 			deffault = GUID_ZERO,
-			tooltip = "Other unit to attach the joint to. Leave empty to attach the joint to the world.",
+			tooltip = _("Other unit to attach the joint to. Leave empty to attach the joint to the world."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.other_position",
-			tooltip = "Other position in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other position in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.other_rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Other rotation in Other Unit's local space, or world space if Other Unit is unset.",
+			tooltip = _("Other rotation in Other Unit's local space, or world space if Other Unit is unset."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.position",
-			tooltip = "Position in local space.",
+			tooltip = _("Position in local space."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.QUATERNION,
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
-			tooltip = "Joint rotation in local space.",
+			tooltip = _("Joint rotation in local space."),
 		},
 		PropertyDefinition()
 		{
@@ -1699,7 +1699,7 @@ public static void create_object_types(Database database)
 			input_double_flags = InputDoubleFlags.INFINITY,
 			deffault = (double)float.MAX,
 			min = 0.0,
-			tooltip = "Linear break threshold. Use Infinity to disable breaking.",
+			tooltip = _("Linear break threshold. Use Infinity to disable breaking."),
 		},
 		PropertyDefinition()
 		{
@@ -1707,7 +1707,7 @@ public static void create_object_types(Database database)
 			name = "data.stiffness",
 			min = 0.0,
 			deffault = 10.0,
-			tooltip = "Linear spring stiffness.",
+			tooltip = _("Linear spring stiffness."),
 		},
 		PropertyDefinition()
 		{
@@ -1715,7 +1715,7 @@ public static void create_object_types(Database database)
 			name = "data.damping",
 			min = 0.0,
 			deffault = 0.0,
-			tooltip = "Linear spring damping.",
+			tooltip = _("Linear spring damping."),
 		},
 		PropertyDefinition()
 		{
@@ -1739,10 +1739,10 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "data.skydome_map",
-			label = "Skydome Map",
+			label = _("Skydome Map"),
 			resource_type = OBJECT_TYPE_TEXTURE,
 			deffault = "core/units/skydome/skydome",
-			tooltip = "Texture to use as skydome.",
+			tooltip = _("Texture to use as skydome."),
 		},
 		PropertyDefinition()
 		{
@@ -1750,7 +1750,7 @@ public static void create_object_types(Database database)
 			name = "data.skydome_intensity",
 			min = 0.0,
 			deffault = 1.0,
-			tooltip = "Skydome intensity multiplier.",
+			tooltip = _("Skydome intensity multiplier."),
 		},
 		PropertyDefinition()
 		{
@@ -1759,7 +1759,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.COLOR,
 			min = VECTOR3_ZERO,
 			max = VECTOR3_ONE,
-			tooltip = "Ambient color applied to objects.",
+			tooltip = _("Ambient color applied to objects."),
 		},
 		PropertyDefinition()
 		{
@@ -1783,7 +1783,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.BOOL,
 			name = "data.enabled",
 			deffault = true,
-			tooltip = "Enable bloom effect.",
+			tooltip = _("Enable bloom effect."),
 		},
 		PropertyDefinition()
 		{
@@ -1799,7 +1799,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 1.0,
 			deffault = 0.05,
-			tooltip = "Bloom weight.",
+			tooltip = _("Bloom weight."),
 		},
 		PropertyDefinition()
 		{
@@ -1808,7 +1808,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 			max = 2.0,
 			deffault = 0.8,
-			tooltip = "Bloom intensity multiplier.",
+			tooltip = _("Bloom intensity multiplier."),
 		},
 		PropertyDefinition()
 		{
@@ -1834,7 +1834,7 @@ public static void create_object_types(Database database)
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "gamma", "reinhard", "filmic", "aces" },
 			deffault = "reinhard",
-			tooltip = "Tonemapping operator. Gamma means no tonemapping is applied.",
+			tooltip = _("Tonemapping operator. Gamma means no tonemapping is applied."),
 		},
 		PropertyDefinition()
 		{
@@ -1858,7 +1858,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "editor.name",
 			deffault = OBJECT_NAME_UNNAMED,
-			tooltip = "Instance name inside the level.",
+			tooltip = _("Instance name inside the level."),
 		},
 		PropertyDefinition()
 		{
@@ -1880,7 +1880,7 @@ public static void create_object_types(Database database)
 			name = "prefab",
 			resource_type = OBJECT_TYPE_UNIT,
 			deffault = null,
-			tooltip = "Unit prefab.",
+			tooltip = _("Unit prefab."),
 		},
 		PropertyDefinition()
 		{
@@ -1945,15 +1945,15 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.RESOURCE,
 			name = "name",
-			label = "Animation",
+			label = _("Animation"),
 			resource_type = OBJECT_TYPE_MESH_ANIMATION,
-			tooltip = "Animation to play.",
+			tooltip = _("Animation to play."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "weight",
-			tooltip = "Expression to evaluate the animation weight.",
+			tooltip = _("Expression to evaluate the animation weight."),
 		}
 	};
 	StringId64 node_animation_type = database.create_object_type(OBJECT_TYPE_NODE_ANIMATION, properties);
@@ -1971,7 +1971,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.STRING,
 			name = "event",
-			tooltip = "Event that triggers this transition.",
+			tooltip = _("Event that triggers this transition."),
 		},
 		PropertyDefinition()
 		{
@@ -1979,14 +1979,14 @@ public static void create_object_types(Database database)
 			name = "mode",
 			editor = PropertyEditorType.ENUM,
 			enum_values = { "immediate", "wait_until_end" },
-			tooltip = "Enter the state immediately or wait until the animation ends.",
+			tooltip = _("Enter the state immediately or wait until the animation ends."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "to",
-			tooltip = "Animation state to enter to.",
+			tooltip = _("Animation state to enter to."),
 		},
 	};
 	StringId64 node_transition_type = database.create_object_type(OBJECT_TYPE_NODE_TRANSITION, properties);
@@ -2008,7 +2008,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "name",
 			deffault = "New Node",
-			tooltip = "State name.",
+			tooltip = _("State name."),
 		},
 		PropertyDefinition()
 		{
@@ -2020,13 +2020,13 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.BOOL,
 			name = "loop",
-			tooltip = "Restart the animation when it ends.",
+			tooltip = _("Restart the animation when it ends."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.STRING,
 			name = "speed",
-			tooltip = "Expression to evaluate the animation speed.",
+			tooltip = _("Expression to evaluate the animation speed."),
 		},
 		PropertyDefinition()
 		{
@@ -2043,27 +2043,27 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.STRING,
 			name = "name",
-			tooltip = "Variable name.",
+			tooltip = _("Variable name."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "value",
-			tooltip = "Variable value.",
+			tooltip = _("Variable value."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "min",
 			deffault = -1.0,
-			tooltip = "Minimum value.",
+			tooltip = _("Minimum value."),
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
 			name = "max",
 			deffault = 1.0,
-			tooltip = "Maximum value.",
+			tooltip = _("Maximum value."),
 		},
 	};
 	StringId64 state_machine_variable_type = database.create_object_type(OBJECT_TYPE_STATE_MACHINE_VARIABLE, properties);
@@ -2075,7 +2075,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.REFERENCE,
 			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
 			name = "initial_state",
-			tooltip = "Animation state to enter at the beginning.",
+			tooltip = _("Animation state to enter at the beginning."),
 		},
 		PropertyDefinition()
 		{
@@ -2101,7 +2101,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.RESOURCE,
 			name = "skeleton_name",
 			resource_type = OBJECT_TYPE_MESH_SKELETON,
-			tooltip = "Animation skeleton to use.",
+			tooltip = _("Animation skeleton to use."),
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);

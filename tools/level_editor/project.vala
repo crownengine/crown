@@ -796,12 +796,12 @@ public class Project
 		if (destination_dir != null) {
 			importer(import_result, database, this.absolute_path(destination_dir), filenames, parent_window);
 		} else {
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Select destination folder..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog(_("Select destination folder...")
 				, parent_window
 				, Gtk.FileChooserAction.SELECT_FOLDER
-				, "Cancel"
+				, _("Cancel")
 				, Gtk.ResponseType.CANCEL
-				, "Select"
+				, _("Select")
 				, Gtk.ResponseType.ACCEPT
 				);
 			try {
@@ -830,12 +830,12 @@ public class Project
 		GLib.SList<string> filenames = new GLib.SList<string>();
 
 		if (files.length == 0) {
-			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog("Import..."
+			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog(_("Import...")
 				, parent_window
 				, Gtk.FileChooserAction.OPEN
-				, "Cancel"
+				, _("Cancel")
 				, Gtk.ResponseType.CANCEL
-				, "Open"
+				, _("Open")
 				, Gtk.ResponseType.ACCEPT
 				);
 			fcd.select_multiple = true;

@@ -27,20 +27,20 @@ public GLib.Menu? project_entry_menu_common(string type, string name)
 	GLib.Menu common_menu = new GLib.Menu();
 	GLib.MenuItem mi;
 
-	mi = new GLib.MenuItem("Copy Path", null);
+	mi = new GLib.MenuItem(_("Copy Path"), null);
 	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(type, name)));
 	common_menu.append_item(mi);
 
-	mi = new GLib.MenuItem("Copy Name", null);
+	mi = new GLib.MenuItem(_("Copy Name"), null);
 	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
-	mi = new GLib.MenuItem("Open Containing Folder...", null);
+	mi = new GLib.MenuItem(_("Open Containing Folder..."), null);
 	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
 	if (type != "<folder>" || name != "") {
-		mi = new GLib.MenuItem("Add to Favorites", null);
+		mi = new GLib.MenuItem(_("Add to Favorites"), null);
 		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({type, name}));
 		common_menu.append_item(mi);
 	}
@@ -60,7 +60,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		GLib.Menu import_menu = new GLib.Menu();
 
-		mi = new GLib.MenuItem("Import...", null);
+		mi = new GLib.MenuItem(_("Import..."), null);
 		mi.set_action_and_target_value("app.import", new GLib.Variant.tuple({(string)name, new string[] {}}));
 		import_menu.append_item(mi);
 
@@ -68,23 +68,23 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		GLib.Menu create_menu = new GLib.Menu();
 
-		mi = new GLib.MenuItem("New Script...", null);
+		mi = new GLib.MenuItem(_("New Script..."), null);
 		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", true}));
 		create_menu.append_item(mi);
 
-		mi = new GLib.MenuItem("New Script (Unit)...", null);
+		mi = new GLib.MenuItem(_("New Script (Unit)..."), null);
 		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", false}));
 		create_menu.append_item(mi);
 
-		mi = new GLib.MenuItem("New Unit...", null);
+		mi = new GLib.MenuItem(_("New Unit..."), null);
 		mi.set_action_and_target_value("app.create-unit", new GLib.Variant.tuple({(string)name, ""}));
 		create_menu.append_item(mi);
 
-		mi = new GLib.MenuItem("New Material...", null);
+		mi = new GLib.MenuItem(_("New Material..."), null);
 		mi.set_action_and_target_value("app.create-material", new GLib.Variant.tuple({(string)name, ""}));
 		create_menu.append_item(mi);
 
-		mi = new GLib.MenuItem("New Folder...", null);
+		mi = new GLib.MenuItem(_("New Folder..."), null);
 		mi.set_action_and_target_value("app.create-directory", new GLib.Variant.tuple({(string)name, ""}));
 		create_menu.append_item(mi);
 
@@ -95,7 +95,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 		menu.append_section(null, project_entry_menu_common(type, name));
 
 		if ((string)name != ProjectStore.ROOT_FOLDER) {
-			mi = new GLib.MenuItem("Delete Folder", null);
+			mi = new GLib.MenuItem(_("Delete Folder"), null);
 			mi.set_action_and_target_value("app.delete-directory", new GLib.Variant.string((string)name));
 			destroy_menu.append_item(mi);
 		}
@@ -105,13 +105,13 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 		menu = new GLib.Menu();
 
 		if (type != "lua") {
-			mi = new GLib.MenuItem("Duplicate...", null);
+			mi = new GLib.MenuItem(_("Duplicate..."), null);
 			mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(project_path(type, name)));
 			menu.append_item(mi);
 		}
 
 		if (type == OBJECT_TYPE_MESH_SKELETON || type == OBJECT_TYPE_SPRITE) {
-			mi = new GLib.MenuItem("New State Machine...", null);
+			mi = new GLib.MenuItem(_("New State Machine..."), null);
 			string skeleton_name;
 			if (type == OBJECT_TYPE_SPRITE)
 				skeleton_name = "";
@@ -124,7 +124,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		menu.append_section(null, project_entry_menu_common(type, name));
 
-		mi = new GLib.MenuItem("Delete File", null);
+		mi = new GLib.MenuItem(_("Delete File"), null);
 		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
 		menu.append_item(mi);
 	}
@@ -138,32 +138,32 @@ public GLib.Menu? favorites_entry_menu_create(string type, string name)
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
 
-	mi = new GLib.MenuItem("Open Containing Folder...", null);
+	mi = new GLib.MenuItem(_("Open Containing Folder..."), null);
 	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
 	menu.append_item(mi);
 
 	GLib.Menu common_menu = new GLib.Menu();
 
-	mi = new GLib.MenuItem("Copy Path", null);
+	mi = new GLib.MenuItem(_("Copy Path"), null);
 	string path = project_path(type, name);
 	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(path));
 	common_menu.append_item(mi);
 
 	if (type != "<folder>" && type != "lua") {
-		mi = new GLib.MenuItem("Duplicate...", null);
+		mi = new GLib.MenuItem(_("Duplicate..."), null);
 		mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(path));
 		common_menu.append_item(mi);
 	}
 
-	mi = new GLib.MenuItem("Copy Name", null);
+	mi = new GLib.MenuItem(_("Copy Name"), null);
 	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
-	mi = new GLib.MenuItem("Remove from Favorites", null);
+	mi = new GLib.MenuItem(_("Remove from Favorites"), null);
 	mi.set_action_and_target_value("app.unfavorite-resource", new GLib.Variant.tuple({type, name}));
 	common_menu.append_item(mi);
 
-	mi = new GLib.MenuItem("Reveal", null);
+	mi = new GLib.MenuItem(_("Reveal"), null);
 	mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({type, name}));
 	common_menu.append_item(mi);
 
@@ -370,31 +370,31 @@ public class ProjectFolderView : Gtk.Box
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Basename";
+		column.title = _("Basename");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_basename_text_func);
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Type";
+		column.title = _("Type");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_type_text_func);
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Size";
+		column.title = _("Size");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_size_text_func);
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Modified";
+		column.title = _("Modified");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_mtime_text_func);
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
-		column.title = "Name";
+		column.title = _("Name");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_name_text_func);
 		_list_view.append_column(column);
@@ -631,7 +631,7 @@ public class ProjectFolderView : Gtk.Box
 		if (size != 0)
 			cell.set_property("text", prettify_size(size));
 		else
-			cell.set_property("text", "n/a");
+			cell.set_property("text", _("n/a"));
 	}
 
 	public void list_view_mtime_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -643,7 +643,7 @@ public class ProjectFolderView : Gtk.Box
 		if (mtime != 0)
 			cell.set_property("text", prettify_time(mtime));
 		else
-			cell.set_property("text", "n/a");
+			cell.set_property("text", _("n/a"));
 	}
 
 	public void list_view_name_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -652,7 +652,7 @@ public class ProjectFolderView : Gtk.Box
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		if (name == "..")
-			cell.set_property("text", "n/a");
+			cell.set_property("text", _("n/a"));
 		else
 			cell.set_property("text", (string)name);
 	}
@@ -730,10 +730,13 @@ public class ProjectFolderView : Gtk.Box
 		uint64 mtime;
 		resource_info_at_path(out size, out mtime, path);
 
-		string text = "<b>%s</b>\nType: %s\nSize: %s\nModified: %s".printf(GLib.Markup.escape_text(name)
+		string text = "<b>%s</b>\n%s: %s\n%s: %s\n%s: %s".printf(GLib.Markup.escape_text(name)
+			, _("Type")
 			, GLib.Markup.escape_text(prettify_type(type))
-			, size == 0 ? "n/a" : prettify_size(size)
-			, mtime == 0 ? "n/a" : prettify_time(mtime)
+			, _("Size")
+			, size == 0 ? _("n/a") : prettify_size(size)
+			, _("Modified")
+			, mtime == 0 ? _("n/a") : prettify_time(mtime)
 			);
 		tooltip.set_markup(text);
 
@@ -743,7 +746,7 @@ public class ProjectFolderView : Gtk.Box
 	public static string prettify_type(string type)
 	{
 		if (type == "<folder>")
-			return "Folder";
+			return _("Folder");
 		else
 			return type;
 	}
@@ -764,7 +767,7 @@ public class ProjectFolderView : Gtk.Box
 			si_unit = "KiB";
 		} else {
 			si_size = size;
-			si_unit = size > 1 ? "bytes" : "byte";
+			si_unit = size > 1 ? _("bytes") : _("byte");
 		}
 
 		return "%d %s".printf((int)si_size, si_unit);
@@ -876,23 +879,23 @@ public class ProjectBrowser : Gtk.Box
 		{
 			switch (this) {
 			case NAME_AZ:
-				return "Name A-Z";
+				return _("Name A-Z");
 			case NAME_ZA:
-				return "Name Z-A";
+				return _("Name Z-A");
 			case TYPE_AZ:
-				return "Type A-Z";
+				return _("Type A-Z");
 			case TYPE_ZA:
-				return "Type Z-A";
+				return _("Type Z-A");
 			case SIZE_MIN_MAX:
-				return "Size min-Max";
+				return _("Size min-Max");
 			case SIZE_MAX_MIN:
-				return "Size Max-min";
+				return _("Size Max-min");
 			case LAST_MTIME:
-				return "Last Modified";
+				return _("Last Modified");
 			case FIRST_MTIME:
-				return "First Modified";
+				return _("First Modified");
 			default:
-				return "Unknown";
+				return _("Unknown");
 			}
 		}
 	}
@@ -1045,12 +1048,12 @@ public class ProjectBrowser : Gtk.Box
 
 		_filter_entry_tree = new EntrySearch();
 		_filter_entry_tree._entry.set_buffer(_filter_buffer);
-		_filter_entry_tree.set_placeholder_text("Search...");
+		_filter_entry_tree.set_placeholder_text(_("Search..."));
 		_filter_entry_tree._entry.stop_search.connect(on_stop_search);
 
 		_filter_entry_folder = new EntrySearch();
 		_filter_entry_folder._entry.set_buffer(_filter_buffer);
-		_filter_entry_folder.set_placeholder_text("Search...");
+		_filter_entry_folder.set_placeholder_text(_("Search..."));
 		_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry_folder._entry.stop_search.connect(on_stop_search);
 
@@ -1146,14 +1149,14 @@ public class ProjectBrowser : Gtk.Box
 		_show_folder_view = true;
 		_toggle_folder_view_image = new Gtk.Image.from_icon_name(IconTheme.LEVEL_TREE, Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_folder_view = new Gtk.Button();
-		_toggle_folder_view.set_tooltip_text("Tree view.");
+		_toggle_folder_view.set_tooltip_text(_("Tree view."));
 		_toggle_folder_view.add(_toggle_folder_view_image);
 		_toggle_folder_view.get_style_context().add_class("flat");
 		_toggle_folder_view.get_style_context().add_class("image-button");
 		_toggle_folder_view.can_focus = false;
 		_toggle_folder_view.clicked.connect(() => {
 				_show_folder_view = !_show_folder_view;
-				_toggle_folder_view.set_tooltip_text(_show_folder_view ? "Tree view." : "Folder view.");
+				_toggle_folder_view.set_tooltip_text(_show_folder_view ? _("Tree view.") : _("Folder view."));
 
 				if (_show_folder_view) { // Switch from regular tree view to folder view.
 					// Save the currently selected resource and a path to its parent. Those will be
@@ -1230,14 +1233,14 @@ public class ProjectBrowser : Gtk.Box
 
 		// Create back/forward buttons
 		_btn_back = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-		_btn_back.set_tooltip_text("Go Back");
+		_btn_back.set_tooltip_text(_("Go Back"));
 		_btn_back.get_style_context().add_class("flat");
 		_btn_back.can_focus = false;
 		_btn_back.sensitive = false;
 		_btn_back.clicked.connect(navigate_back);
 
 		_btn_forward = new Gtk.Button.from_icon_name("go-next-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-		_btn_forward.set_tooltip_text("Go Forward");
+		_btn_forward.set_tooltip_text(_("Go Forward"));
 		_btn_forward.get_style_context().add_class("flat");
 		_btn_forward.can_focus = false;
 		_btn_forward.sensitive = false;
@@ -1262,7 +1265,7 @@ public class ProjectBrowser : Gtk.Box
 					string current = _folder_view._selected_name;
 					_address_bar.text = current != "" ? "/" + current + "/" : "/";
 					_address_bar.set_position(-1);
-					loge("Project browser: folder not found: " + input);
+					loge(_("Project browser: folder not found: %s").printf(input));
 				}
 			});
 		_address_bar.focus_in_event.connect((ev) => {
@@ -1288,18 +1291,18 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view_content.pack_start(_scrolled_window, true, true);
 
 		// Setup sort menu button popover.
-		_show_all_files = new Gtk.CheckButton.with_label("Show all files");
-		_show_all_files.set_tooltip_text("Show all files, not just resource files.");
+		_show_all_files = new Gtk.CheckButton.with_label(_("Show all files"));
+		_show_all_files.set_tooltip_text(_("Show all files, not just resource files."));
 		_show_all_files.set_active(false);
 		_show_all_files.toggled.connect(on_show_all_files_toggled);
 
-		_show_files_extension = new Gtk.CheckButton.with_label("Show files extension");
-		_show_files_extension.set_tooltip_text("Do not hide files extension.");
+		_show_files_extension = new Gtk.CheckButton.with_label(_("Show files extension"));
+		_show_files_extension.set_tooltip_text(_("Do not hide files extension."));
 		_show_files_extension.set_active(false);
 		_show_files_extension.toggled.connect(on_show_files_extension_toggled);
 
-		_show_mapped_dirs = new Gtk.CheckButton.with_label("Show mapped dirs");
-		_show_mapped_dirs.set_tooltip_text("Show external mapped directories.");
+		_show_mapped_dirs = new Gtk.CheckButton.with_label(_("Show mapped dirs"));
+		_show_mapped_dirs.set_tooltip_text(_("Show external mapped directories."));
 		_show_mapped_dirs.set_active(false);
 		_show_mapped_dirs.toggled.connect(on_show_mapped_dirs_toggled);
 
@@ -1307,7 +1310,7 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
-		_sort_items.set_tooltip_text("Sort and filter items.");
+		_sort_items.set_tooltip_text(_("Sort and filter items."));
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
@@ -1326,7 +1329,7 @@ public class ProjectBrowser : Gtk.Box
 		bool _show_icon_view = true;
 		_toggle_icon_view_image = new Gtk.Image.from_icon_name(IconTheme.BROWSER_LIST_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
 		_toggle_icon_view = new Gtk.Button();
-		_toggle_icon_view.set_tooltip_text("List view.");
+		_toggle_icon_view.set_tooltip_text(_("List view."));
 		_toggle_icon_view.add(_toggle_icon_view_image);
 		_toggle_icon_view.get_style_context().add_class("flat");
 		_toggle_icon_view.get_style_context().add_class("image-button");
@@ -1353,7 +1356,7 @@ public class ProjectBrowser : Gtk.Box
 				}
 
 				_show_icon_view = !_show_icon_view;
-				_toggle_icon_view.set_tooltip_text(_show_icon_view ? "List view." : "Icon view.");
+				_toggle_icon_view.set_tooltip_text(_show_icon_view ? _("List view.") : _("Icon view."));
 			});
 
 		var _folder_view_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
@@ -1364,7 +1367,7 @@ public class ProjectBrowser : Gtk.Box
 		_empty_favorites_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_empty_favorites_box.valign = Gtk.Align.CENTER;
 		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name(IconTheme.BROWSER_FAVORITES, Gtk.IconSize.DIALOG), false, false);
-		_empty_favorites_box.pack_start(new Gtk.Label("Favorites is empty"), false, false);
+		_empty_favorites_box.pack_start(new Gtk.Label(_("Favorites is empty")), false, false);
 
 		_folder_stack = new Gtk.Stack();
 		_folder_stack.add_named(_folder_view, "folder-view");
@@ -2016,7 +2019,7 @@ public class ProjectBrowser : Gtk.Box
 			else
 				cell.set_property("text", basename);
 		} else if ((string)type == "<favorites>") {
-			cell.set_property("text", "Favorites");
+			cell.set_property("text", _("Favorites"));
 		} else {
 			cell.set_property("text", ResourceId.path((string)type, basename));
 		}

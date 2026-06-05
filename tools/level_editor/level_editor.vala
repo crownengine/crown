@@ -189,21 +189,21 @@ public enum CameraViewType
 	{
 		switch (this) {
 		case PERSPECTIVE:
-			return "Perspective";
+			return _("Perspective");
 		case FRONT:
-			return "View Front";
+			return _("View Front");
 		case BACK:
-			return "View Back";
+			return _("View Back");
 		case RIGHT:
-			return "View Right";
+			return _("View Right");
 		case LEFT:
-			return "View Left";
+			return _("View Left");
 		case TOP:
-			return "View Top";
+			return _("View Top");
 		case BOTTOM:
-			return "View Bottom";
+			return _("View Bottom");
 		default:
-			return "View Unknown";
+			return _("View Unknown");
 		}
 	}
 }
@@ -234,13 +234,13 @@ public enum TargetConfig
 	{
 		switch (this) {
 		case RELEASE:
-			return "Release";
+			return _("Release");
 		case DEVELOPMENT:
-			return "Development";
+			return _("Development");
 		case DEBUG:
-			return "Debug";
+			return _("Debug");
 		default:
-			return "unknown";
+			return _("unknown");
 		}
 	}
 }
@@ -274,15 +274,15 @@ public enum TargetPlatform
 	{
 		switch (this) {
 		case ANDROID:
-			return "Android";
+			return _("Android");
 		case HTML5:
-			return "HTML5";
+			return _("HTML5");
 		case LINUX:
-			return "Linux";
+			return _("Linux");
 		case WINDOWS:
-			return "Windows";
+			return _("Windows");
 		default:
-			return "Unknown";
+			return _("Unknown");
 		}
 	}
 }
@@ -993,8 +993,8 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.decode(_settings);
 
 		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
-		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message("Undo: " + ActionNames[id]); });
-		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message("Redo: " + ActionNames[id]); });
+		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[id]))); });
+		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[id]))); });
 		_database_editor.selection_changed.connect(on_selection_changed);
 
 		_editor_viewport = new EditorViewport("editor"
@@ -1064,9 +1064,9 @@ public class LevelEditorApplication : Gtk.Application
 
 		// Widgets
 		_combo = new Gtk.ComboBoxText();
-		_combo.set_tooltip_text("Runtime that will receive the message.");
-		_combo.append("editor", "Editor");
-		_combo.append("game", "Game");
+		_combo.set_tooltip_text(_("Runtime that will receive the message."));
+		_combo.append("editor", _("Editor"));
+		_combo.append("game", _("Game"));
 		_combo.set_active_id("editor");
 		_combo.set_size_request(50, -1);
 
@@ -1092,7 +1092,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_inspector_notebook = new Gtk.Notebook();
 		_inspector_notebook.show_border = false;
-		_inspector_notebook.append_page(_properties_view, new Gtk.Label.with_mnemonic("Properties"));
+		_inspector_notebook.append_page(_properties_view, new Gtk.Label.with_mnemonic(_("Properties")));
 
 		_inspector_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 		_inspector_pane.pack1(_level_tree_view_notebook, true, false);
@@ -1122,11 +1122,11 @@ public class LevelEditorApplication : Gtk.Application
 
 		_console_notebook = new Gtk.Notebook();
 		_console_notebook.show_border = false;
-		_console_notebook.append_page(_console_view, new Gtk.Label.with_mnemonic("Console"));
+		_console_notebook.append_page(_console_view, new Gtk.Label.with_mnemonic(_("Console")));
 
 		_project_notebook = new Gtk.Notebook();
 		_project_notebook.show_border = false;
-		_project_notebook.append_page(_project_stack, new Gtk.Label.with_mnemonic("Project"));
+		_project_notebook.append_page(_project_stack, new Gtk.Label.with_mnemonic(_("Project")));
 
 		_content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
 		_content_pane.pack1(_editor_stack, true, false);
@@ -1148,7 +1148,7 @@ public class LevelEditorApplication : Gtk.Application
 		_main_vbox.set_visible(true);
 
 		_file_filter = new Gtk.FileFilter();
-		_file_filter.set_filter_name("Level (*.level)");
+		_file_filter.set_filter_name(_("Level (*.level)"));
 		_file_filter.add_pattern("*.level");
 
 		_user = new User();
@@ -1159,7 +1159,7 @@ public class LevelEditorApplication : Gtk.Application
 		_projects_list.set_visible(true); // To make Gtk.Stack work...
 
 		_main_stack = new Gtk.Stack();
-		_main_stack.add_named(new Gtk.Label("Waiting for %s...".printf(CROWN_SUBPROCESS_LAUNCHER)), PANEL_WAITING);
+		_main_stack.add_named(new Gtk.Label(_("Waiting for %s...").printf(CROWN_SUBPROCESS_LAUNCHER)), PANEL_WAITING);
 		_main_stack.add_named(_projects_list, PANEL_PROJECTS_LIST);
 		_main_stack.add_named(_new_project, PANEL_NEW_PROJECT);
 		_main_stack.add_named(_main_vbox, PANEL_EDITOR);
@@ -1345,7 +1345,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_data_compiler_start()
 	{
-		_statusbar.set_status("Compiling data...");
+		_statusbar.set_status(_("Compiling data..."));
 	}
 
 	public void on_data_compiler_finished(bool success)
@@ -1353,7 +1353,7 @@ public class LevelEditorApplication : Gtk.Application
 		_statusbar.clear_status();
 
 		if (!success) {
-			_statusbar.set_temporary_message("Failed to compile data");
+			_statusbar.set_temporary_message(_("Failed to compile data"));
 			return;
 		}
 
@@ -1942,12 +1942,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Custom grid size.
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Grid size"
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("Grid size")
 			, this.active_window
 			, Gtk.DialogFlags.MODAL
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Ok"
+			, _("Ok")
 			, Gtk.ResponseType.OK
 			, null
 			);
@@ -1977,7 +1977,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (_database.changed())
 				title += " • ";
 
-			title += (_level._name == LEVEL_EMPTY) ? "untitled" : _level._name;
+			title += (_level._name == LEVEL_EMPTY) ? _("untitled") : _level._name;
 			title += " - ";
 		}
 
@@ -2019,16 +2019,16 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.ERROR
 				, Gtk.ButtonsType.NONE
-				, "Unable to save level '%s'".printf(resource_name)
+				, _("Unable to save level '%s'").printf(resource_name)
 				);
-			md.add_button("_Ok", Gtk.ResponseType.OK);
+			md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
 			md.show_all();
 			return false;
 		}
 
-		_statusbar.set_temporary_message("Saved %s".printf(_level._path));
+		_statusbar.set_temporary_message(_("Saved %s").printf(_level._path));
 		update_active_window_title();
 		return true;
 	}
@@ -2041,7 +2041,7 @@ public class LevelEditorApplication : Gtk.Application
 			if (do_save(path) && success_action != null)
 				GLib.Application.get_default().activate_action(success_action, variant);
 		} else {
-			SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+			SaveResourceDialog srd = new SaveResourceDialog(_("Save As...")
 				, this.active_window
 				, OBJECT_TYPE_LEVEL
 				, ""
@@ -2151,7 +2151,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		OpenResourceDialog dlg = new OpenResourceDialog("Open Level..."
+		OpenResourceDialog dlg = new OpenResourceDialog(_("Open Level...")
 			, this.active_window
 			, OBJECT_TYPE_LEVEL
 			, _project
@@ -2206,7 +2206,7 @@ public class LevelEditorApplication : Gtk.Application
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.INFO
 				, Gtk.ButtonsType.OK
-				, "The folder `%s` does not appear to be a valid Crown project.".printf(source_dir)
+				, _("The folder `%s` does not appear to be a valid Crown project.").printf(source_dir)
 				);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
@@ -2325,10 +2325,10 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.DialogFlags.MODAL
 			, Gtk.MessageType.WARNING
 			, Gtk.ButtonsType.NONE
-			, "Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.".printf(source_dir)
+			, _("Remove \"%s\" from the list?\n\nThis action removes the project from the list only, files on disk will not be deleted.").printf(source_dir)
 			);
-		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-		md.add_button("_Remove", Gtk.ResponseType.YES);
+		md.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL);
+		md.add_button(_("_Remove"), Gtk.ResponseType.YES);
 		md.set_default_response(Gtk.ResponseType.CANCEL);
 		md.response.connect((response_id) => {
 				if (response_id == Gtk.ResponseType.YES) {
@@ -2488,17 +2488,17 @@ public class LevelEditorApplication : Gtk.Application
 
 	public Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
 	{
-		return new_resource_changed_dialog(parent, "Level");
+		return new_resource_changed_dialog(parent, _("Level"));
 	}
 
 	public Gtk.FileChooserDialog new_open_project_dialog(Gtk.Window? parent)
 	{
-		return new Gtk.FileChooserDialog("Open Project..."
+		return new Gtk.FileChooserDialog(_("Open Project...")
 			, parent
 			, Gtk.FileChooserAction.SELECT_FOLDER
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Open"
+			, _("Open")
 			, Gtk.ResponseType.ACCEPT
 			);
 	}
@@ -2521,25 +2521,25 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.DialogFlags.MODAL
 			, Gtk.MessageType.WARNING
 			, Gtk.ButtonsType.NONE
-			, "Save the project before closing?\n\nThis is a *temporary* project and will be gone if not saved now."
+			, _("Save the project before closing?\n\nThis is a *temporary* project and will be gone if not saved now.")
 			);
 		Gtk.Widget btn;
-		btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
+		btn = md.add_button(_("Close _without Saving"), Gtk.ResponseType.NO);
 		btn.get_style_context().add_class("destructive-action");
-		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-		md.add_button("_Save", Gtk.ResponseType.YES);
+		md.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL);
+		md.add_button(_("_Save"), Gtk.ResponseType.YES);
 		md.set_default_response(Gtk.ResponseType.YES);
 		return md;
 	}
 
 	public Gtk.FileChooserDialog new_select_project_folder_dialog(Gtk.Window? parent)
 	{
-		return new Gtk.FileChooserDialog("Select a folder where the project will be saved..."
+		return new Gtk.FileChooserDialog(_("Select a folder where the project will be saved...")
 			, parent
 			, Gtk.FileChooserAction.SELECT_FOLDER
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Save Project Here"
+			, _("Save Project Here")
 			, Gtk.ResponseType.ACCEPT
 			);
 	}
@@ -2596,9 +2596,9 @@ public class LevelEditorApplication : Gtk.Application
 							, Gtk.DialogFlags.MODAL
 							, Gtk.MessageType.ERROR
 							, Gtk.ButtonsType.NONE
-							, "The destination directory must be empty"
+							, _("The destination directory must be empty")
 							);
-						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 						md.set_default_response(Gtk.ResponseType.OK);
 						md.response.connect(() => { md.destroy(); });
 						md.show_all();
@@ -2610,9 +2610,9 @@ public class LevelEditorApplication : Gtk.Application
 							, Gtk.DialogFlags.MODAL
 							, Gtk.MessageType.ERROR
 							, Gtk.ButtonsType.NONE
-							, "Failed to save project in " + dest_dir.get_path()
+							, _("Failed to save project in %s").printf(dest_dir.get_path())
 							);
-						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 						md.set_default_response(Gtk.ResponseType.OK);
 						md.response.connect(() => { md.destroy(); });
 						md.show_all();
@@ -2782,12 +2782,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Custom rotation size.
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Rotation snap"
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("Rotation snap")
 			, this.active_window
 			, Gtk.DialogFlags.MODAL
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Ok"
+			, _("Ok")
 			, Gtk.ResponseType.OK
 			, null
 			);
@@ -3019,12 +3019,12 @@ public class LevelEditorApplication : Gtk.Application
 		if (new_name != "") {
 			do_rename(object_id, new_name);
 		} else {
-			Gtk.Dialog dg = new Gtk.Dialog.with_buttons("New Name"
+			Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("New Name")
 				, this.active_window
 				, Gtk.DialogFlags.MODAL
-				, "Cancel"
+				, _("Cancel")
 				, Gtk.ResponseType.CANCEL
-				, "Ok"
+				, _("Ok")
 				, Gtk.ResponseType.OK
 				, null
 				);
@@ -3244,12 +3244,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		string basename = GLib.Path.get_basename(resource_name);
 		string resource_parent = ResourceId.parent_folder(resource_name);
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Resource Name"
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("Resource Name")
 			, _level_editor_window
 			, Gtk.DialogFlags.MODAL
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Ok"
+			, _("Ok")
 			, Gtk.ResponseType.OK
 			, null
 			);
@@ -3291,12 +3291,12 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.DialogFlags.MODAL
 			, Gtk.MessageType.WARNING
 			, Gtk.ButtonsType.NONE
-			, "Delete Folder " + dir_name + "?"
+			, _("Delete Folder %s?").printf(dir_name)
 			);
 
 		Gtk.Widget btn;
-		md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-		btn = md.add_button("_Delete", Gtk.ResponseType.YES);
+		md.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL);
+		btn = md.add_button(_("_Delete"), Gtk.ResponseType.YES);
 		btn.get_style_context().add_class("destructive-action");
 		md.set_default_response(Gtk.ResponseType.CANCEL);
 
@@ -3404,28 +3404,28 @@ public class LevelEditorApplication : Gtk.Application
 		string title;
 		switch (type) {
 		case "lua":
-			title = "Script Name";
+			title = _("Script Name");
 			break;
 		case OBJECT_TYPE_UNIT:
-			title = "Unit Name";
+			title = _("Unit Name");
 			break;
 		case OBJECT_TYPE_MATERIAL:
-			title = "Material Name";
+			title = _("Material Name");
 			break;
 		case OBJECT_TYPE_STATE_MACHINE:
-			title = "State Machine Name";
+			title = _("State Machine Name");
 			break;
 		default:
-			title = "Resource Name";
+			title = _("Resource Name");
 			break;
 		}
 
 		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(title
 			, _level_editor_window
 			, Gtk.DialogFlags.MODAL
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Ok"
+			, _("Ok")
 			, Gtk.ResponseType.OK
 			, null
 			);
@@ -3440,7 +3440,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (type == OBJECT_TYPE_STATE_MACHINE) {
 			skeleton_entry = new Gtk.Entry();
-			skeleton_entry.set_placeholder_text("Skeleton name (optional)");
+			skeleton_entry.set_placeholder_text(_("Skeleton name (optional)"));
 			dg.get_content_area().add(skeleton_entry);
 		}
 
@@ -3470,12 +3470,12 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void show_create_folder_dialog(string parent_dir)
 	{
-		Gtk.Dialog dg = new Gtk.Dialog.with_buttons("Folder Name"
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("Folder Name")
 			, _level_editor_window
 			, Gtk.DialogFlags.MODAL
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Ok"
+			, _("Ok")
 			, Gtk.ResponseType.OK
 			, null
 			);
@@ -3632,13 +3632,13 @@ public class LevelEditorApplication : Gtk.Application
 			, Gtk.DialogFlags.MODAL
 			, Gtk.MessageType.QUESTION
 			, Gtk.ButtonsType.NONE
-			, "A file named `%s` already exists.\nOverwrite?".printf(package_dir)
+			, _("A file named `%s` already exists.\nOverwrite?").printf(package_dir)
 			);
 		md.set_default_response(Gtk.ResponseType.NO);
 
 		Gtk.Widget btn;
-		md.add_button("_No", Gtk.ResponseType.NO);
-		btn = md.add_button("_Yes", Gtk.ResponseType.YES);
+		md.add_button(_("_No"), Gtk.ResponseType.NO);
+		btn = md.add_button(_("_Yes"), Gtk.ResponseType.YES);
 		btn.get_style_context().add_class("destructive-action");
 		return md;
 	}
@@ -4600,7 +4600,7 @@ public class LevelEditorApplication : Gtk.Application
 		string guid = (string)param.get_child_value(0);
 		string name = (string)param.get_child_value(1);
 
-		SaveResourceDialog srd = new SaveResourceDialog("Save Prefab As..."
+		SaveResourceDialog srd = new SaveResourceDialog(_("Save Prefab As...")
 			, this.active_window
 			, OBJECT_TYPE_UNIT
 			, name
@@ -4618,9 +4618,9 @@ public class LevelEditorApplication : Gtk.Application
 							, Gtk.DialogFlags.MODAL
 							, Gtk.MessageType.ERROR
 							, Gtk.ButtonsType.NONE
-							, "Cannot save prefab '%s' over itself".printf(prefab_name)
+							, _("Cannot save prefab '%s' over itself").printf(prefab_name)
 							);
-						md.add_button("_Ok", Gtk.ResponseType.OK);
+						md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 						md.set_default_response(Gtk.ResponseType.OK);
 						md.response.connect(() => { md.destroy(); });
 						md.show_all();

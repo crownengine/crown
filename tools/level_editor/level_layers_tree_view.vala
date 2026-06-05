@@ -36,20 +36,20 @@ public class LevelLayersTreeView : Gtk.Box
 
 		// Widgets
 		_filter_entry = new EntrySearch();
-		_filter_entry.set_placeholder_text("Search...");
+		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_list_store = new Gtk.ListStore(3, typeof(string), typeof(string), typeof(string));
 		_list_store.insert_with_values(null, -1
 			, 0, IconTheme.LAYER_VISIBLE
 			, 1, IconTheme.LAYER_LOCKED
-			, 2, "Background"
+			, 2, _("Background")
 			, -1
 			);
 		_list_store.insert_with_values(null, -1
 			, 0, IconTheme.LAYER_VISIBLE
 			, 1, IconTheme.LAYER_LOCKED
-			, 2, "Default"
+			, 2, _("Default")
 			, -1
 			);
 
@@ -57,9 +57,9 @@ public class LevelLayersTreeView : Gtk.Box
 		_tree_filter.set_visible_func(filter_tree);
 
 		_tree_view = new Gtk.TreeView();
-		_tree_view.insert_column_with_attributes(-1, "Visible", new Gtk.CellRendererPixbuf(), "icon-name", 0, null);
-		_tree_view.insert_column_with_attributes(-1, "Locked",  new Gtk.CellRendererPixbuf(), "icon-name", 1, null);
-		_tree_view.insert_column_with_attributes(-1, "Name",    new Gtk.CellRendererText(),   "text",      2, null);
+		_tree_view.insert_column_with_attributes(-1, _("Visible"), new Gtk.CellRendererPixbuf(), "icon-name", 0, null);
+		_tree_view.insert_column_with_attributes(-1, _("Locked"),  new Gtk.CellRendererPixbuf(), "icon-name", 1, null);
+		_tree_view.insert_column_with_attributes(-1, _("Name"),    new Gtk.CellRendererText(),   "text",      2, null);
 
 		_tree_view.headers_clickable = false;
 		_tree_view.headers_visible = false;

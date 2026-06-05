@@ -37,52 +37,52 @@ public class NewProject : Gtk.Box
 
 		_new_project_label = new Gtk.Label(null);
 		_new_project_label.xalign = 0;
-		_new_project_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">New Project</span>");
+		_new_project_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">%s</span>".printf(_("New Project")));
 
-		_name_label = new Gtk.Label("Name");
-		_name_label.set_tooltip_text("Name of the project.");
+		_name_label = new Gtk.Label(_("Name"));
+		_name_label.set_tooltip_text(_("Name of the project."));
 		_name_label.xalign = 1;
 		_entry_name = new InputString();
 
-		_location_label = new Gtk.Label("Location");
-		_location_label.set_tooltip_text("Directory where to create the project.");
+		_location_label = new Gtk.Label(_("Location"));
+		_location_label.set_tooltip_text(_("Directory where to create the project."));
 		_location_label.xalign = 1;
 		_file_chooser_button_location = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_file_chooser_button_location.value = _documents_dir.get_path();
 
-		_create_folder_label = new Gtk.Label("Create Project Folder");
-		_create_folder_label.set_tooltip_text("Create a new folder with the same name as the project's.");
+		_create_folder_label = new Gtk.Label(_("Create Project Folder"));
+		_create_folder_label.set_tooltip_text(_("Create a new folder with the same name as the project's."));
 		_create_folder_label.xalign = 1;
 		_create_folder = new Gtk.CheckButton();
 		_create_folder.active = true;
 
-		_template_label = new Gtk.Label("Template");
-		_template_label.set_tooltip_text("Create a new project by copying this template.");
+		_template_label = new Gtk.Label(_("Template"));
+		_template_label.set_tooltip_text(_("Create a new project by copying this template."));
 		_template_label.xalign = 1;
 		_combo_box_map_template = new InputEnum();
 		_combo_box_map_template.hexpand = true;
-		_combo_box_map_template.append("", "None");
+		_combo_box_map_template.append("", _("None"));
 		_combo_box_map_template.value = "";
 
 		_label_message = new Gtk.Label("");
 		_label_message.xalign = 1;
 
-		_button_back = new Gtk.Button.with_label("Back");
+		_button_back = new Gtk.Button.with_label(_("Back"));
 		_button_back.action_name = "app.open-projects-list";
 
-		_button_create = new Gtk.Button.with_label("Create");
-		_button_create.set_tooltip_text("Create the project.");
+		_button_create = new Gtk.Button.with_label(_("Create"));
+		_button_create.set_tooltip_text(_("Create the project."));
 		_button_create.get_style_context().add_class("suggested-action");
 		_button_create.clicked.connect(() => {
 				if (_entry_name.value == "") {
-					_label_message.label = "Choose project name";
+					_label_message.label = _("Choose project name");
 					return;
 				}
 
 				string? source_dir = _file_chooser_button_location.value;
 
 				if (source_dir == null) {
-					_label_message.label = "Location is not valid";
+					_label_message.label = _("Location is not valid");
 					return;
 				}
 
@@ -102,19 +102,19 @@ public class NewProject : Gtk.Box
 						source_dir = project_folder.get_path();
 					} catch (GLib.Error e) {
 						if (e.code == GLib.IOError.EXISTS)
-							_label_message.label = "Project Folder already exists";
+							_label_message.label = _("Project Folder already exists");
 						else
-							_label_message.label = "Project Folder cannot be created automatically";
+							_label_message.label = _("Project Folder cannot be created automatically");
 						return;
 					}
 				} else {
 					if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR)) {
-						_label_message.label = "Location must be an empty directory";
+						_label_message.label = _("Location must be an empty directory");
 						return;
 					}
 
 					if (!is_directory_empty(source_dir)) {
-						_label_message.label = "Location must be an empty directory";
+						_label_message.label = _("Location must be an empty directory");
 						return;
 					}
 				}

@@ -208,7 +208,7 @@ public class OBJImportOptions
 		import_lods = new InputBool();
 		import_lods.value = true;
 		tangents = new InputEnum("calculate"
-			, new string[] { "Calculate", "Import" }
+			, new string[] { _("Calculate"), _("Import") }
 			, new string[] { "calculate", "import" }
 			);
 	}
@@ -310,28 +310,28 @@ public class OBJImportDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Import Textures", _options.import_textures, "Import all textures.");
-		cv.add_row("Create Textures Folder", _options.create_textures_folder, "Put imported textures in a sub-folder.");
-		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
-		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
-		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
-		cv.add_row("Import LODs", _options.import_lods, "Create LOD Group component in the root unit if any LOD exists.");
-		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
-		_general_set.add_property_grid(cv, "Units");
+		cv.add_row(_("Import Textures"), _options.import_textures, _("Import all textures."));
+		cv.add_row(_("Create Textures Folder"), _options.create_textures_folder, _("Put imported textures in a sub-folder."));
+		cv.add_row(_("Import Materials"), _options.import_materials, _("Import all materials."));
+		cv.add_row(_("Create Materials Folder"), _options.create_materials_folder, _("Put imported materials in a sub-folder."));
+		cv.add_row(_("Create Colliders"), _options.create_colliders, _("Create colliders and actors for each imported unit."));
+		cv.add_row(_("Import LODs"), _options.import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
+		cv.add_row(_("Tangents"), _options.tangents, _("Import tangents from source or calculate them with MikkTSpace."));
+		_general_set.add_property_grid(cv, _("Units"));
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(_general_set, false, false);
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_import = new Gtk.Button.with_label("Import");
+		_import = new Gtk.Button.with_label(_("Import"));
 		_import.get_style_context().add_class("suggested-action");
 		_import.clicked.connect(import);
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Import OBJ...";
+		_header_bar.title = _("Import OBJ...");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);

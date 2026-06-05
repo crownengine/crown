@@ -150,7 +150,7 @@ public class FBXImportOptions
 		import_lods = new InputBool();
 		import_lods.value = true;
 		tangents = new InputEnum("calculate"
-			, new string[] { "Calculate", "Import" }
+			, new string[] { _("Calculate"), _("Import") }
 			, new string[] { "calculate", "import" }
 			);
 		import_animation = new InputBool();
@@ -325,38 +325,38 @@ public class FBXImportDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Import Lights", _options.import_lights, "Import all light nodes.");
-		cv.add_row("Import Cameras", _options.import_cameras, "Import all camera nodes.");
-		cv.add_row("Import Textures", _options.import_textures, "Import all textures.");
-		cv.add_row("Create Textures Folder", _options.create_textures_folder, "Put imported textures in a sub-folder.");
-		cv.add_row("Import Materials", _options.import_materials, "Import all materials.");
-		cv.add_row("Create Materials Folder", _options.create_materials_folder, "Put imported materials in a sub-folder.");
-		cv.add_row("Create Colliders", _options.create_colliders, "Create colliders and actors for each imported unit.");
-		cv.add_row("Import LODs", _options.import_lods, "Create LOD Group component in the root unit if any LOD exists.");
-		cv.add_row("Tangents", _options.tangents, "Import tangents from source or calculate them with MikkTSpace.");
-		_general_set.add_property_grid_optional(cv, "Units", _options.import_units, "Import nodes as units, materials and textures.");
+		cv.add_row(_("Import Lights"), _options.import_lights, _("Import all light nodes."));
+		cv.add_row(_("Import Cameras"), _options.import_cameras, _("Import all camera nodes."));
+		cv.add_row(_("Import Textures"), _options.import_textures, _("Import all textures."));
+		cv.add_row(_("Create Textures Folder"), _options.create_textures_folder, _("Put imported textures in a sub-folder."));
+		cv.add_row(_("Import Materials"), _options.import_materials, _("Import all materials."));
+		cv.add_row(_("Create Materials Folder"), _options.create_materials_folder, _("Put imported materials in a sub-folder."));
+		cv.add_row(_("Create Colliders"), _options.create_colliders, _("Create colliders and actors for each imported unit."));
+		cv.add_row(_("Import LODs"), _options.import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
+		cv.add_row(_("Tangents"), _options.tangents, _("Import tangents from source or calculate them with MikkTSpace."));
+		_general_set.add_property_grid_optional(cv, _("Units"), _options.import_units, _("Import nodes as units, materials and textures."));
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("New Skeleton", _options.new_skeleton, "Create a new skeleton.");
-		cv.add_row("Target Skeleton", _options.target_skeleton, "Skeleton to use.");
-		cv.add_row("Import Animations", _options.import_clips, "Import all animation clips.");
-		cv.add_row("Create Animations Folder", _options.create_animations_folder, "Put imported animations in a sub-folder.");
-		_general_set.add_property_grid_optional(cv, "Animation", _options.import_animation, "Import animations and skeleton.");
+		cv.add_row(_("New Skeleton"), _options.new_skeleton, _("Create a new skeleton."));
+		cv.add_row(_("Target Skeleton"), _options.target_skeleton, _("Skeleton to use."));
+		cv.add_row(_("Import Animations"), _options.import_clips, _("Import all animation clips."));
+		cv.add_row(_("Create Animations Folder"), _options.create_animations_folder, _("Put imported animations in a sub-folder."));
+		_general_set.add_property_grid_optional(cv, _("Animation"), _options.import_animation, _("Import animations and skeleton."));
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(_general_set, false, false);
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_import = new Gtk.Button.with_label("Import");
+		_import = new Gtk.Button.with_label(_("Import"));
 		_import.get_style_context().add_class("suggested-action");
 		_import.clicked.connect(import);
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Import FBX...";
+		_header_bar.title = _("Import FBX...");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
