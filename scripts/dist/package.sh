@@ -205,6 +205,11 @@ if [ "${PLATFORM}" = "linux" ] || [ "${PLATFORM}" = "windows" ]; then
 		cp -r exporters "${PARTIALPACKAGE}"
 		cp -r samples   "${PARTIALPACKAGE}"
 		mv    "${PARTIALPACKAGE}"/samples/core "${PARTIALPACKAGE}"
+		if [ "${PLATFORM}" = "linux" ] && [ -d "${PARTIALPACKAGE}"/platforms/linux64/bin/po ]; then
+			mv "${PARTIALPACKAGE}"/platforms/linux64/bin/po "${PARTIALPACKAGE}"
+		elif [ "${PLATFORM}" = "windows" ] && [ -d "${PARTIALPACKAGE}"/platforms/windows64/bin/po ]; then
+			mv "${PARTIALPACKAGE}"/platforms/windows64/bin/po "${PARTIALPACKAGE}"
+		fi
 
 		# 'docs/html' is the new 'docs' folder.
 		mv    "${PARTIALPACKAGE}"/platforms/docs "${PARTIALPACKAGE}" # Move docs outside of 'platforms'.

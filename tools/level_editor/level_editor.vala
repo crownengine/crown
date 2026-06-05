@@ -868,7 +868,11 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		base.startup();
 
-		Intl.setlocale(LocaleCategory.ALL, "C");
+		Intl.setlocale(LocaleCategory.ALL, "");
+		Intl.setlocale(LocaleCategory.NUMERIC, "C");
+		Intl.bindtextdomain("crown-editor", _po_dir.get_path());
+		Intl.bind_textdomain_codeset("crown-editor", "UTF-8");
+		Intl.textdomain("crown-editor");
 
 		_app_launch_context = Gdk.Display.get_default().get_app_launch_context();
 
@@ -4840,6 +4844,7 @@ public class LevelEditorApplication : Gtk.Application
 // Global paths
 public static GLib.File _toolchain_dir;
 public static GLib.File _templates_dir;
+public static GLib.File _po_dir;
 public static GLib.File _data_dir;
 public static GLib.File _config_dir;
 public static GLib.File _cache_dir;
@@ -5167,6 +5172,22 @@ public static int main(string[] args)
 		loge("Unable to find the templates directory");
 		return 1;
 	}
+
+	// Find gettext catalog path, more desirable paths come first.
+	string po_paths[] =
+	{
+		"../../..", // Relative path in release package.
+		".",       // Relative path in build dir.
+	};
+	for (ii = 0; ii < po_paths.length; ++ii) {
+		string path = Path.build_filename(po_paths[ii], "po");
+		if (GLib.FileUtils.test(path, FileTest.EXISTS) && GLib.FileUtils.test(path, FileTest.IS_DIR)) {
+			_po_dir = File.new_for_path(path);
+			break;
+		}
+	}
+	if (ii == po_paths.length)
+		_po_dir = File.new_for_path(".");
 
 #if CROWN_PLATFORM_LINUX
 	Gdk.set_allowed_backends("x11");
