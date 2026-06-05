@@ -35,6 +35,10 @@ project "crown-editor"
 
 	configuration {}
 
+	prebuildcommands {
+		"make -C " .. CROWN_DIR .. "tools/po " .. "TARGETDIR=\"$(abspath $(TARGETDIR))\""
+	}
+
 	flags {
 		"FatalWarnings"
 	}
@@ -75,12 +79,15 @@ project "crown-editor"
 		"-D VALA_STRICT_C",
 		"-D GDK_DISABLE_DEPRECATED",
 		"-D GTK_DISABLE_DEPRECATED",
+		"-DGETTEXT_PACKAGE=\\\"crown-editor\\\"",
 	}
 
 	linkoptions {
 		"-lm",
 		"-lfreetype",
 	}
+
+	configuration {}
 
 	buildoptions_vala {
 		"--target-glib=2.64.6",

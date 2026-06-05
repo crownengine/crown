@@ -58,3 +58,4 @@ exporters/**                    linguist-vendored
 makefile                        linguist-vendored
 scripts/**                      linguist-vendored
 tools/level_editor/resources/** linguist-vendored
+tools/po/**                     linguist-vendored
