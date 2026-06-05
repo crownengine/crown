@@ -48,7 +48,7 @@ public class PreferencesDialog : Gtk.Window
 
 	public PreferencesDialog()
 	{
-		this.title = "Preferences";
+		this.title = _("Preferences");
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_editor = null;
@@ -82,23 +82,23 @@ public class PreferencesDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Grid", _grid_color_button, "Color of the grid.");
-		cv.add_row("Grid (Disabled)", _grid_disabled_color_button, "Color of the grid when disabled.");
-		_document_set.add_property_grid(cv, "Grid");
+		cv.add_row(_("Grid"), _grid_color_button, _("Color of the grid."));
+		cv.add_row(_("Grid (Disabled)"), _grid_disabled_color_button, _("Color of the grid when disabled."));
+		_document_set.add_property_grid(cv, _("Grid"));
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("X Axis", _axis_x_color_button, "Color of the X axis.");
-		cv.add_row("Y Axis", _axis_y_color_button, "Color of the Y axis.");
-		cv.add_row("Z Axis", _axis_z_color_button, "Color of the Z axis.");
-		cv.add_row("Selected", _axis_selected_color_button, "Color of any axes when selected.");
-		_document_set.add_property_grid(cv, "Axes");
+		cv.add_row(_("X Axis"), _axis_x_color_button, _("Color of the X axis."));
+		cv.add_row(_("Y Axis"), _axis_y_color_button, _("Color of the Y axis."));
+		cv.add_row(_("Z Axis"), _axis_z_color_button, _("Color of the Z axis."));
+		cv.add_row(_("Selected"), _axis_selected_color_button, _("Color of any axes when selected."));
+		_document_set.add_property_grid(cv, _("Axes"));
 
 		_gizmo_size_spin_button = new InputDouble(85, 10, 200);
 		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
 
 		_theme_combo = new InputEnum("dark"
-			, new string[] { "Dark", "Light" }
+			, new string[] { _("Dark"), _("Light") }
 			, new string[] { "dark", "light" }
 			);
 		_theme_combo.value_changed.connect(() => {
@@ -108,13 +108,13 @@ public class PreferencesDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Size", _gizmo_size_spin_button, "Size of the gizmos in pixels.");
-		_document_set.add_property_grid(cv, "Gizmo");
+		cv.add_row(_("Size"), _gizmo_size_spin_button, _("Size of the gizmos in pixels."));
+		_document_set.add_property_grid(cv, _("Gizmo"));
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Theme", _theme_combo, "Theme variant.");
-		_document_set.add_property_grid(cv, "UI");
+		cv.add_row(_("Theme"), _theme_combo, _("Theme variant."));
+		_document_set.add_property_grid(cv, _("UI"));
 
 		// Level page.
 		_level_autosave_spin_button = new InputDouble(5, 1, 60);
@@ -122,16 +122,16 @@ public class PreferencesDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Autosave (mins)", _level_autosave_spin_button, "Automatically save the currently open level.");
-		_viewport_set.add_property_grid(cv, "Level");
+		cv.add_row(_("Autosave (mins)"), _level_autosave_spin_button, _("Automatically save the currently open level."));
+		_viewport_set.add_property_grid(cv, _("Level"));
 
 		_game_keep_above = new InputBool();
 		_game_keep_above.value = false;
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Keep Above", _game_keep_above, "Keep the game window above other windows when running the game.");
-		_viewport_set.add_property_grid(cv, "Game");
+		cv.add_row(_("Keep Above"), _game_keep_above, _("Keep the game window above other windows when running the game."));
+		_viewport_set.add_property_grid(cv, _("Game"));
 
 		_camera_movement_speed = new InputDouble(30, 0.001, 1000);
 		_camera_movement_speed.value_changed.connect(on_camera_settings_value_changed);
@@ -142,10 +142,10 @@ public class PreferencesDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Movement Speed", _camera_movement_speed, "Flythrough camera speed in meters per second.");
-		cv.add_row("Rotation Speed", _camera_rotation_speed, "Camera rotation speed in degrees per pixel.");
-		cv.add_row("Speed Modifier", _camera_speed_modifier, "Flythrough camera speed multiplier/divisor.");
-		_viewport_set.add_property_grid(cv, "Camera");
+		cv.add_row(_("Movement Speed"), _camera_movement_speed, _("Flythrough camera speed in meters per second."));
+		cv.add_row(_("Rotation Speed"), _camera_rotation_speed, _("Camera rotation speed in degrees per pixel."));
+		cv.add_row(_("Speed Modifier"), _camera_speed_modifier, _("Flythrough camera speed multiplier/divisor."));
+		_viewport_set.add_property_grid(cv, _("Camera"));
 
 		// Memory and limits page.
 		_undo_redo_max_size = new InputDouble(8, 1, 2048);
@@ -155,11 +155,11 @@ public class PreferencesDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Undo/Redo max size (MiB)", _undo_redo_max_size, "Maximum size allowed for the undo system.");
-		cv.add_row("Delete logs older than (days)", _log_delete_after_days, "Delete logs older than this days old when the application starts.");
-		cv.add_row("Console max lines", _console_max_lines, "Maximum number of lines shown by the console.");
-		cv.add_row("Thumbnail cache max size (MiB)", _thumbnail_cache_max_size, "Maximum size allowed (on RAM) for the thumbnail cache.");
-		_system_set.add_property_grid(cv, "Memory and Limits");
+		cv.add_row(_("Undo/Redo max size (MiB)"), _undo_redo_max_size, _("Maximum size allowed for the undo system."));
+		cv.add_row(_("Delete logs older than (days)"), _log_delete_after_days, _("Delete logs older than this days old when the application starts."));
+		cv.add_row(_("Console max lines"), _console_max_lines, _("Maximum number of lines shown by the console."));
+		cv.add_row(_("Thumbnail cache max size (MiB)"), _thumbnail_cache_max_size, _("Maximum size allowed (on RAM) for the thumbnail cache."));
+		_system_set.add_property_grid(cv, _("Memory and Limits"));
 
 		// External tools page.
 		_external_editor_lua = new AppChooserButton("text/plain");
@@ -170,19 +170,19 @@ public class PreferencesDialog : Gtk.Window
 
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Lua editor", _external_editor_lua, "Program to use for opening Lua files.");
-		cv.add_row("Image editor", _external_editor_image, "Program to use for opening images.");
-		cv.add_row("Model editor", _external_editor_model, "Program to use for opening 3D models.");
-		cv.add_row("Sound editor", _external_editor_sound, "Program to use for opening sound files.");
-		cv.add_row("Font editor", _external_editor_font, "Program to use for opening fonts.");
-		_external_tools_set.add_property_grid(cv, "External Editors");
+		cv.add_row(_("Lua editor"), _external_editor_lua, _("Program to use for opening Lua files."));
+		cv.add_row(_("Image editor"), _external_editor_image, _("Program to use for opening images."));
+		cv.add_row(_("Model editor"), _external_editor_model, _("Program to use for opening 3D models."));
+		cv.add_row(_("Sound editor"), _external_editor_sound, _("Program to use for opening sound files."));
+		cv.add_row(_("Font editor"), _external_editor_font, _("Program to use for opening fonts."));
+		_external_tools_set.add_property_grid(cv, _("External Editors"));
 
 		// Add pages.
 		_notebook = new Gtk.Notebook();
-		_notebook.append_page(_document_set, new Gtk.Label("Document"));
-		_notebook.append_page(_viewport_set, new Gtk.Label("Viewport"));
-		_notebook.append_page(_system_set, new Gtk.Label("System"));
-		_notebook.append_page(_external_tools_set, new Gtk.Label("External Tools"));
+		_notebook.append_page(_document_set, new Gtk.Label(_("Document")));
+		_notebook.append_page(_viewport_set, new Gtk.Label(_("Viewport")));
+		_notebook.append_page(_system_set, new Gtk.Label(_("System")));
+		_notebook.append_page(_external_tools_set, new Gtk.Label(_("External Tools")));
 		_notebook.vexpand = true;
 		_notebook.show_border = false;
 

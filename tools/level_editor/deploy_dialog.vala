@@ -31,7 +31,7 @@ public InputEnum make_deploy_config_combo()
 public Gtk.Button make_deploy_button(TargetPlatform platform)
 {
 	var btn = new Gtk.Button();
-	btn.label = "Package Project for %s".printf(platform.to_label());
+	btn.label = _("Package Project for %s").printf(platform.to_label());
 	btn.margin_start = 12;
 	btn.margin_end = 12;
 	btn.margin_top = 12;
@@ -63,9 +63,9 @@ public class DeployerPage : Gtk.Box
 		_deployer_options = deployer_options;
 		_check_config = check_config;
 
-		string h1 = "<span font_weight=\"bold\" size=\"x-large\">Not configured</span>";
-		string p1 = "The %s deployer has not been configured yet".printf(target_platform.to_label());
-		string p2 = "Follow <a href=\"\">the instructions</a> to get started";
+		string h1 = "<span font_weight=\"bold\" size=\"x-large\">%s</span>".printf(_("Not configured"));
+		string p1 = _("The %s deployer has not been configured yet").printf(target_platform.to_label());
+		string p2 = _("Follow <a href=\"\">the instructions</a> to get started");
 
 		var h1l = new Gtk.Label(null);
 		h1l.set_markup(h1);
@@ -259,7 +259,7 @@ public class DeployDialog : Gtk.Window
 
 	public DeployDialog(Project project, RuntimeInstance editor)
 	{
-		this.title = "Deploy";
+		this.title = _("Deploy");
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
 		_project = project;
@@ -271,31 +271,31 @@ public class DeployDialog : Gtk.Window
 				// Validate input fields.
 				string? output_path = _android_output_path.value;
 				if (output_path == null) {
-					loge("Select a valid output Destination");
+					loge(_("Select a valid output Destination"));
 					return;
 				}
 
 				string app_title = _android_app_title.value.strip();
 				if (app_title.length == 0) {
-					loge("Enter a valid App Title");
+					loge(_("Enter a valid App Title"));
 					return;
 				}
 
 				string app_identifier = _android_app_identifier.text.strip();
 				if (app_title.length == 0 || app_identifier.split(".").length != 3) {
-					loge("Enter a valid App Identifier");
+					loge(_("Enter a valid App Identifier"));
 					return;
 				}
 
 				int app_version_code;
 				if (int.try_parse(_android_app_version_code.text, out app_version_code) == false) {
-					loge("Enter a valid App Version Code");
+					loge(_("Enter a valid App Version Code"));
 					return;
 				}
 
 				string app_version_name = _android_app_version_name.text.strip();
 				if (app_version_name.length == 0) {
-					loge("Enter a valid App Version Name");
+					loge(_("Enter a valid App Version Name"));
 					return;
 				}
 
@@ -316,7 +316,7 @@ public class DeployDialog : Gtk.Window
 					: _android_keystore.value
 					;
 				if (keystore_path == null) {
-					loge("Enter a valid Keystore file");
+					loge(_("Enter a valid Keystore file"));
 					return;
 				}
 				if (!_android_use_debug_keystore.value && keystore_path.length == 0) {
@@ -329,7 +329,7 @@ public class DeployDialog : Gtk.Window
 					: _android_keystore_password.text
 					;
 				if (keystore_pass.length == 0) {
-					loge("Enter a valid Keystore Password");
+					loge(_("Enter a valid Keystore Password"));
 					return;
 				}
 
@@ -338,7 +338,7 @@ public class DeployDialog : Gtk.Window
 					: _android_key_alias.text
 					;
 				if (key_alias.length == 0) {
-					loge("Enter a valid Key Alias");
+					loge(_("Enter a valid Key Alias"));
 					return;
 				}
 
@@ -347,7 +347,7 @@ public class DeployDialog : Gtk.Window
 					: _android_key_password.text
 					;
 				if (key_pass.length == 0) {
-					loge("Enter a valid Key Password");
+					loge(_("Enter a valid Key Password"));
 					return;
 				}
 
@@ -406,7 +406,7 @@ public class DeployDialog : Gtk.Window
 		_android_key_password.set_visibility(false);
 		_android_key_password.input_purpose = Gtk.InputPurpose.PASSWORD;
 		_android_app_title = new InputString();
-		_android_app_title._entry.placeholder_text = "My Application";
+		_android_app_title._entry.placeholder_text = _("My Application");
 		_android_app_title.value = _project.name();
 		_android_app_identifier = new Gtk.Entry();
 		_android_app_identifier.placeholder_text = "org.company.product";
@@ -498,37 +498,37 @@ public class DeployDialog : Gtk.Window
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Destination", _android_output_path);
-		cv.add_row("Config", _android_config);
+		cv.add_row(_("Destination"), _android_output_path);
+		cv.add_row(_("Config"), _android_config);
 		cv.add_row("ARMv7-A", _android_armv7).sensitive = can_build_32bit_arm;
 		_android_armv7.sensitive = can_build_32bit_arm;
 		cv.add_row("ARMv8-A", _android_armv8);
-		_android_set.add_property_grid(cv, "Output");
+		_android_set.add_property_grid(cv, _("Output"));
 
 		// Android Application.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Title", _android_app_title);
-		cv.add_row("Identifier", _android_app_identifier);
-		cv.add_row("Version Code", _android_app_version_code);
-		cv.add_row("Version Name", _android_app_version_name);
-		cv.add_row("Min SDK Version", _android_min_sdk_version);
-		cv.add_row("Target SDK Version", _android_target_sdk_version);
+		cv.add_row(_("Title"), _android_app_title);
+		cv.add_row(_("Identifier"), _android_app_identifier);
+		cv.add_row(_("Version Code"), _android_app_version_code);
+		cv.add_row(_("Version Name"), _android_app_version_name);
+		cv.add_row(_("Min SDK Version"), _android_min_sdk_version);
+		cv.add_row(_("Target SDK Version"), _android_target_sdk_version);
 		Gtk.Box android_manifest_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
 		android_manifest_box.pack_start(_android_manifest, true, true, 0);
 		android_manifest_box.pack_start(android_manifest_save, false, false, 0);
-		cv.add_row("Manifest", android_manifest_box);
-		_android_set.add_property_grid(cv, "Application");
+		cv.add_row(_("Manifest"), android_manifest_box);
+		_android_set.add_property_grid(cv, _("Application"));
 
 		// Android Signing.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Use debug keystore", _android_use_debug_keystore);
-		cv.add_row("Keystore", _android_keystore);
-		cv.add_row("Keystore password", _android_keystore_password);
-		cv.add_row("Alias", _android_key_alias);
-		cv.add_row("Key password", _android_key_password);
-		_android_set.add_property_grid(cv, "Signing");
+		cv.add_row(_("Use debug keystore"), _android_use_debug_keystore);
+		cv.add_row(_("Keystore"), _android_keystore);
+		cv.add_row(_("Keystore password"), _android_keystore_password);
+		cv.add_row(_("Alias"), _android_key_alias);
+		cv.add_row(_("Key password"), _android_key_password);
+		_android_set.add_property_grid(cv, _("Signing"));
 
 		// Android box.
 		_android_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -544,13 +544,13 @@ public class DeployDialog : Gtk.Window
 				// Validate input fields.
 				string? output_path = _html5_output_path.value;
 				if (output_path == null) {
-					loge("Select a valid output Destination");
+					loge(_("Select a valid output Destination"));
 					return;
 				}
 
 				string app_title = _html5_app_title.value.strip();
 				if (app_title.length == 0) {
-					loge("Enter a valid Title");
+					loge(_("Enter a valid Title"));
 					return;
 				}
 
@@ -573,7 +573,7 @@ public class DeployDialog : Gtk.Window
 		_html5_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_html5_config = make_deploy_config_combo();
 		_html5_app_title = new InputString();
-		_html5_app_title._entry.placeholder_text = "My Application";
+		_html5_app_title._entry.placeholder_text = _("My Application");
 		_html5_app_title.value = _project.name();
 		_html5_index = new InputFile(Gtk.FileChooserAction.OPEN);
 		_html5_index.value_changed.connect(() => {
@@ -628,19 +628,19 @@ public class DeployDialog : Gtk.Window
 		// HTML5 General page.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Destination", _html5_output_path);
-		cv.add_row("Config", _html5_config);
-		_html5_set.add_property_grid(cv, "Output");
+		cv.add_row(_("Destination"), _html5_output_path);
+		cv.add_row(_("Config"), _html5_config);
+		_html5_set.add_property_grid(cv, _("Output"));
 
 		// HTML5 Application.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Title", _html5_app_title);
+		cv.add_row(_("Title"), _html5_app_title);
 		Gtk.Box html5_index_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
 		html5_index_box.pack_start(_html5_index, true, true, 0);
 		html5_index_box.pack_start(html5_index_save, false, false, 0);
-		cv.add_row("Index", html5_index_box);
-		_html5_set.add_property_grid(cv, "Application");
+		cv.add_row(_("Index"), html5_index_box);
+		_html5_set.add_property_grid(cv, _("Application"));
 
 		// Linux page.
 		_linux_deploy_button = make_deploy_button(TargetPlatform.LINUX);
@@ -648,13 +648,13 @@ public class DeployDialog : Gtk.Window
 				// Validate input fields.
 				string? output_path = _linux_output_path.value;
 				if (output_path == null) {
-					loge("Select a valid output Destination");
+					loge(_("Select a valid output Destination"));
 					return;
 				}
 
 				string app_title = _linux_app_title.value.strip();
 				if (app_title.length == 0) {
-					loge("Enter a valid Title");
+					loge(_("Enter a valid Title"));
 					return;
 				}
 
@@ -673,7 +673,7 @@ public class DeployDialog : Gtk.Window
 		_linux_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_linux_config = make_deploy_config_combo();
 		_linux_app_title = new InputString();
-		_linux_app_title._entry.placeholder_text = "My Application";
+		_linux_app_title._entry.placeholder_text = _("My Application");
 		_linux_app_title.value = _project.name();
 
 		_linux_set = new PropertyGridSet();
@@ -688,15 +688,15 @@ public class DeployDialog : Gtk.Window
 		// Linux General page.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Destination", _linux_output_path);
-		cv.add_row("Config", _linux_config);
-		_linux_set.add_property_grid(cv, "Output");
+		cv.add_row(_("Destination"), _linux_output_path);
+		cv.add_row(_("Config"), _linux_config);
+		_linux_set.add_property_grid(cv, _("Output"));
 
 		// Linux Application.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Title", _linux_app_title);
-		_linux_set.add_property_grid(cv, "Application");
+		cv.add_row(_("Title"), _linux_app_title);
+		_linux_set.add_property_grid(cv, _("Application"));
 
 		// Windows page.
 		_windows_deploy_button = make_deploy_button(TargetPlatform.WINDOWS);
@@ -704,13 +704,13 @@ public class DeployDialog : Gtk.Window
 				// Validate input fields.
 				string? output_path = _windows_output_path.value;
 				if (output_path == null) {
-					loge("Select a valid output Destination");
+					loge(_("Select a valid output Destination"));
 					return;
 				}
 
 				string app_title = _windows_app_title.value.strip();
 				if (app_title.length == 0) {
-					loge("Enter a valid Title");
+					loge(_("Enter a valid Title"));
 					return;
 				}
 
@@ -729,7 +729,7 @@ public class DeployDialog : Gtk.Window
 		_windows_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_windows_config = make_deploy_config_combo();
 		_windows_app_title = new InputString();
-		_windows_app_title._entry.placeholder_text = "My Application";
+		_windows_app_title._entry.placeholder_text = _("My Application");
 		_windows_app_title.value = _project.name();
 
 		_windows_set = new PropertyGridSet();
@@ -744,15 +744,15 @@ public class DeployDialog : Gtk.Window
 		// Windows General page.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Destination", _windows_output_path);
-		cv.add_row("Config", _windows_config);
-		_windows_set.add_property_grid(cv, "Output");
+		cv.add_row(_("Destination"), _windows_output_path);
+		cv.add_row(_("Config"), _windows_config);
+		_windows_set.add_property_grid(cv, _("Output"));
 
 		// Windows Application.
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row("Title", _windows_app_title);
-		_windows_set.add_property_grid(cv, "Application");
+		cv.add_row(_("Title"), _windows_app_title);
+		_windows_set.add_property_grid(cv, _("Application"));
 
 		// Add pages.
 		_notebook = new Gtk.Notebook();

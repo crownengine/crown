@@ -337,25 +337,25 @@ public class SpriteImportDialog : Gtk.Window
 		// Slices.
 		PropertyGrid cv;
 		cv = new PropertyGrid();
-		cv.add_row("Name", _unit_name, "Name of the imported unit.");
-		sprite_set.add_property_grid(cv, "Unit");
+		cv.add_row(_("Name"), _unit_name, _("Name of the imported unit."));
+		sprite_set.add_property_grid(cv, _("Unit"));
 
 		cv = new PropertyGrid();
-		cv.add_row("Resolution", resolution, "Resolution of the source image.");
-		cv.add_row("Cells", cells, "Split the image into X columns and Y rows.");
-		cv.add_row("Auto Size", cell_wh_auto, "Compute the cell size automatically.");
-		cv.add_row("Cell", cell, "Size of each cell.");
-		cv.add_row("Offset", offset, "Starting offset of the cells.");
-		cv.add_row("Spacing", spacing, "Spacing between the cells.");
-		cv.add_row("Pivot", pivot, "Origin of the sprite.");
-		cv.add_row("Collision", collision_enabled, "Enable collision detection.");
-		sprite_set.add_property_grid(cv, "Image");
+		cv.add_row(_("Resolution"), resolution, _("Resolution of the source image."));
+		cv.add_row(_("Cells"), cells, _("Split the image into X columns and Y rows."));
+		cv.add_row(_("Auto Size"), cell_wh_auto, _("Compute the cell size automatically."));
+		cv.add_row(_("Cell"), cell, _("Size of each cell."));
+		cv.add_row(_("Offset"), offset, _("Starting offset of the cells."));
+		cv.add_row(_("Spacing"), spacing, _("Spacing between the cells."));
+		cv.add_row(_("Pivot"), pivot, _("Origin of the sprite."));
+		cv.add_row(_("Collision"), collision_enabled, _("Enable collision detection."));
+		sprite_set.add_property_grid(cv, _("Image"));
 
 		// Sprite Renderer.
 		cv = new PropertyGrid();
-		cv.add_row("Layer", layer, "Sorting layer. Higher values makes the sprite appear in front.");
-		cv.add_row("Depth", depth, "Higher values make the sprite apper in front of other sprites in the same layer.");
-		sprite_set.add_property_grid(cv, "Sprite Renderer");
+		cv.add_row(_("Layer"), layer, _("Sorting layer. Higher values makes the sprite appear in front."));
+		cv.add_row(_("Depth"), depth, _("Higher values make the sprite apper in front of other sprites in the same layer."));
+		sprite_set.add_property_grid(cv, _("Sprite Renderer"));
 
 		// Collider.
 		shape = new Gtk.Stack();
@@ -367,30 +367,30 @@ public class SpriteImportDialog : Gtk.Window
 			});
 
 		cv = new PropertyGrid();
-		cv.add_row("Origin", collision_xy);
-		cv.add_row("Size", collision_wh);
-		shape.add_titled(cv, "square_collider", "Square");
+		cv.add_row(_("Origin"), collision_xy);
+		cv.add_row(_("Size"), collision_wh);
+		shape.add_titled(cv, "square_collider", _("Square"));
 
 		cv = new PropertyGrid();
-		cv.add_row("Origin", circle_collision_center);
-		cv.add_row("Radius", circle_collision_radius);
-		shape.add_titled(cv, "circle_collider", "Circle");
+		cv.add_row(_("Origin"), circle_collision_center);
+		cv.add_row(_("Radius"), circle_collision_radius);
+		shape.add_titled(cv, "circle_collider", _("Circle"));
 
 		cv = new PropertyGrid();
-		cv.add_row("Origin", capsule_collision_center);
-		cv.add_row("Radius", capsule_collision_radius);
-		cv.add_row("Height", capsule_collision_height);
-		shape.add_titled(cv, "capsule_collider", "Capsule");
+		cv.add_row(_("Origin"), capsule_collision_center);
+		cv.add_row(_("Radius"), capsule_collision_radius);
+		cv.add_row(_("Height"), capsule_collision_height);
+		shape.add_titled(cv, "capsule_collider", _("Capsule"));
 
 		shape_switcher = new Gtk.StackSwitcher();
 		shape_switcher.set_stack(shape);
 
 		cv = new PropertyGrid();
 		cv.row_homogeneous = false;
-		cv.add_row("Shape Type", shape_switcher, "Shape to use as collider.");
-		cv.add_row("Mirror Cell", mirror_cell, "Compute the shape size based on the cell size.");
-		cv.add_row("Shape Data", shape, "Set the shape size manually.");
-		sprite_set.add_property_grid(cv, "Collider");
+		cv.add_row(_("Shape Type"), shape_switcher, _("Shape to use as collider."));
+		cv.add_row(_("Mirror Cell"), mirror_cell, _("Compute the shape size based on the cell size."));
+		cv.add_row(_("Shape Data"), shape, _("Set the shape size manually."));
+		sprite_set.add_property_grid(cv, _("Collider"));
 
 		mirror_cell.toggled.connect(() => {
 				shape.sensitive = !shape.sensitive;
@@ -401,10 +401,10 @@ public class SpriteImportDialog : Gtk.Window
 
 		// Actor.
 		cv = new PropertyGrid();
-		cv.add_row("Class", actor_class, "Actor class.");
-		cv.add_row("Mass", mass, "Actor physical mass.");
-		cv.add_row("Lock Rotation", lock_rotation_z, "Prevent the actor from rotating around the Z axis.");
-		sprite_set.add_property_grid(cv, "Actor");
+		cv.add_row(_("Class"), actor_class, _("Actor class."));
+		cv.add_row(_("Mass"), mass, _("Actor physical mass."));
+		cv.add_row(_("Lock Rotation"), lock_rotation_z, _("Prevent the actor from rotating around the Z axis."));
+		sprite_set.add_property_grid(cv, _("Actor"));
 
 		_previous_frame = new Gtk.Button.from_icon_name("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
 		_previous_frame.clicked.connect(() => {
@@ -548,8 +548,8 @@ public class SpriteImportDialog : Gtk.Window
 		_scrolled_window.add(_slices);
 
 		_notebook = new Gtk.Notebook();
-		_notebook.append_page(_preview_overlay, new Gtk.Label("Preview"));
-		_notebook.append_page(_scrolled_window, new Gtk.Label("Slices"));
+		_notebook.append_page(_preview_overlay, new Gtk.Label(_("Preview")));
+		_notebook.append_page(_scrolled_window, new Gtk.Label(_("Slices")));
 		_notebook.show_border = false;
 
 		Gtk.Paned pane;
@@ -560,16 +560,16 @@ public class SpriteImportDialog : Gtk.Window
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_box.pack_start(pane, false, false);
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_import = new Gtk.Button.with_label("Import");
+		_import = new Gtk.Button.with_label(_("Import"));
 		_import.get_style_context().add_class("suggested-action");
 		_import.clicked.connect(on_import);
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Import Sprite...";
+		_header_bar.title = _("Import Sprite...");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);

@@ -21,8 +21,8 @@ public class OpenResourceDialog : Gtk.FileChooserDialog
 			this.set_transient_for(parent);
 
 		this.set_action(Gtk.FileChooserAction.OPEN);
-		this.add_button("Cancel", Gtk.ResponseType.CANCEL);
-		this.add_button("Open", Gtk.ResponseType.ACCEPT);
+		this.add_button(_("Cancel"), Gtk.ResponseType.CANCEL);
+		this.add_button(_("Open"), Gtk.ResponseType.ACCEPT);
 		try {
 			this.set_current_folder_file(GLib.File.new_for_path(p.source_dir()));
 		} catch (GLib.Error e) {
@@ -55,7 +55,7 @@ public class OpenResourceDialog : Gtk.FileChooserDialog
 					, Gtk.DialogFlags.MODAL
 					, Gtk.MessageType.WARNING
 					, Gtk.ButtonsType.OK
-					, "The file must be within the source directory."
+					, _("The file must be within the source directory.")
 					);
 				md.set_default_response(Gtk.ResponseType.OK);
 				md.response.connect(() => {

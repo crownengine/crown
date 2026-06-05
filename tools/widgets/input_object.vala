@@ -83,7 +83,7 @@ public class InputObject : InputField
 		_box.pack_start(_name, true, true);
 
 		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
-		_selector.set_tooltip_text("Select a resource.");
+		_selector.set_tooltip_text(_("Select a resource."));
 		_selector.clicked.connect(on_selector_clicked);
 		_selector.set_can_focus(false);
 		_box.pack_end(_selector, false);

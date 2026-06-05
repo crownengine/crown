@@ -350,25 +350,25 @@ public class InputColor3 : InputField
 		_rgb_grid = new PropertyGrid();
 		_rgb_grid.row_homogeneous = false;
 		_rgb_grid.label_width_chars = 8;
-		_rgb_grid.add_row("Red", _rgb_r);
-		_rgb_grid.add_row("Green", _rgb_g);
-		_rgb_grid.add_row("Blue", _rgb_b);
-		_rgb_grid.add_row("Alpha", _rgb_a);
+		_rgb_grid.add_row(_("Red"), _rgb_r);
+		_rgb_grid.add_row(_("Green"), _rgb_g);
+		_rgb_grid.add_row(_("Blue"), _rgb_b);
+		_rgb_grid.add_row(_("Alpha"), _rgb_a);
 
 		_hsv_grid = new PropertyGrid();
 		_hsv_grid.row_homogeneous = false;
 		_hsv_grid.label_width_chars = 8;
-		_hsv_grid.add_row("Hue", _hsv_h);
-		_hsv_grid.add_row("Saturation", _hsv_s);
-		_hsv_grid.add_row("Value", _hsv_v);
-		_hsv_grid.add_row("Alpha", _hsv_a);
+		_hsv_grid.add_row(_("Hue"), _hsv_h);
+		_hsv_grid.add_row(_("Saturation"), _hsv_s);
+		_hsv_grid.add_row(_("Value"), _hsv_v);
+		_hsv_grid.add_row(_("Alpha"), _hsv_a);
 
 		_color_string = new InputString();
-		_color_string.set_tooltip_text("Lua color code.");
+		_color_string.set_tooltip_text(_("Lua color code."));
 		_color_string.value_changed.connect(on_color_string_value_changed);
 
 		_picker_button = new Gtk.Button.from_icon_name("color-select-symbolic");
-		_picker_button.set_tooltip_text("Pick a color from the screen.");
+		_picker_button.set_tooltip_text(_("Pick a color from the screen."));
 		_picker_button.clicked.connect(on_picker_button_clicked);
 		_picker = gtk_color_picker_new();
 
@@ -407,7 +407,7 @@ public class InputColor3 : InputField
 		_input_box.show_all();
 
 		_color_button = new ColorButton();
-		_color_button.set_tooltip_text("Choose a color.");
+		_color_button.set_tooltip_text(_("Choose a color."));
 		_color_button.can_focus = false;
 		_color_button.set_popover(_popover);
 

@@ -38,7 +38,7 @@ public class SelectResourceDialog : Gtk.Window
 			});
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Select a %s".printf(resource_type);
+		_header_bar.title = _("Select a %s").printf(resource_type);
 		_header_bar.show_close_button = true;
 		this.set_titlebar(_header_bar);
 

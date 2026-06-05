@@ -43,15 +43,15 @@ public class ObjectTree : Gtk.Box
 		{
 			switch (this) {
 			case NAME_AZ:
-				return "Name A-Z";
+				return _("Name A-Z");
 			case NAME_ZA:
-				return "Name Z-A";
+				return _("Name Z-A");
 			case TYPE_AZ:
-				return "Type A-Z";
+				return _("Type A-Z");
 			case TYPE_ZA:
-				return "Type Z-A";
+				return _("Type Z-A");
 			default:
-				return "Unknown";
+				return _("Unknown");
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class ObjectTree : Gtk.Box
 		// Widgets
 		_needle = "";
 		_filter_entry = new EntrySearch();
-		_filter_entry.set_placeholder_text("Search...");
+		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry._entry.stop_search.connect(on_stop_search);
 
@@ -173,7 +173,7 @@ public class ObjectTree : Gtk.Box
 		_sort_items_popover = new Gtk.Popover(null);
 		_sort_items_popover.add(_sort_items_box);
 		_sort_items = new Gtk.MenuButton();
-		_sort_items.set_tooltip_text("Sort items.");
+		_sort_items.set_tooltip_text(_("Sort items."));
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
 		_sort_items.get_style_context().add_class("image-button");
@@ -239,11 +239,11 @@ public class ObjectTree : Gtk.Box
 						Guid object_id = (Guid)val;
 
 						if (object_id != _object_id) {
-							mi = new GLib.MenuItem("Duplicate", null);
+							mi = new GLib.MenuItem(_("Duplicate"), null);
 							mi.set_action_and_target_value("database.duplicate", null);
 							menu_model.append_item(mi);
 
-							mi = new GLib.MenuItem("Delete", null);
+							mi = new GLib.MenuItem(_("Delete"), null);
 							mi.set_action_and_target_value("database.delete", null);
 							menu_model.append_item(mi);
 						}
@@ -253,7 +253,7 @@ public class ObjectTree : Gtk.Box
 						_tree_view.model.get_value(iter, Column.SET_NAME, out val);
 						string set_name = (string)val;
 
-						mi = new GLib.MenuItem("Add", null);
+						mi = new GLib.MenuItem(_("Add"), null);
 						mi.set_action_and_target_value("database.add"
 							, new GLib.Variant.tuple({ object_id.to_string(), set_name })
 							);

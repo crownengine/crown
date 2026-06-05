@@ -30,12 +30,12 @@ public Gtk.Box long_running_task(string markup)
 
 public Gtk.Box compiling_data()
 {
-	return long_running_task("<span font_weight=\"bold\">Compiling data...</span>");
+	return long_running_task("<span font_weight=\"bold\">%s</span>".printf(_("Compiling data...")));
 }
 
 public Gtk.Box connecting_to_data_compiler()
 {
-	return long_running_task("<span font_weight=\"bold\">Connecting to Data Compiler...</span>");
+	return long_running_task("<span font_weight=\"bold\">%s</span>".printf(_("Connecting to Data Compiler...")));
 }
 
 public Gtk.Box restart_compiler(string markup)
@@ -45,7 +45,7 @@ public Gtk.Box restart_compiler(string markup)
 
 	Gtk.Label p = new Gtk.Label(null);
 	p.get_style_context().add_class("colorfast-link");
-	p.set_markup("Fix errors and <a href=\"restart\">restart the compiler</a> to continue.");
+	p.set_markup(_("Fix errors and <a href=\"restart\">restart the compiler</a> to continue."));
 	p.activate_link.connect(() => {
 			GLib.Application.get_default().activate_action("restart-backend", null);
 			return true;
@@ -56,12 +56,12 @@ public Gtk.Box restart_compiler(string markup)
 
 public Gtk.Box compiler_failed_compilation()
 {
-	return restart_compiler("<span font_weight=\"bold\">Data compilation failed.</span>");
+	return restart_compiler("<span font_weight=\"bold\">%s</span>".printf(_("Data compilation failed.")));
 }
 
 public Gtk.Box compiler_crashed()
 {
-	return restart_compiler("<span font_weight=\"bold\">Data Compiler disconnected unexpectedly.</span>");
+	return restart_compiler("<span font_weight=\"bold\">%s</span>".printf(_("Data Compiler disconnected unexpectedly.")));
 }
 
 public delegate void RestartVieport();
@@ -69,11 +69,11 @@ public delegate void RestartVieport();
 public Gtk.Box editor_oops(RestartVieport restart_viewport)
 {
 	var h1 = new Gtk.Label(null);
-	h1.set_markup("<span font_weight=\"bold\">Something went wrong.</span>");
+	h1.set_markup("<span font_weight=\"bold\">%s</span>".printf(_("Something went wrong.")));
 
 	var p = new Gtk.Label(null);
 	p.get_style_context().add_class("colorfast-link");
-	p.set_markup("Try to <a href=\"restart\">restart this view</a>.");
+	p.set_markup(_("Try to <a href=\"restart\">restart this view</a>."));
 	p.activate_link.connect(() => {
 			restart_viewport();
 			return true;
@@ -85,14 +85,14 @@ public Gtk.Box editor_oops(RestartVieport restart_viewport)
 public Gtk.Box editor_disconnected()
 {
 	Gtk.Label h1 = new Gtk.Label(null);
-	h1.set_markup("<span font_weight=\"bold\">Disconnected.</span>");
+	h1.set_markup("<span font_weight=\"bold\">%s</span>".printf(_("Disconnected.")));
 
 	return message_widget(h1);
 }
 
 public Gtk.Box stopping_backend()
 {
-	return long_running_task("<span font_weight=\"bold\">Stopping Backend...</span>");
+	return long_running_task("<span font_weight=\"bold\">%s</span>".printf(_("Stopping Backend...")));
 }
 
 public Gtk.Dialog new_resource_changed_dialog(Gtk.Window? parent, string resource_name)
@@ -101,13 +101,13 @@ public Gtk.Dialog new_resource_changed_dialog(Gtk.Window? parent, string resourc
 		, Gtk.DialogFlags.MODAL
 		, Gtk.MessageType.WARNING
 		, Gtk.ButtonsType.NONE
-		, "Save changes to '%s' before closing?".printf(resource_name)
+		, _("Save changes to '%s' before closing?").printf(resource_name)
 		);
 	Gtk.Widget btn;
-	btn = md.add_button("Close _without Saving", Gtk.ResponseType.NO);
+	btn = md.add_button(_("Close _without Saving"), Gtk.ResponseType.NO);
 	btn.get_style_context().add_class("destructive-action");
-	md.add_button("_Cancel", Gtk.ResponseType.CANCEL);
-	md.add_button("_Save", Gtk.ResponseType.YES);
+	md.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL);
+	md.add_button(_("_Save"), Gtk.ResponseType.YES);
 	md.set_default_response(Gtk.ResponseType.YES);
 	return md;
 }

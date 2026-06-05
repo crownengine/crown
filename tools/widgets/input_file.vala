@@ -45,7 +45,7 @@ public class InputFile : InputField
 
 			if (value == null) {
 				_path = null;
-				_name.value = "(None)";
+				_name.value = _("(None)");
 			} else {
 				GLib.File f = GLib.File.new_for_path(value);
 				_path = f.get_path();
@@ -83,13 +83,13 @@ public class InputFile : InputField
 
 	public void on_selector_clicked()
 	{
-		string label = _action == Gtk.FileChooserAction.SELECT_FOLDER ? "Folder" : "File";
-		Gtk.FileChooserDialog dlg = new Gtk.FileChooserDialog("Select %s".printf(label)
+		string label = _action == Gtk.FileChooserAction.SELECT_FOLDER ? _("Folder") : _("File");
+		Gtk.FileChooserDialog dlg = new Gtk.FileChooserDialog(_("Select %s").printf(label)
 			, (Gtk.Window)this.get_toplevel()
 			, _action
-			, "Cancel"
+			, _("Cancel")
 			, Gtk.ResponseType.CANCEL
-			, "Open"
+			, _("Open")
 			, Gtk.ResponseType.ACCEPT
 			);
 

@@ -44,7 +44,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_hbox.pack_start(_vbox);
 
 		_remove_button = new Gtk.Button.from_icon_name("list-remove-symbolic");
-		_remove_button.set_tooltip_text("Remove the project from the list.");
+		_remove_button.set_tooltip_text(_("Remove the project from the list."));
 		_remove_button.get_style_context().add_class("flat");
 		_remove_button.get_style_context().add_class("destructive-action");
 		_remove_button.set_halign(Gtk.Align.CENTER);
@@ -52,8 +52,8 @@ public class ProjectRow : Gtk.ListBoxRow
 		_remove_button.set_margin_end(12);
 		_hbox.pack_end(_remove_button, false, false, 0);
 
-		_open_button = new Gtk.Button.with_label("Open");
-		_open_button.set_tooltip_text("Open the project.");
+		_open_button = new Gtk.Button.with_label(_("Open"));
+		_open_button.set_tooltip_text(_("Open the project."));
 		_open_button.get_style_context().add_class("flat");
 		_open_button.set_halign(Gtk.Align.CENTER);
 		_open_button.set_valign(Gtk.Align.CENTER);
@@ -106,19 +106,19 @@ public class ProjectsList : Gtk.Box
 
 		_projects_list_label = new Gtk.Label(null);
 		_projects_list_label.xalign = 0;
-		_projects_list_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">Projects</span>");
+		_projects_list_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">%s</span>".printf(_("Projects")));
 
-		_local_label = new Gtk.Label("Local");
-		_local_label.set_markup("<span font_weight=\"bold\">Local</span>");
+		_local_label = new Gtk.Label(_("Local"));
+		_local_label.set_markup("<span font_weight=\"bold\">%s</span>".printf(_("Local")));
 
 		_project_list_empty = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
 		_project_list_empty.margin_top = 12;
 		_project_list_empty.margin_bottom = 12;
 		var label = new Gtk.Label(null);
-		label.set_markup("<span font_size=\"large\"><b>No projects found</b></span>");
+		label.set_markup("<span font_size=\"large\"><b>%s</b></span>".printf(_("No projects found")));
 		_project_list_empty.pack_start(label, false, false);
 		label = new Gtk.Label(null);
-		label.set_markup("Use the buttons above to create a new project or import an already existing one.");
+		label.set_markup(_("Use the buttons above to create a new project or import an already existing one."));
 		_project_list_empty.pack_start(label, false, false);
 		_project_list_empty.show_all();
 
@@ -130,12 +130,12 @@ public class ProjectsList : Gtk.Box
 				return mtime1 > mtime2 ? -1 : 1; // LRU
 			});
 
-		_button_import_project = new Gtk.Button.with_label("Import...");
-		_button_import_project.set_tooltip_text("Import an existing project.");
+		_button_import_project = new Gtk.Button.with_label(_("Import..."));
+		_button_import_project.set_tooltip_text(_("Import an existing project."));
 		_button_import_project.action_name = "app.add-project";
 
-		_button_new_project = new Gtk.Button.with_label("Create New");
-		_button_new_project.set_tooltip_text("Create a new project.");
+		_button_new_project = new Gtk.Button.with_label(_("Create New"));
+		_button_new_project.set_tooltip_text(_("Create a new project."));
 		_button_new_project.get_style_context().add_class("suggested-action");
 		_button_new_project.action_name = "app.new-project";
 

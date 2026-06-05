@@ -80,18 +80,18 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_statusbar = new Statusbar();
 
-		_cancel = new Gtk.Button.with_label("Cancel");
+		_cancel = new Gtk.Button.with_label(_("Cancel"));
 		_cancel.clicked.connect(() => {
 				close();
 			});
-		_save = new Gtk.Button.with_label("Save & Reload");
+		_save = new Gtk.Button.with_label(_("Save & Reload"));
 		_save.get_style_context().add_class("suggested-action");
 		_save.clicked.connect(() => {
 				save();
 			});
 
 		_header_bar = new Gtk.HeaderBar();
-		_header_bar.title = "Unit Editor";
+		_header_bar.title = _("Unit Editor");
 		_header_bar.show_close_button = true;
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_save);
@@ -116,11 +116,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;
 
-		mi = new GLib.MenuItem("Edit", null);
+		mi = new GLib.MenuItem(_("Edit"), null);
 		mi.set_submenu(make_database_editor_menu());
 		menu.append_item(mi);
 
-		mi = new GLib.MenuItem("Camera", null);
+		mi = new GLib.MenuItem(_("Camera"), null);
 		mi.set_submenu(make_camera_view_menu());
 		menu.append_item(mi);
 
@@ -234,9 +234,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 				, Gtk.DialogFlags.MODAL
 				, Gtk.MessageType.WARNING
 				, Gtk.ButtonsType.NONE
-				, "Unable to save unit '%s'".printf(display_name)
+				, _("Unable to save unit '%s'").printf(display_name)
 				);
-			md.add_button("_Ok", Gtk.ResponseType.OK);
+			md.add_button(_("_Ok"), Gtk.ResponseType.OK);
 			md.set_default_response(Gtk.ResponseType.OK);
 			md.response.connect(() => { md.destroy(); });
 			md.show_all();
@@ -260,7 +260,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		}
 
 		string current_name = _unit_name == "" ? "" : GLib.Path.get_basename(_unit_name);
-		SaveResourceDialog srd = new SaveResourceDialog("Save As..."
+		SaveResourceDialog srd = new SaveResourceDialog(_("Save As...")
 			, this
 			, OBJECT_TYPE_UNIT
 			, current_name
@@ -432,12 +432,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void on_undo(int action_id)
 	{
-		_statusbar.set_temporary_message("Undo: " + ActionNames[action_id]);
+		_statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[action_id])));
 	}
 
 	public void on_redo(int action_id)
 	{
-		_statusbar.set_temporary_message("Redo: " + ActionNames[action_id]);
+		_statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[action_id])));
 	}
 
 	public void close_and_unload()

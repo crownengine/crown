@@ -26,7 +26,7 @@ public class AppChooserButton : Gtk.Box
 		Object(orientation: Gtk.Orientation.HORIZONTAL);
 
 		_app_chooser_button = new Gtk.AppChooserButton(mime_type);
-		_app_chooser_button.append_custom_item(APP_DEFAULT, "Open by extension", (GLib.Icon?)null);
+		_app_chooser_button.append_custom_item(APP_DEFAULT, _("Open by extension"), (GLib.Icon?)null);
 		_app_chooser_button.set_active_custom_item(APP_DEFAULT);
 #if CROWN_PLATFORM_LINUX
 		_app_chooser_button.show_dialog_item = true;
