@@ -4169,6 +4169,7 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.YES) {
+						_deploy_dialog._android_page.deploy_started();
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
@@ -4186,15 +4187,20 @@ public class LevelEditorApplication : Gtk.Application
 								, key_pass
 								, arch
 								, apk_name
+								, (obj, res) => {
+									_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
+								}
 								);
 						} catch (Error e) {
 							loge(e.message);
+							_deploy_dialog._android_page.deploy_finished(-1, config_path);
 						}
 					}
 					dlg.destroy();
 				});
 			dlg.show_all();
 		} else {
+			_deploy_dialog._android_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
 				do_create_package_android.begin(package_dir
@@ -4211,9 +4217,13 @@ public class LevelEditorApplication : Gtk.Application
 					, key_pass
 					, arch
 					, apk_name
+					, (obj, res) => {
+						_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
+					}
 					);
 			} catch (Error e) {
 				loge(e.message);
+				_deploy_dialog._android_page.deploy_finished(-1, config_path);
 			}
 		}
 	}
@@ -4401,23 +4411,31 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.YES) {
+						_deploy_dialog._html5_page.deploy_started();
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+									_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
+								});
 						} catch (Error e) {
 							loge(e.message);
+							_deploy_dialog._html5_page.deploy_finished(-1, package_dir.get_path());
 						}
 					}
 					dlg.destroy();
 				});
 			dlg.show_all();
 		} else {
+			_deploy_dialog._html5_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+						_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
+					});
 			} catch (Error e) {
 				loge(e.message);
+				_deploy_dialog._html5_page.deploy_finished(-1, package_dir.get_path());
 			}
 		}
 	}
@@ -4502,23 +4520,31 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.YES) {
+						_deploy_dialog._linux_page.deploy_started();
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+									_deploy_dialog._linux_page.deploy_finished(do_create_package_linux.end(res), package_dir.get_path());
+								});
 						} catch (Error e) {
 							loge(e.message);
+							_deploy_dialog._linux_page.deploy_finished(-1, package_dir.get_path());
 						}
 					}
 					dlg.destroy();
 				});
 			dlg.show_all();
 		} else {
+			_deploy_dialog._linux_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+						_deploy_dialog._linux_page.deploy_finished(do_create_package_linux.end(res), package_dir.get_path());
+					});
 			} catch (Error e) {
 				loge(e.message);
+				_deploy_dialog._linux_page.deploy_finished(-1, package_dir.get_path());
 			}
 		}
 	}
@@ -4617,23 +4643,31 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.YES) {
+						_deploy_dialog._windows_page.deploy_started();
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+									_deploy_dialog._windows_page.deploy_finished(do_create_package_windows.end(res), package_dir.get_path());
+								});
 						} catch (Error e) {
 							loge(e.message);
+							_deploy_dialog._windows_page.deploy_finished(-1, package_dir.get_path());
 						}
 					}
 					dlg.destroy();
 				});
 			dlg.show_all();
 		} else {
+			_deploy_dialog._windows_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+						_deploy_dialog._windows_page.deploy_finished(do_create_package_windows.end(res), package_dir.get_path());
+					});
 			} catch (Error e) {
 				loge(e.message);
+				_deploy_dialog._windows_page.deploy_finished(-1, package_dir.get_path());
 			}
 		}
 	}
