@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-06T12:39:22+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-06-06T13:37:20+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly., Runtime: fixed PhysicsWorld.actor_set_kinematic(..." />
+<meta property="og:description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Tools: fixed flythrough camera excessive speed when moving diagonally., Tools: fixed re-importing existing units sometimes losing component data., Tools: fixed imported compon..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly., Runtime: fixed PhysicsWorld.actor_set_kinematic(..." />
+<meta name="description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Tools: fixed flythrough camera excessive speed when moving diagonally., Tools: fixed re-importing existing units sometimes losing component data., Tools: fixed imported compon..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -137,6 +137,9 @@
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed a crash when re-importing resources in some circumnstances.</p></li>
+<li><p>Tools: fixed flythrough camera excessive speed when moving diagonally.</p></li>
+<li><p>Tools: fixed re-importing existing units sometimes losing component data.</p></li>
+<li><p>Tools: fixed imported components not being removed from units when disabled on re-import.</p></li>
 <li><p>Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not updating mass/inertia.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not restoring body deactivation when switching actors back from kinematic.</p></li>
