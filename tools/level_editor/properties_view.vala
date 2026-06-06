@@ -225,6 +225,11 @@ public class PropertiesView : Gtk.Box
 	{
 		if (objects.length == 0) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
+			foreach (var obj in _objects) {
+				PropertyGrid cv = obj.value;
+				cv._id = GUID_ZERO;
+				cv._component_id = GUID_ZERO;
+			}
 			return;
 		}
 
@@ -242,11 +247,7 @@ public class PropertiesView : Gtk.Box
 
 	public void on_project_reset()
 	{
-		foreach (var obj in _objects) {
-			PropertyGrid cv = obj.value;
-			cv._id = GUID_ZERO;
-			cv._component_id = GUID_ZERO;
-		}
+		set_objects({});
 	}
 
 	public void on_database_selection_changed()

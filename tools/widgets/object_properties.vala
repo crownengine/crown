@@ -58,6 +58,10 @@ public class ObjectProperties : Gtk.Box
 	{
 		if (id == GUID_ZERO) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
+			for (int i = 0; i < _grids.size; ++i) {
+				_grids[i]._id = GUID_ZERO;
+				_grids[i]._component_id = GUID_ZERO;
+			}
 			return;
 		}
 

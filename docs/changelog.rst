@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.2 --- DD MMM YYYY <v0.63.2>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed a crash when re-importing resources in some circumnstances.
+
 .. _v0.63.1:
 
 :ref:`0.63.1 --- 05 Jun 2026 <v0.63.1>`
