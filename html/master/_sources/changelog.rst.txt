@@ -16,6 +16,7 @@ Changelog
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
 * Docs: updated Android deploying instructions.
+* Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 
 .. _v0.63.0:
 
