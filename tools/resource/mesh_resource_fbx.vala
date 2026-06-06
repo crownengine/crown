@@ -542,6 +542,18 @@ public class FBXImporter
 		string editor_name = node.name.data.length == 0 ? OBJECT_NAME_UNNAMED : (string)node.name.data;
 		Unit unit = Unit(db, unit_id);
 
+		if ((node.light != null && !options.import_lights.value)
+			|| (node.camera != null && !options.import_cameras.value)
+			) {
+			if (db.has_object(unit_id) && parent_unit_id != GUID_ZERO) {
+				Value? children = db.get_property(parent_unit_id, "children");
+				if (children != null)
+					((Gee.HashSet<Guid?>)children).remove(unit_id);
+				db.destroy(unit_id);
+			}
+			return;
+		}
+
 		// Create mesh_renderer.
 		if (node.mesh != null) {
 			if (!db.has_object(unit_id))
@@ -673,6 +685,23 @@ public class FBXImporter
 			unit.set_component_quaternion(component_id, "data.rotation", rot);
 			unit.set_component_vector3   (component_id, "data.scale", scl);
 			unit.set_component_string    (component_id, "data.name", editor_name);
+		}
+
+		if (!options.create_colliders.value) {
+			Guid component_id;
+			if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
+			}
+
+			if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
+			}
 		}
 
 		db.set_name(unit_id, editor_name);
@@ -832,6 +861,14 @@ public class FBXImporter
 					screen_size *= 0.5;
 				}
 				return;
+			}
+		} else {
+			Guid component_id;
+			if (unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
 			}
 		}
 	}
