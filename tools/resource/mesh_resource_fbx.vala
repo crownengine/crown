@@ -1296,6 +1296,7 @@ public class FBXImporter
 
 			if (options.import_units.value) {
 				// Generate or modify existing .unit.
+				create_object_types(db);
 				Guid unit_id;
 				if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0)
 					unit_id = Guid.new_guid();
