@@ -8,6 +8,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.
 * Tools: Android: deploy settings now expose configurable min and target SDK versions.
 
 **Fixes**
