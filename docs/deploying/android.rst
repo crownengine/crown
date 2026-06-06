@@ -41,7 +41,7 @@ Set environment variables
 
    export ANDROID_SDK_PATH=<android_sdk>
    export ANDROID_API_LEVEL=33
-   export ANDROID_NDK_ROOT=<android_ndk>
+   export ANDROID_NDK_ROOT=<android_ndk>/<version>
    export ANDROID_NDK_ABI=24
    export ANDROID_BUILD_TOOLS=<android_build-tools>/34.0.0
 
