@@ -3660,7 +3660,32 @@ public class LevelEditorApplication : Gtk.Application
 		return GLib.File.new_for_path(Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier));
 	}
 
-	public void do_create_package_android(GLib.File package_dir
+	public async int wait_subprocess(uint32 process_id) throws GLib.Error
+	{
+		SourceFunc callback = wait_subprocess.callback;
+		int exit_status = int.MAX;
+		GLib.Error? error = null;
+
+		new Thread<int>("wait-subprocess", () => {
+				try {
+					exit_status = _subprocess_launcher.wait(process_id);
+				} catch (GLib.Error e) {
+					error = e;
+				}
+
+				GLib.Idle.add((owned)callback);
+				return 0;
+			});
+
+		yield;
+
+		if (error != null)
+			throw error;
+
+		return exit_status;
+	}
+
+	public async int do_create_package_android(GLib.File package_dir
 		, string config_path
 		, string output_path
 		, int config
@@ -3737,7 +3762,7 @@ public class LevelEditorApplication : Gtk.Application
 			llvm_arch   = "aarch64-linux-android";
 		} else {
 			loge("Invalid architecture");
-			return;
+			return -1;
 		}
 
 		var libcrown_src_path = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", libcrown_src_name);
@@ -3773,6 +3798,7 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.File.new_for_path(res_drawable_path).make_directory();
 		} catch (Error e) {
 			loge(e.message);
+			return -1;
 		}
 
 		// Compile game data.
@@ -3800,15 +3826,15 @@ public class LevelEditorApplication : Gtk.Application
 			};
 
 			uint32 pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = _subprocess_launcher.wait(pid);
+			int exit_status = yield wait_subprocess(pid);
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return;
+				return exit_status;
 			}
 		} catch (Error e) {
 			loge(e.message);
-			return;
+			return -1;
 		}
 
 		// Create Android manifest.
@@ -3859,7 +3885,7 @@ public class LevelEditorApplication : Gtk.Application
 		GLib.FileStream? fs = FileStream.open(manifest_xml_path, "w");
 		if (fs == null) {
 			loge("Failed to open '%s'".printf(manifest_xml_path));
-			return;
+			return -1;
 		}
 		fs.write(android_manifest.data);
 
@@ -3873,7 +3899,7 @@ public class LevelEditorApplication : Gtk.Application
 		fs = FileStream.open(strings_xml_path, "w");
 		if (fs == null) {
 			loge("Failed to open '%s'".printf(strings_xml_path));
-			return;
+			return -1;
 		}
 		fs.write(android_strings.data);
 
@@ -3944,188 +3970,174 @@ public class LevelEditorApplication : Gtk.Application
 		fs = FileStream.open(activity_java_path, "w");
 		if (fs == null) {
 			loge("Failed to open '%s'".printf(activity_java_path));
-			return;
+			return -1;
 		}
 		fs.write(android_activity.data);
+		fs.flush();
 
-		// Compile java NativeActivity.
-		Thread<int> javac = new Thread<int>("javac", () => {
-				try {
-					string[] args = new string[]
-					{
-						android._javac_path,
-						"-verbose",
-						"-source",
-						"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
-						"-target",
-						"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
-						"-d",
-						obj_path,
-						"-classpath",
-						"java",
-						"-bootclasspath",
-						android_jar_path,
-						activity_java_path
-					};
+		string[] javac_args = new string[]
+		{
+			android._javac_path,
+			"-verbose",
+			"-source",
+			"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
+			"-target",
+			"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
+			"-d",
+			obj_path,
+			"-classpath",
+			"java",
+			"-bootclasspath",
+			android_jar_path,
+			activity_java_path
+		};
 
-					var sl = new GLib.SubprocessLauncher(subprocess_flags());
-					sl.spawnv(args);
-				} catch (Error e) {
-					loge(e.message);
-					return -1;
-				}
+		int javac_status;
+		try {
+			uint32 javac = _subprocess_launcher.spawnv_async(subprocess_flags(), javac_args, package_path);
+			javac_status = yield wait_subprocess(javac);
+		} catch (Error e) {
+			loge(e.message);
+			return -1;
+		}
 
-				return 0;
-			});
-		javac.join();
+		if (javac_status != 0)
+			return javac_status;
 
-		// Generate Android APK.
-		new Thread<int>("post-javac", () => {
-				// FIXME: just wait() for javac to terminate...
-				var class_path = Path.build_path(Path.DIR_SEPARATOR_S
-					, obj_path
-					, app_identifier.replace(".", "/")
-					, "%s.class".printf(activity_name)
-					);
-				var class_file = GLib.File.new_for_path(class_path);
+		var class_path = Path.build_path(Path.DIR_SEPARATOR_S
+			, obj_path
+			, app_identifier.replace(".", "/")
+			, "%s.class".printf(activity_name)
+			);
+		var class_file = GLib.File.new_for_path(class_path);
 
-				// Wait for javac to generate the .class file.
-				GLib.Timer timer = new GLib.Timer();
-				timer.start();
+		if (!class_file.query_exists()) {
+			loge("Failed to generate .class file");
+			return -1;
+		}
 
-				while (!class_file.query_exists() && timer.elapsed() < 5) {
-					GLib.Thread.usleep(500*1000);
-				}
+		try {
+			string[] args;
+			uint32 pid;
+			int exit_status;
 
-				if (!class_file.query_exists()) {
-					loge("Failed to generate .class file");
-					return -1;
-				}
+			args = new string[]
+			{
+				android._d8_path,
+				"--output",
+				bin_path,
+				class_path,
+				"--no-desugaring"
+			};
 
-				// Generate remaining APK stuff.
-				string[] args;
-				uint32 pid;
-				int exit_status;
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed to generate dex file. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
 
-				try {
-					args = new string[]
-					{
-						android._d8_path,
-						"--output",
-						bin_path,
-						class_path,
-						"--no-desugaring"
-					};
+			args = new string[]
+			{
+				android._aapt_path,
+				"package",
+				"-f",
+				"-m",
+				"-F",
+				unaligned_apk,
+				"-M",
+				manifest_xml_path,
+				"-S",
+				res_path,
+				"-A",
+				assets_path,
+				"-I",
+				android_jar_path
+			};
 
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed to generate dex file. exit_status %d".printf(exit_status));
-						return -1;
-					}
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed to do something with the APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
 
-					args = new string[]
-					{
-						android._aapt_path,
-						"package",
-						"-f",
-						"-m",
-						"-F",
-						unaligned_apk,
-						"-M",
-						manifest_xml_path,
-						"-S",
-						res_path,
-						"-A",
-						assets_path,
-						"-I",
-						android_jar_path
-					};
+			args = new string[]
+			{
+				android._aapt_path,
+				"add",
+				unaligned_apk,
+				"classes.dex"
+			};
 
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed to do something with the APK. exit_status %d".printf(exit_status));
-						return -1;
-					}
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, bin_path);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed to add classes.dex to APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
 
-					args = new string[]
-					{
-						android._aapt_path,
-						"add",
-						unaligned_apk,
-						"classes.dex"
-					};
+			args = new string[]
+			{
+				android._aapt_path,
+				"add",
+				unaligned_apk,
+				libcrown_path_relative.replace("\\", "/"),
+				libcpp_path_relative.replace("\\", "/")
+			};
 
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, bin_path);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed to add classes.dex to APK. exit_status %d".printf(exit_status));
-						return -1;
-					}
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, package_path);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed to add libs to APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
 
-					args = new string[]
-					{
-						android._aapt_path,
-						"add",
-						unaligned_apk,
-						libcrown_path_relative.replace("\\", "/"),
-						libcpp_path_relative.replace("\\", "/")
-					};
+			args = new string[]
+			{
+				android._jarsigner_path,
+				"-keystore",
+				keystore_path,
+				"-storepass",
+				keystore_pass,
+				"-keypass",
+				key_pass,
+				"-signedjar",
+				signed_apk,
+				unaligned_apk,
+				key_alias
+			};
 
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, package_path);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed to add libs to APK. exit_status %d".printf(exit_status));
-						return -1;
-					}
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed sign APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
 
-					args = new string[]
-					{
-						android._jarsigner_path,
-						"-keystore",
-						keystore_path,
-						"-storepass",
-						keystore_pass,
-						"-keypass",
-						key_pass,
-						"-signedjar",
-						signed_apk,
-						unaligned_apk,
-						key_alias
-					};
+			args = new string[]
+			{
+				android._zipalign_path,
+				"-f",
+				"4",
+				signed_apk,
+				final_apk
+			};
 
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed sign APK. exit_status %d".printf(exit_status));
-						return -1;
-					}
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed align APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
+		} catch (Error e) {
+			loge(e.message);
+			loge("Failed to deploy '%s'".printf(app_title));
+			return -1;
+		}
 
-					args = new string[]
-					{
-						android._zipalign_path,
-						"-f",
-						"4",
-						signed_apk,
-						final_apk
-					};
-
-					pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-					exit_status = _subprocess_launcher.wait(pid);
-					if (exit_status != 0) {
-						loge("Failed align APK. exit_status %d".printf(exit_status));
-						return -1;
-					}
-				} catch (Error e) {
-					loge(e.message);
-					loge("Failed to deploy '%s'".printf(app_title));
-					return -1;
-				}
-
-				logi("Done: #FILE(%s)".printf(config_path));
-				return 0;
-			});
+		logi("Done: #FILE(%s)".printf(config_path));
+		return 0;
 	}
 
 	public void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
@@ -4160,7 +4172,7 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_android(package_dir
+							do_create_package_android.begin(package_dir
 								, config_path
 								, output_path
 								, config
@@ -4185,7 +4197,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_android(package_dir
+				do_create_package_android.begin(package_dir
 					, config_path
 					, output_path
 					, config
@@ -4206,7 +4218,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void do_create_package_html5(GLib.File package_dir
+	public async int do_create_package_html5(GLib.File package_dir
 		, string output_path
 		, int config
 		, string app_title
@@ -4251,11 +4263,11 @@ public class LevelEditorApplication : Gtk.Application
 			};
 
 			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			var exit_status = _subprocess_launcher.wait(pid);
+			var exit_status = yield wait_subprocess(pid);
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return;
+				return exit_status;
 			}
 
 			// Copy runtime executables to package folder.
@@ -4290,12 +4302,12 @@ public class LevelEditorApplication : Gtk.Application
 			};
 
 			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, tmp_bundle_dir);
-			exit_status = _subprocess_launcher.wait(pid);
+			exit_status = yield wait_subprocess(pid);
 			delete_tree(GLib.File.new_for_path(tmp_bundle_dir));
 
 			if (exit_status != 0) {
 				loge("Failed to package data.js. exit_status %d".printf(exit_status));
-				return;
+				return exit_status;
 			}
 
 			// Generate index.html.
@@ -4355,16 +4367,17 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.FileStream? fs = FileStream.open(index_html_path, "w");
 			if (fs == null) {
 				loge("Failed to open '%s'".printf(index_html_path));
-				return;
+				return -1;
 			}
 			fs.write(index_html.data);
 		} catch (Error e) {
 			loge(e.message);
 			loge("Failed to deploy '%s'".printf(app_title));
-			return;
+			return -1;
 		}
 
 		logi("Done: #FILE(%s)".printf(package_path));
+		return 0;
 	}
 
 	public void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
@@ -4391,7 +4404,7 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_html5(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name);
 						} catch (Error e) {
 							loge(e.message);
 						}
@@ -4402,14 +4415,14 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_html5(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name);
 			} catch (Error e) {
 				loge(e.message);
 			}
 		}
 	}
 
-	public void do_create_package_linux(GLib.File package_dir
+	public async int do_create_package_linux(GLib.File package_dir
 		, string output_path
 		, int config
 		, string app_title
@@ -4448,11 +4461,11 @@ public class LevelEditorApplication : Gtk.Application
 			};
 
 			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = _subprocess_launcher.wait(compiler);
+			int exit_status = yield wait_subprocess(compiler);
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return;
+				return exit_status;
 			}
 
 			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
@@ -4461,10 +4474,11 @@ public class LevelEditorApplication : Gtk.Application
 		} catch (Error e) {
 			loge(e.message);
 			loge("Failed to deploy '%s'".printf(app_title));
-			return;
+			return -1;
 		}
 
 		logi("Done: #FILE(%s)".printf(package_path));
+		return 0;
 	}
 
 	public void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
@@ -4491,7 +4505,7 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_linux(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name);
 						} catch (Error e) {
 							loge(e.message);
 						}
@@ -4502,14 +4516,14 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_linux(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name);
 			} catch (Error e) {
 				loge(e.message);
 			}
 		}
 	}
 
-	void do_create_package_windows(GLib.File package_dir
+	async int do_create_package_windows(GLib.File package_dir
 		, string output_path
 		, int config
 		, string app_title
@@ -4548,11 +4562,11 @@ public class LevelEditorApplication : Gtk.Application
 			};
 
 			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = _subprocess_launcher.wait(compiler);
+			int exit_status = yield wait_subprocess(compiler);
 
 			if (exit_status != 0) {
 				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return;
+				return exit_status;
 			}
 
 			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
@@ -4575,10 +4589,11 @@ public class LevelEditorApplication : Gtk.Application
 		} catch (Error e) {
 			loge("%s".printf(e.message));
 			loge("Failed to deploy '%s'".printf(app_title));
-			return;
+			return -1;
 		}
 
 		logi("Done: #FILE(%s)".printf(package_path));
+		return 0;
 	}
 
 	public void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
@@ -4605,7 +4620,7 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_windows(package_dir, output_path, config, app_title, exe_name);
+							do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name);
 						} catch (Error e) {
 							loge(e.message);
 						}
@@ -4616,7 +4631,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else {
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_windows(package_dir, output_path, config, app_title, exe_name);
+				do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name);
 			} catch (Error e) {
 				loge(e.message);
 			}
