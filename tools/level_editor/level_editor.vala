@@ -3713,7 +3713,8 @@ public class LevelEditorApplication : Gtk.Application
 		};
 
 		AndroidDeployer android = new AndroidDeployer();
-		android.check_config();
+		if (android.check_config() != 0)
+			return -1;
 
 		logi("Creating Android package (%s)...".printf(arch == TargetArch.ARM ? "ARMv7-A" : "ARMv8-A"));
 
@@ -3786,6 +3787,11 @@ public class LevelEditorApplication : Gtk.Application
 		var libcpp_path_relative   = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, libcpp_name);
 		var libcrown_dst_path      = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libcrown.so");
 		var libcpp_dst_path        = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libc++_shared.so");
+
+		if (!GLib.File.new_for_path(android_jar_path).query_exists()) {
+			loge("Android platform not found: '%s'".printf(android_jar_path));
+			return -1;
+		}
 
 		// Create Android project skeleton.
 		try {
@@ -4003,8 +4009,10 @@ public class LevelEditorApplication : Gtk.Application
 			return -1;
 		}
 
-		if (javac_status != 0)
+		if (javac_status != 0) {
+			loge("Failed to compile Java activity. exit_status %d".printf(javac_status));
 			return javac_status;
+		}
 
 		var class_path = Path.build_path(Path.DIR_SEPARATOR_S
 			, obj_path

@@ -12,18 +12,16 @@ public class AndroidDeployer
 	public string _jarsigner_path;
 
 	public string? _sdk_path;
-	public string? _sdk_api_level;
 	public string? _ndk_root_path;
-	public string? _build_tools_path;
 	public string _d8_path;
 	public string _aapt_path;
 	public string _zipalign_path;
 
 	public AndroidDeployer()
 	{
+		_java_home = null;
 		_sdk_path = null;
 		_ndk_root_path = null;
-		_build_tools_path = null;
 
 		check_config();
 	}
@@ -32,7 +30,6 @@ public class AndroidDeployer
 	{
 		_java_home = GLib.Environment.get_variable("JAVA_HOME");
 #if CROWN_PLATFORM_WINDOWS
-		// JAVA_HOME must be defined.
 		if (_java_home == null) {
 			loge("Set JAVA_HOME environment variable.");
 			return -1;
@@ -50,19 +47,27 @@ public class AndroidDeployer
 			, "jarsigner"
 			);
 #elif CROWN_PLATFORM_LINUX
-		_javac_path = "javac";
-		_jarsigner_path = "jarsigner";
+		if (_java_home != null) {
+			_javac_path = Path.build_path(Path.DIR_SEPARATOR_S
+				, _java_home
+				, "bin"
+				, "javac"
+				);
+
+			_jarsigner_path = Path.build_path(Path.DIR_SEPARATOR_S
+				, _java_home
+				, "bin"
+				, "jarsigner"
+				);
+		} else {
+			_javac_path = "javac";
+			_jarsigner_path = "jarsigner";
+		}
 #endif /* if CROWN_PLATFORM_WINDOWS */
 
 		_sdk_path = GLib.Environment.get_variable("ANDROID_SDK_PATH");
 		if (_sdk_path == null) {
 			loge("Set ANDROID_SDK_PATH environment variable.");
-			return -1;
-		}
-
-		_sdk_api_level = GLib.Environment.get_variable("ANDROID_API_LEVEL");
-		if (_sdk_api_level == null) {
-			loge("Set ANDROID_API_LEVEL environment variable.");
 			return -1;
 		}
 
@@ -72,24 +77,24 @@ public class AndroidDeployer
 			return -1;
 		}
 
-		_build_tools_path = GLib.Environment.get_variable("ANDROID_BUILD_TOOLS");
-		if (_build_tools_path == null) {
-			loge("Set ANDROID_BUILD_TOOLS environment variable.");
+		string build_tools_path = Path.build_path(Path.DIR_SEPARATOR_S, _sdk_path, "build-tools", "34.0.0");
+		if (!GLib.File.new_for_path(build_tools_path).query_exists()) {
+			loge("Android build tools not found: '%s'".printf(build_tools_path));
 			return -1;
 		}
 
 		_d8_path = Path.build_path(Path.DIR_SEPARATOR_S
-			, _build_tools_path
+			, build_tools_path
 			, "d8"
 			);
 
 		_aapt_path = Path.build_path(Path.DIR_SEPARATOR_S
-			, _build_tools_path
+			, build_tools_path
 			, "aapt"
 			);
 
 		_zipalign_path = Path.build_path(Path.DIR_SEPARATOR_S
-			, _build_tools_path
+			, build_tools_path
 			, "zipalign"
 			);
 
