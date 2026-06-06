@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a crash when re-importing resources in some circumnstances.
+* Tools: fixed flythrough camera excessive speed when moving diagonally.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.

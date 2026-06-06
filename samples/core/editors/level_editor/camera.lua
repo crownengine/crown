@@ -134,12 +134,16 @@ local function camera_flythrough_action(self, dt, actions)
 	local camera_up       = Matrix4x4.z(camera_pose)
 
 	local new_position = Vector3.zero()
-	if actions.forward then new_position = new_position + camera_forward * speed end
-	if actions.back    then new_position = new_position - camera_forward * speed end
-	if actions.left    then new_position = new_position - camera_right * speed end
-	if actions.right   then new_position = new_position + camera_right * speed end
-	if actions.up      then new_position = new_position + camera_up * speed end
-	if actions.down    then new_position = new_position - camera_up * speed end
+	if actions.forward then new_position = new_position + camera_forward end
+	if actions.back    then new_position = new_position - camera_forward end
+	if actions.left    then new_position = new_position - camera_right end
+	if actions.right   then new_position = new_position + camera_right end
+	if actions.up      then new_position = new_position + camera_up end
+	if actions.down    then new_position = new_position - camera_up end
+
+	if Vector3.length(new_position) > 0.001 then
+		new_position = Vector3.normalize(new_position) * speed
+	end
 
 	local tr = SceneGraph.instance(self._sg, self._unit)
 	Matrix4x4.set_translation(camera_pose, camera_position + new_position)
