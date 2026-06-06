@@ -479,6 +479,23 @@ public class OBJImporter
 			unit.set_component_string    (component_id, "data.name", editor_name);
 		}
 
+		if (!options.create_colliders.value) {
+			Guid component_id;
+			if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
+			}
+
+			if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
+			}
+		}
+
 		if (parent_unit_id != GUID_ZERO)
 			db.add_to_set(parent_unit_id, "children", unit_id);
 
@@ -591,6 +608,14 @@ public class OBJImporter
 					screen_size *= 0.5;
 				}
 				return;
+			}
+		} else {
+			Guid component_id;
+			if (unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP) && db.owner(component_id) == unit_id) {
+				Value? components = db.get_property(unit_id, "components");
+				if (components != null)
+					((Gee.HashSet<Guid?>)components).remove(component_id);
+				db.destroy(component_id);
 			}
 		}
 	}
