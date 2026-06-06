@@ -27,7 +27,7 @@ Install Android SDK & NDK
 .. code::
 
 	<android_sdk>/latest/cmdline-tools/sdkmanager \
-		"platforms;android-33" \
+		"platforms;android-34" \
 		"ndk;27.2.12479018" \
 		"platform-tools" \
 		"build-tools;34.0.0"
@@ -40,10 +40,7 @@ Set environment variables
 .. code::
 
    export ANDROID_SDK_PATH=<android_sdk>
-   export ANDROID_API_LEVEL=33
    export ANDROID_NDK_ROOT=<android_ndk>/<version>
-   export ANDROID_NDK_ABI=24
-   export ANDROID_BUILD_TOOLS=<android_build-tools>/34.0.0
 
 Generate a keystore
 -------------------

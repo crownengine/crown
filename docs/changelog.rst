@@ -10,6 +10,7 @@ Changelog
 
 * Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.
 * Tools: Android: deploy settings now expose configurable min and target SDK versions.
+* Tools: Android: deployer now only requires JAVA_HOME, ANDROID_SDK_PATH and ANDROID_NDK_ROOT environment variables.
 
 **Fixes**
 
