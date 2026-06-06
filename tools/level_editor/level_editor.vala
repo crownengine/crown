@@ -706,7 +706,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_package =
 	{
-		{ "create-package-android", on_create_package_android, "(sississsssi)", null },
+		{ "create-package-android", on_create_package_android, "(sissisiissssi)", null },
 		{ "create-package-html5",   on_create_package_html5,   "(sis)",         null },
 		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
@@ -3668,6 +3668,8 @@ public class LevelEditorApplication : Gtk.Application
 		, string app_identifier
 		, int app_version_code
 		, string app_version_name
+		, int min_sdk_version
+		, int target_sdk_version
 		, string keystore_path
 		, string keystore_pass
 		, string key_alias
@@ -3707,7 +3709,7 @@ public class LevelEditorApplication : Gtk.Application
 		var manifest_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, manifests_path, "AndroidManifest.xml");
 		var strings_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values", "strings.xml");
 		var activity_java_path = Path.build_path(Path.DIR_SEPARATOR_S, app_sources_path, "%s.java".printf(activity_name));
-		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android._sdk_path, "platforms", "android-" + android._sdk_api_level, "android.jar");
+		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android._sdk_path, "platforms", "android-" + target_sdk_version.to_string(), "android.jar");
 		var libcrown_src_name = "libcrown-" + config_name[config] + ".so";
 		var libcpp_name = "libc++_shared.so";
 		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
@@ -3820,8 +3822,8 @@ public class LevelEditorApplication : Gtk.Application
 		android_manifest += "\n  android:versionName=\"%s\">".printf(app_version_name);
 		android_manifest += "\n";
 		android_manifest += "\n  <uses-sdk";
-		android_manifest += "\n    android:minSdkVersion=\"24\"";
-		android_manifest += "\n    android:targetSdkVersion=\"34\" />";
+		android_manifest += "\n    android:minSdkVersion=\"%d\"".printf(min_sdk_version);
+		android_manifest += "\n    android:targetSdkVersion=\"%d\" />".printf(target_sdk_version);
 		android_manifest += "\n";
 		android_manifest += "\n  <!-- For ConsoleServer -->";
 		android_manifest += "\n  <uses-permission android:name=\"android.permission.INTERNET\" />";
@@ -4136,11 +4138,13 @@ public class LevelEditorApplication : Gtk.Application
 		var app_identifier = (string)param.get_child_value(3);
 		var app_version_code = (int)param.get_child_value(4);
 		var app_version_name = (string)param.get_child_value(5);
-		var keystore_path = (string)param.get_child_value(6);
-		var keystore_pass = (string)param.get_child_value(7);
-		var key_alias = (string)param.get_child_value(8);
-		var key_pass = (string)param.get_child_value(9);
-		var arch = (int)param.get_child_value(10);
+		var min_sdk_version = (int)param.get_child_value(6);
+		var target_sdk_version = (int)param.get_child_value(7);
+		var keystore_path = (string)param.get_child_value(8);
+		var keystore_pass = (string)param.get_child_value(9);
+		var key_alias = (string)param.get_child_value(10);
+		var key_pass = (string)param.get_child_value(11);
+		var arch = (int)param.get_child_value(12);
 
 		var apk_name = app_identifier + "-" + app_version_name;
 
@@ -4168,6 +4172,8 @@ public class LevelEditorApplication : Gtk.Application
 								, app_identifier
 								, app_version_code
 								, app_version_name
+								, min_sdk_version
+								, target_sdk_version
 								, keystore_path
 								, keystore_pass
 								, key_alias
@@ -4193,6 +4199,8 @@ public class LevelEditorApplication : Gtk.Application
 					, app_identifier
 					, app_version_code
 					, app_version_name
+					, min_sdk_version
+					, target_sdk_version
 					, keystore_path
 					, keystore_pass
 					, key_alias

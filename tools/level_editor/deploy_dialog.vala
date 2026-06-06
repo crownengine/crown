@@ -134,6 +134,8 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Entry _android_app_identifier;
 	public Gtk.Entry _android_app_version_code;
 	public Gtk.Entry _android_app_version_name;
+	public Gtk.Entry _android_min_sdk_version;
+	public Gtk.Entry _android_target_sdk_version;
 	public PropertyGridSet _android_set;
 	public Gtk.Box _android_box;
 	public AndroidDeployer _android;
@@ -212,6 +214,18 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
+				int min_sdk_version;
+				if (int.try_parse(_android_min_sdk_version.text, out min_sdk_version) == false) {
+					loge("Enter a valid Min SDK Version");
+					return;
+				}
+
+				int target_sdk_version;
+				if (int.try_parse(_android_target_sdk_version.text, out target_sdk_version) == false) {
+					loge("Enter a valid Target SDK Version");
+					return;
+				}
+
 				string? keystore_path = _android_use_debug_keystore.value
 					? GLib.Path.build_filename(GLib.Environment.get_home_dir(), ".android", "debug.keystore")
 					: _android_keystore.value
@@ -269,6 +283,8 @@ public class DeployDialog : Gtk.Window
 						app_identifier,
 						app_version_code,
 						app_version_name,
+						min_sdk_version,
+						target_sdk_version,
 						keystore_path,
 						keystore_pass,
 						key_alias,
@@ -306,6 +322,12 @@ public class DeployDialog : Gtk.Window
 		_android_app_version_code.placeholder_text = "1";
 		_android_app_version_name = new Gtk.Entry();
 		_android_app_version_name.placeholder_text = "1.0";
+		_android_min_sdk_version = new Gtk.Entry();
+		_android_min_sdk_version.input_purpose = Gtk.InputPurpose.DIGITS;
+		_android_min_sdk_version.text = "24";
+		_android_target_sdk_version = new Gtk.Entry();
+		_android_target_sdk_version.input_purpose = Gtk.InputPurpose.DIGITS;
+		_android_target_sdk_version.text = "34";
 
 		_android_use_debug_keystore.value = true;
 		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
@@ -331,6 +353,8 @@ public class DeployDialog : Gtk.Window
 		cv.add_row("Identifier", _android_app_identifier);
 		cv.add_row("Version Code", _android_app_version_code);
 		cv.add_row("Version Name", _android_app_version_name);
+		cv.add_row("Min SDK Version", _android_min_sdk_version);
+		cv.add_row("Target SDK Version", _android_target_sdk_version);
 		_android_set.add_property_grid(cv, "Application");
 
 		// Android Signing.

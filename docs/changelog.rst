@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.0 --- DD MMM YYYY <v0.64.0>`
 ---------------------------------------
 
+**New Features and Improvements**
+
+* Tools: Android: deploy settings now expose configurable min and target SDK versions.
+
 **Fixes**
 
 * Tools: fixed a crash when re-importing resources in some circumnstances.
