@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed a crash when re-importing resources in some circumnstances.
 * Tools: fixed flythrough camera excessive speed when moving diagonally.
+* Tools: fixed re-importing existing units sometimes losing component data.
 * Docs: updated Android deploying instructions.
 
 .. _v0.63.1:
