@@ -79,18 +79,42 @@ geometry:
 
    Imported animation clips in the dedicated ``animations`` folder.
 
-Axes Orientation
-----------------
+Preparing Models for Export
+---------------------------
 
-Crown uses Y-forward Z-up axes. In order for models to be oriented correctly
-when imported into Crown, use those settings when exporting them from DCC
-programs whenever possible.
+Crown uses Y-forward Z-up axes. To keep models correctly oriented after import,
+use those axes when exporting from DCC programs whenever possible.
 
 This is especially important when working with OBJ scenes, because the format
 generally does not store the axes used at export time. In that case, Crown has
-no way to know whether it should insert an extra root node to correct the
-orientation, so the imported unit may look wrong.
+no way to automatically detect whether it should insert an extra root node to
+correct the orientation. FBX scenes, on the other hand, include this
+information, and Crown uses it to insert a corrective root node when necessary.
+Even so, it is best to export with settings that match Crown's conventions.
 
-FBX scenes, on the other hand, include this information, and Crown uses it to
-insert a corrective root node when necessary. Even so, it is best to export with
-the correct settings.
+The settings below are Blender-specific. Other 3D applications may expose the
+same export choices under different names. For both FBX and OBJ exports, set
+``Forward`` to ``Y`` and ``Up`` to ``Z``.
+
+FBX
+~~~
+
+When exporting FBX files, also set ``Apply Scalings`` to ``FBX Units Scale``.
+This causes the FBX file to store meter units, which matches Crown's importer
+and avoids an extra root unit.
+
+.. figure:: images/blender_export_fbx.svg
+   :align: center
+
+   Blender FBX export settings for axes and unit scaling.
+
+OBJ
+~~~
+
+For OBJ exports, enable ``PBR Extensions`` under ``Materials`` when the option
+is available; otherwise, some texture maps may go undetected by the importer.
+
+.. figure:: images/blender_export_obj.svg
+   :align: center
+
+   Blender OBJ export settings for axes and material metadata.

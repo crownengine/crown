@@ -13,6 +13,7 @@ Changelog
 * Tools: fixed re-importing existing units sometimes losing component data.
 * Tools: fixed imported components not being removed from units when disabled on re-import.
 * Docs: updated Android deploying instructions.
+* Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 
 .. _v0.63.1:
 
