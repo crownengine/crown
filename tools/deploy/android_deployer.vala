@@ -5,6 +5,12 @@
 
 namespace Crown
 {
+[CCode (cname = "android_debug_keystore")]
+extern uint8* android_debug_keystore;
+
+[CCode (cname = "android_debug_keystore_size")]
+extern size_t android_debug_keystore_size;
+
 public class AndroidDeployer
 {
 	public string? _java_home;
@@ -86,6 +92,26 @@ public class AndroidDeployer
 			return -1;
 		}
 		fs.write(android_manifest.data);
+		fs.flush();
+
+		return 0;
+	}
+
+	public static int write_debug_keystore(string path)
+	{
+		GLib.FileStream? fs = FileStream.open(path, "wb");
+		if (fs == null) {
+			loge("Failed to open '%s'".printf(path));
+			return -1;
+		}
+
+		unowned uint8[] data = (uint8[])android_debug_keystore;
+		data.length = (int)android_debug_keystore_size;
+
+		if (fs.write(data) != android_debug_keystore_size) {
+			loge("Failed to write '%s'".printf(path));
+			return -1;
+		}
 		fs.flush();
 
 		return 0;
