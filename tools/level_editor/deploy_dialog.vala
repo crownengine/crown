@@ -219,6 +219,7 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Entry _android_app_version_name;
 	public Gtk.Entry _android_min_sdk_version;
 	public Gtk.Entry _android_target_sdk_version;
+	public InputFile _android_manifest;
 	public PropertyGridSet _android_set;
 	public Gtk.Box _android_box;
 	public AndroidDeployer _android;
@@ -349,6 +350,9 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
+				string? android_manifest_path_or_null = _android_manifest.value;
+				string android_manifest_path = android_manifest_path_or_null == null ? "" : (string)android_manifest_path_or_null;
+
 				TargetArch[] archs =
 				{
 					TargetArch.ARM,
@@ -376,7 +380,8 @@ public class DeployDialog : Gtk.Window
 						keystore_pass,
 						key_alias,
 						key_pass,
-						archs[ii]
+						archs[ii],
+						android_manifest_path
 					};
 
 					GLib.Application.get_default().activate_action("create-package-android"
@@ -415,10 +420,76 @@ public class DeployDialog : Gtk.Window
 		_android_target_sdk_version = new Gtk.Entry();
 		_android_target_sdk_version.input_purpose = Gtk.InputPurpose.DIGITS;
 		_android_target_sdk_version.text = "34";
+		_android_manifest = new InputFile(Gtk.FileChooserAction.OPEN);
+
+		Gtk.Button android_manifest_save = new Gtk.Button.from_icon_name("document-save-as-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		android_manifest_save.set_can_focus(false);
+		android_manifest_save.set_tooltip_text("Save generated AndroidManifest.xml");
+		android_manifest_save.clicked.connect(() => {
+				Gtk.FileChooserDialog dlg = new Gtk.FileChooserDialog("Save AndroidManifest.xml"
+					, this
+					, Gtk.FileChooserAction.SAVE
+					, "Cancel"
+					, Gtk.ResponseType.CANCEL
+					, "Save"
+					, Gtk.ResponseType.ACCEPT
+					);
+				dlg.set_do_overwrite_confirmation(true);
+				dlg.set_current_name("AndroidManifest.xml");
+				dlg.response.connect((response_id) => {
+						if (response_id == Gtk.ResponseType.ACCEPT) {
+							string app_title = _android_app_title.value.strip();
+							if (app_title.length == 0)
+								app_title = "My Application";
+
+							string app_identifier = _android_app_identifier.text.strip();
+							if (app_identifier.length == 0 || app_identifier.split(".").length != 3)
+								app_identifier = "org.crownengine.game";
+
+							int app_version_code;
+							if (int.try_parse(_android_app_version_code.text, out app_version_code) == false || app_version_code <= 0)
+								app_version_code = 1;
+
+							string app_version_name = _android_app_version_name.text.strip();
+							if (app_version_name.length == 0)
+								app_version_name = "1.0";
+
+							int min_sdk_version;
+							if (int.try_parse(_android_min_sdk_version.text, out min_sdk_version) == false || min_sdk_version <= 0)
+								min_sdk_version = 24;
+
+							int target_sdk_version;
+							if (int.try_parse(_android_target_sdk_version.text, out target_sdk_version) == false || target_sdk_version <= 0)
+								target_sdk_version = 34;
+							if (target_sdk_version < min_sdk_version)
+								target_sdk_version = min_sdk_version;
+
+							AndroidDeployer.generate_manifest(dlg.get_file().get_path()
+								, app_title
+								, app_identifier
+								, app_version_code
+								, app_version_name
+								, min_sdk_version
+								, target_sdk_version
+								);
+						}
+						dlg.destroy();
+					});
+				dlg.show_all();
+			});
 
 		_android_use_debug_keystore.value = true;
 		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
 		android_set_debug_keystore();
+		_android_manifest.value_changed.connect(() => {
+				bool sensitive = _android_manifest.value == null;
+				_android_app_title.sensitive = sensitive;
+				_android_app_identifier.sensitive = sensitive;
+				_android_app_version_code.sensitive = sensitive;
+				_android_app_version_name.sensitive = sensitive;
+				_android_min_sdk_version.sensitive = sensitive;
+				_android_target_sdk_version.sensitive = sensitive;
+			});
 
 		_android_set = new PropertyGridSet();
 
@@ -442,6 +513,10 @@ public class DeployDialog : Gtk.Window
 		cv.add_row("Version Name", _android_app_version_name);
 		cv.add_row("Min SDK Version", _android_min_sdk_version);
 		cv.add_row("Target SDK Version", _android_target_sdk_version);
+		Gtk.Box android_manifest_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+		android_manifest_box.pack_start(_android_manifest, true, true, 0);
+		android_manifest_box.pack_start(android_manifest_save, false, false, 0);
+		cv.add_row("Manifest", android_manifest_box);
 		_android_set.add_property_grid(cv, "Application");
 
 		// Android Signing.

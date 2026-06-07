@@ -706,7 +706,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_package =
 	{
-		{ "create-package-android", on_create_package_android, "(sissisiissssi)", null },
+		{ "create-package-android", on_create_package_android, "(sissisiissssis)", null },
 		{ "create-package-html5",   on_create_package_html5,   "(sis)",         null },
 		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
@@ -3700,6 +3700,7 @@ public class LevelEditorApplication : Gtk.Application
 		, string key_alias
 		, string key_pass
 		, int arch
+		, string android_manifest_path
 		, string apk_name
 		)
 	{
@@ -3846,15 +3847,24 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Create Android manifest.
-		if (AndroidDeployer.generate_manifest(manifest_xml_path
-			, app_title
-			, app_identifier
-			, app_version_code
-			, app_version_name
-			, min_sdk_version
-			, target_sdk_version
-			) != 0) {
-			return -1;
+		if (android_manifest_path.length == 0) {
+			if (AndroidDeployer.generate_manifest(manifest_xml_path
+				, app_title
+				, app_identifier
+				, app_version_code
+				, app_version_name
+				, min_sdk_version
+				, target_sdk_version
+				) != 0) {
+				return -1;
+			}
+		} else {
+			try {
+				GLib.File.new_for_path(android_manifest_path).copy(GLib.File.new_for_path(manifest_xml_path), GLib.FileCopyFlags.OVERWRITE);
+			} catch (Error e) {
+				loge(e.message);
+				return -1;
+			}
 		}
 
 		// Create Android strings.xml.
@@ -4092,6 +4102,7 @@ public class LevelEditorApplication : Gtk.Application
 		var key_alias = (string)param.get_child_value(10);
 		var key_pass = (string)param.get_child_value(11);
 		var arch = (int)param.get_child_value(12);
+		var android_manifest_path = (string)param.get_child_value(13);
 
 		var apk_name = app_identifier + "-" + app_version_name;
 
@@ -4127,6 +4138,7 @@ public class LevelEditorApplication : Gtk.Application
 								, key_alias
 								, key_pass
 								, arch
+								, android_manifest_path
 								, apk_name
 								, (obj, res) => {
 									_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
@@ -4159,6 +4171,7 @@ public class LevelEditorApplication : Gtk.Application
 					, key_alias
 					, key_pass
 					, arch
+					, android_manifest_path
 					, apk_name
 					, (obj, res) => {
 						_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
