@@ -3909,6 +3909,8 @@ public class LevelEditorApplication : Gtk.Application
 			return -1;
 		}
 
+		GLib.File? debug_keystore_file = null;
+
 		try {
 			string[] args;
 			uint32 pid;
@@ -3986,11 +3988,28 @@ public class LevelEditorApplication : Gtk.Application
 				return exit_status;
 			}
 
+			string signing_keystore_path = keystore_path;
+			if (signing_keystore_path.length == 0) {
+				GLib.FileIOStream debug_keystore_stream;
+				debug_keystore_file = GLib.File.new_tmp("crown-debug-keystore-XXXXXX", out debug_keystore_stream);
+				debug_keystore_stream.close();
+				signing_keystore_path = debug_keystore_file.get_path();
+				if (AndroidDeployer.write_debug_keystore(signing_keystore_path) != 0) {
+					try {
+						debug_keystore_file.delete();
+					} catch (Error cleanup_error) {
+						logw(cleanup_error.message);
+					}
+					debug_keystore_file = null;
+					return -1;
+				}
+			}
+
 			args = new string[]
 			{
 				android._jarsigner_path,
 				"-keystore",
-				keystore_path,
+				signing_keystore_path,
 				"-storepass",
 				keystore_pass,
 				"-keypass",
@@ -4003,6 +4022,14 @@ public class LevelEditorApplication : Gtk.Application
 
 			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			exit_status = yield wait_subprocess(pid);
+			if (debug_keystore_file != null) {
+				try {
+					debug_keystore_file.delete();
+				} catch (Error cleanup_error) {
+					logw(cleanup_error.message);
+				}
+				debug_keystore_file = null;
+			}
 			if (exit_status != 0) {
 				loge("Failed sign APK. exit_status %d".printf(exit_status));
 				return exit_status;
@@ -4024,6 +4051,13 @@ public class LevelEditorApplication : Gtk.Application
 				return exit_status;
 			}
 		} catch (Error e) {
+			if (debug_keystore_file != null) {
+				try {
+					debug_keystore_file.delete();
+				} catch (Error cleanup_error) {
+					logw(cleanup_error.message);
+				}
+			}
 			loge(e.message);
 			loge("Failed to deploy '%s'".printf(app_title));
 			return -1;
