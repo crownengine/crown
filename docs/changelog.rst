@@ -19,6 +19,7 @@ Changelog
 * Tools: fixed re-importing existing units sometimes losing component data.
 * Tools: fixed imported components not being removed from units when disabled on re-import.
 * Tools: Android: packages now set min SDK 24 and target SDK 34 in generated manifests.
+* Tools: Android: fixed deploying with debug keystore.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.

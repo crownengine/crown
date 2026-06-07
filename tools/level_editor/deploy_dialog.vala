@@ -310,10 +310,14 @@ public class DeployDialog : Gtk.Window
 				}
 
 				string? keystore_path = _android_use_debug_keystore.value
-					? GLib.Path.build_filename(GLib.Environment.get_home_dir(), ".android", "debug.keystore")
+					? ""
 					: _android_keystore.value
 					;
 				if (keystore_path == null) {
+					loge("Enter a valid Keystore file");
+					return;
+				}
+				if (!_android_use_debug_keystore.value && keystore_path.length == 0) {
 					loge("Enter a valid Keystore file");
 					return;
 				}
@@ -322,7 +326,7 @@ public class DeployDialog : Gtk.Window
 					? "android"
 					: _android_keystore_password.text
 					;
-				if (keystore_path.length == 0) {
+				if (keystore_pass.length == 0) {
 					loge("Enter a valid Keystore Password");
 					return;
 				}
