@@ -230,6 +230,7 @@ public class DeployDialog : Gtk.Window
 	public InputFile _html5_output_path;
 	public InputEnum _html5_config;
 	public InputString _html5_app_title;
+	public InputFile _html5_index;
 	public PropertyGridSet _html5_set;
 	public Gtk.Box _html5_box;
 	public HTML5Deployer _html5;
@@ -553,12 +554,16 @@ public class DeployDialog : Gtk.Window
 					return;
 				}
 
+				string? index_html_path_or_null = _html5_index.value;
+				string index_html_path = index_html_path_or_null == null ? "" : (string)index_html_path_or_null;
+
 				// Create the package.
 				GLib.Variant paramz[] =
 				{
 					(string)output_path,
 					int.parse(_html5_config.value),
-					app_title
+					app_title,
+					index_html_path
 				};
 
 				GLib.Application.get_default().activate_action("create-package-html5"
@@ -570,6 +575,45 @@ public class DeployDialog : Gtk.Window
 		_html5_app_title = new InputString();
 		_html5_app_title._entry.placeholder_text = "My Application";
 		_html5_app_title.value = _project.name();
+		_html5_index = new InputFile(Gtk.FileChooserAction.OPEN);
+		_html5_index.value_changed.connect(() => {
+				_html5_config.sensitive = _html5_index.value == null;
+			});
+
+		Gtk.Button html5_index_save = new Gtk.Button.from_icon_name("document-save-as-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+		html5_index_save.set_can_focus(false);
+		html5_index_save.set_tooltip_text("Save generated index.html");
+		html5_index_save.clicked.connect(() => {
+				Gtk.FileChooserDialog dlg = new Gtk.FileChooserDialog("Save index.html"
+					, this
+					, Gtk.FileChooserAction.SAVE
+					, "Cancel"
+					, Gtk.ResponseType.CANCEL
+					, "Save"
+					, Gtk.ResponseType.ACCEPT
+					);
+				dlg.set_do_overwrite_confirmation(true);
+				dlg.set_current_name("index.html");
+				dlg.response.connect((response_id) => {
+						if (response_id == Gtk.ResponseType.ACCEPT) {
+							string config_name[] =
+							{
+								"release",
+								"development",
+#if CROWN_DEBUG
+								"debug"
+#endif
+							};
+							int config;
+							if (int.try_parse(_html5_config.value, out config) == false || config < 0 || config >= config_name.length)
+								config = (int)TargetConfig.RELEASE;
+
+							HTML5Deployer.generate_index(dlg.get_file().get_path(), "crown-%s".printf(config_name[config]));
+						}
+						dlg.destroy();
+					});
+				dlg.show_all();
+			});
 
 		_html5_set = new PropertyGridSet();
 
@@ -592,6 +636,10 @@ public class DeployDialog : Gtk.Window
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
 		cv.add_row("Title", _html5_app_title);
+		Gtk.Box html5_index_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+		html5_index_box.pack_start(_html5_index, true, true, 0);
+		html5_index_box.pack_start(html5_index_save, false, false, 0);
+		cv.add_row("Index", html5_index_box);
 		_html5_set.add_property_grid(cv, "Application");
 
 		// Linux page.
