@@ -11,6 +11,7 @@ public class InputFile : InputField
 	public Gtk.FileChooserAction _action;
 	public InputString _name;
 	public Gtk.Button _selector;
+	public Gtk.EventControllerKey _controller_key;
 	public Gtk.Box _box;
 
 	public override void set_inconsistent(bool inconsistent)
@@ -73,6 +74,9 @@ public class InputFile : InputField
 		_selector.set_can_focus(false);
 		_box.pack_end(_selector, false);
 
+		_controller_key = new Gtk.EventControllerKey(_name._entry);
+		_controller_key.key_pressed.connect(on_key_pressed);
+
 		this.value = null;
 		this.add(_box);
 	}
@@ -95,6 +99,14 @@ public class InputFile : InputField
 				dlg.destroy();
 			});
 		dlg.show_all();
+	}
+
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Delete)
+			this.value = null;
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 }
 
