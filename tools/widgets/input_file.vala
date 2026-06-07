@@ -9,8 +9,9 @@ public class InputFile : InputField
 {
 	public string? _path;
 	public Gtk.FileChooserAction _action;
-	public Gtk.Label _label;
-	public Gtk.Button _button;
+	public InputString _name;
+	public Gtk.Button _selector;
+	public Gtk.Box _box;
 
 	public override void set_inconsistent(bool inconsistent)
 	{
@@ -39,31 +40,41 @@ public class InputFile : InputField
 		}
 		set
 		{
+			string? old_path = _path;
+
 			if (value == null) {
 				_path = null;
-				_label.set_text("(None)");
+				_name.value = "(None)";
 			} else {
 				GLib.File f = GLib.File.new_for_path(value);
 				_path = f.get_path();
-				_label.set_text(f.get_basename());
+				_name.value = f.get_basename();
 			}
+
+			if (_path != old_path)
+				value_changed(this);
 		}
 	}
 
 	public InputFile(Gtk.FileChooserAction action = Gtk.FileChooserAction.OPEN)
 	{
+		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+
 		_path = null;
 		_action = action;
 
-		_label = new Gtk.Label("(None)");
-		_label.xalign = 0.0f;
+		_name = new InputString();
+		_name._entry.set_editable(false);
+		_name.hexpand = true;
+		_box.pack_start(_name, true, true);
 
-		_button = new Gtk.Button();
-		_button.add(_label);
-		_button.clicked.connect(on_selector_clicked);
-		_button.set_can_focus(false);
+		_selector = new Gtk.Button.from_icon_name("document-open-symbolic");
+		_selector.clicked.connect(on_selector_clicked);
+		_selector.set_can_focus(false);
+		_box.pack_end(_selector, false);
 
-		this.add(_button);
+		this.value = null;
+		this.add(_box);
 	}
 
 	public void on_selector_clicked()
