@@ -288,8 +288,6 @@ public class DeployDialog : Gtk.Window
 		_android_armv8 = new InputBool();
 		_android_armv8.value = true;
 		_android_use_debug_keystore = new InputBool();
-		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
-		_android_use_debug_keystore.value = true;
 		_android_keystore = new InputFile(Gtk.FileChooserAction.OPEN);
 		_android_keystore_password = new Gtk.Entry();
 		_android_keystore_password.set_visibility(false);
@@ -309,6 +307,8 @@ public class DeployDialog : Gtk.Window
 		_android_app_version_name = new Gtk.Entry();
 		_android_app_version_name.placeholder_text = "1.0";
 
+		_android_use_debug_keystore.value = true;
+		_android_use_debug_keystore.value_changed.connect(() => { android_set_debug_keystore(); });
 		android_set_debug_keystore();
 
 		_android_set = new PropertyGridSet();
