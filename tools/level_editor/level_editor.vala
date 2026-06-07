@@ -707,7 +707,7 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_package =
 	{
 		{ "create-package-android", on_create_package_android, "(sissisiissssis)", null },
-		{ "create-package-html5",   on_create_package_html5,   "(sis)",         null },
+		{ "create-package-html5",   on_create_package_html5,   "(siss)",        null },
 		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
 		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
 	};
@@ -4188,6 +4188,7 @@ public class LevelEditorApplication : Gtk.Application
 		, string output_path
 		, int config
 		, string app_title
+		, string html5_index_path
 		, string exe_name
 		)
 	{
@@ -4279,8 +4280,12 @@ public class LevelEditorApplication : Gtk.Application
 			// Generate index.html.
 			var index_html_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "index.html");
 
-			if (HTML5Deployer.generate_index(index_html_path, runtime_name_src) != 0)
-				return -1;
+			if (html5_index_path.length == 0) {
+				if (HTML5Deployer.generate_index(index_html_path, runtime_name_src) != 0)
+					return -1;
+			} else {
+				GLib.File.new_for_path(html5_index_path).copy(GLib.File.new_for_path(index_html_path), GLib.FileCopyFlags.OVERWRITE);
+			}
 		} catch (Error e) {
 			loge(e.message);
 			loge("Failed to deploy '%s'".printf(app_title));
@@ -4296,6 +4301,7 @@ public class LevelEditorApplication : Gtk.Application
 		var output_path = (string)param.get_child_value(0);
 		var config = (int)param.get_child_value(1);
 		var app_title = (string)param.get_child_value(2);
+		var html5_index_path = (string)param.get_child_value(3);
 
 		var exe_name = app_title.replace(" ", "_").down();
 
@@ -4316,7 +4322,7 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+							do_create_package_html5.begin(package_dir, output_path, config, app_title, html5_index_path, exe_name, (obj, res) => {
 									_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
 								});
 						} catch (Error e) {
@@ -4331,7 +4337,7 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog._html5_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_html5.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
+				do_create_package_html5.begin(package_dir, output_path, config, app_title, html5_index_path, exe_name, (obj, res) => {
 						_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
 					});
 			} catch (Error e) {
