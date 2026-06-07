@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-06T15:45:35+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-06-07T21:35:56+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Tools: fixed flythrough camera excessive speed when moving diagonally., Tools: fixed re-importing existing units sometimes losing component data., Tools: fixed imported compon..." />
+<meta property="og:description" content="0.64.0 — DD MMM YYYY: New Features and Improvements Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI., Tools: Android: deploy settings now expose configurable min and target SDK versions., Tools: Android: deployer now only requires JAVA_HO..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="0.64.0 — DD MMM YYYY: Fixes Tools: fixed a crash when re-importing resources in some circumnstances., Tools: fixed flythrough camera excessive speed when moving diagonally., Tools: fixed re-importing existing units sometimes losing component data., Tools: fixed imported compon..." />
+<meta name="description" content="0.64.0 — DD MMM YYYY: New Features and Improvements Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI., Tools: Android: deploy settings now expose configurable min and target SDK versions., Tools: Android: deployer now only requires JAVA_HO..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -134,12 +134,20 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <section id="dd-mmm-yyyy">
 <span id="v0-64-0"></span><h2><a class="reference internal" href="#v0-64-0"><span class="std std-ref">0.64.0 — DD MMM YYYY</span></a><a class="headerlink" href="#dd-mmm-yyyy" title="Permalink to this headline">¶</a></h2>
+<p><strong>New Features and Improvements</strong></p>
+<ul class="simple">
+<li><p>Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.</p></li>
+<li><p>Tools: Android: deploy settings now expose configurable min and target SDK versions.</p></li>
+<li><p>Tools: Android: deployer now only requires JAVA_HOME, ANDROID_SDK_PATH and ANDROID_NDK_ROOT environment variables.</p></li>
+</ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed a crash when re-importing resources in some circumnstances.</p></li>
 <li><p>Tools: fixed flythrough camera excessive speed when moving diagonally.</p></li>
 <li><p>Tools: fixed re-importing existing units sometimes losing component data.</p></li>
 <li><p>Tools: fixed imported components not being removed from units when disabled on re-import.</p></li>
+<li><p>Tools: Android: packages now set min SDK 24 and target SDK 34 in generated manifests.</p></li>
+<li><p>Tools: Android: fixed deploying with debug keystore.</p></li>
 <li><p>Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not updating mass/inertia.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not restoring body deactivation when switching actors back from kinematic.</p></li>
@@ -1076,7 +1084,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 06, 2026.
+      <span class="lastupdated">Last updated on Jun 07, 2026.
       </span></p>
   </div>
 

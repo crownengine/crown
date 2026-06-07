@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-06T12:39:22+00:00" /><meta property="og:title" content="Deploying to Android" />
+    <meta property="article:modified_time" content="2026-06-06T22:57:55+00:00" /><meta property="og:title" content="Deploying to Android" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/android.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -143,7 +143,7 @@
 <li><p>Install Android SDK, NDK and tools:</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">android_sdk</span><span class="o">&gt;/</span><span class="n">latest</span><span class="o">/</span><span class="n">cmdline</span><span class="o">-</span><span class="n">tools</span><span class="o">/</span><span class="n">sdkmanager</span> \
-        <span class="s2">&quot;platforms;android-33&quot;</span> \
+        <span class="s2">&quot;platforms;android-34&quot;</span> \
         <span class="s2">&quot;ndk;27.2.12479018&quot;</span> \
         <span class="s2">&quot;platform-tools&quot;</span> \
         <span class="s2">&quot;build-tools;34.0.0&quot;</span>
@@ -154,10 +154,7 @@
 <section id="set-environment-variables">
 <h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_SDK_PATH</span><span class="o">=&lt;</span><span class="n">android_sdk</span><span class="o">&gt;</span>
-<span class="n">export</span> <span class="n">ANDROID_API_LEVEL</span><span class="o">=</span><span class="mi">33</span>
 <span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">android_ndk</span><span class="o">&gt;/&lt;</span><span class="n">version</span><span class="o">&gt;</span>
-<span class="n">export</span> <span class="n">ANDROID_NDK_ABI</span><span class="o">=</span><span class="mi">24</span>
-<span class="n">export</span> <span class="n">ANDROID_BUILD_TOOLS</span><span class="o">=&lt;</span><span class="n">android_build</span><span class="o">-</span><span class="n">tools</span><span class="o">&gt;/</span><span class="mf">34.0.0</span>
 </pre></div>
 </div>
 </section>

@@ -6,12 +6,20 @@ Changelog
 :ref:`0.64.0 --- DD MMM YYYY <v0.64.0>`
 ---------------------------------------
 
+**New Features and Improvements**
+
+* Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.
+* Tools: Android: deploy settings now expose configurable min and target SDK versions.
+* Tools: Android: deployer now only requires JAVA_HOME, ANDROID_SDK_PATH and ANDROID_NDK_ROOT environment variables.
+
 **Fixes**
 
 * Tools: fixed a crash when re-importing resources in some circumnstances.
 * Tools: fixed flythrough camera excessive speed when moving diagonally.
 * Tools: fixed re-importing existing units sometimes losing component data.
 * Tools: fixed imported components not being removed from units when disabled on re-import.
+* Tools: Android: packages now set min SDK 24 and target SDK 34 in generated manifests.
+* Tools: Android: fixed deploying with debug keystore.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
