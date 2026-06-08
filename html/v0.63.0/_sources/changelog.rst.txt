@@ -1,6 +1,22 @@
 Changelog
 =========
 
+.. _v0.63.2:
+
+:ref:`0.63.2 --- 08 Jun 2026 <v0.63.2>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed a crash when re-importing resources in some circumnstances.
+* Tools: fixed flythrough camera excessive speed when moving diagonally.
+* Tools: fixed re-importing existing units sometimes losing component data.
+* Tools: fixed imported components not being removed from units when disabled on re-import.
+* Tools: Android: packages now set min SDK 24 and target SDK 34 in generated manifests.
+* Tools: Android: fixed deploying with debug keystore.
+* Docs: updated Android deploying instructions.
+* Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
+
 .. _v0.63.1:
 
 :ref:`0.63.1 --- 05 Jun 2026 <v0.63.1>`
