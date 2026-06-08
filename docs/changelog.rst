@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.3 --- DD MMM YYYY <v0.63.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed excessive resource reloads in some circumnstances.
+
 .. _v0.63.2:
 
 :ref:`0.63.2 --- 08 Jun 2026 <v0.63.2>`

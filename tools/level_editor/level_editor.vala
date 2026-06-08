@@ -308,13 +308,14 @@ public class RuntimeInstance
 	public GLib.SourceFunc _refresh_callback;
 	public bool _refresh_success;
 	public ConsoleClient _client;
+	public DataCompiler? _data_compiler;
 
 	public signal void connected(RuntimeInstance ri, string address, int port);
 	public signal void disconnected(RuntimeInstance ri);
 	public signal void disconnected_unexpected(RuntimeInstance ri);
 	public signal void message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json);
 
-	public RuntimeInstance(string name)
+	public RuntimeInstance(string name, DataCompiler? dc)
 	{
 		_name = name;
 		_process_id = uint32.MAX;
@@ -326,10 +327,14 @@ public class RuntimeInstance
 		_client = new ConsoleClient();
 		_client.connected.connect(on_client_connected);
 		_client.message_received.connect(on_client_message_received);
+		_data_compiler = dc;
 	}
 
 	public void on_client_connected(string address, int port)
 	{
+		if (_data_compiler != null)
+			_revision = _data_compiler._revision;
+
 		connected(this, address, port);
 	}
 
@@ -449,16 +454,21 @@ public class RuntimeInstance
 			return false;
 
 		var compiler_revision = dc._revision;
-		var refresh_list = yield dc.refresh_list(_revision);
-		_client.send(DeviceApi.refresh(refresh_list));
-		_client.send(DeviceApi.frame());
-		_refresh_callback = refresh.callback;
-		yield; // Wait for client to refresh the resources.
 
-		if (_refresh_success)
-			_revision = compiler_revision;
+		if (_revision != compiler_revision) {
+			var refresh_list = yield dc.refresh_list(_revision);
+			_client.send(DeviceApi.refresh(refresh_list));
+			_client.send(DeviceApi.frame());
+			_refresh_callback = refresh.callback;
+			yield; // Wait for client to refresh the resources.
 
-		return _refresh_success;
+			if (_refresh_success)
+				_revision = compiler_revision;
+
+			return _refresh_success;
+		}
+
+		return true;
 	}
 
 	public void refresh_finished(bool success)
@@ -954,7 +964,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		_runtimes = new Gee.ArrayList<RuntimeInstance>();
 
-		_compiler = new RuntimeInstance("data_compiler");
+		_compiler = new RuntimeInstance("data_compiler", null);
 		_compiler.message_received.connect(on_message_received);
 		_compiler.connected.connect(on_runtime_connected);
 		_compiler.disconnected.connect(on_runtime_disconnected);
@@ -984,6 +994,7 @@ public class LevelEditorApplication : Gtk.Application
 		_database_editor.selection_changed.connect(on_selection_changed);
 
 		_editor_viewport = new EditorViewport("editor"
+			, _data_compiler
 			, _database_editor
 			, _project
 			, LEVEL_EDITOR_BOOT_DIR
@@ -1001,14 +1012,14 @@ public class LevelEditorApplication : Gtk.Application
 
 		set_theme_from_name(_preferences_dialog._theme_combo.value);
 
-		_game = new RuntimeInstance("game");
+		_game = new RuntimeInstance("game", _data_compiler);
 		_game.message_received.connect(on_message_received);
 		_game.connected.connect(on_game_connected);
 		_game.disconnected.connect(on_game_disconnected);
 		_game.disconnected_unexpected.connect(on_game_disconnected);
 		_runtimes.add(_game);
 
-		_thumbnail = new RuntimeInstance("thumbnail");
+		_thumbnail = new RuntimeInstance("thumbnail", _data_compiler);
 		_thumbnail.message_received.connect(on_message_received);
 		_thumbnail.connected.connect(on_runtime_connected);
 		_thumbnail.disconnected.connect(on_runtime_disconnected);
@@ -2418,6 +2429,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_state_machine_editor == null) {
 			_state_machine_editor = new StateMachineEditor(this
+				, _data_compiler
 				, _project
 				, "core/editors/state_machine_editor"
 				, "127.0.0.1"
@@ -4654,6 +4666,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_unit_editor_dialog == null) {
 			_unit_editor_dialog = new UnitEditor(this
+				, _data_compiler
 				, _project
 				, "core/editors/level_editor"
 				, "127.0.0.1"

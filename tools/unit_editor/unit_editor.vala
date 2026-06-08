@@ -33,6 +33,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public signal void saved();
 
 	public UnitEditor(LevelEditorApplication application
+		, DataCompiler data_compiler
 		, Project project
 		, string boot_dir
 		, string console_addr
@@ -61,6 +62,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database_editor.load_types();
 
 		_editor_viewport = new EditorViewport("unit_editor"
+			, data_compiler
 			, _database_editor
 			, project
 			, boot_dir
