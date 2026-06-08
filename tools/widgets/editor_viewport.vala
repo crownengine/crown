@@ -38,6 +38,7 @@ public class EditorViewport : Gtk.Bin
 	public GLib.SimpleActionGroup _action_group;
 
 	public EditorViewport(string name
+		, DataCompiler data_compiler
 		, DatabaseEditor database_editor
 		, Project project
 		, string boot_dir
@@ -55,7 +56,7 @@ public class EditorViewport : Gtk.Bin
 		_render_mode = render_mode;
 		_input_enabled = input_enabled;
 
-		_runtime = new RuntimeInstance(name);
+		_runtime = new RuntimeInstance(name, data_compiler);
 		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 
 		_overlay = new Gtk.Overlay();
