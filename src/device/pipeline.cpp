@@ -391,7 +391,7 @@ void Pipeline::destroy()
 	_color_sdr = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_depth_texture);
-	_depth_texture = BGFX_INVALID_HANDLE;
+	_depth_texture = BGFX_INVALID_HANDLE; // Destroyed by bgfx.
 
 	for (u32 i = 0; i < countof(_color_textures); ++i) {
 		bgfx::destroy(_color_textures[i]);
@@ -417,8 +417,6 @@ void Pipeline::reset(u16 width, u16 height)
 	}
 
 	// Create main frame buffers.
-	if (bgfx::isValid(_depth_texture))
-		bgfx::destroy(_depth_texture);
 	_depth_texture = bgfx::createTexture2D(width
 		, height
 		, false
