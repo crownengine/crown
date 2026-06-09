@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed excessive resource reloads in some circumnstances.
+* Runtime: fixed a crash when reloading the render config in some cases.
 
 .. _v0.63.2:
 
