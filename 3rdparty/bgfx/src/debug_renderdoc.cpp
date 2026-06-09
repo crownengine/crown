@@ -16,6 +16,8 @@ namespace bgfx
 
 	void* loadRenderDoc()
 	{
+		return NULL;
+
 		if (NULL != s_renderDoc)
 		{
 			return s_renderDocDll;
