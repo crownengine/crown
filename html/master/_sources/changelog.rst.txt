@@ -24,6 +24,7 @@ Changelog
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
+* Runtime: fixed a crash when reloading the render config in some cases.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 
