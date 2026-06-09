@@ -10,4 +10,5 @@ the low-level engine structure in order to modify/extend it.
 
 	contributing
 	building
+	translating
 	console_api
