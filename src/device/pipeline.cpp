@@ -291,6 +291,10 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 void Pipeline::destroy()
 {
+	// Unbind all views that may still point to our framebuffers.
+	for (u32 id = 0; id < View::COUNT; ++id)
+		bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+
 #if CROWN_PLATFORM_EMSCRIPTEN
 	bgfx::destroy(_html5_default_sampler);
 	_html5_default_sampler = BGFX_INVALID_HANDLE;
