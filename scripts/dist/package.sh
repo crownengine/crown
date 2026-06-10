@@ -109,6 +109,10 @@ elif [ "${PLATFORM}" = "linux" ]; then
 	make docs
 	make linux-development32 MAKE_JOBS="${BUILD_JOBS}"
 	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
+	if [ "${BRANCH}" != "" ]; then
+		make linux-debug32 MAKE_JOBS="${BUILD_JOBS}"
+		make tools-linux-debug64 MAKE_JOBS="${BUILD_JOBS}"
+	fi
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "windows" ]; then
