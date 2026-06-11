@@ -1,6 +1,16 @@
 Changelog
 =========
 
+.. _v0.63.3:
+
+:ref:`0.63.3 --- 11 Jun 2026 <v0.63.3>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed excessive resource reloads in some circumnstances.
+* Runtime: fixed a crash when reloading the render config in some cases.
+
 .. _v0.63.2:
 
 :ref:`0.63.2 --- 08 Jun 2026 <v0.63.2>`
