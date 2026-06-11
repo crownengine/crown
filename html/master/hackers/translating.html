@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <meta property="article:modified_time" content="2026-06-09T17:07:29+00:00" /><meta property="og:title" content="Translating" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/translating.html" />
+<meta property="og:site_name" content="Crown 0.64.0 Manual" />
+<meta property="og:description" content="Crown tools use GNU gettext for handling translations. Source strings are marked in code with_() or N_() and translations live in tools/po. Files: tools/po/POTFILES, Source files scanned by xgettext. Add a file here when it contains translatable strings.,, tools/po/crown-edito..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
+<meta property="og:image:alt" content="Crown 0.64.0 Manual" />
+<meta name="description" content="Crown tools use GNU gettext for handling translations. Source strings are marked in code with_() or N_() and translations live in tools/po. Files: tools/po/POTFILES, Source files scanned by xgettext. Add a file here when it contains translatable strings.,, tools/po/crown-edito..." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@crown_engine" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translating &mdash; Crown 0.64.0 Manual</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/hackers/translating.html" />
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/underscore.js"></script>
+      <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Console API" href="console_api.html" />
+    <link rel="prev" title="Building" href="building.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/org.crownengine.Crown.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/index.html">Importing Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Engine Hackers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">Building</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Translating</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#files">Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-new-translation">Creating a New Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-an-existing-translation">Updating an Existing Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checking-a-translation">Checking a Translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-and-test">Build and Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#translation-rules">Translation Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="console_api.html">Console API</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crown 0.64.0 Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Engine Hackers</a></li>
+      <li class="breadcrumb-item active">Translating</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/hackers/translating.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="translating">
+<h1>Translating<a class="headerlink" href="#translating" title="Permalink to this headline">¶</a></h1>
+<p>Crown tools use GNU gettext for handling translations. Source strings are marked
+in code with <code class="docutils literal notranslate"><span class="pre">_()</span></code> or <code class="docutils literal notranslate"><span class="pre">N_()</span></code> and translations live in <code class="docutils literal notranslate"><span class="pre">tools/po</span></code>.</p>
+<section id="files">
+<h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">tools/po/POTFILES</span></code></dt><dd><p>Source files scanned by <code class="docutils literal notranslate"><span class="pre">xgettext</span></code>. Add a file here when it contains
+translatable strings.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tools/po/crown-editor.pot</span></code></dt><dd><p>Template generated from the source files. Do not edit translations here.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tools/po/LINGUAS</span></code></dt><dd><p>List of languages to build and ship.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tools/po/&lt;lang&gt;.po</span></code></dt><dd><p>Translation for <code class="docutils literal notranslate"><span class="pre">&lt;lang&gt;</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="creating-a-new-translation">
+<h2>Creating a New Translation<a class="headerlink" href="#creating-a-new-translation" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p>Create the <code class="docutils literal notranslate"><span class="pre">.po</span></code> file from the current template. For example, for Italian:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msginit</span> <span class="o">--</span><span class="nb">input</span><span class="o">=</span><span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">crown</span><span class="o">-</span><span class="n">editor</span><span class="o">.</span><span class="n">pot</span> <span class="o">--</span><span class="n">locale</span><span class="o">=</span><span class="n">it</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="n">file</span><span class="o">=</span><span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">it</span><span class="o">.</span><span class="n">po</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add the language to <code class="docutils literal notranslate"><span class="pre">tools/po/LINGUAS</span></code>.</p></li>
+<li><p>Translate <code class="docutils literal notranslate"><span class="pre">msgstr</span></code> values in <code class="docutils literal notranslate"><span class="pre">tools/po/it.po</span></code>. Do not change <code class="docutils literal notranslate"><span class="pre">msgid</span></code> values.</p></li>
+</ol>
+</section>
+<section id="updating-an-existing-translation">
+<h2>Updating an Existing Translation<a class="headerlink" href="#updating-an-existing-translation" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Regenerate the template and merge it into the language file:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">C</span> <span class="n">tools</span><span class="o">/</span><span class="n">po</span> <span class="n">pot</span>
+<span class="n">msgmerge</span> <span class="o">--</span><span class="n">update</span> <span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">it</span><span class="o">.</span><span class="n">po</span> <span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">crown</span><span class="o">-</span><span class="n">editor</span><span class="o">.</span><span class="n">pot</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Translate new empty or fuzzy entries, then remove any remaining fuzzy markers.</p></li>
+</ol>
+</section>
+<section id="checking-a-translation">
+<h2>Checking a Translation<a class="headerlink" href="#checking-a-translation" title="Permalink to this headline">¶</a></h2>
+<p>Validate a <code class="docutils literal notranslate"><span class="pre">.po</span></code> file with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msgfmt</span> <span class="o">-</span><span class="n">c</span> <span class="o">--</span><span class="n">statistics</span> <span class="o">-</span><span class="n">o</span> <span class="n">build</span><span class="o">/</span><span class="n">linux64</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">it</span><span class="o">/</span><span class="n">LC_MESSAGES</span><span class="o">/</span><span class="n">crown</span><span class="o">-</span><span class="n">editor</span><span class="o">.</span><span class="n">mo</span> <span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">it</span><span class="o">.</span><span class="n">po</span>
+</pre></div>
+</div>
+<p>The output should not report fuzzy or untranslated messages before committing a
+completed translation.</p>
+</section>
+<section id="build-and-test">
+<h2>Build and Test<a class="headerlink" href="#build-and-test" title="Permalink to this headline">¶</a></h2>
+<p>The tools build compiles every language listed in <code class="docutils literal notranslate"><span class="pre">tools/po/LINGUAS</span></code> into the
+build directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">crown</span><span class="o">-</span><span class="n">editor</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">debug64</span>
+</pre></div>
+</div>
+<p>Run the editor in a language with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">env</span> <span class="o">-</span><span class="n">u</span> <span class="n">LC_ALL</span> <span class="n">LANGUAGE</span><span class="o">=</span><span class="n">it</span> <span class="n">build</span><span class="o">/</span><span class="n">linux64</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">crown</span><span class="o">-</span><span class="n">editor</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">LC_ALL</span></code> overrides other locale variables, so unset it while testing. Using
+<code class="docutils literal notranslate"><span class="pre">LANG=it_IT.UTF-8</span></code> also works when that locale is installed on the system
+<code class="docutils literal notranslate"><span class="pre">LANGUAGE=it</span></code> is usually easier for quick gettext tests.</p>
+</section>
+<section id="translation-rules">
+<h2>Translation Rules<a class="headerlink" href="#translation-rules" title="Permalink to this headline">¶</a></h2>
+<p>Keep the source capitalization style. If the English text is title case, use
+title case in the translation too, for example <code class="docutils literal notranslate"><span class="pre">New</span> <span class="pre">Project...</span></code> becomes
+<code class="docutils literal notranslate"><span class="pre">Nuovo</span> <span class="pre">Progetto...</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="building.html" class="btn btn-neutral float-left" title="Building" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="console_api.html" class="btn btn-neutral float-right" title="Console API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
+      <span class="lastupdated">Last updated on Jun 09, 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XNVGCMNDZH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XNVGCMNDZH', {
+          'anonymize_ip': true,
+      });
+    </script> 
+
+</body>
+</html>
