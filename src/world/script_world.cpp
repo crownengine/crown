@@ -18,6 +18,21 @@ namespace crown
 {
 namespace script_world_internal
 {
+	typedef void (*PushArgsFn)(LuaStack &stack, const void *args);
+
+	struct TypedArgs
+	{
+		const ArgType::Enum *arg_types;
+		const Arg *args;
+		u32 num_args;
+	};
+
+	struct LuaArgs
+	{
+		int first_arg;
+		u32 num_args;
+	};
+
 	static ScriptId make_instance(u32 i)
 	{
 		ScriptId inst = { i };
@@ -34,6 +49,51 @@ namespace script_world_internal
 	static void unit_destroyed_callback_bridge(UnitId unit, void *user_ptr)
 	{
 		unit_destroyed_callback(*((ScriptWorld *)user_ptr), unit);
+	}
+
+	static void push_typed_args(LuaStack &stack, const void *args)
+	{
+		const TypedArgs *typed_args = (const TypedArgs *)args;
+		stack.push_args(typed_args->arg_types, typed_args->args, typed_args->num_args);
+	}
+
+	static void push_lua_args(LuaStack &stack, const void *args)
+	{
+		const LuaArgs *lua_args = (const LuaArgs *)args;
+
+		for (u32 i = 0; i < lua_args->num_args; ++i)
+			lua_pushvalue(stack.L, lua_args->first_arg + (int)i);
+	}
+
+	static void broadcast(ScriptWorld &sw
+		, const char *function_name
+		, LuaStack &stack
+		, PushArgsFn push_args
+		, const void *args
+		, u32 num_args
+		)
+	{
+		if (sw._disable_callbacks)
+			return;
+
+		for (u32 i = 0; i < array::size(sw._script); ++i) {
+			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[i].module_ref);
+			lua_getfield(stack.L, -1, function_name);
+
+			if (lua_isnil(stack.L, -1)) {
+				stack.pop(2);
+				continue;
+			}
+
+			push_args(stack, args);
+
+			int status = sw._lua_environment->call(num_args, 0);
+			if (status != LUA_OK) {
+				report(stack.L, status);
+				device()->pause();
+			}
+			stack.pop(1);
+		}
 	}
 } // script_world_internal
 
@@ -114,29 +174,33 @@ namespace script_world
 		, u32 num_args
 		)
 	{
-		if (sw._disable_callbacks)
-			return;
-
+		const script_world_internal::TypedArgs typed_args = { arg_types, args, num_args };
 		LuaStack stack(sw._lua_environment->L);
 
-		for (u32 i = 0; i < array::size(sw._script); ++i) {
-			lua_rawgeti(stack.L, LUA_REGISTRYINDEX, sw._script[i].module_ref);
-			lua_getfield(stack.L, -1, function_name);
+		script_world_internal::broadcast(sw
+			, function_name
+			, stack
+			, script_world_internal::push_typed_args
+			, &typed_args
+			, num_args
+			);
+	}
 
-			if (lua_isnil(stack.L, -1)) {
-				stack.pop(2);
-				continue;
-			}
-
-			stack.push_args(arg_types, args, num_args);
-
-			int status = sw._lua_environment->call(num_args, 0);
-			if (status != LUA_OK) {
-				report(stack.L, status);
-				device()->pause();
-			}
-			stack.pop(1);
-		}
+	void broadcast(ScriptWorld &sw
+		, const char *function_name
+		, LuaStack &stack
+		, int first_arg
+		, u32 num_args
+		)
+	{
+		const script_world_internal::LuaArgs lua_args = { first_arg, num_args };
+		script_world_internal::broadcast(sw
+			, function_name
+			, stack
+			, script_world_internal::push_lua_args
+			, &lua_args
+			, num_args
+			);
 	}
 
 	void multicast(ScriptWorld &sw
