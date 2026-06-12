@@ -43,6 +43,7 @@
 #include "world/physics_world.h"
 #include "world/render_world.h"
 #include "world/scene_graph.h"
+#include "world/script_world.h"
 #include "world/sound_world.h"
 #include "world/unit_manager.h"
 #include "world/world.h"
@@ -2209,6 +2210,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_pointer(stack.get_world(1)->_sound_world);
 			return 1;
 		});
+	env.add_module_function("World", "script_world", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_pointer(stack.get_world(1)->_script_world);
+			return 1;
+		});
 	env.add_module_function("World", "animation_state_machine", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_pointer(stack.get_world(1)->_animation_state_machine);
@@ -2224,6 +2230,16 @@ void load_api(LuaEnvironment &env)
 			World *w = stack.get_world(1);
 			stack.push_fstring("World (%p)", w);
 			return 1;
+		});
+
+	env.add_module_function("ScriptWorld", "broadcast", [](lua_State *L) {
+			LuaStack stack(L);
+			ScriptWorld *sw = stack.get_script_world(1);
+			const char *function_name = stack.get_string(2);
+			const u32 num_args = u32(stack.num_args() - 2);
+
+			script_world::broadcast(*sw, function_name, stack, 3, num_args);
+			return 0;
 		});
 
 	env.add_module_function("SceneGraph", "create", [](lua_State *L) {

@@ -79,6 +79,14 @@ namespace script_world
 		, u32 num_args = 0
 		);
 
+	/// Calls @a function_name in all scripts if defined, forwarding arguments from @a stack.
+	void broadcast(ScriptWorld &sw
+		, const char *function_name
+		, LuaStack &stack
+		, int first_arg
+		, u32 num_args
+		);
+
 	///
 	void multicast(ScriptWorld &sw
 		, const char *function_name
