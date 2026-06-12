@@ -2025,6 +2025,40 @@ function LevelEditor:camera_drag_start_relative(mode)
 	self._camera:set_mode(mode, 0, 0)
 end
 
+function LevelEditor:align_to_camera_view()
+	local selected = self._selection:last_selected_object()
+	if not selected or not selected:is_spatial() then
+		return
+	end
+
+	local camera_pose = self._camera:local_pose()
+	local target_pose = camera_pose
+	if selected:is_light() then
+		target_pose = Matrix4x4.from_axes(Matrix4x4.x(camera_pose)
+			, Matrix4x4.z(camera_pose)
+			, -Matrix4x4.y(camera_pose)
+			, Matrix4x4.translation(camera_pose)
+			)
+	end
+
+	local anchor_pose = Matrix4x4.from_quaternion_translation(selected:local_rotation(), selected:local_position())
+	local delta_pose = Matrix4x4.multiply(Matrix4x4.invert(anchor_pose), target_pose)
+
+	local objects = self._selection:objects()
+	for _, obj in pairs(objects) do
+		if obj:is_spatial() then
+			local nv, nq, nm = Device.temp_count()
+			local object_pose = Matrix4x4.from_quaternion_translation(obj:local_rotation(), obj:local_position())
+			local new_pose = Matrix4x4.multiply(object_pose, delta_pose)
+			obj:set_local_position(Matrix4x4.translation(new_pose))
+			obj:set_local_rotation(Matrix4x4.rotation(new_pose))
+			Device.set_temp_count(nv, nq, nm)
+		end
+	end
+
+	self._selection:send_move_objects()
+end
+
 function LevelEditor:frame_objects(ids)
 	local num_objects = #ids
 

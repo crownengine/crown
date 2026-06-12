@@ -40,6 +40,10 @@ function SoundObject:is_spatial()
 	return true
 end
 
+function SoundObject:is_light()
+	return false
+end
+
 function SoundObject:is_selectable()
 	return self._selectable and not self._hidden
 end

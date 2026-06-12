@@ -12,6 +12,7 @@ Changelog
 * Tools: Android: deploy settings now expose configurable min and target SDK versions.
 * Tools: Android: deployer now only requires JAVA_HOME, ANDROID_SDK_PATH and ANDROID_NDK_ROOT environment variables.
 * Tools: added Italian language support.
+* Tools: added the ability to align the currently selected objects to the editor camera view.
 
 **Fixes**
 
