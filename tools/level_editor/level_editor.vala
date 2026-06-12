@@ -639,7 +639,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "grid-show",          on_show_grid,          null,   "true"  },
 		{ "grid-size",          on_grid_size,          "i",    "10"    }, // 10*meters.
 		{ "menu-rotation-snap", null,                  null,   null    },
-		{ "rotation-snap-size", on_rotation_snap_size, "i",    "15"    }
+		{ "rotation-snap-size",   on_rotation_snap_size,   "i",  "15"  },
+		{ "align-to-camera-view", on_align_to_camera_view, null, null   }
 	};
 
 	public const GLib.ActionEntry[] action_entries_create =
@@ -2855,6 +2856,12 @@ public class LevelEditorApplication : Gtk.Application
 		Gee.ArrayList<Guid?> all_objects = new Gee.ArrayList<Guid?>();
 		_level.objects(ref all_objects);
 		_editor.send_script(LevelEditorApi.frame_objects(all_objects.to_array()));
+		_editor_viewport.frame();
+	}
+
+	public void on_align_to_camera_view(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		_editor.send_script(LevelEditorApi.align_to_camera_view());
 		_editor_viewport.frame();
 	}
 

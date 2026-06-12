@@ -243,6 +243,13 @@ public GLib.Menu make_edit_menu()
 	menu.append_section(null, make_database_editor_menu());
 	ms = new GLib.Menu();
 
+	mi = new GLib.MenuItem(_("Align to Camera View"), null);
+	mi.set_detailed_action("app.align-to-camera-view");
+	ms.append_item(mi);
+
+	menu.append_section(null, ms);
+	ms = new GLib.Menu();
+
 	mi = new GLib.MenuItem(_("Place"), null);
 	mi.set_detailed_action("app.tool");
 	mi.set_attribute_value("target", new GLib.Variant("i", ToolType.MOVE));

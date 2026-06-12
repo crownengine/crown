@@ -227,6 +227,11 @@ namespace LevelEditorApi
 		return sb.str;
 	}
 
+	public string align_to_camera_view()
+	{
+		return "LevelEditor:align_to_camera_view()";
+	}
+
 	public string enable_show_grid(bool enabled)
 	{
 		return "LevelEditor:enable_show_grid(%s)".printf(Lua.bool(enabled));

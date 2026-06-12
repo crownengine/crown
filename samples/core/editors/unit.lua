@@ -69,6 +69,10 @@ function UnitBox:prefab()
 	return self._prefab
 end
 
+function UnitBox:is_light()
+	return self._prefab == "core/units/light"
+end
+
 function UnitBox:unit_id()
 	return self._unit_id
 end
