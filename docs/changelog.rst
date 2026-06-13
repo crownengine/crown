@@ -24,6 +24,7 @@ Changelog
 * Tools: Android: fixed deploying with debug keystore.
 * Tools: fixed excessive resource reloads in some circumnstances.
 * Tools: fixed a crash when deleting nested folders in some cases.
+* Tools: fixed Project Browser favorites not updating file metadata after resource changes.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
