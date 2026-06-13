@@ -3650,470 +3650,10 @@ public class LevelEditorApplication : Gtk.Application
 		return md;
 	}
 
-	public GLib.File deploy_package_dir(out string config_path, string output_path, string app_identifier, TargetPlatform platform, TargetArch arch, TargetConfig config)
-	{
-		string platform_name[] =
-		{
-			"android", // TargetArch.ANDROID
-			"html5",   // TargetArch.HTML5
-			"linux",   // TargetArch.LINUX
-			"windows"  // TargetArch.WINDOWS
-		};
-
-		string arch_name[] =
-		{
-			"x86",   // TargetArch.X86
-			"x64",   // TargetArch.X64
-			"arm",   // TargetArch.ARM
-			"arm64", // TargetArch.ARM64
-			"wasm"   // TargetArch.WASM
-		};
-
-		string config_name[] =
-		{
-			"release",     // TargetConfig.RELEASE
-			"development", // TargetConfig.DEVELOPMENT
-#if CROWN_DEBUG
-			"debug"        // TargetConfig.DEBUG
-#endif
-		};
-
-		string platform_path = Path.build_path(Path.DIR_SEPARATOR_S, output_path, platform_name[platform], arch_name[arch]);
-		config_path = Path.build_path(Path.DIR_SEPARATOR_S, platform_path, config_name[config]);
-		return GLib.File.new_for_path(Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier));
-	}
-
-	public async int wait_subprocess(uint32 process_id) throws GLib.Error
-	{
-		SourceFunc callback = wait_subprocess.callback;
-		int exit_status = int.MAX;
-		GLib.Error? error = null;
-
-		new Thread<int>("wait-subprocess", () => {
-				try {
-					exit_status = _subprocess_launcher.wait(process_id);
-				} catch (GLib.Error e) {
-					error = e;
-				}
-
-				GLib.Idle.add((owned)callback);
-				return 0;
-			});
-
-		yield;
-
-		if (error != null)
-			throw error;
-
-		return exit_status;
-	}
-
-	public async int do_create_package_android(GLib.File package_dir
-		, string config_path
-		, string output_path
-		, int config
-		, string app_title
-		, string app_identifier
-		, int app_version_code
-		, string app_version_name
-		, int min_sdk_version
-		, int target_sdk_version
-		, string keystore_path
-		, string keystore_pass
-		, string key_alias
-		, string key_pass
-		, int arch
-		, string android_manifest_path
-		, string apk_name
-		)
-	{
-		string config_name[] =
-		{
-			"release",
-			"development",
-#if CROWN_DEBUG
-			"debug"
-#endif
-		};
-
-		AndroidDeployer android = new AndroidDeployer();
-		if (android.check_config() != 0)
-			return -1;
-
-		logi("Creating Android package (%s)...".printf(arch == TargetArch.ARM ? "ARMv7-A" : "ARMv8-A"));
-
-		var activity_name = "MainActivity";
-		var package_path = package_dir.get_path();
-
-		// Architecture-agnostic paths.
-		var manifests_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "manifests");
-		var java_sources_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "java");
-		var app_sources_path = Path.build_path(Path.DIR_SEPARATOR_S, java_sources_path, app_identifier.replace(".", "/"));
-		var assets_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "assets");
-		var res_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "res");
-		var bin_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "bin");
-		var obj_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "obj");
-		var res_layout_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "layout");
-		var res_values_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values");
-		var res_drawable_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "drawable");
-		var manifest_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, manifests_path, "AndroidManifest.xml");
-		var strings_xml_path = Path.build_path(Path.DIR_SEPARATOR_S, res_path, "values", "strings.xml");
-		var activity_java_path = Path.build_path(Path.DIR_SEPARATOR_S, app_sources_path, "%s.java".printf(activity_name));
-		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, android._sdk_path, "platforms", "android-" + target_sdk_version.to_string(), "android.jar");
-		var libcrown_src_name = "libcrown-" + config_name[config] + ".so";
-		var libcpp_name = "libc++_shared.so";
-		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
-		var unaligned_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".unaligned.apk");
-		var final_apk = Path.build_path(Path.DIR_SEPARATOR_S, config_path, apk_name + ".apk");
-
-#if CROWN_PLATFORM_LINUX
-		string host_platform = "linux-x86_64";
-#elif CROWN_PLATFORM_WINDOWS
-		string host_platform = "windows-x86_64";
-#endif
-
-		// Architecture-specific paths.
-		string dc_platform = null;
-		string bin_folder  = null;
-		string apk_arch    = null;
-		string llvm_arch   = null;
-		if (arch == TargetArch.ARM) {
-			dc_platform = "android";
-			bin_folder  = "android-arm";
-			apk_arch    = "armeabi-v7a";
-			llvm_arch   = "arm-linux-androideabi";
-		} else if (arch == TargetArch.ARM64) {
-			dc_platform = "android-arm64";
-			bin_folder  = "android-arm64";
-			apk_arch    = "arm64-v8a";
-			llvm_arch   = "aarch64-linux-android";
-		} else {
-			loge("Invalid architecture");
-			return -1;
-		}
-
-		var libcrown_src_path = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", libcrown_src_name);
-		var libcpp_src_path   = Path.build_path(Path.DIR_SEPARATOR_S
-			, android._ndk_root_path
-			, "toolchains"
-			, "llvm"
-			, "prebuilt"
-			, host_platform
-			, "sysroot"
-			, "usr"
-			, "lib"
-			, llvm_arch
-			, libcpp_name
-			);
-		var lib_path_relative      = Path.build_path(Path.DIR_SEPARATOR_S, "lib", apk_arch);
-		var lib_path               = Path.build_path(Path.DIR_SEPARATOR_S, package_path, lib_path_relative);
-		var libcrown_path_relative = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, "libcrown.so");
-		var libcpp_path_relative   = Path.build_path(Path.DIR_SEPARATOR_S, lib_path_relative, libcpp_name);
-		var libcrown_dst_path      = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libcrown.so");
-		var libcpp_dst_path        = Path.build_path(Path.DIR_SEPARATOR_S, lib_path, "libc++_shared.so");
-
-		if (!GLib.File.new_for_path(android_jar_path).query_exists()) {
-			loge("Android platform not found: '%s'".printf(android_jar_path));
-			return -1;
-		}
-
-		// Create Android project skeleton.
-		try {
-			GLib.File.new_for_path(manifests_path).make_directory();
-			GLib.File.new_for_path(app_sources_path).make_directory_with_parents();
-			GLib.File.new_for_path(lib_path).make_directory_with_parents();
-			GLib.File.new_for_path(assets_path).make_directory();
-			GLib.File.new_for_path(bin_path).make_directory();
-			GLib.File.new_for_path(obj_path).make_directory();
-			GLib.File.new_for_path(res_layout_path).make_directory_with_parents();
-			GLib.File.new_for_path(res_values_path).make_directory();
-			GLib.File.new_for_path(res_drawable_path).make_directory();
-		} catch (Error e) {
-			loge(e.message);
-			return -1;
-		}
-
-		// Compile game data.
-		try {
-			GLib.File.new_for_path(libcrown_src_path).copy(GLib.File.new_for_path(libcrown_dst_path), GLib.FileCopyFlags.NONE);
-			GLib.File.new_for_path(libcpp_src_path).copy(GLib.File.new_for_path(libcpp_dst_path), GLib.FileCopyFlags.NONE);
-
-			string[] args;
-
-			// Populate Android assets folder with data.
-			args = new string[]
-			{
-				ENGINE_EXE,
-				"--source-dir",
-				_project.source_dir(),
-				"--map-source-dir",
-				"core",
-				_project.toolchain_dir(),
-				"--bundle-dir",
-				assets_path,
-				"--compile",
-				"--bundle",
-				"--platform",
-				dc_platform
-			};
-
-			uint32 pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = yield wait_subprocess(pid);
-
-			if (exit_status != 0) {
-				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return exit_status;
-			}
-		} catch (Error e) {
-			loge(e.message);
-			return -1;
-		}
-
-		// Create Android manifest.
-		if (android_manifest_path.length == 0) {
-			if (AndroidDeployer.generate_manifest(manifest_xml_path
-				, app_title
-				, app_identifier
-				, app_version_code
-				, app_version_name
-				, min_sdk_version
-				, target_sdk_version
-				) != 0) {
-				return -1;
-			}
-		} else {
-			try {
-				GLib.File.new_for_path(android_manifest_path).copy(GLib.File.new_for_path(manifest_xml_path), GLib.FileCopyFlags.OVERWRITE);
-			} catch (Error e) {
-				loge(e.message);
-				return -1;
-			}
-		}
-
-		// Create Android strings.xml.
-		string android_strings = "";
-		android_strings += "<resources>";
-		android_strings += "\n<string name=\"activity_label\">%s</string>".printf(app_title);
-		android_strings += "\n</resources>";
-		android_strings += "\n";
-
-		GLib.FileStream? fs = FileStream.open(strings_xml_path, "w");
-		if (fs == null) {
-			loge("Failed to open '%s'".printf(strings_xml_path));
-			return -1;
-		}
-		fs.write(android_strings.data);
-		fs.flush();
-
-		// Create Android activity.
-		if (AndroidDeployer.generate_activity(activity_java_path, app_identifier) != 0)
-			return -1;
-
-		string[] javac_args = new string[]
-		{
-			android._javac_path,
-			"-verbose",
-			"-source",
-			"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
-			"-target",
-			"8", // https://docs.oracle.com/javase/1.5.0/docs/relnotes/version-5.0.html
-			"-d",
-			obj_path,
-			"-classpath",
-			"java",
-			"-bootclasspath",
-			android_jar_path,
-			activity_java_path
-		};
-
-		int javac_status;
-		try {
-			uint32 javac = _subprocess_launcher.spawnv_async(subprocess_flags(), javac_args, package_path);
-			javac_status = yield wait_subprocess(javac);
-		} catch (Error e) {
-			loge(e.message);
-			return -1;
-		}
-
-		if (javac_status != 0) {
-			loge("Failed to compile Java activity. exit_status %d".printf(javac_status));
-			return javac_status;
-		}
-
-		var class_path = Path.build_path(Path.DIR_SEPARATOR_S
-			, obj_path
-			, app_identifier.replace(".", "/")
-			, "%s.class".printf(activity_name)
-			);
-		var class_file = GLib.File.new_for_path(class_path);
-
-		if (!class_file.query_exists()) {
-			loge("Failed to generate .class file");
-			return -1;
-		}
-
-		GLib.File? debug_keystore_file = null;
-
-		try {
-			string[] args;
-			uint32 pid;
-			int exit_status;
-
-			args = new string[]
-			{
-				android._d8_path,
-				"--output",
-				bin_path,
-				class_path,
-				"--no-desugaring"
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			exit_status = yield wait_subprocess(pid);
-			if (exit_status != 0) {
-				loge("Failed to generate dex file. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			args = new string[]
-			{
-				android._aapt_path,
-				"package",
-				"-f",
-				"-m",
-				"-F",
-				unaligned_apk,
-				"-M",
-				manifest_xml_path,
-				"-S",
-				res_path,
-				"-A",
-				assets_path,
-				"-I",
-				android_jar_path
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			exit_status = yield wait_subprocess(pid);
-			if (exit_status != 0) {
-				loge("Failed to do something with the APK. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			args = new string[]
-			{
-				android._aapt_path,
-				"add",
-				unaligned_apk,
-				"classes.dex"
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, bin_path);
-			exit_status = yield wait_subprocess(pid);
-			if (exit_status != 0) {
-				loge("Failed to add classes.dex to APK. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			args = new string[]
-			{
-				android._aapt_path,
-				"add",
-				unaligned_apk,
-				libcrown_path_relative.replace("\\", "/"),
-				libcpp_path_relative.replace("\\", "/")
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, package_path);
-			exit_status = yield wait_subprocess(pid);
-			if (exit_status != 0) {
-				loge("Failed to add libs to APK. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			string signing_keystore_path = keystore_path;
-			if (signing_keystore_path.length == 0) {
-				GLib.FileIOStream debug_keystore_stream;
-				debug_keystore_file = GLib.File.new_tmp("crown-debug-keystore-XXXXXX", out debug_keystore_stream);
-				debug_keystore_stream.close();
-				signing_keystore_path = debug_keystore_file.get_path();
-				if (AndroidDeployer.write_debug_keystore(signing_keystore_path) != 0) {
-					try {
-						debug_keystore_file.delete();
-					} catch (Error cleanup_error) {
-						logw(cleanup_error.message);
-					}
-					debug_keystore_file = null;
-					return -1;
-				}
-			}
-
-			args = new string[]
-			{
-				android._jarsigner_path,
-				"-keystore",
-				signing_keystore_path,
-				"-storepass",
-				keystore_pass,
-				"-keypass",
-				key_pass,
-				"-signedjar",
-				signed_apk,
-				unaligned_apk,
-				key_alias
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			exit_status = yield wait_subprocess(pid);
-			if (debug_keystore_file != null) {
-				try {
-					debug_keystore_file.delete();
-				} catch (Error cleanup_error) {
-					logw(cleanup_error.message);
-				}
-				debug_keystore_file = null;
-			}
-			if (exit_status != 0) {
-				loge("Failed sign APK. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			args = new string[]
-			{
-				android._zipalign_path,
-				"-f",
-				"4",
-				signed_apk,
-				final_apk
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			exit_status = yield wait_subprocess(pid);
-			if (exit_status != 0) {
-				loge("Failed align APK. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-		} catch (Error e) {
-			if (debug_keystore_file != null) {
-				try {
-					debug_keystore_file.delete();
-				} catch (Error cleanup_error) {
-					logw(cleanup_error.message);
-				}
-			}
-			loge(e.message);
-			loge("Failed to deploy '%s'".printf(app_title));
-			return -1;
-		}
-
-		logi("Done: #FILE(%s)".printf(config_path));
-		return 0;
-	}
-
 	public void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
+		var config = (TargetConfig)((int)param.get_child_value(1));
 		var app_title = (string)param.get_child_value(2);
 		var app_identifier = (string)param.get_child_value(3);
 		var app_version_code = (int)param.get_child_value(4);
@@ -4124,10 +3664,11 @@ public class LevelEditorApplication : Gtk.Application
 		var keystore_pass = (string)param.get_child_value(9);
 		var key_alias = (string)param.get_child_value(10);
 		var key_pass = (string)param.get_child_value(11);
-		var arch = (int)param.get_child_value(12);
+		var arch = (TargetArch)((int)param.get_child_value(12));
 		var android_manifest_path = (string)param.get_child_value(13);
 
 		var apk_name = app_identifier + "-" + app_version_name;
+		var deployer = new AndroidDeployer();
 
 		string config_path;
 		GLib.File package_dir = deploy_package_dir(out config_path
@@ -4135,7 +3676,7 @@ public class LevelEditorApplication : Gtk.Application
 			, apk_name
 			, TargetPlatform.ANDROID
 			, arch
-			, (TargetConfig)config
+			, config
 			);
 
 		if (package_dir.query_exists()) {
@@ -4146,9 +3687,9 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_android.begin(package_dir
+							deployer.create_package.begin(_project
+								, package_dir
 								, config_path
-								, output_path
 								, config
 								, app_title
 								, app_identifier
@@ -4164,7 +3705,7 @@ public class LevelEditorApplication : Gtk.Application
 								, android_manifest_path
 								, apk_name
 								, (obj, res) => {
-									_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
+									_deploy_dialog._android_page.deploy_finished(deployer.create_package.end(res), config_path);
 								}
 								);
 						} catch (Error e) {
@@ -4179,9 +3720,9 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog._android_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_android.begin(package_dir
+				deployer.create_package.begin(_project
+					, package_dir
 					, config_path
-					, output_path
 					, config
 					, app_title
 					, app_identifier
@@ -4197,7 +3738,7 @@ public class LevelEditorApplication : Gtk.Application
 					, android_manifest_path
 					, apk_name
 					, (obj, res) => {
-						_deploy_dialog._android_page.deploy_finished(do_create_package_android.end(res), config_path);
+						_deploy_dialog._android_page.deploy_finished(deployer.create_package.end(res), config_path);
 					}
 					);
 			} catch (Error e) {
@@ -4207,126 +3748,15 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public async int do_create_package_html5(GLib.File package_dir
-		, string output_path
-		, int config
-		, string app_title
-		, string html5_index_path
-		, string exe_name
-		)
-	{
-		string config_name[] =
-		{
-			"release",
-			"development",
-#if CROWN_DEBUG
-			"debug"
-#endif
-		};
-
-		HTML5Deployer html5 = new HTML5Deployer();
-		html5.check_config();
-
-		logi("Creating HTML5 package...");
-
-		string package_path = package_dir.get_path();
-
-		// Create data bundle.
-		try {
-			string[] args;
-			string tmp_bundle_dir = GLib.DirUtils.make_tmp("XXXXXX");
-
-			args = new string[]
-			{
-				ENGINE_EXE,
-				"--source-dir",
-				_project.source_dir(),
-				"--map-source-dir",
-				"core",
-				_project.toolchain_dir(),
-				"--bundle-dir",
-				tmp_bundle_dir,
-				"--compile",
-				"--bundle",
-				"--platform",
-				"html5"
-			};
-
-			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			var exit_status = yield wait_subprocess(pid);
-
-			if (exit_status != 0) {
-				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return exit_status;
-			}
-
-			// Copy runtime executables to package folder.
-			var runtime_name_src = "crown-%s".printf(config_name[config]);
-			var runtime_path_src = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", "wasm", "bin", runtime_name_src);
-			var runtime_name_dst = Path.build_filename(package_path, runtime_name_src);
-
-			var src = File.new_for_path(runtime_path_src + ".js");
-			var dst = File.new_for_path(runtime_name_dst + ".js");
-			src.copy(dst, FileCopyFlags.OVERWRITE);
-
-			try {
-				src = File.new_for_path(runtime_path_src + ".worker.js");
-				dst = File.new_for_path(runtime_name_dst + ".worker.js");
-				src.copy(dst, FileCopyFlags.OVERWRITE);
-			} catch (GLib.Error e) {
-				// NOOP: newer emscripten versions embed .worker.js into main .js.
-			}
-
-			src = File.new_for_path(runtime_path_src + ".wasm");
-			dst = File.new_for_path(runtime_name_dst + ".wasm");
-			src.copy(dst, FileCopyFlags.OVERWRITE);
-
-			// Package bundle data with emscripten's file_packager.
-			args = new string[]
-			{
-				Path.build_path(Path.DIR_SEPARATOR_S, html5._emscripten_sdk_path, "tools", "file_packager"),
-				Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
-				"--preload",
-				"./data",
-				"--js-output=" + Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.js")
-			};
-
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, tmp_bundle_dir);
-			exit_status = yield wait_subprocess(pid);
-			delete_tree(GLib.File.new_for_path(tmp_bundle_dir));
-
-			if (exit_status != 0) {
-				loge("Failed to package data.js. exit_status %d".printf(exit_status));
-				return exit_status;
-			}
-
-			// Generate index.html.
-			var index_html_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "index.html");
-
-			if (html5_index_path.length == 0) {
-				if (HTML5Deployer.generate_index(index_html_path, runtime_name_src) != 0)
-					return -1;
-			} else {
-				GLib.File.new_for_path(html5_index_path).copy(GLib.File.new_for_path(index_html_path), GLib.FileCopyFlags.OVERWRITE);
-			}
-		} catch (Error e) {
-			loge(e.message);
-			loge("Failed to deploy '%s'".printf(app_title));
-			return -1;
-		}
-
-		logi("Done: #FILE(%s)".printf(package_path));
-		return 0;
-	}
-
 	public void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
+		var config = (TargetConfig)((int)param.get_child_value(1));
 		var app_title = (string)param.get_child_value(2);
 		var html5_index_path = (string)param.get_child_value(3);
 
 		var exe_name = app_title.replace(" ", "_").down();
+		var deployer = new HTML5Deployer();
 
 		string config_path;
 		GLib.File package_dir = deploy_package_dir(out config_path
@@ -4334,7 +3764,7 @@ public class LevelEditorApplication : Gtk.Application
 			, exe_name
 			, TargetPlatform.HTML5
 			, TargetArch.WASM
-			, (TargetConfig)config
+			, config
 			);
 
 		if (package_dir.query_exists()) {
@@ -4345,8 +3775,8 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_html5.begin(package_dir, output_path, config, app_title, html5_index_path, exe_name, (obj, res) => {
-									_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
+							deployer.create_package.begin(_project, package_dir, config, app_title, html5_index_path, exe_name, (obj, res) => {
+									_deploy_dialog._html5_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 								});
 						} catch (Error e) {
 							loge(e.message);
@@ -4360,8 +3790,8 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog._html5_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_html5.begin(package_dir, output_path, config, app_title, html5_index_path, exe_name, (obj, res) => {
-						_deploy_dialog._html5_page.deploy_finished(do_create_package_html5.end(res), package_dir.get_path());
+				deployer.create_package.begin(_project, package_dir, config, app_title, html5_index_path, exe_name, (obj, res) => {
+						_deploy_dialog._html5_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 					});
 			} catch (Error e) {
 				loge(e.message);
@@ -4370,72 +3800,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public async int do_create_package_linux(GLib.File package_dir
-		, string output_path
-		, int config
-		, string app_title
-		, string exe_name
-		)
-	{
-		string config_name[] =
-		{
-			"release",
-			"development",
-#if CROWN_DEBUG
-			"debug"
-#endif
-		};
-
-		logi("Creating Linux package...");
-
-		string package_path = package_dir.get_path();
-
-		// Create data bundle.
-		try {
-			string args[] =
-			{
-				ENGINE_EXE,
-				"--source-dir",
-				_project.source_dir(),
-				"--map-source-dir",
-				"core",
-				_project.toolchain_dir(),
-				"--bundle-dir",
-				package_path,
-				"--compile",
-				"--bundle",
-				"--platform",
-				"linux"
-			};
-
-			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = yield wait_subprocess(compiler);
-
-			if (exit_status != 0) {
-				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return exit_status;
-			}
-
-			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
-			GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(package_path, exe_name + EXE_SUFFIX));
-			engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
-		} catch (Error e) {
-			loge(e.message);
-			loge("Failed to deploy '%s'".printf(app_title));
-			return -1;
-		}
-
-		logi("Done: #FILE(%s)".printf(package_path));
-		return 0;
-	}
-
 	public void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
+		var config = (TargetConfig)((int)param.get_child_value(1));
 		var app_title = (string)param.get_child_value(2);
 
 		var exe_name = app_title.replace(" ", "_").down();
+		var deployer = new LinuxDeployer();
 
 		string config_path;
 		GLib.File package_dir = deploy_package_dir(out config_path
@@ -4443,7 +3815,7 @@ public class LevelEditorApplication : Gtk.Application
 			, exe_name
 			, TargetPlatform.LINUX
 			, TargetArch.X64
-			, (TargetConfig)config
+			, config
 			);
 
 		if (package_dir.query_exists()) {
@@ -4454,8 +3826,8 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
-									_deploy_dialog._linux_page.deploy_finished(do_create_package_linux.end(res), package_dir.get_path());
+							deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
+									_deploy_dialog._linux_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 								});
 						} catch (Error e) {
 							loge(e.message);
@@ -4469,8 +3841,8 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog._linux_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_linux.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
-						_deploy_dialog._linux_page.deploy_finished(do_create_package_linux.end(res), package_dir.get_path());
+				deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
+						_deploy_dialog._linux_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 					});
 			} catch (Error e) {
 				loge(e.message);
@@ -4479,86 +3851,14 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	async int do_create_package_windows(GLib.File package_dir
-		, string output_path
-		, int config
-		, string app_title
-		, string exe_name
-		)
-	{
-		string config_name[] =
-		{
-			"release",
-			"development",
-#if CROWN_DEBUG
-			"debug"
-#endif
-		};
-
-		logi("Creating Windows package");
-
-		string package_path = package_dir.get_path();
-
-		// Create data bundle.
-		try {
-			string args[] =
-			{
-				ENGINE_EXE,
-				"--source-dir",
-				_project.source_dir(),
-				"--map-source-dir",
-				"core",
-				_project.toolchain_dir(),
-				"--bundle-dir",
-				package_path,
-				"--compile",
-				"--bundle",
-				"--platform",
-				"windows"
-			};
-
-			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
-			int exit_status = yield wait_subprocess(compiler);
-
-			if (exit_status != 0) {
-				loge("Failed to compile data. exit_status = %d".printf(exit_status));
-				return exit_status;
-			}
-
-			GLib.File engine_exe_src = File.new_for_path(EXE_PREFIX + "crown-%s".printf(config_name[config]) + EXE_SUFFIX);
-			GLib.File engine_exe_dst = File.new_for_path(Path.build_filename(package_path, exe_name + EXE_SUFFIX));
-			engine_exe_src.copy(engine_exe_dst, FileCopyFlags.OVERWRITE);
-
-			string openal_name = "openal-release.dll";
-			GLib.File openal_dll_src = File.new_for_path(openal_name);
-			GLib.File openal_dll_dst = File.new_for_path(Path.build_filename(package_path, openal_name));
-			openal_dll_src.copy(openal_dll_dst, FileCopyFlags.OVERWRITE);
-
-			try {
-				string lua_name = "lua51.dll";
-				GLib.File lua_dll_src = File.new_for_path(lua_name);
-				GLib.File lua_dll_dst = File.new_for_path(Path.build_filename(package_path, lua_name));
-				lua_dll_src.copy(lua_dll_dst, FileCopyFlags.OVERWRITE);
-			} catch (Error e) {
-				// Ignore: runtime's MinGW builds statically link luajit.
-			}
-		} catch (Error e) {
-			loge("%s".printf(e.message));
-			loge("Failed to deploy '%s'".printf(app_title));
-			return -1;
-		}
-
-		logi("Done: #FILE(%s)".printf(package_path));
-		return 0;
-	}
-
 	public void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		var output_path = (string)param.get_child_value(0);
-		var config = (int)param.get_child_value(1);
+		var config = (TargetConfig)((int)param.get_child_value(1));
 		var app_title = (string)param.get_child_value(2);
 
 		var exe_name = app_title.replace(" ", "_").down();
+		var deployer = new WindowsDeployer();
 
 		string config_path;
 		GLib.File package_dir = deploy_package_dir(out config_path
@@ -4566,7 +3866,7 @@ public class LevelEditorApplication : Gtk.Application
 			, exe_name
 			, TargetPlatform.WINDOWS
 			, TargetArch.X64
-			, (TargetConfig)config
+			, config
 			);
 
 		if (package_dir.query_exists()) {
@@ -4577,8 +3877,8 @@ public class LevelEditorApplication : Gtk.Application
 						try {
 							delete_tree(package_dir);
 							package_dir.make_directory_with_parents();
-							do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
-									_deploy_dialog._windows_page.deploy_finished(do_create_package_windows.end(res), package_dir.get_path());
+							deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
+									_deploy_dialog._windows_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 								});
 						} catch (Error e) {
 							loge(e.message);
@@ -4592,8 +3892,8 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog._windows_page.deploy_started();
 			try {
 				package_dir.make_directory_with_parents();
-				do_create_package_windows.begin(package_dir, output_path, config, app_title, exe_name, (obj, res) => {
-						_deploy_dialog._windows_page.deploy_finished(do_create_package_windows.end(res), package_dir.get_path());
+				deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
+						_deploy_dialog._windows_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
 					});
 			} catch (Error e) {
 				loge(e.message);
@@ -4871,6 +4171,31 @@ public static bool _console_view_valid = false;
 public static string _log_prefix;
 
 public static SubprocessLauncher _subprocess_launcher;
+
+public async int wait_subprocess(uint32 process_id) throws GLib.Error
+{
+	SourceFunc callback = wait_subprocess.callback;
+	int exit_status = int.MAX;
+	GLib.Error? error = null;
+
+	new Thread<int>("wait-subprocess", () => {
+			try {
+				exit_status = _subprocess_launcher.wait(process_id);
+			} catch (GLib.Error e) {
+				error = e;
+			}
+
+			GLib.Idle.add((owned)callback);
+			return 0;
+		});
+
+	yield;
+
+	if (error != null)
+		throw error;
+
+	return exit_status;
+}
 
 public static void log(string system, string severity, string message)
 {
