@@ -938,6 +938,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("viewport.camera-view(5)", new string[] { "KP_7" });
 		this.set_accels_for_action("viewport.camera-view(6)", new string[] { "<Primary>KP_7" });
 		this.set_accels_for_action("viewport.camera-frame-selected", new string[] { "F" });
+		this.set_accels_for_action("app.align-with-camera-view", new string[] { "<Shift><Primary>F" });
 
 		this.set_accels_for_action("app.camera-frame-all", new string[] { "A" });
 
