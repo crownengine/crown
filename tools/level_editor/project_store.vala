@@ -509,18 +509,23 @@ public class ProjectStore
 		}
 
 		// Remove the tree.
-		Gtk.TreeIter iter;
-		_tree_store.get_iter(out iter, _folders[name].get_path());
-		_tree_store.remove(ref iter);
+		Gtk.TreePath? path = _folders[name].get_path();
 
-		// Remove any stale TreeRowRerefence
+		// Remove stale TreeRowReferences before removing the row, because deleting a parent row
+		// invalidates every descendant row reference.
 		var it = _folders.map_iterator();
 		for (var has_next = it.next(); has_next; has_next = it.next()) {
 			string ff = it.get_key();
-			if (ff.has_prefix(name + "/"))
+			if (ff == name || ff.has_prefix(name + "/"))
 				it.unset();
 		}
-		_folders.unset(name);
+
+		if (path == null)
+			return;
+
+		Gtk.TreeIter iter;
+		if (_tree_store.get_iter(out iter, path))
+			_tree_store.remove(ref iter);
 	}
 
 	public void on_project_reset()
