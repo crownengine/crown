@@ -357,6 +357,33 @@ public class ProjectStore
 			, true
 			, -1
 			);
+
+		// Update favorites rows.
+		Gtk.TreeIter favorites_root_iter;
+		_tree_store.get_iter(out favorites_root_iter, favorites_root_path());
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, favorites_root_iter)) {
+			Value iter_type;
+			Value iter_name;
+
+			while (true) {
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_tree_store.set(child
+						, Column.SIZE
+						, size
+						, Column.MTIME
+						, mtime
+						, -1
+						);
+					break;
+				}
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
 	}
 
 	public void on_project_file_changed(string type, string name, uint64 size, uint64 mtime)
