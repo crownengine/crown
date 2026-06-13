@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a crash when deleting nested folders in some cases.
+* Tools: fixed Project Browser favorites not updating file metadata after resource changes.
 
 .. _v0.63.3:
 
