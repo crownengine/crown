@@ -625,21 +625,21 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_edit =
 	{
-		{ "menu-edit",            null,                    null,   null    },
-		{ "rename",               on_rename,               "(ss)", null    },
-		{ "toggle-hidden",        on_toggle_object_state,  null,   null    },
-		{ "toggle-locked",        on_toggle_object_state,  null,   null    },
-		{ "tool",                 on_tool,                 "i",    "1"     }, // See: Crown.ToolType
-		{ "set-placeable",        on_set_placeable,        "(ss)", null    },
-		{ "cancel-place",         on_cancel_place,         null,   null    },
-		{ "snap",                 on_snap,                 "i",    "0"     }, // See: Crown.SnapMode
-		{ "reference-system",     on_reference_system,     "i",    "0"     }, // See: Crown.ReferenceSystem
-		{ "snap-to-grid",         on_snap_to_grid,         null,   "false" },
-		{ "menu-grid",            null,                    null,   null    },
-		{ "grid-show",            on_show_grid,            null,   "true"  },
-		{ "grid-size",            on_grid_size,            "i",    "10"    }, // 10*meters.
-		{ "menu-rotation-snap",   null,                    null,   null    },
-		{ "rotation-snap-size",   on_rotation_snap_size,   "i",    "15"    },
+		{ "menu-edit",              null,                      null,   null    },
+		{ "rename",                 on_rename,                 "(ss)", null    },
+		{ "toggle-hidden",          on_toggle_object_state,    null,   null    },
+		{ "toggle-locked",          on_toggle_object_state,    null,   null    },
+		{ "tool",                   on_tool,                   "i",    "1"     }, // See: Crown.ToolType
+		{ "set-placeable",          on_set_placeable,          "(ss)", null    },
+		{ "cancel-place",           on_cancel_place,           null,   null    },
+		{ "snap",                   on_snap,                   "i",    "0"     }, // See: Crown.SnapMode
+		{ "reference-system",       on_reference_system,       "i",    "0"     }, // See: Crown.ReferenceSystem
+		{ "snap-to-grid",           on_snap_to_grid,           null,   "false" },
+		{ "menu-grid",              null,                      null,   null    },
+		{ "grid-show",              on_show_grid,              null,   "true"  },
+		{ "grid-size",              on_grid_size,              "i",    "10"    }, // 10*meters.
+		{ "menu-rotation-snap",     null,                      null,   null    },
+		{ "rotation-snap-size",     on_rotation_snap_size,     "i",    "15"    },
 		{ "align-with-camera-view", on_align_with_camera_view, null,   null    }
 	};
 
