@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.4 --- DD MMM YYYY <v0.63.4>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed a crash when deleting nested folders in some cases.
+
 .. _v0.63.3:
 
 :ref:`0.63.3 --- 11 Jun 2026 <v0.63.3>`
