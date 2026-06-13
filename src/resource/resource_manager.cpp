@@ -286,6 +286,8 @@ void ResourceManager::complete_requests()
 
 void ResourceManager::register_type(StringId64 type, u32 version, LoadFunction load, UnloadFunction unload, OnlineFunction online, OfflineFunction offline)
 {
+	CE_ASSERT(!hash_map::has(_types, type), "Type already registered");
+
 	ResourceTypeData rtd;
 	rtd.version = version;
 	if (load == NULL) {
