@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-11 19:14+0200\n"
+"POT-Creation-Date: 2026-06-12 22:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Development"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:241 tools/level_editor/menus.vala:544
+#: tools/level_editor/level_editor.vala:241 tools/level_editor/menus.vala:551
 msgid "Debug"
 msgstr ""
 
@@ -262,7 +262,7 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:996
+#: tools/level_editor/level_editor.vala:997
 #: tools/level_editor/object_editor.vala:287
 #: tools/state_machine_editor/state_machine_editor.vala:390
 #: tools/unit_editor/unit_editor.vala:435
@@ -270,7 +270,7 @@ msgstr ""
 msgid "Undo: %s"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:997
+#: tools/level_editor/level_editor.vala:998
 #: tools/level_editor/object_editor.vala:292
 #: tools/state_machine_editor/state_machine_editor.vala:395
 #: tools/unit_editor/unit_editor.vala:440
@@ -278,60 +278,60 @@ msgstr ""
 msgid "Redo: %s"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1067
+#: tools/level_editor/level_editor.vala:1068
 msgid "Runtime that will receive the message."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1068
+#: tools/level_editor/level_editor.vala:1069
 msgid "Editor"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1069
+#: tools/level_editor/level_editor.vala:1070
 #: tools/level_editor/preferences_dialog.vala:134
 msgid "Game"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1095
+#: tools/level_editor/level_editor.vala:1096
 msgid "Properties"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1125
+#: tools/level_editor/level_editor.vala:1126
 msgid "Console"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1129
+#: tools/level_editor/level_editor.vala:1130
 msgid "Project"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1151
+#: tools/level_editor/level_editor.vala:1152
 msgid "Level (*.level)"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1162
+#: tools/level_editor/level_editor.vala:1163
 #, c-format
 msgid "Waiting for %s..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1348 tools/widgets/messages.vala:33
+#: tools/level_editor/level_editor.vala:1349 tools/widgets/messages.vala:33
 msgid "Compiling data..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1356
+#: tools/level_editor/level_editor.vala:1357
 msgid "Failed to compile data"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1945
+#: tools/level_editor/level_editor.vala:1946
 msgid "Grid size"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1948
-#: tools/level_editor/level_editor.vala:2499
-#: tools/level_editor/level_editor.vala:2540
-#: tools/level_editor/level_editor.vala:2788
-#: tools/level_editor/level_editor.vala:3025
-#: tools/level_editor/level_editor.vala:3250
-#: tools/level_editor/level_editor.vala:3426
-#: tools/level_editor/level_editor.vala:3476
+#: tools/level_editor/level_editor.vala:1949
+#: tools/level_editor/level_editor.vala:2500
+#: tools/level_editor/level_editor.vala:2541
+#: tools/level_editor/level_editor.vala:2789
+#: tools/level_editor/level_editor.vala:3032
+#: tools/level_editor/level_editor.vala:3257
+#: tools/level_editor/level_editor.vala:3433
+#: tools/level_editor/level_editor.vala:3483
 #: tools/level_editor/object_editor.vala:57 tools/level_editor/project.vala:802
 #: tools/level_editor/project.vala:836
 #: tools/level_editor/texture_settings_dialog.vala:157
@@ -346,57 +346,57 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1950
-#: tools/level_editor/level_editor.vala:2790
-#: tools/level_editor/level_editor.vala:3027
-#: tools/level_editor/level_editor.vala:3252
-#: tools/level_editor/level_editor.vala:3428
-#: tools/level_editor/level_editor.vala:3478
+#: tools/level_editor/level_editor.vala:1951
+#: tools/level_editor/level_editor.vala:2791
+#: tools/level_editor/level_editor.vala:3034
+#: tools/level_editor/level_editor.vala:3259
+#: tools/level_editor/level_editor.vala:3435
+#: tools/level_editor/level_editor.vala:3485
 msgid "Ok"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1980
+#: tools/level_editor/level_editor.vala:1981
 #: tools/state_machine_editor/state_machine_editor.vala:177
 msgid "untitled"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2022
+#: tools/level_editor/level_editor.vala:2023
 #, c-format
 msgid "Unable to save level '%s'"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2024
-#: tools/level_editor/level_editor.vala:2601
-#: tools/level_editor/level_editor.vala:2615
-#: tools/level_editor/level_editor.vala:4623
+#: tools/level_editor/level_editor.vala:2025
+#: tools/level_editor/level_editor.vala:2602
+#: tools/level_editor/level_editor.vala:2616
+#: tools/level_editor/level_editor.vala:4630
 #: tools/level_editor/object_editor.vala:157
 #: tools/state_machine_editor/state_machine_editor.vala:256
 #: tools/unit_editor/unit_editor.vala:239
 msgid "_Ok"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2031
+#: tools/level_editor/level_editor.vala:2032
 #, c-format
 msgid "Saved %s"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2044 tools/level_editor/menus.vala:35
+#: tools/level_editor/level_editor.vala:2045 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:181
 #: tools/state_machine_editor/state_machine_editor.vala:280
 #: tools/unit_editor/unit_editor.vala:263
 msgid "Save As..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2154 tools/level_editor/menus.vala:18
+#: tools/level_editor/level_editor.vala:2155 tools/level_editor/menus.vala:18
 msgid "Open Level..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2209
+#: tools/level_editor/level_editor.vala:2210
 #, c-format
 msgid "The folder `%s` does not appear to be a valid Crown project."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2328
+#: tools/level_editor/level_editor.vala:2329
 #, c-format
 msgid ""
 "Remove \"%s\" from the list?\n"
@@ -405,111 +405,111 @@ msgid ""
 "be deleted."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2330
-#: tools/level_editor/level_editor.vala:2529
-#: tools/level_editor/level_editor.vala:3298 tools/widgets/messages.vala:109
+#: tools/level_editor/level_editor.vala:2331
+#: tools/level_editor/level_editor.vala:2530
+#: tools/level_editor/level_editor.vala:3305 tools/widgets/messages.vala:109
 msgid "_Cancel"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2331
+#: tools/level_editor/level_editor.vala:2332
 msgid "_Remove"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2491
+#: tools/level_editor/level_editor.vala:2492
 #: tools/level_editor/preferences_dialog.vala:126
 msgid "Level"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2496 tools/level_editor/menus.vala:27
+#: tools/level_editor/level_editor.vala:2497 tools/level_editor/menus.vala:27
 msgid "Open Project..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2501
+#: tools/level_editor/level_editor.vala:2502
 #: tools/level_editor/panel_projects_list.vala:55
 #: tools/level_editor/project.vala:838 tools/widgets/input_file.vala:92
 #: tools/widgets/open_resource_dialog.vala:25
 msgid "Open"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2524
+#: tools/level_editor/level_editor.vala:2525
 msgid ""
 "Save the project before closing?\n"
 "\n"
 "This is a *temporary* project and will be gone if not saved now."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2527 tools/widgets/messages.vala:107
+#: tools/level_editor/level_editor.vala:2528 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2530 tools/widgets/messages.vala:110
+#: tools/level_editor/level_editor.vala:2531 tools/widgets/messages.vala:110
 msgid "_Save"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2537
+#: tools/level_editor/level_editor.vala:2538
 msgid "Select a folder where the project will be saved..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2542
+#: tools/level_editor/level_editor.vala:2543
 msgid "Save Project Here"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2599
+#: tools/level_editor/level_editor.vala:2600
 msgid "The destination directory must be empty"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2613
+#: tools/level_editor/level_editor.vala:2614
 #, c-format
 msgid "Failed to save project in %s"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2785
+#: tools/level_editor/level_editor.vala:2786
 msgid "Rotation snap"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3022
+#: tools/level_editor/level_editor.vala:3029
 msgid "New Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3247
-#: tools/level_editor/level_editor.vala:3419
+#: tools/level_editor/level_editor.vala:3254
+#: tools/level_editor/level_editor.vala:3426
 msgid "Resource Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3294
+#: tools/level_editor/level_editor.vala:3301
 #, c-format
 msgid "Delete Folder %s?"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3299
+#: tools/level_editor/level_editor.vala:3306
 msgid "_Delete"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3407
+#: tools/level_editor/level_editor.vala:3414
 msgid "Script Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3410
+#: tools/level_editor/level_editor.vala:3417
 msgid "Unit Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3413
+#: tools/level_editor/level_editor.vala:3420
 msgid "Material Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3416
+#: tools/level_editor/level_editor.vala:3423
 msgid "State Machine Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3443
+#: tools/level_editor/level_editor.vala:3450
 msgid "Skeleton name (optional)"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3473
+#: tools/level_editor/level_editor.vala:3480
 msgid "Folder Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3635
+#: tools/level_editor/level_editor.vala:3642
 #: tools/widgets/save_resource_dialog.vala:84
 #, c-format
 msgid ""
@@ -517,21 +517,21 @@ msgid ""
 "Overwrite?"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3640
+#: tools/level_editor/level_editor.vala:3647
 #: tools/widgets/save_resource_dialog.vala:88
 msgid "_No"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3641
+#: tools/level_editor/level_editor.vala:3648
 #: tools/widgets/save_resource_dialog.vala:89
 msgid "_Yes"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:4603
+#: tools/level_editor/level_editor.vala:4610
 msgid "Save Prefab As..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:4621
+#: tools/level_editor/level_editor.vala:4628
 #, c-format
 msgid "Cannot save prefab '%s' over itself"
 msgstr ""
@@ -701,178 +701,182 @@ msgid "Select None"
 msgstr ""
 
 #: tools/level_editor/menus.vala:246
+msgid "Align to Camera View"
+msgstr ""
+
+#: tools/level_editor/menus.vala:253
 msgid "Place"
 msgstr ""
 
-#: tools/level_editor/menus.vala:251
+#: tools/level_editor/menus.vala:258
 msgid "Move"
 msgstr ""
 
-#: tools/level_editor/menus.vala:256
+#: tools/level_editor/menus.vala:263
 msgid "Rotate"
 msgstr ""
 
-#: tools/level_editor/menus.vala:261
+#: tools/level_editor/menus.vala:268
 msgid "Scale"
 msgstr ""
 
-#: tools/level_editor/menus.vala:269
+#: tools/level_editor/menus.vala:276
 msgid "Relative Snap"
 msgstr ""
 
-#: tools/level_editor/menus.vala:274
+#: tools/level_editor/menus.vala:281
 msgid "Absolute Snap"
 msgstr ""
 
-#: tools/level_editor/menus.vala:282
+#: tools/level_editor/menus.vala:289
 msgid "Local Axis"
 msgstr ""
 
-#: tools/level_editor/menus.vala:287
+#: tools/level_editor/menus.vala:294
 msgid "World Axis"
 msgstr ""
 
-#: tools/level_editor/menus.vala:295
+#: tools/level_editor/menus.vala:302
 msgid "Snap to Grid"
 msgstr ""
 
-#: tools/level_editor/menus.vala:299
+#: tools/level_editor/menus.vala:306
 #: tools/level_editor/preferences_dialog.vala:85
 #: tools/level_editor/preferences_dialog.vala:87
 msgid "Grid"
 msgstr ""
 
-#: tools/level_editor/menus.vala:304
+#: tools/level_editor/menus.vala:311
 msgid "Rotation Snap"
 msgstr ""
 
-#: tools/level_editor/menus.vala:320
+#: tools/level_editor/menus.vala:327
 msgid "Primitives"
 msgstr ""
 
-#: tools/level_editor/menus.vala:327 tools/level_editor/menus.vala:536
+#: tools/level_editor/menus.vala:334 tools/level_editor/menus.vala:543
 #: tools/level_editor/preferences_dialog.vala:148
 #: tools/state_machine_editor/state_machine_editor.vala:123
 #: tools/unit_editor/unit_editor.vala:123
 msgid "Camera"
 msgstr ""
 
-#: tools/level_editor/menus.vala:331
+#: tools/level_editor/menus.vala:338
 #: tools/level_editor/preferences_dialog.vala:101
 msgid "Light"
 msgstr ""
 
-#: tools/level_editor/menus.vala:335
+#: tools/level_editor/menus.vala:342
 msgid "Sound Source"
 msgstr ""
 
-#: tools/level_editor/menus.vala:342
+#: tools/level_editor/menus.vala:349
 msgid "Empty Unit"
 msgstr ""
 
-#: tools/level_editor/menus.vala:349
+#: tools/level_editor/menus.vala:356
 msgid "Shading Environment"
 msgstr ""
 
-#: tools/level_editor/menus.vala:372
+#: tools/level_editor/menus.vala:379
 msgid "Frame Selected"
 msgstr ""
 
-#: tools/level_editor/menus.vala:390
+#: tools/level_editor/menus.vala:397
 msgid "Frame All"
 msgstr ""
 
-#: tools/level_editor/menus.vala:405
+#: tools/level_editor/menus.vala:412
 msgid "Show/Hide Project"
 msgstr ""
 
-#: tools/level_editor/menus.vala:409
+#: tools/level_editor/menus.vala:416
 msgid "Show/Hide Console"
 msgstr ""
 
-#: tools/level_editor/menus.vala:413
+#: tools/level_editor/menus.vala:420
 msgid "Show/Hide Statusbar"
 msgstr ""
 
-#: tools/level_editor/menus.vala:417
+#: tools/level_editor/menus.vala:424
 msgid "Show/Hide Inspector"
 msgstr ""
 
-#: tools/level_editor/menus.vala:424
+#: tools/level_editor/menus.vala:431
 msgid "Fullscreen"
 msgstr ""
 
-#: tools/level_editor/menus.vala:431
+#: tools/level_editor/menus.vala:438
 msgid "Debug Render World"
 msgstr ""
 
-#: tools/level_editor/menus.vala:435
+#: tools/level_editor/menus.vala:442
 msgid "Debug Physics World"
 msgstr ""
 
-#: tools/level_editor/menus.vala:450
+#: tools/level_editor/menus.vala:457
 msgid "Test Level"
 msgstr ""
 
-#: tools/level_editor/menus.vala:454
+#: tools/level_editor/menus.vala:461
 msgid "Run Game"
 msgstr ""
 
-#: tools/level_editor/menus.vala:458
+#: tools/level_editor/menus.vala:465
 msgid "Build Data"
 msgstr ""
 
-#: tools/level_editor/menus.vala:462
+#: tools/level_editor/menus.vala:469
 msgid "Reload All Resources"
 msgstr ""
 
-#: tools/level_editor/menus.vala:469
+#: tools/level_editor/menus.vala:476
 msgid "_Restart Editor View"
 msgstr ""
 
-#: tools/level_editor/menus.vala:476
+#: tools/level_editor/menus.vala:483
 msgid "Browse Logs..."
 msgstr ""
 
-#: tools/level_editor/menus.vala:491
+#: tools/level_editor/menus.vala:498
 msgid "Manual"
 msgstr ""
 
-#: tools/level_editor/menus.vala:495
+#: tools/level_editor/menus.vala:502
 msgid "Report an Issue"
 msgstr ""
 
-#: tools/level_editor/menus.vala:502
+#: tools/level_editor/menus.vala:509
 msgid "Changelog"
 msgstr ""
 
-#: tools/level_editor/menus.vala:506
+#: tools/level_editor/menus.vala:513
 msgid "Donate"
 msgstr ""
 
-#: tools/level_editor/menus.vala:510
+#: tools/level_editor/menus.vala:517
 msgid "Credits"
 msgstr ""
 
-#: tools/level_editor/menus.vala:524
+#: tools/level_editor/menus.vala:531
 msgid "_File"
 msgstr ""
 
-#: tools/level_editor/menus.vala:528 tools/level_editor/object_editor.vala:88
+#: tools/level_editor/menus.vala:535 tools/level_editor/object_editor.vala:88
 #: tools/state_machine_editor/state_machine_editor.vala:119
 #: tools/unit_editor/unit_editor.vala:119
 msgid "Edit"
 msgstr ""
 
-#: tools/level_editor/menus.vala:532
+#: tools/level_editor/menus.vala:539
 msgid "Spawn"
 msgstr ""
 
-#: tools/level_editor/menus.vala:540
+#: tools/level_editor/menus.vala:547
 msgid "View"
 msgstr ""
 
-#: tools/level_editor/menus.vala:548
+#: tools/level_editor/menus.vala:555
 msgid "Help"
 msgstr ""
 
