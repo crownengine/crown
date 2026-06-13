@@ -27,6 +27,7 @@ Changelog
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
 * Runtime: fixed a crash when reloading the render config in some cases.
+* Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 

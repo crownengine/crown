@@ -1692,6 +1692,15 @@ Interface to the transform component in a unit.
 	Returns the next sibling of the instance *child* or ``nil``
 	if *child* has no sibling.
 
+ScriptWorld
+===========
+
+Manages scripts in a `World`_.
+
+**broadcast** (script_world, function_name, ...)
+    Calls *function_name* on all scripts that define it, forwarding any
+    additional arguments.
+
 SoundWorld
 ===========
 
@@ -1840,6 +1849,9 @@ Represents a game world.
 
 **sound_world** (world) : SoundWorld
 	Returns the sound sub-world.
+
+**script_world** (world) : ScriptWorld
+	Returns the script sub-world.
 
 **animation_state_machine** (world) : AnimationStateMachine
 	Returns the animation state machine.

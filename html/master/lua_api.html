@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-05-04T12:36:00+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-06-12T23:06:02+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -163,6 +163,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#scenegraph">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scriptworld">ScriptWorld</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#soundworld">SoundWorld</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#unitmanager">UnitManager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#window">Window</a></li>
@@ -1577,6 +1578,15 @@ if <em>child</em> has no sibling.</p>
 </dd>
 </dl>
 </section>
+<section id="scriptworld">
+<h2>ScriptWorld<a class="headerlink" href="#scriptworld" title="Permalink to this headline">¶</a></h2>
+<p>Manages scripts in a <a class="reference internal" href="#world">World</a>.</p>
+<dl class="simple">
+<dt><strong>broadcast</strong> (script_world, function_name, …)</dt><dd><p>Calls <em>function_name</em> on all scripts that define it, forwarding any
+additional arguments.</p>
+</dd>
+</dl>
+</section>
 <section id="soundworld">
 <h2>SoundWorld<a class="headerlink" href="#soundworld" title="Permalink to this headline">¶</a></h2>
 <p>Manages sounds in a <a class="reference internal" href="#world">World</a>.</p>
@@ -1689,6 +1699,8 @@ enable depth test when rendering the lines.</p>
 </dd>
 <dt><strong>sound_world</strong> (world)<span class="classifier">SoundWorld</span></dt><dd><p>Returns the sound sub-world.</p>
 </dd>
+<dt><strong>script_world</strong> (world)<span class="classifier">ScriptWorld</span></dt><dd><p>Returns the script sub-world.</p>
+</dd>
 <dt><strong>animation_state_machine</strong> (world)<span class="classifier">AnimationStateMachine</span></dt><dd><p>Returns the animation state machine.</p>
 </dd>
 </dl>
@@ -1778,7 +1790,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on May 04, 2026.
+      <span class="lastupdated">Last updated on Jun 12, 2026.
       </span></p>
   </div>
 
