@@ -709,7 +709,7 @@ msgid "Select None"
 msgstr "Deseleziona Tutto"
 
 #: tools/level_editor/menus.vala:246
-msgid "Align to Camera View"
+msgid "Align with Camera View"
 msgstr "Allinea alla Vista"
 
 #: tools/level_editor/menus.vala:253

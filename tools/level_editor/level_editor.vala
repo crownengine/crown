@@ -640,7 +640,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "grid-size",            on_grid_size,            "i",    "10"    }, // 10*meters.
 		{ "menu-rotation-snap",   null,                    null,   null    },
 		{ "rotation-snap-size",   on_rotation_snap_size,   "i",    "15"    },
-		{ "align-to-camera-view", on_align_to_camera_view, null,   null    }
+		{ "align-with-camera-view", on_align_with_camera_view, null,   null    }
 	};
 
 	public const GLib.ActionEntry[] action_entries_create =
@@ -2859,7 +2859,7 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_viewport.frame();
 	}
 
-	public void on_align_to_camera_view(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_align_with_camera_view(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		_editor.send_script(LevelEditorApi.align_to_camera_view());
 		_editor_viewport.frame();

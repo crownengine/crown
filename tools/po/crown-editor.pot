@@ -701,7 +701,7 @@ msgid "Select None"
 msgstr ""
 
 #: tools/level_editor/menus.vala:246
-msgid "Align to Camera View"
+msgid "Align with Camera View"
 msgstr ""
 
 #: tools/level_editor/menus.vala:253
