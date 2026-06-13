@@ -186,6 +186,29 @@ public class ProjectStore
 		}
 
 		// Add to favorites.
+		uint64 size = 0u;
+		uint64 mtime = 0u;
+		if (_list_store.iter_children(out child, null)) {
+			Value iter_type;
+			Value iter_name;
+
+			while (true) {
+				_list_store.get_value(child, Column.TYPE, out iter_type);
+				_list_store.get_value(child, Column.NAME, out iter_name);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					Value val;
+					_list_store.get_value(child, Column.SIZE, out val);
+					size = (uint64)val;
+					_list_store.get_value(child, Column.MTIME, out val);
+					mtime = (uint64)val;
+					break;
+				}
+
+				if (!_list_store.iter_next(ref child))
+					break;
+			}
+		}
+
 		Gtk.TreeIter iter;
 		_tree_store.insert_with_values(out iter
 			, favorites_root_iter
@@ -195,9 +218,9 @@ public class ProjectStore
 			, Column.NAME
 			, name
 			, Column.SIZE
-			, 0u
+			, size
 			, Column.MTIME
-			, 0u
+			, mtime
 			, Column.VISIBLE
 			, true
 			, -1
@@ -396,6 +419,32 @@ public class ProjectStore
 						, mtime
 						, Column.VISIBLE
 						, true
+						, -1
+						);
+					break;
+				}
+
+				if (!_tree_store.iter_next(ref child))
+					break;
+			}
+		}
+
+		// Update favorites rows.
+		Gtk.TreeIter favorites_root_iter;
+		_tree_store.get_iter(out favorites_root_iter, favorites_root_path());
+		if (_tree_store.iter_children(out child, favorites_root_iter)) {
+			Value iter_type;
+			Value iter_name;
+
+			while (true) {
+				_tree_store.get_value(child, Column.TYPE, out iter_type);
+				_tree_store.get_value(child, Column.NAME, out iter_name);
+				if ((string)iter_name == name && (string)iter_type == type) {
+					_tree_store.set(child
+						, Column.SIZE
+						, size
+						, Column.MTIME
+						, mtime
 						, -1
 						);
 					break;
