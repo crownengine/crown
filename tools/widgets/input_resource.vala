@@ -16,10 +16,12 @@ public class InputResource : InputField
 
 	public string _type;
 	public bool _name_unset;
+	public bool _nullable;
 	public InputString _name;
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
 	public SelectResourceDialog _dialog;
+	public Gtk.EventControllerKey _controller_key;
 	public Gtk.Box _box;
 
 	public override void set_inconsistent(bool inconsistent)
@@ -62,6 +64,7 @@ public class InputResource : InputField
 		// Data
 		_type = type;
 		_name_unset = true;
+		_nullable = false;
 
 		// Widgets
 		_name = new InputString();
@@ -81,6 +84,9 @@ public class InputResource : InputField
 		_selector.clicked.connect(on_selector_clicked);
 		_selector.set_can_focus(false);
 		_box.pack_end(_selector, false);
+
+		_controller_key = new Gtk.EventControllerKey(_name._entry);
+		_controller_key.key_pressed.connect(on_key_pressed);
 
 		Gtk.drag_dest_set(_name._entry
 			, Gtk.DestDefaults.MOTION
@@ -127,6 +133,17 @@ public class InputResource : InputField
 	public void on_name_value_changed()
 	{
 		value_changed(this);
+	}
+
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval != Gdk.Key.Delete)
+			return Gdk.EVENT_PROPAGATE;
+
+		if (_nullable)
+			this.value = null;
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void on_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
