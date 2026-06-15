@@ -268,7 +268,7 @@ public struct Unit
 		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 			scale = get_component_vector3(component_id, "data.scale");
 		else
-			scale = _db.get_vector3(_id, "scale");
+			scale = _db.get_vector3(_id, "scale", VECTOR3_ONE);
 
 		return scale;
 	}
