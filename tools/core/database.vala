@@ -1736,15 +1736,17 @@ public class Database
 
 		undo_or_redo(_undo_redo._undo, _undo_redo._redo, rp.header.size);
 
+		uint32 flags = rp.header.flags & ~((uint32)ActionTypeFlags.FROM_SERVER);
+
 		switch (rp.header.id) {
 		case ActionType.CREATE_OBJECTS:
-			objects_destroyed(rp.data, 0u);
+			objects_destroyed(rp.data, flags);
 			break;
 		case ActionType.DESTROY_OBJECTS:
-			objects_created(rp.data, 0u);
+			objects_created(rp.data, flags);
 			break;
 		case ActionType.CHANGE_OBJECTS:
-			objects_changed(rp.data, 0u);
+			objects_changed(rp.data, flags);
 			break;
 			default:
 			logw("Unknown action type %u".printf(rp.header.id));
@@ -1769,15 +1771,17 @@ public class Database
 
 		undo_or_redo(_undo_redo._redo, _undo_redo._undo, rp.header.size);
 
+		uint32 flags = rp.header.flags & ~((uint32)ActionTypeFlags.FROM_SERVER);
+
 		switch (rp.header.id) {
 		case ActionType.CREATE_OBJECTS:
-			objects_created(rp.data, 0u);
+			objects_created(rp.data, flags);
 			break;
 		case ActionType.DESTROY_OBJECTS:
-			objects_destroyed(rp.data, 0u);
+			objects_destroyed(rp.data, flags);
 			break;
 		case ActionType.CHANGE_OBJECTS:
-			objects_changed(rp.data, 0u);
+			objects_changed(rp.data, flags);
 			break;
 			default:
 			logw("Unknown action type %u".printf(rp.header.id));

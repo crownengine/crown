@@ -41,7 +41,8 @@ public class UnitView : PropertyGrid
 
 		// Widgets
 		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
-		_prefab._selector.sensitive = false;
+		_prefab._nullable = true;
+		_prefab.value_changed.connect(on_prefab_value_changed);
 
 		_open_prefab = new Gtk.Button.with_label(_("Open Prefab"));
 		_open_prefab.sensitive = false;
@@ -77,8 +78,27 @@ public class UnitView : PropertyGrid
 	public override void read_properties()
 	{
 		string? prefab = _db.get_resource(_id, "prefab");
+		_prefab.value_changed.disconnect(on_prefab_value_changed);
 		_prefab.value = prefab;
+		_prefab.value_changed.connect(on_prefab_value_changed);
 		_open_prefab.sensitive = prefab != null;
+	}
+
+	public void on_prefab_value_changed(InputField p, int undo_redo)
+	{
+		if (_id == GUID_ZERO)
+			return;
+
+		Unit unit = Unit(_db, _id);
+		if (unit.set_prefab(_prefab.value) != 0) {
+			read_properties();
+			return;
+		}
+
+		_db.add_restore_point((int)ActionType.CHANGE_OBJECTS
+			, new Guid?[] { _id }
+			, ActionTypeFlags.RESPAWN_OBJECTS
+			);
 	}
 
 	public void on_open_prefab_clicked()

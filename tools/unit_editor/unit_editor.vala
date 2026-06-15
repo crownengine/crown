@@ -359,9 +359,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 	{
 		if ((flags& ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
-			_level.generate_change_objects(sb, object_ids);
+			bool respawn_objects = (flags& ActionTypeFlags.RESPAWN_OBJECTS) != 0;
+			_level.generate_change_objects(sb, object_ids, respawn_objects);
 			if (sb.len > 0) {
 				_runtime.send_script(sb.str);
+				if (respawn_objects)
+					_runtime.send_script(LevelEditorApi.selection_set(_database_editor._selection.to_array()));
 				_editor_viewport.frame();
 			}
 		}

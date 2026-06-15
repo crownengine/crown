@@ -117,12 +117,17 @@ public class Level
 	public void spawn_unit(string? name)
 	{
 		Guid id = Guid.new_guid();
-		on_unit_spawned(id, name, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE);
-		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id });
+		if (on_unit_spawned(id, name, VECTOR3_ZERO, QUATERNION_IDENTITY, VECTOR3_ONE) == 0)
+			_db.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id });
 	}
 
 	public void replace_unit(Guid unit_id, string prefab_name)
 	{
+		Guid new_id = Guid.new_guid();
+		Unit new_unit = Unit(_db, new_id);
+		if (new_unit.can_set_prefab(prefab_name) != 0)
+			return;
+
 		string unit_editor_name = _db.name(unit_id);
 		Unit unit = Unit(_db, unit_id);
 		Vector3 unit_pos = unit.local_position();
@@ -132,8 +137,6 @@ public class Level
 		_db.destroy(unit_id);
 		_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { unit_id });
 
-		Guid new_id = Guid.new_guid();
-		Unit new_unit = Unit(_db, new_id);
 		new_unit.create(prefab_name);
 		new_unit.set_local_position(unit_pos);
 		new_unit.set_local_rotation(unit_rot);
@@ -159,16 +162,19 @@ public class Level
 		return num > 0 ? "%s%u".printf(basename, num + 1) : basename;
 	}
 
-	public void on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
+	public int on_unit_spawned(Guid id, string? name, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		Unit unit = Unit(_db, id);
-		unit.create(name);
+		if (unit.create(name) != 0)
+			return -1;
 		unit.set_local_position(pos);
 		unit.set_local_rotation(rot);
 		unit.set_local_scale(scl);
 
 		_db.set_name(id, add_object_name(_unit_names, name != null ? name : "unit"));
 		_db.add_to_set(_id, "units", id);
+
+		return 0;
 	}
 
 	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
@@ -258,14 +264,16 @@ public class Level
 		}
 	}
 
-	public void generate_change_objects(StringBuilder sb, Guid?[] object_ids)
+	public void generate_change_objects(StringBuilder sb, Guid?[] object_ids, bool respawn_units = false)
 	{
 		int n;
 		int i = 0;
 		while (i < object_ids.length) {
-			n = 0;
-			n += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
-			n += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			n = respawn_units ? Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db, true) : 0;
+			if (n == 0) {
+				n += Unit.generate_change_commands(sb, object_ids[i:object_ids.length], _db);
+				n += Sound.generate_change_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			}
 			i += n == 0 ? 1 : n;
 		}
 	}

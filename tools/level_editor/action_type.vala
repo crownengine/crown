@@ -23,7 +23,8 @@ public const string ActionNames[] =
 
 public enum ActionTypeFlags
 {
-	FROM_SERVER = 0x1
+	FROM_SERVER     = 0x1,
+	RESPAWN_OBJECTS = 0x2
 }
 
 } /* namespace Crown */
