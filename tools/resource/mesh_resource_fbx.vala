@@ -631,9 +631,9 @@ public class FBXImporter
 				return;
 
 			if (!db.has_object(unit_id))
-				unit.create("core/units/light");
-			else
-				db.set_resource(unit_id, "prefab", "core/units/light");
+				unit.create_empty();
+			if (unit.set_prefab("core/units/light") != 0)
+				return;
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);
@@ -653,9 +653,9 @@ public class FBXImporter
 				return;
 
 			if (!db.has_object(unit_id))
-				unit.create("core/units/camera");
-			else
-				db.set_resource(unit_id, "prefab", "core/units/camera");
+				unit.create_empty();
+			if (unit.set_prefab("core/units/camera") != 0)
+				return;
 			unit.set_local_position(pos);
 			unit.set_local_rotation(rot);
 			unit.set_local_scale(scl);

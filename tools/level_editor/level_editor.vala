@@ -1448,15 +1448,15 @@ public class LevelEditorApplication : Gtk.Application
 			Gee.ArrayList<Value?> rot = (Gee.ArrayList<Value?>)msg["rotation"];
 			Gee.ArrayList<Value?> scl = (Gee.ArrayList<Value?>)msg["scale"];
 
-			_level.on_unit_spawned(id
-				, name
-				, Vector3.from_array(pos)
-				, Quaternion.from_array(rot)
-				, Vector3.from_array(scl)
-				);
-
-			_database_editor.selection_set({ id });
-			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
+			if (_level.on_unit_spawned(id
+					, name
+					, Vector3.from_array(pos)
+					, Quaternion.from_array(rot)
+					, Vector3.from_array(scl)
+					) == 0) {
+				_database_editor.selection_set({ id });
+				_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
+			}
 		} else if (msg_type == "sound_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
 			string name = (string)msg["name"];
@@ -1606,23 +1606,20 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
 		bool runtime_changed = false;
+		bool runtime_respawned = (flags & ActionTypeFlags.RESPAWN_OBJECTS) != 0;
 
 		if ((flags & ActionTypeFlags.FROM_SERVER) == 0) {
 			StringBuilder sb = new StringBuilder();
-			_level.generate_change_objects(sb, object_ids);
+			_level.generate_change_objects(sb, object_ids, runtime_respawned);
 			if (sb.len > 0) {
 				_editor.send_script(sb.str);
 				runtime_changed = true;
 			}
 		}
 
-		bool selection_affected = false;
-		Gee.HashSet<Guid?> changed_ids = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-		foreach (Guid? changed_id in object_ids)
-			changed_ids.add(changed_id);
-
-		foreach (Guid? selected_id in _database_editor._selection) {
-			if (changed_ids.contains(selected_id)) {
+		bool selection_affected = runtime_respawned;
+		foreach (Guid? changed_id in object_ids) {
+			if (!selection_affected && _database_editor._selection.contains(changed_id)) {
 				selection_affected = true;
 				break;
 			}

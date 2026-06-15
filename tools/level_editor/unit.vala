@@ -28,10 +28,10 @@ public struct Unit
 		_db.create(_id, OBJECT_TYPE_UNIT);
 	}
 
-	public void create(string? prefab)
+	public int create(string? prefab)
 	{
 		create_empty();
-		_db.set_resource(_id, "prefab", prefab);
+		return prefab == null ? 0 : set_prefab(prefab);
 	}
 
 	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)
@@ -353,6 +353,99 @@ public struct Unit
 		return prefab() != null;
 	}
 
+	public int can_set_prefab(string? prefab_name)
+	{
+		if (prefab_name == null)
+			return 0;
+
+		Database validation_db = new Database(_db._project);
+		create_object_types(validation_db);
+
+		Guid prefab_id = GUID_ZERO;
+		if (Unit.load_unit(out prefab_id, validation_db, prefab_name) != LoadError.SUCCESS) {
+			loge("Failed to load prefab `%s`".printf(prefab_name));
+			return -1;
+		}
+
+		Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		while (true) {
+			if (Guid.equal_func(prefab_id, _id) || visited.contains(prefab_id)) {
+				loge("Cannot set prefab `%s`: prefab cycle detected".printf(prefab_name));
+				return -1;
+			}
+			visited.add(prefab_id);
+
+			string? prefab = validation_db.get_resource(prefab_id, "prefab");
+			if (prefab == null)
+				return 0;
+
+			Guid inherited_id = GUID_ZERO;
+			if (Unit.load_unit(out inherited_id, validation_db, prefab) != LoadError.SUCCESS) {
+				loge("Cannot set prefab `%s`: failed to load inherited prefab `%s`".printf(prefab_name, prefab));
+				return -1;
+			}
+
+			prefab_id = inherited_id;
+		}
+	}
+
+	public int set_prefab(string? prefab_name)
+	{
+		if (prefab() == prefab_name)
+			return -1;
+
+		if (can_set_prefab(prefab_name) != 0)
+			return -1;
+
+		Guid transform_id;
+		bool has_transform = has_component(out transform_id, OBJECT_TYPE_TRANSFORM);
+		bool restore_position = has_transform || _db.has_property(_id, "position");
+		bool restore_rotation = has_transform || _db.has_property(_id, "rotation");
+		bool restore_scale = has_transform || _db.has_property(_id, "scale");
+
+		// Keep authored transform channels stable without turning defaults into overrides.
+		Vector3 unit_pos = restore_position ? local_position() : VECTOR3_ZERO;
+		Quaternion unit_rot = restore_rotation ? local_rotation() : QUATERNION_IDENTITY;
+		Vector3 unit_scl = restore_scale ? local_scale() : VECTOR3_ONE;
+
+		_db.set_resource(_id, "prefab", prefab_name);
+
+		// Drop overrides that belonged to the previous prefab hierarchy.
+		foreach (unowned string key in _db.get_keys(_id)) {
+			if (key.has_prefix("modified_components.")
+				|| key.has_prefix("deleted_components.")
+				|| key.has_prefix("modified_children.")
+				|| key.has_prefix("deleted_children.")
+				)
+				_db.set_null(_id, key);
+		}
+
+		// Remove owned components already provided by the new prefab.
+		if (prefab_name != null) {
+			Guid prefab_id = GUID_ZERO;
+			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
+				Guid?[] components = _db.get_set(_id, "components", new Gee.HashSet<Guid?>()).to_array();
+				foreach (Guid component_id in components) {
+					Guid prefab_component_id;
+					if (!Unit.has_component_static(out prefab_component_id, _db.object_type(component_id), _db, prefab_id))
+						continue;
+
+					_db.remove_from_set(_id, "components", component_id);
+					_db.destroy(component_id);
+				}
+			}
+		}
+
+		if (restore_position)
+			set_local_position(unit_pos);
+		if (restore_rotation)
+			set_local_rotation(unit_rot);
+		if (restore_scale)
+			set_local_scale(unit_scl);
+
+		return 0;
+	}
+
 	/// Returns whether the unit is a light unit.
 	public bool is_light()
 	{
@@ -636,7 +729,7 @@ public struct Unit
 		return true;
 	}
 
-	public static int generate_spawn_unit_commands(StringBuilder sb, Guid?[] object_ids, Database db)
+	public static int generate_spawn_unit_commands(StringBuilder sb, Guid?[] object_ids, Database db, bool respawn = false)
 	{
 		int i;
 
@@ -645,7 +738,13 @@ public struct Unit
 				if (!db.is_alive(object_ids[i]))
 					continue;
 
+				if (respawn)
+					sb.append("do local old_object = LevelEditor._objects[\"%s\"];".printf(object_ids[i].to_string()));
 				spawn_unit_tree(sb, object_ids[i], db);
+				if (respawn)
+					sb.append("; if old_object ~= nil then old_object:destroy() end end");
+			} else if (respawn) {
+				break;
 			} else if (Unit.is_component(object_ids[i], db)) {
 				if (!db.is_alive(object_ids[i]))
 					continue;
