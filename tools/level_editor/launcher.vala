@@ -35,7 +35,7 @@ public class SubprocessLauncherServer : Object
 			subproc.set_data<uint32>("id", _subprocess_id);
 
 			subprocesses.add(subproc);
-			logi("Created suprocess ID %u PID %s".printf(_subprocess_id
+			logi("Created subprocess ID %u PID %s".printf(_subprocess_id
 				, (string)subproc.get_identifier())
 				);
 
