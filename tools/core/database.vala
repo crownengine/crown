@@ -1098,7 +1098,7 @@ public class Database
 		Gee.HashMap<string, Value?> ob = get_data(id);
 		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
 
-		set_owner(id, GUID_ZERO);
+		set_owner(item_id, GUID_ZERO);
 
 		if (_undo_redo != null)
 			_undo_redo._distance_from_last_sync += dir;
