@@ -14,6 +14,7 @@
 #include "core/memory/memory.inl"
 #include "core/option.inl"
 #include "core/os.h"
+#include "core/process.h"
 #include "core/profiler.h"
 #include "core/thread/spsc_queue.inl"
 #include "core/thread/thread.h"
@@ -2473,6 +2474,14 @@ namespace display
 static bool push_event(const OsEvent &ev)
 {
 	return s_linux_device->_events.push(ev);
+}
+
+void open_uri(const char *uri)
+{
+	const char *argv[] = { "xdg-open", uri, NULL };
+	Process process;
+	if (process.spawn(argv) == 0)
+		process.wait();
 }
 
 bool next_event(OsEvent &ev)

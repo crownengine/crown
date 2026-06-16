@@ -96,6 +96,9 @@ Interface to access global application-level functionalities.
 	Quits the application. On platforms that support it, *exit_code* is
 	returned to the system after the application exits.
 
+**open_uri** (uri)
+	Opens the given *uri* with the default program.
+
 **resolution** () : float, float
 	Returns the main window resolution (width, height).
 

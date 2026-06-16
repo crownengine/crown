@@ -24,6 +24,7 @@
 #include <stdio.h>    // FILE, freopen, stdio etc.
 #include <windowsx.h> // GET_X_LPARAM, GET_Y_LPARAM
 #include <winsock2.h>
+#include <shellapi.h>
 #include <xinput.h>
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
@@ -972,6 +973,11 @@ namespace display
 static bool push_event(const OsEvent &ev)
 {
 	return s_windows_device->_events.push(ev);
+}
+
+void open_uri(const char *uri)
+{
+	ShellExecuteA(NULL, "open", uri, NULL, NULL, SW_SHOWNORMAL);
 }
 
 bool next_event(OsEvent &ev)

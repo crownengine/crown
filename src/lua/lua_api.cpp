@@ -3806,6 +3806,11 @@ void load_api(LuaEnvironment &env)
 				device()->quit();
 			return 0;
 		});
+	env.add_module_function("Device", "open_uri", [](lua_State *L) {
+			LuaStack stack(L);
+			device()->open_uri(stack.get_string(1));
+			return 0;
+		});
 	env.add_module_function("Device", "resolution", [](lua_State *L) {
 			LuaStack stack(L, +2);
 			u16 w, h;

@@ -73,6 +73,7 @@ namespace crown
 PlatformData g_platform_data;
 
 extern bool next_event(OsEvent &ev);
+extern void open_uri(const char *uri);
 
 static bgfx::RendererType::Enum default_renderer_type()
 {
@@ -881,6 +882,11 @@ void Device::quit(int exit_code)
 {
 	_exit_code = exit_code & 0xff;
 	_quit = 1;
+}
+
+void Device::open_uri(const char *uri)
+{
+	crown::open_uri(uri);
 }
 
 int Device::argc() const

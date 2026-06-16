@@ -68,6 +68,13 @@ EM_JS(int, crown_js_is_firefox, (void), {
 
 // code-format on
 
+void open_uri(const char *uri)
+{
+	MAIN_THREAD_EM_ASM({
+			window.open(UTF8ToString($0), "_blank");
+		}, uri);
+}
+
 struct WindowEmscripten : public Window
 {
 	WindowEmscripten()
