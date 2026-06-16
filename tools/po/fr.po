@@ -55,60 +55,60 @@ msgstr "Déployer"
 #: tools/level_editor/deploy_dialog.vala:651
 #: tools/level_editor/deploy_dialog.vala:707
 msgid "Select a valid output Destination"
-msgstr ""
+msgstr "Sélectionner une Destination de sortie valide"
 
 #: tools/level_editor/deploy_dialog.vala:280
 msgid "Enter a valid App Title"
-msgstr ""
+msgstr "Entrer un Titre d'Application valide"
 
 #: tools/level_editor/deploy_dialog.vala:286
 msgid "Enter a valid App Identifier"
-msgstr ""
+msgstr "Entrer un Identifieur d'Application valide"
 
 #: tools/level_editor/deploy_dialog.vala:292
 msgid "Enter a valid App Version Code"
-msgstr ""
+msgstr "Entrer un Code de Version d'Application valide"
 
 #: tools/level_editor/deploy_dialog.vala:298
 msgid "Enter a valid App Version Name"
-msgstr ""
+msgstr "Entrer un Nom de Version d'Application valide"
 
 #: tools/level_editor/deploy_dialog.vala:319
 msgid "Enter a valid Keystore file"
-msgstr ""
+msgstr "Entrer un fichier du Keystore valide"
 
 #: tools/level_editor/deploy_dialog.vala:332
 msgid "Enter a valid Keystore Password"
-msgstr ""
+msgstr "Entrer un Mot de Passe du Keystore valide"
 
 #: tools/level_editor/deploy_dialog.vala:341
 msgid "Enter a valid Key Alias"
-msgstr ""
+msgstr "Entrer un Alias de Clé valide"
 
 #: tools/level_editor/deploy_dialog.vala:350
 msgid "Enter a valid Key Password"
-msgstr ""
+msgstr "Entrer un Mot de Passe de Clé valide"
 
 #: tools/level_editor/deploy_dialog.vala:409
 #: tools/level_editor/deploy_dialog.vala:576
 #: tools/level_editor/deploy_dialog.vala:676
 #: tools/level_editor/deploy_dialog.vala:732
 msgid "My Application"
-msgstr ""
+msgstr "Mon Application"
 
 #: tools/level_editor/deploy_dialog.vala:501
 #: tools/level_editor/deploy_dialog.vala:631
 #: tools/level_editor/deploy_dialog.vala:691
 #: tools/level_editor/deploy_dialog.vala:747
 msgid "Destination"
-msgstr ""
+msgstr "Destination"
 
 #: tools/level_editor/deploy_dialog.vala:502
 #: tools/level_editor/deploy_dialog.vala:632
 #: tools/level_editor/deploy_dialog.vala:692
 #: tools/level_editor/deploy_dialog.vala:748
 msgid "Config"
-msgstr ""
+msgstr "Configuration"
 
 #: tools/level_editor/deploy_dialog.vala:506
 #: tools/level_editor/deploy_dialog.vala:633
@@ -116,150 +116,150 @@ msgstr ""
 #: tools/level_editor/deploy_dialog.vala:749
 #: tools/level_editor/texture_settings_dialog.vala:134
 msgid "Output"
-msgstr ""
+msgstr "Sortie"
 
 #: tools/level_editor/deploy_dialog.vala:511
 #: tools/level_editor/deploy_dialog.vala:638
 #: tools/level_editor/deploy_dialog.vala:698
 #: tools/level_editor/deploy_dialog.vala:754
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 #: tools/level_editor/deploy_dialog.vala:512
 msgid "Identifier"
-msgstr ""
+msgstr "Identifieur"
 
 #: tools/level_editor/deploy_dialog.vala:513
 msgid "Version Code"
-msgstr ""
+msgstr "Version du Code"
 
 #: tools/level_editor/deploy_dialog.vala:514
 msgid "Version Name"
-msgstr ""
+msgstr "Nom de Version"
 
 #: tools/level_editor/deploy_dialog.vala:515
 msgid "Min SDK Version"
-msgstr ""
+msgstr "Version Minimale du SDK"
 
 #: tools/level_editor/deploy_dialog.vala:516
 msgid "Target SDK Version"
-msgstr ""
+msgstr "Cible de la Version du SDK"
 
 #: tools/level_editor/deploy_dialog.vala:520
 msgid "Manifest"
-msgstr ""
+msgstr "Manifeste"
 
 #: tools/level_editor/deploy_dialog.vala:521
 #: tools/level_editor/deploy_dialog.vala:643
 #: tools/level_editor/deploy_dialog.vala:699
 #: tools/level_editor/deploy_dialog.vala:755
 msgid "Application"
-msgstr ""
+msgstr "Application"
 
 #: tools/level_editor/deploy_dialog.vala:526
 msgid "Use debug keystore"
-msgstr ""
+msgstr "Utiliser debug keystore"
 
 #: tools/level_editor/deploy_dialog.vala:527
 msgid "Keystore"
-msgstr ""
+msgstr "Keystore"
 
 #: tools/level_editor/deploy_dialog.vala:528
 msgid "Keystore password"
-msgstr ""
+msgstr "Mot de passe du Keystore"
 
 #: tools/level_editor/deploy_dialog.vala:529
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: tools/level_editor/deploy_dialog.vala:530
 msgid "Key password"
-msgstr ""
+msgstr "Mot de passe de la Clé"
 
 #: tools/level_editor/deploy_dialog.vala:531
 msgid "Signing"
-msgstr ""
+msgstr "Signature"
 
 #: tools/level_editor/deploy_dialog.vala:553
 #: tools/level_editor/deploy_dialog.vala:657
 #: tools/level_editor/deploy_dialog.vala:713
 msgid "Enter a valid Title"
-msgstr ""
+msgstr "Entrer un Titre valide"
 
 #: tools/level_editor/deploy_dialog.vala:642
 msgid "Index"
-msgstr ""
+msgstr "Index"
 
 #: tools/level_editor/level_editor.vala:192
 msgid "Perspective"
-msgstr ""
+msgstr "Perspective"
 
 #: tools/level_editor/level_editor.vala:194
 msgid "View Front"
-msgstr ""
+msgstr "Vue Frontale"
 
 #: tools/level_editor/level_editor.vala:196
 msgid "View Back"
-msgstr ""
+msgstr "Vue Arrière"
 
 #: tools/level_editor/level_editor.vala:198
 msgid "View Right"
-msgstr ""
+msgstr "Vue de Droite"
 
 #: tools/level_editor/level_editor.vala:200
 msgid "View Left"
-msgstr ""
+msgstr "Vue de Gauche"
 
 #: tools/level_editor/level_editor.vala:202
 msgid "View Top"
-msgstr ""
+msgstr "Vue du Dessus"
 
 #: tools/level_editor/level_editor.vala:204
 msgid "View Bottom"
-msgstr ""
+msgstr "Vue d'en bas"
 
 #: tools/level_editor/level_editor.vala:206
 msgid "View Unknown"
-msgstr ""
+msgstr "Vue Inconnue"
 
 #: tools/level_editor/level_editor.vala:237
 msgid "Release"
-msgstr ""
+msgstr "Publication"
 
 #: tools/level_editor/level_editor.vala:239
 msgid "Development"
-msgstr ""
+msgstr "Développement"
 
 #: tools/level_editor/level_editor.vala:241 tools/level_editor/menus.vala:544
 msgid "Debug"
-msgstr ""
+msgstr "Déboguer"
 
 #: tools/level_editor/level_editor.vala:243
 msgid "unknown"
-msgstr ""
+msgstr "Inconnu"
 
 #: tools/level_editor/level_editor.vala:277
 msgid "Android"
-msgstr ""
+msgstr "Android"
 
 #: tools/level_editor/level_editor.vala:279
 msgid "HTML5"
-msgstr ""
+msgstr "HTML5"
 
 #: tools/level_editor/level_editor.vala:281
 msgid "Linux"
-msgstr ""
+msgstr "Linux"
 
 #: tools/level_editor/level_editor.vala:283
 msgid "Windows"
-msgstr ""
+msgstr "Windows"
 
 #: tools/level_editor/level_editor.vala:285
 #: tools/level_editor/level_tree_view.vala:58
 #: tools/level_editor/project_browser.vala:898
 #: tools/widgets/object_tree.vala:54
 msgid "Unknown"
-msgstr ""
+msgstr "Inconnu"
 
 #: tools/level_editor/level_editor.vala:996
 #: tools/level_editor/object_editor.vala:287
@@ -267,7 +267,7 @@ msgstr ""
 #: tools/unit_editor/unit_editor.vala:435
 #, c-format
 msgid "Undo: %s"
-msgstr ""
+msgstr "Annuler"
 
 #: tools/level_editor/level_editor.vala:997
 #: tools/level_editor/object_editor.vala:292
@@ -275,53 +275,53 @@ msgstr ""
 #: tools/unit_editor/unit_editor.vala:440
 #, c-format
 msgid "Redo: %s"
-msgstr ""
+msgstr "Refaire"
 
 #: tools/level_editor/level_editor.vala:1067
 msgid "Runtime that will receive the message."
-msgstr ""
+msgstr "Routine qui va recevoir le message"
 
 #: tools/level_editor/level_editor.vala:1068
 msgid "Editor"
-msgstr ""
+msgstr "Éditeur"
 
 #: tools/level_editor/level_editor.vala:1069
 #: tools/level_editor/preferences_dialog.vala:134
 msgid "Game"
-msgstr ""
+msgstr "Jeu"
 
 #: tools/level_editor/level_editor.vala:1095
 msgid "Properties"
-msgstr ""
+msgstr "Propriétés"
 
 #: tools/level_editor/level_editor.vala:1125
 msgid "Console"
-msgstr ""
+msgstr "Console"
 
 #: tools/level_editor/level_editor.vala:1129
 msgid "Project"
-msgstr ""
+msgstr "Projet"
 
 #: tools/level_editor/level_editor.vala:1151
 msgid "Level (*.level)"
-msgstr ""
+msgstr "Niveau (*.level)"
 
 #: tools/level_editor/level_editor.vala:1162
 #, c-format
 msgid "Waiting for %s..."
-msgstr ""
+msgstr "En attente de %s..."
 
 #: tools/level_editor/level_editor.vala:1348 tools/widgets/messages.vala:33
 msgid "Compiling data..."
-msgstr ""
+msgstr "Compilation des données"
 
 #: tools/level_editor/level_editor.vala:1356
 msgid "Failed to compile data"
-msgstr ""
+msgstr "Échec de la compilation des données"
 
 #: tools/level_editor/level_editor.vala:1945
 msgid "Grid size"
-msgstr ""
+msgstr "Taille de la grille"
 
 #: tools/level_editor/level_editor.vala:1948
 #: tools/level_editor/level_editor.vala:2499
@@ -343,7 +343,7 @@ msgstr ""
 #: tools/widgets/open_resource_dialog.vala:24
 #: tools/widgets/save_resource_dialog.vala:24
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #: tools/level_editor/level_editor.vala:1950
 #: tools/level_editor/level_editor.vala:2790
@@ -352,17 +352,17 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:3428
 #: tools/level_editor/level_editor.vala:3478
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: tools/level_editor/level_editor.vala:1980
 #: tools/state_machine_editor/state_machine_editor.vala:177
 msgid "untitled"
-msgstr ""
+msgstr "Sans titre"
 
 #: tools/level_editor/level_editor.vala:2022
 #, c-format
 msgid "Unable to save level '%s'"
-msgstr ""
+msgstr "Incapable de sauvegarder le niveau '%s'"
 
 #: tools/level_editor/level_editor.vala:2024
 #: tools/level_editor/level_editor.vala:2601
@@ -372,28 +372,28 @@ msgstr ""
 #: tools/state_machine_editor/state_machine_editor.vala:256
 #: tools/unit_editor/unit_editor.vala:239
 msgid "_Ok"
-msgstr ""
+msgstr "Ok"
 
 #: tools/level_editor/level_editor.vala:2031
 #, c-format
 msgid "Saved %s"
-msgstr ""
+msgstr "Enregistrer  %s"
 
 #: tools/level_editor/level_editor.vala:2044 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:181
 #: tools/state_machine_editor/state_machine_editor.vala:280
 #: tools/unit_editor/unit_editor.vala:263
 msgid "Save As..."
-msgstr ""
+msgstr "Enregistrer sous..."
 
 #: tools/level_editor/level_editor.vala:2154 tools/level_editor/menus.vala:18
 msgid "Open Level..."
-msgstr ""
+msgstr "Ouvrir le Niveau..."
 
 #: tools/level_editor/level_editor.vala:2209
 #, c-format
 msgid "The folder `%s` does not appear to be a valid Crown project."
-msgstr ""
+msgstr "Le répertoire `%s` ne semble pas être un projet de Crown valide"
 
 #: tools/level_editor/level_editor.vala:2328
 #, c-format
@@ -403,32 +403,36 @@ msgid ""
 "This action removes the project from the list only, files on disk will not "
 "be deleted."
 msgstr ""
+"Supprimer \"%s\" depuis la liste ?\n"
+"\n"
+"Cette action supprime le projet depuis la liste seulement, les fichiers sur le disque ne seront pas "
+"être supprimés."
 
 #: tools/level_editor/level_editor.vala:2330
 #: tools/level_editor/level_editor.vala:2529
 #: tools/level_editor/level_editor.vala:3298 tools/widgets/messages.vala:109
 msgid "_Cancel"
-msgstr ""
+msgstr "Annulé"
 
 #: tools/level_editor/level_editor.vala:2331
 msgid "_Remove"
-msgstr ""
+msgstr "Supprimé"
 
 #: tools/level_editor/level_editor.vala:2491
 #: tools/level_editor/preferences_dialog.vala:126
 msgid "Level"
-msgstr ""
+msgstr "Niveau"
 
 #: tools/level_editor/level_editor.vala:2496 tools/level_editor/menus.vala:27
 msgid "Open Project..."
-msgstr ""
+msgstr "Ouvrir Projet..."
 
 #: tools/level_editor/level_editor.vala:2501
 #: tools/level_editor/panel_projects_list.vala:55
 #: tools/level_editor/project.vala:838 tools/widgets/input_file.vala:92
 #: tools/widgets/open_resource_dialog.vala:25
 msgid "Open"
-msgstr ""
+msgstr "Ouvrir"
 
 #: tools/level_editor/level_editor.vala:2524
 msgid ""
@@ -436,14 +440,17 @@ msgid ""
 "\n"
 "This is a *temporary* project and will be gone if not saved now."
 msgstr ""
+"Enregistrer le projet avant la fermeture ?\n"
+"\n"
+"Ceci est un projet *temporaire* et disparaîtra s'il n'est pas enregistré."
 
 #: tools/level_editor/level_editor.vala:2527 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
-msgstr ""
+msgstr "Fermer sans Enregistrer"
 
 #: tools/level_editor/level_editor.vala:2530 tools/widgets/messages.vala:110
 msgid "_Save"
-msgstr ""
+msgstr "Enregistrer"
 
 #: tools/level_editor/level_editor.vala:2537
 msgid "Select a folder where the project will be saved..."
