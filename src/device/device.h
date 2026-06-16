@@ -116,6 +116,9 @@ struct Device
 	/// returned to the system after the application exits.
 	void quit(int exit_code = EXIT_SUCCESS);
 
+	/// Opens the given @a uri with the default program.
+	void open_uri(const char *uri);
+
 	/// Pauses the engine.
 	void pause();
 

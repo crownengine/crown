@@ -15,6 +15,7 @@
 #include "core/thread/thread.h"
 #include "device/device.h"
 #include "device/device_event_queue.inl"
+#include <android/native_activity.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <jni.h>
@@ -1052,6 +1053,38 @@ namespace display
 	}
 
 } // namespace display
+
+void open_uri(const char *uri)
+{
+	// Get a JNI environment for this thread so we can call Android Java APIs.
+	ANativeActivity *activity = s_android_device->_app->activity;
+	JavaVM *vm = activity->vm;
+	JNIEnv *env = NULL;
+	const s32 get_env = vm->GetEnv((void **)&env, JNI_VERSION_1_6);
+	if (get_env == JNI_EDETACHED)
+		vm->AttachCurrentThread(&env, NULL);
+
+	// Convert the C URI string into an android.net.Uri object.
+	jclass uri_class = env->FindClass("android/net/Uri");
+	jmethodID parse = env->GetStaticMethodID(uri_class, "parse", "(Ljava/lang/String;)Landroid/net/Uri;");
+	jstring uri_string = env->NewStringUTF(uri);
+	jobject uri_object = env->CallStaticObjectMethod(uri_class, parse, uri_string);
+
+	// Create an ACTION_VIEW intent that asks Android to handle the URI.
+	jclass intent_class = env->FindClass("android/content/Intent");
+	jmethodID intent_init = env->GetMethodID(intent_class, "<init>", "(Ljava/lang/String;Landroid/net/Uri;)V");
+	jstring action_view = env->NewStringUTF("android.intent.action.VIEW");
+	jobject intent = env->NewObject(intent_class, intent_init, action_view, uri_object);
+
+	// Ask the current Activity to launch whichever app can handle the intent.
+	jclass activity_class = env->GetObjectClass(activity->clazz);
+	jmethodID start_activity = env->GetMethodID(activity_class, "startActivity", "(Landroid/content/Intent;)V");
+	env->CallVoidMethod(activity->clazz, start_activity, intent);
+
+	// Undo the JNI thread attachment if this function attached it.
+	if (get_env == JNI_EDETACHED)
+		vm->DetachCurrentThread();
+}
 
 static bool push_event(const OsEvent &ev)
 {

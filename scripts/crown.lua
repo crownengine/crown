@@ -136,6 +136,7 @@ function crown_project(_name, _kind, _defines)
 				"ws2_32",
 				"ole32",
 				"gdi32",
+				"shell32",
 			}
 
 		configuration { "linux-* or mingw* or vs*" }
