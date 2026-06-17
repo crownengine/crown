@@ -1205,6 +1205,9 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
 
+	// Reset matrix cache.
+	memset(_mesh_manager._data.matrix_cache, UINT32_MAX, sizeof(u32)*_mesh_manager._data.size);
+
 	sync_cullable_sets();
 
 	const bgfx::Caps *caps = bgfx::getCaps();
@@ -1992,6 +1995,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(AnimationSkeletonInstance *) + alignof(AnimationSkeletonInstance *)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(u32) + alignof(u32)
 #if CROWN_CAN_RELOAD
 		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
 		+ num*sizeof(StringId32) + alignof(StringId32)
@@ -2015,8 +2019,9 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.sphere + num, alignof(AnimationSkeletonInstance *));
 	new_data.flags         = (u32 *                )memory::align_top(new_data.skeleton + num, alignof(u32));
 	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
+	new_data.matrix_cache  = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
 #if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.prev_flags + num, alignof(MaterialResource *));
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.matrix_cache + num, alignof(MaterialResource *));
 	new_data.geometry_name = (StringId32 *)memory::align_top(new_data.material_resource + num, alignof(StringId32));
 #endif
 
@@ -2031,6 +2036,7 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.skeleton, _data.skeleton, _data.size * sizeof(AnimationSkeletonInstance *));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
+	memcpy(new_data.matrix_cache, _data.matrix_cache, _data.size * sizeof(u32));
 #if CROWN_CAN_RELOAD
 	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
 	memcpy(new_data.geometry_name, _data.geometry_name, _data.size * sizeof(StringId32));
@@ -2083,6 +2089,7 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		_data.skeleton[last] = NULL;
 		_data.flags[last]    = meshes[i].flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last] = 0;
+		_data.matrix_cache[last] = UINT32_MAX;
 #if CROWN_CAN_RELOAD
 		_data.material_resource[last] = mat_res;
 		_data.geometry_name[last] = meshes[i].geometry_name;
@@ -2116,6 +2123,7 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.skeleton[mesh_i] = _data.skeleton[last];
 	_data.flags[mesh_i]    = _data.flags[last];
 	_data.prev_flags[mesh_i] = _data.prev_flags[last];
+	_data.matrix_cache[mesh_i] = _data.matrix_cache[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[mesh_i] = _data.material_resource[last];
 	_data.geometry_name[mesh_i] = _data.geometry_name[last];
@@ -2156,6 +2164,7 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.skeleton[inst_a], _data.skeleton[inst_b]);
 	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
 	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
+	exchange(_data.matrix_cache[inst_a], _data.matrix_cache[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
 	exchange(_data.geometry_name[inst_a], _data.geometry_name[inst_b]);
@@ -2245,7 +2254,10 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 
 		bgfx::setTransform(skeleton->bones, skeleton->num_bones);
 	} else {
-		bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		if (_data.matrix_cache[ii] == UINT32_MAX)
+			_data.matrix_cache[ii] = bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		else
+			bgfx::setTransform(_data.matrix_cache[ii]);
 	}
 
 	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
