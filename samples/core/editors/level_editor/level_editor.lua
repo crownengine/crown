@@ -205,13 +205,13 @@ function draw_world_origin_grid(lines, size, step)
 	Device.set_temp_count(nv, nq, nm)
 end
 
-function raycast(objects, pos, dir)
+local function raycast_objects(objects, pos, dir, use_bounds_proxy)
 	local object = nil
 	local nearest = math.huge
 	local sprite_z = 0
 
 	for k, v in pairs(objects) do
-		if v:is_spatial() and v:is_selectable() then
+		if v:is_spatial() and v:is_selectable() and v:uses_bounds_proxy() == use_bounds_proxy then
 			local nv, nq, nm = Device.temp_count()
 			local t, l, d = v:raycast(pos, dir)
 			if t ~= -1.0 then
@@ -236,6 +236,21 @@ function raycast(objects, pos, dir)
 	end
 
 	return object, nearest
+end
+
+function raycast(objects, pos, dir, use_bounds_proxy_fallback)
+	-- Pick exact objects first so a huge proxy does not steal clicks from smaller objects placed
+	-- inside it; use the proxy only as an empty-space fallback.
+	local object, nearest = raycast_objects(objects, pos, dir, false)
+	if object ~= nil then
+		return object, nearest
+	end
+
+	if use_bounds_proxy_fallback == false then
+		return object, nearest
+	end
+
+	return raycast_objects(objects, pos, dir, true)
 end
 
 Selection = class(Selection)
