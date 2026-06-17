@@ -446,7 +446,7 @@ msgstr ""
 
 #: tools/level_editor/level_editor.vala:2528 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
-msgstr "Chiudi _senza Salvare"
+msgstr "_Chiudi senza Salvare"
 
 #: tools/level_editor/level_editor.vala:2531 tools/widgets/messages.vala:110
 msgid "_Save"
