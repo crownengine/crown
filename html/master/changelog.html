@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-15T00:58:09+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-06-17T22:09:34+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -160,6 +160,7 @@
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not updating mass/inertia.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not restoring body deactivation when switching actors back from kinematic.</p></li>
 <li><p>Runtime: fixed a crash when reloading the render config in some cases.</p></li>
+<li><p>Runtime: improved performance when rendering worlds containing many units.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">World.script_world()</span></code> and <code class="docutils literal notranslate"><span class="pre">ScriptWorld.broadcast()</span></code>.</p></li>
 <li><p>Docs: updated Android deploying instructions.</p></li>
 <li><p>Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.</p></li>
@@ -1094,7 +1095,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 15, 2026.
+      <span class="lastupdated">Last updated on Jun 17, 2026.
       </span></p>
   </div>
 
