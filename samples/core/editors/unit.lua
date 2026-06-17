@@ -53,12 +53,41 @@ function UnitBox:init(world, id, unit_id, prefab)
 	self._mesh_visible = true
 	self._sprite_visible = true
 	self._obb = { pose = Matrix4x4Box(), half_extents = Vector3Box(), dirty = true }
+	self._children = nil
 
 	self:freeze()
 end
 
+function UnitBox:invalidate_obb()
+	self._obb.dirty = true
+end
+
+function UnitBox:invalidate_children()
+	self._children = nil
+	self:invalidate_obb()
+end
+
+function UnitBox:children()
+	if self._children == nil then
+		self._children = {}
+		UnitUtils.collect_children(self._sg, self._unit_id, self._children)
+	end
+
+	return self._children
+end
+
 function UnitBox:freeze()
-	UnitUtils.freeze(self._world, self._unit_id)
+	local physics_world = World.physics_world(self._world)
+	local children = {}
+	UnitUtils.collect_children(self._sg, self._unit_id, children)
+
+	for _, child_id in ipairs(children) do
+		local actor = PhysicsWorld.actor_instance(physics_world, child_id)
+		if actor ~= nil then
+			PhysicsWorld.actor_set_kinematic(physics_world, actor, true)
+			PhysicsWorld.actor_disable_collision(physics_world, actor)
+		end
+	end
 end
 
 function UnitBox:id()
@@ -106,10 +135,7 @@ function UnitBox:set_hidden(hidden)
 		self:on_selected(false)
 	end
 
-	local children = {}
-	UnitUtils.collect_children(self._sg, self._unit_id, children)
-
-	for _, child_id in ipairs(children) do
+	for _, child_id in ipairs(self:children()) do
 		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 		if mesh then
 			RenderWorld.mesh_set_visible(self._rw, mesh, not self._hidden)
@@ -165,7 +191,7 @@ function UnitBox:set_local_position(pos)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	if tr then
 		SceneGraph.set_local_position(self._sg, tr, pos)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 
 	local physics_world = World.physics_world(self._world)
@@ -180,7 +206,7 @@ function UnitBox:set_local_rotation(rot)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	if tr then
 		SceneGraph.set_local_rotation(self._sg, tr, rot)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 end
 
@@ -188,7 +214,7 @@ function UnitBox:set_local_scale(scale)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	if tr then
 		SceneGraph.set_local_scale(self._sg, tr, scale)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 end
 
@@ -196,7 +222,7 @@ function UnitBox:set_local_pose(pose)
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	if tr then
 		SceneGraph.set_local_pose(self._sg, tr, pose)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 end
 
@@ -213,7 +239,12 @@ function UnitBox:set_parent(parent_id)
 			, self:local_rotation()
 			, self:local_scale()
 			)
-		self._obb.dirty = true
+
+		local parent = LevelEditor._objects[parent_id]
+		if parent and parent.invalidate_children then
+			parent:invalidate_children()
+		end
+		self:invalidate_children()
 	end
 end
 
@@ -231,12 +262,8 @@ function UnitBox:on_selected(selected)
 end
 
 function UnitBox:mesh_tree_obb()
-	local scene_graph = self._sg
-	local unit_id = self._unit_id
 	local obb_tm = Matrix4x4Box()
 	local obb_he = Vector3Box()
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
 
 	do
 		local nv, nq, nm = Device.temp_count()
@@ -245,7 +272,7 @@ function UnitBox:mesh_tree_obb()
 		Device.set_temp_count(nv, nq, nm)
 	end
 
-	for _, child_id in ipairs(children) do
+	for _, child_id in ipairs(self:children()) do
 		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 		if mesh then
 			local nv, nq, nm = Device.temp_count()
@@ -263,12 +290,8 @@ function UnitBox:mesh_tree_obb()
 end
 
 function UnitBox:sprite_tree_obb()
-	local scene_graph = self._sg
-	local unit_id = self._unit_id
 	local obb_tm = Matrix4x4Box()
 	local obb_he = Vector3Box()
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
 
 	do
 		local nv, nq, nm = Device.temp_count()
@@ -277,7 +300,7 @@ function UnitBox:sprite_tree_obb()
 		Device.set_temp_count(nv, nq, nm)
 	end
 
-	for _, child_id in ipairs(children) do
+	for _, child_id in ipairs(self:children()) do
 		local sprite = RenderWorld.sprite_instance(self._rw, child_id)
 		if sprite then
 			local nv, nq, nm = Device.temp_count()
@@ -308,14 +331,9 @@ function UnitBox:obb()
 end
 
 function UnitBox:raycast_mesh_tree(pos, dir)
-	local scene_graph = self._sg
-	local unit_id = self._unit_id
 	local t_min = math.huge
 
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
-
-	for _, child_id in ipairs(children) do
+	for _, child_id in ipairs(self:children()) do
 		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 		if mesh then
 			local t = RenderWorld.mesh_cast_ray(self._rw, mesh, pos, dir)
@@ -329,13 +347,9 @@ function UnitBox:raycast_mesh_tree(pos, dir)
 end
 
 function UnitBox:raycast_sprite_tree(pos, dir)
-	local scene_graph = self._sg
-	local unit_id = self._unit_id
 	local t_min = math.huge
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
 
-	for _, child_id in ipairs(children) do
+	for _, child_id in ipairs(self:children()) do
 		local sprite = RenderWorld.sprite_instance(self._rw, child_id)
 		if sprite then
 			local t = RenderWorld.sprite_cast_ray(self._rw, sprite, pos, dir)
@@ -470,7 +484,7 @@ function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shado
 		RenderWorld.mesh_set_material(self._rw, mesh, material)
 		RenderWorld.mesh_set_visible(self._rw, mesh, visible and not self._hidden)
 		RenderWorld.mesh_set_cast_shadows(self._rw, mesh, cast_shadows)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 end
 
@@ -486,7 +500,7 @@ function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visibl
 		RenderWorld.sprite_set_visible(self._rw, sprite, visible and not self._hidden)
 		RenderWorld.sprite_flip_x(self._rw, sprite, flip_x)
 		RenderWorld.sprite_flip_y(self._rw, sprite, flip_y)
-		self._obb.dirty = true
+		self:invalidate_obb()
 	end
 end
 
