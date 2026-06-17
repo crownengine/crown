@@ -182,6 +182,22 @@ namespace culling_set
 		LEAVE_PROFILE_SCOPE();
 	}
 
+	static void cull_spheres(CullingSet &set, const Sphere &sphere, u32 offset, u32 count)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+
+		const u32 num = offset + count;
+		for (u32 i = offset; i < num; ++i) {
+			Sphere &sphere_w = set.sphere_w[i];
+
+			const f32 dist_sq = length_squared(sphere.c - sphere_w.c);
+			const f32 r_sum = sphere.r + sphere_w.r;
+			set.visible[i] = (u32)dist_sq <= (r_sum * r_sum);
+		}
+
+		LEAVE_PROFILE_SCOPE();
+	}
+
 	static void cull_none(CullingSet &set)
 	{
 		ENTER_PROFILE_SCOPE(__func__);
@@ -1461,6 +1477,10 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				if (render_shadow) {
 					cur_tile = num_tiles++;
 
+					Sphere light_sphere = sphere::from_cone(shader.position, shader.direction, shader.range, shader.spot_angle);
+					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
+					culling_set::remove_culled(_cullable_shadow_casters);
+
 					// Compute light view-proj matrix.
 					Matrix4x4 light_view;
 					Matrix4x4 light_proj;
@@ -1546,6 +1566,10 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 						, caps->homogeneousDepth
 						, bx::Handedness::Right
 						);
+
+					Sphere light_sphere = { shader.position, shader.range };
+					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
+					culling_set::remove_culled(_cullable_shadow_casters);
 
 					// Render omni light shadow map as 4 strips, one per
 					// tetrahedron face, using stencil masking. Stencil pattern
