@@ -454,66 +454,66 @@ msgstr "Enregistrer"
 
 #: tools/level_editor/level_editor.vala:2537
 msgid "Select a folder where the project will be saved..."
-msgstr ""
+msgstr "Sélectionner un dossier dans lequel le projet sera enregistré..."
 
 #: tools/level_editor/level_editor.vala:2542
 msgid "Save Project Here"
-msgstr ""
+msgstr "Enregistrer le Projet ici"
 
 #: tools/level_editor/level_editor.vala:2599
 msgid "The destination directory must be empty"
-msgstr ""
+msgstr "Le répertoire destinataire doit être vide"
 
 #: tools/level_editor/level_editor.vala:2613
 #, c-format
 msgid "Failed to save project in %s"
-msgstr ""
+msgstr "Échec d'enregistrement di projet dans %s"
 
 #: tools/level_editor/level_editor.vala:2785
 msgid "Rotation snap"
-msgstr ""
+msgstr "Rotation aimantée"
 
 #: tools/level_editor/level_editor.vala:3022
 msgid "New Name"
-msgstr ""
+msgstr "Nouveau Nom"
 
 #: tools/level_editor/level_editor.vala:3247
 #: tools/level_editor/level_editor.vala:3419
 msgid "Resource Name"
-msgstr ""
+msgstr "Nom de la ressource"
 
 #: tools/level_editor/level_editor.vala:3294
 #, c-format
 msgid "Delete Folder %s?"
-msgstr ""
+msgstr "Supprimer le répertoire %s ?"
 
 #: tools/level_editor/level_editor.vala:3299
 msgid "_Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: tools/level_editor/level_editor.vala:3407
 msgid "Script Name"
-msgstr ""
+msgstr "Nom du script"
 
 #: tools/level_editor/level_editor.vala:3410
 msgid "Unit Name"
-msgstr ""
+msgstr "Nom de l'unité"
 
 #: tools/level_editor/level_editor.vala:3413
 msgid "Material Name"
-msgstr ""
+msgstr "Nom du matériau"
 
 #: tools/level_editor/level_editor.vala:3416
 msgid "State Machine Name"
-msgstr ""
+msgstr "Nom de l'État de la Machine"
 
 #: tools/level_editor/level_editor.vala:3443
 msgid "Skeleton name (optional)"
-msgstr ""
+msgstr "Nom du squelette (optionnel)"
 
 #: tools/level_editor/level_editor.vala:3473
 msgid "Folder Name"
-msgstr ""
+msgstr "Nom du répertoire"
 
 #: tools/level_editor/level_editor.vala:3635
 #: tools/widgets/save_resource_dialog.vala:84
@@ -522,25 +522,27 @@ msgid ""
 "A file named `%s` already exists.\n"
 "Overwrite?"
 msgstr ""
+"Un fichier nommé `%s` existe déjà.\n"
+"L'écraser?"
 
 #: tools/level_editor/level_editor.vala:3640
 #: tools/widgets/save_resource_dialog.vala:88
 msgid "_No"
-msgstr ""
+msgstr "Non"
 
 #: tools/level_editor/level_editor.vala:3641
 #: tools/widgets/save_resource_dialog.vala:89
 msgid "_Yes"
-msgstr ""
+msgstr "Oui"
 
 #: tools/level_editor/level_editor.vala:4603
 msgid "Save Prefab As..."
-msgstr ""
+msgstr "Enregistrer le Préfab Sous..."
 
 #: tools/level_editor/level_editor.vala:4621
 #, c-format
 msgid "Cannot save prefab '%s' over itself"
-msgstr ""
+msgstr "Ne peut pas enregistrer le Préfab sur lui-même"
 
 #: tools/level_editor/level_layers_tree_view.vala:39
 #: tools/level_editor/level_tree_view.vala:117
@@ -550,23 +552,23 @@ msgstr ""
 #: tools/level_editor/resource_chooser.vala:52
 #: tools/widgets/object_tree.vala:97
 msgid "Search..."
-msgstr ""
+msgstr "Rechercher..."
 
 #: tools/level_editor/level_layers_tree_view.vala:46
 msgid "Background"
-msgstr ""
+msgstr "Arrière-plan"
 
 #: tools/level_editor/level_layers_tree_view.vala:52
 msgid "Default"
-msgstr ""
+msgstr "Défaut"
 
 #: tools/level_editor/level_layers_tree_view.vala:60
 msgid "Visible"
-msgstr ""
+msgstr "Visible"
 
 #: tools/level_editor/level_layers_tree_view.vala:61
 msgid "Locked"
-msgstr ""
+msgstr "Verrouillé"
 
 #: tools/level_editor/level_layers_tree_view.vala:62
 #: tools/level_editor/object_chooser.vala:88
@@ -577,66 +579,66 @@ msgstr ""
 #: tools/resource/font_resource.vala:261
 #: tools/resource/sprite_resource.vala:340
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: tools/level_editor/level_tree_view.vala:50
 #: tools/level_editor/project_browser.vala:882
 #: tools/widgets/object_tree.vala:46
 msgid "Name A-Z"
-msgstr ""
+msgstr "Nom A-Z"
 
 #: tools/level_editor/level_tree_view.vala:52
 #: tools/level_editor/project_browser.vala:884
 #: tools/widgets/object_tree.vala:48
 msgid "Name Z-A"
-msgstr ""
+msgstr "Nom Z-A"
 
 #: tools/level_editor/level_tree_view.vala:54
 #: tools/level_editor/project_browser.vala:886
 #: tools/widgets/object_tree.vala:50
 msgid "Type A-Z"
-msgstr ""
+msgstr "Type A-Z"
 
 #: tools/level_editor/level_tree_view.vala:56
 #: tools/level_editor/project_browser.vala:888
 #: tools/widgets/object_tree.vala:52
 msgid "Type Z-A"
-msgstr ""
+msgstr "Type Z-A"
 
 #: tools/level_editor/level_tree_view.vala:257
 msgid "Toggle visibility."
-msgstr ""
+msgstr "Basculer la visibilité."
 
 #: tools/level_editor/level_tree_view.vala:259
 msgid "Toggle selection lock."
-msgstr ""
+msgstr "Basculer la sélection de verrouillage."
 
 #: tools/level_editor/level_tree_view.vala:286
 #: tools/widgets/object_tree.vala:176
 msgid "Sort items."
-msgstr ""
+msgstr "Trier les éléments"
 
 #: tools/level_editor/level_tree_view.vala:393
 msgid "Rename..."
-msgstr ""
+msgstr "Renommer..."
 
 #: tools/level_editor/level_tree_view.vala:400
 #: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:242
 msgid "Duplicate"
-msgstr ""
+msgstr "Dupliquer"
 
 #: tools/level_editor/level_tree_view.vala:404
 #: tools/level_editor/menus.vala:224 tools/widgets/object_tree.vala:246
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: tools/level_editor/level_tree_view.vala:420
 msgid "Save as Prefab..."
-msgstr ""
+msgstr "Enregistrer dans un Préfab..."
 
 #: tools/level_editor/menus.vala:14
 msgid "New Level"
-msgstr ""
+msgstr "Nouveau Level"
 
 #: tools/level_editor/menus.vala:23
 msgid "New Project..."
@@ -644,419 +646,421 @@ msgstr ""
 
 #: tools/level_editor/menus.vala:31 tools/widgets/save_resource_dialog.vala:25
 msgid "Save"
-msgstr ""
+msgstr "Enregistrer"
 
 #: tools/level_editor/menus.vala:42
 #: tools/level_editor/panel_projects_list.vala:133
 #: tools/level_editor/project.vala:833
 #: tools/level_editor/project_browser.vala:63
 msgid "Import..."
-msgstr ""
+msgstr "Importer..."
 
 #: tools/level_editor/menus.vala:46
 #: tools/level_editor/preferences_dialog.vala:51
 msgid "Preferences"
-msgstr ""
+msgstr "Préférences"
 
 #: tools/level_editor/menus.vala:57
 msgid "Close Project"
-msgstr ""
+msgstr "Fermer le Projet"
 
 #: tools/level_editor/menus.vala:61
 msgid "Quit"
-msgstr ""
+msgstr "Quitter"
 
 #: tools/level_editor/menus.vala:76
 msgid "Show Grid"
-msgstr ""
+msgstr "Montrer la grille"
 
 #: tools/level_editor/menus.vala:83 tools/level_editor/menus.vala:132
 msgid "Custom"
-msgstr ""
+msgstr "Custom"
 
 #: tools/level_editor/menus.vala:181
 msgid "Cube"
-msgstr ""
+msgstr "Cube"
 
 #: tools/level_editor/menus.vala:185
 msgid "Sphere"
-msgstr ""
+msgstr "Sphere"
 
 #: tools/level_editor/menus.vala:189
 msgid "Cone"
-msgstr ""
+msgstr "Cône"
 
 #: tools/level_editor/menus.vala:193
 msgid "Cylinder"
-msgstr ""
+msgstr "Cylindre"
 
 #: tools/level_editor/menus.vala:197
 msgid "Plane"
-msgstr ""
+msgstr "Plan"
 
 #: tools/level_editor/menus.vala:212
 msgid "Undo"
-msgstr ""
+msgstr "Annuler"
 
 #: tools/level_editor/menus.vala:216
 msgid "Redo"
-msgstr ""
+msgstr "Refaire"
 
 #: tools/level_editor/menus.vala:228
 msgid "Select None"
-msgstr ""
+msgstr "Ne rien Sélectionner"
 
 #: tools/level_editor/menus.vala:246
 msgid "Place"
-msgstr ""
+msgstr "Place"
 
 #: tools/level_editor/menus.vala:251
 msgid "Move"
-msgstr ""
+msgstr "Déplacer"
 
 #: tools/level_editor/menus.vala:256
 msgid "Rotate"
-msgstr ""
+msgstr "Tourner"
 
 #: tools/level_editor/menus.vala:261
 msgid "Scale"
-msgstr ""
+msgstr "Échelle"
 
 #: tools/level_editor/menus.vala:269
 msgid "Relative Snap"
-msgstr ""
+msgstr "Aimantation relative"
 
 #: tools/level_editor/menus.vala:274
 msgid "Absolute Snap"
-msgstr ""
+msgstr "Aimantation absolue"
 
 #: tools/level_editor/menus.vala:282
 msgid "Local Axis"
-msgstr ""
+msgstr "Axe Mocal"
 
 #: tools/level_editor/menus.vala:287
 msgid "World Axis"
-msgstr ""
+msgstr "Axe Monde"
 
 #: tools/level_editor/menus.vala:295
 msgid "Snap to Grid"
-msgstr ""
+msgstr "Aimanter à la Grille"
 
 #: tools/level_editor/menus.vala:299
 #: tools/level_editor/preferences_dialog.vala:85
 #: tools/level_editor/preferences_dialog.vala:87
 msgid "Grid"
-msgstr ""
+msgstr "Grille"
 
 #: tools/level_editor/menus.vala:304
 msgid "Rotation Snap"
-msgstr ""
+msgstr "Rotation Aimantée"
 
 #: tools/level_editor/menus.vala:320
 msgid "Primitives"
-msgstr ""
+msgstr "Primitives"
 
 #: tools/level_editor/menus.vala:327 tools/level_editor/menus.vala:536
 #: tools/level_editor/preferences_dialog.vala:148
 #: tools/state_machine_editor/state_machine_editor.vala:123
 #: tools/unit_editor/unit_editor.vala:123
 msgid "Camera"
-msgstr ""
+msgstr "Caméra"
 
 #: tools/level_editor/menus.vala:331
 #: tools/level_editor/preferences_dialog.vala:101
 msgid "Light"
-msgstr ""
+msgstr "Lumière"
 
 #: tools/level_editor/menus.vala:335
 msgid "Sound Source"
-msgstr ""
+msgstr "Source Sonore"
 
 #: tools/level_editor/menus.vala:342
 msgid "Empty Unit"
-msgstr ""
+msgstr "Unité vide"
 
 #: tools/level_editor/menus.vala:349
 msgid "Shading Environment"
-msgstr ""
+msgstr "Environnement Shading"
 
 #: tools/level_editor/menus.vala:372
 msgid "Frame Selected"
-msgstr ""
+msgstr "Image Sélectionnée"
 
 #: tools/level_editor/menus.vala:390
 msgid "Frame All"
-msgstr ""
+msgstr "Toutes les Images"
 
 #: tools/level_editor/menus.vala:405
 msgid "Show/Hide Project"
-msgstr ""
+msgstr "Montrer/Cacher le Projet"
 
 #: tools/level_editor/menus.vala:409
 msgid "Show/Hide Console"
-msgstr ""
+msgstr "Montrer/Cacher la Console"
 
 #: tools/level_editor/menus.vala:413
 msgid "Show/Hide Statusbar"
-msgstr ""
+msgstr "Montrer/Cacher la Barre d'états"
 
 #: tools/level_editor/menus.vala:417
 msgid "Show/Hide Inspector"
-msgstr ""
+msgstr "Montrer/Cacher l'Inspecteur"
 
 #: tools/level_editor/menus.vala:424
 msgid "Fullscreen"
-msgstr ""
+msgstr "Plein écran"
 
 #: tools/level_editor/menus.vala:431
 msgid "Debug Render World"
-msgstr ""
+msgstr "Débogage du Rendu du Monde"
 
 #: tools/level_editor/menus.vala:435
 msgid "Debug Physics World"
-msgstr ""
+msgstr "Déboguer la Physique du Monde"
 
 #: tools/level_editor/menus.vala:450
 msgid "Test Level"
-msgstr ""
+msgstr "Tester le Niveau"
 
 #: tools/level_editor/menus.vala:454
 msgid "Run Game"
-msgstr ""
+msgstr "Démarrer le Jeu"
 
 #: tools/level_editor/menus.vala:458
 msgid "Build Data"
-msgstr ""
+msgstr "Construire les Données"
 
 #: tools/level_editor/menus.vala:462
 msgid "Reload All Resources"
-msgstr ""
+msgstr "Recharger Toutes les Ressources"
 
 #: tools/level_editor/menus.vala:469
 msgid "_Restart Editor View"
-msgstr ""
+msgstr "Redémarrer la Vue de l'Éditeur"
 
 #: tools/level_editor/menus.vala:476
 msgid "Browse Logs..."
-msgstr ""
+msgstr "Parcourir les Journaux..."
 
 #: tools/level_editor/menus.vala:491
 msgid "Manual"
-msgstr ""
+msgstr "Manuel"
 
 #: tools/level_editor/menus.vala:495
 msgid "Report an Issue"
-msgstr ""
+msgstr "Signaler un Problème"
 
 #: tools/level_editor/menus.vala:502
 msgid "Changelog"
-msgstr ""
+msgstr "Journaux de changements"
 
 #: tools/level_editor/menus.vala:506
 msgid "Donate"
-msgstr ""
+msgstr "Faire un don"
 
 #: tools/level_editor/menus.vala:510
 msgid "Credits"
-msgstr ""
+msgstr "Crédits"
 
 #: tools/level_editor/menus.vala:524
 msgid "_File"
-msgstr ""
+msgstr "Fichier"
 
 #: tools/level_editor/menus.vala:528 tools/level_editor/object_editor.vala:88
 #: tools/state_machine_editor/state_machine_editor.vala:119
 #: tools/unit_editor/unit_editor.vala:119
 msgid "Edit"
-msgstr ""
+msgstr "Éditer"
 
 #: tools/level_editor/menus.vala:532
 msgid "Spawn"
-msgstr ""
+msgstr "Apparaître"
 
 #: tools/level_editor/menus.vala:540
 msgid "View"
-msgstr ""
+msgstr "Vue"
 
 #: tools/level_editor/menus.vala:548
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 #: tools/level_editor/object_editor.vala:61
 #: tools/level_editor/texture_settings_dialog.vala:161
 #: tools/state_machine_editor/state_machine_editor.vala:88
 #: tools/unit_editor/unit_editor.vala:87
 msgid "Save & Reload"
-msgstr ""
+msgstr "Enregistrer et Recharger"
 
 #: tools/level_editor/object_editor.vala:68
 msgid "Object Editor"
-msgstr ""
+msgstr "Éditeur d'Objet"
 
 #: tools/level_editor/object_editor.vala:155
 #, c-format
 msgid "Unable to save object '%s'"
-msgstr ""
+msgstr "Impossible d'enregistrer l'objet '%s'"
 
 #: tools/level_editor/panel_new_project.vala:40
 msgid "New Project"
-msgstr ""
+msgstr "Nouveau Projet"
 
 #: tools/level_editor/panel_new_project.vala:43
 msgid "Name of the project."
-msgstr ""
+msgstr "Nom du projet."
 
 #: tools/level_editor/panel_new_project.vala:47
 msgid "Location"
-msgstr ""
+msgstr "Emplacement"
 
 #: tools/level_editor/panel_new_project.vala:48
 msgid "Directory where to create the project."
-msgstr ""
+msgstr "Répertoire où créer le projet."
 
 #: tools/level_editor/panel_new_project.vala:53
 msgid "Create Project Folder"
-msgstr ""
+msgstr "Créer un Dossier de Projet"
 
 #: tools/level_editor/panel_new_project.vala:54
 msgid "Create a new folder with the same name as the project's."
-msgstr ""
+msgstr "Créer un nouveau dossier avec le même nom que le projet."
 
 #: tools/level_editor/panel_new_project.vala:59
 msgid "Template"
-msgstr ""
+msgstr "Modèle"
 
 #: tools/level_editor/panel_new_project.vala:60
 msgid "Create a new project by copying this template."
-msgstr ""
+msgstr "Créer un projet en copiant le modèle"
 
 #: tools/level_editor/panel_new_project.vala:64
 msgid "None"
-msgstr ""
+msgstr "Non"
 
 #: tools/level_editor/panel_new_project.vala:70
 msgid "Back"
-msgstr ""
+msgstr "Retour"
 
 #: tools/level_editor/panel_new_project.vala:73
 msgid "Create"
-msgstr ""
+msgstr "Créer"
 
 #: tools/level_editor/panel_new_project.vala:74
 msgid "Create the project."
-msgstr ""
+msgstr "Créer le projet."
 
 #: tools/level_editor/panel_new_project.vala:78
 msgid "Choose project name"
-msgstr ""
+msgstr "Choisir le nom du projet"
 
 #: tools/level_editor/panel_new_project.vala:85
 msgid "Location is not valid"
-msgstr ""
+msgstr "L'emplacement est invalide"
 
 #: tools/level_editor/panel_new_project.vala:105
 msgid "Project Folder already exists"
-msgstr ""
+msgstr "Le Répertoire du Projet existe déjà"
 
 #: tools/level_editor/panel_new_project.vala:107
 msgid "Project Folder cannot be created automatically"
-msgstr ""
+msgstr "Le Répertoire du Projet ne peut pas être créé automatiquement"
 
 #: tools/level_editor/panel_new_project.vala:112
 #: tools/level_editor/panel_new_project.vala:117
 msgid "Location must be an empty directory"
-msgstr ""
+msgstr "L'emplacement doit être un répertoire vide"
 
 #: tools/level_editor/panel_projects_list.vala:47
 msgid "Remove the project from the list."
-msgstr ""
+msgstr "Supprimer le projet depuis la liste."
 
 #: tools/level_editor/panel_projects_list.vala:56
 msgid "Open the project."
-msgstr ""
+msgstr "Ouvrir le projet."
 
 #: tools/level_editor/panel_projects_list.vala:109
 msgid "Projects"
-msgstr ""
+msgstr "Projets"
 
 #: tools/level_editor/panel_projects_list.vala:111
 #: tools/level_editor/panel_projects_list.vala:112
 msgid "Local"
-msgstr ""
+msgstr "Local"
 
 #: tools/level_editor/panel_projects_list.vala:118
 msgid "No projects found"
-msgstr ""
+msgstr "Aucun projets trouvés"
 
 #: tools/level_editor/panel_projects_list.vala:121
 msgid ""
 "Use the buttons above to create a new project or import an already existing "
 "one."
 msgstr ""
+"Utiliser les boutons ci-dessus pour créer un nouveau projet ou importer un projet déjà existant "
+"un."
 
 #: tools/level_editor/panel_projects_list.vala:134
 msgid "Import an existing project."
-msgstr ""
+msgstr "Importer un projet existant."
 
 #: tools/level_editor/panel_projects_list.vala:137
 msgid "Create New"
-msgstr ""
+msgstr "En créer un nouveau"
 
 #: tools/level_editor/panel_projects_list.vala:138
 msgid "Create a new project."
-msgstr ""
+msgstr "Créer un nouveau projet."
 
 #: tools/level_editor/preferences_dialog.vala:85
 msgid "Color of the grid."
-msgstr ""
+msgstr "Couleur de la grille."
 
 #: tools/level_editor/preferences_dialog.vala:86
 msgid "Grid (Disabled)"
-msgstr ""
+msgstr "Grille (Désactivée)"
 
 #: tools/level_editor/preferences_dialog.vala:86
 msgid "Color of the grid when disabled."
-msgstr ""
+msgstr "Couleur de la grille quand elle est désactivée"
 
 #: tools/level_editor/preferences_dialog.vala:91
 msgid "X Axis"
-msgstr ""
+msgstr "Axe X"
 
 #: tools/level_editor/preferences_dialog.vala:91
 msgid "Color of the X axis."
-msgstr ""
+msgstr "Couleur de l'axe X."
 
 #: tools/level_editor/preferences_dialog.vala:92
 msgid "Y Axis"
-msgstr ""
+msgstr "Axe Y"
 
 #: tools/level_editor/preferences_dialog.vala:92
 msgid "Color of the Y axis."
-msgstr ""
+msgstr "Couleur de l'axe Y."
 
 #: tools/level_editor/preferences_dialog.vala:93
 msgid "Z Axis"
-msgstr ""
+msgstr "Axe Z"
 
 #: tools/level_editor/preferences_dialog.vala:93
 msgid "Color of the Z axis."
-msgstr ""
+msgstr "Couleur de l'axe Z."
 
 #: tools/level_editor/preferences_dialog.vala:94
 msgid "Selected"
-msgstr ""
+msgstr "Sélectionné"
 
 #: tools/level_editor/preferences_dialog.vala:94
 msgid "Color of any axes when selected."
-msgstr ""
+msgstr "Couleur de tous les axes quand ils sont sélectionnés."
 
 #: tools/level_editor/preferences_dialog.vala:95
 msgid "Axes"
-msgstr ""
+msgstr "Axes"
 
 #: tools/level_editor/preferences_dialog.vala:101
 msgid "Dark"
-msgstr ""
+msgstr "Noir"
 
 #: tools/level_editor/preferences_dialog.vala:111
 #: tools/level_editor/project_browser.vala:385
@@ -1064,250 +1068,250 @@ msgstr ""
 #: tools/resource/font_resource.vala:263
 #: tools/resource/sprite_resource.vala:371
 msgid "Size"
-msgstr ""
+msgstr "Échelle"
 
 #: tools/level_editor/preferences_dialog.vala:111
 msgid "Size of the gizmos in pixels."
-msgstr ""
+msgstr "Échelle des gadgets en pixel."
 
 #: tools/level_editor/preferences_dialog.vala:112
 msgid "Gizmo"
-msgstr ""
+msgstr "Gadget"
 
 #: tools/level_editor/preferences_dialog.vala:116
 msgid "Theme"
-msgstr ""
+msgstr "Thème"
 
 #: tools/level_editor/preferences_dialog.vala:116
 msgid "Theme variant."
-msgstr ""
+msgstr "Variante de thème"
 
 #: tools/level_editor/preferences_dialog.vala:117
 msgid "UI"
-msgstr ""
+msgstr "IU"
 
 #: tools/level_editor/preferences_dialog.vala:125
 msgid "Autosave (mins)"
-msgstr ""
+msgstr "Enregistrement automatique (minutes)"
 
 #: tools/level_editor/preferences_dialog.vala:125
 msgid "Automatically save the currently open level."
-msgstr ""
+msgstr "Sauvegarder automatiquement le niveau actuellement ouvert."
 
 #: tools/level_editor/preferences_dialog.vala:133
 msgid "Keep Above"
-msgstr ""
+msgstr "Rester au-dessus"
 
 #: tools/level_editor/preferences_dialog.vala:133
 msgid "Keep the game window above other windows when running the game."
-msgstr ""
+msgstr "Garder la fenêtre au-dessus des autres fenêtres lors de l'exécution du jeu."
 
 #: tools/level_editor/preferences_dialog.vala:145
 msgid "Movement Speed"
-msgstr ""
+msgstr "Vitesse de Mouvement"
 
 #: tools/level_editor/preferences_dialog.vala:145
 msgid "Flythrough camera speed in meters per second."
-msgstr ""
+msgstr "Vitesse de la caméra volante en mètres par seconde."
 
 #: tools/level_editor/preferences_dialog.vala:146
 msgid "Rotation Speed"
-msgstr ""
+msgstr "Vitesse de Rotation"
 
 #: tools/level_editor/preferences_dialog.vala:146
 msgid "Camera rotation speed in degrees per pixel."
-msgstr ""
+msgstr "Vitesse de rotation de la caméra en degrés par pixel."
 
 #: tools/level_editor/preferences_dialog.vala:147
 msgid "Speed Modifier"
-msgstr ""
+msgstr "Modificateur de Vitesse"
 
 #: tools/level_editor/preferences_dialog.vala:147
 msgid "Flythrough camera speed multiplier/divisor."
-msgstr ""
+msgstr "Multiplicateur/diviseur de la vitesse de la caméra volante."
 
 #: tools/level_editor/preferences_dialog.vala:158
 msgid "Undo/Redo max size (MiB)"
-msgstr ""
+msgstr "Taille maximale d'Annuler/Refaire (Mo)"
 
 #: tools/level_editor/preferences_dialog.vala:158
 msgid "Maximum size allowed for the undo system."
-msgstr ""
+msgstr "Taille maximale allouée pour le système d'annulation."
 
 #: tools/level_editor/preferences_dialog.vala:159
 msgid "Delete logs older than (days)"
-msgstr ""
+msgstr "Supprimer les journaux plus ancien que (jours)"
 
 #: tools/level_editor/preferences_dialog.vala:159
 msgid "Delete logs older than this days old when the application starts."
-msgstr ""
+msgstr "Supprimer les journaux plus anciens que ces jours-ci au démarrage de l'application."
 
 #: tools/level_editor/preferences_dialog.vala:160
 msgid "Console max lines"
-msgstr ""
+msgstr "Lignes maximales de la console"
 
 #: tools/level_editor/preferences_dialog.vala:160
 msgid "Maximum number of lines shown by the console."
-msgstr ""
+msgstr "Nombre maximum de ligne affichées par la console."
 
 #: tools/level_editor/preferences_dialog.vala:161
 msgid "Thumbnail cache max size (MiB)"
-msgstr ""
+msgstr "Taille maximale du cache de miniatures (Mo)"
 
 #: tools/level_editor/preferences_dialog.vala:161
 msgid "Maximum size allowed (on RAM) for the thumbnail cache."
-msgstr ""
+msgstr "Taille maximale allouée (sur la RAM) pour le cache de miniatures."
 
 #: tools/level_editor/preferences_dialog.vala:162
 msgid "Memory and Limits"
-msgstr ""
+msgstr "Mémoire et Limites"
 
 #: tools/level_editor/preferences_dialog.vala:173
 msgid "Lua editor"
-msgstr ""
+msgstr "Éditeur Lua"
 
 #: tools/level_editor/preferences_dialog.vala:173
 msgid "Program to use for opening Lua files."
-msgstr ""
+msgstr "Programme à utiliser pour ouvrir les fichiers Lua."
 
 #: tools/level_editor/preferences_dialog.vala:174
 msgid "Image editor"
-msgstr ""
+msgstr "Éditeur d'image"
 
 #: tools/level_editor/preferences_dialog.vala:174
 msgid "Program to use for opening images."
-msgstr ""
+msgstr "Programme à utiliser pour ouvrir les images."
 
 #: tools/level_editor/preferences_dialog.vala:175
 msgid "Model editor"
-msgstr ""
+msgstr "Éditeur de modèle 3D"
 
 #: tools/level_editor/preferences_dialog.vala:175
 msgid "Program to use for opening 3D models."
-msgstr ""
+msgstr "Programme à utiliser pour ouvrir les modèles 3D."
 
 #: tools/level_editor/preferences_dialog.vala:176
 msgid "Sound editor"
-msgstr ""
+msgstr "Éditeur de son"
 
 #: tools/level_editor/preferences_dialog.vala:176
 msgid "Program to use for opening sound files."
-msgstr ""
+msgstr "Programme à utiliser pour ouvrir les fichiers sonores."
 
 #: tools/level_editor/preferences_dialog.vala:177
 msgid "Font editor"
-msgstr ""
+msgstr "Éditeur de police"
 
 #: tools/level_editor/preferences_dialog.vala:177
 msgid "Program to use for opening fonts."
-msgstr ""
+msgstr "Programme à utiliser pour ouvrir les polices."
 
 #: tools/level_editor/preferences_dialog.vala:178
 msgid "External Editors"
-msgstr ""
+msgstr "Éditeurs externes"
 
 #: tools/level_editor/preferences_dialog.vala:182
 msgid "Document"
-msgstr ""
+msgstr "Document"
 
 #: tools/level_editor/preferences_dialog.vala:183
 msgid "Viewport"
-msgstr ""
+msgstr "Fenêtre d'affichage"
 
 #: tools/level_editor/preferences_dialog.vala:184
 msgid "System"
-msgstr ""
+msgstr "Système"
 
 #: tools/level_editor/preferences_dialog.vala:185
 msgid "External Tools"
-msgstr ""
+msgstr "Outils externes"
 
 #: tools/level_editor/project.vala:799
 msgid "Select destination folder..."
-msgstr ""
+msgstr "Sélectionner un répertoire de destination..."
 
 #: tools/level_editor/project.vala:804
 msgid "Select"
-msgstr ""
+msgstr "Sélectionner"
 
 #: tools/level_editor/project_browser.vala:30
 #: tools/level_editor/project_browser.vala:147
 msgid "Copy Path"
-msgstr ""
+msgstr "Chemin de la Copie"
 
 #: tools/level_editor/project_browser.vala:34
 #: tools/level_editor/project_browser.vala:158
 msgid "Copy Name"
-msgstr ""
+msgstr "Copier le Nom"
 
 #: tools/level_editor/project_browser.vala:38
 #: tools/level_editor/project_browser.vala:141
 #: tools/widgets/console_view.vala:617
 msgid "Open Containing Folder..."
-msgstr ""
+msgstr "Ouvrir le répertoire contenant..."
 
 #: tools/level_editor/project_browser.vala:43
 msgid "Add to Favorites"
-msgstr ""
+msgstr "Ajouter aux Favoris"
 
 #: tools/level_editor/project_browser.vala:71
 msgid "New Script..."
-msgstr ""
+msgstr "Nouveau Script..."
 
 #: tools/level_editor/project_browser.vala:75
 msgid "New Script (Unit)..."
-msgstr ""
+msgstr "Nouveau Script (Unité)..."
 
 #: tools/level_editor/project_browser.vala:79
 msgid "New Unit..."
-msgstr ""
+msgstr "Nouvelle Unité..."
 
 #: tools/level_editor/project_browser.vala:83
 msgid "New Material..."
-msgstr ""
+msgstr "Nouveau Matériaux"
 
 #: tools/level_editor/project_browser.vala:87
 msgid "New Folder..."
-msgstr ""
+msgstr "Nouveau Dossier..."
 
 #: tools/level_editor/project_browser.vala:98
 msgid "Delete Folder"
-msgstr ""
+msgstr "Supprimer le Dossier"
 
 #: tools/level_editor/project_browser.vala:108
 #: tools/level_editor/project_browser.vala:153
 msgid "Duplicate..."
-msgstr ""
+msgstr "Dupliquer..."
 
 #: tools/level_editor/project_browser.vala:114
 msgid "New State Machine..."
-msgstr ""
+msgstr "Nouvelle Machine d'État..."
 
 #: tools/level_editor/project_browser.vala:127
 msgid "Delete File"
-msgstr ""
+msgstr "Supprimer le fichier"
 
 #: tools/level_editor/project_browser.vala:162
 msgid "Remove from Favorites"
-msgstr ""
+msgstr "Supprimer depuis les Favoris"
 
 #: tools/level_editor/project_browser.vala:166
 msgid "Reveal"
-msgstr ""
+msgstr "Révéler"
 
 #: tools/level_editor/project_browser.vala:373
 msgid "Basename"
-msgstr ""
+msgstr "Nom de base"
 
 #: tools/level_editor/project_browser.vala:379
 #: tools/level_editor/project_browser.vala:734
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: tools/level_editor/project_browser.vala:391
 #: tools/level_editor/project_browser.vala:738
 msgid "Modified"
-msgstr ""
+msgstr "Modifié"
 
 #: tools/level_editor/project_browser.vala:634
 #: tools/level_editor/project_browser.vala:646
@@ -1315,35 +1319,35 @@ msgstr ""
 #: tools/level_editor/project_browser.vala:737
 #: tools/level_editor/project_browser.vala:739
 msgid "n/a"
-msgstr ""
+msgstr "n/a"
 
 #: tools/level_editor/project_browser.vala:749 tools/widgets/input_file.vala:86
 msgid "Folder"
-msgstr ""
+msgstr "Dossier"
 
 #: tools/level_editor/project_browser.vala:770
 msgid "bytes"
-msgstr ""
+msgstr "octets"
 
 #: tools/level_editor/project_browser.vala:770
 msgid "byte"
-msgstr ""
+msgstr "octet"
 
 #: tools/level_editor/project_browser.vala:890
 msgid "Size min-Max"
-msgstr ""
+msgstr "Taille min-Max"
 
 #: tools/level_editor/project_browser.vala:892
 msgid "Size Max-min"
-msgstr ""
+msgstr "Taille Max-min"
 
 #: tools/level_editor/project_browser.vala:894
 msgid "Last Modified"
-msgstr ""
+msgstr "Dernière Modification"
 
 #: tools/level_editor/project_browser.vala:896
 msgid "First Modified"
-msgstr ""
+msgstr "Première Modification"
 
 #: tools/level_editor/project_browser.vala:1152
 #: tools/level_editor/project_browser.vala:1159
