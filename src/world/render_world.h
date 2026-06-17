@@ -403,6 +403,7 @@ struct RenderWorld
 			const AnimationSkeletonInstance **skeleton;
 			u32 *flags;
 			u32 *prev_flags;
+			u32 *matrix_cache;
 #if CROWN_CAN_RELOAD
 			const MaterialResource **material_resource;
 			StringId32 *geometry_name;
