@@ -1526,9 +1526,11 @@ function LevelEditor:update(dt)
 	self._mouse.dy = 0
 	self._mouse.wheel.delta = 0
 
-	local pos, dir = self._camera:camera_ray(self._mouse.x, self._mouse.y)
-	local selected_object, t = raycast(self._objects, pos, dir)
-	self._spawn_height = selected_object and (pos + dir * t).z or 0
+	if self._camera:is_idle() then
+		local pos, dir = self._camera:camera_ray(self._mouse.x, self._mouse.y)
+		local selected_object, t = raycast(self._objects, pos, dir, false)
+		self._spawn_height = selected_object and (pos + dir * t).z or 0
+	end
 
 	-- Draw level objects
 	for k, v in pairs(self._objects) do
