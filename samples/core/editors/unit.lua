@@ -233,37 +233,65 @@ end
 function UnitBox:mesh_tree_obb()
 	local scene_graph = self._sg
 	local unit_id = self._unit_id
-	local obb_tm = self:local_pose()
-	local obb_he = Vector3.zero()
+	local obb_tm = Matrix4x4Box()
+	local obb_he = Vector3Box()
 	local children = {}
 	UnitUtils.collect_children(scene_graph, unit_id, children)
+
+	do
+		local nv, nq, nm = Device.temp_count()
+		obb_tm:store(self:local_pose())
+		obb_he:store(Vector3.zero())
+		Device.set_temp_count(nv, nq, nm)
+	end
 
 	for _, child_id in ipairs(children) do
 		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 		if mesh then
-			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.mesh_obb(self._rw, mesh))
+			local nv, nq, nm = Device.temp_count()
+			local merged_tm, merged_he = Math.obb_merge(obb_tm:unbox()
+				, obb_he:unbox()
+				, RenderWorld.mesh_obb(self._rw, mesh)
+				)
+			obb_tm:store(merged_tm)
+			obb_he:store(merged_he)
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 
-	return obb_tm, obb_he
+	return obb_tm:unbox(), obb_he:unbox()
 end
 
 function UnitBox:sprite_tree_obb()
 	local scene_graph = self._sg
 	local unit_id = self._unit_id
-	local obb_tm = self:local_pose()
-	local obb_he = Vector3.zero()
+	local obb_tm = Matrix4x4Box()
+	local obb_he = Vector3Box()
 	local children = {}
 	UnitUtils.collect_children(scene_graph, unit_id, children)
+
+	do
+		local nv, nq, nm = Device.temp_count()
+		obb_tm:store(self:local_pose())
+		obb_he:store(Vector3.zero())
+		Device.set_temp_count(nv, nq, nm)
+	end
 
 	for _, child_id in ipairs(children) do
 		local sprite = RenderWorld.sprite_instance(self._rw, child_id)
 		if sprite then
-			obb_tm, obb_he = Math.obb_merge(obb_tm, obb_he, RenderWorld.sprite_obb(self._rw, sprite))
+			local nv, nq, nm = Device.temp_count()
+			local merged_tm, merged_he = Math.obb_merge(obb_tm:unbox()
+				, obb_he:unbox()
+				, RenderWorld.sprite_obb(self._rw, sprite)
+				)
+			obb_tm:store(merged_tm)
+			obb_he:store(merged_he)
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 
-	return obb_tm, obb_he
+	return obb_tm:unbox(), obb_he:unbox()
 end
 
 -- Returns the Oriented Bounding-Box of the unit.
