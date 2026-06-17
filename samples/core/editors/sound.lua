@@ -20,6 +20,10 @@ function SoundObject:init(world, id, name, range, volume, loop)
 	self._mesh_visible = true
 end
 
+function SoundObject:uses_bounds_proxy()
+	return false
+end
+
 function SoundObject:id()
 	return self._id
 end

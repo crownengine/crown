@@ -40,6 +40,8 @@ end
 
 UnitBox = class(UnitBox)
 
+local UNITBOX_EXACT_TREE_LIMIT = 1024
+
 function UnitBox:init(world, id, unit_id, prefab)
 	self._world = world
 	self._rw = World.render_world(world)
@@ -74,6 +76,10 @@ function UnitBox:children()
 	end
 
 	return self._children
+end
+
+function UnitBox:uses_bounds_proxy()
+	return #self:children() > UNITBOX_EXACT_TREE_LIMIT
 end
 
 function UnitBox:freeze()
@@ -249,13 +255,12 @@ function UnitBox:set_parent(parent_id)
 end
 
 function UnitBox:on_selected(selected)
-	local scene_graph = self._sg
-	local unit_id = self._unit_id
-	local children = {}
-	UnitUtils.collect_children(scene_graph, unit_id, children)
-
-	for _, child_id in ipairs(children) do
-		RenderWorld.selection(self._rw, child_id, selected);
+	-- Large unit trees are highlighted with a debug OBB instead of marking every child mesh in
+	-- RenderWorld.selection(), which is too expensive per frame.
+	if not self:uses_bounds_proxy() then
+		for _, child_id in ipairs(self:children()) do
+			RenderWorld.selection(self._rw, child_id, selected);
+		end
 	end
 
 	self._selected = selected
@@ -368,8 +373,12 @@ function UnitBox:raycast(pos, dir)
 	end
 
 	local obb_tm, obb_he = self:obb()
-	if Math.ray_obb_intersection(pos, dir, obb_tm, obb_he) == -1.0 then
+	local obb_t = Math.ray_obb_intersection(pos, dir, obb_tm, obb_he)
+	if obb_t == -1.0 then
 		return -1.0
+	end
+	if self:uses_bounds_proxy() then
+		return obb_t
 	end
 
 	local t = self:raycast_mesh_tree(pos, dir)
@@ -383,6 +392,11 @@ end
 function UnitBox:draw()
 	if self._hidden or not self._selected then
 		return
+	end
+
+	if self:uses_bounds_proxy() then
+		local obb_tm, obb_he = self:obb()
+		DebugLine.add_obb(LevelEditor._lines_no_depth, obb_tm, obb_he, Color4(255, 255*0.37, 255*0.05, 255))
 	end
 
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
