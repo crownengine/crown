@@ -9,6 +9,7 @@
 #include "core/json/sjson.h"
 #include "core/math/random.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/profiler.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
@@ -634,6 +635,10 @@ void LuaEnvironment::set_temp_count(u32 num_vec3, u32 num_quat, u32 num_mat4)
 
 void LuaEnvironment::reset_temporaries()
 {
+	RECORD_FLOAT("lua.temp_vec3", f32(_num_vec3));
+	RECORD_FLOAT("lua.temp_quat", f32(_num_quat));
+	RECORD_FLOAT("lua.temp_mat4", f32(_num_mat4));
+
 	_num_vec3 = 0;
 	_num_quat = 0;
 	_num_mat4 = 0;
