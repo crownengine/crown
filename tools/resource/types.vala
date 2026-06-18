@@ -44,6 +44,9 @@ const string OBJECT_TYPE_SPRITE                  = "sprite";
 const string OBJECT_TYPE_SPRITE_ANIMATION        = "sprite_animation";
 const string OBJECT_TYPE_SPRITE_FRAME            = "sprite_frame";
 const string OBJECT_TYPE_SPRITE_RENDERER         = "sprite_renderer";
+const string OBJECT_TYPE_STAT_CONFIG             = "stat_config";
+const string OBJECT_TYPE_STAT_COUNTER            = "stat_counter";
+const string OBJECT_TYPE_STAT_PANEL              = "stat_panel";
 const string OBJECT_TYPE_STATE_MACHINE           = "state_machine";
 const string OBJECT_TYPE_STATE_MACHINE_NODE      = "state_machine_node";
 const string OBJECT_TYPE_STATE_MACHINE_VARIABLE  = "state_machine_variable";
@@ -2020,6 +2023,146 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MATERIAL, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "label",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "order",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "counters",
+		},
+	};
+	StringId64 stat_counter_type = database.create_object_type(OBJECT_TYPE_STAT_COUNTER, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "label",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.RESOURCE,
+			name = "font",
+			resource_type = OBJECT_TYPE_FONT,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "font_size",
+			deffault = 16.0,
+			min = 1.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.RESOURCE,
+			name = "material",
+			resource_type = OBJECT_TYPE_MATERIAL,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "margin.left",
+			label = "Margin Left",
+			deffault = "0",
+			tooltip = "Fraction of the screen width.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "margin.right",
+			label = "Margin Right",
+			deffault = "0",
+			tooltip = "Fraction of the screen width.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "margin.bottom",
+			label = "Margin Bottom",
+			deffault = "0",
+			tooltip = "Fraction of the screen height.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "margin.top",
+			label = "Margin Top",
+			deffault = "0",
+			tooltip = "Fraction of the screen height.",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "padding.left",
+			label = "Padding Left",
+			deffault = 12.0,
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "padding.right",
+			label = "Padding Right",
+			deffault = 12.0,
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "padding.bottom",
+			label = "Padding Bottom",
+			deffault = 8.0,
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "padding.top",
+			label = "Padding Top",
+			deffault = 8.0,
+			min = 0.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "order",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "counters",
+			object_type = stat_counter_type,
+		},
+	};
+	StringId64 stat_panel_type = database.create_object_type(OBJECT_TYPE_STAT_PANEL, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "panels",
+			object_type = stat_panel_type,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_STAT_CONFIG, properties);
 
 	properties =
 	{

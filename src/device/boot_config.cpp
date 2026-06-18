@@ -22,6 +22,7 @@ BootConfig::BootConfig(Allocator &a)
 	: boot_script_name(a)
 	, boot_package_name(u64(0))
 	, render_config_name(STRING_ID_64("core/renderer/default", UINT64_C (0x1b92f3ff7ca4157c)))
+	, stat_config_name(STRING_ID_64("core/stat/default", UINT64_C (0x915e994e599617ac)))
 	, window_title(a)
 	, save_dir(a)
 	, user_config(a)
@@ -188,6 +189,8 @@ bool BootConfig::parse(const char *json)
 			sjson::parse_string(window_title, cur->second);
 		} else if (cur->first == "render_config") {
 			render_config_name = sjson::parse_resource_name(cur->second);
+		} else if (cur->first == "stat_config") {
+			stat_config_name = sjson::parse_resource_name(cur->second);
 		} else if (cur->first == "physics") {
 			parse_physics(&physics_settings, cur->second);
 		} else if (cur->first == "render_settings") {

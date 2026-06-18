@@ -1,0 +1,428 @@
+_guid = "4797a168-e3c9-47f1-850c-26ea0c848d8e"
+_type = "stat_config"
+panels = [
+	{
+		_guid = "1ec35670-53ed-4235-8562-440884f4d47b"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "11ffc95e-66a9-49cf-b7e1-7a87e3141b4e"
+				_type = "stat_counter"
+				counters = "physics.colliders"
+				label = "Colliders"
+				order = 1
+			}
+			{
+				_guid = "4ee36499-fcd6-40c1-a77b-e84be008f815"
+				_type = "stat_counter"
+				counters = "physics.contacts"
+				label = "Contacts"
+				order = 5
+			}
+			{
+				_guid = "5b8c6d1f-5478-4778-af5f-256bf534147d"
+				_type = "stat_counter"
+				counters = "physics.shapes"
+				label = "Shapes"
+				order = 0
+			}
+			{
+				_guid = "b1486272-50bc-4522-9af1-93d786a1aa88"
+				_type = "stat_counter"
+				counters = "physics.joints"
+				label = "Joints"
+				order = 4
+			}
+			{
+				_guid = "d23f4359-3b55-44f6-8a5c-6afeac87c0b4"
+				_type = "stat_counter"
+				counters = "physics.movers"
+				label = "Movers"
+				order = 3
+			}
+			{
+				_guid = "dd9502f7-cc8c-4e65-820a-c0e8dc976b5a"
+				_type = "stat_counter"
+				counters = "physics.actors"
+				label = "Actors"
+				order = 2
+			}
+			{
+				_guid = "f21504a3-9f02-44dd-b5a4-4ea7526866d6"
+				_type = "stat_counter"
+				counters = "physics.sleeping_actors"
+				label = "Sleeping Actors"
+				order = 7
+			}
+			{
+				_guid = "f53de21c-e0ac-45a0-9b14-45d238b38e08"
+				_type = "stat_counter"
+				counters = "physics.active_actors"
+				label = "Active Actors"
+				order = 6
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "Physics"
+		margin = {
+			bottom = "0"
+			left = "1/4"
+			right = "1/2"
+			top = "1/2"
+		}
+		material = "core/game/hud/debug"
+		name = "physics"
+		order = 6
+		padding = {
+			bottom = 8
+			left = 12
+			right = 12
+			top = 8
+		}
+	}
+	{
+		_guid = "353f9b74-8065-4311-b1bf-5c6d68e6e989"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "29292800-51c5-4ac9-a906-b258f27c2343"
+				_type = "stat_counter"
+				counters = "world.csm_0"
+				label = "CSM_0"
+				order = 4
+			}
+			{
+				_guid = "3f23e8ca-f8af-40ef-a1b7-382d1773bac6"
+				_type = "stat_counter"
+				counters = "world.visible_objects"
+				label = "Visible Objects"
+				order = 0
+			}
+			{
+				_guid = "43176b3d-9322-47af-8131-01fc0d5dc71b"
+				_type = "stat_counter"
+				counters = "world.mesh_animations_playing world.sprite_animations_playing"
+				label = "Playing Animations"
+				order = 3
+			}
+			{
+				_guid = "576cbc11-d4da-498f-b408-98e77c587ec4"
+				_type = "stat_counter"
+				counters = "world.csm_1"
+				label = "CSM_1"
+				order = 5
+			}
+			{
+				_guid = "6146c859-bd31-4f8a-bc71-4d8c7aa18aee"
+				_type = "stat_counter"
+				counters = "world.csm_2"
+				label = "CSM_2"
+				order = 6
+			}
+			{
+				_guid = "87b36099-dafe-4ed1-8856-47a1386ef4f5"
+				_type = "stat_counter"
+				counters = "world.visible_lights"
+				label = "Visible Lights"
+				order = 2
+			}
+			{
+				_guid = "a9e22ac6-3820-403e-b3f9-90568c2bc250"
+				_type = "stat_counter"
+				counters = "world.csm_3"
+				label = "CSM_3"
+				order = 7
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "World"
+		margin = {
+			bottom = "1/8"
+			left = "1/4"
+			right = "1/4"
+			top = "2/8"
+		}
+		material = "core/game/hud/debug"
+		name = "world"
+		order = 3
+		padding = {
+			bottom = 4
+			left = 8
+			right = 8
+			top = 4
+		}
+	}
+	{
+		_guid = "3ed68c55-eedd-44dd-bcf2-08b706fc5c2b"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "26429c26-70f7-4456-9d3f-98a9c6eddb0a"
+				_type = "stat_counter"
+				counters = "render.primitives_tri_list render.primitives_tri_strip render.primitives_line_list render.primitives_line_strip render.primitives_point_list"
+				label = "Primitives"
+				order = 6
+			}
+			{
+				_guid = "4603f8d4-aca0-4245-aa71-b8b707c35162"
+				_type = "stat_counter"
+				counters = "device.fps"
+				label = "FPS"
+				order = 0
+			}
+			{
+				_guid = "4d86b972-9e2a-4045-8792-e2c0d8da8370"
+				_type = "stat_counter"
+				counters = "render.gpu"
+				label = "GPU"
+				order = 4
+			}
+			{
+				_guid = "7f335747-b507-41cb-a90b-a6b9797eedf9"
+				_type = "stat_counter"
+				counters = "world.visible_lights"
+				label = "Visible Lights"
+				order = 8
+			}
+			{
+				_guid = "7f5dedf1-4853-41cc-ba88-8030bdc05e78"
+				_type = "stat_counter"
+				counters = "render.cpu_submit"
+				label = "CPU Submit"
+				order = 3
+			}
+			{
+				_guid = "8dfae3f9-25bd-4add-9b7f-cf8f61429e5f"
+				_type = "stat_counter"
+				counters = "memory.default_allocator"
+				label = "Memory"
+				order = 10
+			}
+			{
+				_guid = "95a97ace-c993-41d4-a065-a018cfbdef99"
+				_type = "stat_counter"
+				counters = "device.dt"
+				label = "DT"
+				order = 2
+			}
+			{
+				_guid = "b54a3b04-a1dd-47c1-8459-5e9b4ff4d6de"
+				_type = "stat_counter"
+				counters = "world.mesh_animations_playing world.sprite_animations_playing"
+				label = "Playing Animations"
+				order = 9
+			}
+			{
+				_guid = "bb01df05-5caa-40c6-b65e-4252d670d058"
+				_type = "stat_counter"
+				counters = "world.visible_objects"
+				label = "Visible Objects"
+				order = 7
+			}
+			{
+				_guid = "c88659da-523a-482e-8507-cc59c7391ac5"
+				_type = "stat_counter"
+				counters = "device.smoothed_fps"
+				label = "Smoothed FPS"
+				order = 1
+			}
+			{
+				_guid = "e7f1079f-c959-4d73-ad9d-c5476f6ed0c3"
+				_type = "stat_counter"
+				counters = "render.draw_calls"
+				label = "Draw Calls"
+				order = 5
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "General"
+		margin = {
+			bottom = "0"
+			left = "8/10"
+			right = "0"
+			top = "0"
+		}
+		material = "core/game/hud/debug"
+		name = "general"
+		order = 0
+		padding = {
+			bottom = 8
+			left = 12
+			right = 12
+			top = 8
+		}
+	}
+	{
+		_guid = "69f24900-1a9b-4439-bf48-0705fcd7598a"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "12b6440c-7d58-4c4d-91d3-ece5461a5166"
+				_type = "stat_counter"
+				counters = "render.cpu_submit"
+				label = "CPU Submit"
+				order = 0
+			}
+			{
+				_guid = "6c53424f-fad3-4be6-b75a-156e55436096"
+				_type = "stat_counter"
+				counters = "render.draw_calls"
+				label = "Draw Calls"
+				order = 2
+			}
+			{
+				_guid = "877d7d0d-eab6-47ac-980f-679ccf898989"
+				_type = "stat_counter"
+				counters = "render.gpu"
+				label = "GPU"
+				order = 1
+			}
+			{
+				_guid = "f4b37069-ad7b-446a-8e38-c9640d56cbb7"
+				_type = "stat_counter"
+				counters = "render.primitives_tri_list render.primitives_tri_strip render.primitives_line_list render.primitives_line_strip render.primitives_point_list"
+				label = "Primitives"
+				order = 3
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "Render"
+		margin = {
+			bottom = "1/4"
+			left = "1/4"
+			right = "1/4"
+			top = "1/8"
+		}
+		material = "core/game/hud/debug"
+		name = "render"
+		order = 2
+		padding = {
+			bottom = 8
+			left = 12
+			right = 12
+			top = 8
+		}
+	}
+	{
+		_guid = "95d74981-3106-4170-875e-349ff48dd1f3"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "09045b2c-a8e2-4768-a6d1-dca4c5c06319"
+				_type = "stat_counter"
+				counters = "audio.playing_sounds"
+				label = "Playing Sounds"
+				order = 0
+			}
+			{
+				_guid = "4b3c8429-9ba5-407f-a326-0582888e1263"
+				_type = "stat_counter"
+				counters = "audio.sound_buffers"
+				label = "Sound Buffers"
+				order = 2
+			}
+			{
+				_guid = "5fbbda7c-5927-4973-ad90-7bf80b19b838"
+				_type = "stat_counter"
+				counters = "audio.paused_sounds"
+				label = "Paused Sounds"
+				order = 1
+			}
+			{
+				_guid = "63ffceca-ef42-43ed-93a5-f21065ef7533"
+				_type = "stat_counter"
+				counters = "audio.streaming_sounds"
+				label = "Streaming Sounds"
+				order = 3
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "Audio"
+		margin = {
+			bottom = "0"
+			left = "1/2"
+			right = "1/4"
+			top = "1/2"
+		}
+		material = "core/game/hud/debug"
+		name = "audio"
+		order = 5
+		padding = {
+			bottom = 8
+			left = 12
+			right = 12
+			top = 8
+		}
+	}
+	{
+		_guid = "f241e65e-8d72-4f63-96c5-b2cd1c3aaac9"
+		_type = "stat_panel"
+		counters = [
+			{
+				_guid = "1bcf4f37-753e-4ef9-bd5d-69099df68af5"
+				_type = "stat_counter"
+				counters = "lua.temp_quat"
+				label = "Temp Quats"
+				order = 3
+			}
+			{
+				_guid = "24352c38-21e7-4ce9-ad20-4b5ecfa939d6"
+				_type = "stat_counter"
+				counters = "lua.temp_vec3"
+				label = "Temp Vectors"
+				order = 2
+			}
+			{
+				_guid = "37383a04-543f-4534-bcab-6a67f9ef491f"
+				_type = "stat_counter"
+				counters = "lua.render"
+				label = "Render"
+				order = 1
+			}
+			{
+				_guid = "8357776b-cbe8-4405-87b4-9cd6b73395f7"
+				_type = "stat_counter"
+				counters = "lua.update"
+				label = "Update"
+				order = 0
+			}
+			{
+				_guid = "a59468a7-6f69-48b9-ab63-a032400a8ddd"
+				_type = "stat_counter"
+				counters = "lua.temp_vec3 lua.temp_quat lua.temp_mat4"
+				label = "Temp Total"
+				order = 5
+			}
+			{
+				_guid = "c5e1431e-b0d3-4a05-ab95-d269fde9fe58"
+				_type = "stat_counter"
+				counters = "lua.temp_mat4"
+				label = "Temp Matrices"
+				order = 4
+			}
+		]
+		font = "core/game/hud/debug"
+		font_size = 16
+		label = "Lua"
+		margin = {
+			bottom = "1/2"
+			left = "1/4"
+			right = "1/2"
+			top = "0"
+		}
+		material = "core/game/hud/debug"
+		name = "lua"
+		order = 1
+		padding = {
+			bottom = 8
+			left = 12
+			right = 12
+			top = 8
+		}
+	}
+]
