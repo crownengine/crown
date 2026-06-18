@@ -1519,8 +1519,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	// Render local lights.
 	if (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS) {
 		culling_set::cull_spheres(_cullable_lights, view_frustum, 0, array::size(_cullable_lights.id));
-		u32 nl = culling_set::remove_culled(_cullable_lights);
-		CE_UNUSED(nl);
+		culling_set::remove_culled(_cullable_lights);
 
 		for (u32 i = 0; i < array::size(_cullable_lights.render); ++i) {
 			const u32 light_id = _cullable_lights.id[_cullable_lights.render[i]];
@@ -1744,6 +1743,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 		for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
 			array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
 	}
+	RECORD_FLOAT("world.visible_lights", f32(num_lights));
 
 	// Send lights data to GPU.
 	Vector4 h;
