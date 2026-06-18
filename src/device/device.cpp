@@ -554,8 +554,37 @@ bool Device::frame()
 	_input_manager->update();
 
 	const bgfx::Stats *stats = bgfx::getStats();
-	RECORD_FLOAT("bgfx.gpu_time", f32(f64(stats->gpuTimeEnd - stats->gpuTimeBegin)/stats->gpuTimerFreq));
-	RECORD_FLOAT("bgfx.cpu_time", f32(f64(stats->cpuTimeEnd - stats->cpuTimeBegin)/stats->cpuTimerFreq));
+	RECORD_FLOAT("render.cpu_submit", f32(1000.0*f64(stats->cpuTimeEnd - stats->cpuTimeBegin)/stats->cpuTimerFreq));
+	RECORD_FLOAT("render.gpu", f32(1000.0*f64(stats->gpuTimeEnd - stats->gpuTimeBegin)/stats->gpuTimerFreq));
+	RECORD_FLOAT("render.wait_submit", f32(1000.0*f64(stats->waitSubmit)/stats->cpuTimerFreq));
+	RECORD_FLOAT("render.wait_render", f32(1000.0*f64(stats->waitRender)/stats->cpuTimerFreq));
+	RECORD_FLOAT("render.draw_calls", f32(stats->numDraw));
+	RECORD_FLOAT("render.compute_calls", f32(stats->numCompute));
+	RECORD_FLOAT("render.blit_calls", f32(stats->numBlit));
+	RECORD_FLOAT("render.primitives_tri_list", f32(stats->numPrims[bgfx::Topology::TriList]));
+	RECORD_FLOAT("render.primitives_tri_strip", f32(stats->numPrims[bgfx::Topology::TriStrip]));
+	RECORD_FLOAT("render.primitives_line_list", f32(stats->numPrims[bgfx::Topology::LineList]));
+	RECORD_FLOAT("render.primitives_line_strip", f32(stats->numPrims[bgfx::Topology::LineStrip]));
+	RECORD_FLOAT("render.primitives_point_list", f32(stats->numPrims[bgfx::Topology::PointList]));
+	RECORD_FLOAT("render.texture_memory_mb", f32(f64(stats->textureMemoryUsed)/(1024.0*1024.0)));
+	RECORD_FLOAT("render.rt_memory_mb", f32(f64(stats->rtMemoryUsed)/(1024.0*1024.0)));
+	RECORD_FLOAT("render.transient_vb_used", f32(stats->transientVbUsed));
+	RECORD_FLOAT("render.transient_ib_used", f32(stats->transientIbUsed));
+	if (stats->gpuMemoryUsed >= 0)
+		RECORD_FLOAT("render.gpu_memory_used_mb", f32(f64(stats->gpuMemoryUsed)/(1024.0*1024.0)));
+	if (stats->gpuMemoryMax >= 0)
+		RECORD_FLOAT("render.gpu_memory_max_mb", f32(f64(stats->gpuMemoryMax)/(1024.0*1024.0)));
+	RECORD_FLOAT("render.textures", f32(stats->numTextures));
+	RECORD_FLOAT("render.frame_buffers", f32(stats->numFrameBuffers));
+	RECORD_FLOAT("render.programs", f32(stats->numPrograms));
+	RECORD_FLOAT("render.shaders", f32(stats->numShaders));
+	RECORD_FLOAT("render.uniforms", f32(stats->numUniforms));
+	RECORD_FLOAT("render.vertex_buffers", f32(stats->numVertexBuffers));
+	RECORD_FLOAT("render.index_buffers", f32(stats->numIndexBuffers));
+	RECORD_FLOAT("render.dynamic_vertex_buffers", f32(stats->numDynamicVertexBuffers));
+	RECORD_FLOAT("render.dynamic_index_buffers", f32(stats->numDynamicIndexBuffers));
+	RECORD_FLOAT("render.vertex_layouts", f32(stats->numVertexLayouts));
+	RECORD_FLOAT("render.occlusion_queries", f32(stats->numOcclusionQueries));
 
 	profiler_globals::flush();
 
