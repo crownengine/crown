@@ -14,6 +14,8 @@ Changelog
 * Tools: added Italian language support.
 * Tools: added the ability to align the currently selected objects to the editor camera view.
 * Tools: added the ability to change the prefab of units.
+* Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
+* Runtime: improved performance when rendering worlds containing many units.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 
 **Fixes**
@@ -32,7 +34,6 @@ Changelog
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
 * Runtime: fixed a crash when reloading the render config in some cases.
-* Runtime: improved performance when rendering worlds containing many units.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
