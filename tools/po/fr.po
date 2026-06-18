@@ -1352,100 +1352,100 @@ msgstr "Première Modification"
 #: tools/level_editor/project_browser.vala:1152
 #: tools/level_editor/project_browser.vala:1159
 msgid "Tree view."
-msgstr ""
+msgstr "Vue d'arbre."
 
 #: tools/level_editor/project_browser.vala:1159
 msgid "Folder view."
-msgstr ""
+msgstr "Vue du dossier."
 
 #: tools/level_editor/project_browser.vala:1236
 msgid "Go Back"
-msgstr ""
+msgstr "Revenir en arrière"
 
 #: tools/level_editor/project_browser.vala:1243
 msgid "Go Forward"
-msgstr ""
+msgstr "Revenir en avant"
 
 #: tools/level_editor/project_browser.vala:1268
 #, c-format
 msgid "Project browser: folder not found: %s"
-msgstr ""
+msgstr "Navigateur de projet: dossier non trouvé: %s"
 
 #: tools/level_editor/project_browser.vala:1294
 msgid "Show all files"
-msgstr ""
+msgstr "Afficher tous les fichiers"
 
 #: tools/level_editor/project_browser.vala:1295
 msgid "Show all files, not just resource files."
-msgstr ""
+msgstr "Afficher tous les fichiers, pas seulement les fichiers de ressource."
 
 #: tools/level_editor/project_browser.vala:1299
 msgid "Show files extension"
-msgstr ""
+msgstr "Afficher les extensions de fichiers"
 
 #: tools/level_editor/project_browser.vala:1300
 msgid "Do not hide files extension."
-msgstr ""
+msgstr "Ne pas cacher les extensions de fichier"
 
 #: tools/level_editor/project_browser.vala:1304
 msgid "Show mapped dirs"
-msgstr ""
+msgstr "Afficher les répertoires cartographiés"
 
 #: tools/level_editor/project_browser.vala:1305
 msgid "Show external mapped directories."
-msgstr ""
+msgstr "Afficher les répertoires externes cartographiés."
 
 #: tools/level_editor/project_browser.vala:1313
 msgid "Sort and filter items."
-msgstr ""
+msgstr "Trier et filtrer les éléments."
 
 #: tools/level_editor/project_browser.vala:1332
 #: tools/level_editor/project_browser.vala:1359
 msgid "List view."
-msgstr ""
+msgstr "Vue en liste."
 
 #: tools/level_editor/project_browser.vala:1359
 msgid "Icon view."
-msgstr ""
+msgstr "Vue en icône."
 
 #: tools/level_editor/project_browser.vala:1370
 msgid "Favorites is empty"
-msgstr ""
+msgstr "Favoris est vide"
 
 #: tools/level_editor/project_browser.vala:2022
 msgid "Favorites"
-msgstr ""
+msgstr "Favoris"
 
 #: tools/level_editor/properties_view.vala:46
 msgid "Open Prefab"
-msgstr ""
+msgstr "Ouvrir Préfab"
 
 #: tools/level_editor/properties_view.vala:65
 msgid "Add Component"
-msgstr ""
+msgstr "Ajouter un composant"
 
 #: tools/level_editor/properties_view.vala:72
 #: tools/level_editor/properties_view.vala:73
 msgid "Prefab"
-msgstr ""
+msgstr "Préfab"
 
 #: tools/level_editor/properties_view.vala:74
 msgid "Components"
-msgstr ""
+msgstr "Composants"
 
 #: tools/level_editor/properties_view.vala:133
 #: tools/widgets/object_properties.vala:49
 msgid "Select an object to start editing"
-msgstr ""
+msgstr "Sélectionné un objet pour commencer l'étidion"
 
 #: tools/level_editor/properties_view.vala:134
 #: tools/widgets/object_properties.vala:50
 msgid "Unknown object type"
-msgstr ""
+msgstr "Type d'objet inconnu"
 
 #: tools/level_editor/property_grid.vala:33
 msgid "Inherited sub-objects are read-only here. Edit the unit in Unit Editor."
-msgstr ""
+msgstr "Les sous-ibjets hérités sont en lecture seule ici. Éditer l'unité dans l'Éditeur d'Unité."
 
 #: tools/level_editor/property_grid.vala:260
 #, c-format
@@ -1453,147 +1453,149 @@ msgid ""
 "Cannot remove %s due to the following dependencies:\n"
 "\n"
 msgstr ""
+"Ne peut pas supprimer %s en raison des dépendances suivantes:\n"
+"\n"
 
 #: tools/level_editor/property_grid.vala:296
 msgid "Remove Component"
-msgstr ""
+msgstr "Supprimer Composant"
 
 #: tools/level_editor/property_grid.vala:457
 msgid "Reset to default"
-msgstr ""
+msgstr "Réinitialiser par défaut"
 
 #: tools/level_editor/texture_settings_dialog.vala:64
 msgid "Target Platform"
-msgstr ""
+msgstr "Plate-forme Cible"
 
 #: tools/level_editor/texture_settings_dialog.vala:88
 msgid "Resource name."
-msgstr ""
+msgstr "Nom de la ressource."
 
 #: tools/level_editor/texture_settings_dialog.vala:89
 msgid "Texture"
-msgstr ""
+msgstr "Texture"
 
 #: tools/level_editor/texture_settings_dialog.vala:93
 #: tools/resource/font_resource.vala:257
 msgid "Source"
-msgstr ""
+msgstr "Source"
 
 #: tools/level_editor/texture_settings_dialog.vala:93
 msgid "Source image."
-msgstr ""
+msgstr "Image source."
 
 #: tools/level_editor/texture_settings_dialog.vala:94
 msgid "Input"
-msgstr ""
+msgstr "Entrée"
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Output format."
-msgstr ""
+msgstr "Format de sortie."
 
 #: tools/level_editor/texture_settings_dialog.vala:129
 msgid "Generate Mips"
-msgstr ""
+msgstr "Générer Mips"
 
 #: tools/level_editor/texture_settings_dialog.vala:129
 msgid "Generate mip-maps."
-msgstr ""
+msgstr "Générer mip-maps."
 
 #: tools/level_editor/texture_settings_dialog.vala:130
 msgid "Skip Smallest Mips"
-msgstr ""
+msgstr "Sauter les plus petits Mips"
 
 #: tools/level_editor/texture_settings_dialog.vala:130
 msgid "Skip generation of the N smallest mip-maps."
-msgstr ""
+msgstr "Sauter la génération des N plus petites mip-maps."
 
 #: tools/level_editor/texture_settings_dialog.vala:131
 msgid "Normal Map"
-msgstr ""
+msgstr "Carte de Normale"
 
 #: tools/level_editor/texture_settings_dialog.vala:131
 msgid "Skip gamma correction and mark as normal map."
-msgstr ""
+msgstr "Sauter la correction gamma et marquer en carte de normale."
 
 #: tools/level_editor/texture_settings_dialog.vala:132
 msgid "Linear"
-msgstr ""
+msgstr "Linéaire"
 
 #: tools/level_editor/texture_settings_dialog.vala:132
 msgid "Skip gamma correction."
-msgstr ""
+msgstr "Sauter la correction gamma."
 
 #: tools/level_editor/texture_settings_dialog.vala:133
 msgid "Premultiply Alpha"
-msgstr ""
+msgstr "Prémultiplier Alpha"
 
 #: tools/level_editor/texture_settings_dialog.vala:133
 msgid "Premultiply alpha into RGB channels."
-msgstr ""
+msgstr "Prémultiplier alpha dans le canal RGB."
 
 #: tools/level_editor/texture_settings_dialog.vala:137
 msgid "Select one or more platforms to change its settings"
-msgstr ""
+msgstr "Sélectionner un ou plusieurs plate-formes pour modifier ses paramètres"
 
 #: tools/level_editor/texture_settings_dialog.vala:167
 msgid "Texture Settings"
-msgstr ""
+msgstr "Paramètres de Texture"
 
 #: tools/resource/font_resource.vala:257
 msgid "Source font path."
-msgstr ""
+msgstr "Chemin de police source."
 
 #: tools/resource/font_resource.vala:258 tools/widgets/input_file.vala:86
 msgid "File"
-msgstr ""
+msgstr "Fichier"
 
 #: tools/resource/font_resource.vala:261
 msgid "Name of the imported resource."
-msgstr ""
+msgstr "Nom de la ressource importée."
 
 #: tools/resource/font_resource.vala:262
 msgid "Atlas size"
-msgstr ""
+msgstr "Taille de l'atlas"
 
 #: tools/resource/font_resource.vala:262
 msgid "Resolution of the generated texture."
-msgstr ""
+msgstr "Résolution de la texture générée."
 
 #: tools/resource/font_resource.vala:263
 msgid "Size of characters."
-msgstr ""
+msgstr "Taille des caractères."
 
 #: tools/resource/font_resource.vala:264
 msgid "Charset"
-msgstr ""
+msgstr "Jeu de caractères"
 
 #: tools/resource/font_resource.vala:264
 msgid "Generate characters within this set."
-msgstr ""
+msgstr "Générer des caractères dans cet ensemble."
 
 #: tools/resource/font_resource.vala:265
 msgid "Range min"
-msgstr ""
+msgstr "Plage min"
 
 #: tools/resource/font_resource.vala:265
 msgid "First character to generate (included)."
-msgstr ""
+msgstr "Premier caractère à générer (inclus)."
 
 #: tools/resource/font_resource.vala:266
 msgid "Range max"
-msgstr ""
+msgstr "Plage max"
 
 #: tools/resource/font_resource.vala:266
 msgid "Last character to generate (included)."
-msgstr ""
+msgstr "Dernier caractère à générer (inclus)."
 
 #: tools/resource/font_resource.vala:267
 msgid "Font"
-msgstr ""
+msgstr "Police"
 
 #: tools/resource/font_resource.vala:287
 #: tools/resource/mesh_resource_fbx.vala:153
@@ -1602,513 +1604,520 @@ msgstr ""
 #: tools/resource/mesh_resource_obj.vala:329
 #: tools/resource/sprite_resource.vala:567
 msgid "Import"
-msgstr ""
+msgstr "Importer"
 
 #: tools/resource/font_resource.vala:292
 msgid "Import Font..."
-msgstr ""
+msgstr "Importer Police..."
 
 #: tools/resource/mesh_resource_fbx.vala:153
 #: tools/resource/mesh_resource_obj.vala:211
 msgid "Calculate"
-msgstr ""
+msgstr "Calculer"
 
 #: tools/resource/mesh_resource_fbx.vala:328
 msgid "Import Lights"
-msgstr ""
+msgstr "Importer Lumières"
 
 #: tools/resource/mesh_resource_fbx.vala:328
 msgid "Import all light nodes."
-msgstr ""
+msgstr "Importer tous les nœuds de lumière."
 
 #: tools/resource/mesh_resource_fbx.vala:329
 msgid "Import Cameras"
-msgstr ""
+msgstr "Importer Caméra"
 
 #: tools/resource/mesh_resource_fbx.vala:329
 msgid "Import all camera nodes."
-msgstr ""
+msgstr "Importer tous les nœuds de caméra."
 
 #: tools/resource/mesh_resource_fbx.vala:330
 #: tools/resource/mesh_resource_obj.vala:313
 msgid "Import Textures"
-msgstr ""
+msgstr "Importer Textures"
 
 #: tools/resource/mesh_resource_fbx.vala:330
 #: tools/resource/mesh_resource_obj.vala:313
 msgid "Import all textures."
-msgstr ""
+msgstr "Importer toutes les textures."
 
 #: tools/resource/mesh_resource_fbx.vala:331
 #: tools/resource/mesh_resource_obj.vala:314
 msgid "Create Textures Folder"
-msgstr ""
+msgstr "Créer un Dossier de Texture"
 
 #: tools/resource/mesh_resource_fbx.vala:331
 #: tools/resource/mesh_resource_obj.vala:314
 msgid "Put imported textures in a sub-folder."
-msgstr ""
+msgstr "Placer les textures importées dans un sous-dossier."
 
 #: tools/resource/mesh_resource_fbx.vala:332
 #: tools/resource/mesh_resource_obj.vala:315
 msgid "Import Materials"
-msgstr ""
+msgstr "Importer Matériaux"
 
 #: tools/resource/mesh_resource_fbx.vala:332
 #: tools/resource/mesh_resource_obj.vala:315
 msgid "Import all materials."
-msgstr ""
+msgstr "Importer tous les matériaux."
 
 #: tools/resource/mesh_resource_fbx.vala:333
 #: tools/resource/mesh_resource_obj.vala:316
 msgid "Create Materials Folder"
-msgstr ""
+msgstr "Créer un Dossier de Matériaux"
 
 #: tools/resource/mesh_resource_fbx.vala:333
 #: tools/resource/mesh_resource_obj.vala:316
 msgid "Put imported materials in a sub-folder."
-msgstr ""
+msgstr "Placer les matériaux importés dans un sous-dossier."
 
 #: tools/resource/mesh_resource_fbx.vala:334
 #: tools/resource/mesh_resource_obj.vala:317
 msgid "Create Colliders"
-msgstr ""
+msgstr "Créer Collisions"
 
 #: tools/resource/mesh_resource_fbx.vala:334
 #: tools/resource/mesh_resource_obj.vala:317
 msgid "Create colliders and actors for each imported unit."
-msgstr ""
+msgstr "Créer des collisions et acteurs pour chaque unité importée."
 
 #: tools/resource/mesh_resource_fbx.vala:335
 #: tools/resource/mesh_resource_obj.vala:318
 msgid "Import LODs"
-msgstr ""
+msgstr "Importés LODs"
 
 #: tools/resource/mesh_resource_fbx.vala:335
 #: tools/resource/mesh_resource_obj.vala:318
 msgid "Create LOD Group component in the root unit if any LOD exists."
-msgstr ""
+msgstr "Créer un composant Groupe de LOD dans la racine si tout les LOD existent."
 
 #: tools/resource/mesh_resource_fbx.vala:336
 #: tools/resource/mesh_resource_obj.vala:319
 msgid "Tangents"
-msgstr ""
+msgstr "tangentes"
 
 #: tools/resource/mesh_resource_fbx.vala:336
 #: tools/resource/mesh_resource_obj.vala:319
 msgid "Import tangents from source or calculate them with MikkTSpace."
-msgstr ""
+msgstr "Importer les tangentes depuis la source ou les calculer avec MikkTSpace."
 
 #: tools/resource/mesh_resource_fbx.vala:337
 #: tools/resource/mesh_resource_obj.vala:320
 msgid "Units"
-msgstr ""
+msgstr "Unités"
 
 #: tools/resource/mesh_resource_fbx.vala:337
 msgid "Import nodes as units, materials and textures."
-msgstr ""
+msgstr "Importé des nœuds en tant qu'unités, matériaux et textures."
 
 #: tools/resource/mesh_resource_fbx.vala:341
 msgid "New Skeleton"
-msgstr ""
+msgstr "Nouveau Squelette"
 
 #: tools/resource/mesh_resource_fbx.vala:341
 msgid "Create a new skeleton."
-msgstr ""
+msgstr "Créer un nouveau squelette."
 
 #: tools/resource/mesh_resource_fbx.vala:342
 msgid "Target Skeleton"
-msgstr ""
+msgstr "Cile du Squelette"
 
 #: tools/resource/mesh_resource_fbx.vala:342
 msgid "Skeleton to use."
-msgstr ""
+msgstr "Squelette à utiliser."
 
 #: tools/resource/mesh_resource_fbx.vala:343
 msgid "Import Animations"
-msgstr ""
+msgstr "Importer Animations."
 
 #: tools/resource/mesh_resource_fbx.vala:343
 msgid "Import all animation clips."
-msgstr ""
+msgstr "Importer tous les clips d'animation."
 
 #: tools/resource/mesh_resource_fbx.vala:344
-msgid "Create Animations Folder"
-msgstr ""
+msgid "Create Animations Folder."
+msgstr "Créer un Dossier d'Animation."
 
 #: tools/resource/mesh_resource_fbx.vala:344
 msgid "Put imported animations in a sub-folder."
-msgstr ""
+msgstr "Placer les animations importées dans un sous-dossier."
 
 #: tools/resource/mesh_resource_fbx.vala:345 tools/resource/types.vala:1948
 msgid "Animation"
-msgstr ""
+msgstr "Animation"
 
 #: tools/resource/mesh_resource_fbx.vala:345
 msgid "Import animations and skeleton."
-msgstr ""
+msgstr "Importer animations et squelette"
 
 #: tools/resource/mesh_resource_fbx.vala:359
 msgid "Import FBX..."
-msgstr ""
+msgstr "Importe FBX..."
 
 #: tools/resource/mesh_resource_obj.vala:334
 msgid "Import OBJ..."
-msgstr ""
+msgstr "Importer OBJ..."
 
 #: tools/resource/sprite_resource.vala:340
 msgid "Name of the imported unit."
-msgstr ""
+msgstr "Nommer l'unité importée."
 
 #: tools/resource/sprite_resource.vala:341
 msgid "Unit"
-msgstr ""
+msgstr "Unité"
 
 #: tools/resource/sprite_resource.vala:344
 msgid "Resolution"
-msgstr ""
+msgstr "Résolution"
 
 #: tools/resource/sprite_resource.vala:344
 msgid "Resolution of the source image."
-msgstr ""
+msgstr "Résolution de l'image source."
 
 #: tools/resource/sprite_resource.vala:345
 msgid "Cells"
-msgstr ""
+msgstr "Cellules"
 
 #: tools/resource/sprite_resource.vala:345
 msgid "Split the image into X columns and Y rows."
-msgstr ""
+msgstr "Diviser l'image en X colonnes et Y lignes."
 
 #: tools/resource/sprite_resource.vala:346
 msgid "Auto Size"
-msgstr ""
+msgstr "Taille Automatique"
 
 #: tools/resource/sprite_resource.vala:346
 msgid "Compute the cell size automatically."
-msgstr ""
+msgstr "Calculer automatiquement la taille de la cellule."
 
 #: tools/resource/sprite_resource.vala:347
 msgid "Cell"
-msgstr ""
+msgstr "Cellule"
 
 #: tools/resource/sprite_resource.vala:347
 msgid "Size of each cell."
-msgstr ""
+msgstr "Taille de chaque cellule."
 
 #: tools/resource/sprite_resource.vala:348
 msgid "Offset"
-msgstr ""
+msgstr "Décalage"
 
 #: tools/resource/sprite_resource.vala:348
 msgid "Starting offset of the cells."
-msgstr ""
+msgstr "Démarrer le décalage des cellules."
 
 #: tools/resource/sprite_resource.vala:349
 msgid "Spacing"
-msgstr ""
+msgstr "Espacement"
 
 #: tools/resource/sprite_resource.vala:349
 msgid "Spacing between the cells."
-msgstr ""
+msgstr "Espacement entre les cellules."
 
 #: tools/resource/sprite_resource.vala:350
 msgid "Pivot"
-msgstr ""
+msgstr "Pivotement"
 
 #: tools/resource/sprite_resource.vala:350
 msgid "Origin of the sprite."
-msgstr ""
+msgstr "Origine du sprite."
 
 #: tools/resource/sprite_resource.vala:351
 msgid "Collision"
-msgstr ""
+msgstr "Collision"
 
 #: tools/resource/sprite_resource.vala:351
 msgid "Enable collision detection."
-msgstr ""
+msgstr "Activer la détection de collision."
 
 #: tools/resource/sprite_resource.vala:352
 msgid "Image"
-msgstr ""
+msgstr "Image"
 
 #: tools/resource/sprite_resource.vala:356
 msgid "Layer"
-msgstr ""
+msgstr "Couche"
 
 #: tools/resource/sprite_resource.vala:356 tools/resource/types.vala:279
 msgid "Sorting layer. Higher values makes the sprite appear in front."
-msgstr ""
+msgstr "Couche de tri. Des valeurs plus élevées font apparaître le sprite devant."
 
 #: tools/resource/sprite_resource.vala:357
 msgid "Depth"
-msgstr ""
+msgstr "Profondeur"
 
 #: tools/resource/sprite_resource.vala:357 tools/resource/types.vala:287
 msgid ""
 "Higher values make the sprite apper in front of other sprites in the same "
 "layer."
 msgstr ""
+"Des valeurs plus élevées font apparaître le sprite devant d'autres sprites dans la même "
+"couche."
 
 #: tools/resource/sprite_resource.vala:358
 msgid "Sprite Renderer"
-msgstr ""
+msgstr "Rendu du Sprite"
 
 #: tools/resource/sprite_resource.vala:370
 #: tools/resource/sprite_resource.vala:375
 #: tools/resource/sprite_resource.vala:380
 msgid "Origin"
-msgstr ""
+msgstr "Origine"
 
 #: tools/resource/sprite_resource.vala:372
 msgid "Square"
-msgstr ""
+msgstr "Carré"
 
 #: tools/resource/sprite_resource.vala:376
 #: tools/resource/sprite_resource.vala:381
 msgid "Radius"
-msgstr ""
+msgstr "Rayon"
 
 #: tools/resource/sprite_resource.vala:377
 msgid "Circle"
-msgstr ""
+msgstr "Cercle"
 
 #: tools/resource/sprite_resource.vala:382
 msgid "Height"
-msgstr ""
+msgstr "Largeur"
 
 #: tools/resource/sprite_resource.vala:383
 msgid "Capsule"
-msgstr ""
+msgstr "Capsule"
 
 #: tools/resource/sprite_resource.vala:390
 msgid "Shape Type"
-msgstr ""
+msgstr "Type de Forme"
 
 #: tools/resource/sprite_resource.vala:390
 msgid "Shape to use as collider."
-msgstr ""
+msgstr "Forme à utiliser comme collisionneur."
 
 #: tools/resource/sprite_resource.vala:391
 msgid "Mirror Cell"
-msgstr ""
+msgstr "Cellule Miroire"
 
 #: tools/resource/sprite_resource.vala:391
 msgid "Compute the shape size based on the cell size."
-msgstr ""
+msgstr "Calculer la taille de la forme en fonction de la taille de la cellule."
 
 #: tools/resource/sprite_resource.vala:392
 msgid "Shape Data"
-msgstr ""
+msgstr "Donnée de Forme"
 
 #: tools/resource/sprite_resource.vala:392
 msgid "Set the shape size manually."
-msgstr ""
+msgstr "Définir la taille de la forme manuellement."
 
 #: tools/resource/sprite_resource.vala:393
 msgid "Collider"
-msgstr ""
+msgstr "Collisionneur"
 
 #: tools/resource/sprite_resource.vala:404
 msgid "Class"
-msgstr ""
+msgstr "Classe"
 
 #: tools/resource/sprite_resource.vala:404 tools/resource/types.vala:630
 msgid "Actor class."
-msgstr ""
+msgstr "Classe acteur."
 
 #: tools/resource/sprite_resource.vala:405
 msgid "Mass"
-msgstr ""
+msgstr "Masse"
 
 #: tools/resource/sprite_resource.vala:405 tools/resource/types.vala:658
 msgid "Actor physical mass."
-msgstr ""
+msgstr "Masse de l'acteur physique."
 
 #: tools/resource/sprite_resource.vala:406
 msgid "Lock Rotation"
-msgstr ""
+msgstr "Verrouiller la Rotation"
 
 #: tools/resource/sprite_resource.vala:406 tools/resource/types.vala:694
 msgid "Prevent the actor from rotating around the Z axis."
-msgstr ""
+msgstr "Empêcher l'acteur de tourner autour de l'axe Z."
 
 #: tools/resource/sprite_resource.vala:407
 msgid "Actor"
-msgstr ""
+msgstr "Acteur"
 
 #: tools/resource/sprite_resource.vala:551
 msgid "Preview"
-msgstr ""
+msgstr "Prévisualisation"
 
 #: tools/resource/sprite_resource.vala:552
 msgid "Slices"
-msgstr ""
+msgstr "Tranches"
 
 #: tools/resource/sprite_resource.vala:572
 msgid "Import Sprite..."
-msgstr ""
+msgstr "Importer sprite..."
 
 #: tools/resource/types.vala:157
 msgid "Local Position."
-msgstr ""
+msgstr "Position Locale."
 
 #: tools/resource/types.vala:163
 msgid "Local Rotation."
-msgstr ""
+msgstr "Rotation Locale"
 
 #: tools/resource/types.vala:171
 msgid "Local Scale."
-msgstr ""
+msgstr "Échelle Locale."
 
 #: tools/resource/types.vala:200
 msgid "Scene"
-msgstr ""
+msgstr "Scène"
 
 #: tools/resource/types.vala:203 tools/resource/types.vala:537
 msgid "Mesh resource where to read geometries from."
-msgstr ""
+msgstr "Ressource de maillage à partir de laquelle lire les géométries."
 
 #: tools/resource/types.vala:209 tools/resource/types.vala:543
 msgid "Node"
-msgstr ""
+msgstr "Nœud"
 
 #: tools/resource/types.vala:214
 msgid "Geometry to render."
-msgstr ""
+msgstr "Géométrie à rendre"
 
 #: tools/resource/types.vala:222
 msgid "Material used to render to the geometry."
-msgstr ""
+msgstr "Matériau à utiliser pour rendre la géométrie."
 
 #: tools/resource/types.vala:229
 msgid ""
 "Enable geometry rendering. If disabled it skips any rendering, for example "
 "shadow casting."
 msgstr ""
+"Activer le rendu géométrique. S'il est désactivé, il ignore tout rendu, par exemple "
+"casting d'ombre."
 
 #: tools/resource/types.vala:236
 msgid "Enable geometry shadow rendering."
-msgstr ""
+msgstr "Activer le rendu d'ombre de la géométrie."
 
 #: tools/resource/types.vala:260
 msgid "Sprite"
-msgstr ""
+msgstr "Sprite"
 
 #: tools/resource/types.vala:263
 msgid "Sprite resource containing frames."
-msgstr ""
+msgstr "Ressource sprite contenant des frames."
 
 #: tools/resource/types.vala:271
 msgid "Material used to render the sprite."
-msgstr ""
+msgstr "Matériau utilisé pour le rendu du sprite."
 
 #: tools/resource/types.vala:294
 msgid "Enable sprite rendering."
-msgstr ""
+msgstr "Activer le rendu du sprite."
 
 #: tools/resource/types.vala:300
 msgid "Flips the sprite on the X axis."
-msgstr ""
+msgstr "Retourne le sprite sur l'axe X."
 
 #: tools/resource/types.vala:306
 msgid "Flips the sprite on the Y axis."
-msgstr ""
+msgstr "Retourne le sprite sur l'axe Y."
 
 #: tools/resource/types.vala:333
 msgid "Light type."
-msgstr ""
+msgstr "Type de lumière."
 
 #: tools/resource/types.vala:341
 msgid "Objects farther than this value won't be lit."
-msgstr ""
+msgstr "Les objets plus éloignés que cette valeur ne seront pas allumés."
 
 #: tools/resource/types.vala:349
 msgid "Light intensity."
-msgstr ""
+msgstr "Intensité de la lumière."
 
 #: tools/resource/types.vala:359
 msgid "Angle of the light's outer cone (Spot only)."
-msgstr ""
+msgstr "Angle du cône extérieur de la lumière (Spot uniquement)."
 
 #: tools/resource/types.vala:369
 msgid "Light color."
-msgstr ""
+msgstr "Couleur de la lumière."
 
 #: tools/resource/types.vala:378
 msgid ""
 "Too low values increase shadow acne. Too high values cause peter-panning."
 msgstr ""
+"Des valeurs trop basses augmentent l'acné de l'ombre. Des valeurs trop élevées provoquent des peter-panning."
 
 #: tools/resource/types.vala:385
 msgid "Enable shadow casting."
-msgstr ""
+msgstr "Activer le casting d'ombre."
 
 #: tools/resource/types.vala:411
 msgid "Mesh to render at this LOD level."
-msgstr ""
+msgstr "Maillage à rendre à ce niveau de LOD."
 
 #: tools/resource/types.vala:420
 msgid ""
 "Activate this LOD level when the group height covers this screen percentage "
 "or less."
 msgstr ""
+"Activez ce niveau de LOD lorsque la hauteur du groupe couvre ce pourcentage d'écran "
+"ou moins."
 
 #: tools/resource/types.vala:436
 msgid "Select the LOD level to render. Use -1 for automatic selection."
-msgstr ""
+msgstr "Sélectionnez le niveau LOD à afficher. Utilisez -1 pour la sélection automatique."
 
 #: tools/resource/types.vala:477
 msgid "Camera projection type."
-msgstr ""
+msgstr "Type de projection de caméra."
 
 #: tools/resource/types.vala:483
 msgid "FOV"
-msgstr ""
+msgstr "FOV"
 
 #: tools/resource/types.vala:488
 msgid "Vertical Field of View."
-msgstr ""
+msgstr "Champ de Vision Verticale."
 
 #: tools/resource/types.vala:495
 msgid "Objects closer than this value will not be rendered."
-msgstr ""
+msgstr "Les objets plus proches que cette valeur ne seront pas rendus."
 
 #: tools/resource/types.vala:502
 msgid "Objects farther than this value will not be rendered."
-msgstr ""
+msgstr "Les objets plus éloignés que cette valeur ne seront pas rendus."
 
 #: tools/resource/types.vala:529
 msgid "Collider type. Inline let you specify the geometry manually."
-msgstr ""
+msgstr "Type de collisionneur. Inline vous permet de spécifier la géométrie manuellement."
 
 #: tools/resource/types.vala:548
 msgid "Geometry to use as collider (Mesh only)."
-msgstr ""
+msgstr "Géométrie à utiliser comme collisionneur (maillage uniquement)."
 
 #: tools/resource/types.vala:557
 msgid "Shape to use as collider (Inline only)."
-msgstr ""
+msgstr "Forme à utiliser comme collisionneur (en ligne uniquement)."
 
 #: tools/resource/types.vala:563
 msgid "Shape's local position."
-msgstr ""
+msgstr "Position locale de la forme."
 
 #: tools/resource/types.vala:569
 msgid "Shape's local rotation."
-msgstr ""
+msgstr "Rotation locale de la forme."
 
 #: tools/resource/types.vala:577
 msgid "Box radius."
-msgstr ""
+msgstr "Rayon de la Boîte."
 
 #: tools/resource/types.vala:585
 msgid "Sphere or Capsule radius."
-msgstr ""
+msgstr "Rayon de la Sphère ou de la Capsule."
 
 #: tools/resource/types.vala:593
 msgid "Capsule height."
-msgstr ""
+msgstr "Poids de la capsule."
 
 #: tools/resource/types.vala:640
 msgid "Actor collision filter."
