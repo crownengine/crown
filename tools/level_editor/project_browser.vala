@@ -231,6 +231,8 @@ public void set_thumbnail(Gtk.CellRenderer cell, ProjectStore.RowKind kind, stri
 		cell.set_property("icon-name", IconTheme.OBJECT_MESH);
 	else if ((string)type == "package")
 		cell.set_property("icon-name", IconTheme.OBJECT_PACKAGE);
+	else if ((string)type == OBJECT_TYPE_STAT_CONFIG)
+		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
 	else if ((string)type == "physics_config")
 		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
 	else if ((string)type == "render_config")

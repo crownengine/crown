@@ -38,6 +38,7 @@
 #include "resource/types.h"
 #include <algorithm>
 #include <inttypes.h>
+#include <stdlib.h>
 #if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -3145,6 +3146,7 @@ RESOURCE_TYPE(mesh_animation)
 RESOURCE_TYPE(package)
 RESOURCE_TYPE(physics_config)
 RESOURCE_TYPE(render_config)
+RESOURCE_TYPE(stat_config)
 RESOURCE_TYPE(lua)
 RESOURCE_TYPE(shader)
 RESOURCE_TYPE(sound)
@@ -3220,6 +3222,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("package",          RESOURCE_VERSION_PACKAGE,          package_resource_internal::compile);
 	dc->register_compiler("physics_config",   RESOURCE_VERSION_PHYSICS_CONFIG,   physics_config_resource_internal::compile);
 	dc->register_compiler("render_config",    RESOURCE_VERSION_RENDER_CONFIG,    render_config_resource_internal::compile);
+	dc->register_compiler("stat_config",      RESOURCE_VERSION_STAT_CONFIG,      stat_config_resource_internal::compile);
 	dc->register_compiler("lua",              RESOURCE_VERSION_SCRIPT,           lua_resource_internal::compile);
 	dc->register_compiler("shader",           RESOURCE_VERSION_SHADER,           shader_resource_internal::compile);
 	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sound_resource_internal::compile);

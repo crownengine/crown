@@ -39,6 +39,7 @@
 #include "device/log.h"
 #include "device/pipeline.h"
 #include "device/save_game.h"
+#include "device/stat.h"
 #include "lua/lua_environment.h"
 #include "lua/lua_stack.inl"
 #include "resource/resource_id.inl"
@@ -591,6 +592,7 @@ bool Device::frame()
 	profiler_globals::flush();
 
 	graph_globals::draw_all(_width, _height);
+	stat_globals::draw(_width, _height);
 
 	bgfx::frame();
 
@@ -678,6 +680,7 @@ int Device::main_loop()
 	_resource_manager->register_type(RESOURCE_TYPE_PACKAGE,          RESOURCE_VERSION_PACKAGE,          package_resource_internal::load, NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_PHYSICS_CONFIG,   RESOURCE_VERSION_PHYSICS_CONFIG,   NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_RENDER_CONFIG,    RESOURCE_VERSION_RENDER_CONFIG,    NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_STAT_CONFIG,      RESOURCE_VERSION_STAT_CONFIG,      NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SCRIPT,           RESOURCE_VERSION_SCRIPT,           NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SHADER,           RESOURCE_VERSION_SHADER,           shader_resource_internal::load,  shader_resource_internal::unload,  shader_resource_internal::online,   shader_resource_internal::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_SOUND,            RESOURCE_VERSION_SOUND,            NULL,                            NULL,                              NULL,                               NULL);
@@ -847,6 +850,12 @@ int Device::main_loop()
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
 
+	ResourcePackage *stat_config_package = create_resource_package(_boot_config.stat_config_name);
+	stat_config_package->load();
+	stat_config_package->flush();
+
+	const StatConfigResource *stat_config_resource = (const StatConfigResource *)_resource_manager->get(RESOURCE_TYPE_STAT_CONFIG, _boot_config.stat_config_name);
+
 	physics_globals::init(_allocator, default_allocator(), *_console_server, &_boot_config.physics_settings);
 
 	_lua_environment->load_libs();
@@ -855,6 +864,15 @@ int Device::main_loop()
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
 	_pipeline->create(_width, _height, merged_render_settings(this));
+
+	stat_globals::init(_allocator
+		, *_resource_manager
+		, *_shader_manager
+		, *_material_manager
+		, *_pipeline
+		, *_console_server
+		, stat_config_resource
+		);
 
 	graph_globals::init(_allocator, *_pipeline, *_console_server);
 
@@ -873,6 +891,11 @@ int Device::main_loop()
 #endif
 
 	_lua_environment->call_global("shutdown");
+
+	stat_globals::shutdown();
+
+	stat_config_package->unload();
+	destroy_resource_package(*stat_config_package);
 
 	render_config_package->unload();
 	destroy_resource_package(*render_config_package);
@@ -1028,6 +1051,7 @@ void Device::refresh(const char *json)
 			|| resource_type == RESOURCE_TYPE_SPRITE_ANIMATION
 			|| resource_type == RESOURCE_TYPE_UNIT
 			|| resource_type == RESOURCE_TYPE_STATE_MACHINE
+			|| resource_type == RESOURCE_TYPE_STAT_CONFIG
 			;
 
 		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
@@ -1048,6 +1072,8 @@ void Device::refresh(const char *json)
 					World *w = (World *)container_of(cur, World, _node);
 					w->reload_materials((MaterialResource *)old_resource, (MaterialResource *)new_resource);
 				}
+			} else if (resource_type == RESOURCE_TYPE_STAT_CONFIG) {
+				stat_globals::reload((const StatConfigResource *)new_resource);
 			} else if (resource_type == RESOURCE_TYPE_MESH) {
 				ListNode *cur;
 				list_for_each(cur, &_worlds)

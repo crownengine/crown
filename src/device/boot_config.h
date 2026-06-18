@@ -38,6 +38,7 @@ struct BootConfig
 	DynamicString boot_script_name;
 	StringId64 boot_package_name;
 	StringId64 render_config_name;
+	StringId64 stat_config_name;
 	DynamicString window_title;
 	DynamicString save_dir;
 	DynamicString user_config;

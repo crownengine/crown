@@ -145,6 +145,7 @@ namespace package_resource_internal
 		JsonArray shader(ta);
 		JsonArray sprite_animation(ta);
 		JsonArray render_config(ta);
+		JsonArray stat_config(ta);
 
 		Array<ResourceOffset> resources(default_allocator());
 		HashSet<ResourceOffset> resources_set(default_allocator());
@@ -191,6 +192,9 @@ namespace package_resource_internal
 		if (json_object::has(obj, "render_config")) {
 			RETURN_IF_ERROR(sjson::parse_array(render_config, obj["render_config"]));
 		}
+		if (json_object::has(obj, "stat_config")) {
+			RETURN_IF_ERROR(sjson::parse_array(stat_config, obj["stat_config"]));
+		}
 
 		s32 err = 0;
 		err = compile_resources(resources_set, "texture", texture, opts);
@@ -218,6 +222,8 @@ namespace package_resource_internal
 		err = compile_resources(resources_set, "sprite_animation", sprite_animation, opts);
 		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 		err = compile_resources(resources_set, "render_config", render_config, opts);
+		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
+		err = compile_resources(resources_set, "stat_config", stat_config, opts);
 		ENSURE_OR_RETURN(PACKAGE_RESOURCE, err == 0, opts);
 
 		// Generate resource list
