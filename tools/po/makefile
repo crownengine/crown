@@ -21,7 +21,7 @@ all: pot install
 pot: $(POT_TARGET)
 
 $(POT_TARGET): $(POTFILES) $(addprefix $(PROJECT_ROOT)/,$(POT_SOURCES))
-	@cd "$(PROJECT_ROOT)" && xgettext -L Vala --from-code=UTF-8 -f tools/po/POTFILES -k_ -kN_ -o tools/po/crown-editor.pot
+	@cd "$(PROJECT_ROOT)" && xgettext -L Vala --from-code=UTF-8 -f tools/po/POTFILES -k_ -kN_ -kC_:1c,2 -kNC_:1c,2 -o tools/po/crown-editor.pot
 	@echo "  Generated $(notdir $@)"
 
 LANGUAGES := $(shell sed '/^\#/d; /^$$/d' "$(LINGUAS)")
