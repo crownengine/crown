@@ -82,17 +82,12 @@ void DebugLine::add_arc(const Vector3 &center, f32 radius, const Vector3 &plane_
 
 void DebugLine::add_circle(const Vector3 &center, f32 radius, const Vector3 &normal, const Color4 &color, u32 segments)
 {
-	const Vector3 arr[] =
-	{
-		{ normal.z,             normal.z, -normal.x - normal.y },
-		{ -normal.y - normal.z, normal.x, normal.x             }
-	};
-	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
-	Vector3 right = arr[idx];
-	normalize(right);
+	Vector3 right;
+	Vector3 up;
+	orthonormal_basis(right, up, normal);
 
 	const Vector3 x = right * radius;
-	const Vector3 y = cross(right, normal) * radius;
+	const Vector3 y = up * radius;
 	const f32 step = PI_TWO / (f32)(segments > 3 ? segments : 3);
 	Vector3 from = center - y;
 
@@ -108,17 +103,12 @@ void DebugLine::add_cone(const Vector3 &base_center, const Vector3 &tip, f32 rad
 {
 	Vector3 normal = tip - base_center;
 	normalize(normal);
-	const Vector3 arr[] =
-	{
-		{ normal.z,             normal.z, -normal.x - normal.y },
-		{ -normal.y - normal.z, normal.x, normal.x             }
-	};
-	const int idx = ((normal.z != 0.0f) && (-normal.x != normal.y));
-	Vector3 right = arr[idx];
-	normalize(right);
+	Vector3 right;
+	Vector3 up;
+	orthonormal_basis(right, up, normal);
 
 	const Vector3 x = right * radius;
-	const Vector3 y = cross(right, normal) * radius;
+	const Vector3 y = up * radius;
 	Vector3 from;
 
 	// Draw base.

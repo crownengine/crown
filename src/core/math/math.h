@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/math/types.h"
 #include "core/types.h"
 
 namespace crown
@@ -68,6 +69,9 @@ f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t);
 
 /// Catmull-Rom interpolation
 f32 catmull_rom(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t);
+
+/// Builds an orthonormal basis from @a normal.
+void orthonormal_basis(Vector3 &tangent, Vector3 &bitangent, const Vector3 &normal);
 
 /// @}
 
