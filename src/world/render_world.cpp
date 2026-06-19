@@ -1342,8 +1342,8 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 			// Compute light view matrix.
 			const Vector3 &light_dir = lid.shader[L].direction;
 			const bx::Vec3 at  = { light_dir.x,  light_dir.y, light_dir.z };
-			const bx::Vec3 eye = { 0.0, 0.0, 0.0 };
-			const bx::Vec3 up = { 0.0f, 0.0f, 1.0f };
+			const bx::Vec3 eye = { 0.0f, 0.0f, 0.0f };
+			const bx::Vec3 up  = { 0.0f, 0.0f, 1.0f };
 			bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
 
 			// Split the view frustum into MAX_NUM_CASCADES frustums.
