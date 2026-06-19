@@ -75,6 +75,78 @@ static Sphere obb_sphere(const OBB &obb)
 	return s;
 }
 
+struct ConvexPolyhedron
+{
+	Plane3 planes[18]; // 6 receiver frustum planes + 12 extruded silhouette edge planes.
+	u32 num_planes;
+};
+
+// Adapted from Eric Lengyel's CalculateShadowRegion(). It only supports directional lights.
+// See: Foundations of Game Engine Development, vol. 2, Rendering.
+static u32 calculate_shadow_region(ConvexPolyhedron &polyhedron, const Frustum &receiver, const Vector3 &light_dir)
+{
+	polyhedron.num_planes = 0;
+
+	Vector3 vertices[8];
+	frustum::vertices(vertices, receiver);
+
+	// Classify the receiver planes against the light direction. Planes facing the light are removed
+	// from the shadow region, while back-facing planes are kept as finite bounds for potential
+	// shadow casters.
+	bool front_facing[countof(receiver.planes)];
+	for (u32 i = 0; i < countof(receiver.planes); ++i) {
+		front_facing[i] = dot(receiver.planes[i].n, light_dir) > 0.0f;
+		if (!front_facing[i]) {
+			CE_ASSERT(polyhedron.num_planes < countof(polyhedron.planes), "Too many shadow region planes");
+			polyhedron.planes[polyhedron.num_planes++] = receiver.planes[i];
+		}
+	}
+
+	// Each frustum edge is bounded by two receiver planes. The edge vertices are ordered so that
+	// cross(v1 - v0, light_dir) points toward our Plane3 inside half-space when the first edge
+	// plane is front-facing and the second edge plane is back-facing.
+	const u32 edge[][4] =
+	{
+		{ 0, 1, 4, 0 },
+		{ 1, 2, 4, 1 },
+		{ 2, 3, 4, 2 },
+		{ 3, 0, 4, 3 },
+		{ 4, 5, 0, 5 },
+		{ 5, 6, 1, 5 },
+		{ 6, 7, 2, 5 },
+		{ 7, 4, 3, 5 },
+		{ 0, 4, 0, 3 },
+		{ 1, 5, 1, 0 },
+		{ 2, 6, 2, 1 },
+		{ 3, 7, 3, 2 }
+	};
+	CE_STATIC_ASSERT(countof(edge) == 12);
+
+	// Add one extruded plane for every silhouette edge.
+	for (u32 i = 0; i < countof(edge); ++i) {
+		const u32 p0 = edge[i][2];
+		const u32 p1 = edge[i][3];
+
+		if (front_facing[p0] ^ front_facing[p1]) {
+			const bool reverse_edge = !front_facing[p0];
+			const Vector3 &v0 = vertices[edge[i][reverse_edge ? 1 : 0]];
+			const Vector3 &v1 = vertices[edge[i][reverse_edge ? 0 : 1]];
+			Vector3 normal = cross(v1 - v0, light_dir);
+
+			const f32 SHADOW_REGION_EPSILON = 0.000001f;
+			if (length_squared(normal) > SHADOW_REGION_EPSILON*SHADOW_REGION_EPSILON) {
+				normalize(normal);
+
+				Plane3 plane = plane3::from_point_and_normal(v0, normal);
+				CE_ASSERT(polyhedron.num_planes < countof(polyhedron.planes), "Too many shadow region planes");
+				polyhedron.planes[polyhedron.num_planes++] = plane;
+			}
+		}
+	}
+
+	return polyhedron.num_planes;
+}
+
 namespace culling_set
 {
 	static u32 find_object(const CullingSet &set, CullableType::Enum type, u32 object_id)
@@ -160,7 +232,7 @@ namespace culling_set
 		set.sphere_w[i] = sw;
 	}
 
-	static void cull_spheres(CullingSet &set, const Frustum &view_frustum, u32 offset, u32 count)
+	static void cull_spheres(CullingSet &set, const Plane3 *planes, u32 num_planes, u32 offset, u32 count)
 	{
 		ENTER_PROFILE_SCOPE(__func__);
 
@@ -169,8 +241,8 @@ namespace culling_set
 			Sphere &sphere_w = set.sphere_w[i];
 
 			u32 inside = UINT32_MAX;
-			for (u32 j = 0; j < 6; ++j) {
-				const Plane3 &plane = view_frustum.planes[j];
+			for (u32 j = 0; j < num_planes; ++j) {
+				const Plane3 &plane = planes[j];
 
 				f32 n_dot_c = dot(plane.n, sphere_w.c);
 				inside &= u32(n_dot_c + sphere_w.r >= plane.d);
@@ -180,6 +252,16 @@ namespace culling_set
 		}
 
 		LEAVE_PROFILE_SCOPE();
+	}
+
+	static void cull_spheres(CullingSet &set, const Frustum &frustum, u32 offset, u32 count)
+	{
+		cull_spheres(set, frustum.planes, countof(frustum.planes), offset, count);
+	}
+
+	static void cull_spheres(CullingSet &set, const ConvexPolyhedron &polyhedron, u32 offset, u32 count)
+	{
+		cull_spheres(set, polyhedron.planes, polyhedron.num_planes, offset, count);
 	}
 
 	static void cull_spheres(CullingSet &set, const Sphere &sphere, u32 offset, u32 count)
@@ -194,17 +276,6 @@ namespace culling_set
 			const f32 r_sum = sphere.r + sphere_w.r;
 			set.visible[i] = (u32)dist_sq <= (r_sum * r_sum);
 		}
-
-		LEAVE_PROFILE_SCOPE();
-	}
-
-	static void cull_none(CullingSet &set)
-	{
-		ENTER_PROFILE_SCOPE(__func__);
-
-		u32 num = array::size(set.id);
-		for (u32 i = 0; i < num; ++i)
-			set.visible[i] = UINT32_MAX;
 
 		LEAVE_PROFILE_SCOPE();
 	}
@@ -1309,10 +1380,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	array::clear(lm._lights_data);
 	u32 num_lights = 0; // Total lights to render this frame.
 
-	// TODO: implement shadow casters culling.
-	culling_set::cull_none(_cullable_shadow_casters);
-	culling_set::remove_culled(_cullable_shadow_casters);
-
 	// Collect indices to all directional lights.
 	for (u32 i = 0; i < lid.size; ++i) {
 		if (lid.type[i] == LightType::DIRECTIONAL)
@@ -1433,6 +1500,11 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 					);
 				bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
 				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
+
+				ConvexPolyhedron shadow_region;
+				calculate_shadow_region(shadow_region, split_i_world, light_dir);
+				culling_set::cull_spheres(_cullable_shadow_casters, shadow_region, 0, array::size(_cullable_shadow_casters.id));
+				culling_set::remove_culled(_cullable_shadow_casters);
 
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
