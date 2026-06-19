@@ -3,7 +3,8 @@ Translating
 ===========
 
 Crown tools use GNU gettext for handling translations. Source strings are marked
-in code with ``_()`` or ``N_()`` and translations live in ``tools/po``.
+in code with ``_()`` or ``N_()``. Use ``C_()`` or ``NC_()`` when a string needs
+translation context. Translations live in ``tools/po``.
 
 Files
 =====
@@ -41,7 +42,7 @@ Updating an Existing Translation
 
 .. code::
 
-	make -C tools/po pot
+	make -B -C tools/po pot
 	msgmerge --update tools/po/it.po tools/po/crown-editor.pot
 
 2. Translate new empty or fuzzy entries, then remove any remaining fuzzy markers.
@@ -84,4 +85,3 @@ Translation Rules
 Keep the source capitalization style. If the English text is title case, use
 title case in the translation too, for example ``New Project...`` becomes
 ``Nuovo Progetto...``.
-

@@ -16,6 +16,7 @@ Changelog
 * Tools: added the ability to change the prefab of units.
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
 * Runtime: improved performance when rendering worlds containing many units.
+* Runtime: improved performance of sun shadows rendering.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 
 **Fixes**
