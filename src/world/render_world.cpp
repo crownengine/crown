@@ -1355,6 +1355,17 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				Frustum split_i_world;
 				frustum::transform(split_i_world, splits[i], inv_view);
 
+				Matrix4x4 &split_planes = lid.shader[L].mvp[i/2];
+				const Plane3 &split_near = split_i_world.planes[4];
+				const Plane3 &split_far  = split_i_world.planes[5];
+				if ((i & 1) == 0) {
+					split_planes.x = { split_near.n.x, split_near.n.y, split_near.n.z, split_near.d };
+					split_planes.y = { split_far.n.x,  split_far.n.y,  split_far.n.z,  split_far.d  };
+				} else {
+					split_planes.z = { split_near.n.x, split_near.n.y, split_near.n.z, split_near.d };
+					split_planes.t = { split_far.n.x,  split_far.n.y,  split_far.n.z,  split_far.d  };
+				}
+
 				// Compute light projection matrix.
 				// Get frustum corners in view space.
 				Vector3 vertices[8];
