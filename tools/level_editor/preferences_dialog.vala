@@ -98,7 +98,7 @@ public class PreferencesDialog : Gtk.Window
 		_gizmo_size_spin_button.value_changed.connect(on_gizmo_size_value_changed);
 
 		_theme_combo = new InputEnum("dark"
-			, new string[] { _("Dark"), _("Light") }
+			, new string[] { _("Dark"), C_("Theme variant", "Light") }
 			, new string[] { "dark", "light" }
 			);
 		_theme_combo.value_changed.connect(() => {
