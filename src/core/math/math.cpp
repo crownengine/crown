@@ -3,11 +3,32 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/math/constants.h"
 #include "core/math/math.inl"
+#include "core/math/vector3.inl"
 #include <stb_sprintf.h>
 
 namespace crown
 {
+void orthonormal_basis(Vector3 &tangent, Vector3 &bitangent, const Vector3 &normal)
+{
+	const f32 ax = fabs(normal.x);
+	const f32 ay = fabs(normal.y);
+	const f32 az = fabs(normal.z);
+
+	Vector3 axis;
+	if (az <= ay && az <= ax)
+		axis = VECTOR3_ZAXIS;
+	else if (ay <= ax)
+		axis = VECTOR3_YAXIS;
+	else
+		axis = VECTOR3_XAXIS;
+
+	tangent = cross(axis, normal);
+	normalize(tangent);
+	bitangent = cross(normal, tangent);
+}
+
 f32 cosine(const f32 p0, const f32 p1, f32 t)
 {
 	const f32 f = t * PI;
