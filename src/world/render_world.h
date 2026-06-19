@@ -666,7 +666,7 @@ struct RenderWorld
 			f32 range;
 			Vector3 direction; // 2
 			f32 spot_angle;
-			Matrix4x4 mvp[4];  // 3-18 Model-View-Proj-Crop.
+			Matrix4x4 mvp[4];  // 3-18 Model-View-Proj-Crop. Sun uses mvp[0..1] for cascade split planes.
 			Vector4 atlas_u;   // 19   U-coord in shadow map atlas.
 			Vector4 atlas_v;   // 20   V-coord in shadow map atlas.
 			f32 map_size;      // 21   Tile size in shadow map atlas.

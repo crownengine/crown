@@ -208,6 +208,14 @@ bgfx_shaders = {
 					vec3 light_color  = lights_data(loffset +  0).rgb;
 					float intensity   = lights_data(loffset +  0).w;
 					vec3 direction    = lights_data(loffset +  2).xyz;
+					vec4 shadow0_near = lights_data(loffset +  3);
+					vec4 shadow0_far  = lights_data(loffset +  4);
+					vec4 shadow1_near = lights_data(loffset +  5);
+					vec4 shadow1_far  = lights_data(loffset +  6);
+					vec4 shadow2_near = lights_data(loffset +  7);
+					vec4 shadow2_far  = lights_data(loffset +  8);
+					vec4 shadow3_near = lights_data(loffset +  9);
+					vec4 shadow3_far  = lights_data(loffset + 10);
 					vec4 atlas_u      = lights_data(loffset + 19).xyzw;
 					vec4 atlas_v      = lights_data(loffset + 20).xyzw;
 					float atlas_size  = lights_data(loffset + 21).x;
@@ -231,11 +239,12 @@ bgfx_shaders = {
 					vec2 shadow1 = shadow_pos1.xy/shadow_pos1.w;
 					vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
 					vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
+					vec3 shadow_world = shadow_local.xyz;
 
-					bool atlas0 = all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
-					bool atlas1 = all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
-					bool atlas2 = all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
-					bool atlas3 = all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
+					bool atlas0 = dot(shadow0_near.xyz, shadow_world) >= shadow0_near.w && dot(shadow0_far.xyz, shadow_world) >= shadow0_far.w && all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
+					bool atlas1 = dot(shadow1_near.xyz, shadow_world) >= shadow1_near.w && dot(shadow1_far.xyz, shadow_world) >= shadow1_far.w && all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
+					bool atlas2 = dot(shadow2_near.xyz, shadow_world) >= shadow2_near.w && dot(shadow2_far.xyz, shadow_world) >= shadow2_far.w && all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
+					bool atlas3 = dot(shadow3_near.xyz, shadow_world) >= shadow3_near.w && dot(shadow3_far.xyz, shadow_world) >= shadow3_far.w && all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
 
 					if (atlas0)
 						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x             , atlas_size));
