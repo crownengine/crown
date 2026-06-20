@@ -8,6 +8,8 @@ namespace Crown
 // Drop-in replacement (sort-of) for HdyClamp from libhandy1.
 public class Clamp : Gtk.Container
 {
+	const int MAXIMUM_SIZE = 600;
+
 	public Gtk.Widget _child;
 
 	public Clamp()
@@ -45,10 +47,7 @@ public class Clamp : Gtk.Container
 
 	public override Gtk.SizeRequestMode get_request_mode()
 	{
-		if (this._child != null)
-			return this._child.get_request_mode();
-		else
-			return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH;
+		return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH;
 	}
 
 	public Gtk.Widget get_child()
@@ -58,40 +57,78 @@ public class Clamp : Gtk.Container
 
 	public override void size_allocate(Gtk.Allocation alloc)
 	{
-		if (this._child == null || !this._child.is_visible())
+		this.set_allocation(alloc);
+
+		if (this._child == null || !this._child.get_visible())
 			return;
 
-		int child_min_width;
-		this._child.get_preferred_width(out child_min_width, null);
+		int margin_width = this._child.margin_start + this._child.margin_end;
+		int margin_height = this._child.margin_top + this._child.margin_bottom;
+		int child_width = clamp_child_width(alloc.width);
 
 		Gtk.Allocation child_alloc = {};
-		child_alloc.width = 600;
-		child_alloc.height = alloc.height;
+		// GTK subtracts child margins during allocation; keep the outer allocation large enough to
+		// avoid negative inner sizes.
+		child_alloc.width = int.max(child_width, margin_width);
+		child_alloc.height = int.max(alloc.height, margin_height);
 		child_alloc.x = alloc.x + (alloc.width - child_alloc.width) / 2;
 		child_alloc.y = alloc.y;
 
 		this._child.size_allocate_with_baseline(child_alloc, this.get_allocated_baseline());
 	}
 
-	public new void get_preferred_size(out Gtk.Requisition minimum_size
-		, out Gtk.Requisition natural_size
-		)
+	int clamp_child_width(int clamp_width)
 	{
-		Gtk.Requisition title_minimum_size = {0, 0};
-		Gtk.Requisition title_natural_size = {0, 0};
-		Gtk.Requisition child_minimum_size = {0, 0};
-		Gtk.Requisition child_natural_size = {0, 0};
+		if (this._child == null || !this._child.get_visible())
+			return 0;
 
-		if (this._child != null && this._child.get_visible())
-			this._child.get_preferred_size(out child_minimum_size, out child_natural_size);
+		int child_min_width;
+		int child_nat_width;
+		this._child.get_preferred_width(out child_min_width, out child_nat_width);
 
-		minimum_size = {0, 0};
-		natural_size = {0, 0};
+		int child_max_width = int.max(child_min_width, MAXIMUM_SIZE);
+		if (clamp_width < 0)
+			return int.min(child_nat_width, child_max_width);
 
-		minimum_size.width = int.max(title_minimum_size.width, child_minimum_size.width);
-		minimum_size.height = title_minimum_size.height + child_minimum_size.height;
-		natural_size.width = int.max(title_natural_size.width, child_natural_size.width);
-		natural_size.height = title_natural_size.height + child_natural_size.height;
+		if (clamp_width <= child_min_width)
+			return clamp_width;
+
+		return int.min(clamp_width, child_max_width);
+	}
+
+	public override void get_preferred_width(out int minimum_width, out int natural_width)
+	{
+		if (this._child == null || !this._child.get_visible()) {
+			minimum_width = 0;
+			natural_width = 0;
+			return;
+		}
+
+		this._child.get_preferred_width(out minimum_width, out natural_width);
+		natural_width = int.max(minimum_width, int.min(natural_width, MAXIMUM_SIZE));
+	}
+
+	public override void get_preferred_height(out int minimum_height, out int natural_height)
+	{
+		if (this._child == null || !this._child.get_visible()) {
+			minimum_height = 0;
+			natural_height = 0;
+			return;
+		}
+
+		this._child.get_preferred_height(out minimum_height, out natural_height);
+	}
+
+	public override void get_preferred_height_for_width(int width, out int minimum_height, out int natural_height)
+	{
+		if (this._child == null || !this._child.get_visible()) {
+			minimum_height = 0;
+			natural_height = 0;
+			return;
+		}
+
+		int child_width = clamp_child_width(width);
+		this._child.get_preferred_height_for_width(child_width, out minimum_height, out natural_height);
 	}
 }
 
