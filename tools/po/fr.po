@@ -267,7 +267,7 @@ msgstr "Inconnu"
 #: tools/unit_editor/unit_editor.vala:435
 #, c-format
 msgid "Undo: %s"
-msgstr "Annuler"
+msgstr "Annuler: %s"
 
 #: tools/level_editor/level_editor.vala:997
 #: tools/level_editor/object_editor.vala:292
@@ -275,11 +275,11 @@ msgstr "Annuler"
 #: tools/unit_editor/unit_editor.vala:440
 #, c-format
 msgid "Redo: %s"
-msgstr "Refaire"
+msgstr "Refaire: %s"
 
 #: tools/level_editor/level_editor.vala:1067
 msgid "Runtime that will receive the message."
-msgstr "Routine qui va recevoir le message"
+msgstr "Routine qui va recevoir le message."
 
 #: tools/level_editor/level_editor.vala:1068
 msgid "Editor"
@@ -313,7 +313,7 @@ msgstr "En attente de %s..."
 
 #: tools/level_editor/level_editor.vala:1348 tools/widgets/messages.vala:33
 msgid "Compiling data..."
-msgstr "Compilation des données"
+msgstr "Compilation des données."
 
 #: tools/level_editor/level_editor.vala:1356
 msgid "Failed to compile data"
@@ -377,7 +377,7 @@ msgstr "Ok"
 #: tools/level_editor/level_editor.vala:2031
 #, c-format
 msgid "Saved %s"
-msgstr "Enregistrer  %s"
+msgstr "Enregistrer %s"
 
 #: tools/level_editor/level_editor.vala:2044 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:181
@@ -388,12 +388,12 @@ msgstr "Enregistrer sous..."
 
 #: tools/level_editor/level_editor.vala:2154 tools/level_editor/menus.vala:18
 msgid "Open Level..."
-msgstr "Ouvrir le Niveau..."
+msgstr "Ouvrir le Level..."
 
 #: tools/level_editor/level_editor.vala:2209
 #, c-format
 msgid "The folder `%s` does not appear to be a valid Crown project."
-msgstr "Le répertoire `%s` ne semble pas être un projet de Crown valide"
+msgstr "Le répertoire `%s` ne semble pas être un projet de Crown valide."
 
 #: tools/level_editor/level_editor.vala:2328
 #, c-format
@@ -406,7 +406,7 @@ msgstr ""
 "Supprimer \"%s\" depuis la liste ?\n"
 "\n"
 "Cette action supprime le projet depuis la liste seulement, les fichiers sur le disque ne seront pas "
-"être supprimés."
+"supprimés."
 
 #: tools/level_editor/level_editor.vala:2330
 #: tools/level_editor/level_editor.vala:2529
@@ -421,7 +421,7 @@ msgstr "Supprimé"
 #: tools/level_editor/level_editor.vala:2491
 #: tools/level_editor/preferences_dialog.vala:126
 msgid "Level"
-msgstr "Niveau"
+msgstr "Level"
 
 #: tools/level_editor/level_editor.vala:2496 tools/level_editor/menus.vala:27
 msgid "Open Project..."
@@ -523,7 +523,7 @@ msgid ""
 "Overwrite?"
 msgstr ""
 "Un fichier nommé `%s` existe déjà.\n"
-"L'écraser?"
+"L'écraser ?"
 
 #: tools/level_editor/level_editor.vala:3640
 #: tools/widgets/save_resource_dialog.vala:88
@@ -616,7 +616,7 @@ msgstr "Basculer la sélection de verrouillage."
 #: tools/level_editor/level_tree_view.vala:286
 #: tools/widgets/object_tree.vala:176
 msgid "Sort items."
-msgstr "Trier les éléments"
+msgstr "Trier les éléments."
 
 #: tools/level_editor/level_tree_view.vala:393
 msgid "Rename..."
@@ -642,7 +642,7 @@ msgstr "Nouveau Level"
 
 #: tools/level_editor/menus.vala:23
 msgid "New Project..."
-msgstr ""
+msgstr "Nouveau Projet..."
 
 #: tools/level_editor/menus.vala:31 tools/widgets/save_resource_dialog.vala:25
 msgid "Save"
@@ -930,7 +930,7 @@ msgstr "Modèle"
 
 #: tools/level_editor/panel_new_project.vala:60
 msgid "Create a new project by copying this template."
-msgstr "Créer un projet en copiant le modèle"
+msgstr "Créer un projet en copiant le modèle."
 
 #: tools/level_editor/panel_new_project.vala:64
 msgid "None"
@@ -1020,7 +1020,7 @@ msgstr "Grille (Désactivée)"
 
 #: tools/level_editor/preferences_dialog.vala:86
 msgid "Color of the grid when disabled."
-msgstr "Couleur de la grille quand elle est désactivée"
+msgstr "Couleur de la grille quand elle est désactivée."
 
 #: tools/level_editor/preferences_dialog.vala:91
 msgid "X Axis"
@@ -1084,7 +1084,7 @@ msgstr "Thème"
 
 #: tools/level_editor/preferences_dialog.vala:116
 msgid "Theme variant."
-msgstr "Variante de thème"
+msgstr "Variante de thème."
 
 #: tools/level_editor/preferences_dialog.vala:117
 msgid "UI"
@@ -1385,7 +1385,7 @@ msgstr "Afficher les extensions de fichiers"
 
 #: tools/level_editor/project_browser.vala:1300
 msgid "Do not hide files extension."
-msgstr "Ne pas cacher les extensions de fichier"
+msgstr "Ne pas cacher les extensions de fichier."
 
 #: tools/level_editor/project_browser.vala:1304
 msgid "Show mapped dirs"
@@ -1748,7 +1748,7 @@ msgstr "Animation"
 
 #: tools/resource/mesh_resource_fbx.vala:345
 msgid "Import animations and skeleton."
-msgstr "Importer animations et squelette"
+msgstr "Importer animations et squelette."
 
 #: tools/resource/mesh_resource_fbx.vala:359
 msgid "Import FBX..."
@@ -1979,7 +1979,7 @@ msgstr "Nœud"
 
 #: tools/resource/types.vala:214
 msgid "Geometry to render."
-msgstr "Géométrie à rendre"
+msgstr "Géométrie à rendre."
 
 #: tools/resource/types.vala:222
 msgid "Material used to render to the geometry."
@@ -2121,137 +2121,137 @@ msgstr "Poids de la capsule."
 
 #: tools/resource/types.vala:640
 msgid "Actor collision filter."
-msgstr ""
+msgstr "Filtre de collision d'acteur."
 
 #: tools/resource/types.vala:650
 msgid "Actor physics material."
-msgstr ""
+msgstr "Matériau physique d'acteur."
 
 #: tools/resource/types.vala:664
 msgid "Prevent the actor from moving along the X axis."
-msgstr ""
+msgstr "Empêcher l'acteur de se déplacer le long de l'axe X."
 
 #: tools/resource/types.vala:670
 msgid "Prevent the actor from moving along the Y axis."
-msgstr ""
+msgstr "Empêcher l'acteur de se déplacer le long de l'axe Y."
 
 #: tools/resource/types.vala:676
 msgid "Prevent the actor from moving along the Z axis."
-msgstr ""
+msgstr "Empêcher l'acteur de se déplacer le long de l'axe Z."
 
 #: tools/resource/types.vala:682
 msgid "Prevent the actor from rotating around the X axis."
-msgstr ""
+msgstr "Empêcher l'acteur de tourner autour de l'Axe X."
 
 #: tools/resource/types.vala:688
 msgid "Prevent the actor from rotating around the Y axis."
-msgstr ""
+msgstr "Empêcher l'acteur de tourner autour de l'Axe Y."
 
 #: tools/resource/types.vala:718
 msgid "Script"
-msgstr ""
+msgstr "Script"
 
 #: tools/resource/types.vala:721
 msgid "Script."
-msgstr ""
+msgstr "Script."
 
 #: tools/resource/types.vala:744
 msgid "State Machine"
-msgstr ""
+msgstr "Machine d'État"
 
 #: tools/resource/types.vala:747
 msgid "State Machine."
-msgstr ""
+msgstr "Machine d'État."
 
 #: tools/resource/types.vala:780
 msgid "Local position."
-msgstr ""
+msgstr "Position locale."
 
 #: tools/resource/types.vala:786
 msgid "Local rotation."
-msgstr ""
+msgstr "Rotation locale."
 
 #: tools/resource/types.vala:794
 msgid "Sound resource to play."
-msgstr ""
+msgstr "Ressource sonore à jouer."
 
 #: tools/resource/types.vala:802
 msgid "Listeners farther than this value will not hear the sound."
-msgstr ""
+msgstr "Les auditeurs plus éloignés que cette valeur n'entendront pas le son."
 
 #: tools/resource/types.vala:811
 msgid "Sound volume."
-msgstr ""
+msgstr "Volume du son."
 
 #: tools/resource/types.vala:817
 msgid "Restart playback at the end."
-msgstr ""
+msgstr "Redémarrer la lecture jusqu'à la fin."
 
 #: tools/resource/types.vala:824
 msgid "Mixing group this sound belongs to."
-msgstr ""
+msgstr "Groupe de mixage auquel appartient ce son."
 
 #: tools/resource/types.vala:832 tools/resource/types.vala:1861
 msgid "Instance name inside the level."
-msgstr ""
+msgstr "Nom de l'instance à l'intérieur du niveau."
 
 #: tools/resource/types.vala:881
 msgid "Speed at which the animation will be played."
-msgstr ""
+msgstr "Vitesse à laquelle l'animation sera jouée."
 
 #: tools/resource/types.vala:945
 msgid "Fog color."
-msgstr ""
+msgstr "Couleur du brouillard."
 
 #: tools/resource/types.vala:953
 msgid "Fog density."
-msgstr ""
+msgstr "Densité du brouillard."
 
 #: tools/resource/types.vala:960
 msgid "Distance from the camera where the fog starts."
-msgstr ""
+msgstr "Distance de la caméra où le brouillard commence."
 
 #: tools/resource/types.vala:968
 msgid "Distance from the camera where the fog ends."
-msgstr ""
+msgstr "Distance de la caméra où le brouillard termine."
 
 #: tools/resource/types.vala:976
 msgid "Blend sun and fog colors."
-msgstr ""
+msgstr "Mélanger les couleurs du soleil et du brouillard."
 
 #: tools/resource/types.vala:982
 msgid "Enable fog effect."
-msgstr ""
+msgstr "Activer l'effet de brouillard."
 
 #: tools/resource/types.vala:1016
 msgid "Mover capsule height."
-msgstr ""
+msgstr "Hauteur de la capsule mouvante."
 
 #: tools/resource/types.vala:1024
 msgid "Mover capsule radius."
-msgstr ""
+msgstr "Rayon de la capsule mouvante."
 
 #: tools/resource/types.vala:1034
 msgid "Mover won't climb slopes steeper than this angle."
-msgstr ""
+msgstr "Le mouvement ne montera pas des pentes plus raides que cet angle."
 
 #: tools/resource/types.vala:1042
 msgid "Mover step height."
-msgstr ""
+msgstr "Hauteur de pas du mouvement."
 
 #: tools/resource/types.vala:1052
 msgid "Mover collision filter."
-msgstr ""
+msgstr "Filtre de collision du mouvement."
 
 #: tools/resource/types.vala:1058
 msgid "Capsule center relative to the local position."
-msgstr ""
+msgstr "Centre de la capsule relative à la position locale."
 
 #: tools/resource/types.vala:1083 tools/resource/types.vala:1119
 #: tools/resource/types.vala:1167 tools/resource/types.vala:1422
 #: tools/resource/types.vala:1548 tools/resource/types.vala:1665
 msgid "Other Unit"
-msgstr ""
+msgstr "Autre Unité"
 
 #: tools/resource/types.vala:1085 tools/resource/types.vala:1121
 #: tools/resource/types.vala:1169 tools/resource/types.vala:1424
@@ -2260,12 +2260,14 @@ msgid ""
 "Other unit to attach the joint to. Leave empty to attach the joint to the "
 "world."
 msgstr ""
+"Autre unité à laquelle fixer le joint. Laisser vide pour fixer le joint au "
+"monde."
 
 #: tools/resource/types.vala:1094 tools/resource/types.vala:1142
 #: tools/resource/types.vala:1397 tools/resource/types.vala:1523
 #: tools/resource/types.vala:1592 tools/resource/types.vala:1702
 msgid "Linear break threshold. Use Infinity to disable breaking."
-msgstr ""
+msgstr "Seuil de rupture linéaire. Utiliser Infini pour la désactiver."
 
 #: tools/resource/types.vala:1127 tools/resource/types.vala:1175
 #: tools/resource/types.vala:1430 tools/resource/types.vala:1556
@@ -2274,12 +2276,14 @@ msgid ""
 "Other position in Other Unit's local space, or world space if Other Unit is "
 "unset."
 msgstr ""
+"Autre position dans l'espace local d'une Autre unité, ou dans l'espace mondial si une Autre unité "
+"n'est pas définie."
 
 #: tools/resource/types.vala:1133 tools/resource/types.vala:1188
 #: tools/resource/types.vala:1443 tools/resource/types.vala:1569
 #: tools/resource/types.vala:1686
 msgid "Position in local space."
-msgstr ""
+msgstr "Position dans l'espace local."
 
 #: tools/resource/types.vala:1182 tools/resource/types.vala:1437
 #: tools/resource/types.vala:1563 tools/resource/types.vala:1680
@@ -2287,195 +2291,213 @@ msgid ""
 "Other rotation in Other Unit's local space, or world space if Other Unit is "
 "unset."
 msgstr ""
+"Autre rotation dans l'espace local d'une Autre unité, ou dans l'espace mondial si une Autre unité "
+"n'est pas définie."
 
 #: tools/resource/types.vala:1195 tools/resource/types.vala:1450
 #: tools/resource/types.vala:1583 tools/resource/types.vala:1693
 msgid "Joint rotation in local space."
-msgstr ""
+msgstr "Rotation du joint dans l'espace local."
 
 #: tools/resource/types.vala:1201
 msgid "Linear X Motion"
-msgstr ""
+msgstr "Mouvement Linéaire X"
 
 #: tools/resource/types.vala:1205
 msgid "How motion along the joint X axis is constrained."
-msgstr ""
+msgstr "Comment le mouvement le long de l'axe X du joint est contraint."
 
 #: tools/resource/types.vala:1211
 msgid "Linear Y Motion"
-msgstr ""
+msgstr "Mouvement Linéaire Y"
 
 #: tools/resource/types.vala:1215
 msgid "How motion along the joint Y axis is constrained."
-msgstr ""
+msgstr "Comment le mouvement le long de l'axe Y du joint est contraint."
 
 #: tools/resource/types.vala:1221
 msgid "Linear Z Motion"
-msgstr ""
+msgstr "Mouvement Linéaire Z"
 
 #: tools/resource/types.vala:1225
 msgid "How motion along the joint Z axis is constrained."
-msgstr ""
+msgstr "Comment le mouvement le long de l'axe Z du joint est contraint."
 
 #: tools/resource/types.vala:1232
 msgid ""
 "Per-axis linear lower limits, used when the corresponding linear motion is "
 "Limited."
 msgstr ""
+"Limites inférieures linéaires par axe, utilisées lorsque le mouvement linéaire correspondant est "
+"Limité."
 
 #: tools/resource/types.vala:1239
 msgid ""
 "Per-axis linear upper limits, used when the corresponding linear motion is "
 "Limited."
 msgstr ""
+"Limites supérieures linéaires par axe, utilisées lorsque le mouvement linéaire correspondant est "
+"Limité."
 
 #: tools/resource/types.vala:1245
 msgid "Angular X Motion"
-msgstr ""
+msgstr "Mouvement Angulaire X"
 
 #: tools/resource/types.vala:1249
 msgid "How rotation around the joint X axis is constrained."
-msgstr ""
+msgstr "Comment la rotation autour de l'axe X du joint est contrainte."
 
 #: tools/resource/types.vala:1255
 msgid "Angular Y Motion"
-msgstr ""
+msgstr "Mouvement Angulaire Y"
 
 #: tools/resource/types.vala:1259
 msgid "How rotation around the joint Y axis is constrained."
-msgstr ""
+msgstr "Comment la rotation autour de l'axe Y du joint est contrainte."
 
 #: tools/resource/types.vala:1265
 msgid "Angular Z Motion"
-msgstr ""
+msgstr "Mouvement Angulaire Z"
 
 #: tools/resource/types.vala:1269
 msgid "How rotation around the joint Z axis is constrained."
-msgstr ""
+msgstr "Comment la rotation autour de l'axe Z du joint est contrainte."
 
 #: tools/resource/types.vala:1277
 msgid ""
 "Per-axis angular lower limits, used when the corresponding angular motion is "
 "Limited."
 msgstr ""
+"Limites inférieures angulaires par axe, utilisées lorsque le mouvement angulaire correspondant est  "
+"Limité."
 
 #: tools/resource/types.vala:1285
 msgid ""
 "Per-axis angular upper limits, used when the corresponding angular motion is "
 "Limited."
 msgstr ""
+"Limites supérieures angulaires par axe, utilisées lorsque le mouvement angulaire correspondant est  "
+"Limité."
 
 #: tools/resource/types.vala:1291
 msgid "Linear X Motor"
-msgstr ""
+msgstr "Moteur Linéaire X"
 
 #: tools/resource/types.vala:1295
 msgid "Motor mode for motion along the joint X axis."
-msgstr ""
+msgstr "Mode moteur pour le mouvement le long de laxe X du joint."
 
 #: tools/resource/types.vala:1301
 msgid "Linear Y Motor"
-msgstr ""
+msgstr "Moteur Linéaire Y"
 
 #: tools/resource/types.vala:1305
 msgid "Motor mode for motion along the joint Y axis."
-msgstr ""
+msgstr "Mode moteur pour le mouvement le long de laxe Y du joint."
 
 #: tools/resource/types.vala:1311
 msgid "Linear Z Motor"
-msgstr ""
+msgstr "Moteur Linéaire Z"
 
 #: tools/resource/types.vala:1315
 msgid "Motor mode for motion along the joint Z axis."
-msgstr ""
+msgstr "Mode moteur pour le mouvement le long de laxe Z du joint."
 
 #: tools/resource/types.vala:1322
 msgid ""
 "Linear motor target velocity, used by axes whose linear motor mode is "
 "Velocity."
 msgstr ""
+"Vélocité cible du moteur linéaire, utilisées par les axes dont le mode moteur linéaire est "
+"Vélocité."
 
 #: tools/resource/types.vala:1329
 msgid ""
 "Linear motor target position, used by axes whose linear motor mode is "
 "Position."
 msgstr ""
+"Position cible du moteur linéaire, utilisée par les axes dont le mode moteur linéaire est "
+"Position."
 
 #: tools/resource/types.vala:1336
 msgid "Per-axis linear motor force limits."
-msgstr ""
+msgstr "Limites de force du moteur linéaire pas axe."
 
 #: tools/resource/types.vala:1342
 msgid "Angular X Motor"
-msgstr ""
+msgstr "Moteur Angulaire X"
 
 #: tools/resource/types.vala:1346
 msgid "Motor mode for rotation around the joint X axis."
-msgstr ""
+msgstr "Mode moteur pour la rotation autour de l'axe X du joint."
 
 #: tools/resource/types.vala:1352
 msgid "Angular Y Motor"
-msgstr ""
+msgstr "Moteur Angulaire Y"
 
 #: tools/resource/types.vala:1356
 msgid "Motor mode for rotation around the joint Y axis."
-msgstr ""
+msgstr "Mode moteur pour la rotation autour de l'axe Y du joint."
 
 #: tools/resource/types.vala:1362
 msgid "Angular Z Motor"
-msgstr ""
+msgstr "Moteur Angulaire Z"
 
 #: tools/resource/types.vala:1366
 msgid "Motor mode for rotation around the joint Z axis."
-msgstr ""
+msgstr "Mode moteur pour la rotation autour de l'axe Z du joint."
 
 #: tools/resource/types.vala:1373
 msgid ""
 "Angular motor target velocity, used by axes whose angular motor mode is "
 "Velocity."
 msgstr ""
+"Vélocité cible du moteur angulaire, utilisées par les axes dont le mode moteur angulaire est "
+"Velocité."
 
 #: tools/resource/types.vala:1381
 msgid ""
 "Angular motor target position, used by axes whose angular motor mode is "
 "Position."
 msgstr ""
+"Position cible du moteur angulaire, utilisée par les axes dont le mode moteur angulaire est "
+"Position."
 
 #: tools/resource/types.vala:1388
 msgid "Per-axis angular motor force limits."
-msgstr ""
+msgstr "Limites de force angulaire du moteur pas axe."
 
 #: tools/resource/types.vala:1456
 msgid "Twist Motion"
-msgstr ""
+msgstr "Mouvement de Torsion"
 
 #: tools/resource/types.vala:1460
 msgid "How twist around the joint X axis is constrained."
-msgstr ""
+msgstr "Comment la torsion autour de l'axe X du joint est contrainte."
 
 #: tools/resource/types.vala:1466
 msgid "Swing Y Motion"
-msgstr ""
+msgstr "Mouvement d'Oscillation Y"
 
 #: tools/resource/types.vala:1470
 msgid "How swing around the joint Y axis is constrained."
-msgstr ""
+msgstr "Comment l'oscillation autour de l'axe Y du joint est contrainte"
 
 #: tools/resource/types.vala:1476
 msgid "Swing Z Motion"
-msgstr ""
+msgstr "Mouvement d'Oscillation Z"
 
 #: tools/resource/types.vala:1480
 msgid "How swing around the joint Z axis is constrained."
-msgstr ""
+msgstr "Comment l'oscillation autour de l'axe Z du joint est contrainte."
 
 #: tools/resource/types.vala:1488
 msgid "Lower twist limit, used when Twist Motion is Limited."
-msgstr ""
+msgstr "Limite de torsion inférieure, utilisée lorsque le Mouvement de Torsion est limité."
 
 #: tools/resource/types.vala:1496
 msgid "Upper twist limit, used when Twist Motion is Limited."
-msgstr ""
+msgstr "Limite de torsion supérieure, utilisée lorsque le Mouvement de Torsion est limité."
 
 #: tools/resource/types.vala:1505
 msgid ""
@@ -2491,280 +2513,281 @@ msgstr ""
 
 #: tools/resource/types.vala:1576
 msgid "Hinge axis in both joint frames."
-msgstr ""
+msgstr "Axe de charnière dans les deux frames de joint."
 
 #: tools/resource/types.vala:1598
 msgid "Enable the hinge motor."
-msgstr ""
+msgstr "Activer le moteur de la charnière."
 
 #: tools/resource/types.vala:1604
 msgid "Motor target angular velocity."
-msgstr ""
+msgstr "Vélocité angulaire cible du moteur."
 
 #: tools/resource/types.vala:1611
 msgid "Maximum motor impulse."
-msgstr ""
+msgstr "Impulsion maximale du moteur."
 
 #: tools/resource/types.vala:1617
 msgid "Enable hinge limits."
-msgstr ""
+msgstr "Activer les limites de la charnière."
 
 #: tools/resource/types.vala:1625
 msgid "Lower hinge limit."
-msgstr ""
+msgstr "Limitation inférieure de la charnière."
 
 #: tools/resource/types.vala:1633
 msgid "Upper hinge limit."
-msgstr ""
+msgstr "Limitation supérieure de la charnière."
 
 #: tools/resource/types.vala:1640
 msgid "Bounce factor applied at the limits."
-msgstr ""
+msgstr "Facteur de rebond appliqué aux limites."
 
 #: tools/resource/types.vala:1710
 msgid "Linear spring stiffness."
-msgstr ""
+msgstr "Rigidité linéaire du ressort."
 
 #: tools/resource/types.vala:1718
 msgid "Linear spring damping."
-msgstr ""
+msgstr "Amortissement linéaire du ressort."
 
 #: tools/resource/types.vala:1742
 msgid "Skydome Map"
-msgstr ""
+msgstr "Carte de la voûte céleste"
 
 #: tools/resource/types.vala:1745
 msgid "Texture to use as skydome."
-msgstr ""
+msgstr "Texture à utiliser pour la voûte céleste."
 
 #: tools/resource/types.vala:1753
 msgid "Skydome intensity multiplier."
-msgstr ""
+msgstr "Multiplicateur de l'intensité de la voûte céleste."
 
 #: tools/resource/types.vala:1762
 msgid "Ambient color applied to objects."
-msgstr ""
+msgstr "Couleur ambiante appliquée aux objets."
 
 #: tools/resource/types.vala:1786
 msgid "Enable bloom effect."
-msgstr ""
+msgstr "Activer l'effet de bloon."
 
 #: tools/resource/types.vala:1802
 msgid "Bloom weight."
-msgstr ""
+msgstr "Poids du bloom."
 
 #: tools/resource/types.vala:1811
 msgid "Bloom intensity multiplier."
-msgstr ""
+msgstr "Multiplicateur de l'intensité du bloom."
 
 #: tools/resource/types.vala:1837
 msgid "Tonemapping operator. Gamma means no tonemapping is applied."
-msgstr ""
+msgstr "Opérateur de placage tonal. Gamma signifie qu'aucun placage tonal n'est appliqué."
 
 #: tools/resource/types.vala:1883
 msgid "Unit prefab."
-msgstr ""
+msgstr "Préfab unité."
 
 #: tools/resource/types.vala:1950
 msgid "Animation to play."
-msgstr ""
+msgstr "Animation à jouer."
 
 #: tools/resource/types.vala:1956
 msgid "Expression to evaluate the animation weight."
-msgstr ""
+msgstr "Expression pour évaluer le poids de l'animation."
 
 #: tools/resource/types.vala:1974
 msgid "Event that triggers this transition."
-msgstr ""
+msgstr "Événement qui déclenche cette animation."
 
 #: tools/resource/types.vala:1982
 msgid "Enter the state immediately or wait until the animation ends."
-msgstr ""
+msgstr "Entrer l'état immédiatement ou attendre la fin de l'animation."
 
 #: tools/resource/types.vala:1989
 msgid "Animation state to enter to."
-msgstr ""
+msgstr "État de l'animation à entrer."
 
 #: tools/resource/types.vala:2011
 msgid "State name."
-msgstr ""
+msgstr "Nom de l'état."
 
 #: tools/resource/types.vala:2023
 msgid "Restart the animation when it ends."
-msgstr ""
+msgstr "Redémarrer l'animation lorqu'elle se termine."
 
 #: tools/resource/types.vala:2029
 msgid "Expression to evaluate the animation speed."
-msgstr ""
+msgstr "Expression pour évaluer la vitesse de l'animation."
 
 #: tools/resource/types.vala:2046
 msgid "Variable name."
-msgstr ""
+msgstr "Nom de la variable."
 
 #: tools/resource/types.vala:2052
 msgid "Variable value."
-msgstr ""
+msgstr "Valeur de la variable."
 
 #: tools/resource/types.vala:2059
 msgid "Minimum value."
-msgstr ""
+msgstr "Valeur minimale."
 
 #: tools/resource/types.vala:2066
 msgid "Maximum value."
-msgstr ""
+msgstr "Valeur maximale."
 
 #: tools/resource/types.vala:2078
 msgid "Animation state to enter at the beginning."
-msgstr ""
+msgstr "État de l'animation à entrer au début."
 
 #: tools/resource/types.vala:2104
 msgid "Animation skeleton to use."
-msgstr ""
+msgstr "Squelette d'animation à utiliser."
 
 #: tools/state_machine_editor/state_machine_editor.vala:95
 msgid "State Machine Editor"
-msgstr ""
+msgstr "Éditeur de la Machine d'État"
 
 #: tools/state_machine_editor/state_machine_editor.vala:254
 #, c-format
 msgid "Unable to save state machine '%s'"
-msgstr ""
+msgstr "Impossible d'enregistrer la machine d'état '%s'"
 
 #: tools/unit_editor/unit_editor.vala:94
 msgid "Unit Editor"
-msgstr ""
+msgstr "Éditeur d'Unité"
 
 #: tools/unit_editor/unit_editor.vala:237
 #, c-format
 msgid "Unable to save unit '%s'"
-msgstr ""
+msgstr "Impossible d'enregistrer l'unité '%s'"
 
 #: tools/widgets/app_chooser_button.vala:29
 msgid "Open by extension"
-msgstr ""
+msgstr "Ouvrir par extension"
 
 #: tools/widgets/console_view.vala:177
 msgid "Clear the console."
-msgstr ""
+msgstr "Nettoyer la console."
 
 #: tools/widgets/console_view.vala:215
 msgid "Enter Command or Lua expression"
-msgstr ""
+msgstr "Entrer une Commande ou expression Lua"
 
 #: tools/widgets/console_view.vala:612
 msgid "Reveal in Project Browser"
-msgstr ""
+msgstr "Révéler dans le Navigateur de Projet"
 
 #: tools/widgets/input_color3.vala:353
 msgid "Red"
-msgstr ""
+msgstr "Rouge"
 
 #: tools/widgets/input_color3.vala:354
 msgid "Green"
-msgstr ""
+msgstr "Vert"
 
 #: tools/widgets/input_color3.vala:355
 msgid "Blue"
-msgstr ""
+msgstr "Bleu"
 
 #: tools/widgets/input_color3.vala:356 tools/widgets/input_color3.vala:364
 msgid "Alpha"
-msgstr ""
+msgstr "Alpha"
 
 #: tools/widgets/input_color3.vala:361
 msgid "Hue"
-msgstr ""
+msgstr "Teinte"
 
 #: tools/widgets/input_color3.vala:362
 msgid "Saturation"
-msgstr ""
+msgstr "Saturation"
 
 #: tools/widgets/input_color3.vala:363
 msgid "Value"
-msgstr ""
+msgstr "Valeur"
 
 #: tools/widgets/input_color3.vala:367
 msgid "Lua color code."
-msgstr ""
+msgstr "Code de couleur Lua."
 
 #: tools/widgets/input_color3.vala:371
 msgid "Pick a color from the screen."
-msgstr ""
+msgstr "Choisir une couleur depuis l'écran."
 
 #: tools/widgets/input_color3.vala:410
 msgid "Choose a color."
-msgstr ""
+msgstr "Choisir une couleur."
 
 #: tools/widgets/input_file.vala:48
 msgid "(None)"
-msgstr ""
+msgstr "(Aucun)"
 
 #: tools/widgets/input_file.vala:87
 #, c-format
 msgid "Select %s"
-msgstr ""
+msgstr "Sélectionner %s"
 
 #: tools/widgets/input_object.vala:86 tools/widgets/input_resource.vala:80
 msgid "Select a resource."
-msgstr ""
+msgstr "Sélectionner une ressource."
 
 #: tools/widgets/input_resource.vala:75
 msgid "Reveal in the project browser."
-msgstr ""
+msgstr "Révéler dans le navigateur de projet."
 
 #: tools/widgets/messages.vala:38
 msgid "Connecting to Data Compiler..."
-msgstr ""
+msgstr "Connexion au Compilateur de Données..."
 
 #: tools/widgets/messages.vala:48
 msgid ""
 "Fix errors and <a href=\"restart\">restart the compiler</a> to continue."
 msgstr ""
+"Corriger les erreurs et <a href=\"restart\">redémarrer le compilateur</a> pour continuer."
 
 #: tools/widgets/messages.vala:59
 msgid "Data compilation failed."
-msgstr ""
+msgstr "Échec de compilation des données."
 
 #: tools/widgets/messages.vala:64
 msgid "Data Compiler disconnected unexpectedly."
-msgstr ""
+msgstr "Compilateur de Données déconnecté de façon inattendue."
 
 #: tools/widgets/messages.vala:72
 msgid "Something went wrong."
-msgstr ""
+msgstr "Quelque-chose s'est mal passée."
 
 #: tools/widgets/messages.vala:76
 msgid "Try to <a href=\"restart\">restart this view</a>."
-msgstr ""
+msgstr "Essayer de <a href=\"restart\">redémarrer cette vue</a>."
 
 #: tools/widgets/messages.vala:88
 msgid "Disconnected."
-msgstr ""
+msgstr "Déconnecté."
 
 #: tools/widgets/messages.vala:95
 msgid "Stopping Backend..."
-msgstr ""
+msgstr "Arrêt du Bachend..."
 
 #: tools/widgets/messages.vala:104
 #, c-format
 msgid "Save changes to '%s' before closing?"
-msgstr ""
+msgstr "Enregistrer les changements de '%s' avant la fermeture ?"
 
 #: tools/widgets/object_properties.vala:93
 msgid "General"
-msgstr ""
+msgstr "Général"
 
 #: tools/widgets/object_tree.vala:256
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #: tools/widgets/open_resource_dialog.vala:58
 #: tools/widgets/save_resource_dialog.vala:63
 msgid "The file must be within the source directory."
-msgstr ""
+msgstr "Le fichier doit se trouver dans le répertoire source."
 
 #: tools/widgets/select_object_dialog.vala:43
 #: tools/widgets/select_resource_dialog.vala:41
 #, c-format
 msgid "Select a %s"
-msgstr ""
+msgstr "Sélectionner un %s"
