@@ -45,6 +45,8 @@ VERSION_NEXT=$(crown_version_string ${VERSION_NEXT_MAJOR} ${VERSION_NEXT_MINOR} 
 crown_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
 crown_docs_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
 crown_docs_append_changelog_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
+sed -i 's/#define CROWN_MANUAL_VERSION .*/#define CROWN_MANUAL_VERSION "master"/g' src/config.h
+sed -i 's/const string CROWN_MANUAL_VERSION = ".*/const string CROWN_MANUAL_VERSION = "master";/g' tools/config.vala
 
 echo "Crown v${VERSION_NEXT} will be bumped"
 echo "Continue? [y/N]"

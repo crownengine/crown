@@ -60,7 +60,7 @@ static void help(const char *msg = NULL)
 		"  --string-id <string>            Print the 32- and 64-bits IDs of <string>.\n"
 		"  --run-unit-tests                Run unit tests and quit.\n"
 		"\n"
-		"Full documentation at https://docs.crownengine.org/html/v" CROWN_MANUAL_VERSION "/reference/command_line.html\n"
+		"Full documentation at https://docs.crownengine.org/html/" CROWN_MANUAL_VERSION "/reference/command_line.html\n"
 		);
 
 	if (msg)
