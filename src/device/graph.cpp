@@ -466,7 +466,7 @@ struct Graph
 
 namespace graph
 {
-	/// Creates a new graph with the given @a name and appends it
+	/// Creates a new graph with the specified @a name and appends it
 	/// to the list @a head.
 	Graph *create(ListNode &head, const char *name)
 	{
@@ -476,14 +476,14 @@ namespace graph
 		return graph;
 	}
 
-	/// Destroys the given @a graph.
+	/// Destroys the specified @a graph.
 	void destroy(Graph *graph)
 	{
 		list::remove(graph->_node);
 		CE_DELETE(default_allocator(), graph);
 	}
 
-	/// Returns the graph with the given @a name or NULL if no graph is found.
+	/// Returns the graph with the specified @a name or NULL if no graph is found.
 	Graph *find(ListNode &head, const char *name)
 	{
 		ListNode *cur;

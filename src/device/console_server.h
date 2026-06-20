@@ -77,20 +77,20 @@ struct ConsoleServer
 	///
 	explicit ConsoleServer(Allocator &a);
 
-	/// Listens on the given @a port. If @a wait is true, this function
+	/// Listens on the specified @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
 	bool listen(u16 port, bool wait, const char *port_file, u16 default_port);
 
 	/// Shutdowns the server.
 	void shutdown();
 
-	/// Sends the given JSON-encoded string to @a client_id.
+	/// Sends the specified JSON-encoded string to @a client_id.
 	void send(u32 client_id, const char *json);
 
 	/// Sends an error message to @a client.
 	void error(u32 client_id, const char *msg);
 
-	/// Sends the given JSON-encoded string to all clients.
+	/// Sends the specified JSON-encoded string to all clients.
 	void broadcast(const char *json);
 
 	// Registers the command @a type.

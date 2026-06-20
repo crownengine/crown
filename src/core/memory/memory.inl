@@ -62,14 +62,14 @@ inline T &construct(void *p, Allocator &a)
 
 } // namespace crown
 
-/// Allocates memory with @a allocator for the given @a T type
+/// Allocates memory with @a allocator for the specified @a T type
 /// and calls constructor on it.
 /// @note
 /// @a allocator must be a reference to an existing allocator.
 #define CE_NEW(allocator, T) new ((allocator).allocate(sizeof(T), alignof(T))) T
 
 /// Calls destructor on @a ptr and deallocates memory using the
-/// given @a allocator.
+/// specified @a allocator.
 /// @note
 /// @a allocator must be a reference to an existing allocator.
 #define CE_DELETE(allocator, ptr) crown::memory::call_destructor_and_deallocate(allocator, ptr)

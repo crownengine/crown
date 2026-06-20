@@ -59,14 +59,14 @@ namespace memory
 	// value after storing the size. That way we can
 	const u32 HEADER_PAD_VALUE = 0xffffffffu;
 
-	// Given a pointer to the header, returns a pointer to the data that follows it.
+	// For the specified pointer to the header, returns a pointer to the data that follows it.
 	inline void *data_pointer(Header *header, u32 align)
 	{
 		void *p = header + 1;
 		return memory::align_top(p, align);
 	}
 
-	// Given a pointer to the data, returns a pointer to the header before it.
+	// For the specified pointer to the data, returns a pointer to the header before it.
 	inline Header *header(const void *data)
 	{
 		u32 *p = (u32 *)data;

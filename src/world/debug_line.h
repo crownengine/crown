@@ -42,22 +42,22 @@ struct DebugLine
 	///
 	~DebugLine();
 
-	/// Adds a line from @a start to @a end with the given @a color.
+	/// Adds a line from @a start to @a end with the specified @a color.
 	void add_line(const Vector3 &start, const Vector3 &end, const Color4 &color);
 
-	/// Adds lines for each axis with the given @a length.
+	/// Adds lines for each axis with the specified @a length.
 	void add_axes(const Matrix4x4 &m, f32 length = 1.0f);
 
-	/// Adds an arc at @a center with the given @a radius and @a plane_normal and @a midpoint_normal vectors.
+	/// Adds an arc at @a center with the specified @a radius and @a plane_normal and @a midpoint_normal vectors.
 	void add_arc(const Vector3 &center, f32 radius, const Vector3 &plane_normal, const Vector3 &midpoint_normal, const Color4 &color, u32 circle_segments = NUM_SEGMENTS);
 
-	/// Adds a circle at @a center with the given @a radius and @a normal vector.
+	/// Adds a circle at @a center with the specified @a radius and @a normal vector.
 	void add_circle(const Vector3 &center, f32 radius, const Vector3 &normal, const Color4 &color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds a cone with the base centered at @a base_center and the tip at @a tip.
 	void add_cone(const Vector3 &base_center, const Vector3 &tip, f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS, u32 rays = NUM_SEGMENTS);
 
-	/// Adds a sphere at @a center with the given @a radius and @a color.
+	/// Adds a sphere at @a center with the specified @a radius and @a color.
 	void add_sphere(const Vector3 &center, const f32 radius, const Color4 &color, u32 segments = NUM_SEGMENTS);
 
 	/// Adds the axis-aligned bounding box @a aabb.

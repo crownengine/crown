@@ -25,7 +25,7 @@ namespace frustum
 	/// Splits the frustum @a f into @a num sub-frustum @a splits.
 	/// @a weight controls splits distribution: 0 means evenly-spaced
 	/// splits; higher values push splits towards the original near plane.
-	/// @a overlap sets how much a given far plane should overlap the next
+	/// @a overlap sets how much a specified far plane should overlap the next
 	/// split's near plane.
 	void split(Frustum *splits, u32 num, const Frustum &f, f32 weight = 0.75f, f32 overlap = 1.005f);
 

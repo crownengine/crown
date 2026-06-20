@@ -19,7 +19,7 @@ struct Random
 	/// Initializes the generator with the current time.
 	Random();
 
-	/// Initializes the generator with the given @a seed.
+	/// Initializes the generator with the specified @a seed.
 	explicit Random(s32 seed);
 
 	/// Returns a pseudo-random integer in the range [0, 32767].

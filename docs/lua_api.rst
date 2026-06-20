@@ -38,22 +38,22 @@ DebugLine
 Interface to draw various shapes for debugging purposes.
 
 **add_line** (debug_line, start, end, color)
-	Adds a line from *start* to *end* with the given *color*.
+	Adds a line from *start* to *end* with the specified *color*.
 
 **add_axes** (debug_line, tm, length)
-	Adds lines for each axis with the given *length*.
+	Adds lines for each axis with the specified *length*.
 
 **add_arc** (debug_line, center, radius, plane_normal, midpoint_normal, color, [circle_segments = 36]);
-	Adds an arc at *center* with the given *radius* and *plane_normal* and *midpoint_normal* vectors.
+	Adds an arc at *center* with the specified *radius* and *plane_normal* and *midpoint_normal* vectors.
 
 **add_circle** (debug_line, center, radius, normal, color, [segments = 36])
-	Adds a circle at *center* with the given *radius* and *normal* vector.
+	Adds a circle at *center* with the specified *radius* and *normal* vector.
 
 **add_cone** (debug_line, from, to, radius, color, [segments = 36, rays = 36])
 	Adds a cone with the base centered at *from* and the tip at *to*.
 
 **add_sphere** (debug_line, center, radius, color, [segments = 36])
-	Adds a sphere at *center* with the given *radius*.
+	Adds a sphere at *center* with the specified *radius*.
 
 **add_obb** (debug_line, tm, half_extents, color)
 	Adds an orientd bounding box. *tm* describes the position and orientation of
@@ -103,13 +103,13 @@ Interface to access global application-level functionalities.
 	Creates a new world.
 
 **destroy_world** (world)
-	Destroys the given *world*.
+	Destroys the specified *world*.
 
 **render** (world, camera)
 	Renders *world* using *camera*.
 
 **create_resource_package** (name) : ResourcePackage
-	Returns the resource package with the given *package_name* name.
+	Returns the resource package with the specified *package_name* name.
 
 **destroy_resource_package** (package)
 	Destroy a previously created resource *package*.
@@ -126,7 +126,7 @@ Interface to access global application-level functionalities.
 		Only available in debug and development builds.
 
 **console_send** (table)
-	Sends the given lua *table* to clients connected to the engine.
+	Sends the specified lua *table* to clients connected to the engine.
 	Values can be either ``nil``, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.
 
 **can_get** (type, name) : bool
@@ -950,7 +950,7 @@ Assorted math helper functions.
 **obb_intersects_frustum** (obb_tm, obb_half_extents, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n4, d5) : bool
 	Returns whether the oriented bounding box (obb_tm, obb_half_extents) intersects
 	the frustum defined by the planes ((n0, d0), (n1, d1), ..., (n5, d5)). The
-	planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.
+	planes must be specified in BRTLNF order, where B = bottom plane, R = right plane etc.
 
 **obb_vertices** (obb_tm, obb_half_extents) : v0, v1, v2, v3, v4, v5, v6, v7
 	Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).
@@ -1027,13 +1027,13 @@ Actor
 	Returns the world pose of the *actor*.
 
 **actor_teleport_world_position** (pw, actor, position)
-	Teleports the *actor* to the given world *position*.
+	Teleports the *actor* to the specified world *position*.
 
 **actor_teleport_world_rotation** (pw, actor, rotation)
-	Teleports the *actor* to the given world *rotation*.
+	Teleports the *actor* to the specified world *rotation*.
 
 **actor_teleport_world_pose** (pw, actor, pose)
-	Teleports the *actor* to the given world *pose*.
+	Teleports the *actor* to the specified world *pose*.
 
 **actor_center_of_mass** (pw, actor) : Vector3
 	Returns the center of mass of the *actor*.
@@ -1117,8 +1117,8 @@ Actor
 	Adds a torque *impulse* to the *actor*.
 
 **actor_push** (pw, actor, velocity, mass)
-	Pushes the *actor* as if it was hit by a point object with the given *mass*
-	travelling at the given *velocity*.
+	Pushes the *actor* as if it was hit by a point object with the specified *mass*
+	travelling at the specified *velocity*.
 
 	.. note::
 		This call only affects nonkinematic actors.
@@ -1357,13 +1357,13 @@ Profiler
 Interface to the integrated profiler.
 
 **enter_scope** (name)
-	Starts a new profile scope with the given *name*.
+	Starts a new profile scope with the specified *name*.
 
 **leave_scope** ()
 	Ends the last profile scope.
 
 **record** (name, value)
-	Records *value* with the given *name*. Value can be either number or Vector3.
+	Records *value* with the specified *name*. Value can be either number or Vector3.
 
 RenderWorld
 ===========
@@ -1723,7 +1723,7 @@ Singleton to manage all units in the game.
 	that world.
 
 **destroy** (unit)
-	Destroys the given *unit*.
+	Destroys the specified *unit*.
 
 **alive** (unit) : bool
 	Returns whether the unit is alive.
@@ -1786,13 +1786,13 @@ World
 Represents a game world.
 
 **spawn_unit** (world, name, [position, rotation, scale]) : UnitId
-	Spawns a new instance of the unit *name* at the given *position*, *rotation* and *scale*.
+	Spawns a new instance of the unit *name* at the specified *position*, *rotation* and *scale*.
 
 **spawn_empty_unit** (world) : UnitId
 	Spawns a new empty unit and returns its id.
 
 **destroy_unit** (world, unit)
-	Destroys the given *unit*.
+	Destroys the specified *unit*.
 
 **num_units** (world) : int
 	Returns the number of units in the *world*.
@@ -1801,7 +1801,7 @@ Represents a game world.
 	Returns all the the units in the world in a table.
 
 **unit_by_name** (world, name) : UnitId
-	Returns the unit with the given Level Editor *name* or ``nil`` if no such unit is found.
+	Returns the unit with the specified Level Editor *name* or ``nil`` if no such unit is found.
 	If there are multiple units with the same name, a random one will be returned.
 
 **update_animations** (world, dt)
@@ -1897,16 +1897,16 @@ Sound
 -----
 
 **play_sound** (world, name, [loop = false, volume = 1.0, range = 70.0, position = nil, group = nil]) : SoundInstanceId
-	Plays the sound with the given *name*. If the listener is further away than
+	Plays the sound with the specified *name*. If the listener is further away than
 	*range* the sound will not be heard. If *position* is not specified the
 	sound will be played as a 2d-sound (i.e. no attenuation nor spatialization).
 	*group* is a string that identifies the sound's group, see ``SoundWorld.set_group_volume()``.
 
 **stop_sound** (world, id)
-	Stops the sound with the given *id*.
+	Stops the sound with the specified *id*.
 
 **link_sound** (world, id, unit, node)
-	Links the sound *id* to the *node* of the given *unit*.
+	Links the sound *id* to the *node* of the specified *unit*.
 	After this call, the sound *id* will follow the unit *unit*.
 
 **set_listener_pose** (world, pose)
@@ -1927,7 +1927,7 @@ Level
 Interface to manage levels in a `World`_.
 
 **load_level** (world, name, [pos, rot]) : Level
-	Loads the level *name* into the world at the given *position* and *rotation*.
+	Loads the level *name* into the world at the specified *position* and *rotation*.
 
 **destroy_level** (world, level)
 	Destroys a level previously loaded by load_level(). Only units directly

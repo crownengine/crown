@@ -26,7 +26,7 @@ namespace vector
 	/// Returns the maximum number of items the vector @a v can hold.
 	template<typename T> u32 capacity(const Vector<T> &v);
 
-	/// Resizes the vector @a v to the given @a size.
+	/// Resizes the vector @a v to the specified @a size.
 	/// @note
 	/// Old items will be copied to the newly created vector.
 	/// If the new capacity is smaller than the previous one, the

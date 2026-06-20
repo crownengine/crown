@@ -1188,7 +1188,7 @@ namespace unit_compiler
 			if (comp_type == STRING_ID_32("transform", UINT32_C(0xad9b5315)))
 				unit_has_transform = true;
 
-			// Append data to the component data for the given type.
+			// Append data to the component data for the specified type.
 			ComponentTypeData ctd_deffault(default_allocator());
 			ComponentTypeData &ctd = const_cast<ComponentTypeData &>(hash_map::get(c._component_data, comp_type, ctd_deffault));
 			RETURN_IF_FALSE(UNIT_COMPILER, &ctd != &ctd_deffault, opts, "Unknown component type");

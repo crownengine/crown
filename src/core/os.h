@@ -95,7 +95,7 @@ namespace os
 	/// Closes a @a library previously opened by library_open.
 	void library_close(void *library);
 
-	/// Returns a pointer to the symbol @a name in the given @a library.
+	/// Returns a pointer to the symbol @a name in the specified @a library.
 	void *library_symbol(void *library, const char *name);
 
 	/// Logs the message @a msg.
@@ -119,7 +119,7 @@ namespace os
 	/// The directory must be empty.
 	DeleteResult delete_directory(const char *path);
 
-	/// Returns the list of @a files at the given @a path.
+	/// Returns the list of @a files at the specified @a path.
 	void list_files(const char *path, Vector<DynamicString> &files);
 
 	/// Returns the current working directory.

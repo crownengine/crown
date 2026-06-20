@@ -26,14 +26,14 @@ namespace hash_map
 	/// Returns the maximum number of items the map @a m can hold.
 	template<typename TKey, typename TValue, typename Hash, typename KeyEqual> u32 capacity(const HashMap<TKey, TValue, Hash, KeyEqual> &m);
 
-	/// Returns whether the given @a key exists in the map @a m.
+	/// Returns whether the specified @a key exists in the map @a m.
 	template<typename TKey, typename TValue, typename Hash, typename KeyEqual> bool has(const HashMap<TKey, TValue, Hash, KeyEqual> &m, const TKey &key);
 
-	/// Returns the value for the given @a key or @a deffault if
+	/// Returns the value for the specified @a key or @a deffault if
 	/// the key does not exist in the map.
 	template<typename TKey, typename TValue, typename Hash, typename KeyEqual> const TValue &get(const HashMap<TKey, TValue, Hash, KeyEqual> &m, const TKey &key, const TValue &deffault);
 
-	/// Returns the value for the given @a key or @a deffault if
+	/// Returns the value for the specified @a key or @a deffault if
 	/// the key does not exist in the map.
 	template<typename TKey, typename TValue, typename Hash, typename KeyEqual> TValue &get(HashMap<TKey, TValue, Hash, KeyEqual> &m, const TKey &key, const TValue &deffault);
 

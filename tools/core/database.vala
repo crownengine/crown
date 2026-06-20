@@ -1657,7 +1657,7 @@ public class Database
 		}
 	}
 
-	/// Copies the database to db under the given new_key.
+	/// Copies the database to db under the specified new_key.
 	public void copy_to(Database db, string new_key)
 	{
 		assert(db != null);

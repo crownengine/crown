@@ -26,7 +26,7 @@ namespace array
 	/// Returns the maximum number of items the array @a a can hold.
 	template<typename T> u32 capacity(const Array<T> &a);
 
-	/// Resizes the array @a a to the given @a size.
+	/// Resizes the array @a a to the specified @a size.
 	/// @note
 	/// Old items will be copied to the newly created array.
 	/// If the new capacity is smaller than the previous one, the

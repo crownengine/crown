@@ -12,7 +12,7 @@ namespace crown
 {
 /// Access files on disk.
 /// All the file paths can be either relative or absolute.
-/// When a relative path is given, it is automatically translated
+/// When a relative path is specified, it is automatically translated
 /// to its absolute counterpart based on the file source's root path.
 /// Accessing files using absolute path directly is also possible,
 /// but platform-specific and thus generally not recommended.
@@ -26,7 +26,7 @@ struct FilesystemDisk : public Filesystem
 	///
 	explicit FilesystemDisk(Allocator &a);
 
-	/// Sets the root path to the given @a prefix.
+	/// Sets the root path to the specified @a prefix.
 	/// @note
 	/// The @a prefix must be absolute.
 	void set_prefix(const StringView &prefix);

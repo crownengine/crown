@@ -27,7 +27,7 @@ struct UnitManager
 	/// Creates a new empty unit.
 	UnitId create();
 
-	/// Creates a new empty unit in the given @a world.
+	/// Creates a new empty unit in the specified @a world.
 	UnitId create(World &world);
 
 	/// Returns whether the unit @id is alive.

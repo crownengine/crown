@@ -76,10 +76,10 @@ struct LuaEnvironment
 	/// Executes the @a lua string.
 	LuaStack execute_string(const char *lua);
 
-	/// Adds the function with the given @a name and @a func to the table @a module.
+	/// Adds the function with the specified @a name and @a func to the table @a module.
 	void add_module_function(const char *module, const char *name, const lua_CFunction func);
 
-	/// Adds the function with the given @a name and @a func to the table @a module.
+	/// Adds the function with the specified @a name and @a func to the table @a module.
 	void add_module_function(const char *module, const char *name, const char *func);
 
 	///

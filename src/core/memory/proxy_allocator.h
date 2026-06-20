@@ -17,7 +17,7 @@ struct ProxyAllocator : public Allocator
 	Allocator &_allocator;
 	const char *_name;
 
-	/// Tag all allocations made with @a allocator by the given @a name
+	/// Tag all allocations made with @a allocator by the specified @a name
 	ProxyAllocator(Allocator &allocator, const char *name);
 
 	/// @copydoc Allocator::allocate()
