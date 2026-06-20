@@ -13,6 +13,8 @@ TODAY=$(LC_ALL=en_US.utf8 date '+%d %b %Y')
 
 # Update CHANGELOG version and date.
 sed -i "s/DD MMM YYYY/${TODAY}/g" docs/changelog.rst
+sed -i "s/#define CROWN_MANUAL_VERSION .*/#define CROWN_MANUAL_VERSION \"v$(crown_version_major).$(crown_version_minor).0\"/g" src/config.h
+sed -i "s/const string CROWN_MANUAL_VERSION = \".*/const string CROWN_MANUAL_VERSION = \"v$(crown_version_major).$(crown_version_minor).0\";/g" tools/config.vala
 
 echo "v${VERSION} will be tagged now (${TODAY})"
 echo "Continue? [y/N]"
@@ -24,5 +26,7 @@ fi
 
 # Commit changes.
 git add docs/changelog.rst
+git add src/config.h
+git add tools/config.vala
 git commit -m "Crown v${VERSION}"
 git tag "v${VERSION}"
