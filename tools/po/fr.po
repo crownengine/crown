@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Crown Editor\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-11 19:14+0200\n"
 "PO-Revision-Date: 2026-06-12 19:54+0200\n"
@@ -216,7 +216,7 @@ msgstr "Vue du Dessus"
 
 #: tools/level_editor/level_editor.vala:204
 msgid "View Bottom"
-msgstr "Vue d'en bas"
+msgstr "Vue d'en Bas"
 
 #: tools/level_editor/level_editor.vala:206
 msgid "View Unknown"
@@ -236,7 +236,7 @@ msgstr "Déboguer"
 
 #: tools/level_editor/level_editor.vala:243
 msgid "unknown"
-msgstr "Inconnu"
+msgstr "inconnu"
 
 #: tools/level_editor/level_editor.vala:277
 msgid "Android"
@@ -313,7 +313,7 @@ msgstr "En attente de %s..."
 
 #: tools/level_editor/level_editor.vala:1348 tools/widgets/messages.vala:33
 msgid "Compiling data..."
-msgstr "Compilation des données."
+msgstr "Compilation des données..."
 
 #: tools/level_editor/level_editor.vala:1356
 msgid "Failed to compile data"
@@ -357,7 +357,7 @@ msgstr "Ok"
 #: tools/level_editor/level_editor.vala:1980
 #: tools/state_machine_editor/state_machine_editor.vala:177
 msgid "untitled"
-msgstr "Sans titre"
+msgstr "sans titre"
 
 #: tools/level_editor/level_editor.vala:2022
 #, c-format
@@ -372,7 +372,7 @@ msgstr "Incapable de sauvegarder le niveau '%s'"
 #: tools/state_machine_editor/state_machine_editor.vala:256
 #: tools/unit_editor/unit_editor.vala:239
 msgid "_Ok"
-msgstr "Ok"
+msgstr "_Ok"
 
 #: tools/level_editor/level_editor.vala:2031
 #, c-format
@@ -412,11 +412,11 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:2529
 #: tools/level_editor/level_editor.vala:3298 tools/widgets/messages.vala:109
 msgid "_Cancel"
-msgstr "Annulé"
+msgstr "_Annulé"
 
 #: tools/level_editor/level_editor.vala:2331
 msgid "_Remove"
-msgstr "Supprimé"
+msgstr "_Supprimé"
 
 #: tools/level_editor/level_editor.vala:2491
 #: tools/level_editor/preferences_dialog.vala:126
@@ -446,11 +446,11 @@ msgstr ""
 
 #: tools/level_editor/level_editor.vala:2527 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
-msgstr "Fermer sans Enregistrer"
+msgstr "Fermer _sans Enregistrer"
 
 #: tools/level_editor/level_editor.vala:2530 tools/widgets/messages.vala:110
 msgid "_Save"
-msgstr "Enregistrer"
+msgstr "_Enregistrer"
 
 #: tools/level_editor/level_editor.vala:2537
 msgid "Select a folder where the project will be saved..."
@@ -458,7 +458,7 @@ msgstr "Sélectionner un dossier dans lequel le projet sera enregistré..."
 
 #: tools/level_editor/level_editor.vala:2542
 msgid "Save Project Here"
-msgstr "Enregistrer le Projet ici"
+msgstr "Enregistrer le Projet Ici"
 
 #: tools/level_editor/level_editor.vala:2599
 msgid "The destination directory must be empty"
@@ -480,7 +480,7 @@ msgstr "Nouveau Nom"
 #: tools/level_editor/level_editor.vala:3247
 #: tools/level_editor/level_editor.vala:3419
 msgid "Resource Name"
-msgstr "Nom de la ressource"
+msgstr "Nom de la Ressource"
 
 #: tools/level_editor/level_editor.vala:3294
 #, c-format
@@ -489,19 +489,19 @@ msgstr "Supprimer le répertoire %s ?"
 
 #: tools/level_editor/level_editor.vala:3299
 msgid "_Delete"
-msgstr "Supprimer"
+msgstr "_Supprimer"
 
 #: tools/level_editor/level_editor.vala:3407
 msgid "Script Name"
-msgstr "Nom du script"
+msgstr "Nom du Script"
 
 #: tools/level_editor/level_editor.vala:3410
 msgid "Unit Name"
-msgstr "Nom de l'unité"
+msgstr "Nom de l'Unité"
 
 #: tools/level_editor/level_editor.vala:3413
 msgid "Material Name"
-msgstr "Nom du matériau"
+msgstr "Nom du Matériau"
 
 #: tools/level_editor/level_editor.vala:3416
 msgid "State Machine Name"
@@ -513,7 +513,7 @@ msgstr "Nom du squelette (optionnel)"
 
 #: tools/level_editor/level_editor.vala:3473
 msgid "Folder Name"
-msgstr "Nom du répertoire"
+msgstr "Nom du Répertoire"
 
 #: tools/level_editor/level_editor.vala:3635
 #: tools/widgets/save_resource_dialog.vala:84
@@ -528,12 +528,12 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:3640
 #: tools/widgets/save_resource_dialog.vala:88
 msgid "_No"
-msgstr "Non"
+msgstr "_Non"
 
 #: tools/level_editor/level_editor.vala:3641
 #: tools/widgets/save_resource_dialog.vala:89
 msgid "_Yes"
-msgstr "Oui"
+msgstr "_Oui"
 
 #: tools/level_editor/level_editor.vala:4603
 msgid "Save Prefab As..."
@@ -542,7 +542,7 @@ msgstr "Enregistrer le Préfab Sous..."
 #: tools/level_editor/level_editor.vala:4621
 #, c-format
 msgid "Cannot save prefab '%s' over itself"
-msgstr "Ne peut pas enregistrer le Préfab sur lui-même"
+msgstr "Ne peut pas enregistrer le Préfab '%s' sur lui-même"
 
 #: tools/level_editor/level_layers_tree_view.vala:39
 #: tools/level_editor/level_tree_view.vala:117
@@ -670,7 +670,7 @@ msgstr "Quitter"
 
 #: tools/level_editor/menus.vala:76
 msgid "Show Grid"
-msgstr "Montrer la grille"
+msgstr "Montrer la Grille"
 
 #: tools/level_editor/menus.vala:83 tools/level_editor/menus.vala:132
 msgid "Custom"
@@ -706,7 +706,7 @@ msgstr "Refaire"
 
 #: tools/level_editor/menus.vala:228
 msgid "Select None"
-msgstr "Ne rien Sélectionner"
+msgstr "Ne Rien Sélectionner"
 
 #: tools/level_editor/menus.vala:246
 msgid "Place"
@@ -726,11 +726,11 @@ msgstr "Échelle"
 
 #: tools/level_editor/menus.vala:269
 msgid "Relative Snap"
-msgstr "Aimantation relative"
+msgstr "Aimantation Relative"
 
 #: tools/level_editor/menus.vala:274
 msgid "Absolute Snap"
-msgstr "Aimantation absolue"
+msgstr "Aimantation Absolue"
 
 #: tools/level_editor/menus.vala:282
 msgid "Local Axis"
@@ -776,7 +776,7 @@ msgstr "Source Sonore"
 
 #: tools/level_editor/menus.vala:342
 msgid "Empty Unit"
-msgstr "Unité vide"
+msgstr "Unité Vide"
 
 #: tools/level_editor/menus.vala:349
 msgid "Shading Environment"
@@ -800,7 +800,7 @@ msgstr "Montrer/Cacher la Console"
 
 #: tools/level_editor/menus.vala:413
 msgid "Show/Hide Statusbar"
-msgstr "Montrer/Cacher la Barre d'états"
+msgstr "Montrer/Cacher la Barre d'États"
 
 #: tools/level_editor/menus.vala:417
 msgid "Show/Hide Inspector"
@@ -836,7 +836,7 @@ msgstr "Recharger Toutes les Ressources"
 
 #: tools/level_editor/menus.vala:469
 msgid "_Restart Editor View"
-msgstr "Redémarrer la Vue de l'Éditeur"
+msgstr "_Redémarrer la Vue de l'Éditeur"
 
 #: tools/level_editor/menus.vala:476
 msgid "Browse Logs..."
@@ -864,7 +864,7 @@ msgstr "Crédits"
 
 #: tools/level_editor/menus.vala:524
 msgid "_File"
-msgstr "Fichier"
+msgstr "_Fichier"
 
 #: tools/level_editor/menus.vala:528 tools/level_editor/object_editor.vala:88
 #: tools/state_machine_editor/state_machine_editor.vala:119
@@ -1004,7 +1004,7 @@ msgstr "Importer un projet existant."
 
 #: tools/level_editor/panel_projects_list.vala:137
 msgid "Create New"
-msgstr "En créer un nouveau"
+msgstr "En Créer un Nouveau"
 
 #: tools/level_editor/panel_projects_list.vala:138
 msgid "Create a new project."
@@ -1100,7 +1100,7 @@ msgstr "Sauvegarder automatiquement le niveau actuellement ouvert."
 
 #: tools/level_editor/preferences_dialog.vala:133
 msgid "Keep Above"
-msgstr "Rester au-dessus"
+msgstr "Rester Au-dessus"
 
 #: tools/level_editor/preferences_dialog.vala:133
 msgid "Keep the game window above other windows when running the game."
@@ -1208,7 +1208,7 @@ msgstr "Programme à utiliser pour ouvrir les polices."
 
 #: tools/level_editor/preferences_dialog.vala:178
 msgid "External Editors"
-msgstr "Éditeurs externes"
+msgstr "Éditeurs Externes"
 
 #: tools/level_editor/preferences_dialog.vala:182
 msgid "Document"
@@ -1224,7 +1224,7 @@ msgstr "Système"
 
 #: tools/level_editor/preferences_dialog.vala:185
 msgid "External Tools"
-msgstr "Outils externes"
+msgstr "Outils Externes"
 
 #: tools/level_editor/project.vala:799
 msgid "Select destination folder..."
@@ -1248,7 +1248,7 @@ msgstr "Copier le Nom"
 #: tools/level_editor/project_browser.vala:141
 #: tools/widgets/console_view.vala:617
 msgid "Open Containing Folder..."
-msgstr "Ouvrir le répertoire contenant..."
+msgstr "Ouvrir le Répertoire Contenant..."
 
 #: tools/level_editor/project_browser.vala:43
 msgid "Add to Favorites"
@@ -1268,7 +1268,7 @@ msgstr "Nouvelle Unité..."
 
 #: tools/level_editor/project_browser.vala:83
 msgid "New Material..."
-msgstr "Nouveau Matériaux"
+msgstr "Nouveau Matériaux..."
 
 #: tools/level_editor/project_browser.vala:87
 msgid "New Folder..."
@@ -1289,7 +1289,7 @@ msgstr "Nouvelle Machine d'État..."
 
 #: tools/level_editor/project_browser.vala:127
 msgid "Delete File"
-msgstr "Supprimer le fichier"
+msgstr "Supprimer le Fichier"
 
 #: tools/level_editor/project_browser.vala:162
 msgid "Remove from Favorites"
@@ -1360,11 +1360,11 @@ msgstr "Vue du dossier."
 
 #: tools/level_editor/project_browser.vala:1236
 msgid "Go Back"
-msgstr "Revenir en arrière"
+msgstr "Revenir en Arrière"
 
 #: tools/level_editor/project_browser.vala:1243
 msgid "Go Forward"
-msgstr "Revenir en avant"
+msgstr "Revenir en Avant"
 
 #: tools/level_editor/project_browser.vala:1268
 #, c-format
@@ -1422,7 +1422,7 @@ msgstr "Ouvrir Préfab"
 
 #: tools/level_editor/properties_view.vala:65
 msgid "Add Component"
-msgstr "Ajouter un composant"
+msgstr "Ajouter un Composant"
 
 #: tools/level_editor/properties_view.vala:72
 #: tools/level_editor/properties_view.vala:73
@@ -1507,7 +1507,7 @@ msgstr "Générer mip-maps."
 
 #: tools/level_editor/texture_settings_dialog.vala:130
 msgid "Skip Smallest Mips"
-msgstr "Sauter les plus petits Mips"
+msgstr "Sauter les Plus Petits Mips"
 
 #: tools/level_editor/texture_settings_dialog.vala:130
 msgid "Skip generation of the N smallest mip-maps."
@@ -1728,15 +1728,15 @@ msgstr "Squelette à utiliser."
 
 #: tools/resource/mesh_resource_fbx.vala:343
 msgid "Import Animations"
-msgstr "Importer Animations."
+msgstr "Importer Animations"
 
 #: tools/resource/mesh_resource_fbx.vala:343
 msgid "Import all animation clips."
 msgstr "Importer tous les clips d'animation."
 
 #: tools/resource/mesh_resource_fbx.vala:344
-msgid "Create Animations Folder."
-msgstr "Créer un Dossier d'Animation."
+msgid "Create Animations Folder"
+msgstr "Créer un Dossier d'Animation"
 
 #: tools/resource/mesh_resource_fbx.vala:344
 msgid "Put imported animations in a sub-folder."
@@ -1951,7 +1951,7 @@ msgstr "Tranches"
 
 #: tools/resource/sprite_resource.vala:572
 msgid "Import Sprite..."
-msgstr "Importer sprite..."
+msgstr "Importer Sprite..."
 
 #: tools/resource/types.vala:157
 msgid "Local Position."
@@ -1959,7 +1959,7 @@ msgstr "Position Locale."
 
 #: tools/resource/types.vala:163
 msgid "Local Rotation."
-msgstr "Rotation Locale"
+msgstr "Rotation Locale."
 
 #: tools/resource/types.vala:171
 msgid "Local Scale."
@@ -2481,7 +2481,7 @@ msgstr "Mouvement d'Oscillation Y"
 
 #: tools/resource/types.vala:1470
 msgid "How swing around the joint Y axis is constrained."
-msgstr "Comment l'oscillation autour de l'axe Y du joint est contrainte"
+msgstr "Comment l'oscillation autour de l'axe Y du joint est contrainte."
 
 #: tools/resource/types.vala:1476
 msgid "Swing Z Motion"
@@ -2553,7 +2553,7 @@ msgstr "Amortissement linéaire du ressort."
 
 #: tools/resource/types.vala:1742
 msgid "Skydome Map"
-msgstr "Carte de la voûte céleste"
+msgstr "Carte de la Voûte Céleste"
 
 #: tools/resource/types.vala:1745
 msgid "Texture to use as skydome."
