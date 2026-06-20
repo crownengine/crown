@@ -46,13 +46,13 @@ Options
 	interpreted by the runtime.
 
 ``-h`` ``--help``
-	Display the help and quit.
+	Display this help.
 
 ``-v`` ``--version``
-	Display engine version and quit.
+	Display engine version.
 
 ``--source-dir <path>``
-	Use <path> as the source directory for resource compilation.
+	Specify the <path> of the project's source data.
 
 	The <path> must be absolute.
 
@@ -71,13 +71,13 @@ Options
 
 	The <path> must be absolute.
 
-``--boot-dir <path>``
-	Boot the engine with the ``boot.config`` from given <path>.
+``--boot-dir <prefix>``
+	Use <prefix>/boot.config to boot the engine.
 
-	The <path> must be relative.
+	The <prefix> must be relative.
 
 ``--compile``
-	Do a full compile of the resources.
+	Compile the project's source data.
 
 	When using this option you must also specify ``--source-dir``.
 
@@ -85,7 +85,7 @@ Options
 	Generate bundles after the data has been compiled.
 
 ``--platform <platform>``
-	Compile resources for the given <platform>.
+	Specify the target <platform> for data compilation.
 	Possible values for <platform> are:
 
 	* ``android``
@@ -94,19 +94,19 @@ Options
 	* ``windows``
 
 ``--continue``
-	Run the engine after resource compilation.
+	Run the engine after the data has been compiled.
 
 ``--console-port <port>``
-	Set port of the console.
+	Set port of the console server.
 
 	When no port is specified, the engine uses the port 10001.
 
 ``--port-file <path>``
-	Write the selected console port to <path>.
+	Write selected console port to <path>.
 	The file is written after the console server has bound a port if any.
 
 ``--wait-console``
-	Wait for a console connection before starting up.
+	Wait for a console connection before booting the engine.
 
 ``--parent-window <handle>``
 	Set the parent window <handle> of the main window.
@@ -124,6 +124,9 @@ Options
 ``--hidden``
 	Make the main window initially invisible.
 
+``--keep-above``
+	Keep the main window above other windows.
+
 ``--renderer <renderer>``
 	Set the renderer backend.
 	Possible values for <renderer> are:
@@ -135,7 +138,7 @@ Options
 	* ``vk``
 
 ``--window-rect <x y w h>``
-	Sets the main window's position and size.
+	Set the main window's position and size.
 
 ``--string-id <string>``
 	Print the 32- and 64-bits IDs of <string>.
