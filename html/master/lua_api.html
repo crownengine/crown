@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-16T12:50:33+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-06-20T15:06:53+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -233,17 +233,17 @@ the variable does not exist.</p>
 <h2>DebugLine<a class="headerlink" href="#debugline" title="Permalink to this headline">¶</a></h2>
 <p>Interface to draw various shapes for debugging purposes.</p>
 <dl class="simple">
-<dt><strong>add_line</strong> (debug_line, start, end, color)</dt><dd><p>Adds a line from <em>start</em> to <em>end</em> with the given <em>color</em>.</p>
+<dt><strong>add_line</strong> (debug_line, start, end, color)</dt><dd><p>Adds a line from <em>start</em> to <em>end</em> with the specified <em>color</em>.</p>
 </dd>
-<dt><strong>add_axes</strong> (debug_line, tm, length)</dt><dd><p>Adds lines for each axis with the given <em>length</em>.</p>
+<dt><strong>add_axes</strong> (debug_line, tm, length)</dt><dd><p>Adds lines for each axis with the specified <em>length</em>.</p>
 </dd>
-<dt><strong>add_arc</strong> (debug_line, center, radius, plane_normal, midpoint_normal, color, [circle_segments = 36]);</dt><dd><p>Adds an arc at <em>center</em> with the given <em>radius</em> and <em>plane_normal</em> and <em>midpoint_normal</em> vectors.</p>
+<dt><strong>add_arc</strong> (debug_line, center, radius, plane_normal, midpoint_normal, color, [circle_segments = 36]);</dt><dd><p>Adds an arc at <em>center</em> with the specified <em>radius</em> and <em>plane_normal</em> and <em>midpoint_normal</em> vectors.</p>
 </dd>
-<dt><strong>add_circle</strong> (debug_line, center, radius, normal, color, [segments = 36])</dt><dd><p>Adds a circle at <em>center</em> with the given <em>radius</em> and <em>normal</em> vector.</p>
+<dt><strong>add_circle</strong> (debug_line, center, radius, normal, color, [segments = 36])</dt><dd><p>Adds a circle at <em>center</em> with the specified <em>radius</em> and <em>normal</em> vector.</p>
 </dd>
 <dt><strong>add_cone</strong> (debug_line, from, to, radius, color, [segments = 36, rays = 36])</dt><dd><p>Adds a cone with the base centered at <em>from</em> and the tip at <em>to</em>.</p>
 </dd>
-<dt><strong>add_sphere</strong> (debug_line, center, radius, color, [segments = 36])</dt><dd><p>Adds a sphere at <em>center</em> with the given <em>radius</em>.</p>
+<dt><strong>add_sphere</strong> (debug_line, center, radius, color, [segments = 36])</dt><dd><p>Adds a sphere at <em>center</em> with the specified <em>radius</em>.</p>
 </dd>
 <dt><strong>add_obb</strong> (debug_line, tm, half_extents, color)</dt><dd><p>Adds an orientd bounding box. <em>tm</em> describes the position and orientation of
 the box. <em>half_extents</em> describes the size of the box along the axis.</p>
@@ -277,17 +277,17 @@ It can be either <code class="docutils literal notranslate"><span class="pre">de
 <dt><strong>quit</strong> ([exit_code])</dt><dd><p>Quits the application. On platforms that support it, <em>exit_code</em> is
 returned to the system after the application exits.</p>
 </dd>
-<dt><strong>open_uri</strong> (uri)</dt><dd><p>Opens the given <em>uri</em> with the default program.</p>
+<dt><strong>open_uri</strong> (uri)</dt><dd><p>Opens the specified <em>uri</em> with the default program.</p>
 </dd>
 <dt><strong>resolution</strong> ()<span class="classifier">float, float</span></dt><dd><p>Returns the main window resolution (width, height).</p>
 </dd>
 <dt><strong>create_world</strong> ()<span class="classifier">World</span></dt><dd><p>Creates a new world.</p>
 </dd>
-<dt><strong>destroy_world</strong> (world)</dt><dd><p>Destroys the given <em>world</em>.</p>
+<dt><strong>destroy_world</strong> (world)</dt><dd><p>Destroys the specified <em>world</em>.</p>
 </dd>
 <dt><strong>render</strong> (world, camera)</dt><dd><p>Renders <em>world</em> using <em>camera</em>.</p>
 </dd>
-<dt><strong>create_resource_package</strong> (name)<span class="classifier">ResourcePackage</span></dt><dd><p>Returns the resource package with the given <em>package_name</em> name.</p>
+<dt><strong>create_resource_package</strong> (name)<span class="classifier">ResourcePackage</span></dt><dd><p>Returns the resource package with the specified <em>package_name</em> name.</p>
 </dd>
 <dt><strong>destroy_resource_package</strong> (package)</dt><dd><p>Destroy a previously created resource <em>package</em>.</p>
 <div class="admonition note">
@@ -303,7 +303,7 @@ The global callback <code class="docutils literal notranslate"><span class="pre"
 <p>Only available in debug and development builds.</p>
 </div>
 </dd>
-<dt><strong>console_send</strong> (table)</dt><dd><p>Sends the given lua <em>table</em> to clients connected to the engine.
+<dt><strong>console_send</strong> (table)</dt><dd><p>Sends the specified lua <em>table</em> to clients connected to the engine.
 Values can be either <code class="docutils literal notranslate"><span class="pre">nil</span></code>, bool, number, string, table, array, Vector2, Vector3, Quaternion, Matrix4x4 or Color4.</p>
 </dd>
 <dt><strong>can_get</strong> (type, name)<span class="classifier">bool</span></dt><dd><p>Returns whether the resource (type, name) is loaded.
@@ -987,7 +987,7 @@ bounding box (tm, half_extents) or -1.0 if no intersection.</p>
 </dd>
 <dt><strong>obb_intersects_frustum</strong> (obb_tm, obb_half_extents, n0, d0, n1, d1, n2, d2, n3, d3, n4, d4, n4, d5)<span class="classifier">bool</span></dt><dd><p>Returns whether the oriented bounding box (obb_tm, obb_half_extents) intersects
 the frustum defined by the planes ((n0, d0), (n1, d1), …, (n5, d5)). The
-planes be given in BRTLNF order, where B = bottom plane, R = right plane etc.</p>
+planes must be specified in BRTLNF order, where B = bottom plane, R = right plane etc.</p>
 </dd>
 <dt><strong>obb_vertices</strong> (obb_tm, obb_half_extents)<span class="classifier">v0, v1, v2, v3, v4, v5, v6, v7</span></dt><dd><p>Returns the vertices of the oriented bounding box (obb_tm, obb_half_extents).</p>
 </dd>
@@ -1051,11 +1051,11 @@ in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</p>
 </dd>
 <dt><strong>actor_world_pose</strong> (pw, actor)<span class="classifier">Matrix4x4</span></dt><dd><p>Returns the world pose of the <em>actor</em>.</p>
 </dd>
-<dt><strong>actor_teleport_world_position</strong> (pw, actor, position)</dt><dd><p>Teleports the <em>actor</em> to the given world <em>position</em>.</p>
+<dt><strong>actor_teleport_world_position</strong> (pw, actor, position)</dt><dd><p>Teleports the <em>actor</em> to the specified world <em>position</em>.</p>
 </dd>
-<dt><strong>actor_teleport_world_rotation</strong> (pw, actor, rotation)</dt><dd><p>Teleports the <em>actor</em> to the given world <em>rotation</em>.</p>
+<dt><strong>actor_teleport_world_rotation</strong> (pw, actor, rotation)</dt><dd><p>Teleports the <em>actor</em> to the specified world <em>rotation</em>.</p>
 </dd>
-<dt><strong>actor_teleport_world_pose</strong> (pw, actor, pose)</dt><dd><p>Teleports the <em>actor</em> to the given world <em>pose</em>.</p>
+<dt><strong>actor_teleport_world_pose</strong> (pw, actor, pose)</dt><dd><p>Teleports the <em>actor</em> to the specified world <em>pose</em>.</p>
 </dd>
 <dt><strong>actor_center_of_mass</strong> (pw, actor)<span class="classifier">Vector3</span></dt><dd><p>Returns the center of mass of the <em>actor</em>.</p>
 </dd>
@@ -1121,8 +1121,8 @@ in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</p>
 </dd>
 <dt><strong>actor_add_torque_impulse</strong> (pw, actor, impulse)</dt><dd><p>Adds a torque <em>impulse</em> to the <em>actor</em>.</p>
 </dd>
-<dt><strong>actor_push</strong> (pw, actor, velocity, mass)</dt><dd><p>Pushes the <em>actor</em> as if it was hit by a point object with the given <em>mass</em>
-travelling at the given <em>velocity</em>.</p>
+<dt><strong>actor_push</strong> (pw, actor, velocity, mass)</dt><dd><p>Pushes the <em>actor</em> as if it was hit by a point object with the specified <em>mass</em>
+travelling at the specified <em>velocity</em>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This call only affects nonkinematic actors.</p>
@@ -1311,11 +1311,11 @@ non-<code class="docutils literal notranslate"><span class="pre">nil</span></cod
 <h2>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h2>
 <p>Interface to the integrated profiler.</p>
 <dl class="simple">
-<dt><strong>enter_scope</strong> (name)</dt><dd><p>Starts a new profile scope with the given <em>name</em>.</p>
+<dt><strong>enter_scope</strong> (name)</dt><dd><p>Starts a new profile scope with the specified <em>name</em>.</p>
 </dd>
 <dt><strong>leave_scope</strong> ()</dt><dd><p>Ends the last profile scope.</p>
 </dd>
-<dt><strong>record</strong> (name, value)</dt><dd><p>Records <em>value</em> with the given <em>name</em>. Value can be either number or Vector3.</p>
+<dt><strong>record</strong> (name, value)</dt><dd><p>Records <em>value</em> with the specified <em>name</em>. Value can be either number or Vector3.</p>
 </dd>
 </dl>
 </section>
@@ -1613,7 +1613,7 @@ additional arguments.</p>
 <dt><strong>create</strong> ([world])<span class="classifier">UnitId</span></dt><dd><p>Creates a new empty unit. If <em>world</em> is specified, the unit will be owned by
 that world.</p>
 </dd>
-<dt><strong>destroy</strong> (unit)</dt><dd><p>Destroys the given <em>unit</em>.</p>
+<dt><strong>destroy</strong> (unit)</dt><dd><p>Destroys the specified <em>unit</em>.</p>
 </dd>
 <dt><strong>alive</strong> (unit)<span class="classifier">bool</span></dt><dd><p>Returns whether the unit is alive.</p>
 </dd>
@@ -1663,17 +1663,17 @@ inside the window rectangle).</p>
 <h2>World<a class="headerlink" href="#world" title="Permalink to this headline">¶</a></h2>
 <p>Represents a game world.</p>
 <dl class="simple">
-<dt><strong>spawn_unit</strong> (world, name, [position, rotation, scale])<span class="classifier">UnitId</span></dt><dd><p>Spawns a new instance of the unit <em>name</em> at the given <em>position</em>, <em>rotation</em> and <em>scale</em>.</p>
+<dt><strong>spawn_unit</strong> (world, name, [position, rotation, scale])<span class="classifier">UnitId</span></dt><dd><p>Spawns a new instance of the unit <em>name</em> at the specified <em>position</em>, <em>rotation</em> and <em>scale</em>.</p>
 </dd>
 <dt><strong>spawn_empty_unit</strong> (world)<span class="classifier">UnitId</span></dt><dd><p>Spawns a new empty unit and returns its id.</p>
 </dd>
-<dt><strong>destroy_unit</strong> (world, unit)</dt><dd><p>Destroys the given <em>unit</em>.</p>
+<dt><strong>destroy_unit</strong> (world, unit)</dt><dd><p>Destroys the specified <em>unit</em>.</p>
 </dd>
 <dt><strong>num_units</strong> (world)<span class="classifier">int</span></dt><dd><p>Returns the number of units in the <em>world</em>.</p>
 </dd>
 <dt><strong>units</strong> (world)<span class="classifier">table</span></dt><dd><p>Returns all the the units in the world in a table.</p>
 </dd>
-<dt><strong>unit_by_name</strong> (world, name)<span class="classifier">UnitId</span></dt><dd><p>Returns the unit with the given Level Editor <em>name</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code> if no such unit is found.
+<dt><strong>unit_by_name</strong> (world, name)<span class="classifier">UnitId</span></dt><dd><p>Returns the unit with the specified Level Editor <em>name</em> or <code class="docutils literal notranslate"><span class="pre">nil</span></code> if no such unit is found.
 If there are multiple units with the same name, a random one will be returned.</p>
 </dd>
 <dt><strong>update_animations</strong> (world, dt)</dt><dd><p>Update all animations with <em>dt</em>.</p>
@@ -1746,14 +1746,14 @@ The horizontal size is proportional to the viewport’s aspect ratio.</p>
 <section id="sound">
 <h3>Sound<a class="headerlink" href="#sound" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><strong>play_sound</strong> (world, name, [loop = false, volume = 1.0, range = 70.0, position = nil, group = nil])<span class="classifier">SoundInstanceId</span></dt><dd><p>Plays the sound with the given <em>name</em>. If the listener is further away than
+<dt><strong>play_sound</strong> (world, name, [loop = false, volume = 1.0, range = 70.0, position = nil, group = nil])<span class="classifier">SoundInstanceId</span></dt><dd><p>Plays the sound with the specified <em>name</em>. If the listener is further away than
 <em>range</em> the sound will not be heard. If <em>position</em> is not specified the
 sound will be played as a 2d-sound (i.e. no attenuation nor spatialization).
 <em>group</em> is a string that identifies the sound’s group, see <code class="docutils literal notranslate"><span class="pre">SoundWorld.set_group_volume()</span></code>.</p>
 </dd>
-<dt><strong>stop_sound</strong> (world, id)</dt><dd><p>Stops the sound with the given <em>id</em>.</p>
+<dt><strong>stop_sound</strong> (world, id)</dt><dd><p>Stops the sound with the specified <em>id</em>.</p>
 </dd>
-<dt><strong>link_sound</strong> (world, id, unit, node)</dt><dd><p>Links the sound <em>id</em> to the <em>node</em> of the given <em>unit</em>.
+<dt><strong>link_sound</strong> (world, id, unit, node)</dt><dd><p>Links the sound <em>id</em> to the <em>node</em> of the specified <em>unit</em>.
 After this call, the sound <em>id</em> will follow the unit <em>unit</em>.</p>
 </dd>
 <dt><strong>set_listener_pose</strong> (world, pose)</dt><dd><p>Sets the <em>pose</em> of the listener.</p>
@@ -1770,7 +1770,7 @@ After this call, the sound <em>id</em> will follow the unit <em>unit</em>.</p>
 <h3>Level<a class="headerlink" href="#level" title="Permalink to this headline">¶</a></h3>
 <p>Interface to manage levels in a <a class="reference internal" href="#world">World</a>.</p>
 <dl class="simple">
-<dt><strong>load_level</strong> (world, name, [pos, rot])<span class="classifier">Level</span></dt><dd><p>Loads the level <em>name</em> into the world at the given <em>position</em> and <em>rotation</em>.</p>
+<dt><strong>load_level</strong> (world, name, [pos, rot])<span class="classifier">Level</span></dt><dd><p>Loads the level <em>name</em> into the world at the specified <em>position</em> and <em>rotation</em>.</p>
 </dd>
 <dt><strong>destroy_level</strong> (world, level)</dt><dd><p>Destroys a level previously loaded by load_level(). Only units directly
 spawned by the level are unspawned.</p>
@@ -1792,7 +1792,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 16, 2026.
+      <span class="lastupdated">Last updated on Jun 20, 2026.
       </span></p>
   </div>
 
