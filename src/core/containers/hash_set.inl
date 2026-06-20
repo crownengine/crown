@@ -23,7 +23,7 @@ namespace hash_set
 	/// Returns the maximum number of items the set @a m can hold.
 	template<typename TKey, typename Hash, typename KeyEqual> u32 capacity(const HashSet<TKey, Hash, KeyEqual> &m);
 
-	/// Returns whether the given @a key exists in the set @a m.
+	/// Returns whether the specified @a key exists in the set @a m.
 	template<typename TKey, typename Hash, typename KeyEqual> bool has(const HashSet<TKey, Hash, KeyEqual> &m, const TKey &key);
 
 	/// Inserts the @a key in the set if it does not exist.

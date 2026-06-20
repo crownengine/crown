@@ -119,7 +119,7 @@ struct World
 	/// Spawns a new skydome.
 	UnitId spawn_skydome(StringId64 skydome_name);
 
-	/// Destroys the unit with the given @a id.
+	/// Destroys the unit with the specified @a id.
 	void destroy_unit(UnitId unit);
 
 	/// Returns the number of units in the world.
@@ -128,7 +128,7 @@ struct World
 	/// Returns all the the units in the world.
 	void units(Array<UnitId> &units) const;
 
-	/// Returns the unit with the given Level Editor @a name or UNIT_INVALID if no such unit exists.
+	/// Returns the unit with the specified Level Editor @a name or UNIT_INVALID if no such unit exists.
 	/// If there are multiple units with the same name, a random one will be returned.
 	UnitId unit_by_name(StringId32 name);
 
@@ -190,7 +190,7 @@ struct World
 	/// Update scene with @a dt.
 	void update_scene(f32 dt);
 
-	/// Updates all units and sub-systems with the given @a dt delta time.
+	/// Updates all units and sub-systems with the specified @a dt delta time.
 	void update(f32 dt);
 
 	/// Renders the world using @a view.
@@ -202,7 +202,7 @@ struct World
 	/// @copydoc SoundWorld::stop().
 	void stop_sound(SoundInstanceId id);
 
-	/// Links the sound @a id to the @a node of the given @a unit.
+	/// Links the sound @a id to the @a node of the specified @a unit.
 	/// After this call, the sound @a id will follow the unit @a unit.
 	void link_sound(SoundInstanceId id, UnitId unit, s32 node);
 

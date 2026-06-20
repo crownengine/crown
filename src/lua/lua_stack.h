@@ -104,7 +104,7 @@ struct LuaStack
 	/// the number of arguments passed to the function itself.
 	int num_args();
 
-	/// Removes the element at the given valid index, shifting down the elements
+	/// Removes the element at the specified valid index, shifting down the elements
 	/// above this index to fill the gap. Cannot be called with a pseudo-index,
 	/// because a pseudo-index is not an actual stack position.
 	void remove(int i);

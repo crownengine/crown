@@ -38,14 +38,14 @@ namespace event_stream
 		array::push(s, (char *)event, size);
 	}
 
-	/// Appends the @a event of the given @a type and @a size to the stream @a s.
+	/// Appends the @a event of the specified @a type and @a size to the stream @a s.
 	inline void write(EventStream &s, u32 type, u32 size, const void *event)
 	{
 		write_header(s, type, size);
 		write_event(s, size, event);
 	}
 
-	/// Appends the @a event of the given @a type to the stream @a s
+	/// Appends the @a event of the specified @a type to the stream @a s
 	template<typename T>
 	inline void write(EventStream &s, u32 type, const T &event)
 	{

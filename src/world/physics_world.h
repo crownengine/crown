@@ -70,13 +70,13 @@ struct PhysicsWorld
 	/// Returns the world pose of the @a actor.
 	Matrix4x4 actor_world_pose(ActorId actor) const;
 
-	/// Teleports the @a actor to the given world position.
+	/// Teleports the @a actor to the specified world position.
 	void actor_teleport_world_position(ActorId actor, const Vector3 &p);
 
-	/// Teleports the @a actor to the given world rotation.
+	/// Teleports the @a actor to the specified world rotation.
 	void actor_teleport_world_rotation(ActorId actor, const Quaternion &r);
 
-	/// Teleports the @a actor to the given world pose.
+	/// Teleports the @a actor to the specified world pose.
 	void actor_teleport_world_pose(ActorId actor, const Matrix4x4 &m);
 
 	/// Returns the center of mass of the @a actor.
@@ -150,8 +150,8 @@ struct PhysicsWorld
 	/// Adds a torque impulse to the @a actor.
 	void actor_add_torque_impulse(ActorId actor, const Vector3 &imp);
 
-	/// Pushes the @a actor as if it was hit by a point object with the given @a mass
-	/// travelling at the given @a velocity.
+	/// Pushes the @a actor as if it was hit by a point object with the specified @a mass
+	/// travelling at the specified @a velocity.
 	/// @note This call only affects nonkinematic actors.
 	void actor_push(ActorId actor, const Vector3 &vel, f32 mass);
 

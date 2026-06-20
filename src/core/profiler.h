@@ -73,22 +73,22 @@ struct DeallocateMemory
 /// valid throughout the program execution.
 namespace profiler
 {
-	/// Starts a new profile scope with the given @a name.
+	/// Starts a new profile scope with the specified @a name.
 	void enter_profile_scope(const char *name);
 
 	/// Ends the last profile scope.
 	void leave_profile_scope();
 
-	/// Records the f32 @a value with the given @a name.
+	/// Records the f32 @a value with the specified @a name.
 	void record_float(const char *name, f32 value);
 
-	/// Records the vector3 @a value with the given @a name.
+	/// Records the vector3 @a value with the specified @a name.
 	void record_vector3(const char *name, const Vector3 &value);
 
-	/// Records a memory allocation of @a size with the given @a name.
+	/// Records a memory allocation of @a size with the specified @a name.
 	void allocate_memory(const char *name, u32 size);
 
-	/// Records a memory deallocation of @a size with the given @a name.
+	/// Records a memory deallocation of @a size with the specified @a name.
 	void deallocate_memory(const char *name, u32 size);
 
 } // namespace profiler

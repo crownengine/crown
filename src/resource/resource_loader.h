@@ -69,7 +69,7 @@ struct ResourceLoader
 	/// Returns true on success, false otherwise.
 	bool add_request(const ResourceRequest &rr);
 
-	/// Registers a fallback resource @a name for the given resource @a type.
+	/// Registers a fallback resource @a name for the specified resource @a type.
 	void register_fallback(StringId64 type, StringId64 name);
 
 	///

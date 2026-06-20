@@ -36,7 +36,7 @@ struct FileDisk : public File
 	FILE *_file;
 #endif
 
-	/// Opens the file located at @a path with the given @a mode.
+	/// Opens the file located at @a path with the specified @a mode.
 	FileDisk()
 #if CROWN_PLATFORM_WINDOWS
 		: _file(INVALID_HANDLE_VALUE)

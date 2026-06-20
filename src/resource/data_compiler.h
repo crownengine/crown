@@ -107,7 +107,7 @@ struct DataCompiler
 	/// Returns true on success, false otherwise.
 	bool compile(const char *data_dir, const char *platform_name);
 
-	/// Registers the resource @a compiler for the given resource @a type and @a version.
+	/// Registers the resource @a compiler for the specified resource @a type and @a version.
 	void register_compiler(const char *type, u32 version, CompileFunction compiler, void *user_data = NULL);
 
 	/// Returns the user data for @a type that has been registered via DataCompiler::register_compiler().

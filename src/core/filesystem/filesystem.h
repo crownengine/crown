@@ -34,10 +34,10 @@ struct Filesystem
 	///
 	Filesystem &operator=(const Filesystem &) = delete;
 
-	/// Opens the file at the given @a path with the given @a mode.
+	/// Opens the file at the specified @a path with the specified @a mode.
 	virtual File *open(const char *path, FileOpenMode::Enum mode) = 0;
 
-	/// Closes the given @a file.
+	/// Closes the specified @a file.
 	virtual void close(File &file) = 0;
 
 	/// Returns information about @a path.
@@ -55,24 +55,24 @@ struct Filesystem
 	/// Returns the time of last modify operation to @a path.
 	virtual u64 last_modified_time(const char *path) = 0;
 
-	/// Creates the directory at the given @a path.
+	/// Creates the directory at the specified @a path.
 	virtual CreateResult create_directory(const char *path) = 0;
 
-	/// Deletes the directory at the given @a path.
+	/// Deletes the directory at the specified @a path.
 	virtual DeleteResult delete_directory(const char *path) = 0;
 
-	/// Deletes the file at the given @a path.
+	/// Deletes the file at the specified @a path.
 	virtual DeleteResult delete_file(const char *path) = 0;
 
 	/// Renames the file at @a old_path to @a new_path.
 	virtual RenameResult rename(const char *old_path, const char *new_path) = 0;
 
-	/// Returns the relative file names in the given @a path.
+	/// Returns the relative file names in the specified @a path.
 	virtual void list_files(const char *path, Vector<DynamicString> &files) = 0;
 
-	/// Returns the absolute path of the given @a path based on
+	/// Returns the absolute path of the specified @a path based on
 	/// the root path of the file source. If @a path is absolute,
-	/// the given path is returned.
+	/// the specified path is returned.
 	virtual void absolute_path(DynamicString &os_path, const char *path) = 0;
 };
 

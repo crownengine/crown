@@ -89,13 +89,13 @@ namespace state_machine
 	/// Returns the transitions for the state @a s.
 	const TransitionArray *state_transitions(const State *s);
 
-	/// Returns the transition with given @a index.
+	/// Returns the transition with the specified @a index.
 	const Transition *transition(const TransitionArray *ta, u32 index);
 
 	/// Returns the animations for the state @a s.
 	const AnimationArray *state_animations(const State *s);
 
-	/// Returns the animation with the given @a index.
+	/// Returns the animation with the specified @a index.
 	const Animation *animation(const AnimationArray *aa, u32 index);
 
 	/// Returns the variables of the state machine.

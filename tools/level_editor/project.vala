@@ -710,7 +710,7 @@ public class Project
 		_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
 	}
 
-	// Registers an @a importer for importing source data with the given @a
+	// Registers an @a importer for importing source data with the specified @a
 	// extensions. @a order is used to establish precedence when distinct importers
 	// support similar extensions; lower values have higher precedence.
 	public void register_importer(string name, string[] extensions, ImporterDelegate importer, Import import_result, double order)
@@ -725,7 +725,7 @@ public class Project
 	}
 
 	// Returns the preferable importer (lowest order values) which can import files
-	// with the given @a extension.
+	// with the specified @a extension.
 	public ImporterData? find_importer_for_extension(string extension)
 	{
 		foreach (var imp in _importers) {

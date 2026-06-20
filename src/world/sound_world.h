@@ -22,7 +22,7 @@ struct SoundWorld
 	///
 	virtual ~SoundWorld() = default;
 
-	/// Plays the sound with the given @a name at the given @a position, with the given
+	/// Plays the sound with the specified @a name at the specified @a position, with the specified
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	/// @a group identifies the sound's group, see SoundWorld::set_group_volume().
 	virtual SoundInstanceId play(StringId64 name
@@ -34,7 +34,7 @@ struct SoundWorld
 		, StringId32 group = StringId32(0u)
 		) = 0;
 
-	/// Stops the sound with the given @a id.
+	/// Stops the sound with the specified @a id.
 	/// After this call, the instance will be destroyed.
 	virtual void stop(SoundInstanceId id) = 0;
 
