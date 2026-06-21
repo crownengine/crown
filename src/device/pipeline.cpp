@@ -737,66 +737,71 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		} else if (id == View::CASCADE_CLEAR) {
 			bgfx::touch(id);
 		} else if (id == View::SM_LOCAL_CLEAR) {
-			// Draw stencil "hourglass" pattern for omni lights.
-			const u16 sm_w = (u16)_render_settings.local_lights_shadow_map_size.x;
-			const f32 step = f32(_local_lights_tile_size) / f32(sm_w) * 0.5f;
-			const s32 num_cols = sm_w / _local_lights_tile_size;
-			const s32 num_rows = num_cols;
-			const s32 num_pins = num_cols + 1;
-			const s32 num_necks = num_pins - 1;
-			const u32 num_vertices = num_pins*num_pins + num_necks*num_necks;
-			const u32 num_triangles = num_necks*num_necks * 2;
-			const u32 num_indices = num_triangles * 3;
+			const bool render_local_lights_shadows = (_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS) != 0
+				&& (_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0
+				;
+			if (render_local_lights_shadows) {
+				// Draw stencil "hourglass" pattern for omni lights.
+				const u16 sm_w = (u16)_render_settings.local_lights_shadow_map_size.x;
+				const f32 step = f32(_local_lights_tile_size) / f32(sm_w) * 0.5f;
+				const s32 num_cols = sm_w / _local_lights_tile_size;
+				const s32 num_rows = num_cols;
+				const s32 num_pins = num_cols + 1;
+				const s32 num_necks = num_pins - 1;
+				const u32 num_vertices = num_pins*num_pins + num_necks*num_necks;
+				const u32 num_triangles = num_necks*num_necks * 2;
+				const u32 num_indices = num_triangles * 3;
 
-			if (bgfx::getAvailTransientVertexBuffer(num_vertices, PosVertex::pos_layout) == num_vertices
-				&& bgfx::getAvailTransientIndexBuffer(num_indices) == num_indices) {
-				// Build vertex buffer.
-				bgfx::TransientVertexBuffer vb;
-				bgfx::allocTransientVertexBuffer(&vb, num_vertices, PosVertex::pos_layout);
-				PosVertex *v = (PosVertex *)vb.data;
+				if (bgfx::getAvailTransientVertexBuffer(num_vertices, PosVertex::pos_layout) == num_vertices
+					&& bgfx::getAvailTransientIndexBuffer(num_indices) == num_indices) {
+					// Build vertex buffer.
+					bgfx::TransientVertexBuffer vb;
+					bgfx::allocTransientVertexBuffer(&vb, num_vertices, PosVertex::pos_layout);
+					PosVertex *v = (PosVertex *)vb.data;
 
-				for (s32 h = 0; h < num_pins + num_necks; ++h) {
-					s32 start_w = h % 2;
-					for (s32 w = start_w; w < num_pins + num_necks; w += 2) {
-						const f32 xi = w * step;
-						const f32 yi = h * step;
-						*v++ = { xi, yi, 0.0f };
+					for (s32 h = 0; h < num_pins + num_necks; ++h) {
+						s32 start_w = h % 2;
+						for (s32 w = start_w; w < num_pins + num_necks; w += 2) {
+							const f32 xi = w * step;
+							const f32 yi = h * step;
+							*v++ = { xi, yi, 0.0f };
+						}
 					}
-				}
 
-				// Build index buffer.
-				bgfx::TransientIndexBuffer ib;
-				bgfx::allocTransientIndexBuffer(&ib, num_indices);
-				u16 *ind = (u16 *)ib.data;
+					// Build index buffer.
+					bgfx::TransientIndexBuffer ib;
+					bgfx::allocTransientIndexBuffer(&ib, num_indices);
+					u16 *ind = (u16 *)ib.data;
 
-				const s32 gap = num_cols + 1;
-				const s32 row_stride = 2 * gap - 1;
+					const s32 gap = num_cols + 1;
+					const s32 row_stride = 2 * gap - 1;
 
-				for (s32 r = 0; r < num_rows; ++r) {
-					for (s32 c = 0; c < num_cols; ++c) {
-						const s32 t = r * row_stride + c;
-						// Top triangle.
-						*ind++ = t;
-						*ind++ = t + 1;
-						*ind++ = t + gap;
-						// Bottom triangle.
-						*ind++ = t + gap;
-						*ind++ = t + 2 * gap;
-						*ind++ = t + 2 * gap - 1;
+					for (s32 r = 0; r < num_rows; ++r) {
+						for (s32 c = 0; c < num_cols; ++c) {
+							const s32 t = r * row_stride + c;
+							// Top triangle.
+							*ind++ = t;
+							*ind++ = t + 1;
+							*ind++ = t + gap;
+							// Bottom triangle.
+							*ind++ = t + gap;
+							*ind++ = t + 2 * gap;
+							*ind++ = t + 2 * gap - 1;
+						}
 					}
-				}
 
-				bgfx::setState(0);
-				bgfx::setStencil(BGFX_STENCIL_TEST_ALWAYS
-					| BGFX_STENCIL_FUNC_REF(1)
-					| BGFX_STENCIL_FUNC_RMASK(0xff)
-					| BGFX_STENCIL_OP_FAIL_S_REPLACE
-					| BGFX_STENCIL_OP_FAIL_Z_REPLACE
-					| BGFX_STENCIL_OP_PASS_Z_REPLACE
-					);
-				bgfx::setVertexBuffer(0, &vb);
-				bgfx::setIndexBuffer(&ib);
-				bgfx::submit(id, _shadow_shader.program);
+					bgfx::setState(0);
+					bgfx::setStencil(BGFX_STENCIL_TEST_ALWAYS
+						| BGFX_STENCIL_FUNC_REF(1)
+						| BGFX_STENCIL_FUNC_RMASK(0xff)
+						| BGFX_STENCIL_OP_FAIL_S_REPLACE
+						| BGFX_STENCIL_OP_FAIL_Z_REPLACE
+						| BGFX_STENCIL_OP_PASS_Z_REPLACE
+						);
+					bgfx::setVertexBuffer(0, &vb);
+					bgfx::setIndexBuffer(&ib);
+					bgfx::submit(id, _shadow_shader.program);
+				}
 			}
 		} else if (id == View::MESH) {
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
