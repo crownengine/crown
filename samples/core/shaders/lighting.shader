@@ -220,6 +220,7 @@ bgfx_shaders = {
 					vec4 atlas_v      = lights_data(loffset + 20).xyzw;
 					float atlas_size  = lights_data(loffset + 21).x;
 					float shadow_bias = lights_data(loffset + 21).y;
+					float cast_shadow = lights_data(loffset + 21).z;
 					loffset += LIGHT_SIZE;
 
 					sun_color = light_color;
@@ -235,25 +236,27 @@ bgfx_shaders = {
 						, f0
 						);
 
-					vec2 shadow0 = shadow_pos0.xy/shadow_pos0.w;
-					vec2 shadow1 = shadow_pos1.xy/shadow_pos1.w;
-					vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
-					vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
-					vec3 shadow_world = shadow_local.xyz;
+					if (cast_shadow == 1.0) {
+						vec2 shadow0 = shadow_pos0.xy/shadow_pos0.w;
+						vec2 shadow1 = shadow_pos1.xy/shadow_pos1.w;
+						vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
+						vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
+						vec3 shadow_world = shadow_local.xyz;
 
-					bool atlas0 = dot(shadow0_near.xyz, shadow_world) >= shadow0_near.w && dot(shadow0_far.xyz, shadow_world) >= shadow0_far.w && all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
-					bool atlas1 = dot(shadow1_near.xyz, shadow_world) >= shadow1_near.w && dot(shadow1_far.xyz, shadow_world) >= shadow1_far.w && all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
-					bool atlas2 = dot(shadow2_near.xyz, shadow_world) >= shadow2_near.w && dot(shadow2_far.xyz, shadow_world) >= shadow2_far.w && all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
-					bool atlas3 = dot(shadow3_near.xyz, shadow_world) >= shadow3_near.w && dot(shadow3_far.xyz, shadow_world) >= shadow3_far.w && all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
+						bool atlas0 = dot(shadow0_near.xyz, shadow_world) >= shadow0_near.w && dot(shadow0_far.xyz, shadow_world) >= shadow0_far.w && all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
+						bool atlas1 = dot(shadow1_near.xyz, shadow_world) >= shadow1_near.w && dot(shadow1_far.xyz, shadow_world) >= shadow1_far.w && all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
+						bool atlas2 = dot(shadow2_near.xyz, shadow_world) >= shadow2_near.w && dot(shadow2_far.xyz, shadow_world) >= shadow2_far.w && all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
+						bool atlas3 = dot(shadow3_near.xyz, shadow_world) >= shadow3_near.w && dot(shadow3_far.xyz, shadow_world) >= shadow3_far.w && all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
 
-					if (atlas0)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x             , atlas_size));
-					else if (atlas1)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size));
-					else if (atlas2)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x + atlas_size, atlas_size));
-					else if (atlas3)
-						local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x + atlas_size, atlas_size));
+						if (atlas0)
+							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x             , atlas_size));
+						else if (atlas1)
+							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size));
+						else if (atlas2)
+							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x + atlas_size, atlas_size));
+						else if (atlas3)
+							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x + atlas_size, atlas_size));
+					}
 
 					radiance += local_radiance;
 				}

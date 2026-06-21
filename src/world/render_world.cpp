@@ -1398,9 +1398,10 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 		const u32 L = lm._directional_lights[i];
 		const bool cast_shadows = (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0;
 		const bool sun_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0;
+		const bool render_shadow = i == 0 && cast_shadows && sun_shadows;
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
-		if (i == 0 && cast_shadows && sun_shadows) {
+		if (render_shadow) {
 			Matrix4x4 light_proj;
 			Matrix4x4 light_view;
 			Frustum splits[MAX_NUM_CASCADES];
@@ -1509,7 +1510,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 			}
 		}
 
-		lid.shader[L].cast_shadows = cast_shadows;
+		lid.shader[L].cast_shadows = f32(render_shadow);
 
 		array::push_back(lm._lights_data, lid.shader[L]);
 		++num_lights;
