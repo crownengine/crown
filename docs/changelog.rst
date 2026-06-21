@@ -17,6 +17,7 @@ Changelog
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
+* Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 
 **Fixes**

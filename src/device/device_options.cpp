@@ -50,6 +50,10 @@ static void help(const char *msg = NULL)
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --keep-above                    Keep the main window above other windows.\n"
+		"  --display-server <server>\n"
+		"                                  Set the display server backend.\n"
+		"      wayland\n"
+		"      x11\n"
 		"  --renderer <renderer>           Set the renderer backend.\n"
 		"      auto\n"
 		"      d3d11\n"
@@ -94,6 +98,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _renderer_type(RendererType::AUTO)
+	, _display_server(DisplayServer::WAYLAND)
 {
 }
 
@@ -185,6 +190,23 @@ int DeviceOptions::parse(bool *quit)
 		}
 
 		_renderer_type.set_value(renderer_type);
+	}
+
+	if (cl.has_option("display-server")) {
+		const char *display_server = cl.get_parameter(0, "display-server");
+		if (display_server == NULL) {
+			help("Display server must be specified.");
+			return EXIT_FAILURE;
+		}
+
+		if (strcmp(display_server, "wayland") == 0) {
+			_display_server.set_value(DisplayServer::WAYLAND);
+		} else if (strcmp(display_server, "x11") == 0) {
+			_display_server.set_value(DisplayServer::X11);
+		} else {
+			help("Unknown display server.");
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (!_data_dir.empty()) {

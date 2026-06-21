@@ -12,6 +12,17 @@
 
 namespace crown
 {
+struct DisplayServer
+{
+	enum Enum
+	{
+		WAYLAND,
+		X11,
+
+		COUNT
+	};
+};
+
 /// Holds device options.
 ///
 /// @ingroup Device
@@ -43,6 +54,7 @@ struct DeviceOptions
 	Option<u16> _window_width;
 	Option<u16> _window_height;
 	Option<RendererType::Enum> _renderer_type;
+	Option<DisplayServer::Enum> _display_server;
 
 	///
 	DeviceOptions(Allocator &a, int argc, const char **argv);

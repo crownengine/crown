@@ -1843,6 +1843,9 @@ public class LevelEditorApplication : Gtk.Application
 		string args[] =
 		{
 			ENGINE_EXE,
+#if CROWN_PLATFORM_LINUX
+			"--display-server", "x11",
+#endif
 			"--data-dir",
 			_project.data_dir(),
 			"--boot-dir",

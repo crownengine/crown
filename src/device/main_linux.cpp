@@ -593,17 +593,6 @@ static const xdg_surface_listener xdg_surface_listener =
 	xdg_surface_handle_configure,
 };
 
-struct WindowSystem
-{
-	enum Enum
-	{
-		X11,
-		WAYLAND,
-
-		COUNT
-	};
-};
-
 struct System
 {
 	/// Returns the connection file descriptor or < 0 on error.
@@ -717,6 +706,14 @@ struct SystemWayland : public System
 				xdg_shell_types[i] = &wl_output_interface;
 		}
 
+		display = wl_display_connect(NULL);
+		if (display == NULL) {
+			os::library_close(wl_lib);
+			wl_lib = NULL;
+			return -1;
+		}
+		display_fd = wl_display_get_fd(display);
+
 		xkb.lib = os::library_open("libxkbcommon.so");
 #define DL_IMPORT_FUNC(func_name, return_type, params)                         \
 	func_name = (PROTO_ ## func_name)os::library_symbol(xkb.lib, # func_name); \
@@ -745,10 +742,6 @@ struct SystemWayland : public System
 			WAYLAND_CURSOR_IMPORT();
 #undef DL_IMPORT_FUNC
 		}
-
-		display = wl_display_connect(NULL);
-		CE_ASSERT(display != NULL, "wl_display_connect: error");
-		display_fd = wl_display_get_fd(display);
 
 		registry = wl_display_get_registry(display);
 		wl_registry_add_listener(registry, &_wl_registry_listener, this);
@@ -1472,7 +1465,13 @@ struct SystemX11 : public System
 		CE_UNUSED(xs);
 
 		display = XOpenDisplay(NULL);
-		CE_ASSERT(display != NULL, "XOpenDisplay: error");
+		if (display == NULL) {
+			os::library_close(xrandr_lib);
+			xrandr_lib = NULL;
+			os::library_close(x11_lib);
+			x11_lib = NULL;
+			return -1;
+		}
 		display_fd = ConnectionNumber(display);
 
 		int dummy_ret;
@@ -1752,14 +1751,14 @@ struct LinuxDevice
 	DeviceEventQueue _queue;
 	Joypad _joypad;
 	System *_system;
-	WindowSystem::Enum window_system;
+	DisplayServer::Enum display_server;
 
 	explicit LinuxDevice(Allocator &a)
 		: _allocator(&a)
 		, _events(a)
 		, _queue(push_event)
 		, _joypad(_queue)
-		, window_system(WindowSystem::COUNT)
+		, display_server(DisplayServer::COUNT)
 	{
 	}
 
@@ -1767,16 +1766,18 @@ struct LinuxDevice
 	{
 		int init_ret = -1;
 		const char *display = NULL;
-		bool disable_wayland = true;
 
-		if (init_ret != 0 && !disable_wayland
+		if (opts->_display_server.value() == DisplayServer::WAYLAND
 			&& (display = getenv("WAYLAND_DISPLAY")) != NULL
 			&& strlen32(display) != 0) {
 			_system = CE_NEW(*_allocator, SystemWayland)(_queue);
 
 			if ((init_ret = _system->init()) == 0) {
 				_wl = (SystemWayland *)_system;
-				window_system = WindowSystem::WAYLAND;
+				display_server = DisplayServer::WAYLAND;
+			} else {
+				CE_DELETE(*_allocator, _system);
+				_system = NULL;
 			}
 		}
 
@@ -1787,9 +1788,15 @@ struct LinuxDevice
 
 			if ((init_ret = _system->init()) == 0) {
 				_x11 = (SystemX11 *)_system;
-				window_system = WindowSystem::X11;
+				display_server = DisplayServer::X11;
+			} else {
+				CE_DELETE(*_allocator, _system);
+				_system = NULL;
 			}
 		}
+
+		if (init_ret != 0)
+			return EXIT_FAILURE;
 
 		_options = opts;
 
@@ -2391,7 +2398,7 @@ namespace window
 {
 	Window *create(Allocator &a)
 	{
-		if (s_linux_device->window_system == WindowSystem::X11)
+		if (s_linux_device->display_server == DisplayServer::X11)
 			return CE_NEW(a, WindowX11)();
 		else
 			return CE_NEW(a, WindowWayland)();
@@ -2458,7 +2465,7 @@ namespace display
 {
 	Display *create(Allocator &a)
 	{
-		if (s_linux_device->window_system == WindowSystem::X11)
+		if (s_linux_device->display_server == DisplayServer::X11)
 			return CE_NEW(a, DisplayXRandr)();
 		else
 			return CE_NEW(a, DisplayWayland)();
