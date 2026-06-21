@@ -11,6 +11,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/globals.h"
+#include "core/profiler.h"
 #include "core/strings/string_id.inl"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
@@ -268,6 +269,8 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 {
 	f32 stack_data[32];
 	expression_language::Stack stack(stack_data, countof(stack_data));
+	u32 mesh_animations_playing = 0;
+	u32 sprite_animations_playing = 0;
 
 	for (u32 ii = 0; ii < array::size(_machines); ++ii) {
 		Machine &mi = _machines[ii];
@@ -332,6 +335,7 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				, scene_graph
 				, mi.skeleton->bone_lookup
 				);
+			++mesh_animations_playing;
 		} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
 			sprite_animation_player::evaluate(*_sprite_animation_player
 				, mi.anim_id
@@ -339,6 +343,7 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				, mi.unit
 				, _events
 				);
+			++sprite_animations_playing;
 		}
 
 		mi.time += dt*speed;
@@ -365,6 +370,9 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 			}
 		}
 	}
+
+	RECORD_FLOAT("world.mesh_animations_playing", (f32)mesh_animations_playing);
+	RECORD_FLOAT("world.sprite_animations_playing", (f32)sprite_animations_playing);
 }
 
 void AnimationStateMachine::reload(const StateMachineResource *old_resource, const StateMachineResource *new_resource)
