@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed Project Browser favorites not updating file metadata after resource changes.
 * Tools: fixed Project Browser not restoring favorites metadata when the project is loaded.
 * Tools: fixed labels not showing for some widgets in the Projects and New Project panels.
+* Runtime: fixed rendering artifacts when sun shadows are disabled in render settings.
 
 .. _v0.63.3:
 
