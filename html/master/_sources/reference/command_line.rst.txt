@@ -127,6 +127,13 @@ Options
 ``--keep-above``
 	Keep the main window above other windows.
 
+``--display-server <server>``
+	Set the display server backend.
+	Possible values for <server> are:
+
+	* ``wayland``
+	* ``x11``
+
 ``--renderer <renderer>``
 	Set the renderer backend.
 	Possible values for <renderer> are:
