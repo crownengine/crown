@@ -35,6 +35,7 @@ Changelog
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
+* Runtime: fixed rendering artifacts when sun shadows are disabled in render settings.
 * Runtime: fixed a crash when reloading the render config in some cases.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 * Docs: updated Android deploying instructions.
