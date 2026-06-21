@@ -1498,7 +1498,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 					, (u16)rects[i].z
 					, (u16)rects[i].w
 					);
-				bgfx::setViewFrameBuffer(View::CASCADE_0 + i, _pipeline->_sun_shadow_map_frame_buffer);
 				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
 
 				ConvexPolyhedron shadow_region;
@@ -1599,7 +1598,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 						;
 					shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
-					bgfx::setViewFrameBuffer(sm_local_view_id, _pipeline->_local_lights_shadow_map_frame_buffer);
 					bgfx::setViewRect(sm_local_view_id
 						, (u16)rect.x
 						, (u16)rect.y
@@ -1720,7 +1718,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 							;
 						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
-						bgfx::setViewFrameBuffer(sm_local_view_id, _pipeline->_local_lights_shadow_map_frame_buffer);
 						bgfx::setViewRect(sm_local_view_id
 							, (u16)rect.x
 							, (u16)rect.y

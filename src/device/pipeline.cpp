@@ -198,8 +198,6 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 {
 	_render_settings = render_settings;
 
-	reset(width, height);
-
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 	_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
 
@@ -287,6 +285,8 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	PosTexCoord0Vertex::init();
 	PosVertex::init();
+
+	reset(width, height);
 }
 
 void Pipeline::destroy()
@@ -525,14 +525,194 @@ void Pipeline::reset(u16 width, u16 height)
 				);
 		}
 	}
+
+	const bgfx::Caps *caps = bgfx::getCaps();
+
+	f32 ortho[16];
+	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
+
+	Matrix4x4 sm_local_clear_proj;
+	bx::mtxOrtho(to_float_ptr(sm_local_clear_proj)
+		, 0.0f
+		, 1.0f
+		, 1.0f
+		, 0.0f
+		, 0.0f
+		, 100.0f
+		, 0.0f
+		, caps->homogeneousDepth
+		);
+
+	f32 screen_gui_ortho[16];
+	bx::mtxOrtho(screen_gui_ortho
+		, 0
+		, width
+		, 0
+		, height
+		, 0.0f
+		, 1.0f
+		, 0.0f
+		, caps->homogeneousDepth
+		, bx::Handedness::Right
+		);
+	Matrix4x4 screen_gui_proj = from_array(screen_gui_ortho);
+
+	f32 graph_ortho[16];
+	bx::mtxOrtho(graph_ortho
+		, -width / 2.0f
+		,  width / 2.0f
+		, -height / 2.0f
+		,  height / 2.0f
+		, 0.0f
+		, 1.0f
+		, 0.0f
+		, caps->homogeneousDepth
+		, bx::Handedness::Right
+		);
+	Matrix4x4 graph_proj = from_array(graph_ortho);
+
+	for (u32 id = 0; id < View::COUNT; ++id) {
+		const char *view_name;
+
+		if (id == View::COLOR_0) {
+			view_name = "color0";
+			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
+			bgfx::setViewRect(id, 0, 0, width, height);
+		} else if (id == View::COLOR_1) {
+			view_name = "color1";
+			bgfx::setViewFrameBuffer(id, _colors[1]);
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
+			bgfx::setViewRect(id, 0, 0, width, height);
+		} else if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
+			view_name = "sprite";
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+		} else if (id == View::CASCADE_CLEAR) {
+			view_name = "sm_cascade_clear";
+			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.sun_shadow_map_size.x, (u16)_render_settings.sun_shadow_map_size.y);
+			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
+		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
+			view_name = "sm_cascade";
+			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
+		} else if (id == View::SM_LOCAL_CLEAR) {
+			view_name = "sm_local_lights_clear";
+			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL, 0, 1.0f, 0);
+			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.local_lights_shadow_map_size.x, (u16)_render_settings.local_lights_shadow_map_size.y);
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(sm_local_clear_proj));
+		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
+			view_name = "sm_local_lights";
+			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
+		} else if (id == View::LIGHTS) {
+			view_name = "lights_data";
+		} else if (id == View::MESH) {
+			view_name = "mesh";
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewFrameBuffer(id, _colors[0]);
+		} else if (id == View::BLOOM_COPY) {
+			view_name = "bloom_copy";
+			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
+				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[0]);
+				bgfx::setViewTransform(id, NULL, ortho);
+				bgfx::setViewRect(id, 0, 0, width, height);
+			}
+		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
+			view_name = "bloom_downsample";
+			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
+				const u16 shift = u16(id - View::BLOOM_DOWNSAMPLE_0 + 1);
+				bgfx::setViewTransform(id, NULL, ortho);
+				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
+				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
+			}
+		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
+			view_name = "bloom_upsample";
+			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
+				const u16 shift = u16(countof(_bloom_frame_buffers) - 2 - (id - View::BLOOM_UPSAMPLE_0));
+				bgfx::setViewTransform(id, NULL, ortho);
+				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
+				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
+			}
+		} else if (id == View::BLOOM_COMBINE) {
+			view_name = "bloom_combine";
+			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
+				bgfx::setViewFrameBuffer(id, _colors[1]);
+				bgfx::setViewTransform(id, NULL, ortho);
+				bgfx::setViewRect(id, 0, 0, width, height);
+			}
+		} else if (id == View::DUMMY_BLIT) {
+			view_name = "dummy_blit";
+			bgfx::setViewFrameBuffer(id, _colors[1]);
+			bgfx::setViewTransform(id, NULL, ortho);
+			bgfx::setViewRect(id, 0, 0, width, height);
+		} else if (id == View::TONEMAP) {
+			view_name = "tonemap";
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewTransform(id, NULL, ortho);
+			bgfx::setViewRect(id, 0, 0, width, height);
+		} else if (id == View::WORLD_GUI) {
+			view_name = "world_gui";
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+		} else if (id == View::SELECTION) {
+			view_name = "selection";
+#if !CROWN_PLATFORM_EMSCRIPTEN
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewFrameBuffer(id, _selection_frame_buffer);
+#endif
+		} else if (id == View::OUTLINE) {
+			view_name = "outline";
+#if !CROWN_PLATFORM_EMSCRIPTEN
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
+			bgfx::setViewFrameBuffer(id, _outline_frame_buffer);
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewTransform(id, NULL, ortho);
+#endif
+		} else if (id == View::OUTLINE_BLIT) {
+			view_name = "outline_blit";
+#if !CROWN_PLATFORM_EMSCRIPTEN
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewTransform(id, NULL, ortho);
+#endif
+		} else if (id == View::DEBUG) {
+			view_name = "debug";
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+		} else if (id == View::SCREEN_GUI) {
+			view_name = "screen_gui";
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(screen_gui_proj));
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+		} else if (id == View::GRAPH) {
+			view_name = "graph";
+			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(graph_proj));
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewFrameBuffer(id, _color_sdr);
+		} else if (id == View::BLIT) {
+			view_name = "blit";
+			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
+			bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewTransform(id, NULL, ortho);
+		} else if (id == View::IMGUI) {
+			view_name = "imgui";
+		} else {
+			view_name = "unknown";
+		}
+
+		bgfx::setViewName(id, view_name);
+	}
 }
 
 void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
 {
 	const bgfx::Caps *caps = bgfx::getCaps();
-
-	f32 ortho[16];
-	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
 
 	const u32 samplerFlags = 0
 		| BGFX_SAMPLER_MIN_POINT
@@ -551,41 +731,12 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		;
 
 	for (u32 id = 0; id < View::COUNT; ++id) {
-		const char *view_name;
-
 		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
-			view_name = "sprite";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::CASCADE_CLEAR) {
-			view_name = "sm_cascade_clear";
-			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.sun_shadow_map_size.x, (u16)_render_settings.sun_shadow_map_size.y);
-			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
 			bgfx::touch(id);
-		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
-			view_name = "sm_cascade";
 		} else if (id == View::SM_LOCAL_CLEAR) {
-			view_name = "sm_local_lights_clear";
-			Matrix4x4 screen_proj;
-			bx::mtxOrtho(to_float_ptr(screen_proj)
-				, 0.0f
-				, 1.0f
-				, 1.0f
-				, 0.0f
-				, 0.0f
-				, 100.0f
-				, 0.0f
-				, caps->homogeneousDepth
-				);
-			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL, 0, 1.0f, 0);
-			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.local_lights_shadow_map_size.x, (u16)_render_settings.local_lights_shadow_map_size.y);
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(screen_proj));
-
 			// Draw stencil "hourglass" pattern for omni lights.
 			const u16 sm_w = (u16)_render_settings.local_lights_shadow_map_size.x;
 			const f32 step = f32(_local_lights_tile_size) / f32(sm_w) * 0.5f;
@@ -647,131 +798,49 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 				bgfx::setIndexBuffer(&ib);
 				bgfx::submit(id, _shadow_shader.program);
 			}
-		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
-			view_name = "sm_local_lights";
-		} else if (id == View::LIGHTS) {
-			view_name = "lights_data";
 		} else if (id == View::MESH) {
-			view_name = "mesh";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
 			bgfx::touch(id);
 		} else if (id == View::BLOOM_COPY) {
-			view_name = "bloom_copy";
-			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::touch(id);
 		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
-			view_name = "bloom_downsample";
 			bgfx::touch(id);
 		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
-			view_name = "bloom_upsample";
 			bgfx::touch(id);
 		} else if (id == View::BLOOM_COMBINE) {
-			view_name = "bloom_combine";
 			bgfx::touch(id);
 		} else if (id == View::TONEMAP) {
-			view_name = "tonemap";
 			bgfx::touch(id);
 		} else if (id == View::WORLD_GUI) {
-			view_name = "world_gui";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::SELECTION) {
-			view_name = "selection";
 #if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _selection_frame_buffer);
 			bgfx::touch(id);
 #endif
 		} else if (id == View::OUTLINE) {
-			view_name = "outline";
 #if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
-			bgfx::setViewFrameBuffer(id, _outline_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::touch(id);
 #endif
 		} else if (id == View::OUTLINE_BLIT) {
-			view_name = "outline_blit";
 #if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::touch(id);
 #endif
 		} else if (id == View::DEBUG) {
-			view_name = "debug";
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::SCREEN_GUI) {
-			view_name = "screen_gui";
-			f32 bx_ortho[16];
-			bx::mtxOrtho(bx_ortho
-				, 0
-				, width
-				, 0
-				, height
-				, 0.0f
-				, 1.0f
-				, 0.0f
-				, caps->homogeneousDepth
-				, bx::Handedness::Right
-				);
-			Matrix4x4 ortho_proj = from_array(bx_ortho);
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(ortho_proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::GRAPH) {
-			view_name = "graph";
-			f32 graph_ortho[16];
-			bx::mtxOrtho(graph_ortho
-				, -width / 2.0f
-				,  width / 2.0f
-				, -height / 2.0f
-				,  height / 2.0f
-				, 0.0f
-				, 1.0f
-				, 0.0f
-				, caps->homogeneousDepth
-				, bx::Handedness::Right
-				);
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(from_array(graph_ortho)));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
 			bgfx::touch(id);
 		} else if (id == View::BLIT) {
-			view_name = "blit";
-			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
-			bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
 			bgfx::touch(id);
-		} else if (id == View::IMGUI) {
-			view_name = "imgui";
-		} else {
-			view_name = "unknown";
 		}
-
-		bgfx::setViewName(id, view_name);
 	}
 
 	// Clear main color frame buffers.
-	bgfx::setViewFrameBuffer(View::COLOR_0, _colors[0]);
-	bgfx::setViewClear(View::COLOR_0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-	bgfx::setViewRect(View::COLOR_0, 0, 0, width, height);
-	bgfx::setViewName(View::COLOR_0, "color0");
 	bgfx::touch(View::COLOR_0);
-
-	bgfx::setViewFrameBuffer(View::COLOR_1, _colors[1]);
-	bgfx::setViewClear(View::COLOR_1, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-	bgfx::setViewRect(View::COLOR_1, 0, 0, width, height);
-	bgfx::setViewName(View::COLOR_1, "color1");
 	bgfx::touch(View::COLOR_1);
 
 	// Render bloom.
@@ -782,8 +851,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		bloom_params.z = _bloom.threshold;
 
 		// Copy color buffer to first bloom mip.
-		bgfx::setViewFrameBuffer(View::BLOOM_COPY, _bloom_frame_buffers[0]);
-		bgfx::setViewTransform(View::BLOOM_COPY, NULL, ortho);
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), bloom_sampler_flags);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_blit_shader.state);
@@ -796,9 +863,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			const u16 h = height >> shift;
 			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
 
-			bgfx::setViewTransform(View::BLOOM_DOWNSAMPLE_0 + i, NULL, ortho);
-			bgfx::setViewRect(View::BLOOM_DOWNSAMPLE_0 + i, 0, 0, w, h);
-			bgfx::setViewFrameBuffer(View::BLOOM_DOWNSAMPLE_0 + i, _bloom_frame_buffers[shift]);
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[i]), bloom_sampler_flags);
 			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
 			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
@@ -813,9 +877,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			const u16 h = height >> shift;
 			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
 
-			bgfx::setViewTransform(View::BLOOM_UPSAMPLE_0 + i, NULL, ortho);
-			bgfx::setViewRect(View::BLOOM_UPSAMPLE_0 + i, 0, 0, w, h);
-			bgfx::setViewFrameBuffer(View::BLOOM_UPSAMPLE_0 + i, _bloom_frame_buffers[shift]);
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
 			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
 			bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
@@ -825,9 +886,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		}
 
 		// Combine first bloom mip with main color texture.
-		bgfx::setViewFrameBuffer(View::BLOOM_COMBINE, _colors[1]);
-		bgfx::setViewTransform(View::BLOOM_COMBINE, NULL, ortho);
-		bgfx::setViewRect(View::BLOOM_COMBINE, 0, 0, width, height);
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 		bgfx::setTexture(1, _bloom_map, bgfx::getTexture(_bloom_frame_buffers[0]), samplerFlags);
 		bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
@@ -836,9 +894,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
 	} else {
 		// Do a dummy copy to color1.
-		bgfx::setViewFrameBuffer(View::DUMMY_BLIT, _colors[1]);
-		bgfx::setViewTransform(View::DUMMY_BLIT, NULL, ortho);
-		bgfx::setViewRect(View::DUMMY_BLIT, 0, 0, width, height);
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_blit_shader.state);
@@ -846,9 +901,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	}
 
 	// Tonemapping.
-	bgfx::setViewFrameBuffer(View::TONEMAP, _color_sdr);
-	bgfx::setViewTransform(View::TONEMAP, NULL, ortho);
-	bgfx::setViewRect(View::TONEMAP, 0, 0, width, height);
 	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
 	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
@@ -864,8 +916,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		const Vector4 outline_msaa_samples = { f32(1u << _render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
 		bgfx::setUniform(_outline_msaa_samples, &outline_msaa_samples);
 	}
-	bgfx::setViewRect(View::OUTLINE, 0, 0, width, height);
-	bgfx::setViewTransform(View::OUTLINE, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
 	bgfx::setUniform(_outline_color, outline_color);
@@ -873,19 +923,13 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setState(outline_shader.state);
 	bgfx::submit(View::OUTLINE, outline_shader.program);
 
-	bgfx::setViewFrameBuffer(View::OUTLINE_BLIT, _color_sdr);
 	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
-	bgfx::setViewRect(View::OUTLINE_BLIT, 0, 0, width, height);
-	bgfx::setViewTransform(View::OUTLINE_BLIT, NULL, ortho);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_blend_shader.state);
 	bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
 #endif // if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 
 	// Blit to backbuffer.
-	bgfx::setViewFrameBuffer(View::BLIT, BGFX_INVALID_HANDLE);
-	bgfx::setViewRect(View::BLIT, 0, 0, width, height);
-	bgfx::setViewTransform(View::BLIT, NULL, ortho);
 	bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
