@@ -2106,10 +2106,10 @@ struct WindowWayland : public Window
 {
 	wl_surface *surface;
 	libdecor_frame *frame;
-	int content_width;
-	int content_height;
-	int configured_width;
-	int configured_height;
+	int requested_width;
+	int requested_height;
+	int accepted_width;
+	int accepted_height;
 	int floating_width;
 	int floating_height;
 	enum libdecor_window_state window_state;
@@ -2121,7 +2121,15 @@ struct WindowWayland : public Window
 	bool fullscreen_dirty;
 
 	WindowWayland()
-		: frame(NULL)
+		: surface(NULL)
+		, frame(NULL)
+		, requested_width(0)
+		, requested_height(0)
+		, accepted_width(0)
+		, accepted_height(0)
+		, floating_width(0)
+		, floating_height(0)
+		, window_state(LIBDECOR_WINDOW_STATE_NONE)
 		, xdg_surface(NULL)
 		, xdg_toplevel(NULL)
 		, title_dirty(false)
@@ -2137,6 +2145,8 @@ struct WindowWayland : public Window
 
 		floating_width  = width;
 		floating_height = height;
+		requested_width  = width;
+		requested_height = height;
 
 		surface = wl_compositor_create_surface(_wl->compositor);
 		CE_ENSURE(surface != NULL);
@@ -2403,14 +2413,19 @@ static void handle_configure(libdecor_frame *frame
 	int width, height;
 
 	if (!libdecor_configuration_get_content_size(configuration, frame, &width, &height)) {
-		width  = window->floating_width;
-		height = window->floating_height;
+		width  = window->requested_width;
+		height = window->requested_height;
 	}
 
-	window->content_width  = width;
-	window->content_height = height;
+	const bool size_changed = window->accepted_width != width
+		|| window->accepted_height != height
+		;
 
-	queue.push_resolution_event(window->content_width, window->content_height);
+	window->accepted_width  = width;
+	window->accepted_height = height;
+
+	if (size_changed)
+		queue.push_resolution_event((u16)window->accepted_width, (u16)window->accepted_height);
 
 	state = libdecor_state_new(width, height);
 	libdecor_frame_commit(frame, state, configuration);
