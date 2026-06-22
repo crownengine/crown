@@ -7,10 +7,10 @@ namespace Crown
 {
 const string CROWN_VERSION_MAJOR = "0";
 const string CROWN_VERSION_MINOR = "63";
-const string CROWN_VERSION_PATCH = "4";
+const string CROWN_VERSION_PATCH = "5";
 
 const string CROWN_FEATURES_VERSION = CROWN_VERSION_MAJOR + "." + CROWN_VERSION_MINOR;
-const string CROWN_MANUAL_VERSION = "v0.63.0";
+const string CROWN_MANUAL_VERSION = "master";
 const string CROWN_VERSION = CROWN_FEATURES_VERSION + "." + CROWN_VERSION_PATCH;
 
 const string CROWN_WWW_URL = "https://www.crownengine.org";
