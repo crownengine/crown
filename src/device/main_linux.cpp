@@ -2186,12 +2186,37 @@ struct WindowWayland : public Window
 		destroy_toplevel_objects();
 	}
 
+	void commit_content_size(int width, int height, libdecor_configuration *configuration)
+	{
+		struct libdecor_state *state = libdecor_state_new(width, height);
+		libdecor_frame_commit(frame, state, configuration);
+		libdecor_state_free(state);
+	}
+
 	void resize(u16 width, u16 height) override
 	{
-		if (xdg_surface == NULL)
+		requested_width  = width;
+		requested_height = height;
+
+		if (frame == NULL)
 			return;
 
-		xdg_surface_set_window_geometry(xdg_surface, 0, 0, width, height);
+		commit_content_size(width, height, NULL);
+
+		if (libdecor_frame_is_floating(frame)) {
+			floating_width  = width;
+			floating_height = height;
+		}
+
+		const bool size_changed = accepted_width != width
+			|| accepted_height != height
+			;
+
+		accepted_width  = width;
+		accepted_height = height;
+
+		if (size_changed)
+			_wl->queue->push_resolution_event(width, height);
 	}
 
 	void move(u16 x, u16 y) override
@@ -2409,7 +2434,6 @@ static void handle_configure(libdecor_frame *frame
 {
 	WindowWayland *window = (WindowWayland *)user_data;
 	DeviceEventQueue &queue = *_wl->queue;
-	struct libdecor_state *state;
 	int width, height;
 
 	if (!libdecor_configuration_get_content_size(configuration, frame, &width, &height)) {
@@ -2424,13 +2448,11 @@ static void handle_configure(libdecor_frame *frame
 	window->accepted_width  = width;
 	window->accepted_height = height;
 
+	window->commit_content_size(width, height, configuration);
+	window->apply_pending_state();
+
 	if (size_changed)
 		queue.push_resolution_event((u16)window->accepted_width, (u16)window->accepted_height);
-
-	state = libdecor_state_new(width, height);
-	libdecor_frame_commit(frame, state, configuration);
-	libdecor_state_free(state);
-	window->apply_pending_state();
 
 	if (libdecor_frame_is_floating(window->frame)) {
 		window->floating_width  = width;
