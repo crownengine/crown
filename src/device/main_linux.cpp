@@ -2116,11 +2116,17 @@ struct WindowWayland : public Window
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *xdg_toplevel;
 	char floating_title[256];
+	bool title_dirty;
+	bool requested_fullscreen;
+	bool fullscreen_dirty;
 
 	WindowWayland()
 		: frame(NULL)
 		, xdg_surface(NULL)
 		, xdg_toplevel(NULL)
+		, title_dirty(false)
+		, requested_fullscreen(false)
+		, fullscreen_dirty(false)
 	{
 		memset(floating_title, 0, sizeof(floating_title));
 	}
@@ -2148,13 +2154,21 @@ struct WindowWayland : public Window
 		surface = NULL;
 	}
 
-	void show() override
+	void map_frame()
 	{
+		if (frame != NULL)
+			return;
+
 		frame = libdecor_decorate(_wl->decor.context, surface, &libdecor_frame_iface, this);
 		libdecor_frame_set_app_id(frame, "org.crownengine.CrownRuntime");
-		libdecor_frame_set_title(frame, floating_title);
+		libdecor_frame_set_title(frame, floating_title[0] == '\0' ? "CrownRuntime" : floating_title);
 		libdecor_frame_map(frame);
 		get_toplevel_objects();
+	}
+
+	void show() override
+	{
+		map_frame();
 	}
 
 	void hide() override
@@ -2214,9 +2228,12 @@ struct WindowWayland : public Window
 		strncpy(floating_title, title, sizeof(floating_title) - 1);
 		floating_title[sizeof(floating_title) - 1] = '\0';
 
-		if (frame != NULL)
-			libdecor_frame_set_title(frame, floating_title);
-		else if (xdg_toplevel != NULL)
+		if (frame != NULL) {
+			title_dirty = true;
+			return;
+		}
+
+		if (xdg_toplevel != NULL)
 			xdg_toplevel_set_title(xdg_toplevel, floating_title);
 	}
 
@@ -2228,8 +2245,15 @@ struct WindowWayland : public Window
 
 	void set_fullscreen(bool full) override
 	{
+		requested_fullscreen = full;
+
 		if (xdg_toplevel == NULL)
 			return;
+
+		if (frame != NULL) {
+			fullscreen_dirty = true;
+			return;
+		}
 
 		if (full)
 			xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
@@ -2293,6 +2317,7 @@ struct WindowWayland : public Window
 
 	void *native_handle() override
 	{
+		map_frame();
 		return (void *)(uintptr_t)surface;
 	}
 
@@ -2349,6 +2374,22 @@ struct WindowWayland : public Window
 		}
 		xdg_surface = NULL;
 	}
+
+	void apply_pending_state()
+	{
+		if (title_dirty) {
+			libdecor_frame_set_title(frame, floating_title[0] == '\0' ? "CrownRuntime" : floating_title);
+			title_dirty = false;
+		}
+
+		if (fullscreen_dirty && xdg_toplevel != NULL) {
+			if (requested_fullscreen)
+				xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
+			else
+				xdg_toplevel_unset_fullscreen(xdg_toplevel);
+			fullscreen_dirty = false;
+		}
+	}
 };
 
 static void handle_configure(libdecor_frame *frame
@@ -2374,6 +2415,7 @@ static void handle_configure(libdecor_frame *frame
 	state = libdecor_state_new(width, height);
 	libdecor_frame_commit(frame, state, configuration);
 	libdecor_state_free(state);
+	window->apply_pending_state();
 
 	if (libdecor_frame_is_floating(window->frame)) {
 		window->floating_width  = width;
