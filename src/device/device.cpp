@@ -586,6 +586,8 @@ bool Device::frame()
 	RECORD_FLOAT("render.vertex_layouts", f32(stats->numVertexLayouts));
 	RECORD_FLOAT("render.occlusion_queries", f32(stats->numOcclusionQueries));
 
+	RECORD_FLOAT("memory.default_allocator", f32(default_allocator().total_allocated()));
+
 	profiler_globals::flush();
 
 	graph_globals::draw_all(_width, _height);
