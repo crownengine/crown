@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-04-18T18:14:43+00:00" /><meta property="og:title" content="Command line" />
+    <meta property="article:modified_time" content="2026-06-20T16:15:23+00:00" /><meta property="og:title" content="Command line" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/command_line.html" />
-<meta property="og:site_name" content="Crown 0.63.3 Manual" />
+<meta property="og:site_name" content="Crown 0.63.4 Manual" />
 <meta property="og:description" content="Examples: Compile and run the project/home/user/crown/samples/01-physics using a mapped core folder: Compile and run for HTML5: Compile a “bundled” version of the project: Run the project from bundled data: Customize the data directory name: Options:--, End of the runtime’s op..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.63.3 Manual" />
+<meta property="og:image:alt" content="Crown 0.63.4 Manual" />
 <meta name="description" content="Examples: Compile and run the project/home/user/crown/samples/01-physics using a mapped core folder: Compile and run for HTML5: Compile a “bundled” version of the project: Run the project from bundled data: Customize the data directory name: Options:--, End of the runtime’s op..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command line &mdash; Crown 0.63.3 Manual</title>
+  <title>Command line &mdash; Crown 0.63.4 Manual</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -91,7 +91,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.63.3 Manual</a>
+          <a href="../index.html">Crown 0.63.4 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -144,11 +144,11 @@ cd $CROWN/platforms/linux64/bin
 <p>All options following <code class="docutils literal notranslate"><span class="pre">--</span></code> are passed to the game but will not be
 interpreted by the runtime.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">-h</span></code> <code class="docutils literal notranslate"><span class="pre">--help</span></code></dt><dd><p>Display the help and quit.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">-h</span></code> <code class="docutils literal notranslate"><span class="pre">--help</span></code></dt><dd><p>Display this help.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">-v</span></code> <code class="docutils literal notranslate"><span class="pre">--version</span></code></dt><dd><p>Display engine version and quit.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">-v</span></code> <code class="docutils literal notranslate"><span class="pre">--version</span></code></dt><dd><p>Display engine version.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--source-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Use &lt;path&gt; as the source directory for resource compilation.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--source-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Specify the &lt;path&gt; of the project’s source data.</p>
 <p>The &lt;path&gt; must be absolute.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--data-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Run with the data located at &lt;path&gt;.</p>
@@ -160,15 +160,15 @@ interpreted by the runtime.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">--map-source-dir</span> <span class="pre">&lt;name&gt;</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Mount &lt;path&gt;/&lt;name&gt; at &lt;source-dir&gt;/&lt;name&gt;.</p>
 <p>The &lt;path&gt; must be absolute.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--boot-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Boot the engine with the <code class="docutils literal notranslate"><span class="pre">boot.config</span></code> from given &lt;path&gt;.</p>
-<p>The &lt;path&gt; must be relative.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--boot-dir</span> <span class="pre">&lt;prefix&gt;</span></code></dt><dd><p>Use &lt;prefix&gt;/boot.config to boot the engine.</p>
+<p>The &lt;prefix&gt; must be relative.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--compile</span></code></dt><dd><p>Do a full compile of the resources.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--compile</span></code></dt><dd><p>Compile the project’s source data.</p>
 <p>When using this option you must also specify <code class="docutils literal notranslate"><span class="pre">--source-dir</span></code>.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--bundle</span></code></dt><dd><p>Generate bundles after the data has been compiled.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--platform</span> <span class="pre">&lt;platform&gt;</span></code></dt><dd><p>Compile resources for the given &lt;platform&gt;.
+<dt><code class="docutils literal notranslate"><span class="pre">--platform</span> <span class="pre">&lt;platform&gt;</span></code></dt><dd><p>Specify the target &lt;platform&gt; for data compilation.
 Possible values for &lt;platform&gt; are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">android</span></code></p></li>
@@ -177,15 +177,15 @@ Possible values for &lt;platform&gt; are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">windows</span></code></p></li>
 </ul>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--continue</span></code></dt><dd><p>Run the engine after resource compilation.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--continue</span></code></dt><dd><p>Run the engine after the data has been compiled.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--console-port</span> <span class="pre">&lt;port&gt;</span></code></dt><dd><p>Set port of the console.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--console-port</span> <span class="pre">&lt;port&gt;</span></code></dt><dd><p>Set port of the console server.</p>
 <p>When no port is specified, the engine uses the port 10001.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--port-file</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Write the selected console port to &lt;path&gt;.
+<dt><code class="docutils literal notranslate"><span class="pre">--port-file</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Write selected console port to &lt;path&gt;.
 The file is written after the console server has bound a port if any.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--wait-console</span></code></dt><dd><p>Wait for a console connection before starting up.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--wait-console</span></code></dt><dd><p>Wait for a console connection before booting the engine.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--parent-window</span> <span class="pre">&lt;handle&gt;</span></code></dt><dd><p>Set the parent window &lt;handle&gt; of the main window.</p>
 <p>This option should be used only by the tools.</p>
@@ -197,6 +197,8 @@ The file is written after the console server has bound a port if any.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--hidden</span></code></dt><dd><p>Make the main window initially invisible.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--keep-above</span></code></dt><dd><p>Keep the main window above other windows.</p>
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--renderer</span> <span class="pre">&lt;renderer&gt;</span></code></dt><dd><p>Set the renderer backend.
 Possible values for &lt;renderer&gt; are:</p>
 <ul class="simple">
@@ -207,7 +209,7 @@ Possible values for &lt;renderer&gt; are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">vk</span></code></p></li>
 </ul>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">--window-rect</span> <span class="pre">&lt;x</span> <span class="pre">y</span> <span class="pre">w</span> <span class="pre">h&gt;</span></code></dt><dd><p>Sets the main window’s position and size.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">--window-rect</span> <span class="pre">&lt;x</span> <span class="pre">y</span> <span class="pre">w</span> <span class="pre">h&gt;</span></code></dt><dd><p>Set the main window’s position and size.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--string-id</span> <span class="pre">&lt;string&gt;</span></code></dt><dd><p>Print the 32- and 64-bits IDs of &lt;string&gt;.</p>
 </dd>
@@ -229,7 +231,7 @@ Possible values for &lt;renderer&gt; are:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Apr 18, 2026.
+      <span class="lastupdated">Last updated on Jun 20, 2026.
       </span></p>
   </div>
 
