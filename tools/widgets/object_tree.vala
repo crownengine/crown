@@ -164,6 +164,7 @@ public class ObjectTree : Gtk.Box
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.SINGLE);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_blocked = false;
 
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
 		_scrolled_window.add(_tree_view);
@@ -614,6 +615,7 @@ public class ObjectTree : Gtk.Box
 			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
 
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_blocked = false;
 	}
 
 	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
@@ -725,6 +727,7 @@ public class ObjectTree : Gtk.Box
 		_tree_store.foreach(save_tree_state);
 		filter(_needle);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_blocked = false;
 	}
 
 	public void on_search_changed()
@@ -732,6 +735,7 @@ public class ObjectTree : Gtk.Box
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		filter(_needle);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_blocked = false;
 	}
 
 	public void on_search_stopped()
@@ -752,6 +756,7 @@ public class ObjectTree : Gtk.Box
 		_tree_view.get_selection().unselect_all();
 		_tree_store.foreach(restore_tree_state);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+		_selection_changed_blocked = false;
 
 		// If the selection changed while searching, restore it as well.
 		for (int i = 0; i < selected_refs.length; ++i) {
