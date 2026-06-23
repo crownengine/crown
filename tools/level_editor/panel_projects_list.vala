@@ -50,6 +50,8 @@ public class ProjectRow : Gtk.ListBoxRow
 		_remove_button.set_halign(Gtk.Align.CENTER);
 		_remove_button.set_valign(Gtk.Align.CENTER);
 		_remove_button.set_margin_end(12);
+		_remove_button.action_name = "app.remove-project";
+		_remove_button.action_target = new GLib.Variant.string(source_dir);
 		_hbox.pack_end(_remove_button, false, false, 0);
 
 		_open_button = new Gtk.Button.with_label(_("Open"));
@@ -58,26 +60,11 @@ public class ProjectRow : Gtk.ListBoxRow
 		_open_button.set_halign(Gtk.Align.CENTER);
 		_open_button.set_valign(Gtk.Align.CENTER);
 		// _open_button.set_margin_end(12);
+		_open_button.action_name = "app.open-project";
+		_open_button.action_target = new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE});
 		_hbox.pack_end(_open_button, false, false, 0);
 
-		_remove_button.clicked.connect(on_remove_button_clicked);
-		_open_button.clicked.connect(on_open_button_clicked);
-
 		this.add(_hbox);
-	}
-
-	public void on_remove_button_clicked()
-	{
-		GLib.Application.get_default().activate_action("remove-project"
-			, new GLib.Variant.string(this.get_data("source_dir"))
-			);
-	}
-
-	public void on_open_button_clicked()
-	{
-		GLib.Application.get_default().activate_action("open-project"
-			, new GLib.Variant.tuple({this.get_data<string>("source_dir"), LEVEL_NONE, ProjectFlags.NONE})
-			);
 	}
 }
 
@@ -96,6 +83,7 @@ public class ProjectsList : Gtk.Box
 	public Gtk.Box _buttons_box;
 	public Gtk.Box _projects_box;
 	public Clamp _clamp;
+	public uint _grab_focus;
 
 	public ProjectsList(User user)
 	{
@@ -205,10 +193,17 @@ public class ProjectsList : Gtk.Box
 	{
 		_list_projects.invalidate_sort();
 
-		// Give focus to most recent project's open button.
-		ProjectRow? first_row = (ProjectRow?)_list_projects.get_row_at_index(0);
-		if (first_row != null)
-			first_row._open_button.has_focus = true;
+		if (_grab_focus != 0)
+			GLib.Source.remove(_grab_focus);
+
+		GLib.Idle.add(() => {
+				// Give focus to most recent project's open button.
+				ProjectRow? first_row = (ProjectRow?)_list_projects.get_row_at_index(0);
+				if (first_row != null)
+					first_row._open_button.grab_focus();
+
+				return GLib.Source.REMOVE;
+			});
 	}
 }
 
