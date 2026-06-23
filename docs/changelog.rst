@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.5 --- DD MMM YYYY <v0.63.5>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed a warning in the console when interacting with object trees in some cases.
+
 .. _v0.63.4:
 
 :ref:`0.63.4 --- 22 Jun 2026 <v0.63.4>`
