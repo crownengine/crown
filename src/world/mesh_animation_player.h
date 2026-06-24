@@ -21,6 +21,7 @@ struct MeshAnimation
 	AnimationId id;
 	u32 tracks_offset;
 	u32 num_tracks;
+	const u16 *events_playhead;
 	const AnimationKey *playhead; ///< Next key to fetch in the animation stream.
 	const MeshAnimationResource *animation_resource;
 };
@@ -62,7 +63,7 @@ namespace mesh_animation_player
 	bool has(MeshAnimationPlayer &p, AnimationId anim_id);
 
 	///
-	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, SceneGraph &scene_graph, const UnitId *bone_lookup);
+	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset);
 
 } // namespace mesh_animation_player
 

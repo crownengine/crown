@@ -136,6 +136,37 @@ namespace mesh_animation
 		return 0;
 	}
 
+	s32 parse_events(MeshAnimation &ma, const char *json, CompileOptions &opts)
+	{
+		TempAllocator4096 ta;
+		JsonArray events(ta);
+		RETURN_IF_ERROR(sjson::parse_array(events, json));
+		CE_UNUSED(opts);
+
+		for (u32 i = 0; i < array::size(events); ++i) {
+			AnimationEvent ev = {};
+			JsonObject obj(ta);
+
+			RETURN_IF_ERROR(sjson::parse_object(obj, events[i]));
+			ev.name = RETURN_IF_ERROR(sjson::parse_string_id(obj["name"]));
+			ev.time = RETURN_IF_ERROR(sjson::parse_float(obj["time"]));
+
+			if (ev.time > ma.total_time)
+				logw(MESH_ANIMATION, "An event outside the timeline was skipped: time %f total %f", ev.time, ma.total_time);
+			else
+				array::push_back(ma.events, ev);
+		}
+
+		// Sort events by time.
+		std::sort(array::begin(ma.events)
+			, array::end(ma.events)
+			, [](const AnimationEvent &a, const AnimationEvent &b) {
+				return a.time < b.time;
+			});
+
+		return 0;
+	}
+
 	s32 parse(MeshAnimation &ma, Buffer &buf, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
@@ -168,6 +199,12 @@ namespace mesh_animation
 				);
 		}
 
+		// Parse events.
+		if (json_object::has(obj, "events")) {
+			s32 err = parse_events(ma, obj["events"], opts);
+			ENSURE_OR_RETURN(MESH_ANIMATION, err == 0, opts);
+		}
+
 		return generate_sorted_keys(ma);
 	}
 
@@ -183,6 +220,7 @@ MeshAnimation::MeshAnimation(Allocator &a)
 	, stack_name(a)
 	, track_ids(a)
 	, bone_ids(a)
+	, events(a)
 {
 }
 

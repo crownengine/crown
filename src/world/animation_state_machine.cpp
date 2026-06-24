@@ -332,8 +332,11 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 			mesh_animation_player::evaluate(*_mesh_animation_player
 				, mi.anim_id
 				, mi.time
+				, mi.unit
 				, scene_graph
 				, mi.skeleton->bone_lookup
+				, _events
+				, mi.time + dt*speed > mi.time_total
 				);
 			++mesh_animations_playing;
 		} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
