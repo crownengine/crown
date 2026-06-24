@@ -168,6 +168,9 @@ Interface to access global application-level functionalities.
 	2. Compute the average for the remaining 6 values in DTs: AVG = 0.323.
 	3. Smooth the newly computed average: AVG = lerp(AVGp, AVG, 0.1) = 0.329.
 
+**string_id** (str) : string
+    Returns the 32-bits hash of *str*.
+
 Display
 =======
 

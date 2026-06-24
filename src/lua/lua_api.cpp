@@ -3915,6 +3915,12 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("Device", "string_id", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_string_id(StringId32(stack.get_string(1)));
+			return 1;
+		});
+
 
 	env.add_module_function("SaveGame", "save", [](lua_State *L) {
 			LuaStack stack(L, +1);
