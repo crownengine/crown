@@ -39,6 +39,7 @@ Changelog
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
 * Runtime: fixed rendering artifacts when sun shadows are disabled in render settings.
 * Runtime: fixed a crash when reloading the render config in some cases.
+* Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
