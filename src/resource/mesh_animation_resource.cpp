@@ -36,6 +36,10 @@ namespace mesh_animation_resource_internal
 		mar.target_skeleton = ma.target_skeleton;
 		mar.num_bones = array::size(ma.bone_ids);
 		mar.bone_ids_offset = mar.keys_offset + mar.num_keys * sizeof(AnimationKey);
+		mar.num_events = array::size(ma.events);
+		mar.event_times_offset = mar.bone_ids_offset + mar.num_bones * sizeof(u16);
+		mar.event_names_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(mar.event_times_offset + mar.num_events * sizeof(u16)), sizeof(u32));
+		mar._pad1 = 0u;
 
 		opts.write(mar.version);
 		opts.write(mar.num_tracks);
@@ -46,12 +50,23 @@ namespace mesh_animation_resource_internal
 		opts.write(mar.target_skeleton);
 		opts.write(mar.num_bones);
 		opts.write(mar.bone_ids_offset);
+		opts.write(mar.num_events);
+		opts.write(mar.event_times_offset);
+		opts.write(mar.event_names_offset);
+		opts.write(mar._pad1);
 
 		for (u32 i = 0; i < array::size(ma.sorted_keys); ++i)
 			opts.write(ma.sorted_keys[i]);
 
 		for (u32 i = 0; i < array::size(ma.bone_ids); ++i)
 			opts.write(ma.bone_ids[i]);
+
+		for (u32 i = 0; i < array::size(ma.events); ++i)
+			opts.write(u16(ma.events[i].time * 1000.0f));
+
+		opts.align(sizeof(u32));
+		for (u32 i = 0; i < array::size(ma.events); ++i)
+			opts.write(ma.events[i].name);
 
 		return 0;
 	}

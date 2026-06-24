@@ -58,8 +58,14 @@ struct MeshAnimationResource
 	StringId64 target_skeleton;
 	u32 num_bones;
 	u32 bone_ids_offset;
+	u32 num_events;
+	u32 event_times_offset;
+	u32 event_names_offset;
+	u32 _pad1;
 	// AnimationKey animation_keys[num_keys]
 	// u16 bone_ids[num_bones]
+	// u16 event_times[num_events] sorted by time
+	// u32 event_names[num_events] sorted by time
 };
 
 namespace mesh_animation_resource
@@ -69,6 +75,12 @@ namespace mesh_animation_resource
 
 	///
 	const u16 *bone_ids(const MeshAnimationResource *mar);
+
+	///
+	const u16 *event_times(const MeshAnimationResource *mar);
+
+	///
+	const StringId32 *event_names(const MeshAnimationResource *mar);
 
 } // namespace mesh_animation_resource
 

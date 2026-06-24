@@ -348,6 +348,28 @@ void World::update_scene(f32 dt)
 				break;
 			}
 
+			case 1: {
+				const UnitEvent &ev = *(UnitEvent *)data;
+				ScriptId inst = script_world::instance(*_script_world, ev.unit);
+
+				if (is_valid(inst)) {
+					ArgType::Enum arg_types[3] =
+					{
+						ArgType::POINTER,
+						ArgType::UNIT,
+						ArgType::STRING_ID,
+					};
+
+					Arg args[3];
+					args[0].pointer_value = this;
+					args[1].unit_value = ev.unit;
+					args[2].string_id_value = ev.name._id;
+
+					script_world::unicast(*_script_world, "event", inst, arg_types, args, countof(args));
+				}
+				break;
+			}
+
 			default:
 				CE_FATAL("Unknown event type");
 				break;

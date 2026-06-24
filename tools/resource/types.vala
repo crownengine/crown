@@ -6,6 +6,7 @@
 namespace Crown
 {
 const string OBJECT_TYPE_ACTOR                   = "actor";
+const string OBJECT_TYPE_ANIMATION_EVENT         = "animation_event";
 const string OBJECT_TYPE_ANIMATION_FRAME         = "animation_frame";
 const string OBJECT_TYPE_ANIMATION_STATE_MACHINE = "animation_state_machine";
 const string OBJECT_TYPE_BLOOM                   = "bloom";
@@ -2254,6 +2255,12 @@ public static void create_object_types(Database database)
 			name = "target_skeleton",
 			resource_type = OBJECT_TYPE_MESH_SKELETON,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "events",
+			object_type = StringId64(OBJECT_TYPE_ANIMATION_EVENT),
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_ANIMATION, properties);
 
@@ -2447,6 +2454,21 @@ public static void create_object_types(Database database)
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_TEXTURE, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "time",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_ANIMATION_EVENT, properties);
 }
 
 } /* namespace Crown */

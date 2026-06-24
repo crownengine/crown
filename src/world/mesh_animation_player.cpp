@@ -4,6 +4,7 @@
  */
 
 #include "core/containers/array.inl"
+#include "core/event_stream.inl"
 #include "core/math/constants.h"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
@@ -65,6 +66,7 @@ namespace mesh_animation_player
 		anim.id = index.id;
 		anim.tracks_offset = array::size(p._tracks);
 		anim.num_tracks = animation_resource->num_tracks;
+		anim.events_playhead = mesh_animation_resource::event_times(animation_resource);
 		anim.playhead = mesh_animation_resource::animation_keys(animation_resource);
 		anim.animation_resource = animation_resource;
 		// Allocate tracks.
@@ -96,7 +98,7 @@ namespace mesh_animation_player
 		return index.index != UINT32_MAX && index.id == anim_id;
 	}
 
-	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, SceneGraph &scene_graph, const UnitId *bone_lookup)
+	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset)
 	{
 		MeshAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		MeshAnimation &anim = p._animations[index.index];
@@ -151,6 +153,22 @@ namespace mesh_animation_player
 				CE_FATAL("Unknown key type %u in track %u", track->keys[0].h.type, track_id);
 			}
 		}
+
+		// Generate events.
+		while (*anim.events_playhead <= ts) {
+			const u16 *event_times = mesh_animation_resource::event_times(anim.animation_resource);
+			const StringId32 *event_names = mesh_animation_resource::event_names(anim.animation_resource);
+
+			UnitEvent ev;
+			ev.unit = unit;
+			ev.name = event_names[anim.events_playhead - event_times];
+			event_stream::write(events, 1, ev);
+
+			++anim.events_playhead;
+		}
+
+		if (reset)
+			anim.events_playhead = mesh_animation_resource::event_times(anim.animation_resource);
 	}
 
 } // namespace mesh_animation_player

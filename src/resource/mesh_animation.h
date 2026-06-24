@@ -23,6 +23,12 @@ struct AnimationKeyIndex
 	u32 cur;    ///< Current key.
 };
 
+struct AnimationEvent
+{
+	StringId32 name;
+	f32 time;
+};
+
 struct MeshAnimation
 {
 	Array<AnimationKey> sorted_keys;  ///< Animation keys sorted by access time.
@@ -34,6 +40,7 @@ struct MeshAnimation
 	DynamicString stack_name;         ///< Animation name.
 	HashMap<u16, u16> track_ids;      ///< From (bone_id, parameter_type) to track_id.
 	Array<u16> bone_ids;              ///< From track_id to bone_id
+	Array<AnimationEvent> events;     ///< Events sorted by time.
 
 	///
 	explicit MeshAnimation(Allocator &a);

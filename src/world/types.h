@@ -785,4 +785,10 @@ struct AnimationSkeletonInstance
 	Matrix4x4 *bones;
 };
 
+struct UnitEvent
+{
+	UnitId unit;
+	StringId32 name;
+};
+
 } // namespace crown
