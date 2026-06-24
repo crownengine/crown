@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/error/error.inl"
+#include "core/strings/string_id.inl"
 #include "lua/lua_stack.h"
 
 extern "C"
@@ -493,7 +494,9 @@ inline void LuaStack::push_lstring(const char *s, u32 len)
 
 inline void LuaStack::push_string_id(StringId32 value)
 {
-	lua_pushnumber(L, value._id);
+	char buf[STRING_ID32_BUF_LEN];
+	value.to_string(buf, sizeof(buf));
+	push_string(buf);
 }
 
 inline void LuaStack::push_pointer(void *p)
