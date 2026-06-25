@@ -418,6 +418,21 @@ void AnimationStateMachine::reload(const SpriteAnimationResource *old_resource, 
 	}
 }
 
+void AnimationStateMachine::reload(const MeshAnimationResource *old_resource, const MeshAnimationResource *new_resource)
+{
+	for (u32 i = 0; i < array::size(_machines); ++i) {
+		Machine &machine = _machines[i];
+
+		if (machine.anim_type == RESOURCE_TYPE_MESH_ANIMATION && machine.anim_resource == old_resource) {
+			machine.anim_resource = new_resource;
+			machine.time_total = new_resource->total_time;
+
+			if (machine.time > machine.time_total)
+				machine.time = !!machine.state->loop ? fmod(machine.time, machine.time_total) : machine.time_total;
+		}
+	}
+}
+
 void AnimationStateMachine::set_state_machine(StateMachineId state_machine, const StateMachineResource *state_machine_resource)
 {
 	Machine &machine = _machines[state_machine.i];

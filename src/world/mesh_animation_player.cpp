@@ -171,6 +171,25 @@ namespace mesh_animation_player
 			anim.events_playhead = mesh_animation_resource::event_times(anim.animation_resource);
 	}
 
+	void reload(MeshAnimationPlayer &p, const MeshAnimationResource *old_resource, const MeshAnimationResource *new_resource)
+	{
+		for (u32 i = 0; i < array::size(p._animations); ++i) {
+			MeshAnimation &anim = p._animations[i];
+
+			if (anim.animation_resource == old_resource) {
+				anim.tracks_offset = array::size(p._tracks);
+				anim.num_tracks = new_resource->num_tracks;
+				anim.events_playhead = mesh_animation_resource::event_times(new_resource);
+				anim.playhead = mesh_animation_resource::animation_keys(new_resource);
+				anim.animation_resource = new_resource;
+				// Allocate tracks.
+				array::reserve(p._tracks, array::size(p._tracks) + new_resource->num_tracks);
+				p._tracks._size += new_resource->num_tracks;
+				init(p, anim);
+			}
+		}
+	}
+
 } // namespace mesh_animation_player
 
 MeshAnimationPlayer::MeshAnimationPlayer(Allocator &a)
