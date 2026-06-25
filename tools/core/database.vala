@@ -563,15 +563,39 @@ public class Database
 			;
 	}
 
+	private void prune_stale_overrides(Guid id)
+	{
+		string type = object_type(id);
+
+		if (type == OBJECT_TYPE_UNIT) {
+			prune_stale_unit_overrides(id);
+		} else if (type == OBJECT_TYPE_LEVEL) {
+			foreach (Guid unit_id in get_set(id, "units"))
+				prune_stale_unit_overrides(unit_id);
+		}
+	}
+
+	private void prune_stale_unit_overrides(Guid unit_id)
+	{
+		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
+		Unit.collect_unit_tree(unit_ids, unit_id, this);
+
+		foreach (Guid id in unit_ids)
+			Unit(this, id).prune_stale_overrides();
+	}
+
 	/// Saves database to path without marking it as not changed.
 	public int dump(string path, Guid id)
 	{
+		UndoRedo? undo_redo = disable_undo();
 		try {
-			Hashtable json = encode(id);
-			SJSON.save(json, path);
+			prune_stale_overrides(id);
+			SJSON.save(encode(id), path);
 			return 0;
 		} catch (JsonWriteError e) {
 			return -1;
+		} finally {
+			restore_undo(undo_redo);
 		}
 	}
 
@@ -635,6 +659,8 @@ public class Database
 
 				// Create a mapping between the path and the object it has been loaded into.
 				set(0, GUID_ZERO, resource_path, object_id);
+
+				prune_stale_overrides(object_id);
 
 				return LoadError.SUCCESS;
 			} finally {
