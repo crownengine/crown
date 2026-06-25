@@ -1,5 +1,19 @@
 _guid = "c369de39-5830-434c-8de2-2aabe7a222f4"
 _type = "mesh_animation"
+events = [
+	{
+		_guid = "a05beef2-32ea-4851-82de-ac9024147a13"
+		_type = "animation_event"
+		name = "footsteps_L"
+		time = 0.26666200000000007
+	}
+	{
+		_guid = "c99c8701-3522-40a8-878a-9ca6007fb292"
+		_type = "animation_event"
+		name = "footsteps_R"
+		time = 0.76663000000000003
+	}
+]
 source = "units/character/animations/crouch_walk.fbx"
 stack_name = "mixamo.com"
 target_skeleton = "units/character/character"
