@@ -19,7 +19,7 @@ struct AnimationTrackSegment
 struct MeshAnimation
 {
 	AnimationId id;
-	u32 tracks_offset;
+	u32 first_track_block;
 	u32 num_tracks;
 	const u16 *events_playhead;
 	const AnimationKey *playhead; ///< Next key to fetch in the animation stream.
@@ -29,6 +29,13 @@ struct MeshAnimation
 #define MAX_ANIMATIONS       1024
 #define ANIMATION_INDEX_MASK (MAX_ANIMATIONS - 1)
 #define ANIMATION_ID_ADD     MAX_ANIMATIONS
+#define MESH_ANIMATION_TRACKS_PER_BLOCK 32
+
+struct MeshAnimationTrackBlock
+{
+	AnimationTrackSegment tracks[MESH_ANIMATION_TRACKS_PER_BLOCK];
+	u32 next;
+};
 
 /// Evaluates bones' positions and rotations
 /// in a mesh animation at a particular time.
@@ -45,7 +52,8 @@ struct MeshAnimationPlayer
 	u32 _freelist_enqueue;
 	Index _indices[MAX_ANIMATIONS];
 	Array<MeshAnimation> _animations;
-	Array<AnimationTrackSegment> _tracks; ///< The currently evaluated segment in each animation track.
+	Array<MeshAnimationTrackBlock> _tracks; ///< Blocks of currently evaluated animation track segments.
+	u32 _free_track_block;
 
 	///
 	MeshAnimationPlayer(Allocator &a);
