@@ -1,5 +1,19 @@
 _guid = "6b0c804c-1d68-4998-bb85-4e0ad5a2a538"
 _type = "mesh_animation"
+events = [
+	{
+		_guid = "de812a31-619f-4947-b826-f2ef689d1292"
+		_type = "animation_event"
+		name = "footsteps_L"
+		time = 0.35549999999999998
+	}
+	{
+		_guid = "f1476343-e68d-4dc1-a969-9eea5bbee0ea"
+		_type = "animation_event"
+		name = "footsteps_R"
+		time = 0.85519999999999996
+	}
+]
 source = "units/character/animations/walking.fbx"
 stack_name = "mixamo.com"
 target_skeleton = "units/character/character"

@@ -1,5 +1,19 @@
 _guid = "5d446485-8be9-428b-9cbb-64e7008ac32d"
 _type = "mesh_animation"
+events = [
+	{
+		_guid = "6980c186-f122-4ae9-a382-57430948c1ee"
+		_type = "animation_event"
+		name = "footsteps_L"
+		time = 0.20000000000000001
+	}
+	{
+		_guid = "96ea9faf-9894-4fa4-9b2a-00dfb78455b5"
+		_type = "animation_event"
+		name = "footsteps_R"
+		time = 0.5
+	}
+]
 source = "units/character/animations/running.fbx"
 stack_name = "mixamo.com"
 target_skeleton = "units/character/character"
