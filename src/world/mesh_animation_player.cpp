@@ -22,26 +22,32 @@ namespace crown
 {
 namespace mesh_animation_player
 {
-	/// Copies @a num animation keys from @a playhead into the
+	/// Copies the animation key from @a playhead into the
 	/// corresponding track segment @a segments. Returns a
 	/// pointer to the new playhead.
-	static const AnimationKey *fetch_keys(AnimationTrackSegment *tracks, const AnimationKey *playhead, u32 num = 1, u32 expected_track_id = UINT32_MAX)
+	static const AnimationKey *fetch_key(AnimationTrackSegment *tracks, const AnimationKey *playhead)
 	{
-		if (expected_track_id != UINT32_MAX) {
-			CE_ASSERT(expected_track_id == playhead->h.track_id
-				, "Expected track %u stream gave %u"
-				, expected_track_id
-				, playhead->h.track_id
-				);
-		}
-
 		AnimationTrackSegment *t = &tracks[playhead->h.track_id];
-		for (u32 i = 0; i < num; ++i) {
-			t->keys[0] = t->keys[1];
-			t->keys[1] = *playhead++;
-		}
+		t->keys[0] = t->keys[1];
+		t->keys[1] = *playhead++;
 
 		return playhead;
+	}
+
+	static bool track_is_valid(AnimationTrackSegment *track, u16 ts)
+	{
+		return track->keys[0].h.time <= ts && ts <= track->keys[1].h.time;
+	}
+
+	static bool tracks_are_valid(AnimationTrackSegment *tracks, u32 num_tracks, u16 ts)
+	{
+		for (u32 track_id = 0; track_id < num_tracks; ++track_id) {
+			AnimationTrackSegment *track = &tracks[track_id];
+			if (!track_is_valid(track, ts))
+				return false;
+		}
+
+		return true;
 	}
 
 	static void init(MeshAnimationPlayer &p, MeshAnimation &anim)
@@ -50,8 +56,18 @@ namespace mesh_animation_player
 		// We need 2 samples for each animation track to begin interpolating curves.
 		AnimationTrackSegment *tracks = array::begin(p._tracks) + anim.tracks_offset;
 		for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
-			anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
-			anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
+			CE_ASSERT(anim.playhead->h.track_id == track_id
+				, "Expected track %u stream gave %u"
+				, track_id
+				, anim.playhead->h.track_id
+				);
+			anim.playhead = fetch_key(tracks, anim.playhead);
+			CE_ASSERT(anim.playhead->h.track_id == track_id
+				, "Expected track %u stream gave %u"
+				, track_id
+				, anim.playhead->h.track_id
+				);
+			anim.playhead = fetch_key(tracks, anim.playhead);
 		}
 	}
 
@@ -107,26 +123,24 @@ namespace mesh_animation_player
 		CE_ENSURE(time <= anim.animation_resource->total_time);
 		u16 ts = u16(time * 1000.0f);
 
-		// Fetch new keys until all tracks have enough data
-		// to interpolate values at current time.
-		u32 num_ok = 0;
-		while (num_ok != anim.num_tracks) {
-			const AnimationKey *first_key = mesh_animation_resource::animation_keys(anim.animation_resource);
-			if (anim.playhead - first_key == anim.animation_resource->num_keys) {
+		// Fetch new keys until all tracks have enough data to interpolate
+		// values at current time. Keys must be consumed in stream order.
+		const AnimationKey *first_key = mesh_animation_resource::animation_keys(anim.animation_resource);
+		const AnimationKey *end_key = first_key + anim.animation_resource->num_keys;
+		for (;;) {
+			if (anim.playhead == end_key) {
+				if (tracks_are_valid(tracks, anim.num_tracks, ts))
+					break;
+
 				anim.playhead = first_key;
 				init(p, anim);
 			}
 
-			num_ok = 0;
-			for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
-				AnimationTrackSegment *track = &tracks[track_id];
+			AnimationTrackSegment *track = &tracks[anim.playhead->h.track_id];
+			if (track_is_valid(track, ts))
+				break;
 
-				if (track->keys[0].h.time > ts || ts > track->keys[1].h.time)
-					anim.playhead = fetch_keys(tracks, anim.playhead, 1, track_id);
-
-				if (track->keys[0].h.time <= ts && ts <= track->keys[1].h.time)
-					num_ok++;
-			}
+			anim.playhead = fetch_key(tracks, anim.playhead);
 		}
 
 		const u16 *bone_ids = mesh_animation_resource::bone_ids(anim.animation_resource);
