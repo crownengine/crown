@@ -22,12 +22,70 @@ namespace crown
 {
 namespace mesh_animation_player
 {
-	/// Copies the animation key from @a playhead into the
-	/// corresponding track segment @a segments. Returns a
-	/// pointer to the new playhead.
-	static const AnimationKey *fetch_key(AnimationTrackSegment *tracks, const AnimationKey *playhead)
+	static u32 alloc_track_block(MeshAnimationPlayer &p)
 	{
-		AnimationTrackSegment *t = &tracks[playhead->h.track_id];
+		if (p._free_track_block != UINT32_MAX) {
+			const u32 block_index = p._free_track_block;
+			p._free_track_block = p._tracks[block_index].next;
+			p._tracks[block_index].next = UINT32_MAX;
+			return block_index;
+		}
+
+		MeshAnimationTrackBlock block;
+		block.next = UINT32_MAX;
+		array::push_back(p._tracks, block);
+		return array::size(p._tracks) - 1;
+	}
+
+	static u32 alloc_track_blocks(MeshAnimationPlayer &p, u32 num_tracks)
+	{
+		if (num_tracks == 0)
+			return UINT32_MAX;
+
+		const u32 num_blocks = (num_tracks + MESH_ANIMATION_TRACKS_PER_BLOCK - 1)/MESH_ANIMATION_TRACKS_PER_BLOCK;
+		const u32 first_block = alloc_track_block(p);
+		u32 prev_block = first_block;
+
+		for (u32 i = 1; i < num_blocks; ++i) {
+			const u32 block = alloc_track_block(p);
+			p._tracks[prev_block].next = block;
+			prev_block = block;
+		}
+
+		return first_block;
+	}
+
+	static void free_track_blocks(MeshAnimationPlayer &p, u32 first_block)
+	{
+		if (first_block == UINT32_MAX)
+			return;
+
+		u32 last_block = first_block;
+		while (p._tracks[last_block].next != UINT32_MAX)
+			last_block = p._tracks[last_block].next;
+
+		p._tracks[last_block].next = p._free_track_block;
+		p._free_track_block = first_block;
+	}
+
+	static AnimationTrackSegment *track_segment(MeshAnimationPlayer &p, MeshAnimation &anim, u32 track_id)
+	{
+		u32 block = anim.first_track_block;
+		while (track_id >= MESH_ANIMATION_TRACKS_PER_BLOCK) {
+			CE_ASSERT(block != UINT32_MAX, "Track block not found");
+			block = p._tracks[block].next;
+			track_id -= MESH_ANIMATION_TRACKS_PER_BLOCK;
+		}
+
+		CE_ASSERT(block != UINT32_MAX, "Track block not found");
+		return &p._tracks[block].tracks[track_id];
+	}
+
+	/// Copies the animation key from @a playhead into the corresponding track segment. Returns a
+	/// pointer to the new playhead.
+	static const AnimationKey *fetch_key(MeshAnimationPlayer &p, MeshAnimation &anim, const AnimationKey *playhead)
+	{
+		AnimationTrackSegment *t = track_segment(p, anim, playhead->h.track_id);
 		t->keys[0] = t->keys[1];
 		t->keys[1] = *playhead++;
 
@@ -39,10 +97,10 @@ namespace mesh_animation_player
 		return track->keys[0].h.time <= ts && ts <= track->keys[1].h.time;
 	}
 
-	static bool tracks_are_valid(AnimationTrackSegment *tracks, u32 num_tracks, u16 ts)
+	static bool tracks_are_valid(MeshAnimationPlayer &p, MeshAnimation &anim, u16 ts)
 	{
-		for (u32 track_id = 0; track_id < num_tracks; ++track_id) {
-			AnimationTrackSegment *track = &tracks[track_id];
+		for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
+			AnimationTrackSegment *track = track_segment(p, anim, track_id);
 			if (!track_is_valid(track, ts))
 				return false;
 		}
@@ -54,20 +112,19 @@ namespace mesh_animation_player
 	{
 		// Initialize tracks with animation data.
 		// We need 2 samples for each animation track to begin interpolating curves.
-		AnimationTrackSegment *tracks = array::begin(p._tracks) + anim.tracks_offset;
 		for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
 			CE_ASSERT(anim.playhead->h.track_id == track_id
 				, "Expected track %u stream gave %u"
 				, track_id
 				, anim.playhead->h.track_id
 				);
-			anim.playhead = fetch_key(tracks, anim.playhead);
+			anim.playhead = fetch_key(p, anim, anim.playhead);
 			CE_ASSERT(anim.playhead->h.track_id == track_id
 				, "Expected track %u stream gave %u"
 				, track_id
 				, anim.playhead->h.track_id
 				);
-			anim.playhead = fetch_key(tracks, anim.playhead);
+			anim.playhead = fetch_key(p, anim, anim.playhead);
 		}
 	}
 
@@ -80,14 +137,11 @@ namespace mesh_animation_player
 
 		MeshAnimation anim;
 		anim.id = index.id;
-		anim.tracks_offset = array::size(p._tracks);
 		anim.num_tracks = animation_resource->num_tracks;
+		anim.first_track_block = alloc_track_blocks(p, anim.num_tracks);
 		anim.events_playhead = mesh_animation_resource::event_times(animation_resource);
 		anim.playhead = mesh_animation_resource::animation_keys(animation_resource);
 		anim.animation_resource = animation_resource;
-		// Allocate tracks.
-		array::reserve(p._tracks, array::size(p._tracks) + animation_resource->num_tracks);
-		p._tracks._size += animation_resource->num_tracks;
 		init(p, anim);
 
 		array::push_back(p._animations, anim);
@@ -99,6 +153,7 @@ namespace mesh_animation_player
 		MeshAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 
 		MeshAnimation &a = p._animations[index.index];
+		free_track_blocks(p, a.first_track_block);
 		a = p._animations[array::size(p._animations) - 1];
 		array::pop_back(p._animations);
 		p._indices[a.id & ANIMATION_INDEX_MASK].index = index.index;
@@ -118,7 +173,6 @@ namespace mesh_animation_player
 	{
 		MeshAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		MeshAnimation &anim = p._animations[index.index];
-		AnimationTrackSegment *tracks = array::begin(p._tracks) + anim.tracks_offset;
 
 		CE_ENSURE(time <= anim.animation_resource->total_time);
 		u16 ts = u16(time * 1000.0f);
@@ -129,25 +183,25 @@ namespace mesh_animation_player
 		const AnimationKey *end_key = first_key + anim.animation_resource->num_keys;
 		for (;;) {
 			if (anim.playhead == end_key) {
-				if (tracks_are_valid(tracks, anim.num_tracks, ts))
+				if (tracks_are_valid(p, anim, ts))
 					break;
 
 				anim.playhead = first_key;
 				init(p, anim);
 			}
 
-			AnimationTrackSegment *track = &tracks[anim.playhead->h.track_id];
+			AnimationTrackSegment *track = track_segment(p, anim, anim.playhead->h.track_id);
 			if (track_is_valid(track, ts))
 				break;
 
-			anim.playhead = fetch_key(tracks, anim.playhead);
+			anim.playhead = fetch_key(p, anim, anim.playhead);
 		}
 
 		const u16 *bone_ids = mesh_animation_resource::bone_ids(anim.animation_resource);
 
 		// Evaluate animation data at current time.
 		for (u32 track_id = 0; track_id < anim.num_tracks; ++track_id) {
-			AnimationTrackSegment *track = &tracks[track_id];
+			AnimationTrackSegment *track = track_segment(p, anim, track_id);
 
 			CE_ENSURE(track->keys[0].h.time <= ts && ts <= track->keys[1].h.time);
 			u16 n = ts - track->keys[0].h.time;
@@ -191,14 +245,12 @@ namespace mesh_animation_player
 			MeshAnimation &anim = p._animations[i];
 
 			if (anim.animation_resource == old_resource) {
-				anim.tracks_offset = array::size(p._tracks);
+				free_track_blocks(p, anim.first_track_block);
 				anim.num_tracks = new_resource->num_tracks;
+				anim.first_track_block = alloc_track_blocks(p, anim.num_tracks);
 				anim.events_playhead = mesh_animation_resource::event_times(new_resource);
 				anim.playhead = mesh_animation_resource::animation_keys(new_resource);
 				anim.animation_resource = new_resource;
-				// Allocate tracks.
-				array::reserve(p._tracks, array::size(p._tracks) + new_resource->num_tracks);
-				p._tracks._size += new_resource->num_tracks;
 				init(p, anim);
 			}
 		}
@@ -218,6 +270,7 @@ MeshAnimationPlayer::MeshAnimationPlayer(Allocator &a)
 
 	_freelist_dequeue = 0;
 	_freelist_enqueue = countof(_indices) - 1;
+	_free_track_block = UINT32_MAX;
 }
 
 } // namespace crown
