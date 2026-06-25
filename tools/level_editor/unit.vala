@@ -5,6 +5,13 @@
 
 namespace Crown
 {
+private enum ObjectExists
+{
+	UNKNOWN,
+	MISSING,
+	EXISTS
+}
+
 public struct Unit
 {
 	public static Hashtable _component_registry;
@@ -23,6 +30,118 @@ public struct Unit
 		return db.add_from_resource_path(out prefab_id, name + ".unit");
 	}
 
+	private static ObjectExists component_exists_internal(Database db, Guid unit_id, Guid component_id, bool apply_unit_deletes, Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
+	{
+		if (!visited.add(unit_id))
+			return ObjectExists.UNKNOWN;
+
+		ObjectExists exists = ObjectExists.MISSING;
+		if (db.get_set(unit_id, "components").contains(component_id)) {
+			exists = ObjectExists.EXISTS;
+		} else {
+			string? prefab = db.get_resource(unit_id, "prefab");
+			if (prefab != null) {
+				Guid prefab_id;
+				if (Unit.load_unit(out prefab_id, db, prefab) != LoadError.SUCCESS)
+					return ObjectExists.UNKNOWN;
+
+				exists = component_exists_internal(db, prefab_id, component_id, true, visited);
+			}
+		}
+
+		if (exists == ObjectExists.EXISTS
+			&& apply_unit_deletes
+			&& db.get_property(unit_id, "deleted_components.#" + component_id.to_string()) != null
+			)
+			exists = ObjectExists.MISSING;
+
+		return exists;
+	}
+
+	private static ObjectExists child_exists_internal(Database db, Guid unit_id, Guid child_id, bool apply_unit_deletes, Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
+	{
+		if (!visited.add(unit_id))
+			return ObjectExists.UNKNOWN;
+
+		ObjectExists exists = ObjectExists.MISSING;
+		foreach (Guid local_child_id in db.get_set(unit_id, "children")) {
+			if (local_child_id == child_id) {
+				exists = ObjectExists.EXISTS;
+				break;
+			}
+
+			ObjectExists child_exists = child_exists_internal(db, local_child_id, child_id, true, visited);
+			if (child_exists == ObjectExists.UNKNOWN)
+				return ObjectExists.UNKNOWN;
+			if (child_exists == ObjectExists.EXISTS) {
+				exists = ObjectExists.EXISTS;
+				break;
+			}
+		}
+
+		if (exists == ObjectExists.MISSING) {
+			string? prefab = db.get_resource(unit_id, "prefab");
+			if (prefab != null) {
+				Guid prefab_id;
+				if (Unit.load_unit(out prefab_id, db, prefab) != LoadError.SUCCESS)
+					return ObjectExists.UNKNOWN;
+
+				exists = child_exists_internal(db, prefab_id, child_id, true, visited);
+			}
+		}
+
+		if (exists == ObjectExists.EXISTS && apply_unit_deletes) {
+			foreach (Guid deleted_child_id in db.get_set(unit_id, "deleted_children")) {
+				if (deleted_child_id == child_id) {
+					exists = ObjectExists.MISSING;
+					break;
+				}
+
+				ObjectExists deleted_subtree_contains_child = child_exists_internal(db, deleted_child_id, child_id, true);
+				if (deleted_subtree_contains_child == ObjectExists.UNKNOWN)
+					return ObjectExists.UNKNOWN;
+				if (deleted_subtree_contains_child == ObjectExists.EXISTS) {
+					exists = ObjectExists.MISSING;
+					break;
+				}
+			}
+		}
+
+		return exists;
+	}
+
+	public void prune_stale_overrides()
+	{
+		string[] unit_keys = _db.get_keys(_id);
+		foreach (unowned string key in unit_keys) {
+			if (key.has_prefix("deleted_components.#")
+				&& key.length == "deleted_components.#".length + 36
+				) {
+				Guid component_id = Guid.parse(key.substring("deleted_components.#".length, 36));
+				if (component_exists_internal(_db, _id, component_id, false) == ObjectExists.MISSING)
+					_db.set_null(_id, key);
+			} else if (key.has_prefix("modified_components.#")
+				&& key.length > "modified_components.#".length + 36
+				&& key["modified_components.#".length + 36] == '.'
+				) {
+				Guid component_id = Guid.parse(key.substring("modified_components.#".length, 36));
+				if (component_exists_internal(_db, _id, component_id, true) == ObjectExists.MISSING)
+					_db.set_null(_id, key);
+			}
+		}
+
+		prune_stale_child_override_set("deleted_children", false);
+		prune_stale_child_override_set("modified_children", true);
+	}
+
+	private void prune_stale_child_override_set(string key, bool apply_unit_deletes)
+	{
+		foreach (Guid child_id in _db.get_set(_id, key).to_array()) {
+			if (child_exists_internal(_db, _id, child_id, apply_unit_deletes) == ObjectExists.MISSING)
+				_db.remove_from_set(_id, key, child_id);
+		}
+	}
+
 	public void create_empty()
 	{
 		_db.create(_id, OBJECT_TYPE_UNIT);
@@ -36,6 +155,8 @@ public struct Unit
 
 	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		Value? val;
 
 		// Search in components
@@ -105,6 +226,8 @@ public struct Unit
 
 	public void set_component_bool(Guid component_id, string key, bool val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -117,6 +240,8 @@ public struct Unit
 
 	public void set_component_double(Guid component_id, string key, double val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -129,6 +254,8 @@ public struct Unit
 
 	public void set_component_string(Guid component_id, string key, string val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -141,6 +268,8 @@ public struct Unit
 
 	public void set_component_vector3(Guid component_id, string key, Vector3 val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -153,6 +282,8 @@ public struct Unit
 
 	public void set_component_quaternion(Guid component_id, string key, Quaternion val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -165,6 +296,8 @@ public struct Unit
 
 	public void set_component_resource(Guid component_id, string key, string? val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
@@ -177,6 +310,8 @@ public struct Unit
 
 	public void set_component_reference(Guid component_id, string key, Guid val)
 	{
+		assert(component_exists_internal(_db, _id, component_id, true) == ObjectExists.EXISTS);
+
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
 		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
