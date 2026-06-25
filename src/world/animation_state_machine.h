@@ -110,6 +110,9 @@ struct AnimationStateMachine
 
 	///
 	void reload(const SpriteAnimationResource *old_resource, const SpriteAnimationResource *new_resource);
+
+	///
+	void reload(const MeshAnimationResource *old_resource, const MeshAnimationResource *new_resource);
 };
 
 } // namespace crown

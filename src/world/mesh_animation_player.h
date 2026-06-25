@@ -65,6 +65,9 @@ namespace mesh_animation_player
 	///
 	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset);
 
+	///
+	void reload(MeshAnimationPlayer &p, const MeshAnimationResource *old_resource, const MeshAnimationResource *new_resource);
+
 } // namespace mesh_animation_player
 
 } // namespace crown
