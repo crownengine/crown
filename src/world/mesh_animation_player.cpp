@@ -155,10 +155,10 @@ namespace mesh_animation_player
 		}
 
 		// Generate events.
-		while (*anim.events_playhead <= ts) {
-			const u16 *event_times = mesh_animation_resource::event_times(anim.animation_resource);
-			const StringId32 *event_names = mesh_animation_resource::event_names(anim.animation_resource);
-
+		const u16 *event_times = mesh_animation_resource::event_times(anim.animation_resource);
+		const u16 *event_end = event_times + anim.animation_resource->num_events;
+		const StringId32 *event_names = mesh_animation_resource::event_names(anim.animation_resource);
+		while (anim.events_playhead != event_end && *anim.events_playhead <= ts) {
 			UnitEvent ev;
 			ev.unit = unit;
 			ev.name = event_names[anim.events_playhead - event_times];
