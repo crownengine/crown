@@ -611,33 +611,35 @@ public class Database
 			Hashtable json = SJSON.decode(bytes);
 
 			UndoRedo? undo_redo = disable_undo();
+			try {
+				// Parse the object's ID or generate a new one if none is found.
+				if (json.has_key("id"))
+					object_id = Guid.parse((string)json["id"]);
+				else if (json.has_key("_guid"))
+					object_id = Guid.parse((string)json["_guid"]);
+				else
+					object_id = Guid.new_guid();
 
-			// Parse the object's ID or generate a new one if none is found.
-			if (json.has_key("id"))
-				object_id = Guid.parse((string)json["id"]);
-			else if (json.has_key("_guid"))
-				object_id = Guid.parse((string)json["_guid"]);
-			else
-				object_id = Guid.new_guid();
+				string type = ResourceId.type(resource_path);
+				StringId64 type_hash = StringId64(type);
 
-			string type = ResourceId.type(resource_path);
-			StringId64 type_hash = StringId64(type);
+				_data[object_id] = new Gee.HashMap<string, Value?>();
+				set_type(object_id, type);
+				set_owner(object_id, GUID_ZERO);
+				set_alive(object_id, true);
 
-			_data[object_id] = new Gee.HashMap<string, Value?>();
-			set_type(object_id, type);
-			set_owner(object_id, GUID_ZERO);
-			set_alive(object_id, true);
+				if (has_type(type_hash))
+					_init_object(object_id, object_definition(type_hash));
 
-			if (has_type(type_hash))
-				_init_object(object_id, object_definition(type_hash));
+				decode_object(object_id, GUID_ZERO, "", json);
 
-			decode_object(object_id, GUID_ZERO, "", json);
+				// Create a mapping between the path and the object it has been loaded into.
+				set(0, GUID_ZERO, resource_path, object_id);
 
-			// Create a mapping between the path and the object it has been loaded into.
-			set(0, GUID_ZERO, resource_path, object_id);
-
-			restore_undo(undo_redo);
-			return LoadError.SUCCESS;
+				return LoadError.SUCCESS;
+			} finally {
+				restore_undo(undo_redo);
+			}
 		} catch (GLib.IOError.NOT_FOUND e) {
 			return LoadError.NOT_FOUND;
 		} catch (GLib.IOError.NOT_DIRECTORY e) {
