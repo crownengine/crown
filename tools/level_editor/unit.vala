@@ -318,7 +318,7 @@ public struct Unit
 			if (_id == _db.owner(component_id)) {
 				_db.remove_from_set(_id, "components", component_id);
 				_db.destroy(component_id);
-				_db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { component_id });
+				_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, { _id });
 			} else {
 				_db.set_bool(_id, "deleted_components.#" + component_id.to_string(), false);
 
