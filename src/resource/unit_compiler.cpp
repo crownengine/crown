@@ -922,12 +922,7 @@ namespace unit_compiler
 					array::pop_back(unit->_merged_components);
 					vector::pop_back(unit->_flattened_components);
 				} else {
-					char buf[GUID_BUF_LEN];
-					RETURN_IF_FALSE(UNIT_COMPILER, false
-						, opts
-						, "Deletion of unexisting component ID: %s"
-						, guid::to_string(buf, sizeof(buf), component_id)
-						);
+					continue;
 				}
 			}
 		}
@@ -953,12 +948,7 @@ namespace unit_compiler
 					DynamicString empty(default_allocator());
 					to_flat(unit->_flattened_components[comp_idx], cur->second, empty);
 				} else {
-					char buf[GUID_BUF_LEN];
-					RETURN_IF_FALSE(UNIT_COMPILER, false
-						, opts
-						, "Modification of unexisting component ID: %s"
-						, guid::to_string(buf, sizeof(buf), component_id)
-						);
+					continue;
 				}
 			}
 		}
@@ -1043,13 +1033,9 @@ namespace unit_compiler
 				Guid id = RETURN_IF_ERROR(sjson::parse_guid(obj["id"]));
 
 				Unit *child = find_children(unit, id);
-
-				char buf[GUID_BUF_LEN];
-				RETURN_IF_FALSE(UNIT_COMPILER, child != NULL
-					, opts
-					, "Deletion of unexisting child ID: %s"
-					, guid::to_string(buf, sizeof(buf), id)
-					);
+				if (child == NULL) {
+					continue;
+				}
 
 				Unit *child_parent = child->_parent;
 				delete_unit(child);
@@ -1067,13 +1053,9 @@ namespace unit_compiler
 				Guid id = RETURN_IF_ERROR(sjson::parse_guid(obj["id"]));
 
 				Unit *child = find_children(unit, id);
-
-				char buf[GUID_BUF_LEN];
-				RETURN_IF_FALSE(UNIT_COMPILER, child != NULL
-					, opts
-					, "Modification of unexisting child ID: %s"
-					, guid::to_string(buf, sizeof(buf), id)
-					);
+				if (child == NULL) {
+					continue;
+				}
 
 				s32 err = modify_unit_components(child, modified_children[ii], opts);
 				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);

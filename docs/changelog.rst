@@ -19,6 +19,7 @@ Changelog
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
 * Runtime: added hot-reloading support for mesh animations.
+* Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 * Lua: added ``Device.string_id()`` that returns a 32-bits hash of a string.
 
