@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-22T13:14:56+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-06-26T22:40:30+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
-<meta property="og:site_name" content="Crown 0.63.4 Manual" />
-<meta property="og:description" content="0.63.4 — 22 Jun 2026: Fixes Tools: fixed a crash when deleting nested folders in some cases., Tools: fixed Project Browser favorites not updating file metadata after resource changes., Tools: fixed Project Browser not restoring favorites metadata when the project is loaded., T..." />
+<meta property="og:site_name" content="Crown 0.63.5 Manual" />
+<meta property="og:description" content="0.63.5 — 27 Jun 2026: Fixes Tools: fixed a warning in the console when interacting with object trees in some cases., Tools: fixed unit component sync after adding, removing or undoing components., Tools: fixed undo/redo not being restored after a resource failed to load in the..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.63.4 Manual" />
-<meta name="description" content="0.63.4 — 22 Jun 2026: Fixes Tools: fixed a crash when deleting nested folders in some cases., Tools: fixed Project Browser favorites not updating file metadata after resource changes., Tools: fixed Project Browser not restoring favorites metadata when the project is loaded., T..." />
+<meta property="og:image:alt" content="Crown 0.63.5 Manual" />
+<meta name="description" content="0.63.5 — 27 Jun 2026: Fixes Tools: fixed a warning in the console when interacting with object trees in some cases., Tools: fixed unit component sync after adding, removing or undoing components., Tools: fixed undo/redo not being restored after a resource failed to load in the..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.63.4 Manual</title>
+  <title>Changelog &mdash; Crown 0.63.5 Manual</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -34,7 +34,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.63.4 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.63.5 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,7 +59,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#jun-2026"><span class="xref std std-ref">0.63.4 — 22 Jun 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jun-2026"><span class="xref std std-ref">0.63.5 — 27 Jun 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-63-4"><span class="xref std std-ref">0.63.4 — 22 Jun 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-63-3"><span class="xref std std-ref">0.63.3 — 11 Jun 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-63-2"><span class="xref std std-ref">0.63.2 — 08 Jun 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-63-1"><span class="xref std std-ref">0.63.1 — 05 Jun 2026</span></a></li>
@@ -70,13 +71,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#oct-2025">0.59.0 — 02 Oct 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2025">0.58.0 — 01 Aug 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2025">0.57.0 — 13 Jun 2025</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.56.0 — 04 Jun 2025</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.56.0 — 04 Jun 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#apr-2025">0.55.0 — 03 Apr 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2025">0.54.0 — 13 Jan 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2024">0.53.0 — 30 Nov 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">0.52.0 — 11 Nov 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">0.52.0 — 11 Nov 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.51.0 — 28 Oct 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">0.50.0 — 10 Oct 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">0.50.0 — 10 Oct 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
@@ -86,7 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#apr-2021">0.43.0 — <em>17 Apr 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mar-2021">0.42.0 — <em>05 Mar 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2021">0.41.0 — <em>16 Jan 2021</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">0.40.0 — <em>06 Jan 2021</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">0.40.0 — <em>06 Jan 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2020">0.39.0 — <em>24 Oct 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2020">0.38.0 — <em>24 Aug 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2020">0.37.0 — <em>26 Jun 2020</em></a></li>
@@ -115,7 +116,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.63.4 Manual</a>
+          <a href="index.html">Crown 0.63.5 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -136,7 +137,20 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <section id="jun-2026">
-<span id="v0-63-4"></span><h2><a class="reference internal" href="#v0-63-4"><span class="std std-ref">0.63.4 — 22 Jun 2026</span></a><a class="headerlink" href="#jun-2026" title="Permalink to this headline">¶</a></h2>
+<span id="v0-63-5"></span><h2><a class="reference internal" href="#v0-63-5"><span class="std std-ref">0.63.5 — 27 Jun 2026</span></a><a class="headerlink" href="#jun-2026" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li><p>Tools: fixed a warning in the console when interacting with object trees in some cases.</p></li>
+<li><p>Tools: fixed unit component sync after adding, removing or undoing components.</p></li>
+<li><p>Tools: fixed undo/redo not being restored after a resource failed to load in the database.</p></li>
+<li><p>Runtime: fixed inconsistent precision in omni lights shadow maps.</p></li>
+<li><p>Runtime: fixed shadow maps filtering.</p></li>
+<li><p>Runtime: fixed shadow maps artifacts on HTML5.</p></li>
+<li><p>Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.</p></li>
+</ul>
+</section>
+<section id="v0-63-4">
+<span id="id1"></span><h2><a class="reference internal" href="#v0-63-4"><span class="std std-ref">0.63.4 — 22 Jun 2026</span></a><a class="headerlink" href="#v0-63-4" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed a crash when deleting nested folders in some cases.</p></li>
@@ -147,7 +161,7 @@
 </ul>
 </section>
 <section id="v0-63-3">
-<span id="id1"></span><h2><a class="reference internal" href="#v0-63-3"><span class="std std-ref">0.63.3 — 11 Jun 2026</span></a><a class="headerlink" href="#v0-63-3" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><a class="reference internal" href="#v0-63-3"><span class="std std-ref">0.63.3 — 11 Jun 2026</span></a><a class="headerlink" href="#v0-63-3" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed excessive resource reloads in some circumnstances.</p></li>
@@ -155,7 +169,7 @@
 </ul>
 </section>
 <section id="v0-63-2">
-<span id="id2"></span><h2><a class="reference internal" href="#v0-63-2"><span class="std std-ref">0.63.2 — 08 Jun 2026</span></a><a class="headerlink" href="#v0-63-2" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><a class="reference internal" href="#v0-63-2"><span class="std std-ref">0.63.2 — 08 Jun 2026</span></a><a class="headerlink" href="#v0-63-2" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed a crash when re-importing resources in some circumnstances.</p></li>
@@ -169,7 +183,7 @@
 </ul>
 </section>
 <section id="v0-63-1">
-<span id="id3"></span><h2><a class="reference internal" href="#v0-63-1"><span class="std std-ref">0.63.1 — 05 Jun 2026</span></a><a class="headerlink" href="#v0-63-1" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2><a class="reference internal" href="#v0-63-1"><span class="std std-ref">0.63.1 — 05 Jun 2026</span></a><a class="headerlink" href="#v0-63-1" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.</p></li>
@@ -178,7 +192,7 @@
 </ul>
 </section>
 <section id="v0-63-0">
-<span id="id4"></span><h2><a class="reference internal" href="#v0-63-0"><span class="std std-ref">0.63.0 — 03 Jun 2026</span></a><a class="headerlink" href="#v0-63-0" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h2><a class="reference internal" href="#v0-63-0"><span class="std std-ref">0.63.0 — 03 Jun 2026</span></a><a class="headerlink" href="#v0-63-0" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Tools: added a new LOD Group component for managing mesh Level Of Detail. The new component can be automatically imported from scene files or setup manually in the Unit Editor.</p></li>
@@ -476,8 +490,8 @@
 <li><p>Tools: Windows: fixed rendering of selected objects’ outlines.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<section id="id6">
+<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Runtime: added cascaded shadow mapping.</p></li>
@@ -612,8 +626,8 @@
 <li><p>Data Compiler: fixed erratic texture compilation when both legacy properties and the new “output” object were specified in the .texture resource.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<section id="id7">
+<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added the ability to add/remove components from units in the Inspector panel.</p></li>
@@ -651,8 +665,8 @@
 <li><p>Windows: fixed console output and absolute paths when launched under MinGW.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<section id="id8">
+<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added an option to use the debug keystore when deploying APKs for Android.</p></li>
@@ -912,8 +926,8 @@
 <li><p>Removed the default “FPSCamera” camera from the core game framework</p></li>
 </ul>
 </section>
-<section id="id8">
-<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<section id="id9">
+<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li><p>Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances</p></li>
@@ -1098,7 +1112,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.63.4 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.63.5 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -1106,7 +1120,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 22, 2026.
+      <span class="lastupdated">Last updated on Jun 26, 2026.
       </span></p>
   </div>
 
