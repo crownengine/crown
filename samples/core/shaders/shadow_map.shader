@@ -16,50 +16,38 @@ bgfx_shaders = {
 
 		code = """
 			#define Sampler sampler2DShadow
-			#define map_offt atlas_offset.xy
-			#define map_size atlas_offset.z
 
-			float hard_shadow(Sampler _sampler, vec4 shadow_coord, float bias, vec3 atlas_offset)
+			float hard_shadow(Sampler _sampler, vec4 shadow_coord, float bias)
 			{
 				vec3 tex_coord = shadow_coord.xyz/shadow_coord.w;
 
-				return shadow2D(_sampler, vec3(tex_coord.xy * map_size + map_offt, tex_coord.z - bias));
+				return shadow2D(_sampler, vec3(tex_coord.xy, tex_coord.z - bias));
 			}
 
-			float PCF(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size, vec3 atlas_offset)
+			float PCF(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size)
 			{
-				vec2 tex_coord = shadow_coord.xy/shadow_coord.w;
-				tex_coord = tex_coord * atlas_offset.z + atlas_offset.xy;
-
-				bool outside = any(greaterThan(tex_coord, map_offt + vec2_splat(map_size)))
-							|| any(lessThan   (tex_coord, map_offt))
-							 ;
-
-				if (outside)
-					return 0.0;
-
 				float result = 0.0;
 				vec2 offset = texel_size * shadow_coord.w;
 
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5, -1.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5, -0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5,  0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5,  1.5) * offset, 0.0, 0.0), bias, atlas_offset);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5, -1.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5,  0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.5,  1.5) * offset, 0.0, 0.0), bias);
 
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5, -1.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5, -0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5,  0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5,  1.5) * offset, 0.0, 0.0), bias, atlas_offset);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5, -1.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5,  0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5,  1.5) * offset, 0.0, 0.0), bias);
 
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5, -1.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5, -0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5,  0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5,  1.5) * offset, 0.0, 0.0), bias, atlas_offset);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5, -1.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5,  0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(0.5,  1.5) * offset, 0.0, 0.0), bias);
 
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5, -1.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5, -0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5,  0.5) * offset, 0.0, 0.0), bias, atlas_offset);
-				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5,  1.5) * offset, 0.0, 0.0), bias, atlas_offset);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5, -1.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5,  0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5,  1.5) * offset, 0.0, 0.0), bias);
 
 				return result / 16.0;
 			}
