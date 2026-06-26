@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a warning in the console when interacting with object trees in some cases.
+* Tools: fixed unit component sync after adding, removing or undoing components.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 
 .. _v0.63.4:
