@@ -412,10 +412,8 @@ namespace physics_resource_internal
 				, other_unit
 				, STRING_ID_32("actor", UINT32_C(0x374cf583))
 				));
-			RETURN_IF_FALSE(PHYSICS_RESOURCE, has_actor
-				, opts
-				, "Joint references a unit without an actor component"
-				);
+			if (!has_actor)
+				jd.other_actor_unit_index = UINT32_MAX;
 		}
 
 		return 0;
