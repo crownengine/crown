@@ -386,7 +386,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		LoadError err = Unit.load_unit(out _unit_id, _database, unit_name);
 		if (err == LoadError.NOT_FOUND) {
-			UndoRedo undo_redo = _database.disable_undo();
+			UndoRedo? undo_redo = _database.disable_undo();
 			_unit_id = Guid.new_guid();
 			Unit new_unit = Unit(_database, _unit_id);
 			new_unit.create_empty();
@@ -397,7 +397,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		}
 
 		Unit unit = Unit(_database, _unit_id);
-		UndoRedo undo_redo = _database.disable_undo();
+		UndoRedo? undo_redo = _database.disable_undo();
 		unit.set_local_position(VECTOR3_ZERO);
 		_database.restore_undo(undo_redo);
 
