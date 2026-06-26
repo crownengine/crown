@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed unit component sync after adding, removing or undoing components.
 * Tools: fixed undo/redo not being restored after a resource failed to load in the database.
 * Runtime: fixed inconsistent precision in omni lights shadow maps.
+* Runtime: fixed shadow maps filtering.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 
 .. _v0.63.4:

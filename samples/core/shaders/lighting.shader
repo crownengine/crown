@@ -169,6 +169,21 @@ bgfx_shaders = {
 				return mix(vec3_splat(0.0), radiance, fade_smoothstep(camera_dist, fade_dist, cutoff_dist));
 			}
 
+			vec4 atlas_shadow_coord(vec4 shadow_coord, vec3 atlas_offset)
+			{
+				vec4 coord = shadow_coord;
+				coord.xy = shadow_coord.xy * atlas_offset.z + atlas_offset.xy * shadow_coord.w;
+				return coord;
+			}
+
+			bool shadow_coord_inside_atlas_tile(vec4 atlas_shadow_coord, vec3 atlas_offset)
+			{
+				vec2 tex_coord = atlas_shadow_coord.xy/atlas_shadow_coord.w;
+				return all(lessThan(tex_coord, atlas_offset.xy + vec2_splat(atlas_offset.z)))
+					&& all(greaterThan(tex_coord, atlas_offset.xy))
+					;
+			}
+
 			vec4 lights_data(int offset)
 			{
 				float u = (float(offset) + 0.5) / float(LIGHT_SIZE * MAX_NUM_LIGHTS);
@@ -229,24 +244,29 @@ bgfx_shaders = {
 						);
 
 					if (cast_shadow == 1.0) {
-						vec2 shadow0 = shadow_pos0.xy/shadow_pos0.w;
-						vec2 shadow1 = shadow_pos1.xy/shadow_pos1.w;
-						vec2 shadow2 = shadow_pos2.xy/shadow_pos2.w;
-						vec2 shadow3 = shadow_pos3.xy/shadow_pos3.w;
+						vec3 shadow_world = shadow_local.xyz;
+						vec3 atlas_offset0 = vec3(atlas_u.x             , atlas_v.x             , atlas_size);
+						vec3 atlas_offset1 = vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size);
+						vec3 atlas_offset2 = vec3(atlas_u.x             , atlas_v.x + atlas_size, atlas_size);
+						vec3 atlas_offset3 = vec3(atlas_u.x + atlas_size, atlas_v.x + atlas_size, atlas_size);
+						vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset0);
+						vec4 atlas_shadow_pos1 = atlas_shadow_coord(shadow_pos1, atlas_offset1);
+						vec4 atlas_shadow_pos2 = atlas_shadow_coord(shadow_pos2, atlas_offset2);
+						vec4 atlas_shadow_pos3 = atlas_shadow_coord(shadow_pos3, atlas_offset3);
 
-						bool atlas0 = all(lessThan(shadow0, vec2_splat(1.0))) && all(greaterThan(shadow0, vec2_splat(0.0)));
-						bool atlas1 = all(lessThan(shadow1, vec2_splat(1.0))) && all(greaterThan(shadow1, vec2_splat(0.0)));
-						bool atlas2 = all(lessThan(shadow2, vec2_splat(1.0))) && all(greaterThan(shadow2, vec2_splat(0.0)));
-						bool atlas3 = all(lessThan(shadow3, vec2_splat(1.0))) && all(greaterThan(shadow3, vec2_splat(0.0)));
+						bool atlas0 = shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
+						bool atlas1 = shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
+						bool atlas2 = shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
+						bool atlas3 = shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
 
 						if (atlas0)
-							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos0, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x             , atlas_size));
+							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos0, shadow_bias, sun_sm_texel_size);
 						else if (atlas1)
-							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos1, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size));
+							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size);
 						else if (atlas2)
-							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos2, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x             , atlas_v.x + atlas_size, atlas_size));
+							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size);
 						else if (atlas3)
-							local_radiance *= PCF(u_cascaded_shadow_map, shadow_pos3, shadow_bias, sun_sm_texel_size, vec3(atlas_u.x + atlas_size, atlas_v.x + atlas_size, atlas_size));
+							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos3, shadow_bias, sun_sm_texel_size);
 					}
 
 					radiance += local_radiance;
@@ -355,12 +375,16 @@ bgfx_shaders = {
 							atlas_offset = vec3(atlas_u.w, atlas_v.w, atlas_size);
 						}
 
-						local_radiance *= PCF(u_local_lights_shadow_map
-							, shadow_pos0
-							, shadow_bias
-							, local_lights_sm_texel_size / 4.0
-							, atlas_offset
-							);
+						vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset);
+						if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
+							local_radiance *= PCF(u_local_lights_shadow_map
+								, atlas_shadow_pos0
+								, shadow_bias
+								, local_lights_sm_texel_size
+								);
+						} else {
+							local_radiance *= 0.0;
+						}
 					}
 
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
@@ -400,13 +424,18 @@ bgfx_shaders = {
 						vec4 atlas_v      = lights_data(loffset + 20);
 						float atlas_size  = lights_data(loffset + 21).x;
 						float shadow_bias = lights_data(loffset + 21).y;
+						vec3 atlas_offset = vec3(atlas_u.x, atlas_v.x, atlas_size);
+						vec4 atlas_shadow_pos0 = atlas_shadow_coord(mul(mvp, shadow_local), atlas_offset);
 
-						local_radiance *= PCF(u_local_lights_shadow_map
-							, mul(mvp, shadow_local)
-							, shadow_bias
-							, local_lights_sm_texel_size
-							, vec3(atlas_u.x, atlas_v.x, atlas_size)
-							);
+						if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
+							local_radiance *= PCF(u_local_lights_shadow_map
+								, atlas_shadow_pos0
+								, shadow_bias
+								, local_lights_sm_texel_size
+								);
+						} else {
+							local_radiance *= 0.0;
+						}
 					}
 
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
