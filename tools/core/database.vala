@@ -587,14 +587,14 @@ public class Database
 		return err;
 	}
 
-	public UndoRedo disable_undo()
+	public UndoRedo? disable_undo()
 	{
 		var undo = _undo_redo;
 		_undo_redo = null;
 		return undo;
 	}
 
-	public void restore_undo(UndoRedo undo_redo)
+	public void restore_undo(UndoRedo? undo_redo)
 	{
 		_undo_redo = undo_redo;
 	}
@@ -610,7 +610,7 @@ public class Database
 			file.load_contents(null, out bytes, out etag);
 			Hashtable json = SJSON.decode(bytes);
 
-			UndoRedo undo_redo = disable_undo();
+			UndoRedo? undo_redo = disable_undo();
 
 			// Parse the object's ID or generate a new one if none is found.
 			if (json.has_key("id"))

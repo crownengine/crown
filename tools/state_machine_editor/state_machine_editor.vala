@@ -344,7 +344,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 		LoadError err = _database.load_from_path(out _state_machine_id, path, resource_path);
 		if (err == LoadError.NOT_FOUND) {
-			UndoRedo undo_redo = _database.disable_undo();
+			UndoRedo? undo_redo = _database.disable_undo();
 			_state_machine_id = Guid.new_guid();
 			StateMachineResource.sprite(_database, _state_machine_id, null);
 			_database.set_name(_state_machine_id, GLib.Path.get_basename(state_machine_name));
