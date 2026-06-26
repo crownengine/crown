@@ -240,7 +240,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 		LoadError err = _database.load_from_path(out _object_id, path, resource_path);
 		if (err == LoadError.NOT_FOUND) {
-			UndoRedo undo_redo = _database.disable_undo();
+			UndoRedo? undo_redo = _database.disable_undo();
 			_object_id = Guid.new_guid();
 			_database.create(_object_id, type);
 			_database.set_name(_object_id, GLib.Path.get_basename(name));
