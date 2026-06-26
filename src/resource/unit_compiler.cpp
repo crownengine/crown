@@ -654,6 +654,14 @@ namespace unit_compiler
 		return UINT32_MAX;
 	}
 
+	Guid parse_component_override_guid(const StringView &key)
+	{
+		char guid[GUID_BUF_LEN];
+		strncpy(guid, key.data() + 1, sizeof(guid) - 1);
+		guid[36] = '\0';
+		return guid::parse(guid);
+	}
+
 	Unit *find_children(Unit *unit, Guid id)
 	{
 		CE_ENSURE(unit != NULL);
@@ -883,10 +891,7 @@ namespace unit_compiler
 				auto key = cur->first;
 
 				// Extract GUID from key "#xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-				char guid[37];
-				strncpy(guid, key.data() + 1, sizeof(guid) - 1);
-				guid[36] = '\0';
-				Guid component_id = guid::parse(guid);
+				Guid component_id = parse_component_override_guid(key);
 
 				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
@@ -919,10 +924,7 @@ namespace unit_compiler
 				JSON_OBJECT_SKIP_HOLE(modified_components, cur);
 
 				// Extract GUID from key "#xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-				char guid[37];
-				strncpy(guid, cur->first.data() + 1, sizeof(guid) - 1);
-				guid[36] = '\0';
-				Guid component_id = guid::parse(guid);
+				Guid component_id = parse_component_override_guid(cur->first);
 
 				// Patch flattened component's keys.
 				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
