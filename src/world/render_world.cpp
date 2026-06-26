@@ -1525,12 +1525,13 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 					const f32 near = 0.1f;
 					const f32 fovx = 143.98570868f + fovx_adj;
 					const f32 fovy = 125.26438968f + fovy_adj;
-					const f32 aspect = ftan(frad(fovx*0.5f))/ftan(frad(fovy*0.5f));
+					const f32 aspect_h = ftan(frad(fovx*0.5f))/ftan(frad(fovy*0.5f));
+					const f32 aspect_v = 1.0f / aspect_h;
 
 					Matrix4x4 light_proj[2];
 					bx::mtxProj(to_float_ptr(light_proj[0])
 						, fovy
-						, aspect
+						, aspect_h
 						, near
 						, shader.range + near
 						, caps->homogeneousDepth
@@ -1538,7 +1539,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 						);
 					bx::mtxProj(to_float_ptr(light_proj[1])
 						, fovx
-						, aspect
+						, aspect_v
 						, near
 						, shader.range + near
 						, caps->homogeneousDepth
