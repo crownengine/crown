@@ -349,7 +349,7 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo.rgb, metallic);
-				vec3 radiance = calc_lighting(tbn, n, v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
+				vec3 radiance = calc_lighting(tbn, n, normalize(v_normal), v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
 		#endif // !defined(NO_LIGHT)
 
 				gl_FragColor = vec4(radiance, 1.0);

@@ -192,6 +192,7 @@ bgfx_shaders = {
 
 			vec3 calc_lighting(mat3 tbn
 				, vec3 n
+				, vec3 geometric_n
 				, vec3 v
 				, vec3 frag_pos
 				, vec3 camera_frag_pos
@@ -305,13 +306,14 @@ bgfx_shaders = {
 					vec3 position     = lights_data(loffset + 1).xyz;
 					float range       = lights_data(loffset + 1).w;
 					float cast_shadow = lights_data(loffset + 21).z;
+					vec3 light_pos    = mul(position, tbn);
 
 					vec3 local_radiance = calc_omni_light(n
 						, v
 						, frag_pos
 						, toLinearAccurate(light_color)
 						, intensity
-						, mul(position, tbn)
+						, light_pos
 						, range
 						, albedo
 						, metallic
@@ -385,9 +387,12 @@ bgfx_shaders = {
 
 						vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset);
 						if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
+							vec3 l = normalize(position - shadow_local.xyz);
+							float ndotl = max(dot(geometric_n, l), 0.05);
+
 							local_radiance *= PCF(u_local_lights_shadow_map
 								, atlas_shadow_pos0
-								, shadow_bias
+								, shadow_bias * clamp(1.0 + 2.0 * (1.0 - ndotl) / ndotl, 1.0, 8.0)
 								, local_lights_sm_texel_size
 								);
 						} else {
