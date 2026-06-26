@@ -13,7 +13,11 @@ bgfx_shaders = {
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
+		#if BGFX_SHADER_LANGUAGE_GLSL
+			uniform highp sampler2D u_lights_data; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+		#else
 			SAMPLER2D(u_lights_data, 12); // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+		#endif
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
 			uniform vec4 u_shadow_maps_texel_sizes;
 		#	define sun_sm_texel_size u_shadow_maps_texel_sizes.xy

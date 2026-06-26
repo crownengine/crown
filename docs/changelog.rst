@@ -13,6 +13,7 @@ Changelog
 * Tools: fixed undo/redo not being restored after a resource failed to load in the database.
 * Runtime: fixed inconsistent precision in omni lights shadow maps.
 * Runtime: fixed shadow maps filtering.
+* Runtime: fixed shadow maps artifacts on HTML5.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 
 .. _v0.63.4:
