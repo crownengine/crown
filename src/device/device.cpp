@@ -684,6 +684,7 @@ int Device::main_loop()
 	_resource_manager->register_type(RESOURCE_TYPE_SPRITE,           RESOURCE_VERSION_SPRITE,           NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_SPRITE_ANIMATION, RESOURCE_VERSION_SPRITE_ANIMATION, NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_STATE_MACHINE,    RESOURCE_VERSION_STATE_MACHINE,    NULL,                            NULL,                              NULL,                               NULL);
+	_resource_manager->register_type(RESOURCE_TYPE_NAVMESH,          RESOURCE_VERSION_NAVMESH,          NULL,                            NULL,                              NULL,                               NULL);
 	_resource_manager->register_type(RESOURCE_TYPE_TEXTURE,          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::load, texture_resource_internal::unload, texture_resource_internal::online,  texture_resource_internal::offline);
 	_resource_manager->register_type(RESOURCE_TYPE_UNIT,             RESOURCE_VERSION_UNIT,             NULL,                            NULL,                              NULL,                               NULL);
 

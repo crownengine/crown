@@ -1710,6 +1710,7 @@ RESOURCE_TYPE(shader)
 RESOURCE_TYPE(sound)
 RESOURCE_TYPE(sprite)
 RESOURCE_TYPE(sprite_animation)
+RESOURCE_TYPE(navmesh)
 RESOURCE_TYPE(state_machine)
 RESOURCE_TYPE(texture)
 RESOURCE_TYPE(unit)
@@ -1785,6 +1786,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("sound",            RESOURCE_VERSION_SOUND,            sound_resource_internal::compile);
 	dc->register_compiler("sprite",           RESOURCE_VERSION_SPRITE,           sprite_resource_internal::compile);
 	dc->register_compiler("sprite_animation", RESOURCE_VERSION_SPRITE_ANIMATION, sprite_animation_resource_internal::compile);
+	dc->register_compiler("navmesh",          RESOURCE_VERSION_NAVMESH,          navmesh_resource_internal::compile);
 	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    state_machine_resource_internal::compile);
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             unit_resource_internal::compile);

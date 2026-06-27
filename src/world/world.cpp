@@ -22,6 +22,7 @@
 #include "world/debug_line.h"
 #include "world/gui.h"
 #include "world/level.h"
+#include "world/navigation_world.h"
 #include "world/physics_world.h"
 #include "world/render_world.h"
 #include "world/scene_graph.h"
@@ -103,6 +104,19 @@ static void create_components(World &w
 			script_world::create_instances(*script_world, data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {
 			animation_state_machine->create_instances(data, component->num_instances, unit_lookup, unit_index);
+		} else if (component->type == STRING_ID_32("navigation_agent", UINT32_C(0x1a3b5c7d))) {
+			NavigationWorld *nw = w._navigation_world;
+			const u32 *unit_index = unit_resource::component_unit_index(component);
+			u32 *agent_data = (u32 *)unit_resource::component_payload(component);
+			for (u32 i = 0; i < component->num_instances; ++i) {
+				UnitId unit = unit_lookup[unit_index[i]];
+				f32 radius = *(f32 *)&agent_data[0];
+				f32 height = *(f32 *)&agent_data[1];
+				f32 max_speed = *(f32 *)&agent_data[2];
+				f32 acceleration = *(f32 *)&agent_data[3];
+				nw->agent_create(unit, radius, height, max_speed, acceleration);
+				agent_data += 4;
+			}
 		} else {
 			CE_FATAL("Unknown component type");
 		}
@@ -154,6 +168,7 @@ World::World(Allocator &a
 	, _render_world(NULL)
 	, _physics_world(NULL)
 	, _sound_world(NULL)
+	, _navigation_world(NULL)
 	, _animation_state_machine(NULL)
 	, _units(a)
 	, _camera(a)
@@ -173,6 +188,7 @@ World::World(Allocator &a
 	_render_world  = CE_NEW(*_allocator, RenderWorld)(*_allocator, rm, sm, mm, um, pl, *_scene_graph);
 	_physics_world = CE_NEW(*_allocator, PhysicsWorld)(*_allocator, rm, um, *_scene_graph, *_lines);
 	_sound_world   = sound_world::create(*_allocator, rm);
+	_navigation_world = navigation_world::create(*_allocator);
 	_script_world  = CE_NEW(*_allocator, ScriptWorld)(*_allocator, um, rm, env, *this);
 	_sprite_animation_player = CE_NEW(*_allocator, SpriteAnimationPlayer)(*_allocator);
 	_mesh_animation_player = CE_NEW(*_allocator, MeshAnimationPlayer)(*_allocator);
@@ -219,6 +235,7 @@ World::~World()
 	CE_DELETE(*_allocator, _sprite_animation_player);
 	CE_DELETE(*_allocator, _script_world);
 	sound_world::destroy(*_allocator, *_sound_world);
+	navigation_world::destroy(*_allocator, *_navigation_world);
 	CE_DELETE(*_allocator, _physics_world);
 	CE_DELETE(*_allocator, _render_world);
 	CE_DELETE(*_allocator, _scene_graph);
@@ -427,6 +444,8 @@ void World::update_scene(f32 dt)
 	array::clear(_changed_world);
 
 	_sound_world->update();
+
+	_navigation_world->update(dt);
 
 	_gui_buffer.reset();
 

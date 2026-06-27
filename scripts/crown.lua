@@ -22,6 +22,10 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "3rdparty/bullet3/src",
 			CROWN_DIR .. "3rdparty/openal/include",
 			CROWN_DIR .. "3rdparty/lz4/lib",
+			CROWN_DIR .. "3rdparty/recastnavigation/Detour/Include",
+			CROWN_DIR .. "3rdparty/recastnavigation/DetourCrowd/Include",
+			CROWN_DIR .. "3rdparty/recastnavigation/Recast/Include",
+			CROWN_DIR .. "3rdparty/recastnavigation/DebugUtils/Include",
 		}
 
 		defines {
@@ -33,6 +37,7 @@ function crown_project(_name, _kind, _defines)
 			"bimg",
 			"bx",
 			"bullet",
+			"recastnavigation",
 		}
 
 		if not _OPTIONS["no-lua"] then
