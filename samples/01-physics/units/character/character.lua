@@ -116,6 +116,13 @@ function UnitsCharacterCharacter.event(world, unit, event_name)
 	}
 
 	if event_name == Device.string_id("footsteps_L") or event_name == Device.string_id("footsteps_R") then
+		local world_data = data[world]
+		local unit_data = world_data and world_data[unit]
+		local character = unit_data and unit_data.character
+		if character and not character:is_grounded() then
+			return
+		end
+
 		local scene_graph = World.scene_graph(world)
 		local transform = SceneGraph.instance(scene_graph, unit)
 		local position = SceneGraph.local_position(scene_graph, transform)

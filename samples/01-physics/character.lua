@@ -20,6 +20,7 @@ function Character:init(world, unit, camera)
 	self._mover_stand_height = 1.8
 	self._mover_crouch_height = 1.0
 	self._mover_crouching = false
+	self._grounded = false
 	self._support_actor = nil
 	self._support_prev_pose = Matrix4x4Box()
 	self._base_rotation = QuaternionBox()
@@ -63,6 +64,10 @@ end
 
 function Character:toggle_camera_mode()
 	self._third_person_camera = not self._third_person_camera
+end
+
+function Character:is_grounded()
+	return self._grounded
 end
 
 function Character:update(dt, move_dx, move_dy, jump_pressed, run_pressed, crouch_pressed)
@@ -185,6 +190,7 @@ function Character:update(dt, move_dx, move_dy, jump_pressed, run_pressed, crouc
 		PhysicsWorld.mover_set_position(self._physics_world, mover, mover_pos + mover_carry_delta)
 	end
 	PhysicsWorld.mover_move(self._physics_world, mover, delta*dt)
+	self._grounded = PhysicsWorld.mover_collides_down(self._physics_world, mover)
 
 	-- Copy mover position to character position.
 	local mover_pos = PhysicsWorld.mover_position(self._physics_world, mover)
