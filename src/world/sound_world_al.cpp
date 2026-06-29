@@ -342,18 +342,16 @@ struct SoundInstance
 		}
 	}
 
-	bool is_playing()
+	ALint source_state()
 	{
 		ALint state;
 		AL_CHECK(alGetSourcei(_source, AL_SOURCE_STATE, &state));
-		return state == AL_PLAYING;
+		return state;
 	}
 
-	bool finished()
+	bool is_playing()
 	{
-		ALint state;
-		AL_CHECK(alGetSourcei(_source, AL_SOURCE_STATE, &state));
-		return state != AL_PLAYING && state != AL_PAUSED;
+		return source_state() == AL_PLAYING;
 	}
 
 	Vector3 position()
@@ -652,7 +650,8 @@ struct SoundWorldAL : public SoundWorld
 			SoundInstance &inst = _playing_sounds[i];
 
 			inst.update();
-			if (inst.finished()) {
+			const ALint state = inst.source_state();
+			if (state != AL_PLAYING && state != AL_PAUSED) {
 				array::push_back(to_delete, inst._id);
 			} else {
 				if (distance_squared(listener_pos, inst.position()) > inst._range*inst._range) {
