@@ -161,8 +161,12 @@ public class ProjectsList : Gtk.Box
 		_list_projects.add(row);
 		_list_projects.show_all(); // Otherwise the list is not always updated...
 
-		if (!GLib.FileUtils.test(source_dir, FileTest.EXISTS))
-			row._open_button.sensitive = false;
+		GLib.Idle.add(() => {
+				if (!GLib.FileUtils.test(source_dir, FileTest.EXISTS))
+					row._open_button.sensitive = false;
+
+				return GLib.Source.REMOVE;
+			});
 
 		invalidate_sort();
 	}
