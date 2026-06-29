@@ -5,6 +5,7 @@
 
 #include "core/memory/allocator.h"
 #include "core/memory/memory.inl"
+#include "core/profiler.h"
 #include "world/sound_world.h"
 
 namespace crown
@@ -85,6 +86,10 @@ struct SoundWorldNoop : public SoundWorld
 
 	void update()
 	{
+		RECORD_FLOAT("audio.playing_sounds", 0.0f);
+		RECORD_FLOAT("audio.paused_sounds", 0.0f);
+		RECORD_FLOAT("audio.sound_buffers", 0.0f);
+		RECORD_FLOAT("audio.streaming_sounds", 0.0f);
 	}
 };
 

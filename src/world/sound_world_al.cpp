@@ -13,6 +13,8 @@
 #include "core/strings/string_id.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/profiler.h"
+#include "core/profiler.inl"
 #include "device/log.h"
 #include "resource/resource_manager.h"
 #include "resource/sound_resource.inl"
@@ -165,6 +167,8 @@ struct SoundInstance
 	/// Returns the number of samples that have been decoded.
 	u32 decode_samples()
 	{
+		ScopedProfileScope sps(__func__);
+
 		if (!_stream)
 			return 0;
 
@@ -272,6 +276,8 @@ struct SoundInstance
 
 	void update()
 	{
+		ScopedProfileScope sps(__func__);
+
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));
 
@@ -640,10 +646,16 @@ struct SoundWorldAL : public SoundWorld
 
 	void update()
 	{
+		ScopedProfileScope sps(__func__);
+
 		TempAllocator256 alloc;
 		Array<SoundInstanceId> to_delete(alloc);
 
 		Vector3 listener_pos = translation(_listener_pose);
+		u32 playing_sounds = 0;
+		u32 paused_sounds = 0;
+		u32 sound_buffers = 0;
+		u32 streaming_sounds = 0;
 
 		// Update instances with new samples.
 		for (u32 i = 0; i < _num_objects; ++i) {
@@ -654,6 +666,11 @@ struct SoundWorldAL : public SoundWorld
 			if (state != AL_PLAYING && state != AL_PAUSED) {
 				array::push_back(to_delete, inst._id);
 			} else {
+				playing_sounds += state == AL_PLAYING;
+				paused_sounds += state == AL_PAUSED;
+				sound_buffers += inst._num_buffers;
+				streaming_sounds += inst._resource->stream_format != StreamFormat::NONE;
+
 				if (distance_squared(listener_pos, inst.position()) > inst._range*inst._range) {
 					AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
 				} else {
@@ -666,6 +683,11 @@ struct SoundWorldAL : public SoundWorld
 		for (u32 i = 0; i < array::size(to_delete); ++i) {
 			stop(to_delete[i]);
 		}
+
+		RECORD_FLOAT("audio.playing_sounds", f32(playing_sounds));
+		RECORD_FLOAT("audio.paused_sounds", f32(paused_sounds));
+		RECORD_FLOAT("audio.sound_buffers", f32(sound_buffers));
+		RECORD_FLOAT("audio.streaming_sounds", f32(streaming_sounds));
 	}
 };
 
