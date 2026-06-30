@@ -60,7 +60,8 @@ struct World
 	Array<Camera> _camera;
 	HashMap<UnitId, u32> _camera_map;
 
-	EventStream _events;
+	EventStream _events[2];
+	EventStream *_events_write;
 	Array<UnitId> _changed_units;
 	Array<Matrix4x4> _changed_world;
 	GuiBuffer _gui_buffer;
@@ -187,6 +188,9 @@ struct World
 	/// Update all animations with @a dt.
 	void update_animations(f32 dt);
 
+	///
+	void process_world_events();
+
 	/// Update scene with @a dt.
 	void update_scene(f32 dt);
 
@@ -248,7 +252,7 @@ struct World
 	void post_unit_spawned_events(UnitId *units, u32 num);
 
 	///
-	void post_unit_destroyed_event(UnitId unit);
+	void post_unit_destroyed_events(UnitId *units, u32 num);
 
 	///
 	void post_level_loaded_event();

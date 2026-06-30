@@ -721,12 +721,12 @@ struct RaycastHit
 
 struct UnitSpawnedEvent
 {
-	UnitId unit; ///< The unit spawned.
+	u32 num_units; ///< Number of units following this event.
 };
 
 struct UnitDestroyedEvent
 {
-	UnitId unit; ///< The unit destroyed.
+	u32 num_units; ///< Number of units following this event.
 };
 
 struct LevelLoadedEvent
