@@ -52,6 +52,16 @@ namespace event_stream
 		event_stream::write(s, type, sizeof(T), &event);
 	}
 
+	/// Appends the @a event of the specified @a type followed by @a payload_size bytes of @a
+	/// payload to the stream @a s.
+	template<typename T>
+	inline void write(EventStream &s, u32 type, const T &event, u32 payload_size, const void *payload)
+	{
+		write_header(s, type, sizeof(T) + payload_size);
+		write_event(s, sizeof(T), &event);
+		write_event(s, payload_size, payload);
+	}
+
 } // namespace event_stream
 
 } // namespace crown
