@@ -158,7 +158,8 @@ World::World(Allocator &a
 	, _units(a)
 	, _camera(a)
 	, _camera_map(a)
-	, _events(a)
+	, _events{EventStream(a), EventStream(a)}
+	, _events_write(&_events[0])
 	, _changed_units(a)
 	, _changed_world(a)
 	, _gui_buffer(sm)
@@ -195,7 +196,7 @@ World::World(Allocator &a
 
 World::~World()
 {
-	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
+	process_world_events();
 
 	// Destroy loaded levels.
 	ListNode *cur;
@@ -205,6 +206,9 @@ World::~World()
 		Level *level = (Level *)container_of(cur, Level, _node);
 		destroy_level(*level);
 	}
+	process_world_events();
+
+	_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
 
 	// Destroy GUIs.
 	list_for_each_safe(cur, tmp, &_guis)
@@ -248,7 +252,6 @@ UnitId World::spawn_unit(const UnitResource *ur, u32 flags, const Vector3 &pos, 
 		array::push_back(_unit_resources, (const UnitResource *)NULL);
 #endif
 	post_unit_spawned_events(unit_lookup, ur->num_units);
-	script_world::spawned(*_script_world, unit_lookup, ur->num_units);
 
 	UnitId root_unit = unit_lookup[0];
 	default_scratch_allocator().deallocate(unit_lookup);
@@ -269,7 +272,6 @@ UnitId World::spawn_empty_unit()
 	array::push_back(_unit_resources, (const UnitResource *)NULL);
 #endif
 	post_unit_spawned_events(&unit, 1);
-	script_world::spawned(*_script_world, &unit, 1);
 	return unit;
 }
 
@@ -286,14 +288,7 @@ void World::destroy_unit(UnitId unit)
 	Array<UnitId> unit_lookup(default_scratch_allocator());
 
 	collect_units(&unit_lookup, _scene_graph, unit);
-	script_world::unspawned(*_script_world, array::begin(unit_lookup), array::size(unit_lookup));
-
-	for (u32 i = 0; i < array::size(unit_lookup); ++i) {
-		_unit_manager->destroy(unit_lookup[i]);
-		post_unit_destroyed_event(unit_lookup[i]);
-	}
-
-	remove_dead_units();
+	post_unit_destroyed_events(array::begin(unit_lookup), array::size(unit_lookup));
 }
 
 u32 World::num_units() const
@@ -327,8 +322,70 @@ void World::update_animations(f32 dt)
 	_animation_state_machine->update(dt, *_scene_graph);
 }
 
+void World::process_world_events()
+{
+	while (!array::empty(*_events_write)) {
+		EventStream *events = _events_write;
+		_events_write = events == &_events[0] ? &_events[1] : &_events[0];
+		CE_ASSERT(array::empty(*_events_write), "World event buffer is not empty");
+
+		const u32 size = array::size(*events);
+		u32 read = 0;
+		while (read < size) {
+			const EventHeader *eh = (EventHeader *)&(*events)[read];
+			char *data = (char *)&(*events)[read + sizeof(*eh)];
+
+			read += sizeof(*eh) + eh->size;
+
+			switch (eh->type) {
+			case EventType::UNIT_SPAWNED: {
+				const UnitSpawnedEvent *ev = (UnitSpawnedEvent *)data;
+				const UnitId *units = (const UnitId *)&ev[1];
+				script_world::spawned(*_script_world, units, ev->num_units);
+				break;
+			}
+
+			case EventType::UNIT_DESTROYED: {
+				const UnitDestroyedEvent *ev = (UnitDestroyedEvent *)data;
+				UnitId *units = (UnitId *)&ev[1];
+				u32 num_alive = 0;
+
+				for (u32 i = 0; i < ev->num_units; ++i) {
+					if (_unit_manager->alive(units[i]))
+						units[num_alive++] = units[i];
+				}
+
+				if (num_alive == 0)
+					break;
+
+				script_world::unspawned(*_script_world, units, num_alive);
+
+				for (u32 i = 0; i < num_alive; ++i) {
+					if (_unit_manager->alive(units[i]))
+						_unit_manager->destroy(units[i]);
+				}
+
+				remove_dead_units();
+				break;
+			}
+
+			case EventType::LEVEL_LOADED:
+				break;
+
+			default:
+				CE_FATAL("Unknown world event type");
+				break;
+			}
+		}
+
+		array::clear(*events);
+	}
+}
+
 void World::update_scene(f32 dt)
 {
+	process_world_events();
+
 	// Process animation events
 	{
 		EventStream &events = _animation_state_machine->_events;
@@ -429,8 +486,6 @@ void World::update_scene(f32 dt)
 	_sound_world->update();
 
 	_gui_buffer.reset();
-
-	array::clear(_events);
 
 	// Process collision events.
 	{
@@ -898,7 +953,6 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 #endif
 
 	post_unit_spawned_events(level->_unit_lookup, ur->num_units);
-	script_world::spawned(*_script_world, level->_unit_lookup, ur->num_units);
 
 	spawn_skydome(lr->skydome_unit);
 
@@ -915,17 +969,7 @@ Level *World::load_level(StringId64 name, u32 flags, const Vector3 &pos, const Q
 
 void World::destroy_level(Level &level)
 {
-	script_world::unspawned(*_script_world, level._unit_lookup, level._resource->num_units);
-
-	for (u32 i = 0; i < level._resource->num_units; ++i) {
-		const UnitId unit = level._unit_lookup[i];
-
-		post_unit_destroyed_event(unit);
-		_unit_manager->destroy(unit);
-	}
-
-	remove_dead_units();
-
+	post_unit_destroyed_events(level._unit_lookup, level._resource->num_units);
 	list::remove(level._node);
 	level::destroy(*_allocator, &level);
 }
@@ -949,24 +993,28 @@ void World::remove_dead_units()
 
 void World::post_unit_spawned_events(UnitId *units, u32 num_units)
 {
-	for (u32 i = 0; i < num_units; ++i) {
-		UnitSpawnedEvent ev;
-		ev.unit = units[i];
-		event_stream::write(_events, EventType::UNIT_SPAWNED, ev);
-	}
+	if (num_units == 0)
+		return;
+
+	UnitSpawnedEvent ev;
+	ev.num_units = num_units;
+	event_stream::write(*_events_write, EventType::UNIT_SPAWNED, ev, sizeof(*units) * num_units, units);
 }
 
-void World::post_unit_destroyed_event(UnitId unit)
+void World::post_unit_destroyed_events(UnitId *units, u32 num_units)
 {
+	if (num_units == 0)
+		return;
+
 	UnitDestroyedEvent ev;
-	ev.unit = unit;
-	event_stream::write(_events, EventType::UNIT_DESTROYED, ev);
+	ev.num_units = num_units;
+	event_stream::write(*_events_write, EventType::UNIT_DESTROYED, ev, sizeof(*units) * num_units, units);
 }
 
 void World::post_level_loaded_event()
 {
 	LevelLoadedEvent ev;
-	event_stream::write(_events, EventType::LEVEL_LOADED, ev);
+	event_stream::write(*_events_write, EventType::LEVEL_LOADED, ev);
 }
 
 void World::disable_unit_callbacks()
