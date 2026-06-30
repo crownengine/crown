@@ -11,7 +11,7 @@ Changelog
 * Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.
 * Tools: Android: deploy settings now expose configurable min and target SDK versions.
 * Tools: Android: deployer now only requires JAVA_HOME, ANDROID_SDK_PATH and ANDROID_NDK_ROOT environment variables.
-* Tools: added support for Italian and French in the editor UI.
+* Tools: added support for Italian, French and German in the editor UI.
 * Tools: added the ability to align the currently selected objects to the editor camera view.
 * Tools: added the ability to change the prefab of units.
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
