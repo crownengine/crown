@@ -12,6 +12,7 @@
 #include "core/math/constants.h"
 #include "core/math/vector2.inl"
 #include "core/math/vector4.inl"
+#include "core/memory/memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
@@ -181,6 +182,12 @@ struct SpriteAnimationFrame
 	u32 index; // Sorting index.
 };
 
+struct SpriteAnimationEvent
+{
+	StringId32 name;
+	f32 time;
+};
+
 namespace sprite_animation_resource_internal
 {
 	s32 compile(CompileOptions &opts)
@@ -192,6 +199,7 @@ namespace sprite_animation_resource_internal
 		JsonArray object_frames(ta);
 
 		Array<SpriteAnimationFrame> frames(default_allocator());
+		Array<SpriteAnimationEvent> events(default_allocator());
 		float total_time = 0.0f;
 
 		RETURN_IF_ERROR(sjson::parse(obj, buf));
@@ -232,18 +240,56 @@ namespace sprite_animation_resource_internal
 			total_time = RETURN_IF_ERROR(sjson::parse_float(obj["total_time"]));
 		}
 
+		if (json_object::has(obj, "events")) {
+			JsonArray animation_events(ta);
+			RETURN_IF_ERROR(sjson::parse_array(animation_events, obj["events"]));
+
+			for (u32 i = 0; i < array::size(animation_events); ++i) {
+				SpriteAnimationEvent ev = {};
+				JsonObject event_obj(ta);
+
+				RETURN_IF_ERROR(sjson::parse_object(event_obj, animation_events[i]));
+				ev.name = RETURN_IF_ERROR(sjson::parse_string_id(event_obj["name"]));
+				ev.time = RETURN_IF_ERROR(sjson::parse_float(event_obj["time"]));
+
+				if (ev.time > total_time)
+					logw(SPRITE_ANIMATION_RESOURCE, "An event outside the timeline was skipped: time %f total %f", ev.time, total_time);
+				else
+					array::push_back(events, ev);
+			}
+
+			std::sort(array::begin(events)
+				, array::end(events)
+				, [](const SpriteAnimationEvent &event_a, const SpriteAnimationEvent &event_b) {
+					return event_a.time < event_b.time;
+				});
+		}
+
 		// Write
 		SpriteAnimationResource sar;
 		sar.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE_ANIMATION);
 		sar.num_frames = array::size(frames);
 		sar.total_time = total_time;
+		sar.num_events = array::size(events);
+		sar.event_times_offset = sizeof(sar) + sar.num_frames * sizeof(u32);
+		sar.event_names_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(sar.event_times_offset + sar.num_events * sizeof(u16)), sizeof(u32));
 
 		opts.write(sar.version);
 		opts.write(sar.num_frames);
 		opts.write(sar.total_time);
+		opts.write(sar.num_events);
+		opts.write(sar.event_times_offset);
+		opts.write(sar.event_names_offset);
 
 		for (u32 i = 0; i < array::size(frames); i++)
 			opts.write(frames[i].frame);
+
+		for (u32 i = 0; i < array::size(events); ++i)
+			opts.write(u16(events[i].time * 1000.0f));
+
+		opts.align(sizeof(u32));
+		for (u32 i = 0; i < array::size(events); ++i)
+			opts.write(events[i].name);
 
 		return 0;
 	}

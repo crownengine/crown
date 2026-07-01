@@ -4,6 +4,7 @@
  */
 
 #include "core/event_stream.inl"
+#include "core/strings/string_id.inl"
 #include "world/sprite_animation_player.h"
 
 namespace crown
@@ -22,6 +23,7 @@ namespace sprite_animation_player
 		a.num_frames = animation_resource->num_frames;
 		a.time_total = animation_resource->total_time;
 		a.frames     = sprite_animation_resource::frames(animation_resource);
+		a.events_playhead = sprite_animation_resource::event_times(animation_resource);
 		a.resource   = animation_resource;
 		array::push_back(p._animations, a);
 
@@ -48,12 +50,13 @@ namespace sprite_animation_player
 		return index.index != UINT32_MAX && index.id == anim_id;
 	}
 
-	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events)
+	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, bool reset)
 	{
 		SpriteAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		SpriteAnimationPlayer::Animation &a = p._animations[index.index];
 
 		CE_ENSURE(time <= a.time_total);
+		const u16 ts = u16(time * 1000.0f);
 		const f32 frame_ratio     = time / a.time_total;
 		const u32 frame_unclamped = u32(frame_ratio * f32(a.num_frames));
 		const u32 frame_index     = min(frame_unclamped, a.num_frames - 1);
@@ -62,6 +65,21 @@ namespace sprite_animation_player
 		ev.unit      = unit;
 		ev.frame_num = a.frames[frame_index];
 		event_stream::write(events, 0, ev);
+
+		const u16 *event_times = sprite_animation_resource::event_times(a.resource);
+		const u16 *event_end = event_times + a.resource->num_events;
+		const StringId32 *event_names = sprite_animation_resource::event_names(a.resource);
+		while (a.events_playhead != event_end && *a.events_playhead <= ts) {
+			UnitEvent unit_ev;
+			unit_ev.unit = unit;
+			unit_ev.name = event_names[a.events_playhead - event_times];
+			event_stream::write(events, 1, unit_ev);
+
+			++a.events_playhead;
+		}
+
+		if (reset)
+			a.events_playhead = sprite_animation_resource::event_times(a.resource);
 	}
 
 } // namespace sprite_animation_player
