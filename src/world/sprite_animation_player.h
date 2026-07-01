@@ -36,6 +36,7 @@ struct SpriteAnimationPlayer
 		u32 num_frames;
 		f32 time_total;
 		const u32 *frames;
+		const u16 *events_playhead;
 		const SpriteAnimationResource *resource;
 	};
 
@@ -60,7 +61,7 @@ namespace sprite_animation_player
 	bool has(SpriteAnimationPlayer &p, AnimationId anim_id);
 
 	///
-	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events);
+	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, bool reset);
 
 } // namespace sprite_animation_player
 

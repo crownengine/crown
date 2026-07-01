@@ -37,12 +37,24 @@ struct SpriteAnimationResource
 	u32 version;
 	u32 num_frames;
 	f32 total_time;
+	u32 num_events;
+	u32 event_times_offset;
+	u32 event_names_offset;
+	// u32 frames[num_frames]
+	// u16 event_times[num_events] sorted by time
+	// u32 event_names[num_events] sorted by time
 };
 
 namespace sprite_animation_resource
 {
 	/// Returns the frames of the sprite animation @a sar.
 	const u32 *frames(const SpriteAnimationResource *sar);
+
+	///
+	const u16 *event_times(const SpriteAnimationResource *sar);
+
+	///
+	const StringId32 *event_names(const SpriteAnimationResource *sar);
 
 } // namespace sprite_animation_resource
 

@@ -345,6 +345,7 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				, mi.time
 				, mi.unit
 				, _events
+				, mi.time + dt*speed > mi.time_total
 				);
 			++sprite_animations_playing;
 		}
@@ -401,6 +402,7 @@ void AnimationStateMachine::reload(const SpriteAnimationResource *old_resource, 
 			animation.num_frames = new_resource->num_frames;
 			animation.time_total = new_resource->total_time;
 			animation.frames = sprite_animation_resource::frames(new_resource);
+			animation.events_playhead = sprite_animation_resource::event_times(new_resource);
 			animation.resource = new_resource;
 		}
 	}

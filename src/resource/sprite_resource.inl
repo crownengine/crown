@@ -24,6 +24,16 @@ namespace sprite_animation_resource
 		return (u32 *)&sar[1];
 	}
 
+	const u16 *event_times(const SpriteAnimationResource *sar)
+	{
+		return (u16 *)((char *)sar + sar->event_times_offset);
+	}
+
+	const StringId32 *event_names(const SpriteAnimationResource *sar)
+	{
+		return (StringId32 *)((char *)sar + sar->event_names_offset);
+	}
+
 } // namespace sprite_animation_resource
 
 } // namespace crown
