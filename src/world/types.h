@@ -538,6 +538,20 @@ struct ColliderDesc
 //	char data[size]               ///< Convex Hull, Mesh, Heightfield data.
 };
 
+struct ColliderResource
+{
+	u32 num_colliders;    ///< Number of unique collider descriptions.
+	u32 indices_offset;   ///< Offset to u32 collider_index[num_instances].
+	u32 entries_offset;   ///< Offset to ColliderResourceEntry entries[num_colliders].
+	u32 colliders_offset; ///< Offset to unique ColliderDesc records.
+};
+
+struct ColliderResourceEntry
+{
+	u32 offset; ///< Offset from ColliderResource::colliders_offset.
+	u64 hash;   ///< Hash of ColliderDesc plus additional data.
+};
+
 struct MoverDesc
 {
 	CapsuleShape capsule;        ///<
