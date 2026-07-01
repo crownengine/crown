@@ -1684,7 +1684,7 @@ msgstr "Créer des collisions et acteurs pour chaque unité importée."
 #: tools/resource/mesh_resource_fbx.vala:335
 #: tools/resource/mesh_resource_obj.vala:318
 msgid "Import LODs"
-msgstr "Importés LODs"
+msgstr "Importer LODs"
 
 #: tools/resource/mesh_resource_fbx.vala:335
 #: tools/resource/mesh_resource_obj.vala:318
@@ -1694,7 +1694,7 @@ msgstr "Créer un composant Groupe de LOD dans la racine si tout les LOD existen
 #: tools/resource/mesh_resource_fbx.vala:336
 #: tools/resource/mesh_resource_obj.vala:319
 msgid "Tangents"
-msgstr "tangentes"
+msgstr "Tangentes"
 
 #: tools/resource/mesh_resource_fbx.vala:336
 #: tools/resource/mesh_resource_obj.vala:319
