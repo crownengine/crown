@@ -1,5 +1,7 @@
 _guid = "6f1cbb83-25ee-4610-9b85-5c67b76378c6"
 _type = "unit"
+children = [
+]
 components = [
 	{
 		_guid = "0b6cba8a-a2e1-48bc-ae20-03bc3845444b"
@@ -16,24 +18,25 @@ components = [
 			mass = 10
 			material = "default"
 		}
-		type = "actor"
 	}
 	{
 		_guid = "33fc5855-a18a-4d20-9eb8-844ef2ef4c18"
 		_type = "sprite_renderer"
 		data = {
 			depth = 0
+			flip_x = false
+			flip_y = false
 			layer = 1
 			material = "units/environment/tree/tree"
 			sprite_resource = "units/environment/tree/tree"
 			visible = true
 		}
-		type = "sprite_renderer"
 	}
 	{
 		_guid = "525553d1-d333-4757-8608-9040ff265ebd"
 		_type = "transform"
 		data = {
+			name = ""
 			position = [
 				0
 				0
@@ -51,7 +54,6 @@ components = [
 				1
 			]
 		}
-		type = "transform"
 	}
 	{
 		_guid = "72a814e8-9a63-4034-98bc-71459c5f519d"
@@ -60,14 +62,16 @@ components = [
 			collider_data = {
 				half_extents = [
 					0.5
-					0.015625
-					0.5
+					0.34999999999999998
+					0.01562
 				]
+				height = 1
 				position = [
 					0
-					0
 					0.5
+					0
 				]
+				radius = 0.5
 				rotation = [
 					0
 					0
@@ -75,10 +79,11 @@ components = [
 					1
 				]
 			}
-			shape = "box"
+			name = "Noop"
+			scene = "core/components/noop"
+			shape = "sphere"
 			source = "inline"
 		}
-		type = "collider"
 	}
 	{
 		_guid = "9723f277-414b-4a25-956f-992e7f0acb51"
@@ -86,6 +91,11 @@ components = [
 		data = {
 			script_resource = "units/environment/tree/tree"
 		}
-		type = "script"
 	}
 ]
+editor = {
+	hidden = false
+	locked = false
+	name = "Unnamed"
+}
+prefab = null
