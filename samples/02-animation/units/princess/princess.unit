@@ -37,6 +37,14 @@ components = [
 		type = "sprite_renderer"
 	}
 	{
+		_guid = "5be840c2-a172-4488-8a0c-40c3faa91d8c"
+		_type = "script"
+		data = {
+			script_resource = "units/humanoid/humanoid"
+		}
+		type = "script"
+	}
+	{
 		_guid = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
 		_type = "animation_state_machine"
 		data = {

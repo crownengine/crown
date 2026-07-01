@@ -58,45 +58,6 @@ function Game.update(dt)
 		Game.player = Game.players[Game.player_i]
 	end
 
-	-- Read direction from joypad.
-	local pad_dir = Pad1.axis(Pad1.axis_id("left"))
-	-- Add keyboard contribution.
-	if pad_dir.x == 0.0 and pad_dir.y == 0.0 then
-		pad_dir.x = pad_dir.x + Keyboard.button(Keyboard.button_id("d")) - Keyboard.button(Keyboard.button_id("a"))
-		pad_dir.y = pad_dir.y + Keyboard.button(Keyboard.button_id("w")) - Keyboard.button(Keyboard.button_id("s"))
-		if Vector3.length(pad_dir) > 0.0001 then
-			Vector3.normalize(pad_dir)
-		end
-	end
-	-- Compute new player position.
-	local player_speed = 4
-	local player_tr = SceneGraph.instance(Game.sg, Game.player)
-	local player_position = SceneGraph.local_position(Game.sg, player_tr)
-	SceneGraph.set_local_position(Game.sg, player_tr, player_position + pad_dir*player_speed*dt)
-
-	-- Sprite depth is proportional to its Z position.
-	for i=1, #Game.players do
-		local tr = SceneGraph.instance(Game.sg, Game.players[i])
-		local pos = SceneGraph.local_position(Game.sg, tr)
-		local depth = math.floor(1000 + (1000 - 32*pos.y))
-		local sprite = RenderWorld.sprite_instance(Game.rw, Game.players[i])
-		RenderWorld.sprite_set_depth(Game.rw, sprite, depth)
-	end
-
-	local asm = AnimationStateMachine.instance(Game.sm, Game.player);
-	if pad_dir.x ~= 0.0 or pad_dir.y ~= 0.0 then
-		local asm = AnimationStateMachine.instance(Game.sm, Game.player);
-		local speed_x = AnimationStateMachine.variable_id(Game.sm, asm, "speed_x")
-		local speed_y = AnimationStateMachine.variable_id(Game.sm, asm, "speed_y")
-		local speed   = AnimationStateMachine.variable_id(Game.sm, asm, "speed")
-		AnimationStateMachine.set_variable(Game.sm, asm, speed_x, pad_dir.x)
-		AnimationStateMachine.set_variable(Game.sm, asm, speed_y, pad_dir.y)
-		AnimationStateMachine.set_variable(Game.sm, asm, speed, math.max(0.2, Vector3.length(pad_dir)))
-		AnimationStateMachine.trigger(Game.sm, asm, "run")
-	else
-		AnimationStateMachine.trigger(Game.sm, asm, "idle")
-	end
-
 	-- Toggle help.
 	if Keyboard.pressed(Keyboard.button_id("f1")) then
 		GameBase.show_help = not GameBase.show_help
