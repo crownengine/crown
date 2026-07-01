@@ -1278,6 +1278,7 @@ struct PhysicsWorldImpl
 		btCapsuleShape capsule;
 		btCapsuleShapeZ capsule_z;
 		btBoxShape box;
+		btCompoundShape compound;
 
 		///
 		ColliderShape()
@@ -1296,7 +1297,17 @@ struct PhysicsWorldImpl
 		Allocator *allocator;
 		btTriangleIndexVertexArray *vertex_array;
 		btCollisionShape *shape;
+		btCollisionShape *child_shape;
 	};
+
+	static void collider_destroy_shape(ColliderInstanceData &cid)
+	{
+		if (cid.shape != cid.child_shape)
+			CE_DELETE(*cid.allocator, cid.shape);
+
+		CE_DELETE(*cid.allocator, cid.child_shape);
+		CE_DELETE(*cid.allocator, cid.vertex_array);
+	}
 
 	struct ActorInstanceData
 	{
@@ -1422,10 +1433,7 @@ struct PhysicsWorldImpl
 		}
 
 		for (u32 i = 0; i < array::size(_collider); ++i) {
-			Allocator *allocator = _collider[i].allocator;
-
-			CE_DELETE(*allocator, _collider[i].vertex_array);
-			CE_DELETE(*allocator, _collider[i].shape);
+			collider_destroy_shape(_collider[i]);
 		}
 
 		CE_DELETE(*_allocator, _dynamics_world);
@@ -1445,20 +1453,21 @@ struct PhysicsWorldImpl
 			const Matrix4x4 tm = _scene_graph->world_pose(ti);
 
 			btTriangleIndexVertexArray *vertex_array = NULL;
+			btCollisionShape *child_shape = NULL;
 			btCollisionShape *shape = NULL;
 			Allocator *allocator = &_shapes_pool;
 
 			switch (cd->type) {
 			case ColliderType::SPHERE:
-				shape = CE_NEW(_shapes_pool, btSphereShape)(cd->sphere.radius);
+				child_shape = CE_NEW(_shapes_pool, btSphereShape)(cd->sphere.radius);
 				break;
 
 			case ColliderType::CAPSULE:
-				shape = CE_NEW(_shapes_pool, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
+				child_shape = CE_NEW(_shapes_pool, btCapsuleShape)(cd->capsule.radius, cd->capsule.height);
 				break;
 
 			case ColliderType::BOX:
-				shape = CE_NEW(_shapes_pool, btBoxShape)(to_btVector3(cd->box.half_size));
+				child_shape = CE_NEW(_shapes_pool, btBoxShape)(to_btVector3(cd->box.half_size));
 				break;
 
 			case ColliderType::CONVEX_HULL: {
@@ -1467,7 +1476,7 @@ struct PhysicsWorldImpl
 				const btScalar *points = (btScalar *)(data + sizeof(u32));
 
 				allocator = _allocator;
-				shape = CE_NEW(*allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+				child_shape = CE_NEW(*allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
 				break;
 			}
 
@@ -1493,7 +1502,7 @@ struct PhysicsWorldImpl
 
 				const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
 				const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
-				shape = CE_NEW(*_allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
+				child_shape = CE_NEW(*allocator, btBvhTriangleMeshShape)(vertex_array, false, aabb_min, aabb_max);
 				break;
 			}
 
@@ -1506,6 +1515,13 @@ struct PhysicsWorldImpl
 				break;
 			}
 
+			shape = child_shape;
+			if (cd->local_tm != MATRIX4X4_IDENTITY) {
+				btCompoundShape *compound_shape = CE_NEW(*allocator, btCompoundShape)(true, 1);
+				compound_shape->addChildShape(to_btTransform(cd->local_tm), child_shape);
+				shape = compound_shape;
+			}
+
 			shape->setLocalScaling(to_btVector3(scale(tm)));
 
 			const u32 last = array::size(_collider);
@@ -1515,6 +1531,7 @@ struct PhysicsWorldImpl
 			cid.allocator    = allocator;
 			cid.vertex_array = vertex_array;
 			cid.shape        = shape;
+			cid.child_shape  = child_shape;
 
 			array::push_back(_collider, cid);
 			hash_map::set(_collider_map, unit, last);
@@ -1531,9 +1548,7 @@ struct PhysicsWorldImpl
 		const UnitId u      = _collider[collider.i].unit;
 		const UnitId last_u = _collider[last].unit;
 
-		Allocator *allocator = _collider[collider.i].allocator;
-		CE_DELETE(*allocator, _collider[collider.i].vertex_array);
-		CE_DELETE(*allocator, _collider[collider.i].shape);
+		collider_destroy_shape(_collider[collider.i]);
 
 		_collider[collider.i] = _collider[last];
 

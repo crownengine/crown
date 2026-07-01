@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed sprite units being invisible at start inside the Unit Editor.
+* Runtime: fixed local shape transforms not being honored.
 
 .. _v0.63.5:
 
