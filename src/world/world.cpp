@@ -384,8 +384,6 @@ void World::process_world_events()
 
 void World::update_scene(f32 dt)
 {
-	process_world_events();
-
 	// Process animation events
 	{
 		EventStream &events = _animation_state_machine->_events;
@@ -636,6 +634,7 @@ void World::update(f32 dt)
 {
 	_dt = dt;
 
+	process_world_events();
 	update_animations(dt);
 	update_scene(dt);
 }
