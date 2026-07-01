@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.6 --- DD MMM YYYY <v0.63.6>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed sprite units being invisible at start inside the Unit Editor.
+
 .. _v0.63.5:
 
 :ref:`0.63.5 --- 27 Jun 2026 <v0.63.5>`

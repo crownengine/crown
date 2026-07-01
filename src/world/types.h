@@ -173,20 +173,10 @@ struct RenderableFlags
 		VISIBLE       = u32(1) << 0,
 		SHADOW_CASTER = u32(1) << 1,
 		LOD_LEVEL     = u32(1) << 2,
+		SPRITE_FLIP_X = u32(1) << 3,
+		SPRITE_FLIP_Y = u32(1) << 4,
 
 		DIRTY         = u32(1) << 31,
-	};
-};
-
-/// Enumerates sprite flags.
-///
-/// @ingroup World
-struct SpriteFlags
-{
-	enum Enum : u32
-	{
-		FLIP_X = u32(1) << 31,
-		FLIP_Y = u32(1) << 30
 	};
 };
 
@@ -366,7 +356,7 @@ struct SpriteRendererDesc
 	StringId64 material_resource; ///< Name of .material resource.
 	u32 layer;                    ///< Sort layer
 	u32 depth;                    ///< Depth in layer
-	u32 flags;                    ///< SpriteFlags::Enum | RenderableFlags::Enum
+	u32 flags;                    ///< RenderableFlags::Enum
 	char _pad[4];
 };
 
