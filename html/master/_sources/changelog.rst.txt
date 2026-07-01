@@ -15,6 +15,7 @@ Changelog
 * Tools: added the ability to align the currently selected objects to the editor camera view.
 * Tools: added the ability to change the prefab of units.
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
+* Tools: sprite importer will now create animation resources only when the sprite has more than one frame.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
@@ -39,6 +40,7 @@ Changelog
 * Tools: fixed a warning in the console when interacting with object trees in some cases.
 * Tools: fixed unit component sync after adding, removing or undoing components.
 * Tools: fixed undo/redo not being restored after a resource failed to load in the database.
+* Tools: fixed sprite units being invisible at start inside the Unit Editor.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
@@ -47,6 +49,7 @@ Changelog
 * Runtime: fixed inconsistent precision in omni lights shadow maps.
 * Runtime: fixed shadow maps filtering.
 * Runtime: fixed shadow maps artifacts on HTML5.
+* Runtime: fixed local shape transforms not being honored.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 * Docs: updated Android deploying instructions.

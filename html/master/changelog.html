@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-30T12:33:29+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-07-01T18:03:05+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -143,6 +143,7 @@
 <li><p>Tools: added the ability to align the currently selected objects to the editor camera view.</p></li>
 <li><p>Tools: added the ability to change the prefab of units.</p></li>
 <li><p>Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.</p></li>
+<li><p>Tools: sprite importer will now create animation resources only when the sprite has more than one frame.</p></li>
 <li><p>Runtime: improved performance when rendering worlds containing many units.</p></li>
 <li><p>Runtime: improved performance of sun shadows rendering.</p></li>
 <li><p>Runtime: Linux: Wayland is now used as default display server. A new <code class="docutils literal notranslate"><span class="pre">--display-server</span></code> option has been added to select between Wayland and X11 backends.</p></li>
@@ -167,6 +168,7 @@
 <li><p>Tools: fixed a warning in the console when interacting with object trees in some cases.</p></li>
 <li><p>Tools: fixed unit component sync after adding, removing or undoing components.</p></li>
 <li><p>Tools: fixed undo/redo not being restored after a resource failed to load in the database.</p></li>
+<li><p>Tools: fixed sprite units being invisible at start inside the Unit Editor.</p></li>
 <li><p>Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not updating mass/inertia.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not restoring body deactivation when switching actors back from kinematic.</p></li>
@@ -175,6 +177,7 @@
 <li><p>Runtime: fixed inconsistent precision in omni lights shadow maps.</p></li>
 <li><p>Runtime: fixed shadow maps filtering.</p></li>
 <li><p>Runtime: fixed shadow maps artifacts on HTML5.</p></li>
+<li><p>Runtime: fixed local shape transforms not being honored.</p></li>
 <li><p>Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">World.script_world()</span></code> and <code class="docutils literal notranslate"><span class="pre">ScriptWorld.broadcast()</span></code>.</p></li>
 <li><p>Docs: updated Android deploying instructions.</p></li>
@@ -1110,7 +1113,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 30, 2026.
+      <span class="lastupdated">Last updated on Jul 01, 2026.
       </span></p>
   </div>
 
