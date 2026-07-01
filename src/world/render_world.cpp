@@ -549,18 +549,18 @@ void RenderWorld::sprite_flip_x(SpriteId sprite, bool flip)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	if (flip)
-		_sprite_manager._data.flags[sprite.i] |= SpriteFlags::FLIP_X;
+		_sprite_manager._data.flags[sprite.i] |= RenderableFlags::SPRITE_FLIP_X;
 	else
-		_sprite_manager._data.flags[sprite.i] &= ~SpriteFlags::FLIP_X;
+		_sprite_manager._data.flags[sprite.i] &= ~RenderableFlags::SPRITE_FLIP_X;
 }
 
 void RenderWorld::sprite_flip_y(SpriteId sprite, bool flip)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 	if (flip)
-		_sprite_manager._data.flags[sprite.i] |= SpriteFlags::FLIP_Y;
+		_sprite_manager._data.flags[sprite.i] |= RenderableFlags::SPRITE_FLIP_Y;
 	else
-		_sprite_manager._data.flags[sprite.i] &= ~SpriteFlags::FLIP_Y;
+		_sprite_manager._data.flags[sprite.i] &= ~RenderableFlags::SPRITE_FLIP_Y;
 }
 
 void RenderWorld::sprite_set_layer(SpriteId sprite, u32 layer)
@@ -2593,13 +2593,13 @@ void RenderWorld::SpriteManager::set_instance_data(f32 **vdata_, u16 **idata_, b
 	f32 u3 = frame[18]; // u
 	f32 v3 = frame[19]; // v
 
-	if ((_data.flags[sprite_id] & SpriteFlags::FLIP_X) != 0) {
+	if ((_data.flags[sprite_id] & RenderableFlags::SPRITE_FLIP_X) != 0) {
 		f32 u;
 		u = u0; u0 = u1; u1 = u;
 		u = u2; u2 = u3; u3 = u;
 	}
 
-	if ((_data.flags[sprite_id] & SpriteFlags::FLIP_Y) != 0) {
+	if ((_data.flags[sprite_id] & RenderableFlags::SPRITE_FLIP_Y) != 0) {
 		f32 v;
 		v = v0; v0 = v2; v2 = v;
 		v = v1; v1 = v3; v3 = v;
