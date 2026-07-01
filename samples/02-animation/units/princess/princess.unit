@@ -1,10 +1,13 @@
 _guid = "0fe692c3-76bb-47ab-b53a-76b439443bd9"
 _type = "unit"
+children = [
+]
 components = [
 	{
 		_guid = "0082c760-6b5e-41b2-a32a-279ddf593fb2"
 		_type = "transform"
 		data = {
+			name = ""
 			position = [
 				0
 				0
@@ -22,19 +25,35 @@ components = [
 				1
 			]
 		}
-		type = "transform"
+	}
+	{
+		_guid = "21723995-5cd2-4ca9-b115-9db2576960ad"
+		_type = "mover"
+		data = {
+			center = [
+				0
+				0.25
+				0
+			]
+			collision_filter = "mover"
+			height = 1
+			max_slope_angle = 0.78539816339744828
+			radius = 0.25
+			step_height = 0
+		}
 	}
 	{
 		_guid = "4e0ca7f6-f789-44d8-bf6b-9fcb62e1abd9"
 		_type = "sprite_renderer"
 		data = {
 			depth = 0
+			flip_x = false
+			flip_y = false
 			layer = 1
 			material = "units/princess/princess"
 			sprite_resource = "units/princess/princess"
 			visible = true
 		}
-		type = "sprite_renderer"
 	}
 	{
 		_guid = "5be840c2-a172-4488-8a0c-40c3faa91d8c"
@@ -42,7 +61,6 @@ components = [
 		data = {
 			script_resource = "units/humanoid/humanoid"
 		}
-		type = "script"
 	}
 	{
 		_guid = "ff3f598d-0f34-467b-bf98-14feb0997bfe"
@@ -50,6 +68,11 @@ components = [
 		data = {
 			state_machine_resource = "units/humanoid/humanoid"
 		}
-		type = "animation_state_machine"
 	}
 ]
+editor = {
+	hidden = false
+	locked = false
+	name = "Unnamed"
+}
+prefab = null

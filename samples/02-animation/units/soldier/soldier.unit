@@ -1,5 +1,7 @@
 _guid = "0156b8a4-7fa0-4b8d-98fc-82b2c6d11eb4"
 _type = "unit"
+children = [
+]
 components = [
 	{
 		_guid = "1ae2bba5-d24a-4c6e-8af7-a8b97340d221"
@@ -7,32 +9,25 @@ components = [
 		data = {
 			state_machine_resource = "units/humanoid/humanoid"
 		}
-		type = "animation_state_machine"
-	}
-	{
-		_guid = "eb497425-a535-4f04-bc45-fbe7958fce19"
-		_type = "script"
-		data = {
-			script_resource = "units/humanoid/humanoid"
-		}
-		type = "script"
 	}
 	{
 		_guid = "6340ce8f-6380-4718-b827-83ebddb60e42"
 		_type = "sprite_renderer"
 		data = {
 			depth = 0
+			flip_x = false
+			flip_y = false
 			layer = 1
 			material = "units/soldier/soldier"
 			sprite_resource = "units/soldier/soldier"
 			visible = true
 		}
-		type = "sprite_renderer"
 	}
 	{
 		_guid = "ac52af2e-475e-49ea-8fb0-2e7fc3fe9d19"
 		_type = "transform"
 		data = {
+			name = ""
 			position = [
 				0
 				0
@@ -50,6 +45,34 @@ components = [
 				1
 			]
 		}
-		type = "transform"
+	}
+	{
+		_guid = "bd5b3cf3-5d2a-41da-83f9-569b6e41219d"
+		_type = "mover"
+		data = {
+			center = [
+				0
+				0.25
+				0
+			]
+			collision_filter = "mover"
+			height = 1
+			max_slope_angle = 0.78539816339744828
+			radius = 0.25
+			step_height = 0
+		}
+	}
+	{
+		_guid = "eb497425-a535-4f04-bc45-fbe7958fce19"
+		_type = "script"
+		data = {
+			script_resource = "units/humanoid/humanoid"
+		}
 	}
 ]
+editor = {
+	hidden = false
+	locked = false
+	name = "Unnamed"
+}
+prefab = null
