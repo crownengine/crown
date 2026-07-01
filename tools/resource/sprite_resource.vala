@@ -737,6 +737,7 @@ public class SpriteResource
 		int height    = (int)dlg._pixbuf.height;
 		int num_h     = (int)dlg.cells.value.x;
 		int num_v     = (int)dlg.cells.value.y;
+		int num_frames = num_h * num_v;
 		int cell_w    = (int)dlg.cell.value.x;
 		int cell_h    = (int)dlg.cell.value.y;
 		int offset_x  = (int)dlg.offset.value.x;
@@ -749,6 +750,7 @@ public class SpriteResource
 		Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, dlg.pivot.active);
 
 		bool collision_enabled         = dlg.collision_enabled.active;
+		bool has_animation             = num_frames > 1;
 		string shape_active_name       = (string)dlg.shape.visible_child_name;
 		int circle_collision_center_x  = (int)dlg.circle_collision_center.value.x;
 		int circle_collision_center_y  = (int)dlg.circle_collision_center.value.y;
@@ -810,27 +812,6 @@ public class SpriteResource
 			db.set_double(sprite_id, "width", width);
 			db.set_double(sprite_id, "height", height);
 
-			// Create 'animations' folder.
-			string directory_name = "animations";
-			string animations_path = destination_dir;
-			{
-				GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
-				try {
-					animations_file.make_directory();
-				} catch (GLib.IOError.EXISTS e) {
-					// Ignore.
-				} catch (GLib.Error e) {
-					loge(e.message);
-					return ImportResult.ERROR;
-				}
-
-				animations_path = animations_file.get_path();
-			}
-
-			// Generate .sprite_animation.
-			Guid sprite_animation_id = Guid.new_guid();
-			SpriteAnimation sa = SpriteAnimation(db, sprite_animation_id);
-
 			double frame_index = 0.0;
 
 			for (int r = 0; r < num_v; ++r) {
@@ -858,14 +839,6 @@ public class SpriteResource
 
 					db.add_to_set(sprite_id, "frames", frame_id);
 
-					Guid anim_frame = Guid.new_guid();
-					AnimationFrame af = AnimationFrame(db
-						, anim_frame
-						, (int)frame_index
-						, (int)frame_index
-						);
-					sa.add_frame(af);
-
 					frame_index++;
 				}
 			}
@@ -873,23 +846,53 @@ public class SpriteResource
 			if (db.save(project.absolute_path(resource_name) + ".sprite", sprite_id) != 0)
 				return ImportResult.ERROR;
 
-			string anim_basename = GLib.File.new_for_path(resource_name).get_basename();
-			string anim_filename = Path.build_filename(animations_path, anim_basename + "_default" + "." + OBJECT_TYPE_SPRITE_ANIMATION);
-			GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
-			string anim_path     = anim_file.get_path();
+			if (has_animation) {
+				SpriteAnimation sa = SpriteAnimation(db, Guid.new_guid());
+				for (int frame = 0; frame < num_frames; ++frame) {
+					AnimationFrame af = AnimationFrame(db
+						, Guid.new_guid()
+						, frame
+						, frame
+						);
+					sa.add_frame(af);
+				}
 
-			string anim_resource_filename = project.resource_filename(anim_path);
-			string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
-			string anim_resource_name     = ResourceId.name(anim_resource_path);
+				// Create 'animations' folder.
+				string directory_name = "animations";
+				string animations_path = destination_dir;
+				{
+					GLib.File animations_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
+					try {
+						animations_file.make_directory();
+					} catch (GLib.IOError.EXISTS e) {
+						// Ignore.
+					} catch (GLib.Error e) {
+						loge(e.message);
+						return ImportResult.ERROR;
+					}
 
-			if (sa.save(project, anim_resource_name) != 0)
-				return ImportResult.ERROR;
+					animations_path = animations_file.get_path();
+				}
 
-			// Generate .state_machine.
-			Guid state_machine_id = Guid.new_guid();
-			StateMachineResource smr = StateMachineResource.sprite(db, state_machine_id, anim_resource_name);
-			if (smr.save(project, resource_name) != 0)
-				return ImportResult.ERROR;
+				// Generate .sprite_animation.
+				string anim_basename = GLib.File.new_for_path(resource_name).get_basename();
+				string anim_filename = Path.build_filename(animations_path, anim_basename + "_default" + "." + OBJECT_TYPE_SPRITE_ANIMATION);
+				GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
+				string anim_path     = anim_file.get_path();
+
+				string anim_resource_filename = project.resource_filename(anim_path);
+				string anim_resource_path     = ResourceId.normalize(anim_resource_filename);
+				string anim_resource_name     = ResourceId.name(anim_resource_path);
+
+				if (sa.save(project, anim_resource_name) != 0)
+					return ImportResult.ERROR;
+
+				// Generate .state_machine.
+				Guid state_machine_id = Guid.new_guid();
+				StateMachineResource smr = StateMachineResource.sprite(db, state_machine_id, anim_resource_name);
+				if (smr.save(project, resource_name) != 0)
+					return ImportResult.ERROR;
+			}
 
 			db.reset();
 
@@ -933,8 +936,8 @@ public class SpriteResource
 				unit.set_component_bool  (component_id, "data.visible", true);
 			}
 
-			// Create state_machine_component.
-			{
+			if (has_animation) {
+				// Create state_machine_component.
 				Guid component_id;
 				if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
 					component_id = Guid.new_guid();
@@ -943,6 +946,13 @@ public class SpriteResource
 				}
 
 				unit.set_component_string(component_id, "data.state_machine_resource", resource_name);
+			} else {
+				Guid component_id;
+				if (unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)
+					&& unit.get_component_resource(component_id, "data.state_machine_resource") == resource_name
+					) {
+					unit.remove_component_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+				}
 			}
 
 			if (collision_enabled) {

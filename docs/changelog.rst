@@ -15,6 +15,7 @@ Changelog
 * Tools: added the ability to align the currently selected objects to the editor camera view.
 * Tools: added the ability to change the prefab of units.
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
+* Tools: sprite importer will now create animation resources only when the sprite has more than one frame.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
