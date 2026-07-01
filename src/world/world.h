@@ -52,6 +52,7 @@ struct World
 	PhysicsWorld *_physics_world;
 	SoundWorld *_sound_world;
 	ScriptWorld *_script_world;
+	NavigationWorld *_navigation_world;
 	SpriteAnimationPlayer *_sprite_animation_player;
 	MeshAnimationPlayer *_mesh_animation_player;
 	AnimationStateMachine *_animation_state_machine;
