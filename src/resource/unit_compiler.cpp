@@ -1238,10 +1238,11 @@ namespace unit_compiler
 		return 0;
 	}
 
-	void register_component_compiler(UnitCompiler &c, StringId32 type, CompileFunction fn, f32 spawn_order)
+	void register_component_compiler(UnitCompiler &c, StringId32 type, CompileFunction fn, f32 spawn_order, FinalizeFunction finalizer = NULL)
 	{
 		ComponentTypeData ctd(default_allocator());
 		ctd._compiler = fn;
+		ctd._finalizer = finalizer;
 
 		ComponentTypeInfo cti;
 		cti._type = type;
@@ -1253,9 +1254,9 @@ namespace unit_compiler
 		std::sort(array::begin(c._component_info), array::end(c._component_info));
 	}
 
-	void register_component_compiler(UnitCompiler &c, const char *type, CompileFunction fn, f32 spawn_order)
+	void register_component_compiler(UnitCompiler &c, const char *type, CompileFunction fn, f32 spawn_order, FinalizeFunction finalizer = NULL)
 	{
-		register_component_compiler(c, StringId32(type), fn, spawn_order);
+		register_component_compiler(c, StringId32(type), fn, spawn_order, finalizer);
 	}
 
 	s32 flatten(UnitCompiler &c, CompileOptions &opts)
@@ -1281,7 +1282,7 @@ namespace unit_compiler
 		return 0;
 	}
 
-	s32 blob(Buffer &output, UnitCompiler &c)
+	s32 blob(Buffer &output, UnitCompiler &c, CompileOptions &opts)
 	{
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);
@@ -1314,11 +1315,17 @@ namespace unit_compiler
 		for (u32 ii = 0; ii < array::size(c._component_info); ++ii) {
 			const StringId32 comp_type = c._component_info[ii]._type;
 
-			const ComponentTypeData ctd_deffault(default_allocator());
-			const ComponentTypeData &ctd = hash_map::get(c._component_data, comp_type, ctd_deffault);
+			ComponentTypeData ctd_deffault(default_allocator());
+			ComponentTypeData &ctd = hash_map::get(c._component_data, comp_type, ctd_deffault);
 
 			if (ctd._num == 0)
 				continue;
+
+			if (ctd._finalizer != NULL && !ctd._finalized) {
+				s32 err = ctd._finalizer(ctd._data, ctd._num, opts);
+				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
+				ctd._finalized = true;
+			}
 
 			// Write component data.
 			ComponentData cd;
@@ -1372,7 +1379,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "light",                   &compile_light,                                      1.0f);
 	unit_compiler::register_component_compiler(*this, "lod_group",               &compile_lod_group,                                  2.0f);
 	unit_compiler::register_component_compiler(*this, "script",                  &compile_script,                                     1.0f);
-	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider,        1.0f);
+	unit_compiler::register_component_compiler(*this, "collider",                &physics_resource_internal::compile_collider,        1.0f, &physics_resource_internal::finalize_collider);
 	unit_compiler::register_component_compiler(*this, "actor",                   &physics_resource_internal::compile_actor,           2.0f);
 	unit_compiler::register_component_compiler(*this, "mover",                   &physics_resource_internal::compile_mover,           2.0f);
 	unit_compiler::register_component_compiler(*this, "fixed_joint",             &physics_resource_internal::compile_fixed_joint,     3.0f);

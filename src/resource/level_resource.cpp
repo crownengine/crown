@@ -73,7 +73,7 @@ namespace level_resource_internal
 		}
 
 		Buffer units_blob(default_allocator());
-		s32 err = unit_compiler::blob(units_blob, uc);
+		s32 err = unit_compiler::blob(units_blob, uc, opts);
 		ENSURE_OR_RETURN(LEVEL_RESOURCE, err == 0, opts);
 
 		StringId64 skydome_unit;

@@ -20,6 +20,7 @@ struct UnitCompiler;
 namespace physics_resource_internal
 {
 	s32 compile_collider(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+	s32 finalize_collider(Buffer &data, u32 num, CompileOptions &opts);
 	s32 compile_actor(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 	s32 compile_mover(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
 	s32 compile_fixed_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);

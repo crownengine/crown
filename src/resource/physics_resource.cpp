@@ -19,7 +19,9 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/sphere.inl"
+#include "core/memory/memory.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/murmur.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
@@ -111,6 +113,12 @@ namespace physics_resource_internal
 
 		return D6MotorMode::COUNT;
 	}
+
+	struct UniqueCollider
+	{
+		u32 offset;
+		u64 hash;
+	};
 
 	void compile_sphere(ColliderDesc &sd, const Array<Vector3> &points)
 	{
@@ -291,6 +299,88 @@ namespace physics_resource_internal
 					bw.write((u16)point_indices[ii]);
 			}
 		}
+		return 0;
+	}
+
+	s32 finalize_collider(Buffer &data, u32 num, CompileOptions &opts)
+	{
+		Array<UniqueCollider> colliders(default_allocator());
+		Array<u32> collider_indices(default_allocator());
+		HashMap<u64, u32> collider_map(default_allocator());
+		Buffer collider_data(default_allocator());
+
+		array::reserve(collider_indices, num);
+
+		const char *begin = array::begin(data);
+		const char *end = begin + array::size(data);
+		const char *cur = begin;
+
+		for (u32 i = 0; i < num; ++i) {
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, cur + sizeof(ColliderDesc) <= end
+				, opts
+				, "Invalid collider data"
+				);
+
+			const ColliderDesc *cd = (const ColliderDesc *)cur;
+			const u32 collider_size = sizeof(ColliderDesc) + cd->size;
+
+			RETURN_IF_FALSE(PHYSICS_RESOURCE, cur + collider_size <= end
+				, opts
+				, "Invalid collider data"
+				);
+
+			const u64 h = murmur64(cur, collider_size, 0);
+			const u32 default_index = UINT32_MAX;
+			u32 collider_index = hash_map::get(collider_map, h, default_index);
+
+			if (collider_index == UINT32_MAX) {
+				UniqueCollider uc;
+				uc.offset = array::size(collider_data);
+				uc.hash = h;
+
+				collider_index = array::size(colliders);
+				array::push_back(colliders, uc);
+				hash_map::set(collider_map, h, collider_index);
+				array::push(collider_data, cur, collider_size);
+			}
+
+			array::push_back(collider_indices, collider_index);
+			cur += collider_size;
+		}
+
+		RETURN_IF_FALSE(PHYSICS_RESOURCE, cur == end
+			, opts
+			, "Invalid collider data"
+			);
+
+		ColliderResource cr;
+		cr.num_colliders = array::size(colliders);
+		cr.indices_offset = sizeof(ColliderResource);
+		cr.entries_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(cr.indices_offset + sizeof(u32)*num), alignof(ColliderResourceEntry));
+		cr.colliders_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(cr.entries_offset + sizeof(ColliderResourceEntry)*cr.num_colliders), 16);
+
+		Buffer output(default_allocator());
+		FileBuffer fb(output);
+		BinaryWriter bw(fb);
+
+		bw.write(cr.num_colliders);
+		bw.write(cr.indices_offset);
+		bw.write(cr.entries_offset);
+		bw.write(cr.colliders_offset);
+
+		for (u32 i = 0; i < array::size(collider_indices); ++i)
+			bw.write(collider_indices[i]);
+
+		bw.align(alignof(ColliderResourceEntry));
+		for (u32 i = 0; i < array::size(colliders); ++i) {
+			bw.write(colliders[i].offset);
+			bw.write(colliders[i].hash);
+		}
+
+		bw.align(16);
+		bw.write(collider_data);
+
+		data = output;
 		return 0;
 	}
 

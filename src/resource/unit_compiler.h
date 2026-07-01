@@ -19,6 +19,7 @@ namespace crown
 struct UnitCompiler;
 
 typedef s32 (*CompileFunction)(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+typedef s32 (*FinalizeFunction)(Buffer &data, u32 num, CompileOptions &opts);
 
 struct ComponentKey
 {
@@ -42,12 +43,16 @@ struct ComponentTypeData
 	Array<u32> _unit_index;
 	Buffer _data;
 	CompileFunction _compiler;
+	FinalizeFunction _finalizer;
+	bool _finalized;
 
 	explicit ComponentTypeData(Allocator &a)
 		: _num(0)
 		, _unit_index(a)
 		, _data(a)
 		, _compiler(NULL)
+		, _finalizer(NULL)
+		, _finalized(false)
 	{
 	}
 };
@@ -119,7 +124,7 @@ namespace unit_compiler
 	s32 unit_has_component_type(bool &has_type, Unit *unit, StringId32 type);
 
 	///
-	s32 blob(Buffer &output, UnitCompiler &c);
+	s32 blob(Buffer &output, UnitCompiler &c, CompileOptions &opts);
 
 } // namespace unit_compiler
 
