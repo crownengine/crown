@@ -1,5 +1,19 @@
 _guid = "a80a04f1-8cf0-448e-a4ca-2413ef34e4fb"
 _type = "sprite_animation"
+events = [
+	{
+		_guid = "9511997d-3d19-49d8-965b-4e800ed90666"
+		_type = "animation_event"
+		name = "footsteps_L"
+		time = 0.125
+	}
+	{
+		_guid = "9513fa28-7eb2-4d27-8d20-c7d03eabfd75"
+		_type = "animation_event"
+		name = "footsteps_R"
+		time = 0.375
+	}
+]
 frames = [
 	{
 		_guid = "0ac9b9be-2f1c-40cd-8027-b441cc7173c4"
