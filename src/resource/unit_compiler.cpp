@@ -241,11 +241,11 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 	}
 	if (flat_json_object::has(obj, "data.flip_x")) {
 		bool flip = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.flip_x")));
-		srd.flags |= flip ? SpriteFlags::FLIP_X : 0u;
+		srd.flags |= flip ? RenderableFlags::SPRITE_FLIP_X : 0u;
 	}
 	if (flat_json_object::has(obj, "data.flip_y")) {
 		bool flip = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.flip_y")));
-		srd.flags |= flip ? SpriteFlags::FLIP_Y : 0u;
+		srd.flags |= flip ? RenderableFlags::SPRITE_FLIP_Y : 0u;
 	}
 
 	memset(srd._pad, 0, sizeof(srd._pad));
