@@ -361,11 +361,6 @@ public class SpriteImportDialog : Gtk.Window
 		shape = new Gtk.Stack();
 		shape.sensitive = false;
 		shape.vhomogeneous = false;
-		shape.notify["visible-child"].connect(() => {
-				calc_collider_shape();
-				_preview.queue_draw();
-			});
-
 		cv = new PropertyGrid();
 		cv.add_row("Origin", collision_xy);
 		cv.add_row("Size", collision_wh);
@@ -536,6 +531,11 @@ public class SpriteImportDialog : Gtk.Window
 				cr.fill();
 
 				return Gdk.EVENT_STOP;
+			});
+
+		shape.notify["visible-child"].connect(() => {
+				calc_collider_shape();
+				_preview.queue_draw();
 			});
 
 		_preview_overlay = new Gtk.Overlay();
