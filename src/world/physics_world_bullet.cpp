@@ -3119,12 +3119,21 @@ struct PhysicsWorldImpl
 
 		const int num = _dynamics_world->getNumCollisionObjects();
 		const btCollisionObjectArray &collision_array = _dynamics_world->getCollisionObjectArray();
+		u32 active_actors = 0;
+		u32 sleeping_actors = 0;
 		// Update actors
 		for (int i = 0; i < num; ++i) {
 			if ((uintptr_t)collision_array[i]->m_userObjectPointer == (uintptr_t)UINT32_MAX)
 				continue;
 
 			btRigidBody *body = btRigidBody::upcast(collision_array[i]);
+			if (body) {
+				if (body->isActive())
+					++active_actors;
+				else
+					++sleeping_actors;
+			}
+
 			if (body
 				&& body->m_optionalMotionState
 				&& body->isActive()
@@ -3147,6 +3156,15 @@ struct PhysicsWorldImpl
 				}
 			}
 		}
+
+		RECORD_FLOAT("physics.shapes", f32(array::size(_collider_shape)));
+		RECORD_FLOAT("physics.colliders", f32(array::size(_collider)));
+		RECORD_FLOAT("physics.actors", f32(array::size(_actor)));
+		RECORD_FLOAT("physics.movers", f32(array::size(_mover)));
+		RECORD_FLOAT("physics.joints", f32(array::size(_joints)));
+		RECORD_FLOAT("physics.contacts", f32(hash_set::size(*_prev_pairs)));
+		RECORD_FLOAT("physics.active_actors", f32(active_actors));
+		RECORD_FLOAT("physics.sleeping_actors", f32(sleeping_actors));
 	}
 
 	EventStream &events()
