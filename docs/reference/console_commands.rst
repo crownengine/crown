@@ -106,8 +106,8 @@ physics
 Configure physics debug visualization. The command accepts the following
 parameters:
 
-``debug <ON/OFF>``
-	Enable or disable physics debug drawing.
+``debug [on|off]``
+	Toggle physics debug drawing, or set it explicitly.
 
 ``scale <value>``
 	Scale debug primitives. Collision shapes are never scaled. ``0`` disables scaling.
