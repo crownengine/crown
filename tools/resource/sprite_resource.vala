@@ -581,6 +581,10 @@ public class SpriteImportDialog : Gtk.Window
 		if (File.new_for_path(settings_path).query_exists()) {
 			try {
 				decode(SJSON.load_from_path(settings_path));
+				_current_frame.set_max(cells.value.x * cells.value.y - 1);
+				set_preview_frame();
+				_slices.queue_draw();
+				_preview.queue_draw();
 			} catch (JsonSyntaxError e) {
 				// No-op.
 			}
