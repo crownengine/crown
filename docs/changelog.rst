@@ -42,6 +42,7 @@ Changelog
 * Tools: fixed unit component sync after adding, removing or undoing components.
 * Tools: fixed undo/redo not being restored after a resource failed to load in the database.
 * Tools: fixed sprite units being invisible at start inside the Unit Editor.
+* Tools: fixed the Preview panel in the Sprite Importer not being updated when reimporting sprites.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
