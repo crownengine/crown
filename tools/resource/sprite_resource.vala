@@ -663,8 +663,11 @@ public class SpriteImportDialog : Gtk.Window
 		capsule_collision_radius.value = obj.has_key("capsule_collision_radius") ? (double)obj["capsule_collision_radius"] : 32;
 		capsule_collision_height.value = obj.has_key("capsule_collision_height") ? (double)obj["capsule_collision_height"] : 64;
 
-		shape.visible_child_name = obj.has_key("shape_active_name") ? (string)obj["shape_active_name"] : "square_collider";
-		actor_class.value        = obj.has_key("actor_class") ? (string)obj["actor_class"] : "static";
+		string shape_active_name = obj.has_key("shape_active_name") ? ((string)obj["shape_active_name"]).dup() : "square_collider";
+		string actor_class_name  = obj.has_key("actor_class") ? ((string)obj["actor_class"]).dup() : "static";
+
+		shape.visible_child_name = shape_active_name;
+		actor_class.value        = actor_class_name;
 		lock_rotation_z.active   = obj.has_key("lock_rotation_z") ? (bool)obj["lock_rotation_z"] : true;
 		mass.value               = obj.has_key("mass") ? (double)obj["mass"] : 10.0;
 	}
