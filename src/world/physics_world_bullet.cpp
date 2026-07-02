@@ -126,7 +126,7 @@ namespace physics_globals
 
 	static void command_help()
 	{
-		logi(PHYSICS, "debug <ON/OFF>      Enable or disable physics debug drawing.");
+		logi(PHYSICS, "debug [ON|OFF]      Toggle, enable or disable physics debug drawing.");
 		logi(PHYSICS, "scale <VALUE>       Scale debug primitives. 0 disables scaling.");
 		logi(PHYSICS, "show <PARAMETER>    Show a physics visualization parameter.");
 		logi(PHYSICS, "hide <PARAMETER>    Hide a physics visualization parameter.");
@@ -150,20 +150,24 @@ namespace physics_globals
 		}
 
 		if (subcmd == "debug") {
-			if (array::size(args) != 3) {
-				cs.error(client_id, "Usage: physics debug <ON/OFF>");
+			if (array::size(args) > 3) {
+				cs.error(client_id, "Usage: physics debug [ON|OFF]");
 				return;
 			}
 
-			DynamicString value(ta);
-			sjson::parse_string(value, args[2]);
-			if (value.length() == 2 && strncasecmp(value.c_str(), "on", 2) == 0) {
-				_debug_enabled = true;
-			} else if (value.length() == 3 && strncasecmp(value.c_str(), "off", 3) == 0) {
-				_debug_enabled = false;
+			if (array::size(args) == 3) {
+				DynamicString value(ta);
+				sjson::parse_string(value, args[2]);
+				if (value.length() == 2 && strncasecmp(value.c_str(), "on", 2) == 0) {
+					_debug_enabled = true;
+				} else if (value.length() == 3 && strncasecmp(value.c_str(), "off", 3) == 0) {
+					_debug_enabled = false;
+				} else {
+					cs.error(client_id, "Usage: physics debug [ON|OFF]");
+					return;
+				}
 			} else {
-				cs.error(client_id, "Usage: physics debug <ON/OFF>");
-				return;
+				_debug_enabled = !_debug_enabled;
 			}
 			return;
 		}
