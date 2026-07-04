@@ -89,57 +89,67 @@ public struct MaterialResource
 			set_texture("u_albedo_map", albedo_map);
 	}
 
+	private void set_uniform_vector4(string uniform_name, double x, double y, double z, double w)
+	{
+		Guid uniform_id = GUID_ZERO;
+		foreach (Guid id in _db.get_set(_id, "uniforms")) {
+			if (_db.get_string(id, "name") == uniform_name) {
+				uniform_id = id;
+				break;
+			}
+		}
+
+		if (uniform_id == GUID_ZERO) {
+			uniform_id = Guid.new_guid();
+			_db.create(uniform_id, OBJECT_TYPE_UNIFORM_VECTOR4);
+			_db.set_string(uniform_id, "name", uniform_name);
+			_db.add_to_set(_id, "uniforms", uniform_id);
+		}
+
+		_db.set_double(uniform_id, "value.x", x);
+		_db.set_double(uniform_id, "value.y", y);
+		_db.set_double(uniform_id, "value.z", z);
+		_db.set_double(uniform_id, "value.w", w);
+	}
+
 	public void set_float(string uniform_name, double value)
 	{
-		_db.set_string(_id
-			, "uniforms.%s.type".printf(uniform_name)
-			, "float"
-			);
-		_db.set_double(_id
-			, "uniforms.%s.value".printf(uniform_name)
-			, value
-			);
+		set_uniform_vector4(uniform_name, value, 0.0, 0.0, 0.0);
 	}
 
 	public void set_vector2(string uniform_name, Vector2 value)
 	{
-		_db.set_string(_id
-			, "uniforms.%s.type".printf(uniform_name)
-			, "vector2"
-			);
-		_db.set_vector3(_id
-			, "uniforms.%s.value".printf(uniform_name)
-			, Vector3(value.x, value.y, 0.0)
-			);
+		set_uniform_vector4(uniform_name, value.x, value.y, 0.0, 0.0);
 	}
 
 	public void set_vector3(string uniform_name, Vector3 value)
 	{
-		_db.set_string(_id
-			, "uniforms.%s.type".printf(uniform_name)
-			, "vector3"
-			);
-		_db.set_vector3(_id
-			, "uniforms.%s.value".printf(uniform_name)
-			, value
-			);
+		set_uniform_vector4(uniform_name, value.x, value.y, value.z, 0.0);
 	}
 
 	public void set_vector4(string uniform_name, Quaternion value)
 	{
-		_db.set_string(_id
-			, "uniforms.%s.type".printf(uniform_name)
-			, "vector4"
-			);
-		_db.set_quaternion(_id
-			, "uniforms.%s.value".printf(uniform_name)
-			, value
-			);
+		set_uniform_vector4(uniform_name, value.x, value.y, value.z, value.w);
 	}
 
 	public void set_texture(string sampler_name, string texture_name)
 	{
-		_db.set_string(_id, "textures.%s".printf(sampler_name), texture_name);
+		Guid texture_id = GUID_ZERO;
+		foreach (Guid id in _db.get_set(_id, "textures")) {
+			if (_db.get_string(id, "name") == sampler_name) {
+				texture_id = id;
+				break;
+			}
+		}
+
+		if (texture_id == GUID_ZERO) {
+			texture_id = Guid.new_guid();
+			_db.create(texture_id, OBJECT_TYPE_TEXTURE_SAMPLER);
+			_db.set_string(texture_id, "name", sampler_name);
+			_db.add_to_set(_id, "textures", texture_id);
+		}
+
+		_db.set_resource(texture_id, "texture", texture_name);
 	}
 
 	public int save(Project project, string resource_name)

@@ -8,6 +8,7 @@
 #include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.h"
+#include "core/json/types.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/constants.h"
@@ -210,6 +211,34 @@ namespace material_resource_internal
 		}
 	};
 
+	static s32 parse_vector4_object(Vector4 &v, const char *json)
+	{
+		TempAllocator256 ta;
+		JsonObject obj(ta);
+		RETURN_IF_ERROR(sjson::parse_object(obj, json));
+
+		v.x = RETURN_IF_ERROR(sjson::parse_float(obj["x"]));
+		v.y = RETURN_IF_ERROR(sjson::parse_float(obj["y"]));
+		v.z = RETURN_IF_ERROR(sjson::parse_float(obj["z"]));
+		v.w = RETURN_IF_ERROR(sjson::parse_float(obj["w"]));
+
+		return 0;
+	}
+
+	static s32 parse_matrix4x4_object(Matrix4x4 &m, const char *json)
+	{
+		TempAllocator1024 ta;
+		JsonObject obj(ta);
+		RETURN_IF_ERROR(sjson::parse_object(obj, json));
+
+		RETURN_IF_ERROR(parse_vector4_object(m.x, obj["x"]));
+		RETURN_IF_ERROR(parse_vector4_object(m.y, obj["y"]));
+		RETURN_IF_ERROR(parse_vector4_object(m.z, obj["z"]));
+		RETURN_IF_ERROR(parse_vector4_object(m.t, obj["t"]));
+
+		return 0;
+	}
+
 	// Returns offset to start of data
 	template<typename T>
 	static u32 reserve_dynamic_data(Array<char> &dynamic, T data)
@@ -219,7 +248,7 @@ namespace material_resource_internal
 		return offt;
 	}
 
-	static s32 parse_textures(Data &data, const char *json, CompileOptions &opts)
+	static s32 parse_textures_compat(Data &data, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -244,7 +273,7 @@ namespace material_resource_internal
 		return 0;
 	}
 
-	static s32 parse_uniforms(Data &data, const char *json, CompileOptions &opts)
+	static s32 parse_uniforms_compat(Data &data, const char *json, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
@@ -319,6 +348,91 @@ namespace material_resource_internal
 		return 0;
 	}
 
+	static s32 parse_textures(Data &data, const char *json, CompileOptions &opts)
+	{
+		TempAllocator4096 ta;
+		JsonArray arr(ta);
+		RETURN_IF_ERROR(sjson::parse_array(arr, json));
+
+		for (u32 i = 0; i < array::size(arr); ++i) {
+			JsonObject texture(ta);
+			RETURN_IF_ERROR(sjson::parse_object(texture, arr[i]));
+
+			DynamicString type(ta);
+			if (json_object::has(texture, "_type")) {
+				RETURN_IF_ERROR(sjson::parse_string(type, texture["_type"]));
+				RETURN_IF_FALSE(MATERIAL_RESOURCE, type == "texture_sampler"
+					, opts
+					, "Unknown texture object type: '%s'"
+					, type.c_str()
+					);
+			}
+
+			DynamicString sampler(ta);
+			DynamicString texture_name(ta);
+			RETURN_IF_ERROR(sjson::parse_string(sampler, texture["name"]));
+			RETURN_IF_ERROR(sjson::parse_string(texture_name, texture["texture"]));
+			WARN_IF_MISSING(MATERIAL_RESOURCE, "texture", texture_name.c_str(), opts);
+			opts.add_requirement("texture", texture_name.c_str());
+
+			data.add_texture(StringView(sampler.c_str()), StringId64(texture_name.c_str()));
+		}
+
+		return 0;
+	}
+
+	static s32 parse_uniforms(Data &data, const char *json, CompileOptions &opts)
+	{
+		TempAllocator4096 ta;
+		JsonArray arr(ta);
+		RETURN_IF_ERROR(sjson::parse_array(arr, json));
+
+		for (u32 i = 0; i < array::size(arr); ++i) {
+			JsonObject uniform(ta);
+			DynamicString type(ta);
+			DynamicString name(ta);
+			RETURN_IF_ERROR(sjson::parse_object(uniform, arr[i]));
+			RETURN_IF_ERROR(sjson::parse_string(type, uniform["_type"]));
+			RETURN_IF_ERROR(sjson::parse_string(name, uniform["name"]));
+
+			UniformValue val;
+			memset(&val, 0, sizeof(val));
+
+			UniformType::Enum ut = UniformType::COUNT;
+
+			if (type == "uniform_vector4") {
+				ut = UniformType::VECTOR4;
+				if (sjson::type(uniform["value"]) == JsonValueType::ARRAY) {
+					val.v = RETURN_IF_ERROR(sjson::parse_vector4(uniform["value"]));
+				} else {
+					RETURN_IF_ERROR(parse_vector4_object(val.v, uniform["value"]));
+				}
+
+				UniformMetadata *meta = data.find_meta(StringView(name.c_str()));
+				if (meta != NULL && meta->type != UniformType::MATRIX4X4)
+					ut = meta->type;
+			} else if (type == "uniform_matrix4x4") {
+				ut = UniformType::MATRIX4X4;
+				if (json_object::has(uniform, "value")) {
+					val.m = RETURN_IF_ERROR(sjson::parse_matrix4x4(uniform["value"]));
+				} else {
+					RETURN_IF_ERROR(parse_matrix4x4_object(val.m, arr[i]));
+				}
+			} else {
+				RETURN_IF_FALSE(MATERIAL_RESOURCE, false
+					, opts
+					, "Unknown uniform object type: '%s'"
+					, type.c_str()
+					);
+			}
+
+			const s32 err = data.check_uniform(StringView(name.c_str()), ut, val, opts);
+			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
+		}
+
+		return 0;
+	}
+
 	/// Extracts @a shader_name and a list of @a defines from a @a shader variant string.
 	static void shader_name_defines(StringView &shader_name, Vector<StringView> &defines, const char *shader)
 	{
@@ -375,7 +489,10 @@ namespace material_resource_internal
 
 		// Parse uniforms and textures.
 		if (json_object::has(obj, "textures")) {
-			err = parse_textures(data, obj["textures"], opts);
+			if (sjson::type(obj["textures"]) == JsonValueType::OBJECT)
+				err = parse_textures_compat(data, obj["textures"], opts);
+			else
+				err = parse_textures(data, obj["textures"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 		for (u32 i = 0; i < array::size(data.textures); ++i) {
@@ -394,7 +511,10 @@ namespace material_resource_internal
 			}
 		}
 		if (json_object::has(obj, "uniforms")) {
-			err = parse_uniforms(data, obj["uniforms"], opts);
+			if (sjson::type(obj["uniforms"]) == JsonValueType::OBJECT)
+				err = parse_uniforms_compat(data, obj["uniforms"], opts);
+			else
+				err = parse_uniforms(data, obj["uniforms"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
 

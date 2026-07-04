@@ -2702,8 +2702,6 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (resource_type == OBJECT_TYPE_STATE_MACHINE) {
 			activate_action("state-machine-editor", resource_name);
 			return;
-		} else if (resource_type == OBJECT_TYPE_MATERIAL) {
-			app = null;
 		} else if (resource_type == "lua") {
 			app = _preferences_dialog._external_editor_lua.get_app_info();
 		} else if (_project.is_type_image(resource_type)) {

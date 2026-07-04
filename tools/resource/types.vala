@@ -47,8 +47,11 @@ const string OBJECT_TYPE_STATE_MACHINE           = "state_machine";
 const string OBJECT_TYPE_STATE_MACHINE_NODE      = "state_machine_node";
 const string OBJECT_TYPE_STATE_MACHINE_VARIABLE  = "state_machine_variable";
 const string OBJECT_TYPE_TEXTURE                 = "texture";
+const string OBJECT_TYPE_TEXTURE_SAMPLER         = "texture_sampler";
 const string OBJECT_TYPE_TONEMAP                 = "tonemap";
 const string OBJECT_TYPE_TRANSFORM               = "transform";
+const string OBJECT_TYPE_UNIFORM_MATRIX4X4       = "uniform_matrix4x4";
+const string OBJECT_TYPE_UNIFORM_VECTOR4         = "uniform_vector4";
 const string OBJECT_TYPE_UNIT                    = "unit";
 
 // UI order reference table:
@@ -1926,6 +1929,18 @@ public static void create_object_types(Database database)
 			type = PropertyType.STRING,
 			name = "shader",
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			object_type = StringId64(OBJECT_TYPE_TEXTURE_SAMPLER),
+			name = "textures",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			object_type = StringId64(OBJECT_TYPE_UNIFORM_VECTOR4),
+			name = "uniforms",
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MATERIAL, properties);
 
@@ -2464,11 +2479,147 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.RESOURCE,
+			resource_type = OBJECT_TYPE_TEXTURE,
+			name = "texture",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_TEXTURE_SAMPLER, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "time",
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_ANIMATION_EVENT, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x.x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x.y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x.z",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "x.w",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y.x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y.y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y.z",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "y.w",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "z.x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "z.y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "z.z",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "z.w",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "t.x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "t.y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "t.z",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "t.w",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_UNIFORM_MATRIX4X4, properties);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "value.x",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "value.y",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "value.z",
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "value.w",
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_UNIFORM_VECTOR4, properties);
 }
 
 } /* namespace Crown */

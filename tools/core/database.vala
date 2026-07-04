@@ -584,6 +584,78 @@ public class Database
 			Unit(this, id).prune_stale_overrides();
 	}
 
+	private void convert_material(Hashtable json)
+	{
+		if (json.has_key("textures") && json["textures"].holds(typeof(Hashtable))) {
+			Hashtable old_textures = (Hashtable)json["textures"];
+			Gee.ArrayList<Value?> textures = new Gee.ArrayList<Value?>();
+
+			foreach (string name in old_textures.keys) {
+				Hashtable texture = new Hashtable();
+				texture["_type"] = OBJECT_TYPE_TEXTURE_SAMPLER;
+				texture["name"] = name;
+				texture["texture"] = old_textures[name];
+				textures.add(texture);
+			}
+
+			json["textures"] = textures;
+		}
+
+		if (json.has_key("uniforms") && json["uniforms"].holds(typeof(Hashtable))) {
+			Hashtable old_uniforms = (Hashtable)json["uniforms"];
+			Gee.ArrayList<Value?> uniforms = new Gee.ArrayList<Value?>();
+
+			foreach (string name in old_uniforms.keys) {
+				Hashtable old_uniform = (Hashtable)old_uniforms[name];
+				string type = (string)old_uniform["type"];
+				Value? value = old_uniform["value"];
+
+				Hashtable uniform = new Hashtable();
+				uniform["name"] = name;
+
+				if (type == "matrix4x4") {
+					uniform["_type"] = OBJECT_TYPE_UNIFORM_MATRIX4X4;
+
+					Gee.ArrayList<Value?> matrix = (Gee.ArrayList<Value?>)value;
+					string[] rows = { "x", "y", "z", "t" };
+					for (int row = 0; row < 4; ++row) {
+						int offset = row*4;
+
+						Hashtable row_value = new Hashtable();
+						row_value["x"] = (double)matrix[offset + 0];
+						row_value["y"] = (double)matrix[offset + 1];
+						row_value["z"] = (double)matrix[offset + 2];
+						row_value["w"] = (double)matrix[offset + 3];
+						uniform[rows[row]] = row_value;
+					}
+				} else {
+					uniform["_type"] = OBJECT_TYPE_UNIFORM_VECTOR4;
+
+					double[] v = { 0.0, 0.0, 0.0, 0.0 };
+					if (value.holds(typeof(double))) {
+						v[0] = (double)value;
+					} else {
+						Gee.ArrayList<Value?> arr = (Gee.ArrayList<Value?>)value;
+						for (int i = 0; i < arr.size && i < 4; ++i) {
+							v[i] = (double)arr[i];
+						}
+					}
+
+					Hashtable vector = new Hashtable();
+					vector["x"] = v[0];
+					vector["y"] = v[1];
+					vector["z"] = v[2];
+					vector["w"] = v[3];
+					uniform["value"] = vector;
+				}
+
+				uniforms.add(uniform);
+			}
+
+			json["uniforms"] = uniforms;
+		}
+	}
+
 	/// Saves database to path without marking it as not changed.
 	public int dump(string path, Guid id)
 	{
@@ -869,10 +941,14 @@ public class Database
 		}
 
 		assert(type != null);
-		PropertyDefinition[]? properties = object_definition(StringId64(type));
-		decode_object_from_properties(id, owner_id, properties, json);
+		if (type == OBJECT_TYPE_MATERIAL)
+			convert_material(json);
 
-		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_MATERIAL)
+		PropertyDefinition[]? properties = object_definition(StringId64(type));
+		if (properties != null)
+			decode_object_from_properties(id, owner_id, properties, json);
+
+		if (type == OBJECT_TYPE_UNIT || (type == OBJECT_TYPE_MATERIAL && properties == null))
 			decode_object_compat(id, owner_id, db_key, json);
 	}
 
