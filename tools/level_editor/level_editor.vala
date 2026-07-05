@@ -2032,6 +2032,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		_statusbar.set_temporary_message(_("Saved %s").printf(_level._path));
 		update_active_window_title();
+
+		compile_and_reload.begin((obj, res) => {
+				if (compile_and_reload.end(res)) {
+					ui_read_selection(_database_editor._selection.to_array());
+				}
+			});
 		return true;
 	}
 
