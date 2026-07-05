@@ -128,6 +128,12 @@ public class Project
 	public uint64 mtime(string type, string name)
 	{
 		var path = ResourceId.path(type, name);
+
+		if (!_map.has_key(path)) {
+			logw("mtime: map does not contain path: %s".printf(path));
+			return 0;
+		}
+
 		Guid id = _map[path];
 		string mtime = _files.get_string(id, "mtime");
 		return uint64.parse(mtime);
