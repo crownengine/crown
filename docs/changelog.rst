@@ -11,6 +11,7 @@ Changelog
 * Tools: fixed sprite units being invisible at start inside the Unit Editor.
 * Tools: fixed the Preview panel in the Sprite Importer not being updated when reimporting sprites.
 * Runtime: fixed local shape transforms not being honored.
+* Runtime: fixed shadow map coverage of omni lights.
 
 .. _v0.63.5:
 
