@@ -1269,8 +1269,8 @@ public class LevelEditorApplication : Gtk.Application
 					show_panel(PANEL_PROJECTS_LIST);
 				}
 			} else {
-				show_panel(PANEL_EDITOR);
-				restart_backend.begin();
+				string? level_name = _level_resource != LEVEL_NONE ? _level_resource : null;
+				open_project(_source_dir, level_name);
 			}
 		} catch (IOError e) {
 			loge(e.message);
