@@ -1055,7 +1055,6 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 		// Create sub-directories.
 		CreateResult data_cr = data_fs.create_directory(CROWN_DATA_DIRECTORY);
-		data_fs.create_directory(CROWN_TEMP_DIRECTORY);
 
 		if (data_cr.error != CreateResult::SUCCESS && data_cr.error != CreateResult::ALREADY_EXISTS) {
 			loge(DATA_COMPILER, "Failed to create the data directory: `%s/%s`", data_dir, CROWN_DATA_DIRECTORY);

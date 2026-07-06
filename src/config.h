@@ -136,10 +136,6 @@ CE_STATIC_ASSERT(CROWN_CONSOLE_PORT_AUTO_MAX_TRIES > 0, "Invalid console auto-po
 	#define CROWN_DATA_DIRECTORY "data"
 #endif
 
-#ifndef CROWN_TEMP_DIRECTORY
-	#define CROWN_TEMP_DIRECTORY "temp"
-#endif
-
 #ifndef CROWN_LAST_LOG
 	#define CROWN_LAST_LOG "last.log"
 #endif

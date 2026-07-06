@@ -9,6 +9,7 @@
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/containers/vector.inl"
+#include "core/environment.h"
 #include "core/filesystem/file.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/path.h"
@@ -243,13 +244,12 @@ void CompileOptions::absolute_path(DynamicString &abs, const char *path)
 void CompileOptions::temporary_path(DynamicString &abs, const char *suffix)
 {
 	TempAllocator1024 ta;
-	DynamicString str(ta);
+	DynamicString tmp_dir(ta);
 	DynamicString prefix(ta);
+	environment::tmp_dir(tmp_dir);
 	prefix.from_guid(guid::new_guid());
 
-	_output_filesystem.absolute_path(str, CROWN_TEMP_DIRECTORY);
-
-	path::join(abs, str.c_str(), prefix.c_str());
+	path::join(abs, tmp_dir.c_str(), prefix.c_str());
 	abs += '.';
 	abs += suffix;
 }
