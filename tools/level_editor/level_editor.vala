@@ -594,6 +594,106 @@ public enum StartGame
 	TEST
 }
 
+public struct CommandLineOptions
+{
+	public bool show_help;
+	public bool show_version;
+	public string? source_dir;
+	public string? positional_source_dir;
+	public string level_resource;
+
+	public void print_help(GLib.FileStream stream)
+	{
+		stream.printf("Usage:\n"
+			+ "  crown-editor [OPTION...] [<source-dir> [<level>]]\n"
+			+ "\n"
+			+ "Options:\n"
+			+ "  -h, --help                 Display this help and exit.\n"
+			+ "  -v, --version              Display version information and exit.\n"
+			+ "      --source-dir <path>    Project source directory.\n"
+			);
+	}
+
+	public bool parse(ref string[] args, out string error)
+	{
+		show_help = false;
+		show_version = false;
+		source_dir = null;
+		positional_source_dir = null;
+		level_resource = "";
+		error = "";
+
+		string? option_source_dir = null;
+		bool option_show_help = false;
+		bool option_show_version = false;
+
+		GLib.OptionEntry[] option_entries =
+		{
+			{ "help",       'h', 0, GLib.OptionArg.NONE,     ref option_show_help,    "Display this help and exit.",           null   },
+			{ "version",    'v', 0, GLib.OptionArg.NONE,     ref option_show_version, "Display version information and exit.", null   },
+			{ "source-dir", 0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,   "Project source directory.",             "path" },
+			{ null }
+		};
+
+		GLib.OptionContext opt_context = new GLib.OptionContext("[<source-dir> [<level>]]");
+		opt_context.set_help_enabled(false);
+		opt_context.add_main_entries(option_entries, null);
+
+		try {
+			opt_context.parse_strv(ref args);
+		} catch (GLib.OptionError e) {
+			error = e.message;
+			return false;
+		}
+
+		show_help = option_show_help;
+		show_version = option_show_version;
+		source_dir = option_source_dir;
+
+		if (source_dir != null) {
+			if (args.length > 1) {
+				if (GLib.FileUtils.test(args[1], FileTest.EXISTS)
+					&& GLib.FileUtils.test(args[1], FileTest.IS_DIR)
+					) {
+					error = "Source directory specified with both --source-dir and positional argument";
+					return false;
+				}
+
+				level_resource = args[1];
+			}
+
+			if (args.length > 2) {
+				error = "Too many positional arguments";
+				return false;
+			}
+		} else {
+			if (args.length > 1) {
+				positional_source_dir = args[1];
+				source_dir = positional_source_dir;
+			}
+
+			if (args.length > 2)
+				level_resource = args[2];
+
+			if (args.length > 3) {
+				error = "Too many positional arguments";
+				return false;
+			}
+		}
+
+		if (source_dir != null
+			&& (!GLib.FileUtils.test(source_dir, FileTest.EXISTS)
+				|| !GLib.FileUtils.test(source_dir, FileTest.IS_DIR)
+				)
+			) {
+			error = "Source directory does not exist or it is not a directory";
+			return false;
+		}
+
+		return true;
+	}
+}
+
 public class LevelEditorApplication : Gtk.Application
 {
 	public const GLib.ActionEntry[] action_entries_file =
@@ -731,6 +831,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	// Command line options
 	public uint _launcher_watch_id;
+	public CommandLineOptions _command_line_options;
 	public string? _source_dir = null;
 	public string _level_resource = "";
 	public User _user;
@@ -831,12 +932,13 @@ public class LevelEditorApplication : Gtk.Application
 
 	public signal void ui_read_selection(Guid?[] selection);
 
-	public LevelEditorApplication()
+	public LevelEditorApplication(CommandLineOptions command_line_options)
 	{
 		Object(application_id: "org.crownengine.Crown"
-			, flags: GLib.ApplicationFlags.FLAGS_NONE
+			, flags: GLib.ApplicationFlags.HANDLES_COMMAND_LINE
 			);
 
+		_command_line_options = command_line_options;
 		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
 	}
 
@@ -1279,20 +1381,20 @@ public class LevelEditorApplication : Gtk.Application
 
 	public override bool local_command_line(ref unowned string[] args, out int exit_status)
 	{
-		if (args.length > 1) {
-			if (!GLib.FileUtils.test(args[1], FileTest.EXISTS) || !GLib.FileUtils.test(args[1], FileTest.IS_DIR)) {
-				loge("Source directory does not exist or it is not a directory");
-				exit_status = 1;
-				return true;
-			}
-
-			_source_dir = args[1];
+		if (_command_line_options.show_help) {
+			_command_line_options.print_help(stdout);
+			exit_status = 0;
+			return true;
 		}
 
-		if (args.length > 2) {
-			// Validation is done below after the Project object instantiation
-			_level_resource = args[2];
+		if (_command_line_options.show_version) {
+			stdout.printf("%s %s\n", CROWN_EDITOR_NAME, CROWN_VERSION);
+			exit_status = 0;
+			return true;
 		}
+
+		_source_dir = _command_line_options.source_dir;
+		_level_resource = _command_line_options.level_resource;
 
 		exit_status = 0;
 		return false;
@@ -4357,6 +4459,30 @@ public static int main(string[] args)
 			args = args[0 : args.length - 1];
 	}
 
+	CommandLineOptions command_line_options = CommandLineOptions();
+	if (_log_prefix == "editor") {
+		string[] parse_args = {};
+		for (ii = 0; ii < args.length; ++ii)
+			parse_args += args[ii];
+
+		string error;
+		if (!command_line_options.parse(ref parse_args, out error)) {
+			stderr.printf("crown-editor: %s\n", error);
+			stderr.printf("Try 'crown-editor --help' for more information.\n");
+			return 1;
+		}
+
+		if (command_line_options.show_help) {
+			command_line_options.print_help(stdout);
+			return 0;
+		}
+
+		if (command_line_options.show_version) {
+			stdout.printf("%s %s\n", CROWN_EDITOR_NAME, CROWN_VERSION);
+			return 0;
+		}
+	}
+
 	// Redirect GLib logs to internal log*().
 	GLib.set_print_handler((msg) => { logi(msg); });
 	GLib.set_printerr_handler((msg) => { loge(msg); });
@@ -4534,8 +4660,8 @@ public static int main(string[] args)
 	Pango.FontMap fontmap = Pango.CairoFontMap.new_for_font_type(Cairo.FontType.FT);
 	Pango.CairoFontMap.set_default((Pango.CairoFontMap)fontmap);
 
-	LevelEditorApplication app = new LevelEditorApplication();
-	return app.run(args);
+	LevelEditorApplication app = new LevelEditorApplication(command_line_options);
+	return app.run({ args[0] });
 }
 
 } /* namespace Crown */
