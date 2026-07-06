@@ -51,6 +51,7 @@ Changelog
 * Runtime: fixed inconsistent precision in omni lights shadow maps.
 * Runtime: fixed shadow maps filtering.
 * Runtime: fixed shadow maps artifacts on HTML5.
+* Runtime: fixed shadow map coverage of omni lights.
 * Runtime: fixed local shape transforms not being honored.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.

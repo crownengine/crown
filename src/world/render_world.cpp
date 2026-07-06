@@ -1664,8 +1664,8 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 						{
 							{ frad(0.0f), frad(+90.0f - 27.36780516f), frad(-180.0f) },
 							{ frad(0.0f), frad(-90.0f + 27.36780516f), frad(+180.0f) },
-							{ frad(+90.0f + 27.36780516f), frad(0.0f), frad(+180.0f) },
-							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(-180.0f) },
+							{ frad(+90.0f + 27.36780516f), frad(0.0f), frad(0.0f) },
+							{ frad(-90.0f - 27.36780516f), frad(0.0f), frad(0.0f) },
 						};
 
 						const Vector3 &light_pos = shader.position;
