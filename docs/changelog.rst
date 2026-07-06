@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.7 --- DD MMM YYYY <v0.63.7>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed opening a project via command line.
+
 .. _v0.63.6:
 
 :ref:`0.63.6 --- 06 Jul 2026 <v0.63.6>`
