@@ -183,84 +183,60 @@ namespace OBJImport
 [Compact]
 public class OBJImportOptions
 {
-	public InputBool import_textures;
-	public InputBool create_textures_folder;
-	public InputBool import_materials;
-	public InputBool create_materials_folder;
-	public InputBool create_colliders;
-	public InputBool import_lods;
-	public InputEnum tangents;
+	public bool import_textures;
+	public bool create_textures_folder;
+	public bool import_materials;
+	public bool create_materials_folder;
+	public bool create_colliders;
+	public bool import_lods;
+	public string tangents;
 
 	public OBJImportOptions()
 	{
-		import_textures = new InputBool();
-		import_textures.value = true;
-		import_textures.value_changed.connect(on_import_textures_changed);
-		create_textures_folder = new InputBool();
-		create_textures_folder.value = true;
-		import_materials = new InputBool();
-		import_materials.value = true;
-		import_materials.value_changed.connect(on_import_materials_changed);
-		create_materials_folder = new InputBool();
-		create_materials_folder.value = true;
-		create_colliders = new InputBool();
-		create_colliders.value = false;
-		import_lods = new InputBool();
-		import_lods.value = true;
-		tangents = new InputEnum("calculate"
-			, new string[] { _("Calculate"), _("Import") }
-			, new string[] { "calculate", "import" }
-			);
-	}
-
-	public void on_import_textures_changed()
-	{
-		create_textures_folder.set_sensitive(import_textures.value);
-	}
-
-	public void on_import_materials_changed()
-	{
-		create_materials_folder.set_sensitive(import_materials.value);
+		import_textures = true;
+		create_textures_folder = true;
+		import_materials = true;
+		create_materials_folder = true;
+		create_colliders = false;
+		import_lods = true;
+		tangents = "calculate";
 	}
 
 	public void decode(Hashtable json)
 	{
 		json.foreach((g) => {
 				if (g.key == "import_textures")
-					import_textures.value = (bool)g.value;
+					import_textures = (bool)g.value;
 				else if (g.key == "create_textures_folder")
-					create_textures_folder.value = (bool)g.value;
+					create_textures_folder = (bool)g.value;
 				else if (g.key == "import_materials")
-					import_materials.value = (bool)g.value;
+					import_materials = (bool)g.value;
 				else if (g.key == "create_materials_folder")
-					create_materials_folder.value = (bool)g.value;
+					create_materials_folder = (bool)g.value;
 				else if (g.key == "create_colliders")
-					create_colliders.value = (bool)g.value;
+					create_colliders = (bool)g.value;
 				else if (g.key == "import_lods")
-					import_lods.value = (bool)g.value;
+					import_lods = (bool)g.value;
 				else if (g.key == "tangents")
-					tangents.value = (string)g.value;
+					tangents = (string)g.value;
 				else
 					logw("Unknown option '%s'".printf(g.key));
 
 				return true;
 			});
-
-		import_textures.value_changed(import_textures);
-		import_materials.value_changed(import_materials);
 	}
 
 	public Hashtable encode()
 	{
 		Hashtable obj = new Hashtable();
 
-		obj.set("import_textures", import_textures.value);
-		obj.set("create_textures_folder", import_textures.value ? create_textures_folder.value : false);
-		obj.set("import_materials", import_materials.value);
-		obj.set("create_materials_folder", import_materials.value ? create_materials_folder.value : false);
-		obj.set("create_colliders", create_colliders.value ? create_colliders.value : false);
-		obj.set("import_lods", import_lods.value);
-		obj.set("tangents", tangents.value);
+		obj.set("import_textures", import_textures);
+		obj.set("create_textures_folder", import_textures ? create_textures_folder : false);
+		obj.set("import_materials", import_materials);
+		obj.set("create_materials_folder", import_materials ? create_materials_folder : false);
+		obj.set("create_colliders", create_colliders ? create_colliders : false);
+		obj.set("import_lods", import_lods);
+		obj.set("tangents", tangents);
 
 		return obj;
 	}
@@ -276,6 +252,14 @@ public class OBJImportDialog : Gtk.Window
 	public string _options_path;
 	public OBJImportOptions _options;
 
+	public InputBool _import_textures;
+	public InputBool _create_textures_folder;
+	public InputBool _import_materials;
+	public InputBool _create_materials_folder;
+	public InputBool _create_colliders;
+	public InputBool _import_lods;
+	public InputEnum _tangents;
+
 	public PropertyGridSet _general_set;
 	public Gtk.Box _box;
 
@@ -283,7 +267,13 @@ public class OBJImportDialog : Gtk.Window
 	public Gtk.Button _cancel;
 	public Gtk.HeaderBar _header_bar;
 
-	public OBJImportDialog(Database database, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public OBJImportDialog(Database database
+		, string destination_dir
+		, GLib.SList<string> filenames
+		, Import import_result
+		, owned OBJImportOptions options
+		, string options_path
+		)
 	{
 		_project = database._project;
 		_destination_dir = destination_dir;
@@ -291,32 +281,38 @@ public class OBJImportDialog : Gtk.Window
 		foreach (var f in filenames)
 			_filenames.add(f);
 		_import_result = import_result;
+		_options = (owned)options;
+		_options_path = options_path;
 
 		_general_set = new PropertyGridSet();
 
-		_options = new OBJImportOptions();
-		GLib.File file_dst;
-		string resource_path;
-		OBJImport.get_destination_file(out file_dst, destination_dir, File.new_for_path(_filenames[0]));
-		OBJImport.get_resource_path(out resource_path, file_dst, _project);
-		string resource_name = ResourceId.name(resource_path);
-		_options_path = _project.absolute_path(resource_name) + ".importer_settings";
-		try {
-			_options.decode(SJSON.load_from_path(_options_path));
-		} catch (JsonSyntaxError e) {
-			// No-op.
-		}
+		_import_textures = new InputBool();
+		_import_textures.value = _options.import_textures;
+		_create_textures_folder = new InputBool();
+		_create_textures_folder.value = _options.create_textures_folder;
+		_import_materials = new InputBool();
+		_import_materials.value = _options.import_materials;
+		_create_materials_folder = new InputBool();
+		_create_materials_folder.value = _options.create_materials_folder;
+		_create_colliders = new InputBool();
+		_create_colliders.value = _options.create_colliders;
+		_import_lods = new InputBool();
+		_import_lods.value = _options.import_lods;
+		_tangents = new InputEnum(_options.tangents
+			, new string[] { _("Calculate"), _("Import") }
+			, new string[] { "calculate", "import" }
+			);
 
 		PropertyGrid cv;
 		cv = new PropertyGrid();
 		cv.column_homogeneous = true;
-		cv.add_row(_("Import Textures"), _options.import_textures, _("Import all textures."));
-		cv.add_row(_("Create Textures Folder"), _options.create_textures_folder, _("Put imported textures in a sub-folder."));
-		cv.add_row(_("Import Materials"), _options.import_materials, _("Import all materials."));
-		cv.add_row(_("Create Materials Folder"), _options.create_materials_folder, _("Put imported materials in a sub-folder."));
-		cv.add_row(_("Create Colliders"), _options.create_colliders, _("Create colliders and actors for each imported unit."));
-		cv.add_row(_("Import LODs"), _options.import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
-		cv.add_row(_("Tangents"), _options.tangents, _("Import tangents from source or calculate them with MikkTSpace."));
+		cv.add_row(_("Import Textures"), _import_textures, _("Import all textures."));
+		cv.add_row(_("Create Textures Folder"), _create_textures_folder, _("Put imported textures in a sub-folder."));
+		cv.add_row(_("Import Materials"), _import_materials, _("Import all materials."));
+		cv.add_row(_("Create Materials Folder"), _create_materials_folder, _("Put imported materials in a sub-folder."));
+		cv.add_row(_("Create Colliders"), _create_colliders, _("Create colliders and actors for each imported unit."));
+		cv.add_row(_("Import LODs"), _import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
+		cv.add_row(_("Tangents"), _tangents, _("Import tangents from source or calculate them with MikkTSpace."));
 		_general_set.add_property_grid(cv, _("Units"));
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -336,35 +332,42 @@ public class OBJImportDialog : Gtk.Window
 		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_import);
 
+		_import_textures.value_changed.connect(on_import_textures_changed);
+		_import_materials.value_changed.connect(on_import_materials_changed);
+
+		on_import_textures_changed();
+		on_import_materials_changed();
+
 		this.set_titlebar(_header_bar);
 		this.add(_box);
 	}
 
 	void import()
 	{
-		ImportResult res = OBJImporter.do_import(_options, _project, _destination_dir, _filenames);
-		if (res == ImportResult.SUCCESS) {
-			try {
-				SJSON.save(_options.encode(), _options_path);
-			} catch (JsonWriteError e) {
-				res = ImportResult.ERROR;
-			}
-		}
-
-		string? primary_path = null; // Track primary_path.
-		if (res == ImportResult.SUCCESS && _filenames.size > 0) {
-			GLib.File file_dst;
-			string resource_path;
-
-			OBJImport.get_destination_file(out file_dst, _destination_dir, File.new_for_path(_filenames[0]));
-			OBJImport.get_resource_path(out resource_path, file_dst, _project);
-			string resource_name = ResourceId.name(resource_path);
-
-			primary_path = ResourceId.path(OBJECT_TYPE_UNIT, resource_name);
-		}
-
-		_import_result(res, primary_path);
+		read_options();
+		OBJImporter.import_with_options(_import_result, _options, _project, _destination_dir, _filenames, _options_path);
 		close();
+	}
+
+	void read_options()
+	{
+		_options.import_textures = _import_textures.value;
+		_options.create_textures_folder = _import_textures.value ? _create_textures_folder.value : false;
+		_options.import_materials = _import_materials.value;
+		_options.create_materials_folder = _import_materials.value ? _create_materials_folder.value : false;
+		_options.create_colliders = _create_colliders.value;
+		_options.import_lods = _import_lods.value;
+		_options.tangents = _tangents.value;
+	}
+
+	void on_import_textures_changed()
+	{
+		_create_textures_folder.set_sensitive(_import_textures.value);
+	}
+
+	void on_import_materials_changed()
+	{
+		_create_materials_folder.set_sensitive(_import_materials.value);
 	}
 }
 
@@ -433,7 +436,7 @@ public class OBJImporter
 					unit.set_component_bool  (component_id, "data.visible", true);
 				}
 
-				if (options.create_colliders.value) {
+				if (options.create_colliders) {
 					// Create collider.
 					{
 						Guid component_id;
@@ -479,7 +482,7 @@ public class OBJImporter
 			unit.set_component_string    (component_id, "data.name", editor_name);
 		}
 
-		if (!options.create_colliders.value) {
+		if (!options.create_colliders) {
 			Guid component_id;
 			if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
@@ -557,7 +560,7 @@ public class OBJImporter
 				);
 		}
 
-		if (options.import_lods.value) {
+		if (options.import_lods) {
 			// Build one LOD group from sibling meshes named *_LOD0, *_LOD1, ...
 			for (int i = 0; i < child_unit_ids.size; ++i) {
 				unowned ufbx.Node child_node = node.children.data[i];
@@ -664,11 +667,11 @@ public class OBJImporter
 			Gee.HashMap<unowned ufbx.Material, string> imported_materials = new Gee.HashMap<unowned ufbx.Material, string>();
 
 			// Import materials.
-			if (options.import_materials.value) {
+			if (options.import_materials) {
 				// Create 'materials' folder.
 				string directory_name = "materials";
 				string materials_path = destination_dir;
-				if (options.create_materials_folder.value && scene.materials.data.length != 0) {
+				if (options.create_materials_folder && scene.materials.data.length != 0) {
 					GLib.File materials_file = File.new_for_path(Path.build_filename(destination_dir, directory_name));
 					try {
 						materials_file.make_directory();
@@ -730,14 +733,14 @@ public class OBJImporter
 										;
 								}
 
-								if (options.import_textures.value
+								if (options.import_textures
 									&& OBJImport.get_or_import_texture_resource_name(out albedo_map
 									, db
 									, project
 									, filename_i
 									, file_src
 									, destination_dir
-									, options.create_textures_folder.value
+									, options.create_textures_folder
 									, map
 									, "_df"
 									, TextureUsage.COLOR
@@ -749,14 +752,14 @@ public class OBJImporter
 						}
 
 						case ufbx.MaterialPbrMap.NORMAL_MAP:
-							if (options.import_textures.value
+							if (options.import_textures
 								&& OBJImport.get_or_import_texture_resource_name(out normal_map
 								, db
 								, project
 								, filename_i
 								, file_src
 								, destination_dir
-								, options.create_textures_folder.value
+								, options.create_textures_folder
 								, map
 								, "_nr"
 								, TextureUsage.NORMAL
@@ -770,14 +773,14 @@ public class OBJImporter
 							if (map.has_value)
 								metallic = map.value_real;
 
-							if (options.import_textures.value
+							if (options.import_textures
 								&& OBJImport.get_or_import_texture_resource_name(out metallic_map
 								, db
 								, project
 								, filename_i
 								, file_src
 								, destination_dir
-								, options.create_textures_folder.value
+								, options.create_textures_folder
 								, map
 								, "_mt"
 								, TextureUsage.DATA
@@ -791,14 +794,14 @@ public class OBJImporter
 							if (map.has_value)
 								roughness = map.value_real;
 
-							if (options.import_textures.value
+							if (options.import_textures
 								&& OBJImport.get_or_import_texture_resource_name(out roughness_map
 								, db
 								, project
 								, filename_i
 								, file_src
 								, destination_dir
-								, options.create_textures_folder.value
+								, options.create_textures_folder
 								, map
 								, "_rg"
 								, TextureUsage.DATA
@@ -809,14 +812,14 @@ public class OBJImporter
 							break;
 
 						case ufbx.MaterialPbrMap.AMBIENT_OCCLUSION:
-							if (options.import_textures.value
+							if (options.import_textures
 								&& OBJImport.get_or_import_texture_resource_name(out ao_map
 								, db
 								, project
 								, filename_i
 								, file_src
 								, destination_dir
-								, options.create_textures_folder.value
+								, options.create_textures_folder
 								, map
 								, "_ao"
 								, TextureUsage.DATA
@@ -830,14 +833,14 @@ public class OBJImporter
 							if (map.has_value)
 								emission_color = OBJImport.vector3(map.value_vec3);
 
-							if (options.import_textures.value
+							if (options.import_textures
 								&& OBJImport.get_or_import_texture_resource_name(out emission_map
 								, db
 								, project
 								, filename_i
 								, file_src
 								, destination_dir
-								, options.create_textures_folder.value
+								, options.create_textures_folder
 								, map
 								, "_em"
 								, TextureUsage.COLOR
@@ -911,13 +914,75 @@ public class OBJImporter
 		return ImportResult.SUCCESS;
 	}
 
+	public static string? primary_resource_path(Project project, string destination_dir, Gee.ArrayList<string> filenames, ImportResult result)
+	{
+		if (result != ImportResult.SUCCESS || filenames.size == 0)
+			return null;
+
+		GLib.File file_dst;
+		string resource_path;
+
+		OBJImport.get_destination_file(out file_dst, destination_dir, File.new_for_path(filenames[0]));
+		OBJImport.get_resource_path(out resource_path, file_dst, project);
+
+		return ResourceId.path(OBJECT_TYPE_UNIT, ResourceId.name(resource_path));
+	}
+
+	public static void import_with_options(Import import_result
+		, OBJImportOptions options
+		, Project project
+		, string destination_dir
+		, Gee.ArrayList<string> filenames
+		, string? options_path = null
+		)
+	{
+		ImportResult result = OBJImporter.do_import(options, project, destination_dir, filenames);
+		if (result == ImportResult.SUCCESS && options_path != null) {
+			try {
+				SJSON.save(options.encode(), options_path);
+			} catch (JsonWriteError e) {
+				result = ImportResult.ERROR;
+			}
+		}
+
+		import_result(result, OBJImporter.primary_resource_path(project, destination_dir, filenames, result));
+	}
+
 	public static void import(Import import_result, Database database, string destination_dir, GLib.SList<string> filenames, Gtk.Window? parent_window)
 	{
-		OBJImportDialog dialog = new OBJImportDialog(database, destination_dir, filenames, import_result);
-		dialog.set_transient_for(parent_window);
-		dialog.set_modal(true);
-		dialog.show_all();
-		dialog.present();
+		Gee.ArrayList<string> obj_filenames = new Gee.ArrayList<string>();
+		foreach (unowned string filename in filenames)
+			obj_filenames.add(filename);
+
+		OBJImportOptions options = new OBJImportOptions();
+
+		GLib.File file_dst;
+		string resource_path;
+		OBJImport.get_destination_file(out file_dst, destination_dir, File.new_for_path(obj_filenames[0]));
+		OBJImport.get_resource_path(out resource_path, file_dst, database._project);
+		string resource_name = ResourceId.name(resource_path);
+		string options_path = database._project.absolute_path(resource_name) + ".importer_settings";
+		try {
+			options.decode(SJSON.load_from_path(options_path));
+		} catch (JsonSyntaxError e) {
+			// No-op.
+		}
+
+		if (parent_window == null) {
+			OBJImporter.import_with_options(import_result
+				, options
+				, database._project
+				, destination_dir
+				, obj_filenames
+				, options_path
+				);
+		} else {
+			OBJImportDialog dialog = new OBJImportDialog(database, destination_dir, filenames, import_result, (owned)options, options_path);
+			dialog.set_transient_for(parent_window);
+			dialog.set_modal(true);
+			dialog.show_all();
+			dialog.present();
+		}
 	}
 }
 
