@@ -15,8 +15,18 @@ public class ProjectStore
 		NAME,
 		SIZE,
 		MTIME,
+		KIND,
 		VISIBLE,
 		USER_DATA,
+
+		COUNT
+	}
+
+	public enum RowKind
+	{
+		RESOURCE,
+		FOLDER,
+		FAVORITES,
 
 		COUNT
 	}
@@ -48,6 +58,7 @@ public class ProjectStore
 			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
+			, typeof(RowKind) // row kind
 			, typeof(bool)   // visible
 			, typeof(uint32) // user data
 			);
@@ -56,6 +67,7 @@ public class ProjectStore
 			, typeof(string) // resource name
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
+			, typeof(RowKind) // row kind
 			, typeof(bool)   // visible
 			, typeof(uint32) // user data
 			);
@@ -79,13 +91,15 @@ public class ProjectStore
 			, null
 			, -1
 			, Column.TYPE
-			, "<favorites>"
+			, ""
 			, Column.NAME
 			, ROOT_FOLDER
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.KIND
+			, RowKind.FAVORITES
 			, Column.VISIBLE
 			, true
 			, -1
@@ -96,13 +110,15 @@ public class ProjectStore
 			, null
 			, -1
 			, Column.TYPE
-			, "<folder>"
+			, ""
 			, Column.NAME
 			, ROOT_FOLDER
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.KIND
+			, RowKind.FOLDER
 			, Column.VISIBLE
 			, true
 			, -1
@@ -113,9 +129,9 @@ public class ProjectStore
 		reset_finished();
 	}
 
-	public bool path_for_resource_type_name(out Gtk.TreePath path, string type, string name)
+	public bool path_for_resource_type_name(out Gtk.TreePath path, RowKind kind, string type, string name)
 	{
-		if (type == "<folder>") {
+		if (kind == RowKind.FOLDER) {
 			path = _folders[name].get_path();
 			return true;
 		}
@@ -163,7 +179,7 @@ public class ProjectStore
 		return _favorites_root.get_path();
 	}
 
-	public void add_to_favorites(string type, string name)
+	public void add_to_favorites(RowKind kind, string type, string name)
 	{
 		Gtk.TreeIter favorites_root_iter;
 		_tree_store.get_iter(out favorites_root_iter, favorites_root_path());
@@ -173,11 +189,13 @@ public class ProjectStore
 		if (_tree_store.iter_children(out child, favorites_root_iter)) {
 			Value iter_type;
 			Value iter_name;
+			Value iter_kind;
 
 			while (true) {
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
 				_tree_store.get_value(child, Column.NAME, out iter_name);
-				if ((string)iter_name == name && (string)iter_type == type)
+				_tree_store.get_value(child, Column.KIND, out iter_kind);
+				if ((string)iter_name == name && (string)iter_type == type && (RowKind)iter_kind == kind)
 					return;
 
 				if (!_tree_store.iter_next(ref child))
@@ -191,11 +209,13 @@ public class ProjectStore
 		if (_list_store.iter_children(out child, null)) {
 			Value iter_type;
 			Value iter_name;
+			Value iter_kind;
 
 			while (true) {
 				_list_store.get_value(child, Column.TYPE, out iter_type);
 				_list_store.get_value(child, Column.NAME, out iter_name);
-				if ((string)iter_name == name && (string)iter_type == type) {
+				_list_store.get_value(child, Column.KIND, out iter_kind);
+				if ((string)iter_name == name && (string)iter_type == type && (RowKind)iter_kind == kind) {
 					Value val;
 					_list_store.get_value(child, Column.SIZE, out val);
 					size = (uint64)val;
@@ -221,13 +241,15 @@ public class ProjectStore
 			, size
 			, Column.MTIME
 			, mtime
+			, Column.KIND
+			, kind
 			, Column.VISIBLE
 			, true
 			, -1
 			);
 	}
 
-	public void remove_from_favorites(string type, string name)
+	public void remove_from_favorites(RowKind kind, string type, string name)
 	{
 		// Remove from tree store.
 		Gtk.TreeIter parent_iter;
@@ -236,11 +258,13 @@ public class ProjectStore
 		if (_tree_store.iter_children(out child, parent_iter)) {
 			Value iter_type;
 			Value iter_name;
+			Value iter_kind;
 
 			while (true) {
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
 				_tree_store.get_value(child, Column.NAME, out iter_name);
-				if ((string)iter_name == name && (string)iter_type == type) {
+				_tree_store.get_value(child, Column.KIND, out iter_kind);
+				if ((string)iter_name == name && (string)iter_type == type && (RowKind)iter_kind == kind) {
 					_tree_store.remove(ref child);
 					break;
 				} else {
@@ -266,13 +290,15 @@ public class ProjectStore
 				, parent_iter
 				, -1
 				, Column.TYPE
-				, "<folder>"
+				, ""
 				, Column.NAME
 				, folder
 				, Column.SIZE
 				, 0u
 				, Column.MTIME
 				, 0u
+				, Column.KIND
+				, RowKind.FOLDER
 				, Column.VISIBLE
 				, true
 				, -1
@@ -291,13 +317,15 @@ public class ProjectStore
 					, parent_iter
 					, -1
 					, Column.TYPE
-					, "<folder>"
+					, ""
 					, Column.NAME
 					, folder.substring(0, first_slash)
 					, Column.SIZE
 					, 0u
 					, Column.MTIME
 					, 0u
+					, Column.KIND
+					, RowKind.FOLDER
 					, Column.VISIBLE
 					, true
 					, -1
@@ -491,7 +519,7 @@ public class ProjectStore
 		if (!_folders.has_key(parent_folder))
 			return;
 
-		remove_from_favorites(type, name);
+		remove_from_favorites(RowKind.RESOURCE, type, name);
 
 		// Remove from list store.
 		if (_list_store.iter_children(out child, null)) {
@@ -538,13 +566,15 @@ public class ProjectStore
 		_list_store.insert_with_values(out iter
 			, -1
 			, Column.TYPE
-			, "<folder>"
+			, ""
 			, Column.NAME
 			, name
 			, Column.SIZE
 			, 0u
 			, Column.MTIME
 			, 0u
+			, Column.KIND
+			, RowKind.FOLDER
 			, Column.VISIBLE
 			, true
 			, -1
@@ -561,18 +591,20 @@ public class ProjectStore
 		if (!_folders.has_key(name))
 			return;
 
-		remove_from_favorites("<folder>", name);
+		remove_from_favorites(RowKind.FOLDER, "", name);
 
 		// Remove from list store.
 		Gtk.TreeIter child;
 		if (_list_store.iter_children(out child, null)) {
 			Value iter_type;
 			Value iter_name;
+			Value iter_kind;
 
 			while (true) {
 				_list_store.get_value(child, Column.TYPE, out iter_type);
 				_list_store.get_value(child, Column.NAME, out iter_name);
-				if (((string)iter_name == name && (string)iter_type == "<folder>")
+				_list_store.get_value(child, Column.KIND, out iter_kind);
+				if (((string)iter_name == name && (RowKind)iter_kind == RowKind.FOLDER)
 					|| ((string)iter_name).has_prefix(name + "/")
 					) {
 					if (!_list_store.remove(ref child))
@@ -619,12 +651,15 @@ public class ProjectStore
 		if (_tree_store.iter_children(out child, parent_iter)) {
 			Value iter_type;
 			Value iter_name;
+			Value iter_kind;
 
 			while (true) {
 				_tree_store.get_value(child, Column.TYPE, out iter_type);
 				_tree_store.get_value(child, Column.NAME, out iter_name);
+				_tree_store.get_value(child, Column.KIND, out iter_kind);
 
 				Hashtable resource = new Hashtable();
+				resource["kind"] = (int)(RowKind)iter_kind;
 				resource["type"] = (string)iter_type;
 				resource["name"] = (string)iter_name;
 				favorites.add(resource);
@@ -651,9 +686,12 @@ public class ProjectStore
 				continue;
 
 			Hashtable resource = (Hashtable)entry;
-			if (!resource.has_key("type") || !resource.has_key("name"))
+			if (!resource.has_key("kind") || !resource.has_key("type") || !resource.has_key("name"))
 				continue;
 
+			Value kind = resource["kind"];
+			if (!kind.holds(typeof(int)))
+				continue;
 			Value type = resource["type"];
 			if (!type.holds(typeof(string)))
 				continue;
@@ -661,7 +699,8 @@ public class ProjectStore
 			if (!name.holds(typeof(string)))
 				continue;
 
-			add_to_favorites((string)type, (string)name);
+			if ((int)kind >= 0 && (int)kind < (int)RowKind.COUNT)
+				add_to_favorites((RowKind)(int)kind, (string)type, (string)name);
 		}
 	}
 
@@ -687,10 +726,10 @@ public class ProjectStore
 			});
 	}
 
-	public bool is_visible(string type, string name, string needle)
+	public bool is_visible(RowKind kind, string type, string name, string needle)
 	{
 		// Always show the roots.
-		if ((type == "<folder>" && name == "") || type == "<favorites>")
+		if ((kind == RowKind.FOLDER && name == "") || kind == RowKind.FAVORITES)
 			return true;
 
 		string basename = GLib.Path.get_basename(name);
@@ -706,14 +745,17 @@ public class ProjectStore
 		_tree_store.foreach((model, path, iter) => {
 				string type;
 				string name;
+				RowKind kind;
 
 				Value val;
 				model.get_value(iter, ProjectStore.Column.TYPE, out val);
 				type = (string)val;
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				name = (string)val;
+				model.get_value(iter, ProjectStore.Column.KIND, out val);
+				kind = (RowKind)val;
 
-				if (is_visible(type, name, needle)) {
+				if (is_visible(kind, type, name, needle)) {
 					// Make this iter and all its ancestors visible.
 					Gtk.TreeIter it = iter;
 					_tree_store.set(it, Column.VISIBLE, true, -1);
@@ -727,14 +769,17 @@ public class ProjectStore
 		_list_store.foreach((model, path, iter) => {
 				string type;
 				string name;
+				RowKind kind;
 
 				Value val;
 				model.get_value(iter, ProjectStore.Column.TYPE, out val);
 				type = (string)val;
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				name = (string)val;
+				model.get_value(iter, ProjectStore.Column.KIND, out val);
+				kind = (RowKind)val;
 
-				_list_store.set(iter, ProjectStore.Column.VISIBLE, is_visible(type, name, needle), -1);
+				_list_store.set(iter, ProjectStore.Column.VISIBLE, is_visible(kind, type, name, needle), -1);
 				return false; // Continue iterating.
 			});
 	}

@@ -126,7 +126,7 @@ public class InputResource : InputField
 
 	public void on_revealer_clicked()
 	{
-		var tuple = new GLib.Variant.tuple({_type, this.value});
+		var tuple = new GLib.Variant.tuple({new GLib.Variant.int32((int)ProjectStore.RowKind.RESOURCE), _type, this.value});
 		GLib.Application.get_default().activate_action("reveal-resource", tuple);
 	}
 

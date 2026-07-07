@@ -812,7 +812,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "texture-settings",     on_texture_settings,     "s",     null },
 		{ "state-machine-editor", on_state_machine_editor, "s",     null },
 		{ "open-object",          on_open_object,          "(ss)",  null },
-		{ "reveal-resource",      on_reveal,               "(ss)",  null },
+		{ "reveal-resource",      on_reveal,               "(iss)", null },
 	};
 
 	public const GLib.ActionEntry[] action_entries_package =
@@ -2587,13 +2587,14 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string type = (string)param.get_child_value(0);
-		string name = (string)param.get_child_value(1);
+		ProjectStore.RowKind kind = (ProjectStore.RowKind)param.get_child_value(0).get_int32();
+		string type = (string)param.get_child_value(1);
+		string name = (string)param.get_child_value(2);
 
 		if (!_project_notebook.is_visible())
 			_project_notebook.show_all();
 
-		_project_browser.reveal(type, name);
+		_project_browser.reveal(kind, type, name);
 	}
 
 	public Gtk.Dialog new_level_changed_dialog(Gtk.Window? parent)
@@ -3439,20 +3440,20 @@ public class LevelEditorApplication : Gtk.Application
 			}
 
 			if (_project_browser._show_folder_view && cap_dir != "") {
-				_project_browser._folder_view._selected_type = "<folder>";
+				_project_browser._folder_view._selected_type = "";
 				_project_browser._folder_view._selected_name = cap_dir;
 			}
 
-			_project_browser.reveal(cap_type, cap_path);
+			_project_browser.reveal(ProjectStore.RowKind.RESOURCE, cap_type, cap_path);
 		});
 	}
 
-	public void on_create_resource(GLib.Variant? param, string type, int num_params)
+	public void on_create_resource(GLib.Variant? param, ProjectStore.RowKind kind, string type, int num_params)
 	{
 		string dir_name = (string)param.get_child_value(0);
 		string res_name = (string)param.get_child_value(1);
 
-		if (type == "<folder>") {
+		if (kind == ProjectStore.RowKind.FOLDER) {
 			if (res_name != "") {
 				do_create_directory(dir_name, res_name);
 				string full_path = dir_name != "" ? dir_name + "/" + res_name : res_name;
@@ -3460,19 +3461,19 @@ public class LevelEditorApplication : Gtk.Application
 				ulong handler_id = 0;
 				handler_id = _project_browser._project_store._tree_store.row_inserted.connect((path, iter) => {
 					GLib.Value val;
-					_project_browser._project_store._tree_store.get_value(iter, ProjectStore.Column.TYPE, out val);
-					string row_type = (string)val;
+					_project_browser._project_store._tree_store.get_value(iter, ProjectStore.Column.KIND, out val);
+					ProjectStore.RowKind row_kind = (ProjectStore.RowKind)val;
 					_project_browser._project_store._tree_store.get_value(iter, ProjectStore.Column.NAME, out val);
 					string row_name = (string)val;
 
-					if (row_type == "<folder>" && row_name == full_path) {
+					if (row_kind == ProjectStore.RowKind.FOLDER && row_name == full_path) {
 						_project_browser._project_store._tree_store.disconnect(handler_id);
 						GLib.Idle.add(() => {
 							string parent = ResourceId.parent_folder(full_path);
 
-							_project_browser.reveal("<folder>", parent != "" ? parent : "");
+							_project_browser.reveal(ProjectStore.RowKind.FOLDER, "", parent != "" ? parent : "");
 
-							_project_browser._folder_view.select_resource("<folder>", full_path);
+							_project_browser._folder_view.select_resource(ProjectStore.RowKind.FOLDER, "", full_path);
 							return GLib.Source.REMOVE;
 						});
 					}
@@ -3573,7 +3574,7 @@ public class LevelEditorApplication : Gtk.Application
 						new_param = new GLib.Variant.tuple({dir_name, final_name});
 					}
 
-					on_create_resource(new_param, type, num_params);
+					on_create_resource(new_param, ProjectStore.RowKind.RESOURCE, type, num_params);
 				}
 			}
 			dg.destroy();
@@ -3604,7 +3605,7 @@ public class LevelEditorApplication : Gtk.Application
 				string final_name = sb._entry.text.strip();
 				if (final_name != "") {
 					GLib.Variant? new_param = new GLib.Variant.tuple({parent_dir, final_name});
-					on_create_resource(new_param, "<folder>", 2);
+					on_create_resource(new_param, ProjectStore.RowKind.FOLDER, "", 2);
 				}
 			}
 			dg.destroy();
@@ -3628,7 +3629,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		on_create_resource(param, "<folder>", 2);
+		on_create_resource(param, ProjectStore.RowKind.FOLDER, "", 2);
 	}
 
 	public async bool compile_and_reload()
@@ -3653,7 +3654,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_script(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		on_create_resource(param, "lua", 3);
+		on_create_resource(param, ProjectStore.RowKind.RESOURCE, "lua", 3);
 	}
 
 	public void do_create_unit(string dir_name, string unit_name)
@@ -3670,7 +3671,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_unit(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		on_create_resource(param, OBJECT_TYPE_UNIT, 2);
+		on_create_resource(param, ProjectStore.RowKind.RESOURCE, OBJECT_TYPE_UNIT, 2);
 	}
 
 	public void do_create_state_machine(string dir_name, string state_machine_name, string skeleton_name)
@@ -3687,7 +3688,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_state_machine(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		on_create_resource(param, OBJECT_TYPE_STATE_MACHINE, 3);
+		on_create_resource(param, ProjectStore.RowKind.RESOURCE, OBJECT_TYPE_STATE_MACHINE, 3);
 	}
 
 	public void do_create_material(string dir_name, string material_name)
@@ -3704,7 +3705,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_material(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		on_create_resource(param, OBJECT_TYPE_MATERIAL, 2);
+		on_create_resource(param, ProjectStore.RowKind.RESOURCE, OBJECT_TYPE_MATERIAL, 2);
 	}
 
 	public void on_open_containing(GLib.SimpleAction action, GLib.Variant? param)
