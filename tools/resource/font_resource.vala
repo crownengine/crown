@@ -402,6 +402,7 @@ public class FontResource
 			try {
 				SJSON.save(options.encode(), project.absolute_path(resource_name) + ".importer_settings");
 			} catch (JsonWriteError e) {
+				font_atlas_free(font_atlas);
 				return ImportResult.ERROR;
 			}
 
@@ -423,15 +424,19 @@ public class FontResource
 
 			// Generate .texture resource.
 			var texture_resource = TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
-			if (texture_resource.save(project, resource_name) != 0)
+			if (texture_resource.save(project, resource_name) != 0) {
+				font_atlas_free(font_atlas);
 				return ImportResult.ERROR;
+			}
 
 			db.reset();
 
 			// Generate .material resource.
 			MaterialResource material_resource = MaterialResource.gui(db, Guid.new_guid(), resource_name);
-			if (material_resource.save(project, resource_name) != 0)
+			if (material_resource.save(project, resource_name) != 0) {
+				font_atlas_free(font_atlas);
 				return ImportResult.ERROR;
+			}
 
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();
@@ -456,8 +461,12 @@ public class FontResource
 				db.add_to_set(font_id, "glyphs", glyph_id);
 			}
 
-			if (db.save(project.absolute_path(resource_name) + ".font", font_id) != 0)
+			if (db.save(project.absolute_path(resource_name) + ".font", font_id) != 0) {
+				font_atlas_free(font_atlas);
 				return ImportResult.ERROR;
+			}
+
+			font_atlas_free(font_atlas);
 		}
 
 		return ImportResult.SUCCESS;
