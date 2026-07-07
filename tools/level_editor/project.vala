@@ -34,6 +34,7 @@ public class Project
 	[Compact]
 	public struct ImporterData
 	{
+		public StringId32 name;
 		public unowned ImporterDelegate delegate;
 		public Gee.ArrayList<string> extensions;
 		public double order;
@@ -42,6 +43,7 @@ public class Project
 
 		ImporterData()
 		{
+			name = StringId32("");
 			delegate = null;
 			extensions = new Gee.ArrayList<string>();
 			order = 0.0;
@@ -107,6 +109,7 @@ public class Project
 		_files = new Database(this);
 		_map = new Gee.HashMap<string, Guid?>();
 		_all_extensions_importer_data = ImporterData();
+		_all_extensions_importer_data.name = StringId32("All");
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
 		_data_compiled = false;
@@ -703,6 +706,7 @@ public class Project
 
 	public void register_importer_internal(string name, ref ImporterData data)
 	{
+		data.name = StringId32(name);
 		data._filter = create_gtk_file_filter(name, data.extensions);
 		_importers.add(data);
 		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
@@ -736,6 +740,16 @@ public class Project
 	{
 		foreach (var imp in _importers) {
 			if (imp.can_import_extension(extension))
+				return imp;
+		}
+
+		return null;
+	}
+
+	public ImporterData? find_importer_for_name(StringId32 name)
+	{
+		foreach (var imp in _importers) {
+			if (StringId32.equal_func(imp.name, name))
 				return imp;
 		}
 
@@ -790,7 +804,7 @@ public class Project
 	public void import_filenames(string? destination_dir
 		, GLib.SList<string> filenames
 		, Import import_result
-		, ImporterDelegate? importer
+		, StringId32 importer_name
 		, Database database
 		, Gtk.Window? parent_window = null
 		)
@@ -798,6 +812,13 @@ public class Project
 		GLib.SList<string> _filenames = new GLib.SList<string>();
 		foreach (var s in filenames)
 			_filenames.append(s);
+
+		unowned ImporterDelegate? importer = _all_extensions_importer_data.delegate;
+		if (!StringId32.equal_func(importer_name, _all_extensions_importer_data.name)) {
+			ImporterData? importer_data = find_importer_for_name(importer_name);
+			if (importer_data != null && importer_data.can_import_filenames(filenames))
+				importer = importer_data.delegate;
+		}
 
 		if (destination_dir != null) {
 			importer(import_result, database, this.absolute_path(destination_dir), filenames, parent_window);
@@ -831,9 +852,13 @@ public class Project
 		, Import import_result
 		, Database database
 		, Gtk.Window? parent_window = null
+		, StringId32? importer_name = null
 		)
 	{
 		GLib.SList<string> filenames = new GLib.SList<string>();
+		StringId32 selected_importer_name = _all_extensions_importer_data.name;
+		if (importer_name != null)
+			selected_importer_name = importer_name;
 
 		if (files.length == 0) {
 			Gtk.FileChooserDialog fcd = new Gtk.FileChooserDialog(_("Import...")
@@ -856,19 +881,15 @@ public class Project
 							filenames.append(f.get_path());
 
 						// Find importer callback.
-						unowned ImporterDelegate? importer = null;
+						selected_importer_name = _all_extensions_importer_data.name;
 						foreach (var imp in _importers) {
 							if (imp._filter == fcd.get_filter() && imp.can_import_filenames(filenames)) {
-								importer = imp.delegate;
+								selected_importer_name = imp.name;
 								break;
 							}
 						}
 
-						// Fallback if no importer found.
-						if (importer == null)
-							importer = _all_extensions_importer_data.delegate;
-
-						import_filenames(destination_dir, filenames, import_result, importer, database, parent_window);
+						import_filenames(destination_dir, filenames, import_result, selected_importer_name, database, parent_window);
 					}
 					fcd.destroy();
 				});
@@ -877,7 +898,7 @@ public class Project
 		} else {
 			foreach (var f in files)
 				filenames.append(f);
-			import_filenames(destination_dir, filenames, import_result, _all_extensions_importer_data.delegate, database, parent_window);
+			import_filenames(destination_dir, filenames, import_result, selected_importer_name, database, parent_window);
 		}
 	}
 
