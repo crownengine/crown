@@ -13,22 +13,22 @@ public const uint BUTTON_BACK = 8;
 public const uint BUTTON_FORWARD = 9;
 #endif
 
-public string project_path(string type, string name)
+public string project_path(ProjectStore.RowKind kind, string type, string name)
 {
-	if (type == "<folder>")
+	if (kind == ProjectStore.RowKind.FOLDER)
 		return name;
 
 	return ResourceId.path(type, name);
 }
 
 // Menu items common to files and folders.
-public GLib.Menu? project_entry_menu_common(string type, string name)
+public GLib.Menu? project_entry_menu_common(ProjectStore.RowKind kind, string type, string name)
 {
 	GLib.Menu common_menu = new GLib.Menu();
 	GLib.MenuItem mi;
 
 	mi = new GLib.MenuItem(_("Copy Path"), null);
-	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(type, name)));
+	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(project_path(kind, type, name)));
 	common_menu.append_item(mi);
 
 	mi = new GLib.MenuItem(_("Copy Name"), null);
@@ -39,9 +39,9 @@ public GLib.Menu? project_entry_menu_common(string type, string name)
 	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
-	if (type != "<folder>" || name != "") {
+	if (kind != ProjectStore.RowKind.FOLDER || name != "") {
 		mi = new GLib.MenuItem(_("Add to Favorites"), null);
-		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({type, name}));
+		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({new GLib.Variant.int32((int)kind), type, name}));
 		common_menu.append_item(mi);
 	}
 
@@ -49,12 +49,12 @@ public GLib.Menu? project_entry_menu_common(string type, string name)
 }
 
 // Menu to open when clicking on project's files and folders.
-public GLib.Menu? project_entry_menu_create(string type, string name)
+public GLib.Menu? project_entry_menu_create(ProjectStore.RowKind kind, string type, string name)
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
 
-	if (type == "<folder>") {
+	if (kind == ProjectStore.RowKind.FOLDER) {
 		if (name == "..")
 			return null;
 
@@ -92,7 +92,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		GLib.Menu destroy_menu = new GLib.Menu();
 
-		menu.append_section(null, project_entry_menu_common(type, name));
+		menu.append_section(null, project_entry_menu_common(kind, type, name));
 
 		if ((string)name != ProjectStore.ROOT_FOLDER) {
 			mi = new GLib.MenuItem(_("Delete Folder"), null);
@@ -106,7 +106,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 
 		if (type != "lua") {
 			mi = new GLib.MenuItem(_("Duplicate..."), null);
-			mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(project_path(type, name)));
+			mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(project_path(kind, type, name)));
 			menu.append_item(mi);
 		}
 
@@ -122,10 +122,10 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 			menu.append_item(mi);
 		}
 
-		menu.append_section(null, project_entry_menu_common(type, name));
+		menu.append_section(null, project_entry_menu_common(kind, type, name));
 
 		mi = new GLib.MenuItem(_("Delete File"), null);
-		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(type, name)));
+		mi.set_action_and_target_value("app.delete-file", new GLib.Variant.string(project_path(kind, type, name)));
 		menu.append_item(mi);
 	}
 
@@ -133,7 +133,7 @@ public GLib.Menu? project_entry_menu_create(string type, string name)
 }
 
 // Menu to open when clicking on favorites' entries.
-public GLib.Menu? favorites_entry_menu_create(string type, string name)
+public GLib.Menu? favorites_entry_menu_create(ProjectStore.RowKind kind, string type, string name)
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
@@ -145,11 +145,11 @@ public GLib.Menu? favorites_entry_menu_create(string type, string name)
 	GLib.Menu common_menu = new GLib.Menu();
 
 	mi = new GLib.MenuItem(_("Copy Path"), null);
-	string path = project_path(type, name);
+	string path = project_path(kind, type, name);
 	mi.set_action_and_target_value("app.copy-path", new GLib.Variant.string(path));
 	common_menu.append_item(mi);
 
-	if (type != "<folder>" && type != "lua") {
+	if (kind != ProjectStore.RowKind.FOLDER && type != "lua") {
 		mi = new GLib.MenuItem(_("Duplicate..."), null);
 		mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(path));
 		common_menu.append_item(mi);
@@ -160,11 +160,11 @@ public GLib.Menu? favorites_entry_menu_create(string type, string name)
 	common_menu.append_item(mi);
 
 	mi = new GLib.MenuItem(_("Remove from Favorites"), null);
-	mi.set_action_and_target_value("app.unfavorite-resource", new GLib.Variant.tuple({type, name}));
+	mi.set_action_and_target_value("app.unfavorite-resource", new GLib.Variant.tuple({new GLib.Variant.int32((int)kind), type, name}));
 	common_menu.append_item(mi);
 
 	mi = new GLib.MenuItem(_("Reveal"), null);
-	mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({type, name}));
+	mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({new GLib.Variant.int32((int)kind), type, name}));
 	common_menu.append_item(mi);
 
 	menu.append_section(null, common_menu);
@@ -184,12 +184,12 @@ public void set_pixbuf_or_icon(Gtk.CellRenderer cell, Gdk.Pixbuf? pixbuf, string
 	}
 }
 
-public void set_thumbnail(Gtk.CellRenderer cell, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
+public void set_thumbnail(Gtk.CellRenderer cell, ProjectStore.RowKind kind, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
 {
 	// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
-	if (type == "<folder>")
+	if (kind == ProjectStore.RowKind.FOLDER)
 		cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
-	else if ((string)type == "<favorites>")
+	else if (kind == ProjectStore.RowKind.FAVORITES)
 		cell.set_property("icon-name", IconTheme.BROWSER_FAVORITES);
 	else if ((string)type == OBJECT_TYPE_STATE_MACHINE)
 		cell.set_property("icon-name", IconTheme.OBJECT_STATE_MACHINE);
@@ -291,11 +291,12 @@ public class ProjectFolderView : Gtk.Box
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
 
-		_list_store = new Gtk.ListStore(4
+		_list_store = new Gtk.ListStore(5
 			, typeof(string)     // ProjectStore.Column.TYPE
 			, typeof(string)     // ProjectStore.Column.NAME
 			, typeof(uint64)     // ProjectStore.Column.SIZE
 			, typeof(uint64)     // ProjectStore.Column.MTIME
+			, typeof(ProjectStore.RowKind) // ProjectStore.Column.KIND
 			);
 
 		_icon_view = new Gtk.IconView();
@@ -425,9 +426,10 @@ public class ProjectFolderView : Gtk.Box
 		if (!selected_path(out path))
 			return;
 
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
-		resource_at_path(out type, out name, path);
+		resource_at_path(out kind, out type, out name, path);
 
 		string resource_path = ResourceId.path(type, name);
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
@@ -459,11 +461,12 @@ public class ProjectFolderView : Gtk.Box
 			_icon_view.scroll_to_path(path, false, 0.0f, 0.0f);
 		}
 
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
-		resource_at_path(out type, out name, path);
+		resource_at_path(out kind, out type, out name, path);
 
-		if (type == "<folder>") {
+		if (kind == ProjectStore.RowKind.FOLDER) {
 			string[] uris = selection_data.get_uris();
 			string[] filenames = new string[uris.length];
 
@@ -488,6 +491,7 @@ public class ProjectFolderView : Gtk.Box
 		Gtk.TreePath? path = path_at_pos((int)x, (int)y);
 
 		if (button == Gdk.BUTTON_SECONDARY) {
+			ProjectStore.RowKind kind;
 			string type;
 			string name;
 
@@ -503,13 +507,13 @@ public class ProjectFolderView : Gtk.Box
 				return Gdk.EVENT_PROPAGATE;
 			}
 
-			resource_at_path(out type, out name, path);
+			resource_at_path(out kind, out type, out name, path);
 
 			GLib.Menu? menu_model;
 			if (_showing_project_folder)
-				menu_model = project_entry_menu_create(type, name);
+				menu_model = project_entry_menu_create(kind, type, name);
 			else
-				menu_model = favorites_entry_menu_create(type, name);
+				menu_model = favorites_entry_menu_create(kind, type, name);
 
 			if (menu_model != null) {
 				Gtk.Popover menu = new Gtk.Popover.from_model(this, menu_model);
@@ -538,11 +542,12 @@ public class ProjectFolderView : Gtk.Box
 
 	public void activate_path(Gtk.TreePath path)
 	{
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
-		resource_at_path(out type, out name, path);
+		resource_at_path(out kind, out type, out name, path);
 
-		if (type == "<folder>") {
+		if (kind == ProjectStore.RowKind.FOLDER) {
 			string dir_name;
 			if (name == "..")
 				dir_name = ResourceId.parent_folder((string)_selected_name);
@@ -558,26 +563,31 @@ public class ProjectFolderView : Gtk.Box
 	public void icon_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
 		model.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
 		model.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
+		model.get_value(iter, ProjectStore.Column.KIND, out val);
+		kind = (ProjectStore.RowKind)val;
 
-		set_thumbnail(cell, type, name, 64, _thumbnail_cache);
+		set_thumbnail(cell, kind, type, name, 64, _thumbnail_cache);
 	}
 
 	public void icon_view_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
+		Value kind;
 		Value type;
 		Value name;
+		model.get_value(iter, ProjectStore.Column.KIND, out kind);
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		string basename = GLib.Path.get_basename((string)name);
 
-		if ((string)type == "<folder>") {
+		if ((ProjectStore.RowKind)kind == ProjectStore.RowKind.FOLDER) {
 			if (name == "..")
 				cell.set_property("text", name);
 			else
@@ -593,14 +603,17 @@ public class ProjectFolderView : Gtk.Box
 	public void list_view_pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
 		model.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
 		model.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
+		model.get_value(iter, ProjectStore.Column.KIND, out val);
+		kind = (ProjectStore.RowKind)val;
 
-		set_thumbnail(cell, type, name, 32, _thumbnail_cache);
+		set_thumbnail(cell, kind, type, name, 32, _thumbnail_cache);
 	}
 
 	public void list_view_basename_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -617,9 +630,11 @@ public class ProjectFolderView : Gtk.Box
 	public void list_view_type_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value type;
+		Value kind;
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+		model.get_value(iter, ProjectStore.Column.KIND, out kind);
 
-		cell.set_property("text", prettify_type((string)type));
+		cell.set_property("text", prettify_type((ProjectStore.RowKind)kind, (string)type));
 	}
 
 	public void list_view_size_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -657,20 +672,23 @@ public class ProjectFolderView : Gtk.Box
 			cell.set_property("text", (string)name);
 	}
 
-	public void select_resource(string type, string name)
+	public void select_resource(ProjectStore.RowKind kind, string type, string name)
 	{
 		Gtk.TreePath? path_to_select = null;
 
 		_list_store.foreach((model, path, iter) => {
 				GLib.Value val;
+				ProjectStore.RowKind store_kind;
 				string store_type;
 				string store_name;
 				model.get_value(iter, ProjectStore.Column.TYPE, out val);
 				store_type = (string)val;
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				store_name = (string)val;
+				model.get_value(iter, ProjectStore.Column.KIND, out val);
+				store_kind = (ProjectStore.RowKind)val;
 
-				if (store_name == name && store_type == type) {
+				if (store_name == name && store_type == type && store_kind == kind) {
 					path_to_select = path;
 					return true;
 				}
@@ -722,9 +740,10 @@ public class ProjectFolderView : Gtk.Box
 		if (path == null)
 			return false;
 
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
-		resource_at_path(out type, out name, path);
+		resource_at_path(out kind, out type, out name, path);
 
 		uint64 size;
 		uint64 mtime;
@@ -732,7 +751,7 @@ public class ProjectFolderView : Gtk.Box
 
 		string text = "<b>%s</b>\n%s: %s\n%s: %s\n%s: %s".printf(GLib.Markup.escape_text(name)
 			, _("Type")
-			, GLib.Markup.escape_text(prettify_type(type))
+			, GLib.Markup.escape_text(prettify_type(kind, type))
 			, _("Size")
 			, size == 0 ? _("n/a") : prettify_size(size)
 			, _("Modified")
@@ -743,9 +762,9 @@ public class ProjectFolderView : Gtk.Box
 		return true;
 	}
 
-	public static string prettify_type(string type)
+	public static string prettify_type(ProjectStore.RowKind kind, string type)
 	{
-		if (type == "<folder>")
+		if (kind == ProjectStore.RowKind.FOLDER)
 			return _("Folder");
 		else
 			return type;
@@ -799,7 +818,7 @@ public class ProjectFolderView : Gtk.Box
 		return path;
 	}
 
-	public void resource_at_path(out string type, out string name, Gtk.TreePath? path)
+	public void resource_at_path(out ProjectStore.RowKind kind, out string type, out string name, Gtk.TreePath? path)
 	{
 		if (path != null) {
 			Gtk.TreeModel model;
@@ -813,7 +832,10 @@ public class ProjectFolderView : Gtk.Box
 			type = (string)val;
 			model.get_value(iter, ProjectStore.Column.NAME, out val);
 			name = (string)val;
+			model.get_value(iter, ProjectStore.Column.KIND, out val);
+			kind = (ProjectStore.RowKind)val;
 		} else {
+			kind = _showing_project_folder ? ProjectStore.RowKind.FOLDER : ProjectStore.RowKind.FAVORITES;
 			type = _selected_type;
 			name = _selected_name;
 		}
@@ -954,12 +976,14 @@ public class ProjectBrowser : Gtk.Box
 
 				Value type;
 				Value name;
+				Value kind;
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
+				model.get_value(iter, ProjectStore.Column.KIND, out kind);
 
 				bool should_show = (string)type != null
 					&& (string)name != null
-					&& !row_should_be_hidden((string)type, (string)name)
+					&& !row_should_be_hidden((ProjectStore.RowKind)kind, (string)type, (string)name)
 					;
 
 				if (_show_folder_view) {
@@ -968,7 +992,7 @@ public class ProjectBrowser : Gtk.Box
 					if (path != null && _project_store.favorites_root_path() != null && path.is_descendant(_project_store.favorites_root_path()))
 						return false;
 
-					return should_show && (type == "<folder>" || type == "<favorites>");
+					return should_show && ((ProjectStore.RowKind)kind == ProjectStore.RowKind.FOLDER || (ProjectStore.RowKind)kind == ProjectStore.RowKind.FAVORITES);
 				} else {
 					return should_show;
 				}
@@ -981,21 +1005,25 @@ public class ProjectBrowser : Gtk.Box
 		_tree_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value type_a;
 				Value type_b;
+				Value kind_a;
+				Value kind_b;
 				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
 				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
+				model.get_value(iter_a, ProjectStore.Column.KIND, out kind_a);
+				model.get_value(iter_b, ProjectStore.Column.KIND, out kind_b);
 
 				// Favorites is always on top.
-				if ((string)type_a == "<favorites>")
+				if ((ProjectStore.RowKind)kind_a == ProjectStore.RowKind.FAVORITES)
 					return -1;
-				if ((string)type_b == "<favorites>")
+				if ((ProjectStore.RowKind)kind_b == ProjectStore.RowKind.FAVORITES)
 					return 1;
 
 				// Then folders.
-				if ((string)type_a == "<folder>") {
-					if ((string)type_b != "<folder>")
+				if ((ProjectStore.RowKind)kind_a == ProjectStore.RowKind.FOLDER) {
+					if ((ProjectStore.RowKind)kind_b != ProjectStore.RowKind.FOLDER)
 						return -1;
-				} else if ((string)type_b == "<folder>") {
-					if ((string)type_a != "<folder>")
+				} else if ((ProjectStore.RowKind)kind_b == ProjectStore.RowKind.FOLDER) {
+					if ((ProjectStore.RowKind)kind_a != ProjectStore.RowKind.FOLDER)
 						return 1;
 				}
 
@@ -1115,21 +1143,24 @@ public class ProjectBrowser : Gtk.Box
 				Gtk.TreeIter selected_iter;
 				if (_tree_selection.get_selected(out selected_model, out selected_iter)) {
 					Value val;
+					ProjectStore.RowKind kind;
 					string type;
 					string name;
 					selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
 					type = (string)val;
 					selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 					name = (string)val;
+					selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
+					kind = (ProjectStore.RowKind)val;
 
-					if (!_navigating_history && type == "<folder>" && previous_folder != null && previous_folder != name) {
+					if (!_navigating_history && kind == ProjectStore.RowKind.FOLDER && previous_folder != null && previous_folder != name) {
 						_nav_history_back.add(previous_folder);
 						_nav_history_forward.clear();
 						_btn_back.sensitive = !_nav_history_back.is_empty;
 						_btn_forward.sensitive = false;
 					}
 
-					if (type == "<folder>")
+					if (kind == ProjectStore.RowKind.FOLDER)
 						_address_bar.text = name != "" ? "/" + name + "/" : "/";
 					else
 						_address_bar.text = "/" + ResourceId.parent_folder(name) + "/";
@@ -1164,6 +1195,7 @@ public class ProjectBrowser : Gtk.Box
 					// and reveal the selected resource in the icon view.
 					string? selected_type = null;
 					string? selected_name = null;
+					ProjectStore.RowKind selected_kind = ProjectStore.RowKind.RESOURCE;
 					Gtk.TreePath? parent_path = null;
 					Gtk.TreeModel selected_model;
 					Gtk.TreeIter selected_iter;
@@ -1173,8 +1205,10 @@ public class ProjectBrowser : Gtk.Box
 						selected_type = (string)val;
 						selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 						selected_name = (string)val;
+						selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
+						selected_kind = (ProjectStore.RowKind)val;
 
-						if (selected_type != "<folder>") {
+						if (selected_kind != ProjectStore.RowKind.FOLDER) {
 							Gtk.TreeIter parent_iter;
 							if (selected_model.iter_parent(out parent_iter, selected_iter))
 								parent_path = _tree_view.model.get_path(parent_iter);
@@ -1185,7 +1219,7 @@ public class ProjectBrowser : Gtk.Box
 
 					if (parent_path != null) {
 						_tree_selection.select_path(parent_path);
-						_folder_view.select_resource(selected_type, selected_name);
+						_folder_view.select_resource(selected_kind, selected_type, selected_name);
 					}
 
 					_folder_view_content.show_all();
@@ -1199,10 +1233,11 @@ public class ProjectBrowser : Gtk.Box
 					// has been refiltered, to reveal the selected resource in the tree view.
 					string? selected_type = null;
 					string? selected_name = null;
+					ProjectStore.RowKind selected_kind = ProjectStore.RowKind.RESOURCE;
 
 					Gtk.TreePath selected_path;
 					if (_folder_view.selected_path(out selected_path))
-						_folder_view.resource_at_path(out selected_type, out selected_name, selected_path);
+						_folder_view.resource_at_path(out selected_kind, out selected_type, out selected_name, selected_path);
 
 					_tree_filter.refilter();
 
@@ -1210,8 +1245,8 @@ public class ProjectBrowser : Gtk.Box
 					if (_browse_mode == BrowseMode.SEARCH)
 						_tree_view.expand_all();
 
-					if (selected_type != null && selected_type != "<folder>")
-						select_resource(selected_type, selected_name);
+					if (selected_type != null && selected_kind != ProjectStore.RowKind.FOLDER)
+						select_resource(selected_kind, selected_type, selected_name);
 
 					_folder_view_content.hide();
 					_toggle_folder_view_image.set_from_icon_name(IconTheme.BROWSER_ICON_VIEW, Gtk.IconSize.SMALL_TOOLBAR);
@@ -1387,30 +1422,35 @@ public class ProjectBrowser : Gtk.Box
 		_browse_mode = BrowseMode.REGULAR;
 		_folder_view.set_browse_mode(_browse_mode);
 
-		_folder_list_store = new Gtk.ListStore(4
+		_folder_list_store = new Gtk.ListStore(5
 			, typeof(string) // ProjectStore.Column.TYPE
 			, typeof(string) // ProjectStore.Column.NAME
 			, typeof(uint64) // ProjectStore.Column.SIZE
 			, typeof(uint64) // ProjectStore.Column.MTIME
+			, typeof(ProjectStore.RowKind) // ProjectStore.Column.KIND
 			);
 
 		_folder_list_sort = new Gtk.TreeModelSort.with_model(_folder_list_store);
 		_folder_list_sort.set_default_sort_func((model, iter_a, iter_b) => {
 				Value type_a;
 				Value type_b;
+				Value kind_a;
+				Value kind_b;
 				model.get_value(iter_a, ProjectStore.Column.TYPE, out type_a);
 				model.get_value(iter_b, ProjectStore.Column.TYPE, out type_b);
+				model.get_value(iter_a, ProjectStore.Column.KIND, out kind_a);
+				model.get_value(iter_b, ProjectStore.Column.KIND, out kind_b);
 				Value name_a;
 				Value name_b;
 				model.get_value(iter_a, ProjectStore.Column.NAME, out name_a);
 				model.get_value(iter_b, ProjectStore.Column.NAME, out name_b);
 
 				// Folders are always on top.
-				if ((string)type_a == "<folder>" && (string)type_b != "<folder>") {
+				if ((ProjectStore.RowKind)kind_a == ProjectStore.RowKind.FOLDER && (ProjectStore.RowKind)kind_b != ProjectStore.RowKind.FOLDER) {
 					return -1;
-				} else if ((string)type_a != "<folder>" && (string)type_b == "<folder>") {
+				} else if ((ProjectStore.RowKind)kind_a != ProjectStore.RowKind.FOLDER && (ProjectStore.RowKind)kind_b == ProjectStore.RowKind.FOLDER) {
 					return 1;
-				} else if ((string)type_a == "<folder>" && (string)type_b == "<folder>") {
+				} else if ((ProjectStore.RowKind)kind_a == ProjectStore.RowKind.FOLDER && (ProjectStore.RowKind)kind_b == ProjectStore.RowKind.FOLDER) {
 					// Special folders always first.
 					if ((string)name_a == "..")
 						return -1;
@@ -1462,8 +1502,8 @@ public class ProjectBrowser : Gtk.Box
 		GLib.ActionEntry[] action_entries =
 		{
 			{ "open-directory",      on_open_directory,      "s",    null },
-			{ "favorite-resource",   on_favorite_resource,   "(ss)", null },
-			{ "unfavorite-resource", on_unfavorite_resource, "(ss)", null }
+			{ "favorite-resource",   on_favorite_resource,   "(iss)", null },
+			{ "unfavorite-resource", on_unfavorite_resource, "(iss)", null }
 		};
 		GLib.Application.get_default().add_action_entries(action_entries, this);
 
@@ -1499,12 +1539,15 @@ public class ProjectBrowser : Gtk.Box
 			return;
 
 		Value val;
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
 		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
 		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
+		kind = (ProjectStore.RowKind)val;
 
 		string resource_path = ResourceId.path(type, name);
 		data.set(Gdk.Atom.intern_static_string("RESOURCE_PATH"), 8, resource_path.data);
@@ -1523,10 +1566,10 @@ public class ProjectBrowser : Gtk.Box
 	}
 
 	// Returns true if the row should be hidden.
-	public bool row_should_be_hidden(string type, string name)
+	public bool row_should_be_hidden(ProjectStore.RowKind kind, string type, string name)
 	{
 		if (_hide_core_resources) {
-			if (type == "<folder>") {
+			if (kind == ProjectStore.RowKind.FOLDER) {
 				if (name == "core")
 					return true;
 			} else {
@@ -1544,22 +1587,24 @@ public class ProjectBrowser : Gtk.Box
 			;
 	}
 
-	public void select_resource(string type, string name)
+	public void select_resource(ProjectStore.RowKind kind, string type, string name)
 	{
+		ProjectStore.RowKind parent_kind = kind;
 		string parent_type = type;
 		string parent_name = name;
 		Gtk.TreePath filter_path = null;
 
 		do {
 			Gtk.TreePath store_path;
-			if (!_project_store.path_for_resource_type_name(out store_path, parent_type, parent_name)) {
+			if (!_project_store.path_for_resource_type_name(out store_path, parent_kind, parent_type, parent_name)) {
 				break;
 			}
 
 			filter_path = _tree_filter.convert_child_path_to_path(store_path);
 			if (filter_path == null) {
 				// Either the path is not valid or points to a non-visible row in the model.
-				parent_type = "<folder>";
+				parent_kind = ProjectStore.RowKind.FOLDER;
+				parent_type = "";
 				parent_name = ResourceId.parent_folder(parent_name);
 				continue;
 			}
@@ -1582,15 +1627,15 @@ public class ProjectBrowser : Gtk.Box
 		} while (filter_path == null);
 	}
 
-	public void reveal(string type, string name)
+	public void reveal(ProjectStore.RowKind kind, string type, string name)
 	{
 		exit_search();
 
 		if (name.has_prefix("core/"))
 			_show_mapped_dirs.set_active(true);
 
-		select_resource(type, name);
-		_folder_view.select_resource(type, name);
+		select_resource(kind, type, name);
+		_folder_view.select_resource(kind, type, name);
 	}
 
 	public void navigate_back()
@@ -1650,7 +1695,7 @@ public class ProjectBrowser : Gtk.Box
 		}
 
 		Gtk.TreePath store_path;
-		if (_project_store.path_for_resource_type_name(out store_path, "<folder>", dir_name)) {
+		if (_project_store.path_for_resource_type_name(out store_path, ProjectStore.RowKind.FOLDER, "", dir_name)) {
 			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(store_path);
 			if (filter_path == null) // Either the path is not valid or points to a non-visible row in the model.
 				return;
@@ -1669,18 +1714,20 @@ public class ProjectBrowser : Gtk.Box
 
 	public void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string type = (string)param.get_child_value(0);
-		string name = (string)param.get_child_value(1);
+		ProjectStore.RowKind kind = (ProjectStore.RowKind)param.get_child_value(0).get_int32();
+		string type = (string)param.get_child_value(1);
+		string name = (string)param.get_child_value(2);
 
-		_project_store.add_to_favorites(type, name);
+		_project_store.add_to_favorites(kind, type, name);
 	}
 
 	public void on_unfavorite_resource(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string type = (string)param.get_child_value(0);
-		string name = (string)param.get_child_value(1);
+		ProjectStore.RowKind kind = (ProjectStore.RowKind)param.get_child_value(0).get_int32();
+		string type = (string)param.get_child_value(1);
+		string name = (string)param.get_child_value(2);
 
-		_project_store.remove_from_favorites(type, name);
+		_project_store.remove_from_favorites(kind, type, name);
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)
@@ -1707,17 +1754,19 @@ public class ProjectBrowser : Gtk.Box
 
 			Value type;
 			Value name;
+			Value kind;
 			_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 			_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
+			_tree_view.model.get_value(iter, ProjectStore.Column.KIND, out kind);
 
 			Gtk.TreePath? filter_path = _tree_sort.convert_path_to_child_path(path);
 			Gtk.TreePath? search_path = _tree_search.convert_path_to_child_path(filter_path);
 			Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(search_path);
 			GLib.Menu? menu_model;
 			if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
-				menu_model = project_entry_menu_create((string)type, (string)name);
+				menu_model = project_entry_menu_create((ProjectStore.RowKind)kind, (string)type, (string)name);
 			else if (store_path.is_descendant(_project_store.favorites_root_path()))
-				menu_model = favorites_entry_menu_create((string)type, (string)name);
+				menu_model = favorites_entry_menu_create((ProjectStore.RowKind)kind, (string)type, (string)name);
 			else
 				menu_model = null;
 
@@ -1737,12 +1786,14 @@ public class ProjectBrowser : Gtk.Box
 		Gtk.TreeIter iter;
 		_tree_view.model.get_iter(out iter, path);
 
-		Value type;
-		_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
-		if ((string)type == "<folder>")
+		Value kind;
+		_tree_view.model.get_value(iter, ProjectStore.Column.KIND, out kind);
+		if ((ProjectStore.RowKind)kind == ProjectStore.RowKind.FOLDER)
 			return;
 
+		Value type;
 		Value name;
+		_tree_view.model.get_value(iter, ProjectStore.Column.TYPE, out type);
 		_tree_view.model.get_value(iter, ProjectStore.Column.NAME, out name);
 
 		GLib.Application.get_default().activate_action("open-resource", ResourceId.path((string)type, (string)name));
@@ -1762,13 +1813,16 @@ public class ProjectBrowser : Gtk.Box
 
 			string selected_type;
 			string selected_name;
+			ProjectStore.RowKind selected_kind;
 			Value val;
 			selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
 			selected_type = (string)val;
 			selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
 			selected_name = (string)val;
+			selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
+			selected_kind = (ProjectStore.RowKind)val;
 
-			if (selected_type == "<folder>") {
+			if (selected_kind == ProjectStore.RowKind.FOLDER) {
 				_folder_view._showing_project_folder = true;
 
 				// Add parent folder.
@@ -1777,13 +1831,15 @@ public class ProjectBrowser : Gtk.Box
 					_folder_list_store.insert_with_values(out dummy
 						, -1
 						, ProjectStore.Column.TYPE
-						, "<folder>"
+						, ""
 						, ProjectStore.Column.NAME
 						, ".."
 						, ProjectStore.Column.SIZE
 						, 0u
 						, ProjectStore.Column.MTIME
 						, 0u
+						, ProjectStore.Column.KIND
+						, ProjectStore.RowKind.FOLDER
 						, -1
 						);
 				}
@@ -1792,12 +1848,15 @@ public class ProjectBrowser : Gtk.Box
 				_project_store._list_store.foreach((model, path, iter) => {
 						string type;
 						string name;
+						ProjectStore.RowKind kind;
 						model.get_value(iter, ProjectStore.Column.TYPE, out val);
 						type = (string)val;
 						model.get_value(iter, ProjectStore.Column.NAME, out val);
 						name = (string)val;
+						model.get_value(iter, ProjectStore.Column.KIND, out val);
+						kind = (ProjectStore.RowKind)val;
 
-						if (row_should_be_hidden(type, name))
+						if (row_should_be_hidden(kind, type, name))
 							return false;
 
 						// Skip paths without common ancestor.
@@ -1840,6 +1899,8 @@ public class ProjectBrowser : Gtk.Box
 							, size
 							, ProjectStore.Column.MTIME
 							, mtime
+							, ProjectStore.Column.KIND
+							, kind
 							, -1
 							);
 						return false;
@@ -1849,18 +1910,23 @@ public class ProjectBrowser : Gtk.Box
 				_folder_view._selected_name = selected_name;
 
 				_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
-			} else if (selected_type == "<favorites>") {
+			} else if (selected_kind == ProjectStore.RowKind.FAVORITES) {
 				_folder_view._showing_project_folder = false;
+				_folder_view._selected_type = "";
+				_folder_view._selected_name = "";
 				int num_items = 0;
 
 				// Fill the icon view list with paths whose ancestor is the favorites root.
 				_project_store._tree_store.foreach((model, path, iter) => {
 						string type;
 						string name;
+						ProjectStore.RowKind kind;
 						model.get_value(iter, ProjectStore.Column.TYPE, out val);
 						type = (string)val;
 						model.get_value(iter, ProjectStore.Column.NAME, out val);
 						name = (string)val;
+						model.get_value(iter, ProjectStore.Column.KIND, out val);
+						kind = (ProjectStore.RowKind)val;
 
 						if (!path.is_descendant(_project_store.favorites_root_path()))
 							return false;
@@ -1884,6 +1950,8 @@ public class ProjectBrowser : Gtk.Box
 							, size
 							, ProjectStore.Column.MTIME
 							, mtime
+							, ProjectStore.Column.KIND
+							, kind
 							, -1
 							);
 						++num_items;
@@ -1908,15 +1976,18 @@ public class ProjectBrowser : Gtk.Box
 
 					string type;
 					string name;
+					ProjectStore.RowKind kind;
 					model.get_value(iter, ProjectStore.Column.TYPE, out val);
 					type = (string)val;
 					model.get_value(iter, ProjectStore.Column.NAME, out val);
 					name = (string)val;
+					model.get_value(iter, ProjectStore.Column.KIND, out val);
+					kind = (ProjectStore.RowKind)val;
 
-					if (type == "<folder>")
+					if (kind == ProjectStore.RowKind.FOLDER)
 						return false;
 
-					if (row_should_be_hidden(type, name))
+					if (row_should_be_hidden(kind, type, name))
 						return false;
 
 					uint64 size;
@@ -1938,6 +2009,8 @@ public class ProjectBrowser : Gtk.Box
 						, size
 						, ProjectStore.Column.MTIME
 						, mtime
+						, ProjectStore.Column.KIND
+						, kind
 						, -1
 						);
 					return false;
@@ -1949,12 +2022,15 @@ public class ProjectBrowser : Gtk.Box
 				Value val;
 				string type;
 				string name;
+				ProjectStore.RowKind kind;
 				uint64 size;
 				uint64 mtime;
 				model.get_value(iter, ProjectStore.Column.TYPE, out val);
 				type = (string)val;
 				model.get_value(iter, ProjectStore.Column.NAME, out val);
 				name = (string)val;
+				model.get_value(iter, ProjectStore.Column.KIND, out val);
+				kind = (ProjectStore.RowKind)val;
 				model.get_value(iter, ProjectStore.Column.SIZE, out val);
 				size = (uint64)val;
 				model.get_value(iter, ProjectStore.Column.MTIME, out val);
@@ -1972,6 +2048,8 @@ public class ProjectBrowser : Gtk.Box
 					, size
 					, ProjectStore.Column.MTIME
 					, mtime
+					, ProjectStore.Column.KIND
+					, kind
 					, -1
 					);
 				return false;
@@ -1994,31 +2072,36 @@ public class ProjectBrowser : Gtk.Box
 	public void pixbuf_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value val;
+		ProjectStore.RowKind kind;
 		string type;
 		string name;
 		model.get_value(iter, ProjectStore.Column.TYPE, out val);
 		type = (string)val;
 		model.get_value(iter, ProjectStore.Column.NAME, out val);
 		name = (string)val;
+		model.get_value(iter, ProjectStore.Column.KIND, out val);
+		kind = (ProjectStore.RowKind)val;
 
-		set_thumbnail(cell, type, name, 16, _thumbnail_cache);
+		set_thumbnail(cell, kind, type, name, 16, _thumbnail_cache);
 	}
 
 	public void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value name;
 		Value type;
+		Value kind;
 		model.get_value(iter, ProjectStore.Column.NAME, out name);
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+		model.get_value(iter, ProjectStore.Column.KIND, out kind);
 
 		string basename = GLib.Path.get_basename((string)name);
 
-		if ((string)type == "<folder>") {
+		if ((ProjectStore.RowKind)kind == ProjectStore.RowKind.FOLDER) {
 			if ((string)name == "")
 				cell.set_property("text", _project_store._project.name());
 			else
 				cell.set_property("text", basename);
-		} else if ((string)type == "<favorites>") {
+		} else if ((ProjectStore.RowKind)kind == ProjectStore.RowKind.FAVORITES) {
 			cell.set_property("text", _("Favorites"));
 		} else {
 			cell.set_property("text", ResourceId.path((string)type, basename));

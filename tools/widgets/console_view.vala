@@ -610,7 +610,7 @@ public class ConsoleView : Gtk.Box
 
 						if (resource_type != null && resource_name != null) {
 							mi = new GLib.MenuItem(_("Reveal in Project Browser"), null);
-							mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({ resource_type, resource_name }));
+							mi.set_action_and_target_value("app.reveal-resource", new GLib.Variant.tuple({ new GLib.Variant.int32((int)ProjectStore.RowKind.RESOURCE), resource_type, resource_name }));
 							menu_model.append_item(mi);
 						}
 
