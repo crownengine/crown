@@ -20,6 +20,119 @@ public enum Pivot
 	BOTTOM_RIGHT
 }
 
+[Compact]
+public class SpriteImportOptions
+{
+	public bool options_loaded;
+	public string unit_name;
+	public Vector2 cells;
+	public Vector2 cell;
+	public Vector2 offset;
+	public Vector2 spacing;
+	public int pivot;
+	public double layer;
+	public double depth;
+	public bool collision_enabled;
+	public Vector2 collision_xy;
+	public Vector2 collision_wh;
+	public Vector2 circle_collision_center;
+	public double circle_collision_radius;
+	public Vector2 capsule_collision_center;
+	public double capsule_collision_radius;
+	public double capsule_collision_height;
+	public string shape_active_name;
+	public string actor_class;
+	public bool lock_rotation_z;
+	public double mass;
+
+	public SpriteImportOptions(string unit_name, int image_width, int image_height)
+	{
+		options_loaded = false;
+		this.unit_name = unit_name;
+		cells = Vector2(1.0, 1.0);
+		cell = Vector2(image_width / cells.x, image_height / cells.y);
+		offset = Vector2(0.0, 0.0);
+		spacing = Vector2(0.0, 0.0);
+		pivot = Pivot.CENTER;
+		layer = 0.0;
+		depth = 0.0;
+		collision_enabled = true;
+		collision_xy = Vector2(0.0, 0.0);
+		collision_wh = Vector2(32.0, 32.0);
+		circle_collision_center = Vector2(cell.x/2.0, cell.y/2.0);
+		circle_collision_radius = 32.0;
+		capsule_collision_center = Vector2(cell.x/2.0, cell.y/2.0);
+		capsule_collision_radius = 32.0;
+		capsule_collision_height = 64.0;
+		shape_active_name = "square_collider";
+		actor_class = "static";
+		lock_rotation_z = true;
+		mass = 10.0;
+	}
+
+	public void decode(Hashtable obj)
+	{
+		cells = Vector2((double)obj["num_h"], (double)obj["num_v"]);
+		cell = Vector2((double)obj["cell_w"], (double)obj["cell_h"]);
+		offset = Vector2((double)obj["offset_x"], (double)obj["offset_y"]);
+		spacing = Vector2((double)obj["spacing_x"], (double)obj["spacing_y"]);
+		layer = (double)obj["layer"];
+		depth = (double)obj["depth"];
+		pivot = (int)(double)obj["pivot"];
+		collision_enabled = (bool)obj["collision_enabled"];
+		collision_xy = Vector2((double)obj["collision_x"], (double)obj["collision_y"]);
+		collision_wh = Vector2((double)obj["collision_w"], (double)obj["collision_h"]);
+
+		circle_collision_center = Vector2(obj.has_key("circle_collision_center_x") ? (double)obj["circle_collision_center_x"] : cell.x/2.0, obj.has_key("circle_collision_center_y") ? (double)obj["circle_collision_center_y"] : cell.y/2.0);
+		circle_collision_radius = obj.has_key("circle_collision_radius") ? (double)obj["circle_collision_radius"] : 32;
+
+		capsule_collision_center = Vector2(obj.has_key("capsule_collision_center_x") ? (double)obj["capsule_collision_center_x"] : cell.x/2.0, obj.has_key("capsule_collision_center_y") ? (double)obj["capsule_collision_center_y"] : cell.y/2.0);
+		capsule_collision_radius = obj.has_key("capsule_collision_radius") ? (double)obj["capsule_collision_radius"] : 32;
+		capsule_collision_height = obj.has_key("capsule_collision_height") ? (double)obj["capsule_collision_height"] : 64;
+
+		shape_active_name = obj.has_key("shape_active_name") ? ((string)obj["shape_active_name"]).dup() : "square_collider";
+		actor_class = obj.has_key("actor_class") ? ((string)obj["actor_class"]).dup() : "static";
+		lock_rotation_z = obj.has_key("lock_rotation_z") ? (bool)obj["lock_rotation_z"] : true;
+		mass = obj.has_key("mass") ? (double)obj["mass"] : 10.0;
+		options_loaded = true;
+	}
+
+	public Hashtable encode()
+	{
+		Hashtable obj = new Hashtable();
+
+		obj["num_h"]                      = cells.x;
+		obj["num_v"]                      = cells.y;
+		obj["cell_w"]                     = cell.x;
+		obj["cell_h"]                     = cell.y;
+		obj["offset_x"]                   = offset.x;
+		obj["offset_y"]                   = offset.y;
+		obj["spacing_x"]                  = spacing.x;
+		obj["spacing_y"]                  = spacing.y;
+		obj["layer"]                      = layer;
+		obj["depth"]                      = depth;
+		obj["pivot"]                      = pivot;
+		obj["collision_enabled"]          = collision_enabled;
+		obj["collision_x"]                = collision_xy.x;
+		obj["collision_y"]                = collision_xy.y;
+		obj["collision_w"]                = collision_wh.x;
+		obj["collision_h"]                = collision_wh.y;
+		obj["circle_collision_center_x"]  = circle_collision_center.x;
+		obj["circle_collision_center_y"]  = circle_collision_center.y;
+		obj["circle_collision_radius"]    = circle_collision_radius;
+		obj["capsule_collision_center_x"] = capsule_collision_center.x;
+		obj["capsule_collision_center_y"] = capsule_collision_center.y;
+		obj["capsule_collision_radius"]   = capsule_collision_radius;
+		obj["capsule_collision_height"]   = capsule_collision_height;
+		obj["shape_active_name"]          = shape_active_name;
+		obj["actor_class"]                = actor_class;
+		obj["lock_rotation_z"]            = lock_rotation_z;
+		obj["mass"]                       = mass;
+
+		return obj;
+	}
+}
+
 Vector2 sprite_cell_xy(int r, int c, int offset_x, int offset_y, int cell_w, int cell_h, int spacing_x, int spacing_y)
 {
 	int x0 = offset_x + c*cell_w + c*spacing_x;
@@ -99,7 +212,7 @@ public class SpriteImportDialog : Gtk.Window
 	public GLib.SList<string> _filenames;
 	public unowned Import _import_result;
 
-	public string _image_type;
+	public SpriteImportOptions _options;
 
 	public Gdk.Pixbuf _pixbuf;
 
@@ -149,7 +262,13 @@ public class SpriteImportDialog : Gtk.Window
 	public Gtk.Button _cancel;
 	public Gtk.HeaderBar _header_bar;
 
-	public SpriteImportDialog(Database database, string destination_dir, GLib.SList<string> filenames, Import import_result)
+	public SpriteImportDialog(Database database
+		, string destination_dir
+		, GLib.SList<string> filenames
+		, Import import_result
+		, owned SpriteImportOptions options
+		, Gdk.Pixbuf pixbuf
+		)
 	{
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
 
@@ -159,76 +278,48 @@ public class SpriteImportDialog : Gtk.Window
 		foreach (var f in filenames)
 			_filenames.append(f);
 		_import_result = import_result;
+		_options = (owned)options;
+		_pixbuf = pixbuf;
 
-		string settings_path;
-		string image_path;
-		string image_name;
-		{
-			GLib.File file_src = File.new_for_path(_filenames.nth_data(0));
-			image_path = file_src.get_path();
-			_image_type = image_path.substring(image_path.last_index_of_char('.') + 1
-				, image_path.length - image_path.last_index_of_char('.') - 1
-				);
-
-			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
-			string resource_filename = _project.resource_filename(file_dst.get_path());
-			string resource_path     = ResourceId.normalize(resource_filename);
-			string resource_name     = ResourceId.name(resource_path);
-
-			settings_path = _project.absolute_path(resource_name) + ".importer_settings";
-
-			int last_slash = resource_name.last_index_of_char('/');
-			if (last_slash == -1)
-				image_name = resource_name;
-			else
-				image_name = resource_name.substring(last_slash + 1, resource_name.length - last_slash - 1);
-		}
-
-		try {
-			_pixbuf = new Gdk.Pixbuf.from_file(image_path);
-		} catch (GLib.Error e) {
-			loge(e.message);
-		}
-
-		_unit_name = new InputResourceBasename(image_name);
+		_unit_name = new InputResourceBasename(_options.unit_name);
 		_unit_name.sensitive = _filenames.length() == 1;
 
 		resolution = new Gtk.Label(_pixbuf.width.to_string() + " × " + _pixbuf.height.to_string());
 		resolution.halign = Gtk.Align.START;
 
-		cells = new InputVector2(Vector2(1.0, 1.0), Vector2(1.0, 1.0), Vector2(256.0, 256.0));
+		cells = new InputVector2(_options.cells, Vector2(1.0, 1.0), Vector2(256.0, 256.0));
 		cell_wh_auto = new Gtk.CheckButton();
 		cell_wh_auto.active = true;
-		cell = new InputVector2(Vector2(_pixbuf.width / cells.value.x, _pixbuf.height / cells.value.y), Vector2(1.0, 1.0), Vector2(double.MAX, double.MAX));
+		cell = new InputVector2(_options.cell, Vector2(1.0, 1.0), Vector2(double.MAX, double.MAX));
 		cell.sensitive = !cell_wh_auto.active;
-		offset = new InputVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
-		spacing = new InputVector2(Vector2(0.0, 0.0), Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
+		offset = new InputVector2(_options.offset, Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
+		spacing = new InputVector2(_options.spacing, Vector2(0.0, 0.0), Vector2(double.MAX, double.MAX));
 
 		collision_enabled = new Gtk.CheckButton();
-		collision_enabled.active = true;
+		collision_enabled.active = _options.collision_enabled;
 		collision_enabled.toggled.connect(() => {
 				_preview.queue_draw();
 			});
 		mirror_cell = new Gtk.CheckButton();
 		mirror_cell.active = true;
-		collision_xy = new InputVector2(Vector2(0.0, 0.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		collision_wh = new InputVector2(Vector2(32.0, 32.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		collision_xy = new InputVector2(_options.collision_xy, Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		collision_wh = new InputVector2(_options.collision_wh, Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
 		actor_class = new InputEnum();
 		actor_class.append("static", "static");
 		actor_class.append("dynamic", "dynamic");
 		actor_class.append("keyframed", "keyframed");
 		actor_class.append("trigger", "trigger");
-		actor_class.value = "static";
+		actor_class.value = _options.actor_class;
 		lock_rotation_z = new Gtk.CheckButton();
-		lock_rotation_z.active = true;
-		mass = new InputDouble(10.0, 0.0, double.MAX);
+		lock_rotation_z.active = _options.lock_rotation_z;
+		mass = new InputDouble(_options.mass, 0.0, double.MAX);
 
-		circle_collision_center = new InputVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		circle_collision_radius = new InputDouble(32.0, 0.5, double.MAX);
+		circle_collision_center = new InputVector2(_options.circle_collision_center, Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		circle_collision_radius = new InputDouble(_options.circle_collision_radius, 0.5, double.MAX);
 
-		capsule_collision_center = new InputVector2(Vector2(cell.value.x/2.0, cell.value.y/2.0), Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
-		capsule_collision_radius = new InputDouble(32.0, 0.5, double.MAX);
-		capsule_collision_height = new InputDouble(64.0, 2.0*capsule_collision_radius.value, double.MAX);
+		capsule_collision_center = new InputVector2(_options.capsule_collision_center, Vector2(-double.MAX, -double.MAX), Vector2(double.MAX, double.MAX));
+		capsule_collision_radius = new InputDouble(_options.capsule_collision_radius, 0.5, double.MAX);
+		capsule_collision_height = new InputDouble(_options.capsule_collision_height, 2.0*capsule_collision_radius.value, double.MAX);
 
 		cells.value_changed.connect(() => {
 				if (cell_wh_auto.active)
@@ -322,15 +413,15 @@ public class SpriteImportDialog : Gtk.Window
 		pivot.append_text("Bottom left");   // BOTTOM_LEFT
 		pivot.append_text("Bottom center"); // BOTTOM_CENTER
 		pivot.append_text("Bottom right");  // BOTTOM_RIGHT
-		pivot.active = Pivot.CENTER;
+		pivot.active = _options.pivot;
 
 		pivot.changed.connect(() => {
 				_slices.queue_draw();
 				_preview.queue_draw();
 			});
 
-		layer = new InputDouble(0.0, 0.0, 7.0);
-		depth = new InputDouble(0.0, 0.0, 9999.0);
+		layer = new InputDouble(_options.layer, 0.0, 7.0);
+		depth = new InputDouble(_options.depth, 0.0, 9999.0);
 
 		PropertyGridSet sprite_set = new PropertyGridSet();
 
@@ -578,16 +669,32 @@ public class SpriteImportDialog : Gtk.Window
 		this.add(_box);
 		this.map_event.connect(on_map_event);
 
-		if (File.new_for_path(settings_path).query_exists()) {
-			try {
-				decode(SJSON.load_from_path(settings_path));
-				_current_frame.set_max(cells.value.x * cells.value.y - 1);
-				set_preview_frame();
-				_slices.queue_draw();
-				_preview.queue_draw();
-			} catch (JsonSyntaxError e) {
-				// No-op.
-			}
+		if (_options.options_loaded) {
+			_unit_name.value              = _options.unit_name;
+			cells.value                    = _options.cells;
+			cell.value                     = _options.cell;
+			offset.value                   = _options.offset;
+			spacing.value                  = _options.spacing;
+			layer.value                    = _options.layer;
+			depth.value                    = _options.depth;
+			pivot.active                   = _options.pivot;
+			collision_enabled.active       = _options.collision_enabled;
+			collision_xy.value             = _options.collision_xy;
+			collision_wh.value             = _options.collision_wh;
+			circle_collision_center.value  = _options.circle_collision_center;
+			circle_collision_radius.value  = _options.circle_collision_radius;
+			capsule_collision_center.value = _options.capsule_collision_center;
+			capsule_collision_radius.value = _options.capsule_collision_radius;
+			capsule_collision_height.value = _options.capsule_collision_height;
+			shape.visible_child_name       = _options.shape_active_name;
+			actor_class.value              = _options.actor_class;
+			lock_rotation_z.active         = _options.lock_rotation_z;
+			mass.value                     = _options.mass;
+
+			_current_frame.set_max(cells.value.x * cells.value.y - 1);
+			set_preview_frame();
+			_slices.queue_draw();
+			_preview.queue_draw();
 		}
 	}
 
@@ -646,141 +753,125 @@ public class SpriteImportDialog : Gtk.Window
 		}
 	}
 
-	public void decode(Hashtable obj)
+	public void read_options()
 	{
-		// Load settings
-		cells.value              = Vector2((double)obj["num_h"], (double)obj["num_v"]);
-		cell.value               = Vector2((double)obj["cell_w"], (double)obj["cell_h"]);
-		offset.value             = Vector2((double)obj["offset_x"], (double)obj["offset_y"]);
-		spacing.value            = Vector2((double)obj["spacing_x"], (double)obj["spacing_y"]);
-		layer.value              = (double)obj["layer"];
-		depth.value              = (double)obj["depth"];
-		pivot.active             = (int)(double)obj["pivot"];
-		collision_enabled.active = (bool)obj["collision_enabled"];
-		collision_xy.value       = Vector2((double)obj["collision_x"], (double)obj["collision_y"]);
-		collision_wh.value       = Vector2((double)obj["collision_w"], (double)obj["collision_h"]);
-
-		circle_collision_center.value = Vector2(obj.has_key("circle_collision_center_x") ? (double)obj["circle_collision_center_x"] : cell.value.x/2.0, obj.has_key("circle_collision_center_y") ? (double)obj["circle_collision_center_y"] : cell.value.y/2.0);
-		circle_collision_radius.value = obj.has_key("circle_collision_radius") ? (double)obj["circle_collision_radius"] : 32;
-
-		capsule_collision_center.value = Vector2(obj.has_key("capsule_collision_center_x") ? (double)obj["capsule_collision_center_x"] : cell.value.x/2.0, obj.has_key("capsule_collision_center_y") ? (double)obj["capsule_collision_center_y"] : cell.value.y/2.0);
-		capsule_collision_radius.value = obj.has_key("capsule_collision_radius") ? (double)obj["capsule_collision_radius"] : 32;
-		capsule_collision_height.value = obj.has_key("capsule_collision_height") ? (double)obj["capsule_collision_height"] : 64;
-
-		string shape_active_name = obj.has_key("shape_active_name") ? ((string)obj["shape_active_name"]).dup() : "square_collider";
-		string actor_class_name  = obj.has_key("actor_class") ? ((string)obj["actor_class"]).dup() : "static";
-
-		shape.visible_child_name = shape_active_name;
-		actor_class.value        = actor_class_name;
-		lock_rotation_z.active   = obj.has_key("lock_rotation_z") ? (bool)obj["lock_rotation_z"] : true;
-		mass.value               = obj.has_key("mass") ? (double)obj["mass"] : 10.0;
-	}
-
-	public Hashtable encode()
-	{
-		Hashtable obj = new Hashtable();
-
-		obj["num_h"]                      = cells.value.x;
-		obj["num_v"]                      = cells.value.y;
-		obj["cell_w"]                     = cell.value.x;
-		obj["cell_h"]                     = cell.value.y;
-		obj["offset_x"]                   = offset.value.x;
-		obj["offset_y"]                   = offset.value.y;
-		obj["spacing_x"]                  = spacing.value.x;
-		obj["spacing_y"]                  = spacing.value.y;
-		obj["layer"]                      = layer.value;
-		obj["depth"]                      = depth.value;
-		obj["pivot"]                      = pivot.active;
-		obj["collision_enabled"]          = collision_enabled.active;
-		obj["collision_x"]                = collision_xy.value.x;
-		obj["collision_y"]                = collision_xy.value.y;
-		obj["collision_w"]                = collision_wh.value.x;
-		obj["collision_h"]                = collision_wh.value.y;
-		obj["circle_collision_center_x"]  = circle_collision_center.value.x;
-		obj["circle_collision_center_y"]  = circle_collision_center.value.y;
-		obj["circle_collision_radius"]    = circle_collision_radius.value;
-		obj["capsule_collision_center_x"] = capsule_collision_center.value.x;
-		obj["capsule_collision_center_y"] = capsule_collision_center.value.y;
-		obj["capsule_collision_radius"]   = capsule_collision_radius.value;
-		obj["capsule_collision_height"]   = capsule_collision_height.value;
-		obj["shape_active_name"]          = shape.visible_child_name;
-		obj["actor_class"]                = actor_class.value;
-		obj["lock_rotation_z"]            = lock_rotation_z.active;
-		obj["mass"]                       = mass.value;
-
-		return obj;
+		_options.unit_name                = _unit_name.value;
+		_options.cells                    = cells.value;
+		_options.cell                     = cell.value;
+		_options.offset                   = offset.value;
+		_options.spacing                  = spacing.value;
+		_options.layer                    = layer.value;
+		_options.depth                    = depth.value;
+		_options.pivot                    = pivot.active;
+		_options.collision_enabled        = collision_enabled.active;
+		_options.collision_xy             = collision_xy.value;
+		_options.collision_wh             = collision_wh.value;
+		_options.circle_collision_center  = circle_collision_center.value;
+		_options.circle_collision_radius  = circle_collision_radius.value;
+		_options.capsule_collision_center = capsule_collision_center.value;
+		_options.capsule_collision_radius = capsule_collision_radius.value;
+		_options.capsule_collision_height = capsule_collision_height.value;
+		_options.shape_active_name        = shape.visible_child_name;
+		_options.actor_class              = actor_class.value;
+		_options.lock_rotation_z          = lock_rotation_z.active;
+		_options.mass                     = mass.value;
 	}
 
 	public void on_import()
 	{
-		ImportResult res = SpriteResource.do_import(this, _project, _destination_dir, _filenames);
-
-		string? primary_path = null;        // Track primary_path
-		if (res == ImportResult.SUCCESS) {
-			GLib.File file_src = File.new_for_path(_filenames.nth_data(0));
-			string resource_basename = _filenames.length() == 1
-				? _unit_name.value + "." + _image_type
-				: file_src.get_basename();
-
-			GLib.File file_dst       = File.new_for_path(Path.build_filename(_destination_dir, resource_basename));
-
-			string resource_filename = _project.resource_filename(file_dst.get_path());
-			string resource_path     = ResourceId.normalize(resource_filename);
-			string resource_name     = ResourceId.name(resource_path);
-
-			primary_path = ResourceId.path(OBJECT_TYPE_UNIT, resource_name);
-		}
-
-		_import_result(res, primary_path);
+		read_options();
+		SpriteResource.import_with_options(_import_result, _options, _project, _destination_dir, _filenames);
 		close();
 	}
 }
 
 public class SpriteResource
 {
-	public static ImportResult do_import(SpriteImportDialog dlg, Project project, string destination_dir, GLib.SList<string> filenames)
+	public static string resource_basename(SpriteImportOptions options, GLib.SList<string> filenames, string filename)
 	{
-		int width     = (int)dlg._pixbuf.width;
-		int height    = (int)dlg._pixbuf.height;
-		int num_h     = (int)dlg.cells.value.x;
-		int num_v     = (int)dlg.cells.value.y;
+		GLib.File file_src = File.new_for_path(filename);
+		if (filenames.length() == 1) {
+			string? image_type = ResourceId.type(filename);
+			return image_type == null
+				? options.unit_name
+				: options.unit_name + "." + image_type
+				;
+		} else {
+			return file_src.get_basename();
+		}
+	}
+
+	public static string? primary_resource_path(SpriteImportOptions options, Project project, string destination_dir, GLib.SList<string> filenames, ImportResult result)
+	{
+		if (result != ImportResult.SUCCESS || filenames.length() == 0)
+			return null;
+
+		string resource_basename = SpriteResource.resource_basename(options, filenames, filenames.nth_data(0));
+		GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
+		string resource_filename = project.resource_filename(file_dst.get_path());
+		string resource_path     = ResourceId.normalize(resource_filename);
+		string resource_name     = ResourceId.name(resource_path);
+		return ResourceId.path(OBJECT_TYPE_UNIT, resource_name);
+	}
+
+	public static void import_with_options(Import import_result
+		, SpriteImportOptions options
+		, Project project
+		, string destination_dir
+		, GLib.SList<string> filenames
+		)
+	{
+		ImportResult result = SpriteResource.do_import(options, project, destination_dir, filenames);
+		import_result(result, SpriteResource.primary_resource_path(options, project, destination_dir, filenames, result));
+	}
+
+	public static ImportResult do_import(SpriteImportOptions options, Project project, string destination_dir, GLib.SList<string> filenames)
+	{
+		Gdk.Pixbuf pixbuf;
+		try {
+			pixbuf = new Gdk.Pixbuf.from_file(filenames.nth_data(0));
+		} catch (GLib.Error e) {
+			loge(e.message);
+			return ImportResult.ERROR;
+		}
+
+		int width     = pixbuf.width;
+		int height    = pixbuf.height;
+		int num_h     = (int)options.cells.x;
+		int num_v     = (int)options.cells.y;
 		int num_frames = num_h * num_v;
-		int cell_w    = (int)dlg.cell.value.x;
-		int cell_h    = (int)dlg.cell.value.y;
-		int offset_x  = (int)dlg.offset.value.x;
-		int offset_y  = (int)dlg.offset.value.y;
-		int spacing_x = (int)dlg.spacing.value.x;
-		int spacing_y = (int)dlg.spacing.value.y;
-		double layer  = dlg.layer.value;
-		double depth  = dlg.depth.value;
+		int cell_w    = (int)options.cell.x;
+		int cell_h    = (int)options.cell.y;
+		int offset_x  = (int)options.offset.x;
+		int offset_y  = (int)options.offset.y;
+		int spacing_x = (int)options.spacing.x;
+		int spacing_y = (int)options.spacing.y;
+		double layer  = options.layer;
+		double depth  = options.depth;
 
-		Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, dlg.pivot.active);
+		Vector2 pivot_xy = sprite_cell_pivot_xy(cell_w, cell_h, options.pivot);
 
-		bool collision_enabled         = dlg.collision_enabled.active;
+		bool collision_enabled         = options.collision_enabled;
 		bool has_animation             = num_frames > 1;
-		string shape_active_name       = (string)dlg.shape.visible_child_name;
-		int circle_collision_center_x  = (int)dlg.circle_collision_center.value.x;
-		int circle_collision_center_y  = (int)dlg.circle_collision_center.value.y;
-		int circle_collision_radius    = (int)dlg.circle_collision_radius.value;
-		int capsule_collision_center_x = (int)dlg.capsule_collision_center.value.x;
-		int capsule_collision_center_y = (int)dlg.capsule_collision_center.value.y;
-		int capsule_collision_radius   = (int)dlg.capsule_collision_radius.value;
-		int capsule_collision_height   = (int)dlg.capsule_collision_height.value;
-		int collision_x                = (int)dlg.collision_xy.value.x;
-		int collision_y                = (int)dlg.collision_xy.value.y;
-		int collision_w                = (int)dlg.collision_wh.value.x;
-		int collision_h                = (int)dlg.collision_wh.value.y;
-		string actor_class             = (string)dlg.actor_class.value;
-		bool lock_rotation_z           = dlg.lock_rotation_z.active;
-		double mass                    = (double)dlg.mass.value;
+		string shape_active_name       = options.shape_active_name;
+		int circle_collision_center_x  = (int)options.circle_collision_center.x;
+		int circle_collision_center_y  = (int)options.circle_collision_center.y;
+		int circle_collision_radius    = (int)options.circle_collision_radius;
+		int capsule_collision_center_x = (int)options.capsule_collision_center.x;
+		int capsule_collision_center_y = (int)options.capsule_collision_center.y;
+		int capsule_collision_radius   = (int)options.capsule_collision_radius;
+		int capsule_collision_height   = (int)options.capsule_collision_height;
+		int collision_x                = (int)options.collision_xy.x;
+		int collision_y                = (int)options.collision_xy.y;
+		int collision_w                = (int)options.collision_wh.x;
+		int collision_h                = (int)options.collision_wh.y;
+		string actor_class             = options.actor_class;
+		bool lock_rotation_z           = options.lock_rotation_z;
+		double mass                    = options.mass;
 
 		foreach (unowned string filename_i in filenames) {
 			GLib.File file_src = File.new_for_path(filename_i);
-			string resource_basename;
-			if (filenames.length() == 1)
-				resource_basename = dlg._unit_name.value + "." + dlg._image_type;
-			else
-				resource_basename = file_src.get_basename();
+			string resource_basename = SpriteResource.resource_basename(options, filenames, filename_i);
 
 			GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, resource_basename));
 			string resource_filename = project.resource_filename(file_dst.get_path());
@@ -788,7 +879,7 @@ public class SpriteResource
 			string resource_name     = ResourceId.name(resource_path);
 
 			try {
-				SJSON.save(dlg.encode(), project.absolute_path(resource_name) + ".importer_settings");
+				SJSON.save(options.encode(), project.absolute_path(resource_name) + ".importer_settings");
 			} catch (JsonWriteError e) {
 				loge(e.message);
 				return ImportResult.ERROR;
@@ -1050,10 +1141,54 @@ public class SpriteResource
 
 	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
-		SpriteImportDialog dlg = new SpriteImportDialog(database, destination_dir, filenames, import_result);
-		dlg.set_transient_for(parent_window);
-		dlg.set_modal(true);
-		dlg.show_all();
+		if (filenames.length() == 0) {
+			import_result(ImportResult.ERROR);
+			return;
+		}
+
+		Project project = database._project;
+		GLib.File file_src = File.new_for_path(filenames.nth_data(0));
+		Gdk.Pixbuf pixbuf;
+		try {
+			pixbuf = new Gdk.Pixbuf.from_file(file_src.get_path());
+		} catch (GLib.Error e) {
+			loge(e.message);
+			import_result(ImportResult.ERROR);
+			return;
+		}
+
+		GLib.File file_dst       = File.new_for_path(Path.build_filename(destination_dir, file_src.get_basename()));
+		string resource_filename = project.resource_filename(file_dst.get_path());
+		string resource_path     = ResourceId.normalize(resource_filename);
+		string resource_name     = ResourceId.name(resource_path);
+		int last_slash = resource_name.last_index_of_char('/');
+		string unit_name = last_slash == -1
+			? resource_name
+			: resource_name.substring(last_slash + 1, resource_name.length - last_slash - 1)
+			;
+		SpriteImportOptions options = new SpriteImportOptions(unit_name, pixbuf.width, pixbuf.height);
+		string settings_path     = project.absolute_path(resource_name) + ".importer_settings";
+		if (File.new_for_path(settings_path).query_exists()) {
+			try {
+				options.decode(SJSON.load_from_path(settings_path));
+			} catch (JsonSyntaxError e) {
+				// No-op.
+			}
+		}
+
+		if (parent_window == null) {
+			SpriteResource.import_with_options(import_result
+				, options
+				, project
+				, destination_dir
+				, filenames
+				);
+		} else {
+			SpriteImportDialog dlg = new SpriteImportDialog(database, destination_dir, filenames, import_result, (owned)options, pixbuf);
+			dlg.set_transient_for(parent_window);
+			dlg.set_modal(true);
+			dlg.show_all();
+		}
 	}
 }
 
