@@ -601,6 +601,9 @@ public struct CommandLineOptions
 	public string? source_dir;
 	public string? positional_source_dir;
 	public string level_resource;
+	public bool do_import;
+	public string[] import_filenames;
+	public string import_destination;
 
 	public void print_help(GLib.FileStream stream)
 	{
@@ -608,9 +611,10 @@ public struct CommandLineOptions
 			+ "  crown-editor [OPTION...] [<source-dir> [<level>]]\n"
 			+ "\n"
 			+ "Options:\n"
-			+ "  -h, --help                 Display this help and exit.\n"
-			+ "  -v, --version              Display version information and exit.\n"
-			+ "      --source-dir <path>    Project source directory.\n"
+			+ "  -h, --help                   Display this help and exit.\n"
+			+ "  -v, --version                Display version information and exit.\n"
+			+ "  --source-dir <path>          Project source directory.\n"
+			+ "  --import <file>... <path>    Import files into a source-dir relative path.\n"
 			);
 	}
 
@@ -621,17 +625,22 @@ public struct CommandLineOptions
 		source_dir = null;
 		positional_source_dir = null;
 		level_resource = "";
+		do_import = false;
+		import_filenames = {};
+		import_destination = "";
 		error = "";
 
 		string? option_source_dir = null;
 		bool option_show_help = false;
 		bool option_show_version = false;
+		bool option_do_import = false;
 
 		GLib.OptionEntry[] option_entries =
 		{
 			{ "help",       'h', 0, GLib.OptionArg.NONE,     ref option_show_help,    "Display this help and exit.",           null   },
 			{ "version",    'v', 0, GLib.OptionArg.NONE,     ref option_show_version, "Display version information and exit.", null   },
 			{ "source-dir", 0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,   "Project source directory.",             "path" },
+			{ "import",     0,   0, GLib.OptionArg.NONE,     ref option_do_import,    "Import files.",                         null   },
 			{ null }
 		};
 
@@ -649,44 +658,58 @@ public struct CommandLineOptions
 		show_help = option_show_help;
 		show_version = option_show_version;
 		source_dir = option_source_dir;
+		do_import = option_do_import;
 
-		if (source_dir != null) {
-			if (args.length > 1) {
-				if (GLib.FileUtils.test(args[1], FileTest.EXISTS)
-					&& GLib.FileUtils.test(args[1], FileTest.IS_DIR)
-					) {
-					error = "Source directory specified with both --source-dir and positional argument";
-					return false;
-				}
-
-				level_resource = args[1];
-			}
-
-			if (args.length > 2) {
-				error = "Too many positional arguments";
-				return false;
-			}
-		} else {
-			if (args.length > 1) {
-				positional_source_dir = args[1];
-				source_dir = positional_source_dir;
-			}
-
-			if (args.length > 2)
-				level_resource = args[2];
-
-			if (args.length > 3) {
-				error = "Too many positional arguments";
-				return false;
-			}
+		int positional_args_begin = 1;
+		if (source_dir == null && args.length > 1) {
+			positional_source_dir = args[1];
+			source_dir = positional_source_dir;
+			positional_args_begin = 2;
 		}
 
-		if (source_dir != null
-			&& (!GLib.FileUtils.test(source_dir, FileTest.EXISTS)
-				|| !GLib.FileUtils.test(source_dir, FileTest.IS_DIR)
-				)
-			) {
-			error = "Source directory does not exist or it is not a directory";
+		if (do_import) {
+			if (source_dir == null) {
+				error = "Source dir must be specified.";
+				return false;
+			}
+
+			if (args.length - positional_args_begin < 2) {
+				error = "Usage: --import <file>... <path>.";
+				return false;
+			}
+
+			string[] filenames = {};
+			for (int ii = positional_args_begin; ii < args.length - 1; ++ii)
+				filenames += args[ii];
+
+			import_filenames = filenames;
+			import_destination = args[args.length - 1];
+
+			if (import_destination == "") {
+				error = "Import destination must be specified.";
+				return false;
+			}
+
+			return true;
+		}
+
+		if (option_source_dir != null && args.length > 1) {
+			if (GLib.FileUtils.test(args[1], FileTest.EXISTS)
+				&& GLib.FileUtils.test(args[1], FileTest.IS_DIR)
+				) {
+				error = "Source dir specified twice.";
+				return false;
+			}
+
+			level_resource = args[1];
+			positional_args_begin = 2;
+		} else if (args.length > positional_args_begin) {
+			level_resource = args[positional_args_begin];
+			++positional_args_begin;
+		}
+
+		if (args.length > positional_args_begin) {
+			error = "Too many positional arguments.";
 			return false;
 		}
 
@@ -4624,6 +4647,38 @@ public static int main(string[] args)
 	project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 
 	Database database = new Database(project);
+
+	if (command_line_options.do_import) {
+		if (project.load(command_line_options.source_dir) != 0) {
+			stderr.printf("crown-editor: Unable to load project: %s.\n", command_line_options.source_dir);
+			return 1;
+		}
+
+		bool import_failed = false;
+		int num_import_results = 0;
+		project.import(command_line_options.import_destination
+			, command_line_options.import_filenames
+			, (result, primary_resource_path) => {
+				++num_import_results;
+				if (result != ImportResult.SUCCESS)
+					import_failed = true;
+			}
+			, database
+			, null
+			);
+
+		if (num_import_results == 0) {
+			stderr.printf("crown-editor: Import did not produce a result.\n");
+			return 1;
+		}
+
+		if (import_failed) {
+			stderr.printf("crown-editor: Failed to import resource(s).\n");
+			return 1;
+		}
+
+		return 0;
+	}
 
 	// Find templates path, more desirable paths come first.
 	string templates_path[] =
