@@ -48,12 +48,12 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Object(application: application);
 
 		_application = application;
-		_database_editor = new DatabaseEditor(project, undo_redo_size);
+		_database = new Database(project);
+		_database_editor = new DatabaseEditor(undo_redo_size, _database);
 		_database_editor.undo.connect(on_undo);
 		_database_editor.redo.connect(on_redo);
 		this.insert_action_group("database", _database_editor._action_group);
 
-		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
 		_database.objects_destroyed.connect(on_objects_destroyed);
 		_database.objects_changed.connect(on_objects_changed);
