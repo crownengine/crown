@@ -35,18 +35,20 @@ public class Project
 	public struct ImporterData
 	{
 		public StringId32 name;
+		public string filter_name;
 		public unowned ImporterDelegate delegate;
 		public Gee.ArrayList<string> extensions;
 		public double order;
-		public Gtk.FileFilter _filter;
+		public Gtk.FileFilter? _filter;
 
 		ImporterData()
 		{
 			name = StringId32("");
+			filter_name = "";
 			delegate = null;
 			extensions = new Gee.ArrayList<string>();
 			order = 0.0;
-			_filter = new Gtk.FileFilter();
+			_filter = null;
 		}
 
 		public bool can_import_extension(string extension)
@@ -705,7 +707,7 @@ public class Project
 	public void register_importer_internal(string name, ref ImporterData data)
 	{
 		data.name = StringId32(name);
-		data._filter = create_gtk_file_filter(name, data.extensions);
+		data.filter_name = name;
 		_importers.add(data);
 		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
 
@@ -715,7 +717,7 @@ public class Project
 				_all_extensions_importer_data.extensions.add(ext);
 		}
 
-		_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
+		_all_extensions_importer_data._filter = null;
 	}
 
 	// Registers an @a importer for importing source data with the specified @a
@@ -867,10 +869,15 @@ public class Project
 				, Gtk.ResponseType.ACCEPT
 				);
 			fcd.select_multiple = true;
+			if (_all_extensions_importer_data._filter == null)
+				_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
 			fcd.add_filter(_all_extensions_importer_data._filter);
 			fcd.set_filter(_all_extensions_importer_data._filter);
-			foreach (var importer in _importers)
+			foreach (var importer in _importers) {
+				if (importer._filter == null)
+					importer._filter = create_gtk_file_filter(importer.filter_name, importer.extensions);
 				fcd.add_filter(importer._filter);
+			}
 
 			fcd.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.ACCEPT) {
