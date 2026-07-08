@@ -1084,11 +1084,11 @@ public class LevelEditorApplication : Gtk.Application
 
 		_project = new Project();
 		_project.set_toolchain_dir(_toolchain_dir.get_path());
-		_project.register_importer("Sprite", { "png" }, SpriteResource.import, on_import_result, 2.1);
-		_project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, on_import_result, 1.0);
-		_project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, on_import_result, 2.0);
-		_project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, on_import_result, 2.0);
-		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, on_import_result, 3.0);
+		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 2.1);
+		_project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
+		_project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, 2.0);
+		_project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
+		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 

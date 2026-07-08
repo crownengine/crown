@@ -39,7 +39,6 @@ public class Project
 		public Gee.ArrayList<string> extensions;
 		public double order;
 		public Gtk.FileFilter _filter;
-		public unowned Import import_result;
 
 		ImporterData()
 		{
@@ -48,7 +47,6 @@ public class Project
 			extensions = new Gee.ArrayList<string>();
 			order = 0.0;
 			_filter = new Gtk.FileFilter();
-			import_result = null;
 		}
 
 		public bool can_import_extension(string extension)
@@ -723,13 +721,12 @@ public class Project
 	// Registers an @a importer for importing source data with the specified @a
 	// extensions. @a order is used to establish precedence when distinct importers
 	// support similar extensions; lower values have higher precedence.
-	public void register_importer(string name, string[] extensions, ImporterDelegate importer, Import import_result, double order)
+	public void register_importer(string name, string[] extensions, ImporterDelegate importer, double order)
 	{
 		ImporterData data = ImporterData();
 		data.delegate = importer;
 		data.extensions.add_all_array(extensions);
 		data.order = order;
-		data.import_result = import_result;
 
 		register_importer_internal(name, ref data);
 	}
