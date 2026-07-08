@@ -932,13 +932,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	public signal void ui_read_selection(Guid?[] selection);
 
-	public LevelEditorApplication(CommandLineOptions command_line_options)
+	public LevelEditorApplication(CommandLineOptions command_line_options, Project project, Database database)
 	{
 		Object(application_id: "org.crownengine.Crown"
 			, flags: GLib.ApplicationFlags.HANDLES_COMMAND_LINE
 			);
 
 		_command_line_options = command_line_options;
+		_project = project;
+		_database = database;
 		GLib.Environment.set_prgname(this.application_id); // FIXME: Drop after GTK4 port.
 	}
 
@@ -1082,13 +1084,6 @@ public class LevelEditorApplication : Gtk.Application
 		_data_compiler.start.connect(on_data_compiler_start);
 		_data_compiler.finished.connect(on_data_compiler_finished);
 
-		_project = new Project();
-		_project.set_toolchain_dir(_toolchain_dir.get_path());
-		_project.register_importer("Sprite", { "png" }, SpriteResource.import, 2.1);
-		_project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
-		_project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, 2.0);
-		_project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
-		_project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 		_project.project_reset.connect(on_project_reset);
 		_project.project_loaded.connect(on_project_loaded);
 
@@ -1096,7 +1091,9 @@ public class LevelEditorApplication : Gtk.Application
 		_preferences_dialog.delete_event.connect(_preferences_dialog.hide_on_delete);
 		_preferences_dialog.decode(_settings);
 
-		_database_editor = new DatabaseEditor(_project, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024);
+		_database_editor = new DatabaseEditor((uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
+			, _database
+			);
 		_database_editor.undo.connect((id) => { _statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[id]))); });
 		_database_editor.redo.connect((id) => { _statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[id]))); });
 		_database_editor.selection_changed.connect(on_selection_changed);
@@ -1134,7 +1131,6 @@ public class LevelEditorApplication : Gtk.Application
 		_thumbnail.disconnected_unexpected.connect(on_runtime_disconnected_unexpected);
 		_runtimes.add(_thumbnail);
 
-		_database = _database_editor._database;
 		_database.objects_created.connect(on_objects_created);
 		_database.objects_destroyed.connect(on_objects_destroyed);
 		_database.objects_changed.connect(on_objects_changed);
@@ -4619,6 +4615,16 @@ public static int main(string[] args)
 		return 1;
 	}
 
+	Project project = new Project();
+	project.set_toolchain_dir(_toolchain_dir.get_path());
+	project.register_importer("Sprite", { "png" }, SpriteResource.import, 2.1);
+	project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
+	project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, 2.0);
+	project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
+	project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
+
+	Database database = new Database(project);
+
 	// Find templates path, more desirable paths come first.
 	string templates_path[] =
 	{
@@ -4661,7 +4667,7 @@ public static int main(string[] args)
 	Pango.FontMap fontmap = Pango.CairoFontMap.new_for_font_type(Cairo.FontType.FT);
 	Pango.CairoFontMap.set_default((Pango.CairoFontMap)fontmap);
 
-	LevelEditorApplication app = new LevelEditorApplication(command_line_options);
+	LevelEditorApplication app = new LevelEditorApplication(command_line_options, project, database);
 	return app.run({ args[0] });
 }
 

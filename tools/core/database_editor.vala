@@ -26,13 +26,14 @@ public class DatabaseEditor
 	public signal void redo(int action_id);
 	public signal void selection_changed();
 
-	public DatabaseEditor(Project project, uint32 undo_redo_size)
+	public DatabaseEditor(uint32 undo_redo_size, Database database)
 	{
 		_action_group = new GLib.SimpleActionGroup();
 		_action_group.add_action_entries(actions, this);
 
 		_undo_redo = new UndoRedo(undo_redo_size);
-		_database = new Database(project, _undo_redo);
+		_database = database;
+		_database._undo_redo = _undo_redo;
 		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
 	}
 
