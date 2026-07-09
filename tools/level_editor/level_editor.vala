@@ -3748,25 +3748,6 @@ public class LevelEditorApplication : Gtk.Application
 		open_directory(abs_parent_path);
 	}
 
-	public void delete_tree(GLib.File file) throws Error
-	{
-		GLib.FileEnumerator fe = file.enumerate_children("standard::*"
-			, GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS
-			);
-
-		GLib.FileInfo info = null;
-		while ((info = fe.next_file()) != null) {
-			GLib.File subfile = file.resolve_relative_path(info.get_name());
-
-			if (info.get_file_type() == GLib.FileType.DIRECTORY)
-				delete_tree(subfile);
-			else
-				subfile.delete();
-		}
-
-		file.delete();
-	}
-
 	public Gtk.Dialog new_package_dir_exists_dialog(string package_dir)
 	{
 		Gtk.MessageDialog md = new Gtk.MessageDialog(_deploy_dialog
@@ -3786,274 +3767,46 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_create_package(DeployOptions options)
 	{
+		DeployerPage page = null;
 		switch (options.platform) {
 		case TargetPlatform.ANDROID:
-			on_create_package_android(options);
+			page = _deploy_dialog._android_page;
 			break;
 		case TargetPlatform.HTML5:
-			on_create_package_html5(options);
+			page = _deploy_dialog._html5_page;
 			break;
 		case TargetPlatform.LINUX:
-			on_create_package_linux(options);
+			page = _deploy_dialog._linux_page;
 			break;
 		case TargetPlatform.WINDOWS:
-			on_create_package_windows(options);
+			page = _deploy_dialog._windows_page;
 			break;
 		default:
-			break;
+			return;
 		}
-	}
 
-	public void on_create_package_android(DeployOptions options)
-	{
-		var output_path = (string)options.output_dir;
-		var config = options.config;
-		var app_title = options.app_title;
-		var app_identifier = options.app_id;
-		var app_version_code = options.app_version_code;
-		var app_version_name = options.app_version_name;
-		var min_sdk_version = options.min_sdk_version;
-		var target_sdk_version = options.target_sdk_version;
-		var keystore_path = options.keystore;
-		var keystore_pass = options.keystore_pass;
-		var key_alias = options.key_alias;
-		var key_pass = options.key_pass;
-		var arch = options.arch;
-		var android_manifest_path = options.manifest;
+		DeployPackage package = new DeployPackage(_project, options);
 
-		var apk_name = app_identifier + "-" + app_version_name;
-		var deployer = new AndroidDeployer();
-
-		string config_path;
-		GLib.File package_dir = deploy_package_dir(out config_path
-			, output_path
-			, apk_name
-			, TargetPlatform.ANDROID
-			, arch
-			, config
-			);
-
-		if (package_dir.query_exists()) {
-			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
+		if (package._package_dir.query_exists()) {
+			Gtk.Dialog dlg = new_package_dir_exists_dialog(package._package_dir.get_basename());
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.YES) {
-						_deploy_dialog._android_page.deploy_started();
-						try {
-							delete_tree(package_dir);
-							package_dir.make_directory_with_parents();
-							deployer.create_package.begin(_project
-								, package_dir
-								, config_path
-								, config
-								, app_title
-								, app_identifier
-								, app_version_code
-								, app_version_name
-								, min_sdk_version
-								, target_sdk_version
-								, keystore_path
-								, keystore_pass
-								, key_alias
-								, key_pass
-								, arch
-								, android_manifest_path
-								, apk_name
-								, (obj, res) => {
-									_deploy_dialog._android_page.deploy_finished(deployer.create_package.end(res), config_path);
-								}
-								);
-						} catch (Error e) {
-							loge(e.message);
-							_deploy_dialog._android_page.deploy_finished(-1, config_path);
-						}
+						do_create_package(package, page, true);
 					}
 					dlg.destroy();
 				});
 			dlg.show_all();
 		} else {
-			_deploy_dialog._android_page.deploy_started();
-			try {
-				package_dir.make_directory_with_parents();
-				deployer.create_package.begin(_project
-					, package_dir
-					, config_path
-					, config
-					, app_title
-					, app_identifier
-					, app_version_code
-					, app_version_name
-					, min_sdk_version
-					, target_sdk_version
-					, keystore_path
-					, keystore_pass
-					, key_alias
-					, key_pass
-					, arch
-					, android_manifest_path
-					, apk_name
-					, (obj, res) => {
-						_deploy_dialog._android_page.deploy_finished(deployer.create_package.end(res), config_path);
-					}
-					);
-			} catch (Error e) {
-				loge(e.message);
-				_deploy_dialog._android_page.deploy_finished(-1, config_path);
-			}
+			do_create_package(package, page, false);
 		}
 	}
 
-	public void on_create_package_html5(DeployOptions options)
+	public void do_create_package(DeployPackage package, DeployerPage page, bool overwrite)
 	{
-		var output_path = (string)options.output_dir;
-		var config = options.config;
-		var app_title = options.app_title;
-		var html5_index_path = options.index_html;
-
-		var exe_name = app_title.replace(" ", "_").down();
-		var deployer = new HTML5Deployer();
-
-		string config_path;
-		GLib.File package_dir = deploy_package_dir(out config_path
-			, output_path
-			, exe_name
-			, TargetPlatform.HTML5
-			, TargetArch.WASM
-			, config
-			);
-
-		if (package_dir.query_exists()) {
-			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.YES) {
-						_deploy_dialog._html5_page.deploy_started();
-						try {
-							delete_tree(package_dir);
-							package_dir.make_directory_with_parents();
-							deployer.create_package.begin(_project, package_dir, config, app_title, html5_index_path, exe_name, (obj, res) => {
-									_deploy_dialog._html5_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-								});
-						} catch (Error e) {
-							loge(e.message);
-							_deploy_dialog._html5_page.deploy_finished(-1, package_dir.get_path());
-						}
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		} else {
-			_deploy_dialog._html5_page.deploy_started();
-			try {
-				package_dir.make_directory_with_parents();
-				deployer.create_package.begin(_project, package_dir, config, app_title, html5_index_path, exe_name, (obj, res) => {
-						_deploy_dialog._html5_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-					});
-			} catch (Error e) {
-				loge(e.message);
-				_deploy_dialog._html5_page.deploy_finished(-1, package_dir.get_path());
-			}
-		}
-	}
-
-	public void on_create_package_linux(DeployOptions options)
-	{
-		var output_path = (string)options.output_dir;
-		var config = options.config;
-		var app_title = options.app_title;
-
-		var exe_name = app_title.replace(" ", "_").down();
-		var deployer = new LinuxDeployer();
-
-		string config_path;
-		GLib.File package_dir = deploy_package_dir(out config_path
-			, output_path
-			, exe_name
-			, TargetPlatform.LINUX
-			, TargetArch.X64
-			, config
-			);
-
-		if (package_dir.query_exists()) {
-			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.YES) {
-						_deploy_dialog._linux_page.deploy_started();
-						try {
-							delete_tree(package_dir);
-							package_dir.make_directory_with_parents();
-							deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
-									_deploy_dialog._linux_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-								});
-						} catch (Error e) {
-							loge(e.message);
-							_deploy_dialog._linux_page.deploy_finished(-1, package_dir.get_path());
-						}
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		} else {
-			_deploy_dialog._linux_page.deploy_started();
-			try {
-				package_dir.make_directory_with_parents();
-				deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
-						_deploy_dialog._linux_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-					});
-			} catch (Error e) {
-				loge(e.message);
-				_deploy_dialog._linux_page.deploy_finished(-1, package_dir.get_path());
-			}
-		}
-	}
-
-	public void on_create_package_windows(DeployOptions options)
-	{
-		var output_path = (string)options.output_dir;
-		var config = options.config;
-		var app_title = options.app_title;
-
-		var exe_name = app_title.replace(" ", "_").down();
-		var deployer = new WindowsDeployer();
-
-		string config_path;
-		GLib.File package_dir = deploy_package_dir(out config_path
-			, output_path
-			, exe_name
-			, TargetPlatform.WINDOWS
-			, TargetArch.X64
-			, config
-			);
-
-		if (package_dir.query_exists()) {
-			Gtk.Dialog dlg = new_package_dir_exists_dialog(package_dir.get_basename());
-			dlg.response.connect((response_id) => {
-					if (response_id == Gtk.ResponseType.YES) {
-						_deploy_dialog._windows_page.deploy_started();
-						try {
-							delete_tree(package_dir);
-							package_dir.make_directory_with_parents();
-							deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
-									_deploy_dialog._windows_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-								});
-						} catch (Error e) {
-							loge(e.message);
-							_deploy_dialog._windows_page.deploy_finished(-1, package_dir.get_path());
-						}
-					}
-					dlg.destroy();
-				});
-			dlg.show_all();
-		} else {
-			_deploy_dialog._windows_page.deploy_started();
-			try {
-				package_dir.make_directory_with_parents();
-				deployer.create_package.begin(_project, package_dir, config, app_title, exe_name, (obj, res) => {
-						_deploy_dialog._windows_page.deploy_finished(deployer.create_package.end(res), package_dir.get_path());
-					});
-			} catch (Error e) {
-				loge(e.message);
-				_deploy_dialog._windows_page.deploy_finished(-1, package_dir.get_path());
-			}
-		}
+		page.deploy_started();
+		package.create.begin(overwrite, (obj, res) => {
+				page.deploy_finished(package.create.end(res), package._result_path);
+			});
 	}
 
 	public void on_unit_save_as_prefab(GLib.SimpleAction action, GLib.Variant? param)
