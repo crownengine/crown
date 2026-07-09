@@ -1311,37 +1311,34 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_subprocess_launcher_appeared(GLib.DBusConnection connection, string name)
 	{
-		try {
-			GLib.Bus.unwatch_name(_launcher_watch_id);
+		GLib.Bus.unwatch_name(_launcher_watch_id);
 
-			// Connect to SubprocessLauncher service.
-			_subprocess_launcher = GLib.Bus.get_proxy_sync(GLib.BusType.SESSION
-				, CROWN_SUBPROCESS_LAUNCHER
-				, "/org/crownengine/subprocess_launcher"
-				);
+		GLib.Error? error = null;
+		if (!connect_subprocess_launcher(out error)) {
+			if (error != null)
+				loge(error.message);
+			return;
+		}
 
-			if (_source_dir == null) {
-				if (_user.num_projects() == 0) {
-					Project.create_temporary.begin((obj, res) => {
-							string temp_source_dir = Project.create_temporary.end(res);
+		if (_source_dir == null) {
+			if (_user.num_projects() == 0) {
+				Project.create_temporary.begin((obj, res) => {
+						string temp_source_dir = Project.create_temporary.end(res);
 
-							if (temp_source_dir != null) {
-								GLib.Application.get_default().activate_action("open-project"
-									, new GLib.Variant.tuple({temp_source_dir, LEVEL_NONE, ProjectFlags.TEMPORARY})
-									);
-							} else {
-								show_panel(PANEL_PROJECTS_LIST);
-							}
-						});
-				} else {
-					show_panel(PANEL_PROJECTS_LIST);
-				}
+						if (temp_source_dir != null) {
+							GLib.Application.get_default().activate_action("open-project"
+								, new GLib.Variant.tuple({temp_source_dir, LEVEL_NONE, ProjectFlags.TEMPORARY})
+								);
+						} else {
+							show_panel(PANEL_PROJECTS_LIST);
+						}
+					});
 			} else {
-				string? level_name = _level_resource != LEVEL_NONE ? _level_resource : null;
-				open_project(_source_dir, level_name);
+				show_panel(PANEL_PROJECTS_LIST);
 			}
-		} catch (IOError e) {
-			loge(e.message);
+		} else {
+			string? level_name = _level_resource != LEVEL_NONE ? _level_resource : null;
+			open_project(_source_dir, level_name);
 		}
 	}
 
@@ -4077,33 +4074,6 @@ public static GLib.FileStream _log_stream;
 public static ConsoleView _console_view;
 public static bool _console_view_valid = false;
 public static string _log_prefix;
-
-public static SubprocessLauncher _subprocess_launcher;
-
-public async int wait_subprocess(uint32 process_id) throws GLib.Error
-{
-	SourceFunc callback = wait_subprocess.callback;
-	int exit_status = int.MAX;
-	GLib.Error? error = null;
-
-	new Thread<int>("wait-subprocess", () => {
-			try {
-				exit_status = _subprocess_launcher.wait(process_id);
-			} catch (GLib.Error e) {
-				error = e;
-			}
-
-			GLib.Idle.add((owned)callback);
-			return 0;
-		});
-
-	yield;
-
-	if (error != null)
-		throw error;
-
-	return exit_status;
-}
 
 public static void log(string system, string severity, string message)
 {

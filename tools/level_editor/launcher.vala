@@ -101,6 +101,49 @@ public interface SubprocessLauncher : Object
 	public abstract void kill(uint32 process_id) throws GLib.Error;
 }
 
+public static SubprocessLauncher _subprocess_launcher;
+
+public bool connect_subprocess_launcher(out GLib.Error? error)
+{
+	error = null;
+
+	try {
+		_subprocess_launcher = GLib.Bus.get_proxy_sync(GLib.BusType.SESSION
+			, CROWN_SUBPROCESS_LAUNCHER
+			, "/org/crownengine/subprocess_launcher"
+			);
+		return true;
+	} catch (GLib.Error e) {
+		error = e;
+		return false;
+	}
+}
+
+public async int wait_subprocess(uint32 process_id) throws GLib.Error
+{
+	SourceFunc callback = wait_subprocess.callback;
+	int exit_status = int.MAX;
+	GLib.Error? error = null;
+
+	new Thread<int>("wait-subprocess", () => {
+			try {
+				exit_status = _subprocess_launcher.wait(process_id);
+			} catch (GLib.Error e) {
+				error = e;
+			}
+
+			GLib.Idle.add((owned)callback);
+			return 0;
+		});
+
+	yield;
+
+	if (error != null)
+		throw error;
+
+	return exit_status;
+}
+
 public static void on_bus_acquired(GLib.DBusConnection conn)
 {
 	try {
