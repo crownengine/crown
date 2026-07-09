@@ -208,43 +208,6 @@ public enum CameraViewType
 	}
 }
 
-public enum TargetConfig
-{
-	RELEASE,
-	DEVELOPMENT,
-	DEBUG,
-
-	COUNT;
-
-	public string to_key()
-	{
-		switch (this) {
-		case RELEASE:
-			return "release";
-		case DEVELOPMENT:
-			return "development";
-		case DEBUG:
-			return "debug";
-		default:
-			return "unknown";
-		}
-	}
-
-	public string to_label()
-	{
-		switch (this) {
-		case RELEASE:
-			return _("Release");
-		case DEVELOPMENT:
-			return _("Development");
-		case DEBUG:
-			return _("Debug");
-		default:
-			return _("unknown");
-		}
-	}
-}
-
 public enum TargetPlatform
 {
 	ANDROID,
@@ -285,15 +248,6 @@ public enum TargetPlatform
 			return _("Unknown");
 		}
 	}
-}
-
-public enum TargetArch
-{
-	X86,
-	X64,
-	ARM,
-	ARM64,
-	WASM
 }
 
 public class RuntimeInstance
