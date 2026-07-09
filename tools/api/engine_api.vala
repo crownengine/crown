@@ -5,6 +5,11 @@
 
 namespace Crown
 {
+static string escape_json(string str)
+{
+	return str.replace("\\", "\\\\").replace("\"", "\\\"");
+}
+
 /// Functions to encode Vala types to Lua.
 namespace Lua
 {
@@ -54,7 +59,7 @@ namespace DataCompilerApi
 	public string compile(Guid id, string data_dir, string platform)
 	{
 		return "{\"type\":\"compile\",\"id\":\"%s\",\"data_dir\":\"%s\",\"platform\":\"%s\"}".printf(id.to_string()
-			, data_dir.replace("\\", "\\\\").replace("\"", "\\\"")
+			, escape_json(data_dir)
 			, platform
 			);
 	}
@@ -72,7 +77,7 @@ namespace DeviceApi
 	{
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < args.length; ++i) {
-			string arg = args[i].replace("\\", "\\\\").replace("\"", "\\\"");
+			string arg = escape_json(args[i]);
 			sb.append("\"%s\",".printf(arg));
 		}
 
@@ -714,7 +719,7 @@ namespace ThumbnailApi
 	{
 		return "Thumbnail:add_request(\"%s\", \"%s\", \"%s\")".printf(placeable_type
 			, name
-			, thumbnail_path.replace("\\", "\\\\").replace("\"", "\\\"")
+			, escape_json(thumbnail_path)
 			);
 	}
 
