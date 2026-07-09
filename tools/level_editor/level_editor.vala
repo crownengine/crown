@@ -792,14 +792,6 @@ public class LevelEditorApplication : Gtk.Application
 		{ "reveal-resource",      on_reveal,               "(iss)", null },
 	};
 
-	public const GLib.ActionEntry[] action_entries_package =
-	{
-		{ "create-package-android", on_create_package_android, "(sissisiissssis)", null },
-		{ "create-package-html5",   on_create_package_html5,   "(siss)",        null },
-		{ "create-package-linux",   on_create_package_linux,   "(sis)",         null },
-		{ "create-package-windows", on_create_package_windows, "(sis)",         null }
-	};
-
 	public const GLib.ActionEntry[] action_entries_unit =
 	{
 		{ "unit-save-as-prefab", on_unit_save_as_prefab, "(ss)", null },
@@ -984,7 +976,6 @@ public class LevelEditorApplication : Gtk.Application
 		this.add_action_entries(action_entries_debug, this);
 		this.add_action_entries(action_entries_help, this);
 		this.add_action_entries(action_entries_project, this);
-		this.add_action_entries(action_entries_package, this);
 		this.add_action_entries(action_entries_unit, this);
 
 		this.set_accels_for_action("app.new-level", { "<Primary>N" });
@@ -2486,6 +2477,7 @@ public class LevelEditorApplication : Gtk.Application
 			_deploy_dialog = new DeployDialog(_project, _editor);
 			_deploy_dialog.set_transient_for(_level_editor_window);
 			_deploy_dialog.delete_event.connect(_deploy_dialog.hide_on_delete);
+			_deploy_dialog.deploy.connect(on_create_package);
 		}
 
 		_deploy_dialog.show_all();
@@ -3731,22 +3723,42 @@ public class LevelEditorApplication : Gtk.Application
 		return md;
 	}
 
-	public void on_create_package_android(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package(DeployOptions options)
 	{
-		var output_path = (string)param.get_child_value(0);
-		var config = (TargetConfig)((int)param.get_child_value(1));
-		var app_title = (string)param.get_child_value(2);
-		var app_identifier = (string)param.get_child_value(3);
-		var app_version_code = (int)param.get_child_value(4);
-		var app_version_name = (string)param.get_child_value(5);
-		var min_sdk_version = (int)param.get_child_value(6);
-		var target_sdk_version = (int)param.get_child_value(7);
-		var keystore_path = (string)param.get_child_value(8);
-		var keystore_pass = (string)param.get_child_value(9);
-		var key_alias = (string)param.get_child_value(10);
-		var key_pass = (string)param.get_child_value(11);
-		var arch = (TargetArch)((int)param.get_child_value(12));
-		var android_manifest_path = (string)param.get_child_value(13);
+		switch (options.platform) {
+		case TargetPlatform.ANDROID:
+			on_create_package_android(options);
+			break;
+		case TargetPlatform.HTML5:
+			on_create_package_html5(options);
+			break;
+		case TargetPlatform.LINUX:
+			on_create_package_linux(options);
+			break;
+		case TargetPlatform.WINDOWS:
+			on_create_package_windows(options);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public void on_create_package_android(DeployOptions options)
+	{
+		var output_path = (string)options.output_dir;
+		var config = options.config;
+		var app_title = options.app_title;
+		var app_identifier = options.app_id;
+		var app_version_code = options.app_version_code;
+		var app_version_name = options.app_version_name;
+		var min_sdk_version = options.min_sdk_version;
+		var target_sdk_version = options.target_sdk_version;
+		var keystore_path = options.keystore;
+		var keystore_pass = options.keystore_pass;
+		var key_alias = options.key_alias;
+		var key_pass = options.key_pass;
+		var arch = options.arch;
+		var android_manifest_path = options.manifest;
 
 		var apk_name = app_identifier + "-" + app_version_name;
 		var deployer = new AndroidDeployer();
@@ -3829,12 +3841,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void on_create_package_html5(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_html5(DeployOptions options)
 	{
-		var output_path = (string)param.get_child_value(0);
-		var config = (TargetConfig)((int)param.get_child_value(1));
-		var app_title = (string)param.get_child_value(2);
-		var html5_index_path = (string)param.get_child_value(3);
+		var output_path = (string)options.output_dir;
+		var config = options.config;
+		var app_title = options.app_title;
+		var html5_index_path = options.index_html;
 
 		var exe_name = app_title.replace(" ", "_").down();
 		var deployer = new HTML5Deployer();
@@ -3881,11 +3893,11 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void on_create_package_linux(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_linux(DeployOptions options)
 	{
-		var output_path = (string)param.get_child_value(0);
-		var config = (TargetConfig)((int)param.get_child_value(1));
-		var app_title = (string)param.get_child_value(2);
+		var output_path = (string)options.output_dir;
+		var config = options.config;
+		var app_title = options.app_title;
 
 		var exe_name = app_title.replace(" ", "_").down();
 		var deployer = new LinuxDeployer();
@@ -3932,11 +3944,11 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void on_create_package_windows(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_create_package_windows(DeployOptions options)
 	{
-		var output_path = (string)param.get_child_value(0);
-		var config = (TargetConfig)((int)param.get_child_value(1));
-		var app_title = (string)param.get_child_value(2);
+		var output_path = (string)options.output_dir;
+		var config = options.config;
+		var app_title = options.app_title;
 
 		var exe_name = app_title.replace(" ", "_").down();
 		var deployer = new WindowsDeployer();

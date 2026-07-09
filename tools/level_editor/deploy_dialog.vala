@@ -257,6 +257,8 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Notebook _notebook;
 	public Gtk.EventControllerKey _controller_key;
 
+	public signal void deploy(DeployOptions options);
+
 	public DeployDialog(Project project, RuntimeInstance editor)
 	{
 		this.title = _("Deploy");
@@ -367,26 +369,23 @@ public class DeployDialog : Gtk.Window
 						continue;
 
 					// Create the package.
-					GLib.Variant paramz[] =
-					{
-						(string)output_path,
-						int.parse(_android_config.value),
-						app_title,
-						app_identifier,
-						app_version_code,
-						app_version_name,
-						min_sdk_version,
-						target_sdk_version,
-						keystore_path,
-						keystore_pass,
-						key_alias,
-						key_pass,
-						archs[ii],
-						android_manifest_path
-					};
-
-					GLib.Application.get_default().activate_action("create-package-android"
-						, new GLib.Variant.tuple(paramz));
+					DeployOptions options = DeployOptions();
+					options.platform = TargetPlatform.ANDROID;
+					options.output_dir = output_path;
+					options.config = (TargetConfig)int.parse(_android_config.value);
+					options.app_title = app_title;
+					options.app_id = app_identifier;
+					options.app_version_code = app_version_code;
+					options.app_version_name = app_version_name;
+					options.min_sdk_version = min_sdk_version;
+					options.target_sdk_version = target_sdk_version;
+					options.keystore = (string)keystore_path;
+					options.keystore_pass = keystore_pass;
+					options.key_alias = key_alias;
+					options.key_pass = key_pass;
+					options.arch = archs[ii];
+					options.manifest = android_manifest_path;
+					deploy(options);
 				}
 			});
 
@@ -558,16 +557,13 @@ public class DeployDialog : Gtk.Window
 				string index_html_path = index_html_path_or_null == null ? "" : (string)index_html_path_or_null;
 
 				// Create the package.
-				GLib.Variant paramz[] =
-				{
-					(string)output_path,
-					int.parse(_html5_config.value),
-					app_title,
-					index_html_path
-				};
-
-				GLib.Application.get_default().activate_action("create-package-html5"
-					, new GLib.Variant.tuple(paramz));
+				DeployOptions options = DeployOptions();
+				options.platform = TargetPlatform.HTML5;
+				options.output_dir = output_path;
+				options.config = (TargetConfig)int.parse(_html5_config.value);
+				options.app_title = app_title;
+				options.index_html = index_html_path;
+				deploy(options);
 			});
 
 		_html5_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
@@ -659,15 +655,12 @@ public class DeployDialog : Gtk.Window
 				}
 
 				// Create the package.
-				GLib.Variant paramz[] =
-				{
-					(string)output_path,
-					int.parse(_linux_config.value),
-					app_title
-				};
-
-				GLib.Application.get_default().activate_action("create-package-linux"
-					, new GLib.Variant.tuple(paramz));
+				DeployOptions options = DeployOptions();
+				options.platform = TargetPlatform.LINUX;
+				options.output_dir = output_path;
+				options.config = (TargetConfig)int.parse(_linux_config.value);
+				options.app_title = app_title;
+				deploy(options);
 			});
 
 		_linux_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
@@ -715,15 +708,12 @@ public class DeployDialog : Gtk.Window
 				}
 
 				// Create the package.
-				GLib.Variant paramz[] =
-				{
-					(string)output_path,
-					int.parse(_windows_config.value),
-					app_title
-				};
-
-				GLib.Application.get_default().activate_action("create-package-windows"
-					, new GLib.Variant.tuple(paramz));
+				DeployOptions options = DeployOptions();
+				options.platform = TargetPlatform.WINDOWS;
+				options.output_dir = output_path;
+				options.config = (TargetConfig)int.parse(_windows_config.value);
+				options.app_title = app_title;
+				deploy(options);
 			});
 
 		_windows_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
