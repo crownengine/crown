@@ -39,6 +39,12 @@ public GLib.Menu? project_entry_menu_common(ProjectStore.RowKind kind, string ty
 	mi.set_action_and_target_value("app.open-containing", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
+	if (kind != ProjectStore.RowKind.FOLDER) {
+		mi = new GLib.MenuItem(_("Dependencies..."), null);
+		mi.set_action_and_target_value("app.dependencies", new GLib.Variant.string(project_path(kind, type, name)));
+		common_menu.append_item(mi);
+	}
+
 	if (kind != ProjectStore.RowKind.FOLDER || name != "") {
 		mi = new GLib.MenuItem(_("Add to Favorites"), null);
 		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({new GLib.Variant.int32((int)kind), type, name}));
@@ -157,6 +163,10 @@ public GLib.Menu? favorites_entry_menu_create(ProjectStore.RowKind kind, string 
 
 	mi = new GLib.MenuItem(_("Copy Name"), null);
 	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
+	common_menu.append_item(mi);
+
+	mi = new GLib.MenuItem(_("Dependencies..."), null);
+	mi.set_action_and_target_value("app.dependencies", new GLib.Variant.string(path));
 	common_menu.append_item(mi);
 
 	mi = new GLib.MenuItem(_("Remove from Favorites"), null);

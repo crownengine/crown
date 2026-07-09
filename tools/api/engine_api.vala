@@ -69,6 +69,11 @@ namespace DataCompilerApi
 		return "{\"type\":\"refresh_list\",\"revision\":%u}".printf(since_revision);
 	}
 
+	public string dependencies(string path)
+	{
+		return "{\"type\":\"dependencies\",\"path\":\"%s\"}".printf(escape_json(path));
+	}
+
 } /* namespace DataCompilerApi */
 
 namespace DeviceApi

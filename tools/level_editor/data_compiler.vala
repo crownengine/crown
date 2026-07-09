@@ -12,7 +12,9 @@ public class DataCompiler
 	public bool _success;
 	public SourceFunc _compile_callback;
 	public SourceFunc _refresh_list_callback;
+	public SourceFunc _dependencies_callback;
 	public Gee.ArrayList<Value?> _refresh_list;
+	public Hashtable _dependencies;
 	public uint _revision;
 
 	public signal void start();
@@ -37,7 +39,9 @@ public class DataCompiler
 		_revision = 0;
 		_compile_callback = null;
 		_refresh_list_callback = null;
+		_dependencies_callback = null;
 		_refresh_list = null;
+		_dependencies = null;
 	}
 
 	// Returns true if success, false otherwise.
@@ -83,6 +87,28 @@ public class DataCompiler
 		unowned GLib.SourceFunc callback = _refresh_list_callback;
 		_refresh_list_callback = null;
 		_refresh_list = resources;
+
+		if (callback != null)
+			callback();
+	}
+
+	public async Hashtable dependencies(string path)
+	{
+		if (_dependencies_callback != null)
+			return new Hashtable();
+
+		_runtime.send(DataCompilerApi.dependencies(path));
+		_dependencies_callback = dependencies.callback;
+		yield;
+
+		return _dependencies;
+	}
+
+	public void dependencies_finished(Hashtable dependencies)
+	{
+		unowned GLib.SourceFunc callback = _dependencies_callback;
+		_dependencies_callback = null;
+		_dependencies = dependencies;
 
 		if (callback != null)
 			callback();
