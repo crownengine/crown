@@ -824,6 +824,7 @@ public class LevelEditorApplication : Gtk.Application
 	public const GLib.ActionEntry[] action_entries_project =
 	{
 		{ "duplicate-resource",   on_duplicate_resource,   "s",     null },
+		{ "dependencies",         on_dependencies,         "s",     null },
 		{ "delete-file",          on_delete_file,          "s",     null },
 		{ "delete-directory",     on_delete_directory,     "s",     null },
 		{ "create-directory",     on_create_directory,     "(ss)",  null },
@@ -914,6 +915,7 @@ public class LevelEditorApplication : Gtk.Application
 	public Gdk.AppLaunchContext _app_launch_context;
 	public Gtk.CssProvider _css_provider;
 	public ProjectBrowser _project_browser;
+	public DependenciesDialog _dependencies_dialog;
 	public EditorViewport _editor_viewport;
 	public LevelTreeView _level_treeview;
 	public LevelLayersTreeView _level_layers_treeview;
@@ -1562,6 +1564,8 @@ public class LevelEditorApplication : Gtk.Application
 			ri.refresh_finished((bool)msg["success"]);
 		} else if (msg_type == "refresh_list") {
 			_data_compiler.refresh_list_finished((Gee.ArrayList<Value?>)msg["list"]);
+		} else if (msg_type == "dependencies") {
+			_data_compiler.dependencies_finished(msg);
 		} else if (msg_type == "unit_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
 			string name = (string)msg["name"];
@@ -3253,6 +3257,63 @@ public class LevelEditorApplication : Gtk.Application
 		open_directory(_logs_dir.get_path());
 	}
 
+	public bool data_compiler_show_errors(Hashtable response, string title)
+	{
+		var errors = (Gee.ArrayList<Value?>)response["errors"];
+		if (errors.size == 0)
+			return false;
+
+		var sb = new StringBuilder();
+		foreach (Value? err in errors) {
+			string message = (string)err;
+			loge(message);
+			sb.append(message);
+			sb.append_c('\n');
+		}
+
+		Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+			, Gtk.DialogFlags.MODAL
+			, Gtk.MessageType.ERROR
+			, Gtk.ButtonsType.CLOSE
+			, "%s"
+			, title
+			);
+		md.format_secondary_text("%s", sb.str.strip());
+		md.run();
+		md.destroy();
+
+		return true;
+	}
+
+	public async bool dependencies_show(string resource_path)
+	{
+		Hashtable dependencies = yield _data_compiler.dependencies(resource_path);
+		if (data_compiler_show_errors(dependencies, _("Cannot show dependencies")))
+			return false;
+
+		if (_dependencies_dialog == null) {
+			_dependencies_dialog = new DependenciesDialog(this.active_window, _project_browser, _thumbnail_cache);
+			_dependencies_dialog.delete_event.connect(_dependencies_dialog.hide_on_delete);
+		}
+
+		_dependencies_dialog.set_content(resource_path, dependencies);
+		_dependencies_dialog.show_all();
+		_dependencies_dialog.present();
+		return true;
+	}
+
+	public void on_dependencies(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		if (param == null)
+			return;
+
+		string resource_path = param.get_string();
+		dependencies_show.begin(resource_path, (obj, res) => {
+				if (!dependencies_show.end(res))
+					logw("Failed to show dependencies for %s".printf(resource_path));
+			});
+	}
+
 	public void on_changelog(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		try {
@@ -4228,6 +4289,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		// Destroy dialogs.
+		_dependencies_dialog = null;
 		_texture_settings_dialog = null;
 		_deploy_dialog = null;
 	}

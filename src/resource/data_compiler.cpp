@@ -258,6 +258,156 @@ static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const
 	cs.send(client_id, string_stream::c_str(ss));
 }
 
+static void json_write_string(StringStream &ss, const char *str)
+{
+	ss << '"';
+	for (const char *c = str; *c; ++c) {
+		switch (*c) {
+		case '"': case '\\': ss << '\\' << *c; break;
+		case '\n': ss << "\\n"; break;
+		case '\r': ss << "\\r"; break;
+		case '\t': ss << "\\t"; break;
+		default: ss << *c; break;
+		}
+	}
+	ss << '"';
+}
+
+static bool source_path_exists(DataCompiler &dc, const DynamicString &path)
+{
+	Stat deffault;
+	deffault.file_type = Stat::NO_ENTRY;
+	deffault.size = 0;
+	deffault.mtime = 0;
+
+	const Stat st = hash_map::get(dc._source_index._paths, path, deffault);
+	return st.file_type != Stat::NO_ENTRY;
+}
+
+static void write_string_array(StringStream &ss, const char *name, const Vector<DynamicString> &strings)
+{
+	ss << "\"" << name << "\":[";
+	for (u32 i = 0; i < vector::size(strings); ++i) {
+		json_write_string(ss, strings[i].c_str());
+		ss << ",";
+	}
+	ss << "]";
+}
+
+static void write_string_array(StringStream &ss, const char *name, const HashSet<DynamicString> &strings)
+{
+	ss << "\"" << name << "\":[";
+	auto cur = hash_set::begin(strings);
+	auto end = hash_set::end(strings);
+	for (; cur != end; ++cur) {
+		HASH_SET_SKIP_HOLE(strings, cur);
+		json_write_string(ss, cur->c_str());
+		ss << ",";
+	}
+	ss << "]";
+}
+
+static void collect_reference_users(HashSet<DynamicString> &users
+	, DataCompiler &dc
+	, const HashMap<StringId64, HashMap<DynamicString, u32>> &references
+	, const DynamicString &reference
+	, const HashSet<ResourceId> &ignored_ids
+	)
+{
+	auto cur = hash_map::begin(references);
+	auto end = hash_map::end(references);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(references, cur);
+
+		if (hash_set::has(ignored_ids, cur->first))
+			continue;
+		if (!hash_map::has(cur->second, reference))
+			continue;
+
+		DynamicString deffault(default_allocator());
+		const DynamicString &user = hash_map::get(dc._data_index, cur->first, deffault);
+		if (!user.empty() && user != reference)
+			hash_set::insert(users, user);
+	}
+}
+
+static void dependencies_collect_outgoing_paths(HashSet<DynamicString> &paths
+	, const HashMap<StringId64, HashMap<DynamicString, u32>> &references
+	, ResourceId id
+	, const DynamicString &path
+	)
+{
+	HashMap<DynamicString, u32> deffault(default_allocator());
+	const HashMap<DynamicString, u32> &resource_references = hash_map::get(references, id, deffault);
+
+	auto cur = hash_map::begin(resource_references);
+	auto end = hash_map::end(resource_references);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(resource_references, cur);
+		if (cur->first != path)
+			hash_set::insert(paths, cur->first);
+	}
+}
+
+static void console_command_dependencies(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	DataCompiler *dc = (DataCompiler *)user_data;
+
+	HashSet<DynamicString> dependencies(default_allocator());
+	HashSet<DynamicString> references(default_allocator());
+	HashSet<DynamicString> dependents(default_allocator());
+	HashSet<DynamicString> referrers(default_allocator());
+	Vector<DynamicString> errors(default_allocator());
+	HashSet<ResourceId> ignored_ids(default_allocator());
+
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
+	DynamicString path(default_allocator());
+	if (json_object::has(obj, "path"))
+		sjson::parse_string(path, obj["path"]);
+
+	if (path.empty()) {
+		DynamicString err(default_allocator());
+		err = "Resource path is empty";
+		vector::push_back(errors, err);
+	} else if (!source_path_exists(*dc, path)) {
+		DynamicString err(default_allocator());
+		err = "Resource path not found: ";
+		err += path;
+		vector::push_back(errors, err);
+	} else {
+		const char *type_str = resource_type(path.c_str());
+		if (type_str != NULL) {
+			const ResourceId id = resource_id(path.c_str());
+			dependencies_collect_outgoing_paths(dependencies, dc->_data_dependencies, id, path);
+			dependencies_collect_outgoing_paths(references, dc->_data_requirements, id, path);
+		}
+
+		collect_reference_users(dependents, *dc, dc->_data_dependencies, path, ignored_ids);
+		collect_reference_users(referrers, *dc, dc->_data_requirements, path, ignored_ids);
+	}
+
+	StringStream ss(default_allocator());
+	ss << "{\"type\":\"dependencies\",";
+	ss << "\"path\":";
+	json_write_string(ss, path.c_str());
+	ss << ",";
+	write_string_array(ss, "dependencies", dependencies);
+	ss << ",";
+	write_string_array(ss, "references", references);
+	ss << ",";
+	write_string_array(ss, "dependents", dependents);
+	ss << ",";
+	write_string_array(ss, "referrers", referrers);
+	ss << ",";
+	write_string_array(ss, "errors", errors);
+	ss << "}";
+
+	cs.send(client_id, string_stream::c_str(ss));
+}
+
 static void parse_data_versions(HashMap<StringId64, u32> &versions
 	, Buffer &json
 	)
@@ -632,6 +782,7 @@ DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	cs.register_message_type("compile", console_command_compile, this);
 	cs.register_message_type("quit", console_command_quit, this);
 	cs.register_message_type("refresh_list", console_command_refresh_list, this);
+	cs.register_message_type("dependencies", console_command_dependencies, this);
 }
 
 DataCompiler::~DataCompiler()
