@@ -3801,8 +3801,13 @@ public class LevelEditorApplication : Gtk.Application
 	public void do_create_package(DeployPackage package, DeployerPage page, bool overwrite)
 	{
 		page.deploy_started();
-		package.create.begin(overwrite, (obj, res) => {
-				page.deploy_finished(package.create.end(res), package._result_path);
+		DeployPackageFlags flags = overwrite
+			? DeployPackageFlags.FORCE
+			: DeployPackageFlags.NONE
+			;
+		package.create.begin(flags, (obj, res) => {
+				DeployResult result = package.create.end(res);
+				page.deploy_finished(result.status, package._result_path);
 			});
 	}
 

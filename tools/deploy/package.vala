@@ -44,6 +44,24 @@ public GLib.File deploy_package_dir(out string config_path, string output_path, 
 	return GLib.File.new_for_path(Path.build_path(Path.DIR_SEPARATOR_S, config_path, app_identifier));
 }
 
+public class DeployResult
+{
+	public int status;
+	public string error;
+
+	public DeployResult(int status, string error)
+	{
+		this.status = status;
+		this.error = error;
+	}
+}
+
+public enum DeployPackageFlags
+{
+	NONE  = 0,
+	FORCE = 1 << 0,
+}
+
 public class DeployPackage
 {
 	public Project _project;
@@ -88,78 +106,93 @@ public class DeployPackage
 			;
 	}
 
-	public async int create(bool overwrite)
+	public async DeployResult create(DeployPackageFlags flags)
 	{
-		try {
-			if (_package_dir.query_exists()) {
-				if (!overwrite) {
-					loge("Package directory already exists");
-					return -1;
-				}
+		bool package_dir_exists = _package_dir.query_exists();
+		if (package_dir_exists && (flags& DeployPackageFlags.FORCE) == 0) {
+			string error = "Package directory already exists: %s.".printf(_package_dir.get_path());
+			loge(error);
+			return new DeployResult(-1, error);
+		}
 
+		try {
+			if (package_dir_exists) {
 				_project.delete_tree(_package_dir);
 			}
 
 			_package_dir.make_directory_with_parents();
 		} catch (Error e) {
 			loge(e.message);
-			return -1;
+			return new DeployResult(-1, e.message);
 		}
 
+		int status;
+		string error = "";
 		switch (_options.platform) {
 		case TargetPlatform.ANDROID: {
 			AndroidDeployer deployer = new AndroidDeployer();
-			return yield deployer.create_package(_project
-					, _package_dir
-					, _config_path
-					, _options.config
-					, _app_title
-					, _options.app_id
-					, _options.app_version_code
-					, _options.app_version_name
-					, _options.min_sdk_version
-					, _options.target_sdk_version
-					, _options.keystore
-					, _options.keystore_pass
-					, _options.key_alias
-					, _options.key_pass
-					, _arch
-					, _options.manifest
-					, _app_identifier
-					);
+			status = yield deployer.create_package(_project
+				, _package_dir
+				, _config_path
+				, _options.config
+				, _app_title
+				, _options.app_id
+				, _options.app_version_code
+				, _options.app_version_name
+				, _options.min_sdk_version
+				, _options.target_sdk_version
+				, _options.keystore
+				, _options.keystore_pass
+				, _options.key_alias
+				, _options.key_pass
+				, _arch
+				, _options.manifest
+				, _app_identifier
+				);
+			break;
 		}
 		case TargetPlatform.HTML5: {
 			HTML5Deployer deployer = new HTML5Deployer();
-			return yield deployer.create_package(_project
-					, _package_dir
-					, _options.config
-					, _app_title
-					, _options.index_html
-					, _exe_name
-					);
+			status = yield deployer.create_package(_project
+				, _package_dir
+				, _options.config
+				, _app_title
+				, _options.index_html
+				, _exe_name
+				);
+			break;
 		}
 		case TargetPlatform.LINUX: {
 			LinuxDeployer deployer = new LinuxDeployer();
-			return yield deployer.create_package(_project
-					, _package_dir
-					, _options.config
-					, _app_title
-					, _exe_name
-					);
+			status = yield deployer.create_package(_project
+				, _package_dir
+				, _options.config
+				, _app_title
+				, _exe_name
+				);
+			break;
 		}
 		case TargetPlatform.WINDOWS: {
 			WindowsDeployer deployer = new WindowsDeployer();
-			return yield deployer.create_package(_project
-					, _package_dir
-					, _options.config
-					, _app_title
-					, _exe_name
-					);
+			status = yield deployer.create_package(_project
+				, _package_dir
+				, _options.config
+				, _app_title
+				, _exe_name
+				);
+			break;
 		}
 		default:
-			loge("Unknown platform");
-			return -1;
+			error = "Unknown platform.";
+			loge(error);
+			return new DeployResult(-1, error);
 		}
+
+		error = status == 0
+			? ""
+			: "Failed to create %s package.".printf(_options.platform.to_label())
+			;
+		return new DeployResult(status, error);
 	}
 }
 
