@@ -558,6 +558,8 @@ public struct CommandLineOptions
 	public bool do_import;
 	public string[] import_filenames;
 	public string import_destination;
+	public bool do_deploy;
+	public DeployOptions deploy;
 
 	public void print_help(GLib.FileStream stream)
 	{
@@ -565,10 +567,28 @@ public struct CommandLineOptions
 			+ "  crown-editor [OPTION...] [<source-dir> [<level>]]\n"
 			+ "\n"
 			+ "Options:\n"
-			+ "  -h, --help                   Display this help and exit.\n"
-			+ "  -v, --version                Display version information and exit.\n"
-			+ "  --source-dir <path>          Project source directory.\n"
-			+ "  --import <file>... <path>    Import files into a source-dir relative path.\n"
+			+ "  -h, --help                       Display this help and exit.\n"
+			+ "  -v, --version                    Display version information and exit.\n"
+			+ "  --source-dir <path>              Project source directory.\n"
+			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
+			+ "  --deploy                         Deploy the project.\n"
+			+ "  --platform <platform>            Target platform: android, html5, linux, windows.\n"
+			+ "  --output-dir <path>              Deploy output directory.\n"
+			+ "  --config <config>                Deploy config: release, development, debug.\n"
+			+ "  --app-title <title>              Application title.\n"
+			+ "  --force                          Overwrite an existing package directory.\n"
+			+ "  --arch <arch>                    Android architecture: arm, arm64.\n"
+			+ "  --app-id <id>                    Android application identifier.\n"
+			+ "  --app-version-code <number>      Android version code.\n"
+			+ "  --app-version-name <name>        Android version name.\n"
+			+ "  --min-sdk-version <number>       Android minimum SDK version.\n"
+			+ "  --target-sdk-version <number>    Android target SDK version.\n"
+			+ "  --manifest <path>                Android manifest file.\n"
+			+ "  --keystore <path>                Android signing keystore.\n"
+			+ "  --keystore-pass <password>       Android keystore password.\n"
+			+ "  --key-alias <alias>              Android signing key alias.\n"
+			+ "  --key-pass <password>            Android signing key password.\n"
+			+ "  --index-html <path>              HTML5 index.html file.\n"
 			);
 	}
 
@@ -582,19 +602,57 @@ public struct CommandLineOptions
 		do_import = false;
 		import_filenames = {};
 		import_destination = "";
+		do_deploy = false;
+		deploy = DeployOptions();
 		error = "";
 
 		string? option_source_dir = null;
 		bool option_show_help = false;
 		bool option_show_version = false;
 		bool option_do_import = false;
+		bool option_do_deploy = false;
+		string? option_deploy_platform = null;
+		string? option_deploy_output_dir = null;
+		string? option_deploy_config = null;
+		string? option_deploy_app_title = null;
+		bool option_deploy_force = false;
+		string? option_deploy_arch = null;
+		string? option_deploy_app_id = null;
+		string? option_deploy_app_version_code = null;
+		string? option_deploy_app_version_name = null;
+		string? option_deploy_min_sdk_version = null;
+		string? option_deploy_target_sdk_version = null;
+		string? option_deploy_manifest = null;
+		string? option_deploy_keystore = null;
+		string? option_deploy_keystore_pass = null;
+		string? option_deploy_key_alias = null;
+		string? option_deploy_key_pass = null;
+		string? option_deploy_index_html = null;
 
 		GLib.OptionEntry[] option_entries =
 		{
-			{ "help",       'h', 0, GLib.OptionArg.NONE,     ref option_show_help,    "Display this help and exit.",           null   },
-			{ "version",    'v', 0, GLib.OptionArg.NONE,     ref option_show_version, "Display version information and exit.", null   },
-			{ "source-dir", 0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,   "Project source directory.",             "path" },
-			{ "import",     0,   0, GLib.OptionArg.NONE,     ref option_do_import,    "Import files.",                         null   },
+			{ "help",               'h', 0, GLib.OptionArg.NONE,     ref option_show_help,                 "Display this help and exit.",           null       },
+			{ "version",            'v', 0, GLib.OptionArg.NONE,     ref option_show_version,              "Display version information and exit.", null       },
+			{ "source-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,                "Project source directory.",             "path"     },
+			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
+			{ "deploy",             0,   0, GLib.OptionArg.NONE,     ref option_do_deploy,                 "Deploy the project.",                   null       },
+			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Target platform.",                      "platform" },
+			{ "output-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_output_dir,         "Deploy output directory.",              "path"     },
+			{ "config",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_config,             "Deploy config.",                        "config"   },
+			{ "app-title",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_title,          "Application title.",                    "title"    },
+			{ "force",              0,   0, GLib.OptionArg.NONE,     ref option_deploy_force,              "Overwrite package directory.",          null       },
+			{ "arch",               0,   0, GLib.OptionArg.STRING,   ref option_deploy_arch,               "Android architecture.",                 "arch"     },
+			{ "app-id",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_id,             "Android application identifier.",       "id"       },
+			{ "app-version-code",   0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_version_code,   "Android version code.",                 "number"   },
+			{ "app-version-name",   0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_version_name,   "Android version name.",                 "name"     },
+			{ "min-sdk-version",    0,   0, GLib.OptionArg.STRING,   ref option_deploy_min_sdk_version,    "Android minimum SDK version.",          "number"   },
+			{ "target-sdk-version", 0,   0, GLib.OptionArg.STRING,   ref option_deploy_target_sdk_version, "Android target SDK version.",           "number"   },
+			{ "manifest",           0,   0, GLib.OptionArg.FILENAME, ref option_deploy_manifest,           "Android manifest file.",                "path"     },
+			{ "keystore",           0,   0, GLib.OptionArg.FILENAME, ref option_deploy_keystore,           "Android signing keystore.",             "path"     },
+			{ "keystore-pass",      0,   0, GLib.OptionArg.STRING,   ref option_deploy_keystore_pass,      "Android keystore password.",            "password" },
+			{ "key-alias",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_key_alias,          "Android signing key alias.",            "alias"    },
+			{ "key-pass",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_key_pass,           "Android signing key password.",         "password" },
+			{ "index-html",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_index_html,         "HTML5 index.html file.",                "path"     },
 			{ null }
 		};
 
@@ -613,12 +671,45 @@ public struct CommandLineOptions
 		show_version = option_show_version;
 		source_dir = option_source_dir;
 		do_import = option_do_import;
+		do_deploy = option_do_deploy;
+
+		if (show_help || show_version)
+			return true;
 
 		int positional_args_begin = 1;
 		if (source_dir == null && args.length > 1) {
 			positional_source_dir = args[1];
 			source_dir = positional_source_dir;
 			positional_args_begin = 2;
+		}
+
+		bool deploy_option_seen = option_deploy_platform != null
+			|| option_deploy_output_dir != null
+			|| option_deploy_config != null
+			|| option_deploy_app_title != null
+			|| option_deploy_force
+			|| option_deploy_arch != null
+			|| option_deploy_app_id != null
+			|| option_deploy_app_version_code != null
+			|| option_deploy_app_version_name != null
+			|| option_deploy_min_sdk_version != null
+			|| option_deploy_target_sdk_version != null
+			|| option_deploy_manifest != null
+			|| option_deploy_keystore != null
+			|| option_deploy_keystore_pass != null
+			|| option_deploy_key_alias != null
+			|| option_deploy_key_pass != null
+			|| option_deploy_index_html != null
+			;
+
+		if (do_import && do_deploy) {
+			error = "Only one command can be specified.";
+			return false;
+		}
+
+		if (!do_deploy && deploy_option_seen) {
+			error = "--deploy must be specified.";
+			return false;
 		}
 
 		if (do_import) {
@@ -643,6 +734,140 @@ public struct CommandLineOptions
 				error = "Import destination must be specified.";
 				return false;
 			}
+
+			return true;
+		}
+
+		if (do_deploy) {
+			if (source_dir == null) {
+				error = "Source dir must be specified.";
+				return false;
+			}
+
+			if (args.length > positional_args_begin) {
+				error = "Too many positional arguments.";
+				return false;
+			}
+
+			if (option_deploy_platform == null) {
+				error = "Platform must be specified.";
+				return false;
+			}
+			switch (option_deploy_platform) {
+			case "android":
+				deploy.platform = TargetPlatform.ANDROID;
+				break;
+			case "html5":
+				deploy.platform = TargetPlatform.HTML5;
+				break;
+			case "linux":
+				deploy.platform = TargetPlatform.LINUX;
+				break;
+			case "windows":
+				deploy.platform = TargetPlatform.WINDOWS;
+				break;
+			default:
+				error = "Unknown platform.";
+				return false;
+			}
+
+			if (option_deploy_output_dir == null) {
+				error = "Output dir must be specified.";
+				return false;
+			}
+			deploy.output_dir = option_deploy_output_dir;
+
+			if (option_deploy_config != null) {
+				switch (option_deploy_config) {
+				case "release":
+					deploy.config = TargetConfig.RELEASE;
+					break;
+				case "development":
+					deploy.config = TargetConfig.DEVELOPMENT;
+					break;
+				case "debug":
+					deploy.config = TargetConfig.DEBUG;
+					break;
+				default:
+					error = "Unknown config.";
+					return false;
+				}
+			}
+
+			if (option_deploy_app_title != null)
+				deploy.app_title = option_deploy_app_title.strip();
+
+			deploy.force = option_deploy_force;
+
+			if (option_deploy_arch != null) {
+				switch (option_deploy_arch) {
+				case "arm":
+					deploy.arch = TargetArch.ARM;
+					break;
+				case "arm64":
+					deploy.arch = TargetArch.ARM64;
+					break;
+				default:
+					error = "Unknown arch.";
+					return false;
+				}
+			}
+
+			if (option_deploy_app_id != null) {
+				deploy.app_id = option_deploy_app_id.strip();
+				if (deploy.app_id == "") {
+					error = "App id is invalid.";
+					return false;
+				}
+			}
+
+			if (option_deploy_app_version_code != null) {
+				int app_version_code;
+				if (!int.try_parse(option_deploy_app_version_code, out app_version_code)) {
+					error = "App version code is invalid.";
+					return false;
+				}
+				deploy.app_version_code = app_version_code;
+			}
+
+			if (option_deploy_app_version_name != null) {
+				deploy.app_version_name = option_deploy_app_version_name.strip();
+				if (deploy.app_version_name == "") {
+					error = "App version name is invalid.";
+					return false;
+				}
+			}
+
+			if (option_deploy_min_sdk_version != null) {
+				int min_sdk_version;
+				if (!int.try_parse(option_deploy_min_sdk_version, out min_sdk_version)) {
+					error = "Min SDK version is invalid.";
+					return false;
+				}
+				deploy.min_sdk_version = min_sdk_version;
+			}
+
+			if (option_deploy_target_sdk_version != null) {
+				int target_sdk_version;
+				if (!int.try_parse(option_deploy_target_sdk_version, out target_sdk_version)) {
+					error = "Target SDK version is invalid.";
+					return false;
+				}
+				deploy.target_sdk_version = target_sdk_version;
+			}
+
+			if (option_deploy_manifest != null)
+				deploy.manifest = option_deploy_manifest;
+			if (option_deploy_keystore != null)
+				deploy.keystore = option_deploy_keystore;
+			if (option_deploy_keystore_pass != null)
+				deploy.keystore_pass = option_deploy_keystore_pass;
+			if (option_deploy_key_alias != null)
+				deploy.key_alias = option_deploy_key_alias;
+			if (option_deploy_key_pass != null)
+				deploy.key_pass = option_deploy_key_pass;
+			if (option_deploy_index_html != null)
+				deploy.index_html = option_deploy_index_html;
 
 			return true;
 		}
@@ -4430,6 +4655,86 @@ public static int main(string[] args)
 
 		if (import_failed) {
 			stderr.printf("crown-editor: Failed to import resource(s).\n");
+			return 1;
+		}
+
+		return 0;
+	}
+
+	if (command_line_options.do_deploy) {
+		if (project.load(command_line_options.source_dir) != 0) {
+			stderr.printf("crown-editor: Unable to load project: %s.\n", command_line_options.source_dir);
+			return 1;
+		}
+
+		DeployPackage package = new DeployPackage(project, command_line_options.deploy);
+		string deploy_error = "";
+		DeployPackageFlags deploy_flags = command_line_options.deploy.force
+			? DeployPackageFlags.FORCE
+			: DeployPackageFlags.NONE
+			;
+
+		int deploy_status = -1;
+		bool deploy_started = false;
+		bool deploy_finished = false;
+		bool deploy_error_reported = false;
+		GLib.MainLoop deploy_loop = new GLib.MainLoop(null, false);
+
+		uint timeout_id = 0;
+		timeout_id = GLib.Timeout.add(5000, () => {
+				timeout_id = 0;
+				if (!deploy_started) {
+					stderr.printf("crown-editor: Unable to connect to subprocess launcher.\n");
+					deploy_error_reported = true;
+					deploy_loop.quit();
+				}
+				return GLib.Source.REMOVE;
+			});
+
+		uint watch_id = GLib.Bus.watch_name(GLib.BusType.SESSION
+			, CROWN_SUBPROCESS_LAUNCHER
+			, GLib.BusNameWatcherFlags.NONE
+			, (connection, name) => {
+				GLib.Error? error = null;
+				if (!connect_subprocess_launcher(out error)) {
+					if (error != null)
+						stderr.printf("crown-editor: %s\n", error.message);
+					deploy_error_reported = true;
+					deploy_loop.quit();
+					return;
+				}
+
+				deploy_started = true;
+				if (timeout_id != 0) {
+					GLib.Source.remove(timeout_id);
+					timeout_id = 0;
+				}
+
+				package.create.begin(deploy_flags, (obj, res) => {
+						DeployResult result = package.create.end(res);
+						deploy_status = result.status;
+						deploy_error = result.error;
+						deploy_finished = true;
+						deploy_loop.quit();
+					});
+			}
+			, (connection, name) => {
+				if (deploy_started && !deploy_finished) {
+					stderr.printf("crown-editor: Subprocess launcher disconnected.\n");
+					deploy_error_reported = true;
+					deploy_loop.quit();
+				}
+			}
+			);
+
+		deploy_loop.run();
+		GLib.Bus.unwatch_name(watch_id);
+		if (timeout_id != 0)
+			GLib.Source.remove(timeout_id);
+
+		if (deploy_status != 0) {
+			if (!deploy_error_reported)
+				stderr.printf("crown-editor: %s\n", deploy_error.length > 0 ? deploy_error : "Failed to deploy project.");
 			return 1;
 		}
 
