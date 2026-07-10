@@ -17,6 +17,7 @@ Changelog
 * Tools: improved performance with large unit trees and improved compatibility with units containing many meshes.
 * Tools: sprite importer will now create animation resources only when the sprite has more than one frame.
 * Tools: added a new dialog in the Project Browser to explore resource dependencies.
+* Tools: added command line support for creating and deploying projects and for importing resources.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
