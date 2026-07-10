@@ -19,6 +19,8 @@
 #include <string.h>
 #if CROWN_PLATFORM_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
+#	include <fcntl.h> // _O_TEXT
+#	include <io.h>    // _open_osfhandle
 #	include <windows.h>
 #elif CROWN_PLATFORM_LINUX
 #	include <unistd.h> // readlink
@@ -29,12 +31,20 @@ using namespace crown;
 
 int main_internal(int argc, char **argv)
 {
-	CE_UNUSED(argc);
 	char launcher_path[4*4096];
 	StringView launcher_dir;
-	StringView editor_dir;
-	DynamicString editor_cwd(default_allocator());
-	DynamicString editor_exe(default_allocator());
+	StringView program_dir;
+	DynamicString program_cwd(default_allocator());
+	DynamicString program_exe(default_allocator());
+	const char *program_name = "crown-editor-release" EXE_SUFFIX;
+	char **program_argv = argv;
+
+	if (argc > 1 && strcmp(argv[1], "editor") == 0) {
+		program_argv = argv + 1;
+	} else if (argc > 1 && strcmp(argv[1], "runtime") == 0) {
+		program_name = "crown-release" EXE_SUFFIX;
+		program_argv = argv + 1;
+	}
 
 #if CROWN_PLATFORM_LINUX
 	ssize_t len = readlink("/proc/self/exe", launcher_path, sizeof(launcher_path) - 1);
@@ -44,7 +54,7 @@ int main_internal(int argc, char **argv)
 	}
 	launcher_path[len] = '\0';
 
-	editor_dir = StringView("platforms/linux64/bin");
+	program_dir = StringView("platforms/linux64/bin");
 	os::setenv("UBUNTU_MENUPROXY", "");
 #elif CROWN_PLATFORM_WINDOWS
 	wchar_t buf[MAX_PATH];
@@ -60,22 +70,22 @@ int main_internal(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	editor_dir = StringView("platforms\\windows64\\bin");
+	program_dir = StringView("platforms\\windows64\\bin");
 #else
 	#error "Unsupported platform."
 #endif
 	os::setenv("GTK_THEME", "none"); // Disable foreign theming (hopefully).
 
 	launcher_dir = path::parent_dir(launcher_path);
-	path::join(editor_cwd, launcher_dir, editor_dir);
-	path::join(editor_exe, editor_cwd.c_str(), "crown-editor-release" EXE_SUFFIX);
-	os::setcwd(editor_cwd.c_str());
+	path::join(program_cwd, launcher_dir, program_dir);
+	path::join(program_exe, program_cwd.c_str(), program_name);
+	os::setcwd(program_cwd.c_str());
 
 	Process pr;
-	argv[0] = (char *)editor_exe.c_str();
+	program_argv[0] = (char *)program_exe.c_str();
 
-	if (pr.spawn(argv, CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_STDERR_MERGE) != 0) {
-		printf("Cannot spawn %s\n", argv[0]);
+	if (pr.spawn(program_argv) != 0) {
+		printf("Cannot spawn %s\n", program_argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -84,7 +94,23 @@ int main_internal(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	CE_UNUSED(argc);
+#if CROWN_PLATFORM_WINDOWS
+	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
+		const DWORD handles[] = { STD_OUTPUT_HANDLE, STD_ERROR_HANDLE, STD_INPUT_HANDLE };
+		const char *modes[] = { "w", "w", "r" };
+		FILE *stdfds[] = { stdout, stderr, stdin };
+
+		for (u32 i = 0; i < countof(handles); ++i) {
+			HANDLE out = GetStdHandle(handles[i]);
+			int fd = _open_osfhandle((intptr_t)out, _O_TEXT);
+			if (fd != -1) {
+				*stdfds[i] = *_fdopen(fd, modes[i]);
+				setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
+			}
+		}
+	}
+#endif
+
 	memory_globals::init();
 	int exit_code = main_internal(argc, argv);
 	memory_globals::shutdown();
