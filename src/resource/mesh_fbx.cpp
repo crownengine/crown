@@ -180,7 +180,7 @@ namespace fbx
 			const ufbx_mesh *mesh = meshes->data[i];
 			Geometry geo(default_allocator());
 
-			if (mesh->num_faces == 0)
+			if (mesh->num_triangles == 0)
 				continue;
 
 			s32 err = fbx::parse_geometry(geo, fbx, mesh);

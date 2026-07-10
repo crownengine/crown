@@ -410,7 +410,7 @@ public class OBJImporter
 				unit.set_component_string    (component_id, "data.name", editor_name);
 			}
 
-			if (node.mesh.num_faces > 0) {
+			if (node.mesh.num_triangles > 0) {
 				// Create mesh_renderer.
 				{
 					Guid component_id;
