@@ -555,6 +555,7 @@ public struct CommandLineOptions
 	public string? source_dir;
 	public string? positional_source_dir;
 	public string level_resource;
+	public bool do_init;
 	public bool do_import;
 	public string[] import_filenames;
 	public string import_destination;
@@ -570,6 +571,7 @@ public struct CommandLineOptions
 			+ "  -h, --help                       Display this help and exit.\n"
 			+ "  -v, --version                    Display version information and exit.\n"
 			+ "  --source-dir <path>              Project source directory.\n"
+			+ "  --init                           Create a new project.\n"
 			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
 			+ "  --deploy                         Deploy the project.\n"
 			+ "  --platform <platform>            Target platform: android, html5, linux, windows.\n"
@@ -599,6 +601,7 @@ public struct CommandLineOptions
 		source_dir = null;
 		positional_source_dir = null;
 		level_resource = "";
+		do_init = false;
 		do_import = false;
 		import_filenames = {};
 		import_destination = "";
@@ -609,6 +612,7 @@ public struct CommandLineOptions
 		string? option_source_dir = null;
 		bool option_show_help = false;
 		bool option_show_version = false;
+		bool option_do_init = false;
 		bool option_do_import = false;
 		bool option_do_deploy = false;
 		string? option_deploy_platform = null;
@@ -634,6 +638,7 @@ public struct CommandLineOptions
 			{ "help",               'h', 0, GLib.OptionArg.NONE,     ref option_show_help,                 "Display this help and exit.",           null       },
 			{ "version",            'v', 0, GLib.OptionArg.NONE,     ref option_show_version,              "Display version information and exit.", null       },
 			{ "source-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,                "Project source directory.",             "path"     },
+			{ "init",               0,   0, GLib.OptionArg.NONE,     ref option_do_init,                   "Create a new project.",                 null       },
 			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
 			{ "deploy",             0,   0, GLib.OptionArg.NONE,     ref option_do_deploy,                 "Deploy the project.",                   null       },
 			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Target platform.",                      "platform" },
@@ -670,6 +675,7 @@ public struct CommandLineOptions
 		show_help = option_show_help;
 		show_version = option_show_version;
 		source_dir = option_source_dir;
+		do_init = option_do_init;
 		do_import = option_do_import;
 		do_deploy = option_do_deploy;
 
@@ -702,7 +708,12 @@ public struct CommandLineOptions
 			|| option_deploy_index_html != null
 			;
 
-		if (do_import && do_deploy) {
+		int num_commands = (int)do_init
+			+ (int)do_import
+			+ (int)do_deploy
+			;
+
+		if (num_commands > 1) {
 			error = "Only one command can be specified.";
 			return false;
 		}
@@ -710,6 +721,20 @@ public struct CommandLineOptions
 		if (!do_deploy && deploy_option_seen) {
 			error = "--deploy must be specified.";
 			return false;
+		}
+
+		if (do_init) {
+			if (option_source_dir == null) {
+				error = "Source dir must be specified.";
+				return false;
+			}
+
+			if (args.length > positional_args_begin) {
+				error = "Too many positional arguments.";
+				return false;
+			}
+
+			return true;
 		}
 
 		if (do_import) {
@@ -4628,6 +4653,16 @@ public static int main(string[] args)
 	project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
 
 	Database database = new Database(project);
+
+	if (command_line_options.do_init) {
+		string error;
+		if (Project.create(out error, command_line_options.source_dir, "") != 0) {
+			stderr.printf("crown-editor: %s\n", error);
+			return 1;
+		}
+
+		return 0;
+	}
 
 	if (command_line_options.do_import) {
 		if (project.load(command_line_options.source_dir) != 0) {
