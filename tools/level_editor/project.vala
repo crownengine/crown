@@ -341,6 +341,45 @@ public class Project
 		}
 	}
 
+	public static int create(out string error, string source_dir, string template_dir)
+	{
+		error = "";
+		GLib.File project_dir = GLib.File.new_for_path(source_dir);
+
+		try {
+			if (project_dir.query_exists()) {
+				if (project_dir.query_file_type(GLib.FileQueryInfoFlags.NONE) != GLib.FileType.DIRECTORY) {
+					error = "Location must be an empty directory.";
+					return -1;
+				}
+
+				GLib.FileEnumerator enumerator = project_dir.enumerate_children("standard::*"
+					, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
+					);
+				if (enumerator.next_file() != null) {
+					error = "Location must be an empty directory.";
+					return -1;
+				}
+			} else {
+				project_dir.make_directory_with_parents();
+			}
+		} catch (GLib.Error e) {
+			error = e.message;
+			return -1;
+		}
+
+		if (template_dir == "") {
+			Project.create_initial_files(project_dir.get_path());
+		} else {
+			if (copy_tree(project_dir, GLib.File.new_for_path(template_dir)) != 0) {
+				error = "Failed to copy project template.";
+				return -1;
+			}
+		}
+
+		return 0;
+	}
+
 	/// Creates a new temporary project.
 	public static async string? create_temporary()
 	{
@@ -352,7 +391,9 @@ public class Project
 			GLib.File f = GLib.File.new_for_path(GLib.DirUtils.make_tmp(template));
 #endif
 			string source_dir = f.get_path();
-			Project.create_initial_files(source_dir);
+			string error;
+			if (Project.create(out error, source_dir, "") != 0)
+				return null;
 			return source_dir;
 		} catch (GLib.Error e) {
 			loge(e.message);
