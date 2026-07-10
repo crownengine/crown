@@ -96,37 +96,18 @@ public class NewProject : Gtk.Box
 					name = name.replace("\t", "_");
 					name = name.replace("\v", "_");
 
-					try {
-						GLib.File project_folder = GLib.File.new_for_path(Path.build_filename(source_dir, name));
-						project_folder.make_directory();
-						source_dir = project_folder.get_path();
-					} catch (GLib.Error e) {
-						if (e.code == GLib.IOError.EXISTS)
-							_label_message.label = _("Project Folder already exists");
-						else
-							_label_message.label = _("Project Folder cannot be created automatically");
-						return;
-					}
-				} else {
-					if (GLib.FileUtils.test(source_dir, FileTest.IS_REGULAR)) {
-						_label_message.label = _("Location must be an empty directory");
-						return;
-					}
-
-					if (!is_directory_empty(source_dir)) {
-						_label_message.label = _("Location must be an empty directory");
-						return;
-					}
+					source_dir = Path.build_filename(source_dir, name);
 				}
 
 				_label_message.label = "";
 
-				_user.add_or_touch_recent_project(source_dir, _entry_name.value);
+				string error;
+				if (Project.create(out error, source_dir, _combo_box_map_template.value) != 0) {
+					_label_message.label = error;
+					return;
+				}
 
-				if (_combo_box_map_template.value == "")
-					Project.create_initial_files(source_dir);
-				else
-					copy_template_to_source_dir(source_dir, _combo_box_map_template.value);
+				_user.add_or_touch_recent_project(source_dir, _entry_name.value);
 
 				GLib.Application.get_default().activate_action("open-project", new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE}));
 			});
@@ -180,13 +161,6 @@ public class NewProject : Gtk.Box
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
-	}
-
-	public void copy_template_to_source_dir(string source_dir, string template_dir)
-	{
-		GLib.File dst = GLib.File.new_for_path(source_dir);
-		GLib.File src = GLib.File.new_for_path(template_dir);
-		copy_tree(dst, src);
 	}
 }
 
