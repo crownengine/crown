@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Crown Editor\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 17:23+0200\n"
-"PO-Revision-Date: 2026-06-05 00:00+0000\n"
+"POT-Creation-Date: 2026-07-11 19:26+0200\n"
+"PO-Revision-Date: 2026-07-11 00:00+0200\n"
 "Last-Translator: Daniele Bartolini\n"
 "Language-Team: Italian\n"
 "Language: it\n"
@@ -15,6 +15,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: tools/deploy/options.vala:34
+msgid "Release"
+msgstr "Release"
+
+#: tools/deploy/options.vala:36
+msgid "Development"
+msgstr "Sviluppo"
+
+#: tools/deploy/options.vala:38 tools/level_editor/menus.vala:551
+msgid "Debug"
+msgstr "Debug"
+
+#: tools/deploy/options.vala:40
+msgid "unknown"
+msgstr "sconosciuto"
 
 #: tools/level_editor/action_type.vala:19
 msgid "Create Objects"
@@ -27,6 +43,52 @@ msgstr "Distruggi Oggetti"
 #: tools/level_editor/action_type.vala:21
 msgid "Change Objects"
 msgstr "Modifica Oggetti"
+
+#: tools/level_editor/dependencies_dialog.vala:196
+msgid "Resource"
+msgstr "Risorsa"
+
+#: tools/level_editor/dependencies_dialog.vala:233
+#: tools/level_editor/dependencies_dialog.vala:238
+msgid "Resource Dependencies"
+msgstr "Dipendenze della risorsa"
+
+#: tools/level_editor/dependencies_dialog.vala:244
+msgid "Close"
+msgstr "Chiudi"
+
+#: tools/level_editor/dependencies_dialog.vala:287
+msgid "Uses"
+msgstr "Utilizza"
+
+#: tools/level_editor/dependencies_dialog.vala:288
+msgid "Resources used by this resource."
+msgstr "Risorse utilizzate da questa risorsa."
+
+#: tools/level_editor/dependencies_dialog.vala:290
+msgid "Depends On"
+msgstr "Dipende da"
+
+#: tools/level_editor/dependencies_dialog.vala:292
+msgid "References"
+msgstr "Riferimenti"
+
+#: tools/level_editor/dependencies_dialog.vala:295
+#: tools/level_editor/dependencies_dialog.vala:298
+msgid "Used By"
+msgstr "Utilizzata da"
+
+#: tools/level_editor/dependencies_dialog.vala:296
+msgid "Resources that use this resource."
+msgstr "Risorse che utilizzano questa risorsa."
+
+#: tools/level_editor/dependencies_dialog.vala:300
+msgid "Required By"
+msgstr "Richiesta da"
+
+#: tools/level_editor/dependencies_dialog.vala:308
+msgid "No direct dependencies or references."
+msgstr "Nessuna dipendenza o riferimento diretto."
 
 #: tools/level_editor/deploy_dialog.vala:34
 #, c-format
@@ -46,147 +108,147 @@ msgstr "Il deployer %s non è ancora stato configurato"
 msgid "Follow <a href=\"\">the instructions</a> to get started"
 msgstr "Segui <a href=\"\">le istruzioni</a> per iniziare"
 
-#: tools/level_editor/deploy_dialog.vala:262 tools/level_editor/menus.vala:53
+#: tools/level_editor/deploy_dialog.vala:264 tools/level_editor/menus.vala:53
 msgid "Deploy"
 msgstr "Distribuisci"
 
-#: tools/level_editor/deploy_dialog.vala:274
-#: tools/level_editor/deploy_dialog.vala:547
-#: tools/level_editor/deploy_dialog.vala:651
-#: tools/level_editor/deploy_dialog.vala:707
+#: tools/level_editor/deploy_dialog.vala:276
+#: tools/level_editor/deploy_dialog.vala:546
+#: tools/level_editor/deploy_dialog.vala:647
+#: tools/level_editor/deploy_dialog.vala:700
 msgid "Select a valid output Destination"
 msgstr "Seleziona una destinazione di output valida"
 
-#: tools/level_editor/deploy_dialog.vala:280
+#: tools/level_editor/deploy_dialog.vala:282
 msgid "Enter a valid App Title"
 msgstr "Inserisci un Titolo App valido"
 
-#: tools/level_editor/deploy_dialog.vala:286
+#: tools/level_editor/deploy_dialog.vala:288
 msgid "Enter a valid App Identifier"
 msgstr "Inserisci un Identificatore App valido"
 
-#: tools/level_editor/deploy_dialog.vala:292
+#: tools/level_editor/deploy_dialog.vala:294
 msgid "Enter a valid App Version Code"
 msgstr "Inserisci un Codice Versione App valido"
 
-#: tools/level_editor/deploy_dialog.vala:298
+#: tools/level_editor/deploy_dialog.vala:300
 msgid "Enter a valid App Version Name"
 msgstr "Inserisci un Nome Versione App valido"
 
-#: tools/level_editor/deploy_dialog.vala:319
+#: tools/level_editor/deploy_dialog.vala:321
 msgid "Enter a valid Keystore file"
 msgstr "Inserisci un file Keystore valido"
 
-#: tools/level_editor/deploy_dialog.vala:332
+#: tools/level_editor/deploy_dialog.vala:334
 msgid "Enter a valid Keystore Password"
 msgstr "Inserisci una Password Keystore valida"
 
-#: tools/level_editor/deploy_dialog.vala:341
+#: tools/level_editor/deploy_dialog.vala:343
 msgid "Enter a valid Key Alias"
 msgstr "Inserisci un Alias Chiave valido"
 
-#: tools/level_editor/deploy_dialog.vala:350
+#: tools/level_editor/deploy_dialog.vala:352
 msgid "Enter a valid Key Password"
 msgstr "Inserisci una Password Chiave valida"
 
-#: tools/level_editor/deploy_dialog.vala:409
-#: tools/level_editor/deploy_dialog.vala:576
-#: tools/level_editor/deploy_dialog.vala:676
-#: tools/level_editor/deploy_dialog.vala:732
+#: tools/level_editor/deploy_dialog.vala:408
+#: tools/level_editor/deploy_dialog.vala:572
+#: tools/level_editor/deploy_dialog.vala:669
+#: tools/level_editor/deploy_dialog.vala:722
 msgid "My Application"
 msgstr "La Mia Applicazione"
 
-#: tools/level_editor/deploy_dialog.vala:501
-#: tools/level_editor/deploy_dialog.vala:631
-#: tools/level_editor/deploy_dialog.vala:691
-#: tools/level_editor/deploy_dialog.vala:747
+#: tools/level_editor/deploy_dialog.vala:500
+#: tools/level_editor/deploy_dialog.vala:627
+#: tools/level_editor/deploy_dialog.vala:684
+#: tools/level_editor/deploy_dialog.vala:737
 msgid "Destination"
 msgstr "Destinazione"
 
-#: tools/level_editor/deploy_dialog.vala:502
-#: tools/level_editor/deploy_dialog.vala:632
-#: tools/level_editor/deploy_dialog.vala:692
-#: tools/level_editor/deploy_dialog.vala:748
+#: tools/level_editor/deploy_dialog.vala:501
+#: tools/level_editor/deploy_dialog.vala:628
+#: tools/level_editor/deploy_dialog.vala:685
+#: tools/level_editor/deploy_dialog.vala:738
 msgid "Config"
 msgstr "Configurazione"
 
-#: tools/level_editor/deploy_dialog.vala:506
-#: tools/level_editor/deploy_dialog.vala:633
-#: tools/level_editor/deploy_dialog.vala:693
-#: tools/level_editor/deploy_dialog.vala:749
+#: tools/level_editor/deploy_dialog.vala:505
+#: tools/level_editor/deploy_dialog.vala:629
+#: tools/level_editor/deploy_dialog.vala:686
+#: tools/level_editor/deploy_dialog.vala:739
 #: tools/level_editor/texture_settings_dialog.vala:134
 msgid "Output"
 msgstr "Output"
 
-#: tools/level_editor/deploy_dialog.vala:511
-#: tools/level_editor/deploy_dialog.vala:638
-#: tools/level_editor/deploy_dialog.vala:698
-#: tools/level_editor/deploy_dialog.vala:754
+#: tools/level_editor/deploy_dialog.vala:510
+#: tools/level_editor/deploy_dialog.vala:634
+#: tools/level_editor/deploy_dialog.vala:691
+#: tools/level_editor/deploy_dialog.vala:744
 msgid "Title"
 msgstr "Titolo"
 
-#: tools/level_editor/deploy_dialog.vala:512
+#: tools/level_editor/deploy_dialog.vala:511
 msgid "Identifier"
 msgstr "Identificatore"
 
-#: tools/level_editor/deploy_dialog.vala:513
+#: tools/level_editor/deploy_dialog.vala:512
 msgid "Version Code"
 msgstr "Codice Versione"
 
-#: tools/level_editor/deploy_dialog.vala:514
+#: tools/level_editor/deploy_dialog.vala:513
 msgid "Version Name"
 msgstr "Nome Versione"
 
-#: tools/level_editor/deploy_dialog.vala:515
+#: tools/level_editor/deploy_dialog.vala:514
 msgid "Min SDK Version"
 msgstr "Versione SDK Min"
 
-#: tools/level_editor/deploy_dialog.vala:516
+#: tools/level_editor/deploy_dialog.vala:515
 msgid "Target SDK Version"
 msgstr "Versione SDK Target"
 
-#: tools/level_editor/deploy_dialog.vala:520
+#: tools/level_editor/deploy_dialog.vala:519
 msgid "Manifest"
 msgstr "Manifest"
 
-#: tools/level_editor/deploy_dialog.vala:521
-#: tools/level_editor/deploy_dialog.vala:643
-#: tools/level_editor/deploy_dialog.vala:699
-#: tools/level_editor/deploy_dialog.vala:755
+#: tools/level_editor/deploy_dialog.vala:520
+#: tools/level_editor/deploy_dialog.vala:639
+#: tools/level_editor/deploy_dialog.vala:692
+#: tools/level_editor/deploy_dialog.vala:745
 msgid "Application"
 msgstr "Applicazione"
 
-#: tools/level_editor/deploy_dialog.vala:526
+#: tools/level_editor/deploy_dialog.vala:525
 msgid "Use debug keystore"
 msgstr "Usa keystore debug"
 
-#: tools/level_editor/deploy_dialog.vala:527
+#: tools/level_editor/deploy_dialog.vala:526
 msgid "Keystore"
 msgstr "Keystore"
 
-#: tools/level_editor/deploy_dialog.vala:528
+#: tools/level_editor/deploy_dialog.vala:527
 msgid "Keystore password"
 msgstr "Password keystore"
 
-#: tools/level_editor/deploy_dialog.vala:529
+#: tools/level_editor/deploy_dialog.vala:528
 msgid "Alias"
 msgstr "Alias"
 
-#: tools/level_editor/deploy_dialog.vala:530
+#: tools/level_editor/deploy_dialog.vala:529
 msgid "Key password"
 msgstr "Password chiave"
 
-#: tools/level_editor/deploy_dialog.vala:531
+#: tools/level_editor/deploy_dialog.vala:530
 msgid "Signing"
 msgstr "Firma"
 
-#: tools/level_editor/deploy_dialog.vala:553
-#: tools/level_editor/deploy_dialog.vala:657
-#: tools/level_editor/deploy_dialog.vala:713
+#: tools/level_editor/deploy_dialog.vala:552
+#: tools/level_editor/deploy_dialog.vala:653
+#: tools/level_editor/deploy_dialog.vala:706
 msgid "Enter a valid Title"
 msgstr "Inserisci un Titolo valido"
 
-#: tools/level_editor/deploy_dialog.vala:642
+#: tools/level_editor/deploy_dialog.vala:638
 msgid "Index"
 msgstr "Index"
 
@@ -222,46 +284,30 @@ msgstr "Vista Inferiore"
 msgid "View Unknown"
 msgstr "Vista Sconosciuta"
 
-#: tools/level_editor/level_editor.vala:237
-msgid "Release"
-msgstr "Release"
-
-#: tools/level_editor/level_editor.vala:239
-msgid "Development"
-msgstr "Sviluppo"
-
-#: tools/level_editor/level_editor.vala:241 tools/level_editor/menus.vala:551
-msgid "Debug"
-msgstr "Debug"
-
-#: tools/level_editor/level_editor.vala:243
-msgid "unknown"
-msgstr "sconosciuto"
-
-#: tools/level_editor/level_editor.vala:277
+#: tools/level_editor/level_editor.vala:240
 msgid "Android"
 msgstr "Android"
 
-#: tools/level_editor/level_editor.vala:279
+#: tools/level_editor/level_editor.vala:242
 msgid "HTML5"
 msgstr "HTML5"
 
-#: tools/level_editor/level_editor.vala:281
+#: tools/level_editor/level_editor.vala:244
 msgid "Linux"
 msgstr "Linux"
 
-#: tools/level_editor/level_editor.vala:283
+#: tools/level_editor/level_editor.vala:246
 msgid "Windows"
 msgstr "Windows"
 
-#: tools/level_editor/level_editor.vala:285
+#: tools/level_editor/level_editor.vala:248
 #: tools/level_editor/level_tree_view.vala:58
-#: tools/level_editor/project_browser.vala:898
+#: tools/level_editor/project_browser.vala:930
 #: tools/widgets/object_tree.vala:54
 msgid "Unknown"
 msgstr "Sconosciuto"
 
-#: tools/level_editor/level_editor.vala:998
+#: tools/level_editor/level_editor.vala:1321
 #: tools/level_editor/object_editor.vala:287
 #: tools/state_machine_editor/state_machine_editor.vala:390
 #: tools/unit_editor/unit_editor.vala:438
@@ -269,7 +315,7 @@ msgstr "Sconosciuto"
 msgid "Undo: %s"
 msgstr "Annulla: %s"
 
-#: tools/level_editor/level_editor.vala:999
+#: tools/level_editor/level_editor.vala:1322
 #: tools/level_editor/object_editor.vala:292
 #: tools/state_machine_editor/state_machine_editor.vala:395
 #: tools/unit_editor/unit_editor.vala:443
@@ -277,67 +323,67 @@ msgstr "Annulla: %s"
 msgid "Redo: %s"
 msgstr "Ripeti: %s"
 
-#: tools/level_editor/level_editor.vala:1069
+#: tools/level_editor/level_editor.vala:1391
 msgid "Runtime that will receive the message."
 msgstr "Runtime che riceverà il messaggio."
 
-#: tools/level_editor/level_editor.vala:1070
+#: tools/level_editor/level_editor.vala:1392
 msgid "Editor"
 msgstr "Editor"
 
-#: tools/level_editor/level_editor.vala:1071
+#: tools/level_editor/level_editor.vala:1393
 #: tools/level_editor/preferences_dialog.vala:134
 msgid "Game"
 msgstr "Gioco"
 
-#: tools/level_editor/level_editor.vala:1097
+#: tools/level_editor/level_editor.vala:1419
 msgid "Properties"
 msgstr "Proprietà"
 
-#: tools/level_editor/level_editor.vala:1127
+#: tools/level_editor/level_editor.vala:1449
 msgid "Console"
 msgstr "Console"
 
-#: tools/level_editor/level_editor.vala:1131
+#: tools/level_editor/level_editor.vala:1453
 msgid "Project"
 msgstr "Progetto"
 
-#: tools/level_editor/level_editor.vala:1153
+#: tools/level_editor/level_editor.vala:1475
 msgid "Level (*.level)"
 msgstr "Livello (*.level)"
 
-#: tools/level_editor/level_editor.vala:1164
+#: tools/level_editor/level_editor.vala:1486
 #, c-format
 msgid "Waiting for %s..."
 msgstr "In attesa di %s..."
 
-#: tools/level_editor/level_editor.vala:1350 tools/widgets/messages.vala:33
+#: tools/level_editor/level_editor.vala:1669 tools/widgets/messages.vala:33
 msgid "Compiling data..."
 msgstr "Compilazione Dati..."
 
-#: tools/level_editor/level_editor.vala:1358
+#: tools/level_editor/level_editor.vala:1677
 msgid "Failed to compile data"
 msgstr "Compilazione Dati Non Riuscita"
 
-#: tools/level_editor/level_editor.vala:1944
+#: tools/level_editor/level_editor.vala:2268
 msgid "Grid size"
 msgstr "Dimensione Griglia"
 
-#: tools/level_editor/level_editor.vala:1947
-#: tools/level_editor/level_editor.vala:2498
-#: tools/level_editor/level_editor.vala:2539
-#: tools/level_editor/level_editor.vala:2787
-#: tools/level_editor/level_editor.vala:3030
-#: tools/level_editor/level_editor.vala:3255
-#: tools/level_editor/level_editor.vala:3431
-#: tools/level_editor/level_editor.vala:3481
-#: tools/level_editor/object_editor.vala:57 tools/level_editor/project.vala:802
-#: tools/level_editor/project.vala:836
+#: tools/level_editor/level_editor.vala:2271
+#: tools/level_editor/level_editor.vala:2830
+#: tools/level_editor/level_editor.vala:2871
+#: tools/level_editor/level_editor.vala:3117
+#: tools/level_editor/level_editor.vala:3360
+#: tools/level_editor/level_editor.vala:3642
+#: tools/level_editor/level_editor.vala:3818
+#: tools/level_editor/level_editor.vala:3868
+#: tools/level_editor/object_editor.vala:57 tools/level_editor/project.vala:878
+#: tools/level_editor/project.vala:916
 #: tools/level_editor/texture_settings_dialog.vala:157
-#: tools/resource/font_resource.vala:283
-#: tools/resource/mesh_resource_fbx.vala:350
-#: tools/resource/mesh_resource_obj.vala:325
-#: tools/resource/sprite_resource.vala:563
+#: tools/resource/font_resource.vala:287
+#: tools/resource/mesh_resource_fbx.vala:333
+#: tools/resource/mesh_resource_obj.vala:321
+#: tools/resource/sprite_resource.vala:654
 #: tools/state_machine_editor/state_machine_editor.vala:84
 #: tools/unit_editor/unit_editor.vala:83 tools/widgets/input_file.vala:90
 #: tools/widgets/open_resource_dialog.vala:24
@@ -345,57 +391,57 @@ msgstr "Dimensione Griglia"
 msgid "Cancel"
 msgstr "Annulla"
 
-#: tools/level_editor/level_editor.vala:1949
-#: tools/level_editor/level_editor.vala:2789
-#: tools/level_editor/level_editor.vala:3032
-#: tools/level_editor/level_editor.vala:3257
-#: tools/level_editor/level_editor.vala:3433
-#: tools/level_editor/level_editor.vala:3483
+#: tools/level_editor/level_editor.vala:2273
+#: tools/level_editor/level_editor.vala:3119
+#: tools/level_editor/level_editor.vala:3362
+#: tools/level_editor/level_editor.vala:3644
+#: tools/level_editor/level_editor.vala:3820
+#: tools/level_editor/level_editor.vala:3870
 msgid "Ok"
 msgstr "Ok"
 
-#: tools/level_editor/level_editor.vala:1979
+#: tools/level_editor/level_editor.vala:2303
 #: tools/state_machine_editor/state_machine_editor.vala:177
 msgid "untitled"
 msgstr "senza titolo"
 
-#: tools/level_editor/level_editor.vala:2021
+#: tools/level_editor/level_editor.vala:2345
 #, c-format
 msgid "Unable to save level '%s'"
 msgstr "Impossibile salvare il livello '%s'"
 
-#: tools/level_editor/level_editor.vala:2023
-#: tools/level_editor/level_editor.vala:2600
-#: tools/level_editor/level_editor.vala:2614
-#: tools/level_editor/level_editor.vala:3928
+#: tools/level_editor/level_editor.vala:2347
+#: tools/level_editor/level_editor.vala:2932
+#: tools/level_editor/level_editor.vala:2946
+#: tools/level_editor/level_editor.vala:4093
 #: tools/level_editor/object_editor.vala:157
 #: tools/state_machine_editor/state_machine_editor.vala:256
 #: tools/unit_editor/unit_editor.vala:239
 msgid "_Ok"
 msgstr "_Ok"
 
-#: tools/level_editor/level_editor.vala:2030
+#: tools/level_editor/level_editor.vala:2354
 #, c-format
 msgid "Saved %s"
 msgstr "Salvato %s"
 
-#: tools/level_editor/level_editor.vala:2043 tools/level_editor/menus.vala:35
+#: tools/level_editor/level_editor.vala:2373 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:181
 #: tools/state_machine_editor/state_machine_editor.vala:280
 #: tools/unit_editor/unit_editor.vala:263
 msgid "Save As..."
 msgstr "Salva Con Nome..."
 
-#: tools/level_editor/level_editor.vala:2153 tools/level_editor/menus.vala:18
+#: tools/level_editor/level_editor.vala:2483 tools/level_editor/menus.vala:18
 msgid "Open Level..."
 msgstr "Apri Livello..."
 
-#: tools/level_editor/level_editor.vala:2208
+#: tools/level_editor/level_editor.vala:2538
 #, c-format
 msgid "The folder `%s` does not appear to be a valid Crown project."
 msgstr "La cartella `%s` non sembra essere un progetto Crown valido."
 
-#: tools/level_editor/level_editor.vala:2327
+#: tools/level_editor/level_editor.vala:2657
 #, c-format
 msgid ""
 "Remove \"%s\" from the list?\n"
@@ -408,33 +454,33 @@ msgstr ""
 "Questa azione rimuove solo il progetto dall'elenco; i file su disco non "
 "verranno eliminati."
 
-#: tools/level_editor/level_editor.vala:2329
-#: tools/level_editor/level_editor.vala:2528
-#: tools/level_editor/level_editor.vala:3303 tools/widgets/messages.vala:109
+#: tools/level_editor/level_editor.vala:2659
+#: tools/level_editor/level_editor.vala:2860
+#: tools/level_editor/level_editor.vala:3690 tools/widgets/messages.vala:109
 msgid "_Cancel"
 msgstr "_Annulla"
 
-#: tools/level_editor/level_editor.vala:2330
+#: tools/level_editor/level_editor.vala:2660
 msgid "_Remove"
 msgstr "_Rimuovi"
 
-#: tools/level_editor/level_editor.vala:2490
+#: tools/level_editor/level_editor.vala:2822
 #: tools/level_editor/preferences_dialog.vala:126
 msgid "Level"
 msgstr "Livello"
 
-#: tools/level_editor/level_editor.vala:2495 tools/level_editor/menus.vala:27
+#: tools/level_editor/level_editor.vala:2827 tools/level_editor/menus.vala:27
 msgid "Open Project..."
 msgstr "Apri Progetto..."
 
-#: tools/level_editor/level_editor.vala:2500
-#: tools/level_editor/panel_projects_list.vala:55
-#: tools/level_editor/project.vala:838 tools/widgets/input_file.vala:92
+#: tools/level_editor/level_editor.vala:2832
+#: tools/level_editor/panel_projects_list.vala:57
+#: tools/level_editor/project.vala:918 tools/widgets/input_file.vala:92
 #: tools/widgets/open_resource_dialog.vala:25
 msgid "Open"
 msgstr "Apri"
 
-#: tools/level_editor/level_editor.vala:2523
+#: tools/level_editor/level_editor.vala:2855
 msgid ""
 "Save the project before closing?\n"
 "\n"
@@ -444,78 +490,82 @@ msgstr ""
 "\n"
 "Questo è un progetto *temporaneo* e andrà perso se non viene salvato ora."
 
-#: tools/level_editor/level_editor.vala:2526 tools/widgets/messages.vala:107
+#: tools/level_editor/level_editor.vala:2858 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
 msgstr "_Chiudi senza Salvare"
 
-#: tools/level_editor/level_editor.vala:2529 tools/widgets/messages.vala:110
+#: tools/level_editor/level_editor.vala:2861 tools/widgets/messages.vala:110
 msgid "_Save"
 msgstr "_Salva"
 
-#: tools/level_editor/level_editor.vala:2536
+#: tools/level_editor/level_editor.vala:2868
 msgid "Select a folder where the project will be saved..."
 msgstr "Seleziona una cartella dove salvare il progetto..."
 
-#: tools/level_editor/level_editor.vala:2541
+#: tools/level_editor/level_editor.vala:2873
 msgid "Save Project Here"
 msgstr "Salva Progetto Qui"
 
-#: tools/level_editor/level_editor.vala:2598
+#: tools/level_editor/level_editor.vala:2930
 msgid "The destination directory must be empty"
 msgstr "La directory di destinazione deve essere vuota"
 
-#: tools/level_editor/level_editor.vala:2612
+#: tools/level_editor/level_editor.vala:2944
 #, c-format
 msgid "Failed to save project in %s"
 msgstr "Salvataggio del progetto in %s non riuscito"
 
-#: tools/level_editor/level_editor.vala:2784
+#: tools/level_editor/level_editor.vala:3114
 msgid "Rotation snap"
 msgstr "Snap Rotazione"
 
-#: tools/level_editor/level_editor.vala:3027
+#: tools/level_editor/level_editor.vala:3357
 msgid "New Name"
 msgstr "Nuovo Nome"
 
-#: tools/level_editor/level_editor.vala:3252
-#: tools/level_editor/level_editor.vala:3424
+#: tools/level_editor/level_editor.vala:3488
+msgid "Cannot show dependencies"
+msgstr "Impossibile mostrare le dipendenze"
+
+#: tools/level_editor/level_editor.vala:3639
+#: tools/level_editor/level_editor.vala:3811
 msgid "Resource Name"
 msgstr "Nome Risorsa"
 
-#: tools/level_editor/level_editor.vala:3299
+#: tools/level_editor/level_editor.vala:3686
 #, c-format
 msgid "Delete Folder %s?"
 msgstr "Eliminare Cartella %s?"
 
-#: tools/level_editor/level_editor.vala:3304
+#: tools/level_editor/level_editor.vala:3691
 msgid "_Delete"
 msgstr "_Elimina"
 
-#: tools/level_editor/level_editor.vala:3412
+#: tools/level_editor/level_editor.vala:3799
 msgid "Script Name"
 msgstr "Nome Script"
 
-#: tools/level_editor/level_editor.vala:3415
+#: tools/level_editor/level_editor.vala:3802
 msgid "Unit Name"
 msgstr "Nome Unità"
 
-#: tools/level_editor/level_editor.vala:3418
+#: tools/level_editor/level_editor.vala:3805
 msgid "Material Name"
 msgstr "Nome Materiale"
 
-#: tools/level_editor/level_editor.vala:3421
+#: tools/level_editor/level_editor.vala:3808
 msgid "State Machine Name"
 msgstr "Nome State Machine"
 
-#: tools/level_editor/level_editor.vala:3448
+#: tools/level_editor/level_editor.vala:3835
 msgid "Skeleton name (optional)"
 msgstr "Nome Scheletro (opzionale)"
 
-#: tools/level_editor/level_editor.vala:3478
+#: tools/level_editor/level_editor.vala:3865
 msgid "Folder Name"
 msgstr "Nome Cartella"
 
-#: tools/level_editor/level_editor.vala:3640
+#: tools/level_editor/level_editor.vala:4008
 #: tools/widgets/save_resource_dialog.vala:84
 #, c-format
 msgid ""
@@ -525,21 +575,21 @@ msgstr ""
 "Esiste già un file chiamato `%s`.\n"
 "Sovrascriverlo?"
 
-#: tools/level_editor/level_editor.vala:3645
+#: tools/level_editor/level_editor.vala:4013
 #: tools/widgets/save_resource_dialog.vala:88
 msgid "_No"
 msgstr "_No"
 
-#: tools/level_editor/level_editor.vala:3646
+#: tools/level_editor/level_editor.vala:4014
 #: tools/widgets/save_resource_dialog.vala:89
 msgid "_Yes"
 msgstr "_Sì"
 
-#: tools/level_editor/level_editor.vala:3908
+#: tools/level_editor/level_editor.vala:4073
 msgid "Save Prefab As..."
 msgstr "Salva Prefab Come..."
 
-#: tools/level_editor/level_editor.vala:3926
+#: tools/level_editor/level_editor.vala:4091
 #, c-format
 msgid "Cannot save prefab '%s' over itself"
 msgstr "Impossibile salvare il prefab '%s' su se stesso"
@@ -547,8 +597,8 @@ msgstr "Impossibile salvare il prefab '%s' su se stesso"
 #: tools/level_editor/level_layers_tree_view.vala:39
 #: tools/level_editor/level_tree_view.vala:117
 #: tools/level_editor/object_chooser.vala:51
-#: tools/level_editor/project_browser.vala:1051
-#: tools/level_editor/project_browser.vala:1056
+#: tools/level_editor/project_browser.vala:1089
+#: tools/level_editor/project_browser.vala:1094
 #: tools/level_editor/resource_chooser.vala:52
 #: tools/widgets/object_tree.vala:97
 msgid "Search..."
@@ -573,34 +623,34 @@ msgstr "Bloccato"
 #: tools/level_editor/level_layers_tree_view.vala:62
 #: tools/level_editor/object_chooser.vala:88
 #: tools/level_editor/panel_new_project.vala:42
-#: tools/level_editor/project_browser.vala:397
+#: tools/level_editor/project_browser.vala:408
 #: tools/level_editor/resource_chooser.vala:86
 #: tools/level_editor/texture_settings_dialog.vala:88
-#: tools/resource/font_resource.vala:261
-#: tools/resource/sprite_resource.vala:340
+#: tools/resource/font_resource.vala:265
+#: tools/resource/sprite_resource.vala:431
 msgid "Name"
 msgstr "Nome"
 
 #: tools/level_editor/level_tree_view.vala:50
-#: tools/level_editor/project_browser.vala:882
+#: tools/level_editor/project_browser.vala:914
 #: tools/widgets/object_tree.vala:46
 msgid "Name A-Z"
 msgstr "Nome A-Z"
 
 #: tools/level_editor/level_tree_view.vala:52
-#: tools/level_editor/project_browser.vala:884
+#: tools/level_editor/project_browser.vala:916
 #: tools/widgets/object_tree.vala:48
 msgid "Name Z-A"
 msgstr "Nome Z-A"
 
 #: tools/level_editor/level_tree_view.vala:54
-#: tools/level_editor/project_browser.vala:886
+#: tools/level_editor/project_browser.vala:918
 #: tools/widgets/object_tree.vala:50
 msgid "Type A-Z"
 msgstr "Tipo A-Z"
 
 #: tools/level_editor/level_tree_view.vala:56
-#: tools/level_editor/project_browser.vala:888
+#: tools/level_editor/project_browser.vala:920
 #: tools/widgets/object_tree.vala:52
 msgid "Type Z-A"
 msgstr "Tipo Z-A"
@@ -613,26 +663,26 @@ msgstr "Attiva/Disattiva la visibilità."
 msgid "Toggle selection lock."
 msgstr "Attiva/Disattiva il blocco selezione."
 
-#: tools/level_editor/level_tree_view.vala:286
-#: tools/widgets/object_tree.vala:176
+#: tools/level_editor/level_tree_view.vala:287
+#: tools/widgets/object_tree.vala:177
 msgid "Sort items."
 msgstr "Ordina gli elementi."
 
-#: tools/level_editor/level_tree_view.vala:393
+#: tools/level_editor/level_tree_view.vala:394
 msgid "Rename..."
 msgstr "Rinomina..."
 
-#: tools/level_editor/level_tree_view.vala:400
-#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:242
+#: tools/level_editor/level_tree_view.vala:401
+#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:243
 msgid "Duplicate"
 msgstr "Duplica"
 
-#: tools/level_editor/level_tree_view.vala:404
-#: tools/level_editor/menus.vala:224 tools/widgets/object_tree.vala:246
+#: tools/level_editor/level_tree_view.vala:405
+#: tools/level_editor/menus.vala:224 tools/widgets/object_tree.vala:247
 msgid "Delete"
 msgstr "Elimina"
 
-#: tools/level_editor/level_tree_view.vala:420
+#: tools/level_editor/level_tree_view.vala:421
 msgid "Save as Prefab..."
 msgstr "Salva Come Prefab..."
 
@@ -649,9 +699,9 @@ msgid "Save"
 msgstr "Salva"
 
 #: tools/level_editor/menus.vala:42
-#: tools/level_editor/panel_projects_list.vala:133
-#: tools/level_editor/project.vala:833
-#: tools/level_editor/project_browser.vala:63
+#: tools/level_editor/panel_projects_list.vala:121
+#: tools/level_editor/project.vala:913
+#: tools/level_editor/project_browser.vala:69
 msgid "Import..."
 msgstr "Importa..."
 
@@ -959,41 +1009,28 @@ msgstr "Scegli nome progetto"
 msgid "Location is not valid"
 msgstr "La posizione non è valida"
 
-#: tools/level_editor/panel_new_project.vala:105
-msgid "Project Folder already exists"
-msgstr "La Cartella Progetto esiste già"
-
-#: tools/level_editor/panel_new_project.vala:107
-msgid "Project Folder cannot be created automatically"
-msgstr "La Cartella Progetto non può essere creata automaticamente"
-
-#: tools/level_editor/panel_new_project.vala:112
-#: tools/level_editor/panel_new_project.vala:117
-msgid "Location must be an empty directory"
-msgstr "La posizione deve essere una directory vuota"
-
 #: tools/level_editor/panel_projects_list.vala:47
 msgid "Remove the project from the list."
 msgstr "Rimuovi il progetto dall'elenco."
 
-#: tools/level_editor/panel_projects_list.vala:56
+#: tools/level_editor/panel_projects_list.vala:58
 msgid "Open the project."
 msgstr "Apri il progetto."
 
-#: tools/level_editor/panel_projects_list.vala:109
+#: tools/level_editor/panel_projects_list.vala:97
 msgid "Projects"
 msgstr "Progetti"
 
-#: tools/level_editor/panel_projects_list.vala:111
-#: tools/level_editor/panel_projects_list.vala:112
+#: tools/level_editor/panel_projects_list.vala:99
+#: tools/level_editor/panel_projects_list.vala:100
 msgid "Local"
 msgstr "Locale"
 
-#: tools/level_editor/panel_projects_list.vala:118
+#: tools/level_editor/panel_projects_list.vala:106
 msgid "No projects found"
 msgstr "Nessun progetto trovato"
 
-#: tools/level_editor/panel_projects_list.vala:121
+#: tools/level_editor/panel_projects_list.vala:109
 msgid ""
 "Use the buttons above to create a new project or import an already existing "
 "one."
@@ -1001,15 +1038,15 @@ msgstr ""
 "Usa i pulsanti sopra per creare un nuovo progetto o importarne uno già "
 "esistente."
 
-#: tools/level_editor/panel_projects_list.vala:134
+#: tools/level_editor/panel_projects_list.vala:122
 msgid "Import an existing project."
 msgstr "Importa un progetto esistente."
 
-#: tools/level_editor/panel_projects_list.vala:137
+#: tools/level_editor/panel_projects_list.vala:125
 msgid "Create New"
 msgstr "Crea Nuovo"
 
-#: tools/level_editor/panel_projects_list.vala:138
+#: tools/level_editor/panel_projects_list.vala:126
 msgid "Create a new project."
 msgstr "Crea un nuovo progetto."
 
@@ -1071,10 +1108,10 @@ msgid "Light"
 msgstr "Chiaro"
 
 #: tools/level_editor/preferences_dialog.vala:111
-#: tools/level_editor/project_browser.vala:385
-#: tools/level_editor/project_browser.vala:736
-#: tools/resource/font_resource.vala:263
-#: tools/resource/sprite_resource.vala:371
+#: tools/level_editor/project_browser.vala:396
+#: tools/level_editor/project_browser.vala:765
+#: tools/resource/font_resource.vala:267
+#: tools/resource/sprite_resource.vala:457
 msgid "Size"
 msgstr "Dimensione"
 
@@ -1237,219 +1274,236 @@ msgstr "Sistema"
 msgid "External Tools"
 msgstr "Strumenti Esterni"
 
-#: tools/level_editor/project.vala:799
+#: tools/level_editor/project.vala:354 tools/level_editor/project.vala:362
+msgid "Location must be an empty directory"
+msgstr "La posizione deve essere una directory vuota"
+
+#: tools/level_editor/project.vala:371
+msgid "Project Folder already exists"
+msgstr "La Cartella Progetto esiste già"
+
+#: tools/level_editor/project.vala:373
+msgid "Project Folder cannot be created automatically"
+msgstr "La Cartella Progetto non può essere creata automaticamente"
+
+#: tools/level_editor/project.vala:875
 msgid "Select destination folder..."
 msgstr "Seleziona cartella destinazione..."
 
-#: tools/level_editor/project.vala:804
+#: tools/level_editor/project.vala:880
 msgid "Select"
 msgstr "Seleziona"
 
 #: tools/level_editor/project_browser.vala:30
-#: tools/level_editor/project_browser.vala:147
+#: tools/level_editor/project_browser.vala:153
 msgid "Copy Path"
 msgstr "Copia Percorso"
 
 #: tools/level_editor/project_browser.vala:34
-#: tools/level_editor/project_browser.vala:158
+#: tools/level_editor/project_browser.vala:164
 msgid "Copy Name"
 msgstr "Copia Nome"
 
 #: tools/level_editor/project_browser.vala:38
-#: tools/level_editor/project_browser.vala:141
+#: tools/level_editor/project_browser.vala:147
 #: tools/widgets/console_view.vala:617
 msgid "Open Containing Folder..."
 msgstr "Apri Cartella Contenente..."
 
 #: tools/level_editor/project_browser.vala:43
+#: tools/level_editor/project_browser.vala:168
+msgid "Dependencies..."
+msgstr "Dipendenze..."
+
+#: tools/level_editor/project_browser.vala:49
 msgid "Add to Favorites"
 msgstr "Aggiungi ai Preferiti"
 
-#: tools/level_editor/project_browser.vala:71
+#: tools/level_editor/project_browser.vala:77
 msgid "New Script..."
 msgstr "Nuovo Script..."
 
-#: tools/level_editor/project_browser.vala:75
+#: tools/level_editor/project_browser.vala:81
 msgid "New Script (Unit)..."
 msgstr "Nuovo Script (Unità)..."
 
-#: tools/level_editor/project_browser.vala:79
+#: tools/level_editor/project_browser.vala:85
 msgid "New Unit..."
 msgstr "Nuova Unità..."
 
-#: tools/level_editor/project_browser.vala:83
+#: tools/level_editor/project_browser.vala:89
 msgid "New Material..."
 msgstr "Nuovo Materiale..."
 
-#: tools/level_editor/project_browser.vala:87
+#: tools/level_editor/project_browser.vala:93
 msgid "New Folder..."
 msgstr "Nuova Cartella..."
 
-#: tools/level_editor/project_browser.vala:98
+#: tools/level_editor/project_browser.vala:104
 msgid "Delete Folder"
 msgstr "Elimina Cartella"
 
-#: tools/level_editor/project_browser.vala:108
-#: tools/level_editor/project_browser.vala:153
+#: tools/level_editor/project_browser.vala:114
+#: tools/level_editor/project_browser.vala:159
 msgid "Duplicate..."
 msgstr "Duplica..."
 
-#: tools/level_editor/project_browser.vala:114
+#: tools/level_editor/project_browser.vala:120
 msgid "New State Machine..."
 msgstr "Nuova State Machine..."
 
-#: tools/level_editor/project_browser.vala:127
+#: tools/level_editor/project_browser.vala:133
 msgid "Delete File"
 msgstr "Elimina File"
 
-#: tools/level_editor/project_browser.vala:162
+#: tools/level_editor/project_browser.vala:172
 msgid "Remove from Favorites"
 msgstr "Rimuovi dai Preferiti"
 
-#: tools/level_editor/project_browser.vala:166
+#: tools/level_editor/project_browser.vala:176
 msgid "Reveal"
 msgstr "Rivela"
 
-#: tools/level_editor/project_browser.vala:373
+#: tools/level_editor/project_browser.vala:384
 msgid "Basename"
 msgstr "Nome Base"
 
-#: tools/level_editor/project_browser.vala:379
-#: tools/level_editor/project_browser.vala:734
+#: tools/level_editor/project_browser.vala:390
+#: tools/level_editor/project_browser.vala:763
 msgid "Type"
 msgstr "Tipo"
 
-#: tools/level_editor/project_browser.vala:391
-#: tools/level_editor/project_browser.vala:738
+#: tools/level_editor/project_browser.vala:402
+#: tools/level_editor/project_browser.vala:767
 msgid "Modified"
 msgstr "Modificato"
 
-#: tools/level_editor/project_browser.vala:634
-#: tools/level_editor/project_browser.vala:646
-#: tools/level_editor/project_browser.vala:655
-#: tools/level_editor/project_browser.vala:737
-#: tools/level_editor/project_browser.vala:739
+#: tools/level_editor/project_browser.vala:659
+#: tools/level_editor/project_browser.vala:671
+#: tools/level_editor/project_browser.vala:680
+#: tools/level_editor/project_browser.vala:766
+#: tools/level_editor/project_browser.vala:768
 msgid "n/a"
 msgstr "n/d"
 
-#: tools/level_editor/project_browser.vala:749 tools/widgets/input_file.vala:86
+#: tools/level_editor/project_browser.vala:778 tools/widgets/input_file.vala:86
 msgid "Folder"
 msgstr "Cartella"
 
-#: tools/level_editor/project_browser.vala:770
+#: tools/level_editor/project_browser.vala:799
 msgid "bytes"
 msgstr "byte"
 
-#: tools/level_editor/project_browser.vala:770
+#: tools/level_editor/project_browser.vala:799
 msgid "byte"
 msgstr "byte"
 
-#: tools/level_editor/project_browser.vala:890
+#: tools/level_editor/project_browser.vala:922
 msgid "Size min-Max"
 msgstr "Dimensione min-Max"
 
-#: tools/level_editor/project_browser.vala:892
+#: tools/level_editor/project_browser.vala:924
 msgid "Size Max-min"
 msgstr "Dimensione Max-min"
 
-#: tools/level_editor/project_browser.vala:894
+#: tools/level_editor/project_browser.vala:926
 msgid "Last Modified"
 msgstr "Ultima Modifica"
 
-#: tools/level_editor/project_browser.vala:896
+#: tools/level_editor/project_browser.vala:928
 msgid "First Modified"
 msgstr "Prima Modifica"
 
-#: tools/level_editor/project_browser.vala:1152
-#: tools/level_editor/project_browser.vala:1159
+#: tools/level_editor/project_browser.vala:1193
+#: tools/level_editor/project_browser.vala:1200
 msgid "Tree view."
 msgstr "Vista albero."
 
-#: tools/level_editor/project_browser.vala:1159
+#: tools/level_editor/project_browser.vala:1200
 msgid "Folder view."
 msgstr "Vista cartelle."
 
-#: tools/level_editor/project_browser.vala:1236
+#: tools/level_editor/project_browser.vala:1281
 msgid "Go Back"
 msgstr "Vai Indietro"
 
-#: tools/level_editor/project_browser.vala:1243
+#: tools/level_editor/project_browser.vala:1288
 msgid "Go Forward"
 msgstr "Vai Avanti"
 
-#: tools/level_editor/project_browser.vala:1268
+#: tools/level_editor/project_browser.vala:1313
 #, c-format
 msgid "Project browser: folder not found: %s"
 msgstr "Browser progetto: cartella non trovata: %s"
 
-#: tools/level_editor/project_browser.vala:1294
+#: tools/level_editor/project_browser.vala:1339
 msgid "Show all files"
 msgstr "Mostra tutti i file"
 
-#: tools/level_editor/project_browser.vala:1295
+#: tools/level_editor/project_browser.vala:1340
 msgid "Show all files, not just resource files."
 msgstr "Mostra tutti i file, non solo i file risorsa."
 
-#: tools/level_editor/project_browser.vala:1299
+#: tools/level_editor/project_browser.vala:1344
 msgid "Show files extension"
 msgstr "Mostra estensioni file"
 
-#: tools/level_editor/project_browser.vala:1300
+#: tools/level_editor/project_browser.vala:1345
 msgid "Do not hide files extension."
 msgstr "Non nascondere le estensioni dei file."
 
-#: tools/level_editor/project_browser.vala:1304
+#: tools/level_editor/project_browser.vala:1349
 msgid "Show mapped dirs"
 msgstr "Mostra directory mappate"
 
-#: tools/level_editor/project_browser.vala:1305
+#: tools/level_editor/project_browser.vala:1350
 msgid "Show external mapped directories."
 msgstr "Mostra le directory esterne mappate."
 
-#: tools/level_editor/project_browser.vala:1313
+#: tools/level_editor/project_browser.vala:1358
 msgid "Sort and filter items."
 msgstr "Ordina e filtra gli elementi."
 
-#: tools/level_editor/project_browser.vala:1332
-#: tools/level_editor/project_browser.vala:1359
+#: tools/level_editor/project_browser.vala:1377
+#: tools/level_editor/project_browser.vala:1404
 msgid "List view."
 msgstr "Vista lista."
 
-#: tools/level_editor/project_browser.vala:1359
+#: tools/level_editor/project_browser.vala:1404
 msgid "Icon view."
 msgstr "Vista icone."
 
-#: tools/level_editor/project_browser.vala:1370
+#: tools/level_editor/project_browser.vala:1415
 msgid "Favorites is empty"
 msgstr "Preferiti è vuoto"
 
-#: tools/level_editor/project_browser.vala:2022
+#: tools/level_editor/project_browser.vala:2115
 msgid "Favorites"
 msgstr "Preferiti"
 
-#: tools/level_editor/properties_view.vala:47
+#: tools/level_editor/properties_view.vala:48
 msgid "Open Prefab"
 msgstr "Apri Prefab"
 
-#: tools/level_editor/properties_view.vala:66
+#: tools/level_editor/properties_view.vala:67
 msgid "Add Component"
 msgstr "Aggiungi Componente"
 
-#: tools/level_editor/properties_view.vala:73
 #: tools/level_editor/properties_view.vala:74
+#: tools/level_editor/properties_view.vala:75
 msgid "Prefab"
 msgstr "Prefab"
 
-#: tools/level_editor/properties_view.vala:75
+#: tools/level_editor/properties_view.vala:76
 msgid "Components"
 msgstr "Componenti"
 
-#: tools/level_editor/properties_view.vala:153
+#: tools/level_editor/properties_view.vala:154
 #: tools/widgets/object_properties.vala:49
 msgid "Select an object to start editing"
 msgstr "Seleziona un oggetto per iniziare la modifica"
 
-#: tools/level_editor/properties_view.vala:154
+#: tools/level_editor/properties_view.vala:155
 #: tools/widgets/object_properties.vala:50
 msgid "Unknown object type"
 msgstr "Tipo oggetto sconosciuto"
@@ -1490,7 +1544,7 @@ msgid "Texture"
 msgstr "Texture"
 
 #: tools/level_editor/texture_settings_dialog.vala:93
-#: tools/resource/font_resource.vala:257
+#: tools/resource/font_resource.vala:261
 msgid "Source"
 msgstr "Sorgente"
 
@@ -1558,309 +1612,309 @@ msgstr "Seleziona una o più piattaforme per modificarne le impostazioni"
 msgid "Texture Settings"
 msgstr "Impostazioni Texture"
 
-#: tools/resource/font_resource.vala:257
+#: tools/resource/font_resource.vala:261
 msgid "Source font path."
 msgstr "Percorso del font sorgente."
 
-#: tools/resource/font_resource.vala:258 tools/widgets/input_file.vala:86
+#: tools/resource/font_resource.vala:262 tools/widgets/input_file.vala:86
 msgid "File"
 msgstr "File"
 
-#: tools/resource/font_resource.vala:261
+#: tools/resource/font_resource.vala:265
 msgid "Name of the imported resource."
 msgstr "Nome della risorsa importata."
 
-#: tools/resource/font_resource.vala:262
+#: tools/resource/font_resource.vala:266
 msgid "Atlas size"
 msgstr "Dimensione atlas"
 
-#: tools/resource/font_resource.vala:262
+#: tools/resource/font_resource.vala:266
 msgid "Resolution of the generated texture."
 msgstr "Risoluzione della texture generata."
 
-#: tools/resource/font_resource.vala:263
+#: tools/resource/font_resource.vala:267
 msgid "Size of characters."
 msgstr "Dimensione dei caratteri."
 
-#: tools/resource/font_resource.vala:264
+#: tools/resource/font_resource.vala:268
 msgid "Charset"
 msgstr "Set di Caratteri"
 
-#: tools/resource/font_resource.vala:264
+#: tools/resource/font_resource.vala:268
 msgid "Generate characters within this set."
 msgstr "Genera i caratteri all'interno di questo set."
 
-#: tools/resource/font_resource.vala:265
+#: tools/resource/font_resource.vala:269
 msgid "Range min"
 msgstr "Intervallo min"
 
-#: tools/resource/font_resource.vala:265
+#: tools/resource/font_resource.vala:269
 msgid "First character to generate (included)."
 msgstr "Primo carattere da generare (incluso)."
 
-#: tools/resource/font_resource.vala:266
+#: tools/resource/font_resource.vala:270
 msgid "Range max"
 msgstr "Intervallo max"
 
-#: tools/resource/font_resource.vala:266
+#: tools/resource/font_resource.vala:270
 msgid "Last character to generate (included)."
 msgstr "Ultimo carattere da generare (incluso)."
 
-#: tools/resource/font_resource.vala:267
+#: tools/resource/font_resource.vala:271
 msgid "Font"
 msgstr "Font"
 
-#: tools/resource/font_resource.vala:287
-#: tools/resource/mesh_resource_fbx.vala:153
-#: tools/resource/mesh_resource_fbx.vala:354
-#: tools/resource/mesh_resource_obj.vala:211
-#: tools/resource/mesh_resource_obj.vala:329
-#: tools/resource/sprite_resource.vala:567
+#: tools/resource/font_resource.vala:291
+#: tools/resource/mesh_resource_fbx.vala:293
+#: tools/resource/mesh_resource_fbx.vala:337
+#: tools/resource/mesh_resource_obj.vala:302
+#: tools/resource/mesh_resource_obj.vala:325
+#: tools/resource/sprite_resource.vala:658
 msgid "Import"
 msgstr "Importa"
 
-#: tools/resource/font_resource.vala:292
+#: tools/resource/font_resource.vala:296
 msgid "Import Font..."
 msgstr "Importa Font..."
 
-#: tools/resource/mesh_resource_fbx.vala:153
-#: tools/resource/mesh_resource_obj.vala:211
+#: tools/resource/mesh_resource_fbx.vala:293
+#: tools/resource/mesh_resource_obj.vala:302
 msgid "Calculate"
 msgstr "Calcola"
 
-#: tools/resource/mesh_resource_fbx.vala:328
+#: tools/resource/mesh_resource_fbx.vala:311
 msgid "Import Lights"
 msgstr "Importa Luci"
 
-#: tools/resource/mesh_resource_fbx.vala:328
+#: tools/resource/mesh_resource_fbx.vala:311
 msgid "Import all light nodes."
 msgstr "Importa tutti i nodi luce."
 
-#: tools/resource/mesh_resource_fbx.vala:329
+#: tools/resource/mesh_resource_fbx.vala:312
 msgid "Import Cameras"
 msgstr "Importa Camere"
 
-#: tools/resource/mesh_resource_fbx.vala:329
+#: tools/resource/mesh_resource_fbx.vala:312
 msgid "Import all camera nodes."
 msgstr "Importa tutti i nodi camera."
 
-#: tools/resource/mesh_resource_fbx.vala:330
-#: tools/resource/mesh_resource_obj.vala:313
+#: tools/resource/mesh_resource_fbx.vala:313
+#: tools/resource/mesh_resource_obj.vala:309
 msgid "Import Textures"
 msgstr "Importa Texture"
 
-#: tools/resource/mesh_resource_fbx.vala:330
-#: tools/resource/mesh_resource_obj.vala:313
+#: tools/resource/mesh_resource_fbx.vala:313
+#: tools/resource/mesh_resource_obj.vala:309
 msgid "Import all textures."
 msgstr "Importa tutte le texture."
 
-#: tools/resource/mesh_resource_fbx.vala:331
-#: tools/resource/mesh_resource_obj.vala:314
+#: tools/resource/mesh_resource_fbx.vala:314
+#: tools/resource/mesh_resource_obj.vala:310
 msgid "Create Textures Folder"
 msgstr "Crea Cartella Texture"
 
-#: tools/resource/mesh_resource_fbx.vala:331
-#: tools/resource/mesh_resource_obj.vala:314
+#: tools/resource/mesh_resource_fbx.vala:314
+#: tools/resource/mesh_resource_obj.vala:310
 msgid "Put imported textures in a sub-folder."
 msgstr "Metti le texture importate in una sottocartella."
 
-#: tools/resource/mesh_resource_fbx.vala:332
-#: tools/resource/mesh_resource_obj.vala:315
+#: tools/resource/mesh_resource_fbx.vala:315
+#: tools/resource/mesh_resource_obj.vala:311
 msgid "Import Materials"
 msgstr "Importa Materiali"
 
-#: tools/resource/mesh_resource_fbx.vala:332
-#: tools/resource/mesh_resource_obj.vala:315
+#: tools/resource/mesh_resource_fbx.vala:315
+#: tools/resource/mesh_resource_obj.vala:311
 msgid "Import all materials."
 msgstr "Importa tutti i materiali."
 
-#: tools/resource/mesh_resource_fbx.vala:333
-#: tools/resource/mesh_resource_obj.vala:316
+#: tools/resource/mesh_resource_fbx.vala:316
+#: tools/resource/mesh_resource_obj.vala:312
 msgid "Create Materials Folder"
 msgstr "Crea Cartella Materiali"
 
-#: tools/resource/mesh_resource_fbx.vala:333
-#: tools/resource/mesh_resource_obj.vala:316
+#: tools/resource/mesh_resource_fbx.vala:316
+#: tools/resource/mesh_resource_obj.vala:312
 msgid "Put imported materials in a sub-folder."
 msgstr "Metti i materiali importati in una sottocartella."
 
-#: tools/resource/mesh_resource_fbx.vala:334
-#: tools/resource/mesh_resource_obj.vala:317
+#: tools/resource/mesh_resource_fbx.vala:317
+#: tools/resource/mesh_resource_obj.vala:313
 msgid "Create Colliders"
 msgstr "Crea Collider"
 
-#: tools/resource/mesh_resource_fbx.vala:334
-#: tools/resource/mesh_resource_obj.vala:317
+#: tools/resource/mesh_resource_fbx.vala:317
+#: tools/resource/mesh_resource_obj.vala:313
 msgid "Create colliders and actors for each imported unit."
 msgstr "Crea collider e attori per ogni unità importata."
 
-#: tools/resource/mesh_resource_fbx.vala:335
-#: tools/resource/mesh_resource_obj.vala:318
+#: tools/resource/mesh_resource_fbx.vala:318
+#: tools/resource/mesh_resource_obj.vala:314
 msgid "Import LODs"
 msgstr "Importa LOD"
 
-#: tools/resource/mesh_resource_fbx.vala:335
-#: tools/resource/mesh_resource_obj.vala:318
+#: tools/resource/mesh_resource_fbx.vala:318
+#: tools/resource/mesh_resource_obj.vala:314
 msgid "Create LOD Group component in the root unit if any LOD exists."
 msgstr "Crea il componente Gruppo LOD nell'unità radice se esiste un LOD."
 
-#: tools/resource/mesh_resource_fbx.vala:336
-#: tools/resource/mesh_resource_obj.vala:319
+#: tools/resource/mesh_resource_fbx.vala:319
+#: tools/resource/mesh_resource_obj.vala:315
 msgid "Tangents"
 msgstr "Tangenti"
 
-#: tools/resource/mesh_resource_fbx.vala:336
-#: tools/resource/mesh_resource_obj.vala:319
+#: tools/resource/mesh_resource_fbx.vala:319
+#: tools/resource/mesh_resource_obj.vala:315
 msgid "Import tangents from source or calculate them with MikkTSpace."
 msgstr "Importa le tangenti dalla sorgente o calcolale con MikkTSpace."
 
-#: tools/resource/mesh_resource_fbx.vala:337
-#: tools/resource/mesh_resource_obj.vala:320
+#: tools/resource/mesh_resource_fbx.vala:320
+#: tools/resource/mesh_resource_obj.vala:316
 msgid "Units"
 msgstr "Unità"
 
-#: tools/resource/mesh_resource_fbx.vala:337
+#: tools/resource/mesh_resource_fbx.vala:320
 msgid "Import nodes as units, materials and textures."
 msgstr "Importa i nodi come unità, materiali e texture."
 
-#: tools/resource/mesh_resource_fbx.vala:341
+#: tools/resource/mesh_resource_fbx.vala:324
 msgid "New Skeleton"
 msgstr "Nuovo Scheletro"
 
-#: tools/resource/mesh_resource_fbx.vala:341
+#: tools/resource/mesh_resource_fbx.vala:324
 msgid "Create a new skeleton."
 msgstr "Crea un nuovo scheletro."
 
-#: tools/resource/mesh_resource_fbx.vala:342
+#: tools/resource/mesh_resource_fbx.vala:325
 msgid "Target Skeleton"
 msgstr "Scheletro Target"
 
-#: tools/resource/mesh_resource_fbx.vala:342
+#: tools/resource/mesh_resource_fbx.vala:325
 msgid "Skeleton to use."
 msgstr "Scheletro da usare."
 
-#: tools/resource/mesh_resource_fbx.vala:343
+#: tools/resource/mesh_resource_fbx.vala:326
 msgid "Import Animations"
 msgstr "Importa Animazioni"
 
-#: tools/resource/mesh_resource_fbx.vala:343
+#: tools/resource/mesh_resource_fbx.vala:326
 msgid "Import all animation clips."
 msgstr "Importa tutte le clip di animazione."
 
-#: tools/resource/mesh_resource_fbx.vala:344
+#: tools/resource/mesh_resource_fbx.vala:327
 msgid "Create Animations Folder"
 msgstr "Crea Cartella Animazioni"
 
-#: tools/resource/mesh_resource_fbx.vala:344
+#: tools/resource/mesh_resource_fbx.vala:327
 msgid "Put imported animations in a sub-folder."
 msgstr "Metti le animazioni importate in una sottocartella."
 
-#: tools/resource/mesh_resource_fbx.vala:345 tools/resource/types.vala:1948
+#: tools/resource/mesh_resource_fbx.vala:328 tools/resource/types.vala:1964
 msgid "Animation"
 msgstr "Animazione"
 
-#: tools/resource/mesh_resource_fbx.vala:345
+#: tools/resource/mesh_resource_fbx.vala:328
 msgid "Import animations and skeleton."
 msgstr "Importa animazioni e scheletro."
 
-#: tools/resource/mesh_resource_fbx.vala:359
+#: tools/resource/mesh_resource_fbx.vala:342
 msgid "Import FBX..."
 msgstr "Importa FBX..."
 
-#: tools/resource/mesh_resource_obj.vala:334
+#: tools/resource/mesh_resource_obj.vala:330
 msgid "Import OBJ..."
 msgstr "Importa OBJ..."
 
-#: tools/resource/sprite_resource.vala:340
+#: tools/resource/sprite_resource.vala:431
 msgid "Name of the imported unit."
 msgstr "Nome dell'unità importata."
 
-#: tools/resource/sprite_resource.vala:341
+#: tools/resource/sprite_resource.vala:432
 msgid "Unit"
 msgstr "Unità"
 
-#: tools/resource/sprite_resource.vala:344
+#: tools/resource/sprite_resource.vala:435
 msgid "Resolution"
 msgstr "Risoluzione"
 
-#: tools/resource/sprite_resource.vala:344
+#: tools/resource/sprite_resource.vala:435
 msgid "Resolution of the source image."
 msgstr "Risoluzione dell'immagine sorgente."
 
-#: tools/resource/sprite_resource.vala:345
+#: tools/resource/sprite_resource.vala:436
 msgid "Cells"
 msgstr "Celle"
 
-#: tools/resource/sprite_resource.vala:345
+#: tools/resource/sprite_resource.vala:436
 msgid "Split the image into X columns and Y rows."
 msgstr "Dividi l'immagine in X colonne e Y righe."
 
-#: tools/resource/sprite_resource.vala:346
+#: tools/resource/sprite_resource.vala:437
 msgid "Auto Size"
 msgstr "Dimensione Automatica"
 
-#: tools/resource/sprite_resource.vala:346
+#: tools/resource/sprite_resource.vala:437
 msgid "Compute the cell size automatically."
 msgstr "Calcola automaticamente la dimensione della cella."
 
-#: tools/resource/sprite_resource.vala:347
+#: tools/resource/sprite_resource.vala:438
 msgid "Cell"
 msgstr "Cella"
 
-#: tools/resource/sprite_resource.vala:347
+#: tools/resource/sprite_resource.vala:438
 msgid "Size of each cell."
 msgstr "Dimensione di ogni cella."
 
-#: tools/resource/sprite_resource.vala:348
+#: tools/resource/sprite_resource.vala:439
 msgid "Offset"
 msgstr "Offset"
 
-#: tools/resource/sprite_resource.vala:348
+#: tools/resource/sprite_resource.vala:439
 msgid "Starting offset of the cells."
 msgstr "Offset iniziale delle celle."
 
-#: tools/resource/sprite_resource.vala:349
+#: tools/resource/sprite_resource.vala:440
 msgid "Spacing"
 msgstr "Spaziatura"
 
-#: tools/resource/sprite_resource.vala:349
+#: tools/resource/sprite_resource.vala:440
 msgid "Spacing between the cells."
 msgstr "Spaziatura tra le celle."
 
-#: tools/resource/sprite_resource.vala:350
+#: tools/resource/sprite_resource.vala:441
 msgid "Pivot"
 msgstr "Pivot"
 
-#: tools/resource/sprite_resource.vala:350
+#: tools/resource/sprite_resource.vala:441
 msgid "Origin of the sprite."
 msgstr "Origine dello sprite."
 
-#: tools/resource/sprite_resource.vala:351
+#: tools/resource/sprite_resource.vala:442
 msgid "Collision"
 msgstr "Collisione"
 
-#: tools/resource/sprite_resource.vala:351
+#: tools/resource/sprite_resource.vala:442
 msgid "Enable collision detection."
 msgstr "Abilita il rilevamento collisioni."
 
-#: tools/resource/sprite_resource.vala:352
+#: tools/resource/sprite_resource.vala:443
 msgid "Image"
 msgstr "Immagine"
 
-#: tools/resource/sprite_resource.vala:356
+#: tools/resource/sprite_resource.vala:447
 msgid "Layer"
 msgstr "Layer"
 
-#: tools/resource/sprite_resource.vala:356 tools/resource/types.vala:279
+#: tools/resource/sprite_resource.vala:447 tools/resource/types.vala:283
 msgid "Sorting layer. Higher values makes the sprite appear in front."
 msgstr ""
 "Layer di ordinamento. Valori più alti fanno apparire lo sprite davanti."
 
-#: tools/resource/sprite_resource.vala:357
+#: tools/resource/sprite_resource.vala:448
 msgid "Depth"
 msgstr "Profondità"
 
-#: tools/resource/sprite_resource.vala:357 tools/resource/types.vala:287
+#: tools/resource/sprite_resource.vala:448 tools/resource/types.vala:291
 msgid ""
 "Higher values make the sprite apper in front of other sprites in the same "
 "layer."
@@ -1868,138 +1922,138 @@ msgstr ""
 "Valori più alti fanno apparire lo sprite davanti agli altri sprite nello "
 "stesso layer."
 
-#: tools/resource/sprite_resource.vala:358
+#: tools/resource/sprite_resource.vala:449
 msgid "Sprite Renderer"
 msgstr "Renderer Sprite"
 
-#: tools/resource/sprite_resource.vala:370
-#: tools/resource/sprite_resource.vala:375
-#: tools/resource/sprite_resource.vala:380
+#: tools/resource/sprite_resource.vala:456
+#: tools/resource/sprite_resource.vala:461
+#: tools/resource/sprite_resource.vala:466
 msgid "Origin"
 msgstr "Origine"
 
-#: tools/resource/sprite_resource.vala:372
+#: tools/resource/sprite_resource.vala:458
 msgid "Square"
 msgstr "Quadrato"
 
-#: tools/resource/sprite_resource.vala:376
-#: tools/resource/sprite_resource.vala:381
+#: tools/resource/sprite_resource.vala:462
+#: tools/resource/sprite_resource.vala:467
 msgid "Radius"
 msgstr "Raggio"
 
-#: tools/resource/sprite_resource.vala:377
+#: tools/resource/sprite_resource.vala:463
 msgid "Circle"
 msgstr "Cerchio"
 
-#: tools/resource/sprite_resource.vala:382
+#: tools/resource/sprite_resource.vala:468
 msgid "Height"
 msgstr "Altezza"
 
-#: tools/resource/sprite_resource.vala:383
+#: tools/resource/sprite_resource.vala:469
 msgid "Capsule"
 msgstr "Capsula"
 
-#: tools/resource/sprite_resource.vala:390
+#: tools/resource/sprite_resource.vala:476
 msgid "Shape Type"
 msgstr "Tipo Forma"
 
-#: tools/resource/sprite_resource.vala:390
+#: tools/resource/sprite_resource.vala:476
 msgid "Shape to use as collider."
 msgstr "Forma da usare come collider."
 
-#: tools/resource/sprite_resource.vala:391
+#: tools/resource/sprite_resource.vala:477
 msgid "Mirror Cell"
 msgstr "Rispecchia Cella"
 
-#: tools/resource/sprite_resource.vala:391
+#: tools/resource/sprite_resource.vala:477
 msgid "Compute the shape size based on the cell size."
 msgstr "Calcola la dimensione della forma in base alla dimensione della cella."
 
-#: tools/resource/sprite_resource.vala:392
+#: tools/resource/sprite_resource.vala:478
 msgid "Shape Data"
 msgstr "Dati Forma"
 
-#: tools/resource/sprite_resource.vala:392
+#: tools/resource/sprite_resource.vala:478
 msgid "Set the shape size manually."
 msgstr "Imposta manualmente la dimensione della forma."
 
-#: tools/resource/sprite_resource.vala:393
+#: tools/resource/sprite_resource.vala:479
 msgid "Collider"
 msgstr "Collider"
 
-#: tools/resource/sprite_resource.vala:404
+#: tools/resource/sprite_resource.vala:490
 msgid "Class"
 msgstr "Classe"
 
-#: tools/resource/sprite_resource.vala:404 tools/resource/types.vala:630
+#: tools/resource/sprite_resource.vala:490 tools/resource/types.vala:634
 msgid "Actor class."
 msgstr "Classe attore."
 
-#: tools/resource/sprite_resource.vala:405
+#: tools/resource/sprite_resource.vala:491
 msgid "Mass"
 msgstr "Massa"
 
-#: tools/resource/sprite_resource.vala:405 tools/resource/types.vala:658
+#: tools/resource/sprite_resource.vala:491 tools/resource/types.vala:662
 msgid "Actor physical mass."
 msgstr "Massa fisica dell'attore."
 
-#: tools/resource/sprite_resource.vala:406
+#: tools/resource/sprite_resource.vala:492
 msgid "Lock Rotation"
 msgstr "Blocca Rotazione"
 
-#: tools/resource/sprite_resource.vala:406 tools/resource/types.vala:694
+#: tools/resource/sprite_resource.vala:492 tools/resource/types.vala:698
 msgid "Prevent the actor from rotating around the Z axis."
 msgstr "Impedisci all'attore di ruotare attorno all'asse Z."
 
-#: tools/resource/sprite_resource.vala:407
+#: tools/resource/sprite_resource.vala:493
 msgid "Actor"
 msgstr "Attore"
 
-#: tools/resource/sprite_resource.vala:551
+#: tools/resource/sprite_resource.vala:642
 msgid "Preview"
 msgstr "Anteprima"
 
-#: tools/resource/sprite_resource.vala:552
+#: tools/resource/sprite_resource.vala:643
 msgid "Slices"
 msgstr "Slice"
 
-#: tools/resource/sprite_resource.vala:572
+#: tools/resource/sprite_resource.vala:663
 msgid "Import Sprite..."
 msgstr "Importa Sprite..."
 
-#: tools/resource/types.vala:157
+#: tools/resource/types.vala:161
 msgid "Local Position."
 msgstr "Posizione locale."
 
-#: tools/resource/types.vala:163
+#: tools/resource/types.vala:167
 msgid "Local Rotation."
 msgstr "Rotazione locale."
 
-#: tools/resource/types.vala:171
+#: tools/resource/types.vala:175
 msgid "Local Scale."
 msgstr "Scala locale."
 
-#: tools/resource/types.vala:200
+#: tools/resource/types.vala:204
 msgid "Scene"
 msgstr "Scena"
 
-#: tools/resource/types.vala:203 tools/resource/types.vala:537
+#: tools/resource/types.vala:207 tools/resource/types.vala:541
 msgid "Mesh resource where to read geometries from."
 msgstr "Risorsa mesh da cui leggere le geometrie."
 
-#: tools/resource/types.vala:209 tools/resource/types.vala:543
+#: tools/resource/types.vala:213 tools/resource/types.vala:547
 msgid "Node"
 msgstr "Nodo"
 
-#: tools/resource/types.vala:214
+#: tools/resource/types.vala:218
 msgid "Geometry to render."
 msgstr "Geometria da renderizzare."
 
-#: tools/resource/types.vala:222
+#: tools/resource/types.vala:226
 msgid "Material used to render to the geometry."
 msgstr "Materiale usato per renderizzare la geometria."
 
-#: tools/resource/types.vala:229
+#: tools/resource/types.vala:233
 msgid ""
 "Enable geometry rendering. If disabled it skips any rendering, for example "
 "shadow casting."
@@ -2007,70 +2061,70 @@ msgstr ""
 "Abilita il rendering della geometria. Se disabilitato salta ogni rendering, "
 "per esempio la proiezione ombre."
 
-#: tools/resource/types.vala:236
+#: tools/resource/types.vala:240
 msgid "Enable geometry shadow rendering."
 msgstr "Abilita il rendering delle ombre della geometria."
 
-#: tools/resource/types.vala:260
+#: tools/resource/types.vala:264
 msgid "Sprite"
 msgstr "Sprite"
 
-#: tools/resource/types.vala:263
+#: tools/resource/types.vala:267
 msgid "Sprite resource containing frames."
 msgstr "Risorsa sprite contenente i frame."
 
-#: tools/resource/types.vala:271
+#: tools/resource/types.vala:275
 msgid "Material used to render the sprite."
 msgstr "Materiale usato per renderizzare lo sprite."
 
-#: tools/resource/types.vala:294
+#: tools/resource/types.vala:298
 msgid "Enable sprite rendering."
 msgstr "Abilita il rendering dello sprite."
 
-#: tools/resource/types.vala:300
+#: tools/resource/types.vala:304
 msgid "Flips the sprite on the X axis."
 msgstr "Ribalta lo sprite sull'asse X."
 
-#: tools/resource/types.vala:306
+#: tools/resource/types.vala:310
 msgid "Flips the sprite on the Y axis."
 msgstr "Ribalta lo sprite sull'asse Y."
 
-#: tools/resource/types.vala:333
+#: tools/resource/types.vala:337
 msgid "Light type."
 msgstr "Tipo luce."
 
-#: tools/resource/types.vala:341
+#: tools/resource/types.vala:345
 msgid "Objects farther than this value won't be lit."
 msgstr "Gli oggetti più lontani di questo valore non saranno illuminati."
 
-#: tools/resource/types.vala:349
+#: tools/resource/types.vala:353
 msgid "Light intensity."
 msgstr "Intensità della luce."
 
-#: tools/resource/types.vala:359
+#: tools/resource/types.vala:363
 msgid "Angle of the light's outer cone (Spot only)."
 msgstr "Angolo del cono esterno della luce (solo Spot)."
 
-#: tools/resource/types.vala:369
+#: tools/resource/types.vala:373
 msgid "Light color."
 msgstr "Colore della luce."
 
-#: tools/resource/types.vala:378
+#: tools/resource/types.vala:382
 msgid ""
 "Too low values increase shadow acne. Too high values cause peter-panning."
 msgstr ""
 "Valori troppo bassi aumentano lo shadow acne. Valori troppo alti causano "
 "peter-panning."
 
-#: tools/resource/types.vala:385
+#: tools/resource/types.vala:389
 msgid "Enable shadow casting."
 msgstr "Abilita la proiezione delle ombre."
 
-#: tools/resource/types.vala:411
+#: tools/resource/types.vala:415
 msgid "Mesh to render at this LOD level."
 msgstr "Mesh da renderizzare a questo livello LOD."
 
-#: tools/resource/types.vala:420
+#: tools/resource/types.vala:424
 msgid ""
 "Activate this LOD level when the group height covers this screen percentage "
 "or less."
@@ -2078,201 +2132,201 @@ msgstr ""
 "Attiva questo livello LOD quando l'altezza del gruppo copre questa "
 "percentuale di schermo o meno."
 
-#: tools/resource/types.vala:436
+#: tools/resource/types.vala:440
 msgid "Select the LOD level to render. Use -1 for automatic selection."
 msgstr ""
 "Seleziona il livello LOD da renderizzare. Usa -1 per la selezione automatica."
 
-#: tools/resource/types.vala:477
+#: tools/resource/types.vala:481
 msgid "Camera projection type."
 msgstr "Tipo di proiezione camera."
 
-#: tools/resource/types.vala:483
+#: tools/resource/types.vala:487
 msgid "FOV"
 msgstr "FOV"
 
-#: tools/resource/types.vala:488
+#: tools/resource/types.vala:492
 msgid "Vertical Field of View."
 msgstr "Campo visivo verticale."
 
-#: tools/resource/types.vala:495
+#: tools/resource/types.vala:499
 msgid "Objects closer than this value will not be rendered."
 msgstr "Gli oggetti più vicini di questo valore non saranno renderizzati."
 
-#: tools/resource/types.vala:502
+#: tools/resource/types.vala:506
 msgid "Objects farther than this value will not be rendered."
 msgstr "Gli oggetti più lontani di questo valore non saranno renderizzati."
 
-#: tools/resource/types.vala:529
+#: tools/resource/types.vala:533
 msgid "Collider type. Inline let you specify the geometry manually."
 msgstr ""
 "Tipo collider. Inline consente di specificare manualmente la geometria."
 
-#: tools/resource/types.vala:548
+#: tools/resource/types.vala:552
 msgid "Geometry to use as collider (Mesh only)."
 msgstr "Geometria da usare come collider (solo Mesh)."
 
-#: tools/resource/types.vala:557
+#: tools/resource/types.vala:561
 msgid "Shape to use as collider (Inline only)."
 msgstr "Forma da usare come collider (solo Inline)."
 
-#: tools/resource/types.vala:563
+#: tools/resource/types.vala:567
 msgid "Shape's local position."
 msgstr "Posizione locale della forma."
 
-#: tools/resource/types.vala:569
+#: tools/resource/types.vala:573
 msgid "Shape's local rotation."
 msgstr "Rotazione locale della forma."
 
-#: tools/resource/types.vala:577
+#: tools/resource/types.vala:581
 msgid "Box radius."
 msgstr "Raggio box."
 
-#: tools/resource/types.vala:585
+#: tools/resource/types.vala:589
 msgid "Sphere or Capsule radius."
 msgstr "Raggio sfera o capsula."
 
-#: tools/resource/types.vala:593
+#: tools/resource/types.vala:597
 msgid "Capsule height."
 msgstr "Altezza capsula."
 
-#: tools/resource/types.vala:640
+#: tools/resource/types.vala:644
 msgid "Actor collision filter."
 msgstr "Filtro collisione attore."
 
-#: tools/resource/types.vala:650
+#: tools/resource/types.vala:654
 msgid "Actor physics material."
 msgstr "Materiale fisico attore."
 
-#: tools/resource/types.vala:664
+#: tools/resource/types.vala:668
 msgid "Prevent the actor from moving along the X axis."
 msgstr "Impedisci all'attore di muoversi lungo l'asse X."
 
-#: tools/resource/types.vala:670
+#: tools/resource/types.vala:674
 msgid "Prevent the actor from moving along the Y axis."
 msgstr "Impedisci all'attore di muoversi lungo l'asse Y."
 
-#: tools/resource/types.vala:676
+#: tools/resource/types.vala:680
 msgid "Prevent the actor from moving along the Z axis."
 msgstr "Impedisci all'attore di muoversi lungo l'asse Z."
 
-#: tools/resource/types.vala:682
+#: tools/resource/types.vala:686
 msgid "Prevent the actor from rotating around the X axis."
 msgstr "Impedisci all'attore di ruotare attorno all'asse X."
 
-#: tools/resource/types.vala:688
+#: tools/resource/types.vala:692
 msgid "Prevent the actor from rotating around the Y axis."
 msgstr "Impedisci all'attore di ruotare attorno all'asse Y."
 
-#: tools/resource/types.vala:718
+#: tools/resource/types.vala:722
 msgid "Script"
 msgstr "Script"
 
-#: tools/resource/types.vala:721
+#: tools/resource/types.vala:725
 msgid "Script."
 msgstr "Script."
 
-#: tools/resource/types.vala:744
+#: tools/resource/types.vala:748
 msgid "State Machine"
 msgstr "State Machine"
 
-#: tools/resource/types.vala:747
+#: tools/resource/types.vala:751
 msgid "State Machine."
 msgstr "State Machine."
 
-#: tools/resource/types.vala:780
+#: tools/resource/types.vala:784
 msgid "Local position."
 msgstr "Posizione locale."
 
-#: tools/resource/types.vala:786
+#: tools/resource/types.vala:790
 msgid "Local rotation."
 msgstr "Rotazione locale."
 
-#: tools/resource/types.vala:794
+#: tools/resource/types.vala:798
 msgid "Sound resource to play."
 msgstr "Risorsa audio da riprodurre."
 
-#: tools/resource/types.vala:802
+#: tools/resource/types.vala:806
 msgid "Listeners farther than this value will not hear the sound."
 msgstr "Gli ascoltatori più lontani di questo valore non sentiranno il suono."
 
-#: tools/resource/types.vala:811
+#: tools/resource/types.vala:815
 msgid "Sound volume."
 msgstr "Volume audio."
 
-#: tools/resource/types.vala:817
+#: tools/resource/types.vala:821
 msgid "Restart playback at the end."
 msgstr "Riavvia la riproduzione alla fine."
 
-#: tools/resource/types.vala:824
+#: tools/resource/types.vala:828
 msgid "Mixing group this sound belongs to."
 msgstr "Gruppo di mixaggio a cui appartiene questo suono."
 
-#: tools/resource/types.vala:832 tools/resource/types.vala:1861
+#: tools/resource/types.vala:836 tools/resource/types.vala:1865
 msgid "Instance name inside the level."
 msgstr "Nome istanza dentro il livello."
 
-#: tools/resource/types.vala:881
+#: tools/resource/types.vala:885
 msgid "Speed at which the animation will be played."
 msgstr "Velocità a cui verrà riprodotta l'animazione."
 
-#: tools/resource/types.vala:945
+#: tools/resource/types.vala:949
 msgid "Fog color."
 msgstr "Colore nebbia."
 
-#: tools/resource/types.vala:953
+#: tools/resource/types.vala:957
 msgid "Fog density."
 msgstr "Densità nebbia."
 
-#: tools/resource/types.vala:960
+#: tools/resource/types.vala:964
 msgid "Distance from the camera where the fog starts."
 msgstr "Distanza dalla camera in cui inizia la nebbia."
 
-#: tools/resource/types.vala:968
+#: tools/resource/types.vala:972
 msgid "Distance from the camera where the fog ends."
 msgstr "Distanza dalla camera in cui finisce la nebbia."
 
-#: tools/resource/types.vala:976
+#: tools/resource/types.vala:980
 msgid "Blend sun and fog colors."
 msgstr "Mescola i colori di sole e nebbia."
 
-#: tools/resource/types.vala:982
+#: tools/resource/types.vala:986
 msgid "Enable fog effect."
 msgstr "Abilita l'effetto nebbia."
 
-#: tools/resource/types.vala:1016
+#: tools/resource/types.vala:1020
 msgid "Mover capsule height."
 msgstr "Altezza capsula mover."
 
-#: tools/resource/types.vala:1024
+#: tools/resource/types.vala:1028
 msgid "Mover capsule radius."
 msgstr "Raggio capsula mover."
 
-#: tools/resource/types.vala:1034
+#: tools/resource/types.vala:1038
 msgid "Mover won't climb slopes steeper than this angle."
 msgstr "Il mover non salirà pendenze più ripide di questo angolo."
 
-#: tools/resource/types.vala:1042
+#: tools/resource/types.vala:1046
 msgid "Mover step height."
 msgstr "Altezza passo mover."
 
-#: tools/resource/types.vala:1052
+#: tools/resource/types.vala:1056
 msgid "Mover collision filter."
 msgstr "Filtro collisione mover."
 
-#: tools/resource/types.vala:1058
+#: tools/resource/types.vala:1062
 msgid "Capsule center relative to the local position."
 msgstr "Centro capsula relativo alla posizione locale."
 
-#: tools/resource/types.vala:1083 tools/resource/types.vala:1119
-#: tools/resource/types.vala:1167 tools/resource/types.vala:1422
-#: tools/resource/types.vala:1548 tools/resource/types.vala:1665
+#: tools/resource/types.vala:1087 tools/resource/types.vala:1123
+#: tools/resource/types.vala:1171 tools/resource/types.vala:1426
+#: tools/resource/types.vala:1552 tools/resource/types.vala:1669
 msgid "Other Unit"
 msgstr "Altra Unità"
 
-#: tools/resource/types.vala:1085 tools/resource/types.vala:1121
-#: tools/resource/types.vala:1169 tools/resource/types.vala:1424
-#: tools/resource/types.vala:1550 tools/resource/types.vala:1667
+#: tools/resource/types.vala:1089 tools/resource/types.vala:1125
+#: tools/resource/types.vala:1173 tools/resource/types.vala:1428
+#: tools/resource/types.vala:1554 tools/resource/types.vala:1671
 msgid ""
 "Other unit to attach the joint to. Leave empty to attach the joint to the "
 "world."
@@ -2280,15 +2334,15 @@ msgstr ""
 "Altra unità a cui collegare il joint. Lascia vuoto per collegare il joint al "
 "mondo."
 
-#: tools/resource/types.vala:1094 tools/resource/types.vala:1142
-#: tools/resource/types.vala:1397 tools/resource/types.vala:1523
-#: tools/resource/types.vala:1592 tools/resource/types.vala:1702
+#: tools/resource/types.vala:1098 tools/resource/types.vala:1146
+#: tools/resource/types.vala:1401 tools/resource/types.vala:1527
+#: tools/resource/types.vala:1596 tools/resource/types.vala:1706
 msgid "Linear break threshold. Use Infinity to disable breaking."
 msgstr "Soglia di rottura lineare. Usa Infinity per disabilitare la rottura."
 
-#: tools/resource/types.vala:1127 tools/resource/types.vala:1175
-#: tools/resource/types.vala:1430 tools/resource/types.vala:1556
-#: tools/resource/types.vala:1673
+#: tools/resource/types.vala:1131 tools/resource/types.vala:1179
+#: tools/resource/types.vala:1434 tools/resource/types.vala:1560
+#: tools/resource/types.vala:1677
 msgid ""
 "Other position in Other Unit's local space, or world space if Other Unit is "
 "unset."
@@ -2296,14 +2350,14 @@ msgstr ""
 "Altra posizione nello spazio locale dell'Altra Unità, o nello spazio mondo "
 "se Altra Unità non è impostata."
 
-#: tools/resource/types.vala:1133 tools/resource/types.vala:1188
-#: tools/resource/types.vala:1443 tools/resource/types.vala:1569
-#: tools/resource/types.vala:1686
+#: tools/resource/types.vala:1137 tools/resource/types.vala:1192
+#: tools/resource/types.vala:1447 tools/resource/types.vala:1573
+#: tools/resource/types.vala:1690
 msgid "Position in local space."
 msgstr "Posizione nello spazio locale."
 
-#: tools/resource/types.vala:1182 tools/resource/types.vala:1437
-#: tools/resource/types.vala:1563 tools/resource/types.vala:1680
+#: tools/resource/types.vala:1186 tools/resource/types.vala:1441
+#: tools/resource/types.vala:1567 tools/resource/types.vala:1684
 msgid ""
 "Other rotation in Other Unit's local space, or world space if Other Unit is "
 "unset."
@@ -2311,36 +2365,36 @@ msgstr ""
 "Altra rotazione nello spazio locale dell'Altra Unità, o nello spazio mondo "
 "se Altra Unità non è impostata."
 
-#: tools/resource/types.vala:1195 tools/resource/types.vala:1450
-#: tools/resource/types.vala:1583 tools/resource/types.vala:1693
+#: tools/resource/types.vala:1199 tools/resource/types.vala:1454
+#: tools/resource/types.vala:1587 tools/resource/types.vala:1697
 msgid "Joint rotation in local space."
 msgstr "Rotazione joint nello spazio locale."
 
-#: tools/resource/types.vala:1201
+#: tools/resource/types.vala:1205
 msgid "Linear X Motion"
 msgstr "Moto Lineare X"
 
-#: tools/resource/types.vala:1205
+#: tools/resource/types.vala:1209
 msgid "How motion along the joint X axis is constrained."
 msgstr "Come viene vincolato il moto lungo l'asse X del joint."
 
-#: tools/resource/types.vala:1211
+#: tools/resource/types.vala:1215
 msgid "Linear Y Motion"
 msgstr "Moto Lineare Y"
 
-#: tools/resource/types.vala:1215
+#: tools/resource/types.vala:1219
 msgid "How motion along the joint Y axis is constrained."
 msgstr "Come viene vincolato il moto lungo l'asse Y del joint."
 
-#: tools/resource/types.vala:1221
+#: tools/resource/types.vala:1225
 msgid "Linear Z Motion"
 msgstr "Moto Lineare Z"
 
-#: tools/resource/types.vala:1225
+#: tools/resource/types.vala:1229
 msgid "How motion along the joint Z axis is constrained."
 msgstr "Come viene vincolato il moto lungo l'asse Z del joint."
 
-#: tools/resource/types.vala:1232
+#: tools/resource/types.vala:1236
 msgid ""
 "Per-axis linear lower limits, used when the corresponding linear motion is "
 "Limited."
@@ -2348,7 +2402,7 @@ msgstr ""
 "Limiti inferiori lineari per asse, usati quando il moto lineare "
 "corrispondente è Limited."
 
-#: tools/resource/types.vala:1239
+#: tools/resource/types.vala:1243
 msgid ""
 "Per-axis linear upper limits, used when the corresponding linear motion is "
 "Limited."
@@ -2356,31 +2410,31 @@ msgstr ""
 "Limiti superiori lineari per asse, usati quando il moto lineare "
 "corrispondente è Limited."
 
-#: tools/resource/types.vala:1245
+#: tools/resource/types.vala:1249
 msgid "Angular X Motion"
 msgstr "Moto Angolare X"
 
-#: tools/resource/types.vala:1249
+#: tools/resource/types.vala:1253
 msgid "How rotation around the joint X axis is constrained."
 msgstr "Come viene vincolata la rotazione attorno all'asse X del joint."
 
-#: tools/resource/types.vala:1255
+#: tools/resource/types.vala:1259
 msgid "Angular Y Motion"
 msgstr "Moto Angolare Y"
 
-#: tools/resource/types.vala:1259
+#: tools/resource/types.vala:1263
 msgid "How rotation around the joint Y axis is constrained."
 msgstr "Come viene vincolata la rotazione attorno all'asse Y del joint."
 
-#: tools/resource/types.vala:1265
+#: tools/resource/types.vala:1269
 msgid "Angular Z Motion"
 msgstr "Moto Angolare Z"
 
-#: tools/resource/types.vala:1269
+#: tools/resource/types.vala:1273
 msgid "How rotation around the joint Z axis is constrained."
 msgstr "Come viene vincolata la rotazione attorno all'asse Z del joint."
 
-#: tools/resource/types.vala:1277
+#: tools/resource/types.vala:1281
 msgid ""
 "Per-axis angular lower limits, used when the corresponding angular motion is "
 "Limited."
@@ -2388,7 +2442,7 @@ msgstr ""
 "Limiti inferiori angolari per asse, usati quando il moto angolare "
 "corrispondente è Limited."
 
-#: tools/resource/types.vala:1285
+#: tools/resource/types.vala:1289
 msgid ""
 "Per-axis angular upper limits, used when the corresponding angular motion is "
 "Limited."
@@ -2396,31 +2450,31 @@ msgstr ""
 "Limiti superiori angolari per asse, usati quando il moto angolare "
 "corrispondente è Limited."
 
-#: tools/resource/types.vala:1291
+#: tools/resource/types.vala:1295
 msgid "Linear X Motor"
 msgstr "Motore Lineare X"
 
-#: tools/resource/types.vala:1295
+#: tools/resource/types.vala:1299
 msgid "Motor mode for motion along the joint X axis."
 msgstr "Modalità motore per il moto lungo l'asse X del joint."
 
-#: tools/resource/types.vala:1301
+#: tools/resource/types.vala:1305
 msgid "Linear Y Motor"
 msgstr "Motore Lineare Y"
 
-#: tools/resource/types.vala:1305
+#: tools/resource/types.vala:1309
 msgid "Motor mode for motion along the joint Y axis."
 msgstr "Modalità motore per il moto lungo l'asse Y del joint."
 
-#: tools/resource/types.vala:1311
+#: tools/resource/types.vala:1315
 msgid "Linear Z Motor"
 msgstr "Motore Lineare Z"
 
-#: tools/resource/types.vala:1315
+#: tools/resource/types.vala:1319
 msgid "Motor mode for motion along the joint Z axis."
 msgstr "Modalità motore per il moto lungo l'asse Z del joint."
 
-#: tools/resource/types.vala:1322
+#: tools/resource/types.vala:1326
 msgid ""
 "Linear motor target velocity, used by axes whose linear motor mode is "
 "Velocity."
@@ -2428,7 +2482,7 @@ msgstr ""
 "Velocità target del motore lineare, usata dagli assi la cui modalità motore "
 "lineare è Velocity."
 
-#: tools/resource/types.vala:1329
+#: tools/resource/types.vala:1333
 msgid ""
 "Linear motor target position, used by axes whose linear motor mode is "
 "Position."
@@ -2436,35 +2490,35 @@ msgstr ""
 "Posizione target del motore lineare, usata dagli assi la cui modalità motore "
 "lineare è Position."
 
-#: tools/resource/types.vala:1336
+#: tools/resource/types.vala:1340
 msgid "Per-axis linear motor force limits."
 msgstr "Limiti forza del motore lineare per asse."
 
-#: tools/resource/types.vala:1342
+#: tools/resource/types.vala:1346
 msgid "Angular X Motor"
 msgstr "Motore Angolare X"
 
-#: tools/resource/types.vala:1346
+#: tools/resource/types.vala:1350
 msgid "Motor mode for rotation around the joint X axis."
 msgstr "Modalità motore per la rotazione attorno all'asse X del joint."
 
-#: tools/resource/types.vala:1352
+#: tools/resource/types.vala:1356
 msgid "Angular Y Motor"
 msgstr "Motore Angolare Y"
 
-#: tools/resource/types.vala:1356
+#: tools/resource/types.vala:1360
 msgid "Motor mode for rotation around the joint Y axis."
 msgstr "Modalità motore per la rotazione attorno all'asse Y del joint."
 
-#: tools/resource/types.vala:1362
+#: tools/resource/types.vala:1366
 msgid "Angular Z Motor"
 msgstr "Motore Angolare Z"
 
-#: tools/resource/types.vala:1366
+#: tools/resource/types.vala:1370
 msgid "Motor mode for rotation around the joint Z axis."
 msgstr "Modalità motore per la rotazione attorno all'asse Z del joint."
 
-#: tools/resource/types.vala:1373
+#: tools/resource/types.vala:1377
 msgid ""
 "Angular motor target velocity, used by axes whose angular motor mode is "
 "Velocity."
@@ -2472,7 +2526,7 @@ msgstr ""
 "Velocità target del motore angolare, usata dagli assi la cui modalità motore "
 "angolare è Velocity."
 
-#: tools/resource/types.vala:1381
+#: tools/resource/types.vala:1385
 msgid ""
 "Angular motor target position, used by axes whose angular motor mode is "
 "Position."
@@ -2480,43 +2534,43 @@ msgstr ""
 "Posizione target del motore angolare, usata dagli assi la cui modalità "
 "motore angolare è Position."
 
-#: tools/resource/types.vala:1388
+#: tools/resource/types.vala:1392
 msgid "Per-axis angular motor force limits."
 msgstr "Limiti forza del motore angolare per asse."
 
-#: tools/resource/types.vala:1456
+#: tools/resource/types.vala:1460
 msgid "Twist Motion"
 msgstr "Moto Twist"
 
-#: tools/resource/types.vala:1460
+#: tools/resource/types.vala:1464
 msgid "How twist around the joint X axis is constrained."
 msgstr "Come viene vincolato il twist attorno all'asse X del joint."
 
-#: tools/resource/types.vala:1466
+#: tools/resource/types.vala:1470
 msgid "Swing Y Motion"
 msgstr "Moto Swing Y"
 
-#: tools/resource/types.vala:1470
+#: tools/resource/types.vala:1474
 msgid "How swing around the joint Y axis is constrained."
 msgstr "Come viene vincolato lo swing attorno all'asse Y del joint."
 
-#: tools/resource/types.vala:1476
+#: tools/resource/types.vala:1480
 msgid "Swing Z Motion"
 msgstr "Moto Swing Z"
 
-#: tools/resource/types.vala:1480
+#: tools/resource/types.vala:1484
 msgid "How swing around the joint Z axis is constrained."
 msgstr "Come viene vincolato lo swing attorno all'asse Z del joint."
 
-#: tools/resource/types.vala:1488
+#: tools/resource/types.vala:1492
 msgid "Lower twist limit, used when Twist Motion is Limited."
 msgstr "Limite twist inferiore, usato quando Moto Twist è Limited."
 
-#: tools/resource/types.vala:1496
+#: tools/resource/types.vala:1500
 msgid "Upper twist limit, used when Twist Motion is Limited."
 msgstr "Limite twist superiore, usato quando Moto Twist è Limited."
 
-#: tools/resource/types.vala:1505
+#: tools/resource/types.vala:1509
 msgid ""
 "Symmetric swing limit around the joint Y axis, used when Swing Y Motion is "
 "Limited."
@@ -2524,7 +2578,7 @@ msgstr ""
 "Limite swing simmetrico attorno all'asse Y del joint, usato quando Moto "
 "Swing Y è Limited."
 
-#: tools/resource/types.vala:1514
+#: tools/resource/types.vala:1518
 msgid ""
 "Symmetric swing limit around the joint Z axis, used when Swing Z Motion is "
 "Limited."
@@ -2532,137 +2586,137 @@ msgstr ""
 "Limite swing simmetrico attorno all'asse Z del joint, usato quando Moto "
 "Swing Z è Limited."
 
-#: tools/resource/types.vala:1576
+#: tools/resource/types.vala:1580
 msgid "Hinge axis in both joint frames."
 msgstr "Asse cerniera in entrambi i frame del joint."
 
-#: tools/resource/types.vala:1598
+#: tools/resource/types.vala:1602
 msgid "Enable the hinge motor."
 msgstr "Abilita il motore cerniera."
 
-#: tools/resource/types.vala:1604
+#: tools/resource/types.vala:1608
 msgid "Motor target angular velocity."
 msgstr "Velocità angolare target del motore."
 
-#: tools/resource/types.vala:1611
+#: tools/resource/types.vala:1615
 msgid "Maximum motor impulse."
 msgstr "Impulso massimo del motore."
 
-#: tools/resource/types.vala:1617
+#: tools/resource/types.vala:1621
 msgid "Enable hinge limits."
 msgstr "Abilita i limiti cerniera."
 
-#: tools/resource/types.vala:1625
+#: tools/resource/types.vala:1629
 msgid "Lower hinge limit."
 msgstr "Limite cerniera inferiore."
 
-#: tools/resource/types.vala:1633
+#: tools/resource/types.vala:1637
 msgid "Upper hinge limit."
 msgstr "Limite cerniera superiore."
 
-#: tools/resource/types.vala:1640
+#: tools/resource/types.vala:1644
 msgid "Bounce factor applied at the limits."
 msgstr "Fattore rimbalzo applicato ai limiti."
 
-#: tools/resource/types.vala:1710
+#: tools/resource/types.vala:1714
 msgid "Linear spring stiffness."
 msgstr "Rigidità molla lineare."
 
-#: tools/resource/types.vala:1718
+#: tools/resource/types.vala:1722
 msgid "Linear spring damping."
 msgstr "Smorzamento molla lineare."
 
-#: tools/resource/types.vala:1742
+#: tools/resource/types.vala:1746
 msgid "Skydome Map"
 msgstr "Mappa Skydome"
 
-#: tools/resource/types.vala:1745
+#: tools/resource/types.vala:1749
 msgid "Texture to use as skydome."
 msgstr "Texture da usare come skydome."
 
-#: tools/resource/types.vala:1753
+#: tools/resource/types.vala:1757
 msgid "Skydome intensity multiplier."
 msgstr "Moltiplicatore intensità skydome."
 
-#: tools/resource/types.vala:1762
+#: tools/resource/types.vala:1766
 msgid "Ambient color applied to objects."
 msgstr "Colore ambiente applicato agli oggetti."
 
-#: tools/resource/types.vala:1786
+#: tools/resource/types.vala:1790
 msgid "Enable bloom effect."
 msgstr "Abilita l'effetto bloom."
 
-#: tools/resource/types.vala:1802
+#: tools/resource/types.vala:1806
 msgid "Bloom weight."
 msgstr "Peso bloom."
 
-#: tools/resource/types.vala:1811
+#: tools/resource/types.vala:1815
 msgid "Bloom intensity multiplier."
 msgstr "Moltiplicatore intensità bloom."
 
-#: tools/resource/types.vala:1837
+#: tools/resource/types.vala:1841
 msgid "Tonemapping operator. Gamma means no tonemapping is applied."
 msgstr ""
 "Operatore di tonemapping. Gamma significa che non viene applicato alcun "
 "tonemapping."
 
-#: tools/resource/types.vala:1883
+#: tools/resource/types.vala:1887
 msgid "Unit prefab."
 msgstr "Prefab unità."
 
-#: tools/resource/types.vala:1950
+#: tools/resource/types.vala:1966
 msgid "Animation to play."
 msgstr "Animazione da riprodurre."
 
-#: tools/resource/types.vala:1956
+#: tools/resource/types.vala:1972
 msgid "Expression to evaluate the animation weight."
 msgstr "Espressione per valutare il peso dell'animazione."
 
-#: tools/resource/types.vala:1974
+#: tools/resource/types.vala:1990
 msgid "Event that triggers this transition."
 msgstr "Evento che attiva questa transizione."
 
-#: tools/resource/types.vala:1982
+#: tools/resource/types.vala:1998
 msgid "Enter the state immediately or wait until the animation ends."
 msgstr "Entra nello stato immediatamente o attendi la fine dell'animazione."
 
-#: tools/resource/types.vala:1989
+#: tools/resource/types.vala:2005
 msgid "Animation state to enter to."
 msgstr "Stato animazione in cui entrare."
 
-#: tools/resource/types.vala:2011
+#: tools/resource/types.vala:2027
 msgid "State name."
 msgstr "Nome stato."
 
-#: tools/resource/types.vala:2023
+#: tools/resource/types.vala:2039
 msgid "Restart the animation when it ends."
 msgstr "Riavvia l'animazione quando finisce."
 
-#: tools/resource/types.vala:2029
+#: tools/resource/types.vala:2045
 msgid "Expression to evaluate the animation speed."
 msgstr "Espressione per valutare la velocità dell'animazione."
 
-#: tools/resource/types.vala:2046
+#: tools/resource/types.vala:2062
 msgid "Variable name."
 msgstr "Nome variabile."
 
-#: tools/resource/types.vala:2052
+#: tools/resource/types.vala:2068
 msgid "Variable value."
 msgstr "Valore variabile."
 
-#: tools/resource/types.vala:2059
+#: tools/resource/types.vala:2075
 msgid "Minimum value."
 msgstr "Valore minimo."
 
-#: tools/resource/types.vala:2066
+#: tools/resource/types.vala:2082
 msgid "Maximum value."
 msgstr "Valore massimo."
 
-#: tools/resource/types.vala:2078
+#: tools/resource/types.vala:2094
 msgid "Animation state to enter at the beginning."
 msgstr "Stato animazione in cui entrare all'inizio."
 
-#: tools/resource/types.vala:2104
+#: tools/resource/types.vala:2120
 msgid "Animation skeleton to use."
 msgstr "Scheletro animazione da usare."
 
@@ -2801,7 +2855,7 @@ msgstr "Salvare le modifiche a '%s' prima di chiudere?"
 msgid "General"
 msgstr "Generale"
 
-#: tools/widgets/object_tree.vala:256
+#: tools/widgets/object_tree.vala:257
 msgid "Add"
 msgstr "Aggiungi"
 
