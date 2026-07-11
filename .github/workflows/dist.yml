@@ -332,6 +332,11 @@ jobs:
           retention-days: 1
 
   finalize:
+    outputs:
+      crown_version: ${{ steps.version.outputs.crown_version }}
+      commit: ${{ steps.version.outputs.commit }}
+      revision: ${{ steps.version.outputs.revision }}
+      gdrive_file_id: ${{ steps.nightly.outputs.gdrive_file_id }}
     needs:
       - android-arm
       - android-arm64
@@ -380,19 +385,23 @@ jobs:
           # Merge.
           find ./artifacts_dist -maxdepth 3 -type d -name 'crown-*' -exec cp -a {} ./dist/ \;
       - name: detect-version
+        id: version
         run: |
           set -euo pipefail
           . ./scripts/dist/version.sh
           CROWN_VER=$(crown_version)
+          COMMIT=$(git rev-parse --short HEAD)
           if [ "${IS_TAG}" = "true" ]; then
             VERSIONNAME=crown-${CROWN_VER}
           else
-            SUFFIX="$(git rev-parse --short HEAD)"
-            VERSIONNAME=crown-${CROWN_VER}-${BRANCH}-${SUFFIX}
+            VERSIONNAME=crown-${CROWN_VER}-${BRANCH}-${COMMIT}
           fi
           DIST_DIR="dist/${VERSIONNAME}"
           echo "DIST_DIR=$DIST_DIR" >> $GITHUB_ENV
           echo "VERSIONNAME=$VERSIONNAME" >> $GITHUB_ENV
+          echo "crown_version=${CROWN_VER}" >> $GITHUB_OUTPUT
+          echo "commit=${COMMIT}" >> $GITHUB_OUTPUT
+          echo "revision=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
       - name: finalize
         run: |
           set -euo pipefail
