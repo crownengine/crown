@@ -47,6 +47,7 @@ Changelog
 * Tools: fixed the Preview panel in the Sprite Importer not being updated when reimporting sprites.
 * Tools: fixed opening a project via command line.
 * Tools: fixed importing empty materials from FBX and OBJ models in some cases.
+* Tools: fixed importing roughness and metallic textures from Blender-exported FBX models.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.

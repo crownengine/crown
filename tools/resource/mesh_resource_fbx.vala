@@ -1004,8 +1004,9 @@ public class FBXImporter
 				return ImportResult.ERROR;
 			}
 
-			// Keep in sync with mesh_fbx.cpp!
+			// Keep in sync with fbx_document.cpp!
 			ufbx.LoadOpts load_opts = {};
+			load_opts.use_blender_pbr_material = true;
 			load_opts.target_camera_axes =
 			{
 				ufbx.CoordinateAxis.POSITIVE_X,
