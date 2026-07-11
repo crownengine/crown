@@ -102,7 +102,7 @@ public class NewProject : Gtk.Box
 				_label_message.label = "";
 
 				string error;
-				if (Project.create(out error, source_dir, _combo_box_map_template.value) != 0) {
+				if (Project.create(out error, source_dir, _combo_box_map_template.value, _create_folder.active) != 0) {
 					_label_message.label = error;
 					return;
 				}

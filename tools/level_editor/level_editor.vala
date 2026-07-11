@@ -4660,7 +4660,7 @@ public static int main(string[] args)
 
 	if (command_line_options.do_init) {
 		string error;
-		if (Project.create(out error, command_line_options.source_dir, "") != 0) {
+		if (Project.create(out error, command_line_options.source_dir, "", false) != 0) {
 			stderr.printf("crown-editor: %s\n", error);
 			return 1;
 		}

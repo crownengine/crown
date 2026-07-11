@@ -341,13 +341,15 @@ public class Project
 		}
 	}
 
-	public static int create(out string error, string source_dir, string template_dir)
+	public static int create(out string error, string source_dir, string template_dir, bool create_project_folder)
 	{
 		error = "";
 		GLib.File project_dir = GLib.File.new_for_path(source_dir);
 
 		try {
-			if (project_dir.query_exists()) {
+			if (create_project_folder) {
+				project_dir.make_directory();
+			} else if (project_dir.query_exists()) {
 				if (project_dir.query_file_type(GLib.FileQueryInfoFlags.NONE) != GLib.FileType.DIRECTORY) {
 					error = "Location must be an empty directory.";
 					return -1;
@@ -364,7 +366,14 @@ public class Project
 				project_dir.make_directory_with_parents();
 			}
 		} catch (GLib.Error e) {
-			error = e.message;
+			if (create_project_folder) {
+				if (e.code == GLib.IOError.EXISTS)
+					error = "Project Folder already exists";
+				else
+					error = "Project Folder cannot be created automatically";
+			} else {
+				error = e.message;
+			}
 			return -1;
 		}
 
@@ -392,7 +401,7 @@ public class Project
 #endif
 			string source_dir = f.get_path();
 			string error;
-			if (Project.create(out error, source_dir, "") != 0)
+			if (Project.create(out error, source_dir, "", false) != 0)
 				return null;
 			return source_dir;
 		} catch (GLib.Error e) {
