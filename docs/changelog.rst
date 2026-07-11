@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed opening a project via command line.
+* Tools: fixed importing empty materials from FBX and OBJ models in some cases.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
 
 .. _v0.63.6:
