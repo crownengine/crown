@@ -1594,6 +1594,7 @@ public class ProjectBrowser : Gtk.Box
 		return type == "importer_settings"
 			|| name == Project.LEVEL_EDITOR_TEST_NAME
 			|| _project_store._project.is_type_importable(type)
+			|| _project_store._project.is_type_sidecar(type)
 			;
 	}
 

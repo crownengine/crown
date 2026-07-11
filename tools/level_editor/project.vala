@@ -815,6 +815,13 @@ public class Project
 		return find_importer_for_extension(type) != null;
 	}
 
+	public bool is_type_sidecar(string type)
+	{
+		return type == "mtl"
+			|| type == "MTL"
+			;
+	}
+
 	public bool is_type_image(string type)
 	{
 		return type == "dds"
