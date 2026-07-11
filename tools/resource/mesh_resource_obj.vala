@@ -424,11 +424,14 @@ public class OBJImporter
 					}
 
 					string material_name = "core/fallback/fallback";
-					if (node.materials.data.length > 0) {
-						unowned ufbx.Material mesh_instance_material = node.materials.data[0];
-						if (imported_materials.has_key(mesh_instance_material))
-							material_name = imported_materials[mesh_instance_material];
+					unowned ufbx.Material? mesh_instance_material = null;
+					for (int ii = 0; mesh_instance_material == null && ii < node.mesh.material_parts.data.length; ++ii) {
+						unowned ufbx.MeshPart mesh_part = node.mesh.material_parts.data[ii];
+						if (mesh_part.num_triangles > 0 && mesh_part.index < node.materials.data.length)
+							mesh_instance_material = node.materials.data[mesh_part.index];
 					}
+					if (mesh_instance_material != null && imported_materials.has_key(mesh_instance_material))
+						material_name = imported_materials[mesh_instance_material];
 
 					unit.set_component_string(component_id, "data.geometry_name", editor_name);
 					unit.set_component_string(component_id, "data.material", material_name);
@@ -855,7 +858,7 @@ public class OBJImporter
 								emission_intensity = (double)map.value_real;
 							break;
 
-						default:
+							default:
 							break;
 						}
 					}
