@@ -26,6 +26,24 @@ while true; do
 		git commit -m "${COMMITLOG}"
 		exit $?
 		;;
+	-n|--build-nightly)
+		PKGVER=$2
+		PKGREL=$3
+		UPSTREAM_VERSION=$4
+		COMMIT=$5
+		GDRIVE_ID=$6
+		COMMITLOG="Crown Nightly v${PKGVER}-${PKGREL} (${COMMIT})"
+		sed -i "s/^pkgver.*/pkgver=${PKGVER}/g" PKGBUILD
+		sed -i "s/^pkgrel.*/pkgrel=${PKGREL}/g" PKGBUILD
+		sed -i "s/^_upstream_version.*/_upstream_version=${UPSTREAM_VERSION}/g" PKGBUILD
+		sed -i "s/^_commit.*/_commit=${COMMIT}/g" PKGBUILD
+		sed -i "s/^_gdrive_id.*/_gdrive_id=${GDRIVE_ID}/g" PKGBUILD
+		updpkgsums
+		makepkg --printsrcinfo > .SRCINFO
+		git add .SRCINFO PKGBUILD
+		git commit -m "${COMMITLOG}"
+		exit $?
+		;;
 	-f|--force)
 		makepkg -f
 		exit $?
@@ -38,7 +56,8 @@ while true; do
 		echo "Usage:"
 		echo "1) $0 --clean"
 		echo "2) $0 --build <pkgver> <pkgrel>"
-		echo "3) $0 --publish"
+		echo "3) $0 --build-nightly <pkgver> <pkgrel> <upstream-version> <commit> <gdrive-file-id>"
+		echo "4) $0 --publish"
 		exit 0
 		;;
 	*)
