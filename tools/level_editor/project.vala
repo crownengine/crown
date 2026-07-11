@@ -351,7 +351,7 @@ public class Project
 				project_dir.make_directory();
 			} else if (project_dir.query_exists()) {
 				if (project_dir.query_file_type(GLib.FileQueryInfoFlags.NONE) != GLib.FileType.DIRECTORY) {
-					error = "Location must be an empty directory.";
+					error = _("Location must be an empty directory");
 					return -1;
 				}
 
@@ -359,7 +359,7 @@ public class Project
 					, FileQueryInfoFlags.NOFOLLOW_SYMLINKS
 					);
 				if (enumerator.next_file() != null) {
-					error = "Location must be an empty directory.";
+					error = _("Location must be an empty directory");
 					return -1;
 				}
 			} else {
@@ -368,9 +368,9 @@ public class Project
 		} catch (GLib.Error e) {
 			if (create_project_folder) {
 				if (e.code == GLib.IOError.EXISTS)
-					error = "Project Folder already exists";
+					error = _("Project Folder already exists");
 				else
-					error = "Project Folder cannot be created automatically";
+					error = _("Project Folder cannot be created automatically");
 			} else {
 				error = e.message;
 			}
