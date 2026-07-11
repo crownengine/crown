@@ -47,29 +47,29 @@ msgstr "Changer les Objets"
 #: tools/level_editor/dependencies_dialog.vala:196
 #, fuzzy
 msgid "Resource"
-msgstr "Nom de la Ressource"
+msgstr "Ressource"
 
 #: tools/level_editor/dependencies_dialog.vala:233
 #: tools/level_editor/dependencies_dialog.vala:238
 #, fuzzy
 msgid "Resource Dependencies"
-msgstr "Nom de la ressource."
+msgstr "Dépendances de la Ressource"
 
 #: tools/level_editor/dependencies_dialog.vala:244
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 #: tools/level_editor/dependencies_dialog.vala:287
 msgid "Uses"
-msgstr ""
+msgstr "Utilisation"
 
 #: tools/level_editor/dependencies_dialog.vala:288
 msgid "Resources used by this resource."
-msgstr ""
+msgstr "Ressources utilisées par cette ressource."
 
 #: tools/level_editor/dependencies_dialog.vala:290
 msgid "Depends On"
-msgstr ""
+msgstr "Dépend de"
 
 #: tools/level_editor/dependencies_dialog.vala:292
 #, fuzzy
@@ -79,19 +79,19 @@ msgstr "Préférences"
 #: tools/level_editor/dependencies_dialog.vala:295
 #: tools/level_editor/dependencies_dialog.vala:298
 msgid "Used By"
-msgstr ""
+msgstr "Utilisé par"
 
 #: tools/level_editor/dependencies_dialog.vala:296
 msgid "Resources that use this resource."
-msgstr ""
+msgstr "Ressources qui utilisent cette ressource."
 
 #: tools/level_editor/dependencies_dialog.vala:300
 msgid "Required By"
-msgstr ""
+msgstr "Requis par"
 
 #: tools/level_editor/dependencies_dialog.vala:308
 msgid "No direct dependencies or references."
-msgstr ""
+msgstr "Pas de dépendances ou de références directes"
 
 #: tools/level_editor/deploy_dialog.vala:34
 #, c-format
@@ -529,9 +529,7 @@ msgstr "Nouveau Nom"
 #: tools/level_editor/level_editor.vala:3488
 #, fuzzy
 msgid "Cannot show dependencies"
-msgstr ""
-"Ne peut pas supprimer %s en raison des dépendances suivantes:\n"
-"\n"
+msgstr "Impossible d'afficher les dépendances"
 
 #: tools/level_editor/level_editor.vala:3639
 #: tools/level_editor/level_editor.vala:3811
@@ -738,7 +736,7 @@ msgstr "Cube"
 
 #: tools/level_editor/menus.vala:185
 msgid "Sphere"
-msgstr "Sphere"
+msgstr "Sphère"
 
 #: tools/level_editor/menus.vala:189
 msgid "Cone"
@@ -766,7 +764,7 @@ msgstr "Ne Rien Sélectionner"
 
 #: tools/level_editor/menus.vala:246
 msgid "Align with Camera View"
-msgstr ""
+msgstr "Aligner avec la Vue de la Caméra"
 
 #: tools/level_editor/menus.vala:253
 msgid "Place"
@@ -1193,7 +1191,7 @@ msgstr "Taille maximale allouée pour le système d'annulation."
 
 #: tools/level_editor/preferences_dialog.vala:159
 msgid "Delete logs older than (days)"
-msgstr "Supprimer les journaux plus ancien que (jours)"
+msgstr "Supprimer les journaux plus anciens que (jours)"
 
 #: tools/level_editor/preferences_dialog.vala:159
 msgid "Delete logs older than this days old when the application starts."
@@ -1320,7 +1318,7 @@ msgstr "Ouvrir le Répertoire Contenant..."
 #: tools/level_editor/project_browser.vala:43
 #: tools/level_editor/project_browser.vala:168
 msgid "Dependencies..."
-msgstr ""
+msgstr "Dépendances..."
 
 #: tools/level_editor/project_browser.vala:49
 msgid "Add to Favorites"
@@ -2590,12 +2588,16 @@ msgid ""
 "Symmetric swing limit around the joint Y axis, used when Swing Y Motion is "
 "Limited."
 msgstr ""
+"Limite d'oscillation symétrique autour de l'axe Y de l'articulation, utilisée lorsque le mouvement Y de l'oscillation est "
+"Limité."
 
 #: tools/resource/types.vala:1518
 msgid ""
 "Symmetric swing limit around the joint Z axis, used when Swing Z Motion is "
 "Limited."
 msgstr ""
+"Limite d'oscillation symétrique autour de l'axe Z de l'articulation, utilisée lorsque le mouvement Z de l'oscillation est "
+"Limité."
 
 #: tools/resource/types.vala:1580
 msgid "Hinge axis in both joint frames."
