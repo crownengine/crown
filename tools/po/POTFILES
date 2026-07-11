@@ -1,4 +1,6 @@
+tools/deploy/options.vala
 tools/level_editor/action_type.vala
+tools/level_editor/dependencies_dialog.vala
 tools/level_editor/deploy_dialog.vala
 tools/level_editor/level_editor.vala
 tools/level_editor/level_layers_tree_view.vala
