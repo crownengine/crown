@@ -32,7 +32,7 @@ while true; do
 		UPSTREAM_VERSION=$4
 		COMMIT=$5
 		GDRIVE_ID=$6
-		COMMITLOG="Crown Nightly v${PKGVER}-${PKGREL} (${COMMIT})"
+		COMMITLOG="Crown Nightly v${PKGVER}-${PKGREL}"
 		sed -i "s/^pkgver.*/pkgver=${PKGVER}/g" PKGBUILD
 		sed -i "s/^pkgrel.*/pkgrel=${PKGREL}/g" PKGBUILD
 		sed -i "s/^_upstream_version.*/_upstream_version=${UPSTREAM_VERSION}/g" PKGBUILD
