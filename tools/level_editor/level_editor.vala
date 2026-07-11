@@ -564,8 +564,12 @@ public struct CommandLineOptions
 
 	public void print_help(GLib.FileStream stream)
 	{
-		stream.printf("Usage:\n"
-			+ "  crown-editor [OPTION...] [<source-dir> [<level>]]\n"
+		stream.printf("Crown Editor\n"
+			+ "Copyright (c) 2012-2026 Daniele Bartolini et al.\n"
+			+ "SPDX-License-Identifier: GPL-3.0-or-later\n"
+			+ "\n"
+			+ "Usage:\n"
+			+ "  crown-editor [options] [<source-dir> [<level>]]\n"
 			+ "\n"
 			+ "Options:\n"
 			+ "  -h, --help                       Display this help and exit.\n"

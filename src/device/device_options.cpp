@@ -18,7 +18,7 @@ namespace crown
 static void help(const char *msg = NULL)
 {
 	printf(
-		"The Flexible Game Engine\n"
+		"Crown Runtime\n"
 		"Copyright (c) 2012-2026 Daniele Bartolini et al.\n"
 		"SPDX-License-Identifier: MIT\n"
 		"\n"
@@ -27,8 +27,8 @@ static void help(const char *msg = NULL)
 		"\n"
 		"Options:\n"
 		"  --                              End of the runtime's options.\n"
-		"  -h --help                       Display this help.\n"
-		"  -v --version                    Display engine version.\n"
+		"  -h, --help                      Display this help.\n"
+		"  -v, --version                   Display engine version.\n"
 		"  --source-dir <path>             Specify the <path> of the project's source data.\n"
 		"  --data-dir <path>               Run with the data located at <path>.\n"
 		"  --bundle-dir <path>             Run with the bundles located at <path>.\n"
@@ -50,8 +50,7 @@ static void help(const char *msg = NULL)
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --keep-above                    Keep the main window above other windows.\n"
-		"  --display-server <server>\n"
-		"                                  Set the display server backend.\n"
+		"  --display-server <server>       Set the display server backend.\n"
 		"      wayland\n"
 		"      x11\n"
 		"  --renderer <renderer>           Set the renderer backend.\n"
