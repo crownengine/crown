@@ -426,7 +426,7 @@ jobs:
           CREDENTIALS="${RUNNER_TEMP}/gdrive.json"
           trap 'rm -f "${CREDENTIALS}"' EXIT
           umask 077
-          printf '%s' "${GDRIVE_KEY}" | base64 --decode > "${CREDENTIALS}"
+          printf '%s' "${GDRIVE_KEY}" > "${CREDENTIALS}"
 
           export RCLONE_CONFIG_GDRIVE_TYPE=drive
           export RCLONE_CONFIG_GDRIVE_ROOT_FOLDER_ID="${GDRIVE_PARENT_FOLDER_ID}"
