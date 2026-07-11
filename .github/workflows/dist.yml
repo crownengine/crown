@@ -401,14 +401,34 @@ jobs:
         run: |
           set -euo pipefail
           "$GITHUB_WORKSPACE/scripts/dist/sums.sh" "${DIST_DIR}"
-      - name: unstable
+      - name: install-rclone
         if: env.IS_TAG == 'false'
-        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.3
-        with:
-          target: ${{ env.DIST_DIR }}/*
-          parent_folder_id: ${{ secrets.GDRIVE_PARENT_FOLDER_ID }}
-          child_folder: ${{ env.VERSIONNAME }}
-          credentials: ${{ secrets.GDRIVE_KEY }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+      - name: unstable
+        id: nightly
+        if: env.IS_TAG == 'false'
+        env:
+          GDRIVE_KEY: ${{ secrets.GDRIVE_KEY }}
+          GDRIVE_PARENT_FOLDER_ID: ${{ secrets.GDRIVE_PARENT_FOLDER_ID }}
+        run: |
+          set -euo pipefail
+          CREDENTIALS="${RUNNER_TEMP}/gdrive.json"
+          trap 'rm -f "${CREDENTIALS}"' EXIT
+          umask 077
+          printf '%s' "${GDRIVE_KEY}" | base64 --decode > "${CREDENTIALS}"
+
+          export RCLONE_CONFIG_GDRIVE_TYPE=drive
+          export RCLONE_CONFIG_GDRIVE_ROOT_FOLDER_ID="${GDRIVE_PARENT_FOLDER_ID}"
+          export RCLONE_CONFIG_GDRIVE_SERVICE_ACCOUNT_FILE="${CREDENTIALS}"
+
+          rclone copy "${DIST_DIR}/" "gdrive:${VERSIONNAME}/" --checksum
+          GDRIVE_FILE_ID=$(rclone lsf "gdrive:${VERSIONNAME}" \
+            --files-only \
+            --include "${VERSIONNAME}-linux-x64.tar.gz" \
+            --format i)
+          echo "gdrive_file_id=${GDRIVE_FILE_ID}" >> $GITHUB_OUTPUT
       - name: stable
         if: env.IS_TAG == 'true'
         uses: softprops/action-gh-release@v2
