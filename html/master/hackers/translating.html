@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-19T15:55:18+00:00" /><meta property="og:title" content="Translating" />
+    <meta property="article:modified_time" content="2026-07-11T17:12:29+00:00" /><meta property="og:title" content="Translating" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/translating.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -122,9 +122,12 @@ in code with <code class="docutils literal notranslate"><span class="pre">_()</s
 translation context. Translations live in <code class="docutils literal notranslate"><span class="pre">tools/po</span></code>.</p>
 <section id="files">
 <h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
-<dl class="simple">
+<dl>
 <dt><code class="docutils literal notranslate"><span class="pre">tools/po/POTFILES</span></code></dt><dd><p>Source files scanned by <code class="docutils literal notranslate"><span class="pre">xgettext</span></code>. Add a file here when it contains
-translatable strings.</p>
+translatable strings. Regenerate the list with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">rEl</span> <span class="o">--</span><span class="n">include</span><span class="o">=</span><span class="s1">&#39;*.vala&#39;</span> <span class="s1">&#39;(^|[^[:alnum:]_])(_|N_|C_|NC_)[[:space:]]*\(&#39;</span> <span class="n">tools</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">&gt;</span> <span class="n">tools</span><span class="o">/</span><span class="n">po</span><span class="o">/</span><span class="n">POTFILES</span>
+</pre></div>
+</div>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">tools/po/crown-editor.pot</span></code></dt><dd><p>Template generated from the source files. Do not edit translations here.</p>
 </dd>
@@ -203,7 +206,7 @@ title case in the translation too, for example <code class="docutils literal not
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 19, 2026.
+      <span class="lastupdated">Last updated on Jul 11, 2026.
       </span></p>
   </div>
 

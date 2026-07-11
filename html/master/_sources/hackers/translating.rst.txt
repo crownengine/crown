@@ -11,7 +11,11 @@ Files
 
 ``tools/po/POTFILES``
     Source files scanned by ``xgettext``. Add a file here when it contains
-    translatable strings.
+    translatable strings. Regenerate the list with:
+
+    .. code::
+
+        grep -rEl --include='*.vala' '(^|[^[:alnum:]_])(_|N_|C_|NC_)[[:space:]]*\(' tools | sort > tools/po/POTFILES
 
 ``tools/po/crown-editor.pot``
     Template generated from the source files. Do not edit translations here.
