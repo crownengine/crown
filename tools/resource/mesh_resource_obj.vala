@@ -646,6 +646,22 @@ public class OBJImporter
 				return ImportResult.ERROR;
 			}
 
+			string source_path = file_src.get_path();
+			string destination_path = file_dst.get_path();
+			string mtl_suffix = source_path.has_suffix(".OBJ") ? ".MTL" : ".mtl";
+			GLib.File source_mtl = File.new_for_path(source_path.substring(0, source_path.length - 4) + mtl_suffix);
+			GLib.File destination_mtl = File.new_for_path(destination_path.substring(0, destination_path.length - 4) + mtl_suffix);
+			if (!source_mtl.equal(destination_mtl)) {
+				try {
+					source_mtl.copy(destination_mtl, FileCopyFlags.OVERWRITE);
+				} catch (GLib.IOError.NOT_FOUND e) {
+					// No-op.
+				} catch (Error e) {
+					loge(e.message);
+					return ImportResult.ERROR;
+				}
+			}
+
 			ufbx.LoadOpts load_opts = {};
 			load_opts.file_format = ufbx.FileFormat.OBJ;
 			load_opts.load_external_files = true;
