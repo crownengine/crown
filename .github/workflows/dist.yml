@@ -445,3 +445,73 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.DIST_DIR }}/*
+
+  aur:
+    needs: finalize
+    runs-on: ubuntu-22.04
+    container: archlinux:base-devel
+    permissions:
+      contents: read
+    env:
+      IS_TAG: ${{ github.ref_type == 'tag' }}
+      CROWN_VERSION: ${{ needs.finalize.outputs.crown_version }}
+      COMMIT: ${{ needs.finalize.outputs.commit }}
+      REVISION: ${{ needs.finalize.outputs.revision }}
+      GDRIVE_FILE_ID: ${{ needs.finalize.outputs.gdrive_file_id }}
+    steps:
+      - name: install-deps
+        run: pacman -Syu --noconfirm git openssh pacman-contrib
+      - name: prepare
+        uses: actions/checkout@v6
+      - name: prepare-aur-ssh
+        shell: bash
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
+          AUR_GIT_NAME: ${{ vars.AUR_GIT_NAME }}
+          AUR_GIT_EMAIL: ${{ vars.AUR_GIT_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "${AUR_SSH_PRIVATE_KEY}"
+          test -n "${AUR_KNOWN_HOSTS}"
+
+          useradd --create-home aur-builder
+          install -d -m700 -o aur-builder -g aur-builder /home/aur-builder/.ssh
+          printf '%s\n' "${AUR_SSH_PRIVATE_KEY}" > /home/aur-builder/.ssh/id_ed25519
+          printf '%s\n' "${AUR_KNOWN_HOSTS}" > /home/aur-builder/.ssh/known_hosts
+          chown aur-builder:aur-builder /home/aur-builder/.ssh/id_ed25519 /home/aur-builder/.ssh/known_hosts
+          chmod 600 /home/aur-builder/.ssh/id_ed25519
+          chmod 644 /home/aur-builder/.ssh/known_hosts
+
+          runuser -u aur-builder -- env HOME=/home/aur-builder git config --global user.name "${AUR_GIT_NAME:-Crown Engine CI}"
+          runuser -u aur-builder -- env HOME=/home/aur-builder git config --global user.email "${AUR_GIT_EMAIL:-crownengine@users.noreply.github.com}"
+      - name: publish-aur
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          run_as_builder () {
+            # shellcheck disable=SC2016
+            runuser -u aur-builder -- env HOME=/home/aur-builder \
+              bash -c 'cd "$1"; shift; exec "$@"' _ "$@"
+          }
+
+          if [ "${IS_TAG}" = "true" ]; then
+            AUR_PACKAGE=crown
+          else
+            AUR_PACKAGE=crown-nightly-bin
+          fi
+
+          AUR_DIR="/home/aur-builder/${AUR_PACKAGE}"
+          runuser -u aur-builder -- env HOME=/home/aur-builder \
+            git clone "ssh://aur@aur.archlinux.org/${AUR_PACKAGE}.git" "${AUR_DIR}"
+
+          if [ "${IS_TAG}" = "true" ]; then
+            run_as_builder "${AUR_DIR}" "${GITHUB_WORKSPACE}/scripts/dist/aur.sh" \
+              --build "${CROWN_VERSION}" 1
+          else
+            run_as_builder "${AUR_DIR}" "${GITHUB_WORKSPACE}/scripts/dist/aur.sh" \
+              --build-nightly "${CROWN_VERSION}.r${REVISION}.g${COMMIT}" 1 \
+              "${CROWN_VERSION}" "${COMMIT}" "${GDRIVE_FILE_ID}"
+          fi
+          run_as_builder "${AUR_DIR}" "${GITHUB_WORKSPACE}/scripts/dist/aur.sh" --publish
