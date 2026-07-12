@@ -136,7 +136,8 @@ inline Quaternion power(const Quaternion &q, f32 exp)
 	return q;
 }
 
-/// Returns the quaternion describing the rotation needed to face towards @a dir.
+/// Returns the quaternion describing the rotation needed to face towards @a dir. @a dir must be a
+/// unit vector. @a up must be non-zero and not parallel to @a dir.
 inline Quaternion look(const Vector3 &dir, const Vector3 &up)
 {
 	Vector3 xaxis = cross(dir, up);
