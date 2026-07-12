@@ -26,6 +26,7 @@ Changelog
 * Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 * Lua: added ``Device.string_id()`` that returns a 32-bits hash of a string.
+* Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 
 **Fixes**
 
@@ -60,7 +61,7 @@ Changelog
 * Runtime: fixed local shape transforms not being honored.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
-* Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
+* Lua: fixed ``Quaternion.look()`` returning non-orthonormal rotation matrices.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 
