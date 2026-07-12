@@ -497,7 +497,7 @@ jobs:
           }
 
           if [ "${IS_TAG}" = "true" ]; then
-            AUR_PACKAGE=crown
+            AUR_PACKAGE=crown-bin
           else
             AUR_PACKAGE=crown-nightly-bin
           fi
