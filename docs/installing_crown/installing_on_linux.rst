@@ -23,9 +23,8 @@ launch the Crown Editor.
 Installing from Package Manager
 -------------------------------
 
-If you use ArchLinux, you can install Crown directly from your favorite package
-manager:
+If you use ArchLinux, you can install Crown directly from AUR:
 
 .. code::
 
-   yay -Sy crown
+   yay -Sy crown-bin
