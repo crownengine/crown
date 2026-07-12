@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-11T22:22:02+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-07-12T00:31:54+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -154,6 +154,7 @@
 <li><p>Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.open_uri()</span></code> to open URIs with the default program.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.string_id()</span></code> that returns a 32-bits hash of a string.</p></li>
+<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">World.script_world()</span></code> and <code class="docutils literal notranslate"><span class="pre">ScriptWorld.broadcast()</span></code>.</p></li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
@@ -188,7 +189,7 @@
 <li><p>Runtime: fixed local shape transforms not being honored.</p></li>
 <li><p>Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.</p></li>
 <li><p>Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.</p></li>
-<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">World.script_world()</span></code> and <code class="docutils literal notranslate"><span class="pre">ScriptWorld.broadcast()</span></code>.</p></li>
+<li><p>Lua: fixed <code class="docutils literal notranslate"><span class="pre">Quaternion.look()</span></code> returning non-orthonormal rotation matrices.</p></li>
 <li><p>Docs: updated Android deploying instructions.</p></li>
 <li><p>Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.</p></li>
 </ul>
@@ -1122,7 +1123,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 11, 2026.
+      <span class="lastupdated">Last updated on Jul 12, 2026.
       </span></p>
   </div>
 

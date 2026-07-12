@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-24T21:51:27+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-07-12T00:42:45+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -796,7 +796,8 @@ frames. See <a class="reference internal" href="gameplay/objects_binding.html"><
 <dt><strong>elements</strong> (q)<span class="classifier">float, float, float, float</span></dt><dd><p>Returns the x, y, z and w elements of the quaternion.</p>
 </dd>
 <dt><strong>look</strong> (dir, [up])<span class="classifier">Quaternion</span></dt><dd><p>Returns the quaternion describing the rotation needed to face towards <em>dir</em>.
-If <em>up</em> is not specified, Vector3.up() is used.</p>
+<em>dir</em> must be a unit vector. <em>up</em> must be non-zero and not parallel to
+<em>dir</em>. If <em>up</em> is not specified, Vector3.up() is used.</p>
 </dd>
 <dt><strong>right</strong> (q)<span class="classifier">Vector3</span></dt><dd><p>Returns the right axis of the rotation described by <em>q</em>.</p>
 </dd>
@@ -1794,7 +1795,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 24, 2026.
+      <span class="lastupdated">Last updated on Jul 12, 2026.
       </span></p>
   </div>
 
