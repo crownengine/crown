@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed importing empty materials from FBX and OBJ models in some cases.
 * Tools: fixed importing roughness and metallic textures from Blender-exported FBX models.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
+* Lua: fixed ``Quaternion.look()`` returning non-orthonormal rotation matrices.
 
 .. _v0.63.6:
 

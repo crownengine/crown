@@ -101,8 +101,8 @@ public struct Quaternion
 
 	public Quaternion.look(Vector3 dir, Vector3 up)
 	{
-		Vector3 xaxis = dir.cross(up);
-		Vector3 zaxis = xaxis.cross(dir);
+		Vector3 xaxis = dir.cross(up).normalize();
+		Vector3 zaxis = xaxis.cross(dir).normalize();
 
 		Matrix4x4 m = {};
 		m.x.x = xaxis.x;
