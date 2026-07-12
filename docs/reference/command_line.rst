@@ -1,6 +1,18 @@
 Command line
 ============
 
+Both the runtime and the editor support command line workflows. The recommended
+way to access this functionality is to use the ``crown-launcher`` executable
+from Crown's installation directory. It provides a common entry point that
+dispatches commands to the appropriate executables.
+
+All the examples below assume that you have defined the ``CROWN`` environment
+variable to point to the absolute path of Crown's installation directory:
+
+.. code::
+
+	export CROWN=/home/user/crown
+
 Examples
 --------
 
@@ -8,36 +20,40 @@ Compile and run the project ``/home/user/crown/samples/01-physics`` using a mapp
 
 .. code::
 
-	export CROWN=/home/user/crown
-	cd $CROWN/platforms/linux64/bin
-	./crown-development --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
-
-Compile and run for HTML5:
-
-.. code::
-
-	./crown-development --compile --continue --platform html5 --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+	./crown-launcher runtime --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 
 Compile a "bundled" version of the project:
 
 .. code::
 
-	./crown-development --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+	./crown-launcher runtime --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 
 Run the project from bundled data:
 
 .. code::
 
-	./crown-development --data-dir $CROWN/samples/01-physics_linux
+	./crown-launcher runtime --data-dir $CROWN/samples/01-physics_linux
 
 Customize the data directory name:
 
 .. code::
 
-	./crown-development --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+	./crown-launcher runtime --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 
-Options
--------
+Open a project in the editor:
+
+.. code::
+
+    ./crown-launcher editor --source-dir $CROWN/samples/01-physics
+
+Deploy a project for HTML5:
+
+.. code::
+
+    ./crown-launcher editor --source-dir $CROWN/samples/01-physics --deploy --platform html5 --output-dir $CROWN/deploy
+
+Runtime Options
+---------------
 
 ``--``
 	End of the runtime's options.
@@ -152,3 +168,90 @@ Options
 
 ``--run-unit-tests``
 	Run unit tests and quit.
+
+Editor Options
+--------------
+
+``-h`` ``--help``
+    Display the help and exit.
+
+``-v`` ``--version``
+    Display version information and exit.
+
+``--source-dir <path>``
+    Project source directory.
+
+``--init``
+    Create a new project.
+
+``--import <file>... <path>``
+    Import files into a source-dir relative path.
+
+``--deploy``
+    Deploy the project.
+
+``--platform <platform>``
+    Deploy target platform.
+    Possible values for <platform> are:
+
+    * ``android``
+    * ``html5``
+    * ``linux``
+    * ``windows``
+
+``--output-dir <path>``
+    Deploy output directory.
+
+``--config <config>``
+    Deploy config.
+    Possible values for <config> are:
+
+    * ``release``
+    * ``development``
+    * ``debug``
+
+``--app-title <title>``
+    Application title.
+
+``--force``
+    Overwrite an existing package directory.
+
+``--arch <arch>``
+    Android architecture.
+    Possible values for <arch>:
+
+    * ``arm``
+    * ``arm64``
+
+``--app-id <id>``
+    Android application identifier.
+
+``--app-version-code <number>``
+    Android version code.
+
+``--app-version-name <name>``
+    Android version name.
+
+``--min-sdk-version <number>``
+    Android minimum SDK version.
+
+``--target-sdk-version <number>``
+    Android target SDK version.
+
+``--manifest <path>``
+    Android manifest file.
+
+``--keystore <path>``
+    Android signing keystore.
+
+``--keystore-pass <password>``
+    Android keystore password.
+
+``--key-alias <alias>``
+    Android signing key alias.
+
+``--key-pass <password>``
+    Android signing key password.
+
+``--index-html <path>``
+    HTML5 index.html file.
