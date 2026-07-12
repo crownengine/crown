@@ -4659,11 +4659,11 @@ public static int main(string[] args)
 
 	Project project = new Project();
 	project.set_toolchain_dir(_toolchain_dir.get_path());
-	project.register_importer("Sprite", { "png" }, SpriteResource.import, 2.1);
-	project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
-	project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, 2.0);
-	project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
-	project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
+	project.register_importer("sprite", { "png" }, SpriteResource.import, 2.1);
+	project.register_importer("mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
+	project.register_importer("sound", { "wav", "ogg" }, SoundResource.import, 2.0);
+	project.register_importer("texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
+	project.register_importer("font", { "ttf", "otf" }, FontResource.import, 3.0);
 
 	Database database = new Database(project);
 
