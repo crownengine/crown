@@ -97,7 +97,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _window_width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _window_height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _renderer_type(RendererType::AUTO)
-	, _display_server(DisplayServer::WAYLAND)
+	, _display_server(DisplayServer::X11)
 {
 }
 
