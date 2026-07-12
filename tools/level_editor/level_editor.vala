@@ -578,12 +578,21 @@ public struct CommandLineOptions
 			+ "  --init                           Create a new project.\n"
 			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
 			+ "  --deploy                         Deploy the project.\n"
-			+ "  --platform <platform>            Target platform: android, html5, linux, windows.\n"
+			+ "  --platform <platform>            Deploy target platform.\n"
+			+ "      android\n"
+			+ "      html5\n"
+			+ "      linux\n"
+			+ "      windows\n"
 			+ "  --output-dir <path>              Deploy output directory.\n"
-			+ "  --config <config>                Deploy config: release, development, debug.\n"
+			+ "  --config <config>                Deploy config.\n"
+			+ "      release\n"
+			+ "      development\n"
+			+ "      debug\n"
 			+ "  --app-title <title>              Application title.\n"
 			+ "  --force                          Overwrite an existing package directory.\n"
-			+ "  --arch <arch>                    Android architecture: arm, arm64.\n"
+			+ "  --arch <arch>                    Android architecture.\n"
+			+ "      arm\n"
+			+ "      arm64\n"
 			+ "  --app-id <id>                    Android application identifier.\n"
 			+ "  --app-version-code <number>      Android version code.\n"
 			+ "  --app-version-name <name>        Android version name.\n"
@@ -645,7 +654,7 @@ public struct CommandLineOptions
 			{ "init",               0,   0, GLib.OptionArg.NONE,     ref option_do_init,                   "Create a new project.",                 null       },
 			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
 			{ "deploy",             0,   0, GLib.OptionArg.NONE,     ref option_do_deploy,                 "Deploy the project.",                   null       },
-			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Target platform.",                      "platform" },
+			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Deploy target platform.",               "platform" },
 			{ "output-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_output_dir,         "Deploy output directory.",              "path"     },
 			{ "config",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_config,             "Deploy config.",                        "config"   },
 			{ "app-title",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_title,          "Application title.",                    "title"    },
