@@ -20,7 +20,7 @@ Changelog
 * Tools: added command line support for creating and deploying projects and for importing resources.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
-* Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
+* Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
 * Runtime: added hot-reloading support for mesh animations.
 * Data Compiler/Runtime: identical physics colliders are deduplicated in unit/level resources and shared at runtime to reduce resource size and improve performance.
 * Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
