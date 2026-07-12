@@ -161,6 +161,14 @@ Scale gizmo
   to scale across the respective plane.
 * Drag the large gray circle to scale uniformly on all axes at once.
 
+Aligning objects with the camera
+--------------------------------
+
+Select one or more objects and press ``Shift + Ctrl + F`` to move and rotate
+them so the last-selected object matches the editor camera's position and
+orientation. When multiple objects are selected, Crown preserves their positions
+and orientations relative to one another.
+
 Local and World axis
 --------------------
 
