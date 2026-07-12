@@ -559,6 +559,7 @@ public struct CommandLineOptions
 	public bool do_import;
 	public string[] import_filenames;
 	public string import_destination;
+	public string? import_as;
 	public bool do_deploy;
 	public DeployOptions deploy;
 
@@ -577,6 +578,12 @@ public struct CommandLineOptions
 			+ "  --source-dir <path>              Project source directory.\n"
 			+ "  --init                           Create a new project.\n"
 			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
+			+ "  --as <type>                      Importer type.\n"
+			+ "      font\n"
+			+ "      mesh\n"
+			+ "      sound\n"
+			+ "      sprite\n"
+			+ "      texture\n"
 			+ "  --deploy                         Deploy the project.\n"
 			+ "  --platform <platform>            Deploy target platform.\n"
 			+ "      android\n"
@@ -618,6 +625,7 @@ public struct CommandLineOptions
 		do_import = false;
 		import_filenames = {};
 		import_destination = "";
+		import_as = null;
 		do_deploy = false;
 		deploy = DeployOptions();
 		error = "";
@@ -627,6 +635,7 @@ public struct CommandLineOptions
 		bool option_show_version = false;
 		bool option_do_init = false;
 		bool option_do_import = false;
+		string? option_import_as = null;
 		bool option_do_deploy = false;
 		string? option_deploy_platform = null;
 		string? option_deploy_output_dir = null;
@@ -653,6 +662,7 @@ public struct CommandLineOptions
 			{ "source-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,                "Project source directory.",             "path"     },
 			{ "init",               0,   0, GLib.OptionArg.NONE,     ref option_do_init,                   "Create a new project.",                 null       },
 			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
+			{ "as",                 0,   0, GLib.OptionArg.STRING,   ref option_import_as,                 "Importer type.",                        "type"     },
 			{ "deploy",             0,   0, GLib.OptionArg.NONE,     ref option_do_deploy,                 "Deploy the project.",                   null       },
 			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Deploy target platform.",               "platform" },
 			{ "output-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_output_dir,         "Deploy output directory.",              "path"     },
@@ -690,6 +700,7 @@ public struct CommandLineOptions
 		source_dir = option_source_dir;
 		do_init = option_do_init;
 		do_import = option_do_import;
+		import_as = option_import_as;
 		do_deploy = option_do_deploy;
 
 		if (show_help || show_version)
@@ -733,6 +744,11 @@ public struct CommandLineOptions
 
 		if (!do_deploy && deploy_option_seen) {
 			error = "--deploy must be specified.";
+			return false;
+		}
+
+		if (!do_import && option_import_as != null) {
+			error = "--import must be specified.";
 			return false;
 		}
 
@@ -4685,6 +4701,10 @@ public static int main(string[] args)
 
 		bool import_failed = false;
 		int num_import_results = 0;
+		StringId32? importer_name = null;
+		if (command_line_options.import_as != null)
+			importer_name = StringId32(command_line_options.import_as);
+
 		project.import(command_line_options.import_destination
 			, command_line_options.import_filenames
 			, (result, primary_resource_path) => {
@@ -4694,6 +4714,7 @@ public static int main(string[] args)
 			}
 			, database
 			, null
+			, importer_name
 			);
 
 		if (num_import_results == 0) {

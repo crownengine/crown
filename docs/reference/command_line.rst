@@ -46,6 +46,18 @@ Open a project in the editor:
 
     ./crown-launcher editor --source-dir $CROWN/samples/01-physics
 
+Import an FBX mesh:
+
+.. code::
+
+    ./crown-launcher editor --source-dir $CROWN/samples/01-physics --import chair.fbx units/chair
+
+Import a PNG as a sprite:
+
+.. code::
+
+    ./crown-launcher editor --source-dir $CROWN/samples/01-physics --import hero.png units/hero --as sprite
+
 Deploy a project for HTML5:
 
 .. code::
@@ -186,6 +198,16 @@ Editor Options
 
 ``--import <file>... <path>``
     Import files into a source-dir relative path.
+
+``--as <type>``
+    Import files using the specified importer type.
+    Possible values for <type> are:
+
+    * ``font``
+    * ``mesh``
+    * ``sound``
+    * ``sprite``
+    * ``texture``
 
 ``--deploy``
     Deploy the project.
