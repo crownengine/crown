@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-21T20:44:49+00:00" /><meta property="og:title" content="Command line" />
+    <meta property="article:modified_time" content="2026-07-12T18:36:52+00:00" /><meta property="og:title" content="Command line" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/command_line.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="Examples: Compile and run the project/home/user/crown/samples/01-physics using a mapped core folder: Compile and run for HTML5: Compile a “bundled” version of the project: Run the project from bundled data: Customize the data directory name: Options:--, End of the runtime’s op..." />
+<meta property="og:description" content="Both the runtime and the editor support command line workflows. The recommended way to access this functionality is to use the crown-launcher executable from Crown’s installation directory. It provides a common entry point that dispatches commands to the appropriate executable..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="Examples: Compile and run the project/home/user/crown/samples/01-physics using a mapped core folder: Compile and run for HTML5: Compile a “bundled” version of the project: Run the project from bundled data: Customize the data directory name: Options:--, End of the runtime’s op..." />
+<meta name="description" content="Both the runtime and the editor support command line workflows. The recommended way to access this functionality is to use the crown-launcher executable from Crown’s installation directory. It provides a common entry point that dispatches commands to the appropriate executable..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -74,7 +74,8 @@
 <li class="toctree-l2"><a class="reference internal" href="boot_config.html">boot.config reference</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Command line</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-options">Runtime Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#editor-options">Editor Options</a></li>
 </ul>
 </li>
 </ul>
@@ -112,33 +113,44 @@
              
   <section id="command-line">
 <h1>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
+<p>Both the runtime and the editor support command line workflows. The recommended
+way to access this functionality is to use the <code class="docutils literal notranslate"><span class="pre">crown-launcher</span></code> executable
+from Crown’s installation directory. It provides a common entry point that
+dispatches commands to the appropriate executables.</p>
+<p>All the examples below assume that you have defined the <code class="docutils literal notranslate"><span class="pre">CROWN</span></code> environment
+variable to point to the absolute path of Crown’s installation directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">CROWN</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">crown</span>
+</pre></div>
+</div>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>Compile and run the project <code class="docutils literal notranslate"><span class="pre">/home/user/crown/samples/01-physics</span></code> using a mapped <code class="docutils literal notranslate"><span class="pre">core</span></code> folder:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export CROWN=/home/user/crown
-cd $CROWN/platforms/linux64/bin
-./crown-development --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
-</pre></div>
-</div>
-<p>Compile and run for HTML5:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --continue --platform html5 --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher runtime --compile --continue --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 </pre></div>
 </div>
 <p>Compile a “bundled” version of the project:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher runtime --compile --bundle --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
 </pre></div>
 </div>
 <p>Run the project from bundled data:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --data-dir $CROWN/samples/01-physics_linux
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher runtime --data-dir $CROWN/samples/01-physics_linux
 </pre></div>
 </div>
 <p>Customize the data directory name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-development --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher runtime --compile --data-dir $CROWN/samples/01-physics_custom --source-dir $CROWN/samples/01-physics --map-source-dir core $CROWN/samples
+</pre></div>
+</div>
+<p>Open a project in the editor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics
+</pre></div>
+</div>
+<p>Deploy a project for HTML5:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics --deploy --platform html5 --output-dir $CROWN/deploy
 </pre></div>
 </div>
 </section>
-<section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<section id="runtime-options">
+<h2>Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
 <dl>
 <dt><code class="docutils literal notranslate"><span class="pre">--</span></code></dt><dd><p>End of the runtime’s options.</p>
 <p>All options following <code class="docutils literal notranslate"><span class="pre">--</span></code> are passed to the game but will not be
@@ -224,6 +236,75 @@ Possible values for &lt;renderer&gt; are:</p>
 </dd>
 </dl>
 </section>
+<section id="editor-options">
+<h2>Editor Options<a class="headerlink" href="#editor-options" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-h</span></code> <code class="docutils literal notranslate"><span class="pre">--help</span></code></dt><dd><p>Display the help and exit.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-v</span></code> <code class="docutils literal notranslate"><span class="pre">--version</span></code></dt><dd><p>Display version information and exit.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--source-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Project source directory.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--init</span></code></dt><dd><p>Create a new project.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--import</span> <span class="pre">&lt;file&gt;...</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Import files into a source-dir relative path.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--deploy</span></code></dt><dd><p>Deploy the project.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--platform</span> <span class="pre">&lt;platform&gt;</span></code></dt><dd><p>Deploy target platform.
+Possible values for &lt;platform&gt; are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">android</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">html5</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linux</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows</span></code></p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--output-dir</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Deploy output directory.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--config</span> <span class="pre">&lt;config&gt;</span></code></dt><dd><p>Deploy config.
+Possible values for &lt;config&gt; are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">release</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">development</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debug</span></code></p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--app-title</span> <span class="pre">&lt;title&gt;</span></code></dt><dd><p>Application title.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--force</span></code></dt><dd><p>Overwrite an existing package directory.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--arch</span> <span class="pre">&lt;arch&gt;</span></code></dt><dd><p>Android architecture.
+Possible values for &lt;arch&gt;:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">arm</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arm64</span></code></p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--app-id</span> <span class="pre">&lt;id&gt;</span></code></dt><dd><p>Android application identifier.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--app-version-code</span> <span class="pre">&lt;number&gt;</span></code></dt><dd><p>Android version code.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--app-version-name</span> <span class="pre">&lt;name&gt;</span></code></dt><dd><p>Android version name.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--min-sdk-version</span> <span class="pre">&lt;number&gt;</span></code></dt><dd><p>Android minimum SDK version.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--target-sdk-version</span> <span class="pre">&lt;number&gt;</span></code></dt><dd><p>Android target SDK version.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--manifest</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Android manifest file.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--keystore</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Android signing keystore.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--keystore-pass</span> <span class="pre">&lt;password&gt;</span></code></dt><dd><p>Android keystore password.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--key-alias</span> <span class="pre">&lt;alias&gt;</span></code></dt><dd><p>Android signing key alias.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--key-pass</span> <span class="pre">&lt;password&gt;</span></code></dt><dd><p>Android signing key password.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--index-html</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>HTML5 index.html file.</p>
+</dd>
+</dl>
+</section>
 </section>
 
 
@@ -238,7 +319,7 @@ Possible values for &lt;renderer&gt; are:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 21, 2026.
+      <span class="lastupdated">Last updated on Jul 12, 2026.
       </span></p>
   </div>
 
