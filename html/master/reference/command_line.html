@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-12T18:36:52+00:00" /><meta property="og:title" content="Command line" />
+    <meta property="article:modified_time" content="2026-07-12T22:25:31+00:00" /><meta property="og:title" content="Command line" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/command_line.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -144,6 +144,14 @@ variable to point to the absolute path of Crown’s installation directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics
 </pre></div>
 </div>
+<p>Import an FBX mesh:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics --import chair.fbx units/chair
+</pre></div>
+</div>
+<p>Import a PNG as a sprite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics --import hero.png units/hero --as sprite
+</pre></div>
+</div>
 <p>Deploy a project for HTML5:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics --deploy --platform html5 --output-dir $CROWN/deploy
 </pre></div>
@@ -248,6 +256,16 @@ Possible values for &lt;renderer&gt; are:</p>
 <dt><code class="docutils literal notranslate"><span class="pre">--init</span></code></dt><dd><p>Create a new project.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--import</span> <span class="pre">&lt;file&gt;...</span> <span class="pre">&lt;path&gt;</span></code></dt><dd><p>Import files into a source-dir relative path.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--as</span> <span class="pre">&lt;type&gt;</span></code></dt><dd><p>Import files using the specified importer type.
+Possible values for &lt;type&gt; are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">font</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sound</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sprite</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">texture</span></code></p></li>
+</ul>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--deploy</span></code></dt><dd><p>Deploy the project.</p>
 </dd>

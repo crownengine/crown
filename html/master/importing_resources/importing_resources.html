@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Importing resources" />
+    <meta property="article:modified_time" content="2026-07-12T22:25:31+00:00" /><meta property="og:title" content="Importing resources" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_resources.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -67,6 +67,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Importing resources</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drag-and-drop">Drag-and-drop</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#import-via-project-browser">Import via Project Browser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#import-via-command-line">Import via Command Line</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
@@ -149,6 +150,19 @@ the resource-type selector to pick the desired resource:</p>
 </figcaption>
 </figure>
 </section>
+<section id="import-via-command-line">
+<h2>Import via Command Line<a class="headerlink" href="#import-via-command-line" title="Permalink to this headline">¶</a></h2>
+<p>When importing from the command line, the editor automatically selects the
+appropriate importer based on file extensions. Use <code class="docutils literal notranslate"><span class="pre">--as</span></code> to select a specific
+importer when an extension supports more than one resource type. For example,
+import a PNG as a sprite with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./crown-launcher editor --source-dir $CROWN/samples/01-physics --import hero.png units/hero --as sprite
+</pre></div>
+</div>
+<p>The destination path is relative to the project source directory. See the
+<a class="reference internal" href="../reference/command_line.html"><span class="doc">command line reference</span></a> for <code class="docutils literal notranslate"><span class="pre">--import</span></code>
+syntax and the list of supported importer types.</p>
+</section>
 </section>
 
 
@@ -163,7 +177,7 @@ the resource-type selector to pick the desired resource:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 16, 2026.
+      <span class="lastupdated">Last updated on Jul 12, 2026.
       </span></p>
   </div>
 
