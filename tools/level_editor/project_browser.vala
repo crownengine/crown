@@ -49,6 +49,14 @@ public GLib.Menu? project_entry_menu_common(ProjectStore.RowKind kind, string ty
 		mi = new GLib.MenuItem(_("Add to Favorites"), null);
 		mi.set_action_and_target_value("app.favorite-resource", new GLib.Variant.tuple({new GLib.Variant.int32((int)kind), type, name}));
 		common_menu.append_item(mi);
+
+		mi = new GLib.MenuItem(_("Rename..."), null);
+		mi.set_action_and_target_value("app.rename-path", new GLib.Variant.string(project_path(kind, type, name)));
+		common_menu.append_item(mi);
+
+		mi = new GLib.MenuItem(_("Move To..."), null);
+		mi.set_action_and_target_value("app.move-path", new GLib.Variant.string(project_path(kind, type, name)));
+		common_menu.append_item(mi);
 	}
 
 	return common_menu;
@@ -165,8 +173,16 @@ public GLib.Menu? favorites_entry_menu_create(ProjectStore.RowKind kind, string 
 	mi.set_action_and_target_value("app.copy-name", new GLib.Variant.string(name));
 	common_menu.append_item(mi);
 
+	mi = new GLib.MenuItem(_("Rename..."), null);
+	mi.set_action_and_target_value("app.rename-path", new GLib.Variant.string(path));
+	common_menu.append_item(mi);
+
 	mi = new GLib.MenuItem(_("Dependencies..."), null);
 	mi.set_action_and_target_value("app.dependencies", new GLib.Variant.string(path));
+	common_menu.append_item(mi);
+
+	mi = new GLib.MenuItem(_("Move To..."), null);
+	mi.set_action_and_target_value("app.move-path", new GLib.Variant.string(path));
 	common_menu.append_item(mi);
 
 	mi = new GLib.MenuItem(_("Remove from Favorites"), null);

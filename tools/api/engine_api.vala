@@ -74,6 +74,33 @@ namespace DataCompilerApi
 		return "{\"type\":\"dependencies\",\"path\":\"%s\"}".printf(escape_json(path));
 	}
 
+	string move_message(string type, string[] from, string[] to, string[]? prune_dirs = null)
+	{
+		StringBuilder message = new StringBuilder("{\"type\":\"%s\",\"moves\":[".printf(type));
+		for (int i = 0; i < from.length && i < to.length; ++i)
+			message.append("{\"from\":\"%s\",\"to\":\"%s\"},".printf(escape_json(from[i])
+				, escape_json(to[i])
+				));
+
+		message.append("],\"prune_dirs\":[");
+		if (prune_dirs != null) {
+			foreach (string dir in prune_dirs)
+				message.append("\"%s\",".printf(escape_json(dir)));
+		}
+
+		return message.append("]}").str;
+	}
+
+	public string move_preview(string[] from, string[] to)
+	{
+		return move_message("move_preview", from, to);
+	}
+
+	public string move_apply(string[] from, string[] to, string[]? prune_dirs = null)
+	{
+		return move_message("move_apply", from, to, prune_dirs);
+	}
+
 } /* namespace DataCompilerApi */
 
 namespace DeviceApi

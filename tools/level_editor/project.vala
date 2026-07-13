@@ -610,6 +610,11 @@ public class Project
 
 	public void change_file(string path, uint64 size, uint64 mtime)
 	{
+		if (!_map.has_key(path)) {
+			logw("change_file: map does not contain path: %s".printf(path));
+			return;
+		}
+
 		string type = path_extension(path);
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 

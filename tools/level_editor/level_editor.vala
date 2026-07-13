@@ -1059,6 +1059,8 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		{ "duplicate-resource",   on_duplicate_resource,   "s",     null },
 		{ "dependencies",         on_dependencies,         "s",     null },
+		{ "move-path",            on_move_path,            "s",     null },
+		{ "rename-path",          on_rename_path,          "s",     null },
 		{ "delete-file",          on_delete_file,          "s",     null },
 		{ "delete-directory",     on_delete_directory,     "s",     null },
 		{ "create-directory",     on_create_directory,     "(ss)",  null },
@@ -1790,6 +1792,10 @@ public class LevelEditorApplication : Gtk.Application
 			_data_compiler.refresh_list_finished((Gee.ArrayList<Value?>)msg["list"]);
 		} else if (msg_type == "dependencies") {
 			_data_compiler.dependencies_finished(msg);
+		} else if (msg_type == "move_preview") {
+			_data_compiler.move_preview_finished(msg);
+		} else if (msg_type == "move_apply") {
+			_data_compiler.move_apply_finished(msg);
 		} else if (msg_type == "unit_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
 			string name = (string)msg["name"];
@@ -3529,9 +3535,8 @@ public class LevelEditorApplication : Gtk.Application
 			, title
 			);
 		md.format_secondary_text("%s", sb.str.strip());
-		md.run();
-		md.destroy();
-
+		md.response.connect(() => { md.destroy(); });
+		md.show_all();
 		return true;
 	}
 
@@ -3562,6 +3567,192 @@ public class LevelEditorApplication : Gtk.Application
 				if (!dependencies_show.end(res))
 					logw("Failed to show dependencies for %s".printf(resource_path));
 			});
+	}
+
+	public async bool move_show(string source_path, string target_path)
+	{
+		MoveOperation move_operation = new MoveOperation(_project, _database, _level);
+		string error;
+		Hashtable preview = yield _data_compiler.move_preview({ source_path }, { target_path });
+		if (!(bool)preview["success"]) {
+			data_compiler_show_errors(preview, _("Cannot move resource"));
+			return false;
+		}
+
+		MoveDialog move_dialog = new MoveDialog(this.active_window
+			, _project_browser
+			, _thumbnail_cache
+			, _("Move Resources")
+			, _("Source paths to move.")
+			, preview
+			);
+		string[] checked_from = {};
+		string[] checked_to = {};
+		unowned GLib.SourceFunc dialog_callback = move_show.callback;
+		move_dialog.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.ACCEPT)
+					move_dialog.selected(out checked_from, out checked_to);
+				dialog_callback();
+			});
+		move_dialog.show_all();
+		move_dialog.present();
+		yield;
+
+		move_dialog.destroy();
+		if (checked_from.length == 0)
+			return true;
+
+		string? new_active_level = null;
+		for (int i = 0; i < checked_from.length; ++i) {
+			string? old_type = ResourceId.type(checked_from[i]);
+			string? old_name = ResourceId.name(checked_from[i]);
+			if (old_type == OBJECT_TYPE_LEVEL && old_name == _level._name) {
+				new_active_level = ResourceId.name(checked_to[i]);
+				break;
+			}
+		}
+
+		if (new_active_level != null && _database.changed()) {
+			string old_active_level = ResourceId.path(OBJECT_TYPE_LEVEL, _level._name);
+			if (!do_save(_project.absolute_path(old_active_level)))
+				return false;
+		}
+
+		string[] prune_dirs;
+		if (move_operation.prepare(out error, out prune_dirs, preview, checked_from, checked_to) != 0) {
+			loge(error);
+			Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
+				, Gtk.DialogFlags.MODAL
+				, Gtk.MessageType.ERROR
+				, Gtk.ButtonsType.CLOSE
+				, "%s"
+				, _("Cannot move resource")
+				);
+			md.format_secondary_text("%s", error);
+			md.response.connect(() => { md.destroy(); });
+			md.show_all();
+			return false;
+		}
+
+		Hashtable apply = yield _data_compiler.move_apply(checked_from, checked_to, prune_dirs);
+		if (!(bool)apply["success"]) {
+			data_compiler_show_errors(apply, _("Cannot move resource"));
+			return false;
+		}
+
+		update_active_window_title();
+		if (!(yield compile_and_reload()))
+			return false;
+
+		if (new_active_level != null)
+			load_level(new_active_level);
+
+		string? reveal_type = ResourceId.type(target_path);
+		string? reveal_name = ResourceId.name(target_path);
+		if (reveal_type != null && reveal_name != null)
+			_project_browser.reveal(ProjectStore.RowKind.RESOURCE, reveal_type, reveal_name);
+		else
+			_project_browser.reveal(ProjectStore.RowKind.FOLDER, "", target_path);
+		return true;
+	}
+
+	public void on_move_path(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string source_path = param.get_string();
+		string current_parent = ResourceId.parent_folder(source_path);
+		Gtk.FileChooserDialog dg = new Gtk.FileChooserDialog(_("Move To")
+			, this.active_window
+			, Gtk.FileChooserAction.SELECT_FOLDER
+			, _("Cancel")
+			, Gtk.ResponseType.CANCEL
+			, _("Move")
+			, Gtk.ResponseType.ACCEPT
+			);
+		try {
+			dg.set_current_folder_file(GLib.File.new_for_path(_project.absolute_path(current_parent)));
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+
+		dg.response.connect((response_id) => {
+				GLib.File? file = dg.get_file();
+				string? selected = file != null? file.get_path() : null;
+				dg.destroy();
+
+				if (response_id != Gtk.ResponseType.ACCEPT || selected == null)
+					return;
+
+				string source_dir = _project.source_dir();
+				if (selected != source_dir && !_project.path_is_within_source_dir(selected)) {
+					loge("Move destination must be inside the project source directory: %s".printf(selected));
+					return;
+				}
+				string destination_dir = selected == source_dir
+					? ""
+					: ResourceId.normalize(_project.resource_filename(selected))
+					;
+
+				string basename = GLib.Path.get_basename(source_path);
+				string target_path = destination_dir != "" ? destination_dir + "/" + basename : basename;
+				if (target_path == source_path)
+					return;
+
+				move_show.begin(source_path, target_path, (obj, res) => {
+						if (!move_show.end(res))
+							logw("Failed to move %s".printf(source_path));
+					});
+			}
+			);
+		dg.show_all();
+	}
+
+	public void on_rename_path(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string source_path = param.get_string();
+		string? source_type = ResourceId.type(source_path);
+		string source_name = GLib.Path.get_basename(ResourceId.name(source_path) ?? source_path);
+
+		Gtk.Dialog dg = new Gtk.Dialog.with_buttons(_("Rename")
+			, this.active_window
+			, Gtk.DialogFlags.MODAL
+			, _("Cancel")
+			, Gtk.ResponseType.CANCEL
+			, _("Rename")
+			, Gtk.ResponseType.OK
+			, null
+			);
+		dg.set_default_response(Gtk.ResponseType.OK);
+
+		InputString sb = new InputString();
+		sb.value = source_name;
+		sb._entry.activates_default = true;
+		dg.get_content_area().add(sb);
+
+		dg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.OK) {
+					string new_basename = sb.value.strip();
+					if (new_basename != "") {
+						if (new_basename.index_of_char('/') != -1
+							|| new_basename.index_of_char('\\') != -1
+							) {
+							loge("Rename name must not contain path separators");
+						} else {
+							string target_basename = ResourceId.path(source_type ?? "", new_basename);
+							string parent = ResourceId.parent_folder(source_path);
+							string target_path = parent != "" ? parent + "/" + target_basename : target_basename;
+
+							if (target_path != source_path) {
+								move_show.begin(source_path, target_path, (obj, res) => {
+										if (!move_show.end(res))
+											logw("Failed to rename %s".printf(source_path));
+									});
+							}
+						}
+					}
+				}
+				dg.destroy();
+			});
+		dg.show_all();
 	}
 
 	public void on_changelog(GLib.SimpleAction action, GLib.Variant? param)

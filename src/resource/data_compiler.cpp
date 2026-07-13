@@ -258,6 +258,52 @@ static void console_command_refresh_list(ConsoleServer &cs, u32 client_id, const
 	cs.send(client_id, string_stream::c_str(ss));
 }
 
+struct MoveRewrite
+{
+	ALLOCATOR_AWARE;
+
+	DynamicString path;
+	DynamicString from;
+	DynamicString to;
+
+	explicit MoveRewrite(Allocator &a)
+		: path(a)
+		, from(a)
+		, to(a)
+	{
+	}
+};
+
+struct MoveRename
+{
+	ALLOCATOR_AWARE;
+
+	DynamicString from;
+	DynamicString to;
+
+	explicit MoveRename(Allocator &a)
+		: from(a)
+		, to(a)
+	{
+	}
+};
+
+struct MoveTrackedPath
+{
+	ALLOCATOR_AWARE;
+
+	DynamicString from;
+	DynamicString root_from;
+	DynamicString root_to;
+
+	explicit MoveTrackedPath(Allocator &a)
+		: from(a)
+		, root_from(a)
+		, root_to(a)
+	{
+	}
+};
+
 static void json_write_string(StringStream &ss, const char *str)
 {
 	ss << '"';
@@ -284,6 +330,50 @@ static bool source_path_exists(DataCompiler &dc, const DynamicString &path)
 	return st.file_type != Stat::NO_ENTRY;
 }
 
+static bool source_path_is_mapped(DataCompiler &dc, const DynamicString &path)
+{
+	TempAllocator256 ta;
+	DynamicString source_name(ta);
+
+	const char *slash = strchr(path.c_str(), '/');
+	if (slash != NULL)
+		source_name.set(path.c_str(), u32(slash - path.c_str()));
+	else
+		source_name = path;
+
+	return !source_name.empty()
+		&& hash_map::has(dc._source_dirs, source_name)
+		;
+}
+
+static bool source_path_is_valid(const DynamicString &path)
+{
+	if (path.empty() || path::is_absolute(path.c_str()))
+		return false;
+	if (path.c_str()[0] == '/' || strchr(path.c_str(), '\\') != NULL)
+		return false;
+
+	const char *component = path.c_str();
+	while (true) {
+		const char *slash = strchr(component, '/');
+		const u32 length = slash != NULL
+			? u32(slash - component)
+			: strlen32(component)
+			;
+		if (length == 0
+			|| (length == 1 && component[0] == '.')
+			|| (length == 2 && component[0] == '.' && component[1] == '.')
+			)
+			return false;
+
+		if (slash == NULL)
+			break;
+		component = slash + 1;
+	}
+
+	return true;
+}
+
 static void write_string_array(StringStream &ss, const char *name, const Vector<DynamicString> &strings)
 {
 	ss << "\"" << name << "\":[";
@@ -305,6 +395,47 @@ static void write_string_array(StringStream &ss, const char *name, const HashSet
 		ss << ",";
 	}
 	ss << "]";
+}
+
+static bool source_path_is_directory(DataCompiler &dc, const DynamicString &path)
+{
+	Stat deffault;
+	deffault.file_type = Stat::NO_ENTRY;
+	deffault.size = 0;
+	deffault.mtime = 0;
+
+	const Stat st = hash_map::get(dc._source_index._paths, path, deffault);
+	if (st.file_type == Stat::DIRECTORY)
+		return true;
+	if (st.file_type != Stat::NO_ENTRY)
+		return false;
+
+	TempAllocator512 ta;
+	DynamicString prefix(ta);
+	prefix = path;
+	prefix += '/';
+
+	auto cur = hash_map::begin(dc._source_index._paths);
+	auto end = hash_map::end(dc._source_index._paths);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(dc._source_index._paths, cur);
+		if (cur->second.file_type != Stat::NO_ENTRY && cur->first.has_prefix(prefix.c_str()))
+			return true;
+	}
+
+	return false;
+}
+
+static void collect_outgoing_paths(HashSet<DynamicString> &paths
+	, const HashMap<DynamicString, u32> &references
+	)
+{
+	auto cur = hash_map::begin(references);
+	auto end = hash_map::end(references);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(references, cur);
+		hash_set::insert(paths, cur->first);
+	}
 }
 
 static void collect_reference_users(HashSet<DynamicString> &users
@@ -331,7 +462,156 @@ static void collect_reference_users(HashSet<DynamicString> &users
 	}
 }
 
-static void dependencies_collect_outgoing_paths(HashSet<DynamicString> &paths
+static void collect_incoming_users(HashSet<DynamicString> &users
+	, DataCompiler &dc
+	, const DynamicString &path
+	, const HashSet<ResourceId> &ignored_ids
+	)
+{
+	collect_reference_users(users, dc, dc._data_requirements, path, ignored_ids);
+	collect_reference_users(users, dc, dc._data_dependencies, path, ignored_ids);
+}
+
+static void push_rewrite(Vector<MoveRewrite> &rewrites
+	, HashSet<DynamicString> &rewrite_paths
+	, const DynamicString &path
+	, const DynamicString &from
+	, const DynamicString &to
+	)
+{
+	TempAllocator512 ta;
+	DynamicString key(ta);
+	key += path;
+	key += '\n';
+	key += from;
+	key += '\n';
+	key += to;
+
+	if (hash_set::has(rewrite_paths, key))
+		return;
+
+	hash_set::insert(rewrite_paths, key);
+
+	MoveRewrite rewrite(default_allocator());
+	rewrite.path = path;
+	rewrite.from = from;
+	rewrite.to = to;
+	vector::push_back(rewrites, rewrite);
+}
+
+static void collect_rewrite_users(Vector<MoveRewrite> &rewrites
+	, HashSet<DynamicString> &rewrite_paths
+	, DataCompiler &dc
+	, const DynamicString &from
+	, const DynamicString &to
+	)
+{
+	HashSet<DynamicString> users(default_allocator());
+	HashSet<ResourceId> ignored_ids(default_allocator());
+	collect_incoming_users(users, dc, from, ignored_ids);
+
+	auto cur = hash_set::begin(users);
+	auto end = hash_set::end(users);
+	for (; cur != end; ++cur) {
+		HASH_SET_SKIP_HOLE(users, cur);
+		push_rewrite(rewrites, rewrite_paths, *cur, from, to);
+	}
+}
+
+static bool path_in_source_dirs(DataCompiler &dc
+	, const HashSet<DynamicString> &source_dirs
+	, const DynamicString &path
+	)
+{
+	TempAllocator512 ta;
+	DynamicString source_dir(ta);
+	dc.source_dir(path.c_str(), source_dir);
+	return hash_set::has(source_dirs, source_dir);
+}
+
+static bool path_in_folder(const DynamicString &path, const DynamicString &folder)
+{
+	TempAllocator512 ta;
+	DynamicString prefix(ta);
+	prefix = folder;
+	prefix += '/';
+	return path.has_prefix(prefix.c_str());
+}
+
+static void track_moved_path(HashSet<DynamicString> &move_paths
+	, HashSet<DynamicString> &move_target_paths
+	, Vector<MoveTrackedPath> &move_scan
+	, HashSet<ResourceId> &moved_ids
+	, const DynamicString &from
+	, const DynamicString &to
+	, const DynamicString &root_from
+	, const DynamicString &root_to
+	)
+{
+	const bool is_new = !hash_set::has(move_paths, from);
+	hash_set::insert(move_paths, from);
+	hash_set::insert(move_target_paths, to);
+
+	if (resource_type(from.c_str()) != NULL) {
+		hash_set::insert(moved_ids, resource_id(from.c_str()));
+
+		if (is_new) {
+			MoveTrackedPath tracked(default_allocator());
+			tracked.from = from;
+			tracked.root_from = root_from;
+			tracked.root_to = root_to;
+			vector::push_back(move_scan, tracked);
+		}
+	}
+}
+
+static void candidate_target_path(DynamicString &to
+	, const MoveTrackedPath &tracked
+	, const DynamicString &from
+	)
+{
+	const char *relative = from.c_str();
+	if (!tracked.root_from.empty())
+		relative = path_in_folder(from, tracked.root_from)
+			? from.c_str() + tracked.root_from.length() + 1
+			: path::basename(from.c_str())
+			;
+
+	to = tracked.root_to;
+	if (!to.empty())
+		to += '/';
+	to += relative;
+}
+
+static void write_rewrite_array(StringStream &ss, const Vector<MoveRewrite> &rewrites)
+{
+	ss << "\"rewrite\":[";
+	for (u32 i = 0; i < vector::size(rewrites); ++i) {
+		ss << "{\"path\":";
+		json_write_string(ss, rewrites[i].path.c_str());
+		ss << ",\"from\":";
+		json_write_string(ss, rewrites[i].from.c_str());
+		ss << ",\"to\":";
+		json_write_string(ss, rewrites[i].to.c_str());
+		ss << "},";
+	}
+	ss << "]";
+}
+
+static void write_rename_array(StringStream &ss, const Vector<MoveRename> &renames, const char *name)
+{
+	ss << "\"" << name << "\":[";
+	for (u32 i = 0; i < vector::size(renames); ++i) {
+		ss << "{\"from\":";
+		json_write_string(ss, renames[i].from.c_str());
+		ss << ",\"to\":";
+		json_write_string(ss, renames[i].to.c_str());
+		ss << "},";
+	}
+	ss << "]";
+}
+
+static void collect_outgoing_paths(HashSet<DynamicString> &paths
 	, const HashMap<StringId64, HashMap<DynamicString, u32>> &references
 	, ResourceId id
 	, const DynamicString &path
@@ -339,14 +619,8 @@ static void dependencies_collect_outgoing_paths(HashSet<DynamicString> &paths
 {
 	HashMap<DynamicString, u32> deffault(default_allocator());
 	const HashMap<DynamicString, u32> &resource_references = hash_map::get(references, id, deffault);
-
-	auto cur = hash_map::begin(resource_references);
-	auto end = hash_map::end(resource_references);
-	for (; cur != end; ++cur) {
-		HASH_MAP_SKIP_HOLE(resource_references, cur);
-		if (cur->first != path)
-			hash_set::insert(paths, cur->first);
-	}
+	collect_outgoing_paths(paths, resource_references);
+	hash_set::remove(paths, path);
 }
 
 static void console_command_dependencies(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
@@ -365,8 +639,7 @@ static void console_command_dependencies(ConsoleServer &cs, u32 client_id, const
 	sjson::parse(obj, json);
 
 	DynamicString path(default_allocator());
-	if (json_object::has(obj, "path"))
-		sjson::parse_string(path, obj["path"]);
+	sjson::parse_string(path, obj["path"]);
 
 	if (path.empty()) {
 		DynamicString err(default_allocator());
@@ -374,15 +647,14 @@ static void console_command_dependencies(ConsoleServer &cs, u32 client_id, const
 		vector::push_back(errors, err);
 	} else if (!source_path_exists(*dc, path)) {
 		DynamicString err(default_allocator());
-		err = "Resource path not found: ";
-		err += path;
+		err = "Resource path not found";
 		vector::push_back(errors, err);
 	} else {
 		const char *type_str = resource_type(path.c_str());
 		if (type_str != NULL) {
 			const ResourceId id = resource_id(path.c_str());
-			dependencies_collect_outgoing_paths(dependencies, dc->_data_dependencies, id, path);
-			dependencies_collect_outgoing_paths(references, dc->_data_requirements, id, path);
+			collect_outgoing_paths(dependencies, dc->_data_dependencies, id, path);
+			collect_outgoing_paths(references, dc->_data_requirements, id, path);
 		}
 
 		collect_reference_users(dependents, *dc, dc->_data_dependencies, path, ignored_ids);
@@ -402,6 +674,501 @@ static void console_command_dependencies(ConsoleServer &cs, u32 client_id, const
 	ss << ",";
 	write_string_array(ss, "referrers", referrers);
 	ss << ",";
+	write_string_array(ss, "errors", errors);
+	ss << "}";
+
+	cs.send(client_id, string_stream::c_str(ss));
+}
+
+static void console_command_move_preview(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	DataCompiler *dc = (DataCompiler *)user_data;
+
+	Vector<MoveRename> required_moves(default_allocator());
+	Vector<MoveRename> also_move(default_allocator());
+	Vector<MoveRewrite> rewrites(default_allocator());
+	Vector<DynamicString> prune_dirs(default_allocator());
+	HashSet<DynamicString> keep(default_allocator());
+	Vector<DynamicString> errors(default_allocator());
+	HashSet<DynamicString> rewrite_paths(default_allocator());
+	HashSet<DynamicString> move_paths(default_allocator());
+	HashSet<DynamicString> move_target_paths(default_allocator());
+	HashSet<DynamicString> move_source_dirs(default_allocator());
+	HashSet<ResourceId> moved_ids(default_allocator());
+	Vector<MoveTrackedPath> move_scan(default_allocator());
+
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
+	JsonArray moves(ta);
+	sjson::parse_array(moves, obj["moves"]);
+
+	for (u32 i = 0; i < array::size(moves); ++i) {
+		JsonObject move(ta);
+		sjson::parse(move, moves[i]);
+
+		DynamicString from(default_allocator());
+		DynamicString to(default_allocator());
+		sjson::parse_string(from, move["from"]);
+		sjson::parse_string(to, move["to"]);
+
+		DynamicString err(default_allocator());
+		if (from.empty()) {
+			err = "Move source path is empty";
+		} else if (to.empty()) {
+			err = "Move target path is empty";
+		} else if (!source_path_is_valid(from)) {
+			err = "Move source path must be a normalized relative path";
+		} else if (!source_path_is_valid(to)) {
+			err = "Move target path must be a normalized relative path";
+		} else if (from == to) {
+			continue;
+		} else if (source_path_is_mapped(*dc, from) || source_path_is_mapped(*dc, to)) {
+			err = "Moving mapped resources is not supported";
+		} else {
+			const bool from_is_file = source_path_exists(*dc, from);
+			const bool from_is_directory = source_path_is_directory(*dc, from);
+			if (!from_is_file && !from_is_directory) {
+				err = "Move source path not found";
+			} else if (source_path_exists(*dc, to)
+				|| source_path_is_directory(*dc, to)
+				) {
+				err = "Move target path already exists";
+			} else {
+				DynamicString from_source_dir(default_allocator());
+				DynamicString to_source_dir(default_allocator());
+				dc->source_dir(from.c_str(), from_source_dir);
+				dc->source_dir(to.c_str(), to_source_dir);
+				if (from_source_dir != to_source_dir) {
+					err = "Move across source directories is not supported";
+				} else if (from_is_directory) {
+					if (path_in_folder(to, from))
+						err = "Cannot move folder into itself";
+				} else {
+					const char *from_type = resource_type(from.c_str());
+					const char *to_type = resource_type(to.c_str());
+					if ((from_type == NULL) != (to_type == NULL)
+						|| (from_type != NULL && strcmp(from_type, to_type) != 0)
+						)
+						err = "Move requires matching file extensions";
+				}
+			}
+		}
+
+		if (!err.empty()) {
+			vector::push_back(errors, err);
+			continue;
+		}
+
+		DynamicString source_dir(default_allocator());
+		dc->source_dir(from.c_str(), source_dir);
+		hash_set::insert(move_source_dirs, source_dir);
+
+		Vector<MoveRename> expanded(default_allocator());
+		if (source_path_is_directory(*dc, from)) {
+			auto cur = hash_map::begin(dc->_source_index._paths);
+			auto end = hash_map::end(dc->_source_index._paths);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(dc->_source_index._paths, cur);
+				if (cur->second.file_type == Stat::NO_ENTRY)
+					continue;
+				if (!path_in_folder(cur->first, from))
+					continue;
+
+				const char *relative = cur->first.c_str() + from.length() + 1;
+				DynamicString target_path(default_allocator());
+				target_path = to;
+				if (!target_path.empty())
+					target_path += '/';
+				target_path += relative;
+
+				if (hash_set::has(move_target_paths, target_path)
+					|| source_path_exists(*dc, target_path)
+					|| source_path_is_directory(*dc, target_path)
+					) {
+					err = "Move target path already exists";
+					break;
+				}
+
+				MoveRename rename(default_allocator());
+				rename.from = cur->first;
+				rename.to = target_path;
+				vector::push_back(expanded, rename);
+			}
+
+			if (!err.empty()) {
+				vector::push_back(errors, err);
+				continue;
+			}
+
+			if (vector::empty(expanded)) {
+				MoveRename rename(default_allocator());
+				rename.from = from;
+				rename.to = to;
+				vector::push_back(expanded, rename);
+			} else {
+				vector::push_back(prune_dirs, from);
+			}
+		} else {
+			if (hash_set::has(move_target_paths, to)) {
+				err = "Move target path already requested";
+				vector::push_back(errors, err);
+				continue;
+			}
+
+			MoveRename rename(default_allocator());
+			rename.from = from;
+			rename.to = to;
+			vector::push_back(expanded, rename);
+		}
+
+		for (u32 ee = 0; ee < vector::size(expanded); ++ee) {
+			if (hash_set::has(move_paths, expanded[ee].from))
+				continue;
+
+			vector::push_back(required_moves, expanded[ee]);
+
+			DynamicString root_from(default_allocator());
+			DynamicString root_to(default_allocator());
+			if (source_path_is_directory(*dc, from)) {
+				root_from = from;
+				root_to = to;
+			} else {
+				root_from = path::parent_dir(from.c_str());
+				root_to = path::parent_dir(to.c_str());
+			}
+
+			track_moved_path(move_paths
+				, move_target_paths
+				, move_scan
+				, moved_ids
+				, expanded[ee].from
+				, expanded[ee].to
+				, root_from
+				, root_to
+				);
+			collect_rewrite_users(rewrites, rewrite_paths, *dc, expanded[ee].from, expanded[ee].to);
+		}
+	}
+
+	for (u32 i = 0; i < vector::size(move_scan); ++i) {
+		const ResourceId id = resource_id(move_scan[i].from.c_str());
+		HashSet<DynamicString> outgoing(default_allocator());
+		collect_outgoing_paths(outgoing, dc->_data_requirements, id, move_scan[i].from);
+		collect_outgoing_paths(outgoing, dc->_data_dependencies, id, move_scan[i].from);
+
+		auto outgoing_cur = hash_set::begin(outgoing);
+		auto outgoing_end = hash_set::end(outgoing);
+		for (; outgoing_cur != outgoing_end; ++outgoing_cur) {
+			HASH_SET_SKIP_HOLE(outgoing, outgoing_cur);
+
+			const DynamicString &outgoing_path = *outgoing_cur;
+			if (hash_set::has(move_paths, outgoing_path))
+				continue;
+			if (!source_path_exists(*dc, outgoing_path))
+				continue;
+			if (!path_in_source_dirs(*dc, move_source_dirs, outgoing_path))
+				continue;
+
+			if (move_scan[i].root_from.empty()) {
+				TempAllocator512 ta;
+				DynamicString outgoing_parent(ta);
+				outgoing_parent = path::parent_dir(outgoing_path.c_str());
+				if (!outgoing_parent.empty())
+					continue;
+			} else if (!path_in_folder(outgoing_path, move_scan[i].root_from)) {
+				continue;
+			}
+
+			DynamicString to(default_allocator());
+			candidate_target_path(to, move_scan[i], outgoing_path);
+			if (to == outgoing_path)
+				continue;
+			if (hash_set::has(move_target_paths, to))
+				continue;
+			if (source_path_exists(*dc, to))
+				continue;
+			if (source_path_is_directory(*dc, to))
+				continue;
+
+			MoveRename rename(default_allocator());
+			rename.from = outgoing_path;
+			rename.to = to;
+			vector::push_back(also_move, rename);
+
+			track_moved_path(move_paths
+				, move_target_paths
+				, move_scan
+				, moved_ids
+				, outgoing_path
+				, to
+				, move_scan[i].root_from
+				, move_scan[i].root_to
+				);
+			collect_rewrite_users(rewrites, rewrite_paths, *dc, outgoing_path, to);
+		}
+	}
+
+	HashSet<DynamicString> kept_candidates(default_allocator());
+	for (u32 i = 0; i < vector::size(move_scan); ++i) {
+		const ResourceId id = resource_id(move_scan[i].from.c_str());
+		collect_outgoing_paths(kept_candidates, dc->_data_requirements, id, move_scan[i].from);
+		collect_outgoing_paths(kept_candidates, dc->_data_dependencies, id, move_scan[i].from);
+	}
+
+	auto kept_cur = hash_set::begin(kept_candidates);
+	auto kept_end = hash_set::end(kept_candidates);
+	for (; kept_cur != kept_end; ++kept_cur) {
+		HASH_SET_SKIP_HOLE(kept_candidates, kept_cur);
+		if (hash_set::has(move_paths, *kept_cur))
+			continue;
+		if (!source_path_exists(*dc, *kept_cur))
+			continue;
+		if (!path_in_source_dirs(*dc, move_source_dirs, *kept_cur))
+			continue;
+
+		HashSet<DynamicString> users(default_allocator());
+		collect_incoming_users(users, *dc, *kept_cur, moved_ids);
+		if (hash_set::size(users) != 0)
+			hash_set::insert(keep, *kept_cur);
+	}
+
+	StringStream ss(default_allocator());
+	ss << "{\"type\":\"move_preview\",";
+	ss << "\"success\":" << (vector::empty(errors) ? "true" : "false") << ",";
+	write_rename_array(ss, required_moves, "move");
+	ss << ",";
+	write_rename_array(ss, also_move, "also_move");
+	ss << ",";
+	write_rewrite_array(ss, rewrites);
+	ss << ",";
+	write_string_array(ss, "keep", keep);
+	ss << ",";
+	write_string_array(ss, "prune_dirs", prune_dirs);
+	ss << ",";
+	write_string_array(ss, "errors", errors);
+	ss << "}";
+
+	cs.send(client_id, string_stream::c_str(ss));
+}
+
+static void rename_source_path(Vector<DynamicString> &moved
+	, Vector<DynamicString> &errors
+	, DataCompiler &dc
+	, const DynamicString &from
+	, const DynamicString &to
+	)
+{
+	DynamicString err(default_allocator());
+	if (source_path_is_mapped(dc, from) || source_path_is_mapped(dc, to)) {
+		err = "Moving mapped resources is not supported";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	TempAllocator512 ta;
+	DynamicString from_source_dir(ta);
+	DynamicString to_source_dir(ta);
+	dc.source_dir(from.c_str(), from_source_dir);
+	dc.source_dir(to.c_str(), to_source_dir);
+
+	if (from_source_dir != to_source_dir) {
+		err = "Move across source directories is not supported";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	FilesystemDisk fs(ta);
+	fs.set_prefix(from_source_dir.c_str());
+
+	const bool from_is_file = source_path_exists(dc, from);
+	const bool from_is_directory = source_path_is_directory(dc, from);
+	if (!from_is_file && !from_is_directory) {
+		err = "Move source path not found";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	if (source_path_exists(dc, to) || source_path_is_directory(dc, to)) {
+		err = "Move target path already exists";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	DynamicString parent(ta);
+	parent = path::parent_dir(to.c_str());
+	if (!parent.empty() && !fs.is_directory(parent.c_str())) {
+		err = "Move target directory does not exist";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	RenameResult rr = fs.rename(from.c_str(), to.c_str());
+	if (rr.error != RenameResult::SUCCESS) {
+		err = "Failed to move";
+		vector::push_back(errors, err);
+		return;
+	}
+
+	if (from_is_directory) {
+		dc.remove_tree(from.c_str());
+		dc.add_tree(to.c_str());
+	} else {
+		dc.remove_file(from.c_str());
+		dc.add_file(to.c_str());
+	}
+
+	vector::push_back(moved, from);
+}
+
+static void collect_prune_dirs_for_path(HashSet<DynamicString> &dirs
+	, const DynamicString &root
+	, const DynamicString &path
+	)
+{
+	if (!path_in_folder(path, root))
+		return;
+
+	DynamicString dir(default_allocator());
+	dir = path::parent_dir(path.c_str());
+	while (!dir.empty()) {
+		hash_set::insert(dirs, dir);
+
+		if (dir == root)
+			break;
+
+		DynamicString parent(default_allocator());
+		parent = path::parent_dir(dir.c_str());
+		dir = parent;
+	}
+}
+
+static void prune_empty_dirs(DataCompiler &dc
+	, const Vector<DynamicString> &deleted
+	, const HashSet<DynamicString> &prune_roots
+	)
+{
+	HashSet<DynamicString> dir_paths(default_allocator());
+	auto prune_cur = hash_set::begin(prune_roots);
+	auto prune_end = hash_set::end(prune_roots);
+	for (; prune_cur != prune_end; ++prune_cur) {
+		HASH_SET_SKIP_HOLE(prune_roots, prune_cur);
+
+		for (u32 dd = 0; dd < vector::size(deleted); ++dd)
+			collect_prune_dirs_for_path(dir_paths, *prune_cur, deleted[dd]);
+
+		if (source_path_is_directory(dc, *prune_cur))
+			hash_set::insert(dir_paths, *prune_cur);
+	}
+
+	Vector<DynamicString> dirs(default_allocator());
+	auto dir_cur = hash_set::begin(dir_paths);
+	auto dir_end = hash_set::end(dir_paths);
+	for (; dir_cur != dir_end; ++dir_cur) {
+		HASH_SET_SKIP_HOLE(dir_paths, dir_cur);
+		vector::push_back(dirs, *dir_cur);
+	}
+
+	std::sort(vector::begin(dirs)
+		, vector::end(dirs)
+		, [](const DynamicString &a, const DynamicString &b) {
+			return a.length() > b.length();
+		}
+		);
+
+	for (u32 i = 0; i < vector::size(dirs); ++i) {
+		TempAllocator512 ta;
+		DynamicString source_dir(ta);
+		dc.source_dir(dirs[i].c_str(), source_dir);
+
+		FilesystemDisk fs(ta);
+		fs.set_prefix(source_dir.c_str());
+
+		Vector<DynamicString> files(default_allocator());
+		fs.list_files(dirs[i].c_str(), files);
+		if (vector::empty(files))
+			fs.delete_directory(dirs[i].c_str());
+	}
+}
+
+static void console_command_move_apply(ConsoleServer &cs, u32 client_id, const char *json, void *user_data)
+{
+	DataCompiler *dc = (DataCompiler *)user_data;
+
+	Vector<DynamicString> moved(default_allocator());
+	Vector<MoveRename> requested_moves(default_allocator());
+	Vector<DynamicString> errors(default_allocator());
+	HashSet<DynamicString> prune_dirs(default_allocator());
+
+	TempAllocator4096 ta;
+	JsonObject obj(ta);
+	sjson::parse(obj, json);
+
+	JsonArray moves(ta);
+	sjson::parse_array(moves, obj["moves"]);
+
+	// Validate every client-supplied path before renaming anything.
+	for (u32 i = 0; i < array::size(moves); ++i) {
+		JsonObject move(ta);
+		sjson::parse(move, moves[i]);
+
+		DynamicString from(default_allocator());
+		DynamicString to(default_allocator());
+		sjson::parse_string(from, move["from"]);
+		sjson::parse_string(to, move["to"]);
+
+		DynamicString err(default_allocator());
+		if (from.empty()) {
+			err = "Move source path is empty";
+		} else if (to.empty()) {
+			err = "Move target path is empty";
+		} else if (!source_path_is_valid(from)) {
+			err = "Move source path must be a normalized relative path";
+		} else if (!source_path_is_valid(to)) {
+			err = "Move target path must be a normalized relative path";
+		}
+
+		if (!err.empty()) {
+			vector::push_back(errors, err);
+			continue;
+		}
+
+		MoveRename rename(default_allocator());
+		rename.from = from;
+		rename.to = to;
+		vector::push_back(requested_moves, rename);
+	}
+
+	JsonArray dirs(ta);
+	sjson::parse_array(dirs, obj["prune_dirs"]);
+
+	for (u32 i = 0; i < array::size(dirs); ++i) {
+		DynamicString dir(default_allocator());
+		sjson::parse_string(dir, dirs[i]);
+		if (dir.empty())
+			continue;
+		if (!source_path_is_valid(dir)) {
+			DynamicString err(default_allocator());
+			err = "Move prune directory must be a normalized relative path";
+			vector::push_back(errors, err);
+		} else {
+			hash_set::insert(prune_dirs, dir);
+		}
+	}
+
+	if (vector::empty(errors)) {
+		for (u32 i = 0; i < vector::size(requested_moves); ++i) {
+			if (requested_moves[i].from != requested_moves[i].to)
+				rename_source_path(moved, errors, *dc, requested_moves[i].from, requested_moves[i].to);
+		}
+
+		prune_empty_dirs(*dc, moved, prune_dirs);
+	}
+
+	StringStream ss(default_allocator());
+	ss << "{\"type\":\"move_apply\",";
+	ss << "\"success\":" << (vector::empty(errors) ? "true" : "false") << ",";
 	write_string_array(ss, "errors", errors);
 	ss << "}";
 
@@ -783,6 +1550,8 @@ DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	cs.register_message_type("quit", console_command_quit, this);
 	cs.register_message_type("refresh_list", console_command_refresh_list, this);
 	cs.register_message_type("dependencies", console_command_dependencies, this);
+	cs.register_message_type("move_preview", console_command_move_preview, this);
+	cs.register_message_type("move_apply", console_command_move_apply, this);
 }
 
 DataCompiler::~DataCompiler()
