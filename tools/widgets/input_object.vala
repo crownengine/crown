@@ -12,8 +12,8 @@ public class InputObject : InputField
 		{ "GUID", Gtk.TargetFlags.SAME_APP, TargetInfo.GUID },
 	};
 
-	public const string UNSET_OBJECT = "(None)";
-	public const string MISSING_OBJECT = "(Missing)";
+	public const string UNSET_OBJECT = _("(None)");
+	public const string MISSING_OBJECT = _("(Missing)");
 
 	public StringId64 _type;
 	public Guid _object;

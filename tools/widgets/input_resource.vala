@@ -12,7 +12,7 @@ public class InputResource : InputField
 		{ "RESOURCE_PATH", Gtk.TargetFlags.SAME_APP, TargetInfo.RESOURCE_PATH },
 	};
 
-	public const string UNSET_RESOURCE = "(None)";
+	public const string UNSET_RESOURCE = _("(None)");
 
 	public string _type;
 	public bool _name_unset;
