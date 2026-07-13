@@ -13,8 +13,12 @@ public class DataCompiler
 	public SourceFunc _compile_callback;
 	public SourceFunc _refresh_list_callback;
 	public SourceFunc _dependencies_callback;
+	public SourceFunc _move_preview_callback;
+	public SourceFunc _move_apply_callback;
 	public Gee.ArrayList<Value?> _refresh_list;
 	public Hashtable _dependencies;
+	public Hashtable _move_preview;
+	public Hashtable _move_apply;
 	public uint _revision;
 
 	public signal void start();
@@ -40,8 +44,12 @@ public class DataCompiler
 		_compile_callback = null;
 		_refresh_list_callback = null;
 		_dependencies_callback = null;
+		_move_preview_callback = null;
+		_move_apply_callback = null;
 		_refresh_list = null;
 		_dependencies = null;
+		_move_preview = null;
+		_move_apply = null;
 	}
 
 	// Returns true if success, false otherwise.
@@ -109,6 +117,50 @@ public class DataCompiler
 		unowned GLib.SourceFunc callback = _dependencies_callback;
 		_dependencies_callback = null;
 		_dependencies = dependencies;
+
+		if (callback != null)
+			callback();
+	}
+
+	public async Hashtable move_preview(string[] from, string[] to)
+	{
+		if (_move_preview_callback != null)
+			return new Hashtable();
+
+		_runtime.send(DataCompilerApi.move_preview(from, to));
+		_move_preview_callback = move_preview.callback;
+		yield;
+
+		return _move_preview;
+	}
+
+	public void move_preview_finished(Hashtable preview)
+	{
+		unowned GLib.SourceFunc callback = _move_preview_callback;
+		_move_preview_callback = null;
+		_move_preview = preview;
+
+		if (callback != null)
+			callback();
+	}
+
+	public async Hashtable move_apply(string[] from, string[] to, string[]? prune_dirs = null)
+	{
+		if (_move_apply_callback != null)
+			return new Hashtable();
+
+		_runtime.send(DataCompilerApi.move_apply(from, to, prune_dirs));
+		_move_apply_callback = move_apply.callback;
+		yield;
+
+		return _move_apply;
+	}
+
+	public void move_apply_finished(Hashtable apply)
+	{
+		unowned GLib.SourceFunc callback = _move_apply_callback;
+		_move_apply_callback = null;
+		_move_apply = apply;
 
 		if (callback != null)
 			callback();
