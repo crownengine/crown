@@ -2806,7 +2806,7 @@ msgstr "Seleziona %s"
 
 #: tools/widgets/input_object.vala:16
 msgid "(Missing)"
-msgstr ""
+msgstr "(Mancante)"
 
 #: tools/widgets/input_object.vala:86 tools/widgets/input_resource.vala:83
 msgid "Select a resource."
