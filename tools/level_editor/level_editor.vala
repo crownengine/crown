@@ -866,6 +866,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public override void startup()
 	{
+		GLib.Environment.set_variable("GTK_THEME", "none", true); // Disable foreign theming (hopefully).
+
 		base.startup();
 
 		Intl.setlocale(LocaleCategory.ALL, "C");

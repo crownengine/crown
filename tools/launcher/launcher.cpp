@@ -64,8 +64,6 @@ int main_internal(int argc, char **argv)
 #else
 	#error "Unsupported platform."
 #endif
-	os::setenv("GTK_THEME", "none"); // Disable foreign theming (hopefully).
-
 	launcher_dir = path::parent_dir(launcher_path);
 	path::join(editor_cwd, launcher_dir, editor_dir);
 	path::join(editor_exe, editor_cwd.c_str(), "crown-editor-release" EXE_SUFFIX);
