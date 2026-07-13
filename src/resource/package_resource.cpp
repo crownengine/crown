@@ -74,6 +74,8 @@ namespace package_resource_internal
 			const char *req_type = resource_type(req_filename);
 			const u32 req_name_len = resource_name_length(req_type, req_filename);
 
+			opts.fake_read(req_filename);
+
 			const StringId64 req_type_hash(req_type);
 			const StringId64 req_name_hash(req_filename, req_name_len);
 
