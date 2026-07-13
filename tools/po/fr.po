@@ -991,7 +991,7 @@ msgstr "Créer un projet en copiant le modèle."
 
 #: tools/level_editor/panel_new_project.vala:64
 msgid "None"
-msgstr "Non"
+msgstr "Aucun"
 
 #: tools/level_editor/panel_new_project.vala:70
 msgid "Back"
@@ -1794,7 +1794,7 @@ msgstr "Créer un nouveau squelette."
 
 #: tools/resource/mesh_resource_fbx.vala:325
 msgid "Target Skeleton"
-msgstr "Cile du Squelette"
+msgstr "Cible du Squelette"
 
 #: tools/resource/mesh_resource_fbx.vala:325
 msgid "Skeleton to use."
