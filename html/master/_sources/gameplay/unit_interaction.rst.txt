@@ -157,3 +157,21 @@ receive regular collision events, instead, they will receive trigger events:
 	function MyScript.trigger_leave(world, trigger_unit, other_unit)
 		-- Called when other_unit ends touching trigger_unit.
 	end
+
+Receiving named events
+----------------------
+
+Some systems can generate named events. Currently, sprite and mesh animations
+use this mechanism. To receive these events, implement the following callback in
+your script component. The ``event_name`` argument is a string ID, so compare it
+with the value returned by ``Device.string_id()``:
+
+.. code:: lua
+
+    function MyScript.event(world, unit, event_name)
+        if event_name == Device.string_id("my_event") then
+            -- Do something.
+        elseif event_name == Device.string_id("my_other_event") then
+            -- Do something else.
+        end
+    end

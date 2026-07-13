@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-03-16T17:42:25+00:00" /><meta property="og:title" content="Interacting with Units" />
+    <meta property="article:modified_time" content="2026-07-13T00:04:45+00:00" /><meta property="og:title" content="Interacting with Units" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/gameplay/unit_interaction.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -77,6 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#receiving-collision-events">Receiving collision events</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mover-collisions">Mover collisions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#triggers">Triggers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiving-named-events">Receiving named events</a></li>
 </ul>
 </li>
 </ul>
@@ -250,6 +251,22 @@ receive regular collision events, instead, they will receive trigger events:</p>
 </pre></div>
 </div>
 </section>
+<section id="receiving-named-events">
+<h2>Receiving named events<a class="headerlink" href="#receiving-named-events" title="Permalink to this headline">¶</a></h2>
+<p>Some systems can generate named events. Currently, sprite and mesh animations
+use this mechanism. To receive these events, implement the following callback in
+your script component. The <code class="docutils literal notranslate"><span class="pre">event_name</span></code> argument is a string ID, so compare it
+with the value returned by <code class="docutils literal notranslate"><span class="pre">Device.string_id()</span></code>:</p>
+<div class="highlight-lua notranslate"><div class="highlight"><pre><span></span><span class="kr">function</span> <span class="nc">MyScript</span><span class="p">.</span><span class="nf">event</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">event_name</span><span class="p">)</span>
+    <span class="kr">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="n">Device</span><span class="p">.</span><span class="n">string_id</span><span class="p">(</span><span class="s2">&quot;my_event&quot;</span><span class="p">)</span> <span class="kr">then</span>
+        <span class="c1">-- Do something.</span>
+    <span class="kr">elseif</span> <span class="n">event_name</span> <span class="o">==</span> <span class="n">Device</span><span class="p">.</span><span class="n">string_id</span><span class="p">(</span><span class="s2">&quot;my_other_event&quot;</span><span class="p">)</span> <span class="kr">then</span>
+        <span class="c1">-- Do something else.</span>
+    <span class="kr">end</span>
+<span class="kr">end</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -264,7 +281,7 @@ receive regular collision events, instead, they will receive trigger events:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Mar 16, 2026.
+      <span class="lastupdated">Last updated on Jul 13, 2026.
       </span></p>
   </div>
 
