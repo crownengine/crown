@@ -74,6 +74,31 @@ namespace DataCompilerApi
 		return "{\"type\":\"dependencies\",\"path\":\"%s\"}".printf(escape_json(path));
 	}
 
+	string delete_message(string type, string[] paths, string[]? prune_dirs = null)
+	{
+		StringBuilder message = new StringBuilder("{\"type\":\"%s\",\"paths\":[".printf(type));
+		foreach (string path in paths)
+			message.append("\"%s\",".printf(escape_json(path)));
+
+		message.append("],\"prune_dirs\":[");
+		if (prune_dirs != null) {
+			foreach (string dir in prune_dirs)
+				message.append("\"%s\",".printf(escape_json(dir)));
+		}
+
+		return message.append("]}").str;
+	}
+
+	public string delete_preview(string[] paths)
+	{
+		return delete_message("delete_preview", paths);
+	}
+
+	public string delete_apply(string[] paths, string[]? prune_dirs = null)
+	{
+		return delete_message("delete_apply", paths, prune_dirs);
+	}
+
 	string move_message(string type, string[] from, string[] to, string[]? prune_dirs = null)
 	{
 		StringBuilder message = new StringBuilder("{\"type\":\"%s\",\"moves\":[".printf(type));
