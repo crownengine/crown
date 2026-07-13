@@ -756,9 +756,12 @@ Matrix4x4 World::camera_view_matrix(CameraId camera)
 {
 	TransformId ti = _scene_graph->instance(_camera[camera.i].unit);
 	Matrix4x4 view = _scene_graph->world_pose(ti);
-	Matrix4x4 rotate_x_90 = from_matrix3x3(from_x_axis_angle(frad(90.0f)));
 
-	view = rotate_x_90 * view;
+	// Rotate +90 degrees around the X axis.
+	const Vector4 y = view.y;
+	view.y = view.z;
+	view.z = -y;
+
 	invert(view);
 	return view;
 }

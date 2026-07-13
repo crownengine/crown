@@ -109,7 +109,7 @@ public class Project
 		_files = new Database(this);
 		_map = new Gee.HashMap<string, Guid?>();
 		_all_extensions_importer_data = ImporterData();
-		_all_extensions_importer_data.name = StringId32("All");
+		_all_extensions_importer_data.name = StringId32("all");
 		_all_extensions_importer_data.delegate = import_all_extensions;
 		_importers = new Gee.ArrayList<ImporterData?>();
 		_data_compiled = false;
@@ -757,7 +757,7 @@ public class Project
 	public void register_importer_internal(string name, ref ImporterData data)
 	{
 		data.name = StringId32(name);
-		data.filter_name = name;
+		data.filter_name = camel_case(name);
 		_importers.add(data);
 		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
 
@@ -813,6 +813,13 @@ public class Project
 	public bool is_type_importable(string type)
 	{
 		return find_importer_for_extension(type) != null;
+	}
+
+	public bool is_type_sidecar(string type)
+	{
+		return type == "mtl"
+			|| type == "MTL"
+			;
 	}
 
 	public bool is_type_image(string type)

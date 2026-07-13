@@ -559,6 +559,7 @@ public struct CommandLineOptions
 	public bool do_import;
 	public string[] import_filenames;
 	public string import_destination;
+	public string? import_as;
 	public bool do_deploy;
 	public DeployOptions deploy;
 
@@ -577,13 +578,28 @@ public struct CommandLineOptions
 			+ "  --source-dir <path>              Project source directory.\n"
 			+ "  --init                           Create a new project.\n"
 			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
+			+ "  --as <type>                      Importer type.\n"
+			+ "      font\n"
+			+ "      mesh\n"
+			+ "      sound\n"
+			+ "      sprite\n"
+			+ "      texture\n"
 			+ "  --deploy                         Deploy the project.\n"
-			+ "  --platform <platform>            Target platform: android, html5, linux, windows.\n"
+			+ "  --platform <platform>            Deploy target platform.\n"
+			+ "      android\n"
+			+ "      html5\n"
+			+ "      linux\n"
+			+ "      windows\n"
 			+ "  --output-dir <path>              Deploy output directory.\n"
-			+ "  --config <config>                Deploy config: release, development, debug.\n"
+			+ "  --config <config>                Deploy config.\n"
+			+ "      release\n"
+			+ "      development\n"
+			+ "      debug\n"
 			+ "  --app-title <title>              Application title.\n"
 			+ "  --force                          Overwrite an existing package directory.\n"
-			+ "  --arch <arch>                    Android architecture: arm, arm64.\n"
+			+ "  --arch <arch>                    Android architecture.\n"
+			+ "      arm\n"
+			+ "      arm64\n"
 			+ "  --app-id <id>                    Android application identifier.\n"
 			+ "  --app-version-code <number>      Android version code.\n"
 			+ "  --app-version-name <name>        Android version name.\n"
@@ -609,6 +625,7 @@ public struct CommandLineOptions
 		do_import = false;
 		import_filenames = {};
 		import_destination = "";
+		import_as = null;
 		do_deploy = false;
 		deploy = DeployOptions();
 		error = "";
@@ -618,6 +635,7 @@ public struct CommandLineOptions
 		bool option_show_version = false;
 		bool option_do_init = false;
 		bool option_do_import = false;
+		string? option_import_as = null;
 		bool option_do_deploy = false;
 		string? option_deploy_platform = null;
 		string? option_deploy_output_dir = null;
@@ -644,8 +662,9 @@ public struct CommandLineOptions
 			{ "source-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,                "Project source directory.",             "path"     },
 			{ "init",               0,   0, GLib.OptionArg.NONE,     ref option_do_init,                   "Create a new project.",                 null       },
 			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
+			{ "as",                 0,   0, GLib.OptionArg.STRING,   ref option_import_as,                 "Importer type.",                        "type"     },
 			{ "deploy",             0,   0, GLib.OptionArg.NONE,     ref option_do_deploy,                 "Deploy the project.",                   null       },
-			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Target platform.",                      "platform" },
+			{ "platform",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_platform,           "Deploy target platform.",               "platform" },
 			{ "output-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_output_dir,         "Deploy output directory.",              "path"     },
 			{ "config",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_config,             "Deploy config.",                        "config"   },
 			{ "app-title",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_title,          "Application title.",                    "title"    },
@@ -681,6 +700,7 @@ public struct CommandLineOptions
 		source_dir = option_source_dir;
 		do_init = option_do_init;
 		do_import = option_do_import;
+		import_as = option_import_as;
 		do_deploy = option_do_deploy;
 
 		if (show_help || show_version)
@@ -724,6 +744,11 @@ public struct CommandLineOptions
 
 		if (!do_deploy && deploy_option_seen) {
 			error = "--deploy must be specified.";
+			return false;
+		}
+
+		if (!do_import && option_import_as != null) {
+			error = "--import must be specified.";
 			return false;
 		}
 
@@ -1196,6 +1221,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public override void startup()
 	{
+		GLib.Environment.set_variable("GTK_THEME", "none", true); // Disable foreign theming (hopefully).
+
 		base.startup();
 
 		Intl.setlocale(LocaleCategory.ALL, "");
@@ -4650,11 +4677,11 @@ public static int main(string[] args)
 
 	Project project = new Project();
 	project.set_toolchain_dir(_toolchain_dir.get_path());
-	project.register_importer("Sprite", { "png" }, SpriteResource.import, 2.1);
-	project.register_importer("Mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
-	project.register_importer("Sound", { "wav", "ogg" }, SoundResource.import, 2.0);
-	project.register_importer("Texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
-	project.register_importer("Font", { "ttf", "otf" }, FontResource.import, 3.0);
+	project.register_importer("sprite", { "png" }, SpriteResource.import, 2.1);
+	project.register_importer("mesh", { "mesh", "fbx", "obj" }, MeshResource.import, 1.0);
+	project.register_importer("sound", { "wav", "ogg" }, SoundResource.import, 2.0);
+	project.register_importer("texture", { "dds", "exr", "jpg", "ktx", "png", "pvr", "tga", }, TextureResource.import, 2.0);
+	project.register_importer("font", { "ttf", "otf" }, FontResource.import, 3.0);
 
 	Database database = new Database(project);
 
@@ -4676,6 +4703,10 @@ public static int main(string[] args)
 
 		bool import_failed = false;
 		int num_import_results = 0;
+		StringId32? importer_name = null;
+		if (command_line_options.import_as != null)
+			importer_name = StringId32(command_line_options.import_as);
+
 		project.import(command_line_options.import_destination
 			, command_line_options.import_filenames
 			, (result, primary_resource_path) => {
@@ -4685,6 +4716,7 @@ public static int main(string[] args)
 			}
 			, database
 			, null
+			, importer_name
 			);
 
 		if (num_import_results == 0) {

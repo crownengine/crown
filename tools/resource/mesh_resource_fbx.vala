@@ -624,9 +624,14 @@ public class FBXImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					unowned ufbx.Material mesh_instance_material = node.materials.data[0];
 					string material_name = "core/fallback/fallback";
-					if (imported_materials.has_key(mesh_instance_material))
+					unowned ufbx.Material? mesh_instance_material = null;
+					for (int ii = 0; mesh_instance_material == null && ii < node.mesh.material_parts.data.length; ++ii) {
+						unowned ufbx.MeshPart mesh_part = node.mesh.material_parts.data[ii];
+						if (mesh_part.num_triangles > 0 && mesh_part.index < node.materials.data.length)
+							mesh_instance_material = node.materials.data[mesh_part.index];
+					}
+					if (mesh_instance_material != null && imported_materials.has_key(mesh_instance_material))
 						material_name = imported_materials[mesh_instance_material];
 
 					unit.set_component_string(component_id, "data.geometry_name", editor_name);
@@ -999,8 +1004,9 @@ public class FBXImporter
 				return ImportResult.ERROR;
 			}
 
-			// Keep in sync with mesh_fbx.cpp!
+			// Keep in sync with fbx_document.cpp!
 			ufbx.LoadOpts load_opts = {};
+			load_opts.use_blender_pbr_material = true;
 			load_opts.target_camera_axes =
 			{
 				ufbx.CoordinateAxis.POSITIVE_X,

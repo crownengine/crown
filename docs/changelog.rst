@@ -20,12 +20,13 @@ Changelog
 * Tools: added command line support for creating and deploying projects and for importing resources.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
-* Runtime: Linux: Wayland is now used as default display server. A new ``--display-server`` option has been added to select between Wayland and X11 backends.
+* Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
 * Runtime: added hot-reloading support for mesh animations.
 * Data Compiler/Runtime: identical physics colliders are deduplicated in unit/level resources and shared at runtime to reduce resource size and improve performance.
 * Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 * Lua: added ``Device.string_id()`` that returns a 32-bits hash of a string.
+* Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
 
 **Fixes**
 
@@ -46,6 +47,8 @@ Changelog
 * Tools: fixed sprite units being invisible at start inside the Unit Editor.
 * Tools: fixed the Preview panel in the Sprite Importer not being updated when reimporting sprites.
 * Tools: fixed opening a project via command line.
+* Tools: fixed importing empty materials from FBX and OBJ models in some cases.
+* Tools: fixed importing roughness and metallic textures from Blender-exported FBX models.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
@@ -58,7 +61,7 @@ Changelog
 * Runtime: fixed local shape transforms not being honored.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
-* Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
+* Lua: fixed ``Quaternion.look()`` returning non-orthonormal rotation matrices.
 * Docs: updated Android deploying instructions.
 * Docs: updated Importing Scenes with additional info on preparing models for export from DCCs.
 

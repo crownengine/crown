@@ -38,3 +38,19 @@ the resource-type selector to pick the desired resource:
    :align: center
 
    Selecting the resource type in the Import dialog.
+
+Import via Command Line
+-----------------------
+
+When importing from the command line, the editor automatically selects the
+appropriate importer based on file extensions. Use ``--as`` to select a specific
+importer when an extension supports more than one resource type. For example,
+import a PNG as a sprite with:
+
+.. code::
+
+   ./crown-launcher editor --source-dir $CROWN/samples/01-physics --import hero.png units/hero --as sprite
+
+The destination path is relative to the project source directory. See the
+:doc:`command line reference <../reference/command_line>` for ``--import``
+syntax and the list of supported importer types.

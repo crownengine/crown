@@ -730,8 +730,9 @@ Functions
 	Returns the x, y, z and w elements of the quaternion.
 
 **look** (dir, [up]) : Quaternion
-	Returns the quaternion describing the rotation needed to face towards *dir*.
-	If *up* is not specified, Vector3.up() is used.
+    Returns the quaternion describing the rotation needed to face towards *dir*.
+    *dir* must be a unit vector. *up* must be non-zero and not parallel to
+    *dir*. If *up* is not specified, Vector3.up() is used.
 
 **right** (q) : Vector3
 	Returns the right axis of the rotation described by *q*.

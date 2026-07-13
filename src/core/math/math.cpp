@@ -12,20 +12,14 @@ namespace crown
 {
 void orthonormal_basis(Vector3 &tangent, Vector3 &bitangent, const Vector3 &normal)
 {
-	const f32 ax = fabs(normal.x);
-	const f32 ay = fabs(normal.y);
-	const f32 az = fabs(normal.z);
+	if (fabs(normal.x) > fabs(normal.z)) {
+		const f32 inv_len = 1.0f / fsqrt(normal.x*normal.x + normal.y*normal.y);
+		tangent = { -normal.y*inv_len, normal.x*inv_len, 0.0f };
+	} else {
+		const f32 inv_len = 1.0f / fsqrt(normal.y*normal.y + normal.z*normal.z);
+		tangent = { 0.0f, -normal.z*inv_len, normal.y*inv_len };
+	}
 
-	Vector3 axis;
-	if (az <= ay && az <= ax)
-		axis = VECTOR3_ZAXIS;
-	else if (ay <= ax)
-		axis = VECTOR3_YAXIS;
-	else
-		axis = VECTOR3_XAXIS;
-
-	tangent = cross(axis, normal);
-	normalize(tangent);
 	bitangent = cross(normal, tangent);
 }
 

@@ -41,6 +41,8 @@ game:
 * ``W`` / ``S`` to move forward and backward;
 * ``A`` / ``D`` to strafe left and right;
 * ``Q`` / ``E`` to move the camera up and down.
+* Roll ``Mouse Wheel`` to increase or decrease the moving speed.
+* Hold ``Shift`` / ``Alt`` to temporarily move faster or slower.
 
 Flythrough mode is handy for scanning large environments, testing sightlines,
 or checking level flow at player height.
@@ -158,6 +160,14 @@ Scale gizmo
 * Drag the colored rectangles (for example red-green to scale on the XY plane)
   to scale across the respective plane.
 * Drag the large gray circle to scale uniformly on all axes at once.
+
+Aligning objects with the camera
+--------------------------------
+
+Select one or more objects and press ``Shift + Ctrl + F`` to move and rotate
+them so the last-selected object matches the editor camera's position and
+orientation. When multiple objects are selected, Crown preserves their positions
+and orientations relative to one another.
 
 Local and World axis
 --------------------

@@ -428,6 +428,28 @@ static void test_vector3()
 		ENSURE(fequal(length(a), 1.0f, 0.00001f));
 	}
 	{
+		Random rnd(0);
+		for (u32 i = 0; i < 1000; ++i) {
+			Vector3 normal = {
+				rnd.unit_float()*2.0f - 1.0f,
+				rnd.unit_float()*2.0f - 1.0f,
+				rnd.unit_float()*2.0f - 1.0f
+			};
+			normalize(normal);
+
+			Vector3 tangent;
+			Vector3 bitangent;
+			orthonormal_basis(tangent, bitangent, normal);
+
+			ENSURE(fequal(length(tangent), 1.0f, 0.00001f));
+			ENSURE(fequal(length(bitangent), 1.0f, 0.00001f));
+			ENSURE(fequal(dot(normal, tangent), 0.0f, 0.00001f));
+			ENSURE(fequal(dot(normal, bitangent), 0.0f, 0.00001f));
+			ENSURE(fequal(dot(tangent, bitangent), 0.0f, 0.00001f));
+			ENSURE(fequal(dot(cross(tangent, bitangent), normal), 1.0f, 0.00001f));
+		}
+	}
+	{
 		const Vector3 a = { 1.2f,  4.2f, -2.3f };
 		const Vector3 b = { 2.7f, -1.9f, -4.1f };
 		const float c = distance_squared(a, b);

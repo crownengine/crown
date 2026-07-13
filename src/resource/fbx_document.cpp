@@ -72,6 +72,7 @@ namespace fbx
 	{
 		// Keep in sync with mesh_resource_fbx.vala!
 		ufbx_load_opts load_opts = {};
+		load_opts.use_blender_pbr_material = true;
 		load_opts.target_camera_axes =
 		{
 			UFBX_COORDINATE_AXIS_POSITIVE_X,
