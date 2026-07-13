@@ -192,19 +192,21 @@ public class FBXImportOptions
 
 	public void on_import_animations_changed()
 	{
-		create_animations_folder.set_sensitive(import_clips.value);
+		create_animations_folder.set_sensitive(import_animation.value && import_clips.value);
+		target_skeleton.sensitive = import_animation.value && !new_skeleton.value && import_clips.value;
 	}
 
 	public void on_import_animation_changed()
 	{
 		new_skeleton.sensitive = import_animation.value;
 		import_clips.sensitive = import_animation.value;
-		create_animations_folder.sensitive = import_clips.value;
+		create_animations_folder.sensitive = import_animation.value && import_clips.value;
+		target_skeleton.sensitive = import_animation.value && !new_skeleton.value && import_clips.value;
 	}
 
 	public void on_new_skeleton_changed()
 	{
-		target_skeleton.sensitive = !new_skeleton.value;
+		target_skeleton.sensitive = import_animation.value && !new_skeleton.value && import_clips.value;
 	}
 
 	public void decode(Hashtable json)
@@ -365,6 +367,7 @@ public class FBXImportDialog : Gtk.Window
 		_options.import_animation.value_changed.connect(on_import_options_changed);
 		_options.new_skeleton.value_changed.connect(on_import_options_changed);
 		_options.target_skeleton.value_changed.connect(on_import_options_changed);
+		_options.import_clips.value_changed.connect(on_import_options_changed);
 
 		this.set_titlebar(_header_bar);
 		this.add(_box);
@@ -399,12 +402,18 @@ public class FBXImportDialog : Gtk.Window
 
 	void on_import_options_changed()
 	{
-		bool target_skeleton_is_valid = _options.new_skeleton.value
-			|| _options.target_skeleton.value != ""
+		bool target_skeleton_is_valid = !_options.import_animation.value
+			|| !_options.import_clips.value
+			|| _options.new_skeleton.value
+			|| (_options.target_skeleton.value != null && _options.target_skeleton.value != "")
 			;
 
-		bool enable_import_button = (_options.import_units.value
-			|| _options.import_animation.value)
+		bool has_options_to_import = _options.import_units.value
+			|| (_options.import_animation.value
+				&& (_options.new_skeleton.value || _options.import_clips.value))
+			;
+
+		bool enable_import_button = has_options_to_import
 			&& target_skeleton_is_valid
 			;
 		_import.set_sensitive(enable_import_button);
