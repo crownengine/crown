@@ -13,10 +13,14 @@ public class DataCompiler
 	public SourceFunc _compile_callback;
 	public SourceFunc _refresh_list_callback;
 	public SourceFunc _dependencies_callback;
+	public SourceFunc _delete_preview_callback;
+	public SourceFunc _delete_apply_callback;
 	public SourceFunc _move_preview_callback;
 	public SourceFunc _move_apply_callback;
 	public Gee.ArrayList<Value?> _refresh_list;
 	public Hashtable _dependencies;
+	public Hashtable _delete_preview;
+	public Hashtable _delete_apply;
 	public Hashtable _move_preview;
 	public Hashtable _move_apply;
 	public uint _revision;
@@ -44,10 +48,14 @@ public class DataCompiler
 		_compile_callback = null;
 		_refresh_list_callback = null;
 		_dependencies_callback = null;
+		_delete_preview_callback = null;
+		_delete_apply_callback = null;
 		_move_preview_callback = null;
 		_move_apply_callback = null;
 		_refresh_list = null;
 		_dependencies = null;
+		_delete_preview = null;
+		_delete_apply = null;
 		_move_preview = null;
 		_move_apply = null;
 	}
@@ -117,6 +125,50 @@ public class DataCompiler
 		unowned GLib.SourceFunc callback = _dependencies_callback;
 		_dependencies_callback = null;
 		_dependencies = dependencies;
+
+		if (callback != null)
+			callback();
+	}
+
+	public async Hashtable delete_preview(string[] paths)
+	{
+		if (_delete_preview_callback != null)
+			return new Hashtable();
+
+		_runtime.send(DataCompilerApi.delete_preview(paths));
+		_delete_preview_callback = delete_preview.callback;
+		yield;
+
+		return _delete_preview;
+	}
+
+	public void delete_preview_finished(Hashtable preview)
+	{
+		unowned GLib.SourceFunc callback = _delete_preview_callback;
+		_delete_preview_callback = null;
+		_delete_preview = preview;
+
+		if (callback != null)
+			callback();
+	}
+
+	public async Hashtable delete_apply(string[] paths, string[]? prune_dirs = null)
+	{
+		if (_delete_apply_callback != null)
+			return new Hashtable();
+
+		_runtime.send(DataCompilerApi.delete_apply(paths, prune_dirs));
+		_delete_apply_callback = delete_apply.callback;
+		yield;
+
+		return _delete_apply;
+	}
+
+	public void delete_apply_finished(Hashtable apply)
+	{
+		unowned GLib.SourceFunc callback = _delete_apply_callback;
+		_delete_apply_callback = null;
+		_delete_apply = apply;
 
 		if (callback != null)
 			callback();

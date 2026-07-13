@@ -23,6 +23,13 @@ public const string PANEL_EDITOR = "panel-editor";
 public const string PANEL_PROJECTS_LIST = "panel-projects-list";
 public const string PANEL_NEW_PROJECT = "panel-new-project";
 
+public enum DeleteAction
+{
+	NONE,
+	ACTIVATE_NEW_LEVEL,
+	DO_NEW_LEVEL,
+}
+
 public bool parse_port_from_string(out uint16 port, string str)
 {
 	port = 0;
@@ -1792,6 +1799,10 @@ public class LevelEditorApplication : Gtk.Application
 			_data_compiler.refresh_list_finished((Gee.ArrayList<Value?>)msg["list"]);
 		} else if (msg_type == "dependencies") {
 			_data_compiler.dependencies_finished(msg);
+		} else if (msg_type == "delete_preview") {
+			_data_compiler.delete_preview_finished(msg);
+		} else if (msg_type == "delete_apply") {
+			_data_compiler.delete_apply_finished(msg);
 		} else if (msg_type == "move_preview") {
 			_data_compiler.move_preview_finished(msg);
 		} else if (msg_type == "move_apply") {
@@ -3782,48 +3793,92 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void do_delete_file(string resource_path)
+	public async int delete_show(string resource_path, string[]? prune_dirs = null)
 	{
-		string path = _project.absolute_path(resource_path);
-
-		try {
-			GLib.File.new_for_path(path).delete();
-		} catch (Error e) {
-			loge(e.message);
+		Hashtable preview = yield _data_compiler.delete_preview({ resource_path });
+		if (!(bool)preview["success"]) {
+			data_compiler_show_errors(preview, _("Cannot delete resource"));
+			return -1;
 		}
+
+		DeleteDialog delete_dialog = new DeleteDialog(this.active_window
+			, _project_browser
+			, _thumbnail_cache
+			, preview
+			);
+		string[] checked_paths = {};
+		unowned GLib.SourceFunc dialog_callback = delete_show.callback;
+		delete_dialog.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.ACCEPT)
+					checked_paths = delete_dialog.selected();
+				dialog_callback();
+			});
+		delete_dialog.show_all();
+		delete_dialog.present();
+		yield;
+
+		delete_dialog.destroy();
+		if (checked_paths.length == 0)
+			return 1;
+
+		Hashtable apply = yield _data_compiler.delete_apply(checked_paths, prune_dirs);
+		if (!(bool)apply["success"]) {
+			data_compiler_show_errors(apply, _("Cannot delete resource"));
+			return -1;
+		}
+
+		update_active_window_title();
+		if (!(yield compile_and_reload()))
+			return -1;
+
+		return 0;
+	}
+
+	public void do_delete_file(string resource_path, DeleteAction after = DeleteAction.NONE)
+	{
+		delete_show.begin(resource_path, null, (obj, res) => {
+				int status = delete_show.end(res);
+				if (status < 0) {
+					logw("Failed to delete %s".printf(resource_path));
+					return;
+				}
+				if (status != 0)
+					return;
+
+				if (after == DeleteAction.ACTIVATE_NEW_LEVEL)
+					GLib.Application.get_default().activate_action("new-level", null);
+				else if (after == DeleteAction.DO_NEW_LEVEL)
+					do_new_level();
+			});
 	}
 
 	public void on_delete_file(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (param == null)
+		string resource_path = param.get_string();
+		string? resource_name = ResourceId.name(resource_path);
+		if (resource_name == null)
 			return;
 
-		string resource_path  = param.get_string();
-		string? resource_type = ResourceId.type(resource_path);
-		string? resource_name = ResourceId.name(resource_path);
-
-		if (resource_type != null && resource_name != null) {
-			if (resource_name == _level._name) {
-				if (!_database.changed()) {
-					do_delete_file(resource_path);
-					GLib.Application.get_default().activate_action("new-level", null);
-				} else {
-					Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
-					dlg.response.connect((response_id) => {
-							if (response_id == Gtk.ResponseType.NO) {
-								do_delete_file(resource_path);
-								do_new_level();
-							} else if (response_id == Gtk.ResponseType.YES) {
-								save("new-level");
-							}
-							dlg.destroy();
-						});
-					dlg.show_all();
-				}
-			} else {
-				do_delete_file(resource_path);
-			}
+		if (resource_name != _level._name) {
+			do_delete_file(resource_path);
+			return;
 		}
+
+		if (!_database.changed()) {
+			do_delete_file(resource_path, DeleteAction.ACTIVATE_NEW_LEVEL);
+			return;
+		}
+
+		Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
+		dlg.response.connect((response_id) => {
+				if (response_id == Gtk.ResponseType.NO) {
+					do_delete_file(resource_path, DeleteAction.DO_NEW_LEVEL);
+				} else if (response_id == Gtk.ResponseType.YES) {
+					save("new-level");
+				}
+				dlg.destroy();
+			});
+		dlg.show_all();
 	}
 
 	public void do_duplicate_resource(string source_resource_path, string resource_type, string resource_parent, string duplicated_basename)
@@ -3906,43 +3961,17 @@ public class LevelEditorApplication : Gtk.Application
 		dg.show_all();
 	}
 
-	public void do_delete_directory(string dir_name)
-	{
-		if (dir_name == "")
-			return;
-
-		var path = _project.absolute_path(dir_name);
-		try {
-			_project.delete_tree(GLib.File.new_for_path(path));
-		} catch (Error e) {
-			loge(e.message);
-		}
-	}
-
 	public void on_delete_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string dir_name = param.get_string();
+		if (dir_name == "")
+			return;
 
-		Gtk.MessageDialog md = new Gtk.MessageDialog(this.active_window
-			, Gtk.DialogFlags.MODAL
-			, Gtk.MessageType.WARNING
-			, Gtk.ButtonsType.NONE
-			, _("Delete Folder %s?").printf(dir_name)
-			);
-
-		Gtk.Widget btn;
-		md.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL);
-		btn = md.add_button(_("_Delete"), Gtk.ResponseType.YES);
-		btn.get_style_context().add_class("destructive-action");
-		md.set_default_response(Gtk.ResponseType.CANCEL);
-
-		md.response.connect((response_id) => {
-			if (response_id == Gtk.ResponseType.YES)
-				do_delete_directory(dir_name);
-			md.destroy();
-		});
-
-		md.show_all();
+		delete_show.begin(dir_name, { dir_name }, (obj, res) => {
+				int status = delete_show.end(res);
+				if (status < 0)
+					logw("Failed to delete folder %s".printf(dir_name));
+			});
 	}
 
 	public void compile_and_reveal_resource(string type, string dir_name, string res_name)

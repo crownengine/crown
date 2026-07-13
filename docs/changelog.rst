@@ -18,7 +18,7 @@ Changelog
 * Tools: sprite importer will now create animation resources only when the sprite has more than one frame.
 * Tools: added a new dialog in the Project Browser to explore resource dependencies.
 * Tools: added command line support for creating and deploying projects and for importing resources.
-* Tools: added ability to move/rename resources from the Project Browser.
+* Tools: added ability to move/rename and delete resources from the Project Browser.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
