@@ -74,8 +74,6 @@ int main_internal(int argc, char **argv)
 #else
 	#error "Unsupported platform."
 #endif
-	os::setenv("GTK_THEME", "none"); // Disable foreign theming (hopefully).
-
 	launcher_dir = path::parent_dir(launcher_path);
 	path::join(program_cwd, launcher_dir, program_dir);
 	path::join(program_exe, program_cwd.c_str(), program_name);
