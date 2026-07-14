@@ -47,7 +47,7 @@ Updating an Existing Translation
 .. code::
 
 	make -B -C tools/po pot
-	msgmerge --update tools/po/it.po tools/po/crown-editor.pot
+	msgmerge --update --no-fuzzy-matching tools/po/it.po tools/po/crown-editor.pot
 
 2. Translate new empty or fuzzy entries, then remove any remaining fuzzy markers.
 
