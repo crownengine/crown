@@ -354,6 +354,7 @@ public class FBXImportDialog : Gtk.Window
 		_new_skeleton.value_changed.connect(on_import_options_changed);
 		_target_skeleton.value_changed.connect(on_import_options_changed);
 		_import_clips.value_changed.connect(on_import_animations_changed);
+		_import_clips.value_changed.connect(on_import_options_changed);
 
 		on_import_units_changed();
 		on_import_textures_changed();
@@ -422,29 +423,37 @@ public class FBXImportDialog : Gtk.Window
 
 	void on_import_animations_changed()
 	{
-		_create_animations_folder.set_sensitive(_import_clips.value);
+		_create_animations_folder.set_sensitive(_import_animation.value && _import_clips.value);
+		_target_skeleton.sensitive = _import_animation.value && !_new_skeleton.value && _import_clips.value;
 	}
 
 	void on_import_animation_changed()
 	{
 		_new_skeleton.sensitive = _import_animation.value;
 		_import_clips.sensitive = _import_animation.value;
-		_create_animations_folder.sensitive = _import_clips.value;
+		_create_animations_folder.sensitive = _import_animation.value && _import_clips.value;
+		_target_skeleton.sensitive = _import_animation.value && !_new_skeleton.value && _import_clips.value;
 	}
 
 	void on_new_skeleton_changed()
 	{
-		_target_skeleton.sensitive = !_new_skeleton.value;
+		_target_skeleton.sensitive = _import_animation.value && !_new_skeleton.value && _import_clips.value;
 	}
 
 	void on_import_options_changed()
 	{
-		bool target_skeleton_is_valid = _new_skeleton.value
+		bool target_skeleton_is_valid = !_import_animation.value
+			|| !_import_clips.value
+			|| _new_skeleton.value
 			|| (_target_skeleton.value != null && _target_skeleton.value != "")
 			;
 
-		bool enable_import_button = (_import_units.value
-			|| _import_animation.value)
+		bool has_options_to_import = _import_units.value
+			|| (_import_animation.value
+				&& (_new_skeleton.value || _import_clips.value))
+			;
+
+		bool enable_import_button = has_options_to_import
 			&& target_skeleton_is_valid
 			;
 		_import.set_sensitive(enable_import_button);

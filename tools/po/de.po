@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-11 19:26+0200\n"
+"POT-Creation-Date: 2026-07-14 00:09+0200\n"
 "PO-Revision-Date: 2026-06-16 16:39+0100\n"
 "Last-Translator: Futuray\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -311,7 +311,7 @@ msgstr "Windows"
 msgid "Unknown"
 msgstr "Unbekant"
 
-#: tools/level_editor/level_editor.vala:1321
+#: tools/level_editor/level_editor.vala:1348
 #: tools/level_editor/object_editor.vala:287
 #: tools/state_machine_editor/state_machine_editor.vala:390
 #: tools/unit_editor/unit_editor.vala:438
@@ -319,7 +319,7 @@ msgstr "Unbekant"
 msgid "Undo: %s"
 msgstr "Ruckgang %s bearbeiten"
 
-#: tools/level_editor/level_editor.vala:1322
+#: tools/level_editor/level_editor.vala:1349
 #: tools/level_editor/object_editor.vala:292
 #: tools/state_machine_editor/state_machine_editor.vala:395
 #: tools/unit_editor/unit_editor.vala:443
@@ -327,62 +327,62 @@ msgstr "Ruckgang %s bearbeiten"
 msgid "Redo: %s"
 msgstr "%s wiederherstellen"
 
-#: tools/level_editor/level_editor.vala:1391
+#: tools/level_editor/level_editor.vala:1418
 msgid "Runtime that will receive the message."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1392
+#: tools/level_editor/level_editor.vala:1419
 msgid "Editor"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:1393
+#: tools/level_editor/level_editor.vala:1420
 #: tools/level_editor/preferences_dialog.vala:134
 msgid "Game"
 msgstr "Spiel"
 
-#: tools/level_editor/level_editor.vala:1419
+#: tools/level_editor/level_editor.vala:1446
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: tools/level_editor/level_editor.vala:1449
+#: tools/level_editor/level_editor.vala:1476
 msgid "Console"
 msgstr "Konsole"
 
-#: tools/level_editor/level_editor.vala:1453
+#: tools/level_editor/level_editor.vala:1480
 msgid "Project"
 msgstr "Projekt"
 
-#: tools/level_editor/level_editor.vala:1475
+#: tools/level_editor/level_editor.vala:1502
 msgid "Level (*.level)"
 msgstr "Level (*.level)"
 
-#: tools/level_editor/level_editor.vala:1486
+#: tools/level_editor/level_editor.vala:1513
 #, c-format
 msgid "Waiting for %s..."
 msgstr "Warten über"
 
-#: tools/level_editor/level_editor.vala:1669 tools/widgets/messages.vala:33
+#: tools/level_editor/level_editor.vala:1696 tools/widgets/messages.vala:33
 msgid "Compiling data..."
 msgstr "Daten kompilation..."
 
-#: tools/level_editor/level_editor.vala:1677
+#: tools/level_editor/level_editor.vala:1704
 msgid "Failed to compile data"
 msgstr "Daten konnten nicht kompiliert werden"
 
-#: tools/level_editor/level_editor.vala:2268
+#: tools/level_editor/level_editor.vala:2295
 msgid "Grid size"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2271
-#: tools/level_editor/level_editor.vala:2830
-#: tools/level_editor/level_editor.vala:2871
-#: tools/level_editor/level_editor.vala:3117
-#: tools/level_editor/level_editor.vala:3360
-#: tools/level_editor/level_editor.vala:3642
-#: tools/level_editor/level_editor.vala:3818
-#: tools/level_editor/level_editor.vala:3868
-#: tools/level_editor/object_editor.vala:57 tools/level_editor/project.vala:878
-#: tools/level_editor/project.vala:916
+#: tools/level_editor/level_editor.vala:2298
+#: tools/level_editor/level_editor.vala:2857
+#: tools/level_editor/level_editor.vala:2898
+#: tools/level_editor/level_editor.vala:3144
+#: tools/level_editor/level_editor.vala:3387
+#: tools/level_editor/level_editor.vala:3669
+#: tools/level_editor/level_editor.vala:3845
+#: tools/level_editor/level_editor.vala:3895
+#: tools/level_editor/object_editor.vala:57 tools/level_editor/project.vala:885
+#: tools/level_editor/project.vala:923
 #: tools/level_editor/texture_settings_dialog.vala:157
 #: tools/resource/font_resource.vala:287
 #: tools/resource/mesh_resource_fbx.vala:333
@@ -395,57 +395,57 @@ msgstr ""
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: tools/level_editor/level_editor.vala:2273
-#: tools/level_editor/level_editor.vala:3119
-#: tools/level_editor/level_editor.vala:3362
-#: tools/level_editor/level_editor.vala:3644
-#: tools/level_editor/level_editor.vala:3820
-#: tools/level_editor/level_editor.vala:3870
+#: tools/level_editor/level_editor.vala:2300
+#: tools/level_editor/level_editor.vala:3146
+#: tools/level_editor/level_editor.vala:3389
+#: tools/level_editor/level_editor.vala:3671
+#: tools/level_editor/level_editor.vala:3847
+#: tools/level_editor/level_editor.vala:3897
 msgid "Ok"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2303
+#: tools/level_editor/level_editor.vala:2330
 #: tools/state_machine_editor/state_machine_editor.vala:177
 msgid "untitled"
 msgstr "ungenannt"
 
-#: tools/level_editor/level_editor.vala:2345
+#: tools/level_editor/level_editor.vala:2372
 #, c-format
 msgid "Unable to save level '%s'"
 msgstr "Level „%s“ kann nicht gespeichert werden"
 
-#: tools/level_editor/level_editor.vala:2347
-#: tools/level_editor/level_editor.vala:2932
-#: tools/level_editor/level_editor.vala:2946
-#: tools/level_editor/level_editor.vala:4093
+#: tools/level_editor/level_editor.vala:2374
+#: tools/level_editor/level_editor.vala:2959
+#: tools/level_editor/level_editor.vala:2973
+#: tools/level_editor/level_editor.vala:4120
 #: tools/level_editor/object_editor.vala:157
 #: tools/state_machine_editor/state_machine_editor.vala:256
 #: tools/unit_editor/unit_editor.vala:239
 msgid "_Ok"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2354
+#: tools/level_editor/level_editor.vala:2381
 #, c-format
 msgid "Saved %s"
 msgstr "%s wird gespeichert"
 
-#: tools/level_editor/level_editor.vala:2373 tools/level_editor/menus.vala:35
+#: tools/level_editor/level_editor.vala:2400 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:181
 #: tools/state_machine_editor/state_machine_editor.vala:280
 #: tools/unit_editor/unit_editor.vala:263
 msgid "Save As..."
 msgstr "Speichern als..."
 
-#: tools/level_editor/level_editor.vala:2483 tools/level_editor/menus.vala:18
+#: tools/level_editor/level_editor.vala:2510 tools/level_editor/menus.vala:18
 msgid "Open Level..."
 msgstr "Level öffnen..."
 
-#: tools/level_editor/level_editor.vala:2538
+#: tools/level_editor/level_editor.vala:2565
 #, c-format
 msgid "The folder `%s` does not appear to be a valid Crown project."
 msgstr "Der Ordner „%s“ sieht nicht wie ein gültiges Crown projekt aus."
 
-#: tools/level_editor/level_editor.vala:2657
+#: tools/level_editor/level_editor.vala:2684
 #, c-format
 msgid ""
 "Remove \"%s\" from the list?\n"
@@ -458,33 +458,33 @@ msgstr ""
 "Diese aktion löscht das Projekt nuch von der Liste, keine Datei wird von der "
 "Festplattegelöscht sein."
 
-#: tools/level_editor/level_editor.vala:2659
-#: tools/level_editor/level_editor.vala:2860
-#: tools/level_editor/level_editor.vala:3690 tools/widgets/messages.vala:109
+#: tools/level_editor/level_editor.vala:2686
+#: tools/level_editor/level_editor.vala:2887
+#: tools/level_editor/level_editor.vala:3717 tools/widgets/messages.vala:109
 msgid "_Cancel"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:2660
+#: tools/level_editor/level_editor.vala:2687
 msgid "_Remove"
 msgstr "_Löschen"
 
-#: tools/level_editor/level_editor.vala:2822
+#: tools/level_editor/level_editor.vala:2849
 #: tools/level_editor/preferences_dialog.vala:126
 msgid "Level"
 msgstr "Level"
 
-#: tools/level_editor/level_editor.vala:2827 tools/level_editor/menus.vala:27
+#: tools/level_editor/level_editor.vala:2854 tools/level_editor/menus.vala:27
 msgid "Open Project..."
 msgstr "Projekt öffnen..."
 
-#: tools/level_editor/level_editor.vala:2832
+#: tools/level_editor/level_editor.vala:2859
 #: tools/level_editor/panel_projects_list.vala:57
-#: tools/level_editor/project.vala:918 tools/widgets/input_file.vala:92
+#: tools/level_editor/project.vala:925 tools/widgets/input_file.vala:92
 #: tools/widgets/open_resource_dialog.vala:25
 msgid "Open"
 msgstr "Öffnen"
 
-#: tools/level_editor/level_editor.vala:2855
+#: tools/level_editor/level_editor.vala:2882
 msgid ""
 "Save the project before closing?\n"
 "\n"
@@ -495,85 +495,85 @@ msgstr ""
 "Das ist ein *vorübergehendes* Projekt und es wird gelöscht wenn nicht jetzt "
 "gespeichert wird."
 
-#: tools/level_editor/level_editor.vala:2858 tools/widgets/messages.vala:107
+#: tools/level_editor/level_editor.vala:2885 tools/widgets/messages.vala:107
 msgid "Close _without Saving"
 msgstr "Schließen ohne zu speichern"
 
-#: tools/level_editor/level_editor.vala:2861 tools/widgets/messages.vala:110
+#: tools/level_editor/level_editor.vala:2888 tools/widgets/messages.vala:110
 msgid "_Save"
 msgstr "_Speichern"
 
-#: tools/level_editor/level_editor.vala:2868
+#: tools/level_editor/level_editor.vala:2895
 msgid "Select a folder where the project will be saved..."
 msgstr "Speichordner fürs Projekt wählen..."
 
-#: tools/level_editor/level_editor.vala:2873
+#: tools/level_editor/level_editor.vala:2900
 msgid "Save Project Here"
 msgstr "Projekt hier speichern"
 
-#: tools/level_editor/level_editor.vala:2930
+#: tools/level_editor/level_editor.vala:2957
 msgid "The destination directory must be empty"
 msgstr "Das Zielordner muss leer sein"
 
-#: tools/level_editor/level_editor.vala:2944
+#: tools/level_editor/level_editor.vala:2971
 #, c-format
 msgid "Failed to save project in %s"
 msgstr "Projekt kann nicht in %s gespeichert werden."
 
-#: tools/level_editor/level_editor.vala:3114
+#: tools/level_editor/level_editor.vala:3141
 msgid "Rotation snap"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3357
+#: tools/level_editor/level_editor.vala:3384
 msgid "New Name"
 msgstr "Neue Name"
 
-#: tools/level_editor/level_editor.vala:3488
+#: tools/level_editor/level_editor.vala:3515
 #, fuzzy
 msgid "Cannot show dependencies"
 msgstr ""
 "%s kann nicht gelöscht werden wegen der folgende Abhängigkeit:\n"
 "\n"
 
-#: tools/level_editor/level_editor.vala:3639
-#: tools/level_editor/level_editor.vala:3811
+#: tools/level_editor/level_editor.vala:3666
+#: tools/level_editor/level_editor.vala:3838
 msgid "Resource Name"
 msgstr "Ressourcenname"
 
-#: tools/level_editor/level_editor.vala:3686
+#: tools/level_editor/level_editor.vala:3713
 #, c-format
 msgid "Delete Folder %s?"
 msgstr "Ordner „%s“ löschen?"
 
-#: tools/level_editor/level_editor.vala:3691
+#: tools/level_editor/level_editor.vala:3718
 msgid "_Delete"
 msgstr "_Löschen"
 
-#: tools/level_editor/level_editor.vala:3799
+#: tools/level_editor/level_editor.vala:3826
 msgid "Script Name"
 msgstr "Skriptname"
 
-#: tools/level_editor/level_editor.vala:3802
+#: tools/level_editor/level_editor.vala:3829
 msgid "Unit Name"
 msgstr "Akteurname"
 
-#: tools/level_editor/level_editor.vala:3805
+#: tools/level_editor/level_editor.vala:3832
 msgid "Material Name"
 msgstr "Materialname"
 
-#: tools/level_editor/level_editor.vala:3808
+#: tools/level_editor/level_editor.vala:3835
 msgid "State Machine Name"
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:3835
+#: tools/level_editor/level_editor.vala:3862
 msgid "Skeleton name (optional)"
 msgstr "Skelettname (fakultativ)"
 
-#: tools/level_editor/level_editor.vala:3865
+#: tools/level_editor/level_editor.vala:3892
 msgid "Folder Name"
 msgstr "Ordnername"
 
-#: tools/level_editor/level_editor.vala:4008
+#: tools/level_editor/level_editor.vala:4035
 #: tools/widgets/save_resource_dialog.vala:84
 #, c-format
 msgid ""
@@ -583,21 +583,21 @@ msgstr ""
 "Das Datei „%s“ exsistiert schon.\n"
 "Überschreiben?"
 
-#: tools/level_editor/level_editor.vala:4013
+#: tools/level_editor/level_editor.vala:4040
 #: tools/widgets/save_resource_dialog.vala:88
 msgid "_No"
 msgstr "_Nein"
 
-#: tools/level_editor/level_editor.vala:4014
+#: tools/level_editor/level_editor.vala:4041
 #: tools/widgets/save_resource_dialog.vala:89
 msgid "_Yes"
 msgstr "_Ya"
 
-#: tools/level_editor/level_editor.vala:4073
+#: tools/level_editor/level_editor.vala:4100
 msgid "Save Prefab As..."
 msgstr ""
 
-#: tools/level_editor/level_editor.vala:4091
+#: tools/level_editor/level_editor.vala:4118
 #, c-format
 msgid "Cannot save prefab '%s' over itself"
 msgstr ""
@@ -708,7 +708,7 @@ msgstr "Speichern"
 
 #: tools/level_editor/menus.vala:42
 #: tools/level_editor/panel_projects_list.vala:121
-#: tools/level_editor/project.vala:913
+#: tools/level_editor/project.vala:920
 #: tools/level_editor/project_browser.vala:69
 msgid "Import..."
 msgstr "Importieren..."
@@ -1290,11 +1290,11 @@ msgstr "Proketsordner exsistiert schon"
 msgid "Project Folder cannot be created automatically"
 msgstr "Projektsordner kann nicht automatisch hergestellt werden"
 
-#: tools/level_editor/project.vala:875
+#: tools/level_editor/project.vala:882
 msgid "Select destination folder..."
 msgstr "Zielordner auswählen..."
 
-#: tools/level_editor/project.vala:880
+#: tools/level_editor/project.vala:887
 msgid "Select"
 msgstr "Auswählen"
 
@@ -1481,7 +1481,7 @@ msgstr "Als Icon anzeigen."
 msgid "Favorites is empty"
 msgstr "Keine Favoriten"
 
-#: tools/level_editor/project_browser.vala:2115
+#: tools/level_editor/project_browser.vala:2116
 msgid "Favorites"
 msgstr "Favoriten"
 
@@ -2758,7 +2758,8 @@ msgstr "Farbe von Bidlschirm anwählen."
 msgid "Choose a color."
 msgstr "Farbe anwählen."
 
-#: tools/widgets/input_file.vala:48
+#: tools/widgets/input_file.vala:48 tools/widgets/input_object.vala:15
+#: tools/widgets/input_resource.vala:15
 msgid "(None)"
 msgstr "(Nichts)"
 
@@ -2766,6 +2767,10 @@ msgstr "(Nichts)"
 #, c-format
 msgid "Select %s"
 msgstr "%s Anwählen"
+
+#: tools/widgets/input_object.vala:16
+msgid "(Missing)"
+msgstr ""
 
 #: tools/widgets/input_object.vala:86 tools/widgets/input_resource.vala:83
 msgid "Select a resource."
