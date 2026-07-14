@@ -14,7 +14,8 @@ public class ProjectRow : Gtk.ListBoxRow
 	public Gtk.Button _remove_button;
 	public Gtk.Button _open_button;
 	public Gtk.EventBox _event_box;
-	public Gtk.Menu _menu;
+	public Gtk.Popover _menu;
+	public Gtk.GestureMultiPress _gesture_click;
 	public ProjectsList _projects_list;
 
 	public ProjectRow(string source_dir, string time, string name, ProjectsList pl)
@@ -66,27 +67,29 @@ public class ProjectRow : Gtk.ListBoxRow
 		_open_button.action_target = new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE});
 		_hbox.pack_end(_open_button, false, false, 0);
 
-		_menu = new Gtk.Menu();
-		Gtk.MenuItem mi = null;
+		GLib.Menu menu_model = new GLib.Menu();
+		GLib.MenuItem mi = null;
 
-		mi = new Gtk.MenuItem.with_label("Run Game");
-		mi.activate.connect(() => {
-				GLib.Application.get_default().activate_action("run-project-game", new GLib.Variant.string(source_dir));
-			});
-		_menu.append(mi);
+		mi = new GLib.MenuItem(_("Run Game"), null);
+		mi.set_action_and_target_value("app.run-project-game", new GLib.Variant.string(source_dir));
+		menu_model.append_item(mi);
 
 		_event_box = new Gtk.EventBox();
 		_event_box.add(_hbox);
 		this.add(_event_box);
 
-		this.add_events(Gdk.EventMask.BUTTON_PRESS_MASK);
-		this.button_press_event.connect(event => {
-				if (event.button == 3) {
-					_menu.show_all();
-					_menu.popup_at_pointer(event);
-					return true;
+		_menu = new Gtk.Popover.from_model(_event_box, menu_model);
+
+		_gesture_click = new Gtk.GestureMultiPress(_event_box);
+		_gesture_click.set_button(0);
+		_gesture_click.pressed.connect((n_press, x, y) => {
+				if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+					_menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+					_menu.set_position(Gtk.PositionType.BOTTOM);
+					_menu.popup();
+
+					_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				}
-				return false;
 			});
 	}
 }
