@@ -308,7 +308,7 @@ public class ConsoleView : Gtk.Box
 	public string text_from_suggestion(out int cursor_position, string suggestion)
 	{
 		string completed_prefix = _completion_query_text[0 : _completion_replace_start_byte] + suggestion;
-		cursor_position = completed_prefix.length;
+		cursor_position = completed_prefix.char_count();
 		return completed_prefix + _completion_suffix_text;
 	}
 
@@ -475,7 +475,7 @@ public class ConsoleView : Gtk.Box
 		if (suggestions_count > 0) {
 			Gtk.ListBoxRow? first_row = _entry_suggestions_list.get_row_at_index(0);
 			string? first = first_row != null? first_row.get_data<string>("suggestion") : null;
-			int prefix_len = _completion_query_text.length;
+			int prefix_len = _completion_query_text.char_count();
 			int completion_end = 0;
 			string? first_text = null;
 			if (first != null)
