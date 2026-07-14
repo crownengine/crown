@@ -288,13 +288,19 @@ public class ConsoleView : Gtk.Box
 	public void reset_lua_suggestions_state()
 	{
 		clear_lua_suggestions();
-		hide_lua_suggestions();
+		invalidate_lua_suggestions();
 		_completion_suppress_autofill_once = false;
 	}
 
 	public void hide_lua_suggestions()
 	{
 		_entry_suggestions_popover.popdown();
+	}
+
+	public void invalidate_lua_suggestions()
+	{
+		++_completion_request_id;
+		hide_lua_suggestions();
 	}
 
 	public string text_from_suggestion(string suggestion)
@@ -529,14 +535,14 @@ public class ConsoleView : Gtk.Box
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);
-		hide_lua_suggestions();
+		invalidate_lua_suggestions();
 		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
 		if (keyval == Gdk.Key.Escape && _entry_suggestions_popover.get_visible()) {
-			hide_lua_suggestions();
+			invalidate_lua_suggestions();
 			return Gdk.EVENT_STOP;
 		}
 
