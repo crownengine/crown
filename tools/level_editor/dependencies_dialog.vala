@@ -7,20 +7,10 @@ namespace Crown
 {
 public enum DependenciesDialogColumn
 {
-	KIND,
 	TYPE,
 	NAME,
 	PATH,
 	LABEL,
-
-	COUNT
-}
-
-public enum DependenciesDialogRowKind
-{
-	GROUP,
-	FOLDER,
-	RESOURCE,
 
 	COUNT
 }
@@ -40,8 +30,6 @@ public class DependenciesDialog : Gtk.Window
 		store.insert_with_values(out parent
 			, null
 			, -1
-			, DependenciesDialogColumn.KIND
-			, DependenciesDialogRowKind.GROUP
 			, DependenciesDialogColumn.TYPE
 			, ""
 			, DependenciesDialogColumn.NAME
@@ -59,12 +47,10 @@ public class DependenciesDialog : Gtk.Window
 
 			string? resource_type = ResourceId.type(path);
 			string? resource_name = ResourceId.name(path);
-			DependenciesDialogRowKind kind = DependenciesDialogRowKind.FOLDER;
 			string type = "";
 			string name = path;
 
 			if (resource_type != null && resource_name != null) {
-				kind = DependenciesDialogRowKind.RESOURCE;
 				type = resource_type;
 				name = resource_name;
 			}
@@ -73,8 +59,6 @@ public class DependenciesDialog : Gtk.Window
 			store.insert_with_values(out iter
 				, parent
 				, -1
-				, DependenciesDialogColumn.KIND
-				, kind
 				, DependenciesDialogColumn.TYPE
 				, type
 				, DependenciesDialogColumn.NAME
@@ -104,7 +88,6 @@ public class DependenciesDialog : Gtk.Window
 			return;
 
 		Gtk.TreeStore store = new Gtk.TreeStore(DependenciesDialogColumn.COUNT
-			, typeof(DependenciesDialogRowKind) // DependenciesDialogColumn.KIND
 			, typeof(string) // DependenciesDialogColumn.TYPE
 			, typeof(string) // DependenciesDialogColumn.NAME
 			, typeof(string) // DependenciesDialogColumn.PATH
@@ -132,24 +115,18 @@ public class DependenciesDialog : Gtk.Window
 		tree_view.set_tooltip_text(tooltip);
 		tree_view.row_activated.connect((path, column) => {
 				Gtk.TreeIter iter;
-				if (!store.get_iter(out iter, path))
+				if (!store.get_iter(out iter, path) || store.iter_has_child(iter))
 					return;
 
 				Value val;
-				store.get_value(iter, DependenciesDialogColumn.KIND, out val);
-				DependenciesDialogRowKind dialog_kind = (DependenciesDialogRowKind)val;
-				if (dialog_kind == DependenciesDialogRowKind.GROUP)
-					return;
-
-				ProjectStore.RowKind kind = dialog_kind == DependenciesDialogRowKind.FOLDER
-					? ProjectStore.RowKind.FOLDER
-					: ProjectStore.RowKind.RESOURCE
-					;
-
 				store.get_value(iter, DependenciesDialogColumn.TYPE, out val);
 				string type = (string)val;
 				store.get_value(iter, DependenciesDialogColumn.NAME, out val);
 				string name = (string)val;
+				ProjectStore.RowKind kind = type == ""
+					? ProjectStore.RowKind.FOLDER
+					: ProjectStore.RowKind.RESOURCE
+					;
 
 				_project_browser.reveal(kind, type, name);
 			});
@@ -170,22 +147,19 @@ public class DependenciesDialog : Gtk.Window
 				cell.set_property("icon-name", no_icon);
 
 				Value val;
-				model.get_value(iter, DependenciesDialogColumn.KIND, out val);
-				DependenciesDialogRowKind dialog_kind = (DependenciesDialogRowKind)val;
-				if (dialog_kind == DependenciesDialogRowKind.GROUP) {
+				if (model.iter_has_child(iter)) {
 					cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
 					return;
 				}
-
-				ProjectStore.RowKind kind = dialog_kind == DependenciesDialogRowKind.FOLDER
-					? ProjectStore.RowKind.FOLDER
-					: ProjectStore.RowKind.RESOURCE
-					;
 
 				model.get_value(iter, DependenciesDialogColumn.TYPE, out val);
 				string type = (string)val;
 				model.get_value(iter, DependenciesDialogColumn.NAME, out val);
 				string name = (string)val;
+				ProjectStore.RowKind kind = type == ""
+					? ProjectStore.RowKind.FOLDER
+					: ProjectStore.RowKind.RESOURCE
+					;
 
 				set_thumbnail(cell, kind, type, name, 16, _thumbnail_cache);
 			});
@@ -203,8 +177,7 @@ public class DependenciesDialog : Gtk.Window
 				string label = (string)val;
 
 				string markup = GLib.Markup.escape_text(label);
-				model.get_value(iter, DependenciesDialogColumn.KIND, out val);
-				if ((DependenciesDialogRowKind)val == DependenciesDialogRowKind.GROUP)
+				if (model.iter_has_child(iter))
 					markup = "<b>%s</b>".printf(markup);
 
 				cell.set_property("markup", markup);
