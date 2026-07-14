@@ -482,8 +482,12 @@ public class ConsoleView : Gtk.Box
 				first_text = text_from_suggestion(out completion_end, first);
 
 			if (first_text != null && !_completion_suppress_autofill_once && has_prefix_case(first_text, _completion_query_text)) {
+				// Preserve the text the user typed and append only the suggested suffix.
+				int suffix_start_byte = first_text.index_of_nth_char(prefix_len);
+				string inline_text = _completion_query_text + first_text[suffix_start_byte : first_text.length];
+
 				_completion_updating_entry = true;
-				_entry.text = first_text;
+				_entry.text = inline_text;
 				_entry.set_position(prefix_len);
 				_entry.select_region(prefix_len, completion_end);
 				_completion_updating_entry = false;
