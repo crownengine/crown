@@ -147,6 +147,7 @@ public class ConsoleView : Gtk.Box
 	public bool _completion_updating_entry;
 	public bool _completion_suppress_autofill_once;
 	public string _completion_query_text;
+	public string _completion_suffix_text;
 	public int _completion_replace_start_byte;
 	public bool _history_navigation_active;
 
@@ -162,6 +163,7 @@ public class ConsoleView : Gtk.Box
 		_completion_updating_entry = false;
 		_completion_suppress_autofill_once = false;
 		_completion_query_text = "";
+		_completion_suffix_text = "";
 		_completion_replace_start_byte = 0;
 		_history_navigation_active = false;
 		_scroll_to_bottom_source_id = 0;
@@ -303,18 +305,21 @@ public class ConsoleView : Gtk.Box
 		hide_lua_suggestions();
 	}
 
-	public string text_from_suggestion(string suggestion)
+	public string text_from_suggestion(out int cursor_position, string suggestion)
 	{
-		return _completion_query_text[0 : _completion_replace_start_byte] + suggestion;
+		string completed_prefix = _completion_query_text[0 : _completion_replace_start_byte] + suggestion;
+		cursor_position = completed_prefix.length;
+		return completed_prefix + _completion_suffix_text;
 	}
 
 	public void set_entry_from_suggestion(string suggestion)
 	{
-		string text = text_from_suggestion(suggestion);
+		int cursor_position;
+		string text = text_from_suggestion(out cursor_position, suggestion);
 
 		_completion_updating_entry = true;
 		_entry.text = text;
-		_entry.set_position(text.length);
+		_entry.set_position(cursor_position);
 		_completion_updating_entry = false;
 	}
 
@@ -378,16 +383,22 @@ public class ConsoleView : Gtk.Box
 		return cmp != 0 ? cmp : strcmp(a, b);
 	}
 
-	public string current_query_text()
+	public void current_completion_context(out string query_text, out string suffix_text)
 	{
+		string text = _entry.text;
+		int query_end_position = _entry.get_position();
+		int suffix_start_position = query_end_position;
 		int start_pos;
 		int end_pos;
 		if (_entry.get_selection_bounds(out start_pos, out end_pos)) {
-			int prefix_len = start_pos < end_pos ? start_pos : end_pos;
-			return _entry.text[0 : prefix_len];
+			query_end_position = start_pos < end_pos ? start_pos : end_pos;
+			suffix_start_position = start_pos < end_pos ? end_pos : start_pos;
 		}
 
-		return _entry.text;
+		int query_end = text.index_of_nth_char(query_end_position);
+		int suffix_start = text.index_of_nth_char(suffix_start_position);
+		query_text = text[0 : query_end];
+		suffix_text = text[suffix_start : text.length];
 	}
 
 	public void on_entry_changed()
@@ -395,8 +406,27 @@ public class ConsoleView : Gtk.Box
 		if (_completion_updating_entry || _history_navigation_active)
 			return;
 
-		string text = current_query_text();
+		// Gtk.Entry emits changed before updating its cursor position.
+		// Defer reading the completion context until the edit is finished.
+		uint request_id = ++_completion_request_id;
+		GLib.Idle.add(() => {
+				if (_console_view_valid && request_id == _completion_request_id)
+					request_lua_suggestions(request_id);
+
+				return GLib.Source.REMOVE;
+			});
+	}
+
+	public void request_lua_suggestions(uint request_id)
+	{
+		if (request_id != _completion_request_id)
+			return;
+
+		string text;
+		string suffix_text;
+		current_completion_context(out text, out suffix_text);
 		_completion_query_text = text;
+		_completion_suffix_text = suffix_text;
 		if (text.length == 0 || text[0] == ':') {
 			reset_lua_suggestions_state();
 			return;
@@ -409,8 +439,7 @@ public class ConsoleView : Gtk.Box
 			return;
 		}
 
-		++_completion_request_id;
-		runtime.send(RuntimeApi.suggest(_completion_request_id, text));
+		runtime.send(RuntimeApi.suggest(request_id, text));
 	}
 
 	public void set_lua_suggestions(uint request_id, uint replace_start_byte, Gee.ArrayList<Value?> items)
@@ -447,13 +476,16 @@ public class ConsoleView : Gtk.Box
 			Gtk.ListBoxRow? first_row = _entry_suggestions_list.get_row_at_index(0);
 			string? first = first_row != null? first_row.get_data<string>("suggestion") : null;
 			int prefix_len = _completion_query_text.length;
-			string? first_text = first != null? text_from_suggestion(first) : null;
+			int completion_end = 0;
+			string? first_text = null;
+			if (first != null)
+				first_text = text_from_suggestion(out completion_end, first);
 
 			if (first_text != null && !_completion_suppress_autofill_once && has_prefix_case(first_text, _completion_query_text)) {
 				_completion_updating_entry = true;
 				_entry.text = first_text;
 				_entry.set_position(prefix_len);
-				_entry.select_region(prefix_len, -1);
+				_entry.select_region(prefix_len, completion_end);
 				_completion_updating_entry = false;
 			}
 
