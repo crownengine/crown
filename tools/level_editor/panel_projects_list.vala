@@ -71,8 +71,8 @@ public class ProjectRow : Gtk.ListBoxRow
 
 		mi = new Gtk.MenuItem.with_label("Run Game");
 		mi.activate.connect(() => {
-			GLib.Application.get_default().activate_action("run-project-game", new GLib.Variant.string(source_dir));
-		});
+				GLib.Application.get_default().activate_action("run-project-game", new GLib.Variant.string(source_dir));
+			});
 		_menu.append(mi);
 
 		_event_box = new Gtk.EventBox();
@@ -81,13 +81,13 @@ public class ProjectRow : Gtk.ListBoxRow
 
 		this.add_events(Gdk.EventMask.BUTTON_PRESS_MASK);
 		this.button_press_event.connect(event => {
-			if (event.button == 3) {
-				_menu.show_all();
-				_menu.popup_at_pointer(event);
-				return true;
-			}
-			return false;
-		});
+				if (event.button == 3) {
+					_menu.show_all();
+					_menu.popup_at_pointer(event);
+					return true;
+				}
+				return false;
+			});
 	}
 }
 
