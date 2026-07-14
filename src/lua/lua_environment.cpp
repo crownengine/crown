@@ -824,6 +824,9 @@ static void console_command_suggest(ConsoleServer &cs, u32 client_id, const char
 	lua_State *L = ((LuaEnvironment *)user_data)->L;
 	ss << "{\"type\":\"expr_suggestions\",\"id\":";
 	ss << request_id;
+	// UTF-8 byte offset into the requested expression.
+	ss << ",\"replace_start\":";
+	ss << token_start;
 	ss << ",\"items\":[";
 	if (token.length() == 0 || !resolve_lua_table(table_prefix, L, table_path.c_str())) {
 		ss << "]}";

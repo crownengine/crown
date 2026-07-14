@@ -1525,7 +1525,8 @@ public class LevelEditorApplication : Gtk.Application
 			_thumbnail_cache.thumbnail_ready(resource_type, resource_name, path);
 		} else if (msg_type == "expr_suggestions") {
 			uint request_id = (uint)(double)msg["id"];
-			_console_view.set_lua_suggestions(request_id, (Gee.ArrayList<Value?>)msg["items"]);
+			uint replace_start = (uint)(double)msg["replace_start"];
+			_console_view.set_lua_suggestions(request_id, replace_start, (Gee.ArrayList<Value?>)msg["items"]);
 		} else {
 			loge("Unknown message type: " + msg_type);
 		}
