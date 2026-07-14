@@ -47,7 +47,7 @@ msgstr "Modifica Oggetti"
 #: tools/level_editor/delete_dialog.vala:63
 #: tools/level_editor/delete_dialog.vala:85
 msgid "Delete Resources"
-msgstr ""
+msgstr "Elimina Risorse"
 
 #: tools/level_editor/delete_dialog.vala:89
 #: tools/level_editor/level_editor.vala:2316
@@ -85,16 +85,16 @@ msgstr "Elimina"
 
 #: tools/level_editor/delete_dialog.vala:121
 msgid "Associated files"
-msgstr ""
+msgstr "File associati"
 
 #: tools/level_editor/delete_dialog.vala:126
 msgid "Becomes unused"
-msgstr ""
+msgstr "Diventano inutilizzate"
 
 #: tools/level_editor/delete_dialog.vala:131
 #: tools/level_editor/move_dialog.vala:165
 msgid "Shared"
-msgstr ""
+msgstr "Condivise"
 
 #: tools/level_editor/delete_dialog.vala:139
 msgid ""
@@ -102,16 +102,21 @@ msgid ""
 "Resources that become unused and shared dependencies are unchecked by "
 "default."
 msgstr ""
+"Risorse selezionate e file associati da eliminare.\n"
+"Le risorse che diventano inutilizzate e le dipendenze condivise sono "
+"deselezionate per impostazione predefinita."
 
 #: tools/level_editor/delete_dialog.vala:165
 #: tools/level_editor/delete_dialog.vala:526
 msgid "Will Reference Missing Resources"
-msgstr ""
+msgstr "Faranno Riferimento a Risorse Mancanti"
 
 #: tools/level_editor/delete_dialog.vala:166
 msgid ""
 "Resources outside the delete set that will still point to deleted paths."
 msgstr ""
+"Le risorse escluse dall'insieme da eliminare continueranno a puntare a "
+"percorsi eliminati."
 
 #: tools/level_editor/delete_dialog.vala:385
 #: tools/level_editor/dependencies_dialog.vala:170
@@ -121,7 +126,7 @@ msgstr "Risorsa"
 
 #: tools/level_editor/delete_dialog.vala:396
 msgid "Missing Resource"
-msgstr ""
+msgstr "Risorsa Mancante"
 
 #: tools/level_editor/dependencies_dialog.vala:206
 #: tools/level_editor/dependencies_dialog.vala:211
@@ -584,19 +589,19 @@ msgstr "Impossibile mostrare le dipendenze"
 #: tools/level_editor/level_editor.vala:3640
 #: tools/level_editor/level_editor.vala:3650
 msgid "Cannot move resource"
-msgstr ""
+msgstr "Impossibile spostare la risorsa"
 
 #: tools/level_editor/level_editor.vala:3596
 msgid "Move Resources"
-msgstr ""
+msgstr "Sposta Risorse"
 
 #: tools/level_editor/level_editor.vala:3597
 msgid "Source paths to move."
-msgstr ""
+msgstr "Percorsi sorgente da spostare."
 
 #: tools/level_editor/level_editor.vala:3667
 msgid "Move To"
-msgstr ""
+msgstr "Sposta In"
 
 #: tools/level_editor/level_editor.vala:3672 tools/level_editor/menus.vala:258
 #: tools/level_editor/move_dialog.vala:88
@@ -608,12 +613,12 @@ msgstr "Sposta"
 #: tools/level_editor/level_editor.vala:3719
 #: tools/level_editor/level_editor.vala:3724
 msgid "Rename"
-msgstr ""
+msgstr "Rinomina"
 
 #: tools/level_editor/level_editor.vala:3793
 #: tools/level_editor/level_editor.vala:3819
 msgid "Cannot delete resource"
-msgstr ""
+msgstr "Impossibile eliminare la risorsa"
 
 #: tools/level_editor/level_editor.vala:3931
 #: tools/level_editor/level_editor.vala:4077
@@ -1012,23 +1017,26 @@ msgstr "Aiuto"
 
 #: tools/level_editor/move_dialog.vala:115
 msgid "Also safe to move"
-msgstr ""
+msgstr "Spostabili in sicurezza"
 
 #: tools/level_editor/move_dialog.vala:151
 msgid "Update References"
-msgstr ""
+msgstr "Aggiorna Riferimenti"
 
 #: tools/level_editor/move_dialog.vala:152
 msgid "Source files whose resource references or paths may be rewritten."
 msgstr ""
+"File sorgente i cui riferimenti a risorse o percorsi potrebbero essere "
+"riscritti."
 
 #: tools/level_editor/move_dialog.vala:166
 msgid "Dependencies also used by resources outside the move set."
 msgstr ""
+"Dipendenze utilizzate anche da risorse escluse dall'insieme da spostare."
 
 #: tools/level_editor/move_dialog.vala:370
 msgid "Old Name"
-msgstr ""
+msgstr "Vecchio Nome"
 
 #: tools/level_editor/object_editor.vala:61
 #: tools/level_editor/texture_settings_dialog.vala:161
@@ -1415,7 +1423,7 @@ msgstr "Aggiungi ai Preferiti"
 #: tools/level_editor/project_browser.vala:57
 #: tools/level_editor/project_browser.vala:184
 msgid "Move To..."
-msgstr ""
+msgstr "Sposta In..."
 
 #: tools/level_editor/project_browser.vala:85
 msgid "New Script..."
