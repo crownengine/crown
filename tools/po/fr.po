@@ -91,7 +91,7 @@ msgstr "Requis par"
 
 #: tools/level_editor/dependencies_dialog.vala:308
 msgid "No direct dependencies or references."
-msgstr "Pas de dépendances ou de références directes"
+msgstr "Pas de dépendances ou de références directes."
 
 #: tools/level_editor/deploy_dialog.vala:34
 #, c-format
@@ -281,7 +281,7 @@ msgstr "Vue du Dessus"
 
 #: tools/level_editor/level_editor.vala:204
 msgid "View Bottom"
-msgstr "Vue d'en Bas"
+msgstr "Vue du dessous"
 
 #: tools/level_editor/level_editor.vala:206
 msgid "View Unknown"
