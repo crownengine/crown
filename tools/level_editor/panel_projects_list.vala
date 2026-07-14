@@ -13,6 +13,8 @@ public class ProjectRow : Gtk.ListBoxRow
 	public Gtk.Label _source_dir;
 	public Gtk.Button _remove_button;
 	public Gtk.Button _open_button;
+	public Gtk.EventBox _event_box;
+	public Gtk.Menu _menu;
 	public ProjectsList _projects_list;
 
 	public ProjectRow(string source_dir, string time, string name, ProjectsList pl)
@@ -64,7 +66,28 @@ public class ProjectRow : Gtk.ListBoxRow
 		_open_button.action_target = new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE});
 		_hbox.pack_end(_open_button, false, false, 0);
 
-		this.add(_hbox);
+		_menu = new Gtk.Menu();
+		Gtk.MenuItem mi = null;
+
+		mi = new Gtk.MenuItem.with_label("Run Game");
+		mi.activate.connect(() => {
+			GLib.Application.get_default().activate_action("run-project-game", new GLib.Variant.string(source_dir));
+		});
+		_menu.append(mi);
+
+		_event_box = new Gtk.EventBox();
+		_event_box.add(_hbox);
+		this.add(_event_box);
+
+		this.add_events(Gdk.EventMask.BUTTON_PRESS_MASK);
+		this.button_press_event.connect(event => {
+			if (event.button == 3) {
+				_menu.show_all();
+				_menu.popup_at_pointer(event);
+				return true;
+			}
+			return false;
+		});
 	}
 }
 
