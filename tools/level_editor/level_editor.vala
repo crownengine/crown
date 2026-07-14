@@ -3657,13 +3657,6 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (new_active_level != null)
 			load_level(new_active_level);
-
-		string? reveal_type = ResourceId.type(target_path);
-		string? reveal_name = ResourceId.name(target_path);
-		if (reveal_type != null && reveal_name != null)
-			_project_browser.reveal(ProjectStore.RowKind.RESOURCE, reveal_type, reveal_name);
-		else
-			_project_browser.reveal(ProjectStore.RowKind.FOLDER, "", target_path);
 		return true;
 	}
 
