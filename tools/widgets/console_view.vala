@@ -147,6 +147,7 @@ public class ConsoleView : Gtk.Box
 	public bool _completion_updating_entry;
 	public bool _completion_suppress_autofill_once;
 	public string _completion_query_text;
+	public int _completion_replace_start_byte;
 	public bool _history_navigation_active;
 
 	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
@@ -161,6 +162,7 @@ public class ConsoleView : Gtk.Box
 		_completion_updating_entry = false;
 		_completion_suppress_autofill_once = false;
 		_completion_query_text = "";
+		_completion_replace_start_byte = 0;
 		_history_navigation_active = false;
 		_scroll_to_bottom_source_id = 0;
 
@@ -295,11 +297,18 @@ public class ConsoleView : Gtk.Box
 		_entry_suggestions_popover.popdown();
 	}
 
+	public string text_from_suggestion(string suggestion)
+	{
+		return _completion_query_text[0 : _completion_replace_start_byte] + suggestion;
+	}
+
 	public void set_entry_from_suggestion(string suggestion)
 	{
+		string text = text_from_suggestion(suggestion);
+
 		_completion_updating_entry = true;
-		_entry.text = suggestion;
-		_entry.set_position(suggestion.length);
+		_entry.text = text;
+		_entry.set_position(text.length);
 		_completion_updating_entry = false;
 	}
 
@@ -398,10 +407,18 @@ public class ConsoleView : Gtk.Box
 		runtime.send(RuntimeApi.suggest(_completion_request_id, text));
 	}
 
-	public void set_lua_suggestions(uint request_id, Gee.ArrayList<Value?> items)
+	public void set_lua_suggestions(uint request_id, uint replace_start_byte, Gee.ArrayList<Value?> items)
 	{
 		if (request_id != _completion_request_id)
 			return;
+		if (replace_start_byte > (uint)_completion_query_text.length
+			|| !_completion_query_text.validate((ssize_t)replace_start_byte)
+			) {
+			reset_lua_suggestions_state();
+			return;
+		}
+
+		_completion_replace_start_byte = (int)replace_start_byte;
 
 		clear_lua_suggestions();
 
@@ -424,10 +441,11 @@ public class ConsoleView : Gtk.Box
 			Gtk.ListBoxRow? first_row = _entry_suggestions_list.get_row_at_index(0);
 			string? first = first_row != null? first_row.get_data<string>("suggestion") : null;
 			int prefix_len = _completion_query_text.length;
+			string? first_text = first != null? text_from_suggestion(first) : null;
 
-			if (first != null && !_completion_suppress_autofill_once && has_prefix_case(first, _completion_query_text)) {
+			if (first_text != null && !_completion_suppress_autofill_once && has_prefix_case(first_text, _completion_query_text)) {
 				_completion_updating_entry = true;
-				_entry.text = first;
+				_entry.text = first_text;
 				_entry.set_position(prefix_len);
 				_entry.select_region(prefix_len, -1);
 				_completion_updating_entry = false;
