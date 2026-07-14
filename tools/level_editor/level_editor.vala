@@ -3387,12 +3387,7 @@ public class LevelEditorApplication : Gtk.Application
 				_subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			} catch (Error e) {
 				loge(e.message);
-				_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
 			}
-
-			// Change the icon now regardless of success,
-			// otherwise the Run/Stop button gets stuck on GAME_STOP.
-			_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
 		}
 	}
 
