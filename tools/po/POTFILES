@@ -1,11 +1,13 @@
 tools/deploy/options.vala
 tools/level_editor/action_type.vala
+tools/level_editor/delete_dialog.vala
 tools/level_editor/dependencies_dialog.vala
 tools/level_editor/deploy_dialog.vala
 tools/level_editor/level_editor.vala
 tools/level_editor/level_layers_tree_view.vala
 tools/level_editor/level_tree_view.vala
 tools/level_editor/menus.vala
+tools/level_editor/move_dialog.vala
 tools/level_editor/object_chooser.vala
 tools/level_editor/object_editor.vala
 tools/level_editor/panel_new_project.vala
