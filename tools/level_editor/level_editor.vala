@@ -1037,6 +1037,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "menu-debug",          null,                   null, null },
 		{ "test-level",          on_run_game,            null, null },
 		{ "run-game",            on_run_game,            null, null },
+		{ "run-project-game",    on_run_project_game,    "s",  null },
 		{ "build-data",          on_build_data,          null, null },
 		{ "reload-all",          on_reload_all,          null, null },
 		{ "restart-backend",     on_restart_backend,     null, null },
@@ -3365,6 +3366,36 @@ public class LevelEditorApplication : Gtk.Application
 			});
 	}
 
+	public void on_run_project_game(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		string? source_dir = param?.get_string();
+
+		if (source_dir != null) {
+			string args[] =
+			{
+				ENGINE_EXE,
+				"--compile",
+				"--continue",
+				"--source-dir",
+				source_dir,
+				"--map-source-dir",
+				"core",
+				_toolchain_dir.get_path(),
+			};
+
+			try {
+				_subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			} catch (Error e) {
+				loge(e.message);
+				_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
+			}
+
+			// Change the icon now regardless of success,
+			// otherwise the Run/Stop button gets stuck on GAME_STOP.
+			_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
+		}
+	}
+
 	public void do_rename(Guid object_id, string new_name)
 	{
 		if (new_name != "" && _database.name(object_id) != new_name) {
@@ -4261,7 +4292,7 @@ public class LevelEditorApplication : Gtk.Application
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);
 			menu_set_enabled(false, action_entries_view);
-			menu_set_enabled(false, action_entries_debug);
+			menu_set_enabled(false, action_entries_debug, {"run-project-game"});
 			menu_set_enabled(true, action_entries_help);
 		}
 	}
