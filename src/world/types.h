@@ -20,6 +20,7 @@ struct Gui;
 struct Level;
 struct Material;
 struct MaterialManager;
+struct NavigationWorld;
 struct PhysicsWorld;
 struct RenderWorld;
 struct SceneGraph;
@@ -41,6 +42,7 @@ typedef u32 SoundInstanceId;
 #define SCRIPT_WORLD_MARKER            UINT32_C(0x78486cdc)
 #define SOUND_WORLD_MARKER             UINT32_C(0x44052b07)
 #define PHYSICS_WORLD_MARKER           UINT32_C(0x1cf49bae)
+#define NAVIGATION_WORLD_MARKER       UINT32_C(0x3e7b1a8f)
 #define ANIMATION_STATE_MACHINE_MARKER UINT32_C(0x59a1c462)
 
 /// Enumerates camera projection types.

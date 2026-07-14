@@ -90,6 +90,7 @@ dofile ("openal.lua")
 openal_project(os.is("windows") and "SharedLib" or "StaticLib")
 
 dofile ("bullet.lua")
+dofile ("recastnavigation.lua")
 dofile ("lua.lua")
 dofile ("luac.lua")
 

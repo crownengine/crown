@@ -40,6 +40,7 @@
 #include "world/debug_line.h"
 #include "world/gui.h"
 #include "world/material.h"
+#include "world/navigation_world.h"
 #include "world/physics_world.h"
 #include "world/render_world.h"
 #include "world/scene_graph.h"
@@ -1720,6 +1721,8 @@ void load_api(LuaEnvironment &env)
 					stack.push_fstring("SoundWorld: %p", ptr);
 				else if (marker == PHYSICS_WORLD_MARKER)
 					stack.push_fstring("PhysicsWorld: %p", ptr);
+				else if (marker == NAVIGATION_WORLD_MARKER)
+					stack.push_fstring("NavigationWorld: %p", ptr);
 				else if (marker == ANIMATION_STATE_MACHINE_MARKER)
 					stack.push_fstring("AnimationStateMachine: %p", ptr);
 				else
@@ -2213,6 +2216,11 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("World", "script_world", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_pointer(stack.get_world(1)->_script_world);
+			return 1;
+		});
+	env.add_module_function("World", "navigation_world", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_pointer(stack.get_world(1)->_navigation_world);
 			return 1;
 		});
 	env.add_module_function("World", "animation_state_machine", [](lua_State *L) {
@@ -3670,6 +3678,102 @@ void load_api(LuaEnvironment &env)
 			LuaStack stack(L, +1);
 			PhysicsWorld *pw = stack.get_physics_world(1);
 			stack.push_fstring("PhysicsWorld (%p)", pw);
+			return 1;
+		});
+
+	env.add_module_function("NavigationWorld", "has_navmesh", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_bool(stack.get_navigation_world(1)->has_navmesh());
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "find_path", [](lua_State *L) {
+			LuaStack stack(L, INT_MAX);
+			NavigationWorld *nw = stack.get_navigation_world(1);
+			Vector3 start = stack.get_vector3(2);
+			Vector3 end = stack.get_vector3(3);
+			u32 max_path = stack.num_args() > 3 ? (u32)stack.get_int(4) : 256;
+
+			TempAllocator4096 ta;
+			Vector3 *path = (Vector3 *)ta.allocate(sizeof(Vector3) * max_path);
+			u32 num = nw->find_path(path, max_path, start, end);
+
+			stack.push_table((int)num);
+			for (u32 i = 0; i < num; ++i) {
+				stack.push_key_begin((int)(i + 1));
+				stack.push_vector3(path[i]);
+				stack.push_key_end();
+			}
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "nearest_point", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			f32 extents = stack.num_args() > 2 ? stack.get_float(3) : 2.0f;
+			stack.push_vector3(stack.get_navigation_world(1)->nearest_point(stack.get_vector3(2), extents));
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "random_point", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_vector3(stack.get_navigation_world(1)->random_point());
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "ray_cast", [](lua_State *L) {
+			LuaStack stack(L, INT_MAX);
+			Vector3 hit;
+			if (stack.get_navigation_world(1)->ray_cast(hit, stack.get_vector3(2), stack.get_vector3(3))) {
+				stack.push_bool(true);
+				stack.push_vector3(hit);
+				return 2;
+			}
+			stack.push_bool(false);
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "agent_create", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			u32 id = stack.get_navigation_world(1)->agent_create(stack.get_unit(2)
+				, stack.get_float(3), stack.get_float(4)
+				, stack.get_float(5), stack.get_float(6)
+				);
+			stack.push_id(id);
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "agent_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_navigation_world(1)->agent_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("NavigationWorld", "agent", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			u32 id = stack.get_navigation_world(1)->agent(stack.get_unit(2));
+			if (id != UINT32_MAX)
+				stack.push_id(id);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "agent_set_target", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_navigation_world(1)->agent_set_target(stack.get_id(2), stack.get_vector3(3));
+			return 0;
+		});
+	env.add_module_function("NavigationWorld", "agent_position", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_vector3(stack.get_navigation_world(1)->agent_position(stack.get_id(2)));
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "agent_velocity", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_vector3(stack.get_navigation_world(1)->agent_velocity(stack.get_id(2)));
+			return 1;
+		});
+	env.add_module_function("NavigationWorld", "agent_is_at_target", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_bool(stack.get_navigation_world(1)->agent_is_at_target(stack.get_id(2)));
+			return 1;
+		});
+	env.add_module_metafunction("NavigationWorld", "__tostring", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			NavigationWorld *nw = stack.get_navigation_world(1);
+			stack.push_fstring("NavigationWorld (%p)", nw);
 			return 1;
 		});
 

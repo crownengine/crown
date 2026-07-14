@@ -248,6 +248,13 @@ inline RenderWorld *LuaStack::get_render_world(int i)
 	return p;
 }
 
+inline NavigationWorld *LuaStack::get_navigation_world(int i)
+{
+	NavigationWorld *p = (NavigationWorld *)get_pointer(i);
+	check_marker(i, p, NAVIGATION_WORLD_MARKER, "NavigationWorld");
+	return p;
+}
+
 inline PhysicsWorld *LuaStack::get_physics_world(int i)
 {
 	PhysicsWorld *p = (PhysicsWorld *)get_pointer(i);

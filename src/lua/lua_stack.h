@@ -197,6 +197,9 @@ struct LuaStack
 	RenderWorld *get_render_world(int i);
 
 	///
+	NavigationWorld *get_navigation_world(int i);
+
+	///
 	PhysicsWorld *get_physics_world(int i);
 
 	///
