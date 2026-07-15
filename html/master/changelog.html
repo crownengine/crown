@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-13T19:55:49+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-07-15T00:09:54+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -147,6 +147,7 @@
 <li><p>Tools: added a new dialog in the Project Browser to explore resource dependencies.</p></li>
 <li><p>Tools: added command line support for creating and deploying projects and for importing resources.</p></li>
 <li><p>Tools: added ability to move/rename and delete resources from the Project Browser.</p></li>
+<li><p>Tools: Lua suggestions in the Command Bar can now be accepted by pressing Tab.</p></li>
 <li><p>Runtime: improved performance when rendering worlds containing many units.</p></li>
 <li><p>Runtime: improved performance of sun shadows rendering.</p></li>
 <li><p>Runtime: Linux: added a new <code class="docutils literal notranslate"><span class="pre">--display-server</span></code> option to select between X11 and Wayland backends. X11 remains the default.</p></li>
@@ -179,6 +180,7 @@
 <li><p>Tools: fixed importing empty materials from FBX and OBJ models in some cases.</p></li>
 <li><p>Tools: fixed importing roughness and metallic textures from Blender-exported FBX models.</p></li>
 <li><p>Tools: fixed Import button in FBX dialog being erroneously disabled in some cases.</p></li>
+<li><p>Tools: fixed a number of issues with Lua suggestions in the Command Bar.</p></li>
 <li><p>Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not updating mass/inertia.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_set_kinematic()</span></code> not restoring body deactivation when switching actors back from kinematic.</p></li>
@@ -1125,7 +1127,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 13, 2026.
+      <span class="lastupdated">Last updated on Jul 15, 2026.
       </span></p>
   </div>
 
