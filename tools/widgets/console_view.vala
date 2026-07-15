@@ -577,6 +577,15 @@ public class ConsoleView : Gtk.Box
 
 	public bool on_entry_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
 	{
+		if (keyval == Gdk.Key.Tab && _entry_suggestions_popover.get_visible()) {
+			Gtk.ListBoxRow? row = _entry_suggestions_list.get_selected_row();
+			if (row != null) {
+				apply_suggestion_row(row);
+				hide_lua_suggestions();
+				return Gdk.EVENT_STOP;
+			}
+		}
+
 		if (keyval == Gdk.Key.Escape && _entry_suggestions_popover.get_visible()) {
 			invalidate_lua_suggestions();
 			return Gdk.EVENT_STOP;
