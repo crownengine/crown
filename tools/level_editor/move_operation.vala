@@ -101,19 +101,18 @@ public class MoveOperation
 		}
 
 		bool changed = false;
-		if (value.holds(typeof(Hashtable))) {
-			Hashtable object = (Hashtable)value;
-			string[] keys = object.keys.to_array();
-			foreach (string key in keys) {
+		if (value.holds(typeof(GLib.HashTable))) {
+			GLib.HashTable<string, Value?> object = (GLib.HashTable<string, Value?>)value;
+			foreach (unowned string key in object.get_keys_as_array()) {
 				Value? item = object[key];
 				if (rewrite_sjson_value(ref item, old_path, new_path, old_name, new_name)) {
 					object[key] = item;
 					changed = true;
 				}
 			}
-		} else if (value.holds(typeof(Gee.ArrayList))) {
-			Gee.ArrayList<Value?> array = (Gee.ArrayList<Value?>)value;
-			for (int i = 0; i < array.size; ++i) {
+		} else if (value.holds(typeof(GLib.GenericArray))) {
+			GLib.GenericArray<Value?> array = (GLib.GenericArray<Value?>)value;
+			for (int i = 0; i < array.length; ++i) {
 				Value? item = array[i];
 				if (rewrite_sjson_value(ref item, old_path, new_path, old_name, new_name)) {
 					array[i] = item;
@@ -136,7 +135,7 @@ public class MoveOperation
 		error = "";
 
 		try {
-			Hashtable json = SJSON.load_from_path(_project.absolute_path(path));
+			GLib.HashTable<string, Value?> json = SJSON.load_from_path(_project.absolute_path(path));
 			Value? root = json;
 			if (!rewrite_sjson_value(ref root, old_path, new_path, old_name, new_name))
 				return 0;
@@ -201,7 +200,7 @@ public class MoveOperation
 	}
 
 	public int rewrite_references(out string error
-		, Hashtable preview
+		, GLib.HashTable<string, Value?> preview
 		, string from
 		, string to
 		)
@@ -217,9 +216,9 @@ public class MoveOperation
 			return -1;
 		}
 
-		Gee.ArrayList<Value?> rewrite = (Gee.ArrayList<Value?>)preview["rewrite"];
-		foreach (Value? item_value in rewrite) {
-			Hashtable item = (Hashtable)item_value;
+		GLib.GenericArray<Value?> rewrite = (GLib.GenericArray<Value?>)preview["rewrite"];
+		for (int i = 0; i < rewrite.length; ++i) {
+			GLib.HashTable<string, Value?> item = (GLib.HashTable<string, Value?>)rewrite[i];
 			if ((string)item["from"] != from || (string)item["to"] != to)
 				continue;
 
@@ -234,7 +233,7 @@ public class MoveOperation
 	public int make_target_directories(out string error, string[] paths)
 	{
 		error = "";
-		var dirs = new Gee.HashSet<string>();
+		var dirs = new GLib.GenericSet<string>(GLib.str_hash, GLib.str_equal);
 		foreach (string path in paths) {
 			string dir = ResourceId.parent_folder(path);
 			if (dir == "" || !dirs.add(dir))
@@ -259,7 +258,7 @@ public class MoveOperation
 
 	public int prepare(out string error
 		, out string[] prune_dirs
-		, Hashtable preview
+		, GLib.HashTable<string, Value?> preview
 		, string[] checked_from
 		, string[] checked_to
 		)
@@ -274,12 +273,12 @@ public class MoveOperation
 				return -1;
 		}
 
-		var dirs = new Gee.ArrayList<string>();
-		Gee.ArrayList<Value?> preview_prune_dirs = (Gee.ArrayList<Value?>)preview["prune_dirs"];
-		foreach (Value? dir in preview_prune_dirs)
-			dirs.add((string)dir);
+		var dirs = new GLib.GenericArray<string>();
+		GLib.GenericArray<Value?> preview_prune_dirs = (GLib.GenericArray<Value?>)preview["prune_dirs"];
+		for (int i = 0; i < preview_prune_dirs.length; ++i)
+			dirs.add((string)preview_prune_dirs[i]);
 
-		prune_dirs = dirs.to_array();
+		prune_dirs = dirs.steal();
 		return 0;
 	}
 }

@@ -55,7 +55,6 @@ project "crown-editor"
 	}
 	links {
 		"gdk-3.0",
-		"gee-0.8",
 		"gio-2.0",
 		"glib-2.0",
 		"gtk+-3.0",

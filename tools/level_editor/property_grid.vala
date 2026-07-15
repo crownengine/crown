@@ -149,25 +149,26 @@ class ObjectsSetEditor : Gtk.Box
 		_read_only_note.visible = read_only;
 
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
-		Gee.HashSet<Guid?> children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.GenericSet<Guid?> children = guid_set_new();
 		if (_grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT && _grid._component_id != GUID_ZERO) {
 			Unit unit = Unit(_grid._db, _grid._id);
-			children = (Gee.HashSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, children);
+			children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, children);
 		} else {
 			children = _grid._db.get_set(owner_id, _definition.name, children);
 		}
 
-		Gee.ArrayList<Guid?> items = new Gee.ArrayList<Guid?>();
-		foreach (Guid child_id in children) {
+		GLib.GenericArray<Guid?> items = new GLib.GenericArray<Guid?>();
+		foreach (Guid? child_id in children) {
 			if (_grid._db.is_alive(child_id))
 				items.add(child_id);
 		}
-		items.sort((a, b) => {
+		items.sort_with_data((a, b) => {
 				return strcmp(object_name(a), object_name(b));
 			});
 
 		Gtk.ListBoxRow? row_to_select = null;
-		foreach (Guid child_id in items) {
+		for (int i = 0; i < items.length; ++i) {
+			Guid child_id = items[i];
 			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 			row.set_data("id", child_id.to_string());
 
@@ -228,10 +229,10 @@ public class PropertyGrid : Gtk.Grid
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
 
-	public Gee.HashMap<string, Gtk.GestureMultiPress> _gestures;
-	public Gee.HashMap<string, InputField> _widgets;
-	public Gee.HashMap<InputField, PropertyDefinition?> _definitions;
-	Gee.ArrayList<ObjectsSetEditor> _object_sets;
+	public GLib.HashTable<string, Gtk.GestureMultiPress> _gestures;
+	public GLib.HashTable<string, InputField> _widgets;
+	public GLib.HashTable<InputField, PropertyDefinition?> _definitions;
+	GLib.GenericArray<ObjectsSetEditor> _object_sets;
 
 	public void on_remove(GLib.SimpleAction action, GLib.Variant? param)
 	{
@@ -243,23 +244,23 @@ public class PropertyGrid : Gtk.Grid
 		if (!unit.has_component(out component_id, component_type))
 			return;
 
-		Gee.ArrayList<unowned string> dependents = new Gee.ArrayList<unowned string>();
+		GLib.GenericArray<unowned string> dependents = new GLib.GenericArray<unowned string>();
 		// Do not remove if any other component needs us.
-		foreach (var entry in Unit._component_registry.entries) {
+		Unit._component_registry.foreach((registered_type, dependencies_value) => {
 			Guid dummy;
-			if (!unit.has_component(out dummy, entry.key))
-				continue;
+			if (!unit.has_component(out dummy, registered_type))
+				return;
 
-			string[] component_type_dependencies = ((string)entry.value).split(", ");
+			string[] component_type_dependencies = ((string)dependencies_value).split(", ");
 			if (component_type in component_type_dependencies)
-				dependents.add(entry.key);
-		}
+				dependents.add(registered_type);
+		});
 
-		if (dependents.size > 0) {
+		if (dependents.length > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(_("Cannot remove %s due to the following dependencies:\n\n").printf(component_type));
-			foreach (var item in dependents)
-				sb.append("• %s\n".printf(item));
+			for (int i = 0; i < dependents.length; ++i)
+				sb.append("• %s\n".printf(dependents[i]));
 
 			Gtk.MessageDialog md = new Gtk.MessageDialog(null
 				, Gtk.DialogFlags.MODAL
@@ -326,10 +327,10 @@ public class PropertyGrid : Gtk.Grid
 		_visible = true;
 		_selection_anchor_id = selection_anchor_id;
 
-		_gestures = new Gee.HashMap<string, Gtk.GestureMultiPress>();
-		_widgets = new Gee.HashMap<string, InputField>();
-		_definitions = new Gee.HashMap<InputField, PropertyDefinition?>();
-		_object_sets = new Gee.ArrayList<ObjectsSetEditor>();
+		_gestures = new GLib.HashTable<string, Gtk.GestureMultiPress>(GLib.str_hash, GLib.str_equal);
+		_widgets = new GLib.HashTable<string, InputField>(GLib.str_hash, GLib.str_equal);
+		_definitions = new GLib.HashTable<InputField, PropertyDefinition?>(GLib.direct_hash, GLib.direct_equal);
+		_object_sets = new GLib.GenericArray<ObjectsSetEditor>();
 
 		_action_group = new GLib.SimpleActionGroup();
 		_action_group.add_action_entries(actions, this);
@@ -589,8 +590,8 @@ public class PropertyGrid : Gtk.Grid
 			return;
 
 		PropertyDefinition def = _definitions[p];
-		Gee.ArrayList<PropertyDefinition?> dynamic_properties = new Gee.ArrayList<PropertyDefinition?>();
-		Gee.ArrayList<GLib.Value?> dynamic_values = new Gee.ArrayList<GLib.Value?>();
+		GLib.GenericArray<PropertyDefinition?> dynamic_properties = new GLib.GenericArray<PropertyDefinition?>();
+		GLib.GenericArray<GLib.Value?> dynamic_values = new GLib.GenericArray<GLib.Value?>();
 		bool changed = false;
 
 		save_dynamic_properties_values(ref dynamic_properties, ref dynamic_values);
@@ -615,67 +616,64 @@ public class PropertyGrid : Gtk.Grid
 
 	public void read_all_properties()
 	{
-		foreach (var e in _definitions) {
-			InputField p = e.key;
-			PropertyDefinition def = e.value;
+		_definitions.foreach((p, def) => {
+				p.value_changed.disconnect(on_property_value_changed);
 
-			p.value_changed.disconnect(on_property_value_changed);
+				if (def.type == PropertyType.BOOL) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_bool(_component_id, def.name, (bool)def.deffault));
+					} else {
+						p.set_union_value(_db.get_bool(_id, def.name, (bool)def.deffault));
+					}
+				} else if (def.type == PropertyType.DOUBLE) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_double(_component_id, def.name, (double)def.deffault));
+					} else {
+						p.set_union_value(_db.get_double(_id, def.name, (double)def.deffault));
+					}
+				} else if (def.type == PropertyType.STRING) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_string(_component_id, def.name, (string)def.deffault));
+					} else {
+						p.set_union_value(_db.get_string(_id, def.name, (string)def.deffault));
+					}
+				} else if (def.type == PropertyType.VECTOR3) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault));
+					} else {
+						p.set_union_value(_db.get_vector3(_id, def.name, (Vector3)def.deffault));
+					}
+				} else if (def.type == PropertyType.QUATERNION) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault));
+					} else {
+						p.set_union_value(_db.get_quaternion(_id, def.name, (Quaternion)def.deffault));
+					}
+				} else if (def.type == PropertyType.RESOURCE) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_resource(_component_id, def.name, (string?)def.deffault));
+					} else {
+						p.set_union_value(_db.get_resource(_id, def.name, (string?)def.deffault));
+					}
+				} else if (def.type == PropertyType.REFERENCE) {
+					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+						Unit u = Unit(_db, _id);
+						p.set_union_value(u.get_component_reference(_component_id, def.name, (Guid)def.deffault));
+					} else {
+						p.set_union_value(_db.get_reference(_id, def.name, (Guid)def.deffault));
+					}
+				} else {
+					loge("Unknown property value type");
+				}
 
-			if (def.type == PropertyType.BOOL) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_bool(_component_id, def.name, (bool)def.deffault));
-				} else {
-					p.set_union_value(_db.get_bool(_id, def.name, (bool)def.deffault));
-				}
-			} else if (def.type == PropertyType.DOUBLE) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_double(_component_id, def.name, (double)def.deffault));
-				} else {
-					p.set_union_value(_db.get_double(_id, def.name, (double)def.deffault));
-				}
-			} else if (def.type == PropertyType.STRING) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_string(_component_id, def.name, (string)def.deffault));
-				} else {
-					p.set_union_value(_db.get_string(_id, def.name, (string)def.deffault));
-				}
-			} else if (def.type == PropertyType.VECTOR3) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault));
-				} else {
-					p.set_union_value(_db.get_vector3(_id, def.name, (Vector3)def.deffault));
-				}
-			} else if (def.type == PropertyType.QUATERNION) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault));
-				} else {
-					p.set_union_value(_db.get_quaternion(_id, def.name, (Quaternion)def.deffault));
-				}
-			} else if (def.type == PropertyType.RESOURCE) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_resource(_component_id, def.name, (string?)def.deffault));
-				} else {
-					p.set_union_value(_db.get_resource(_id, def.name, (string?)def.deffault));
-				}
-			} else if (def.type == PropertyType.REFERENCE) {
-				if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
-					Unit u = Unit(_db, _id);
-					p.set_union_value(u.get_component_reference(_component_id, def.name, (Guid)def.deffault));
-				} else {
-					p.set_union_value(_db.get_reference(_id, def.name, (Guid)def.deffault));
-				}
-			} else {
-				loge("Unknown property value type");
-			}
-
-			p.value_changed.connect(on_property_value_changed);
-		}
+				p.value_changed.connect(on_property_value_changed);
+			});
 	}
 
 	public virtual void read_properties()
@@ -683,41 +681,40 @@ public class PropertyGrid : Gtk.Grid
 		read_all_properties();
 		read_dynamic_properties_ranges();
 		read_all_properties();
-		foreach (ObjectsSetEditor editor in _object_sets)
-			editor.read();
+		for (int i = 0; i < _object_sets.length; ++i)
+			_object_sets[i].read();
 	}
 
 	public void read_dynamic_properties_ranges_except(PropertyDefinition[] excluded)
 	{
-		foreach (var e in _definitions) {
-			PropertyDefinition def = e.value;
-			int i;
+		_definitions.foreach((p, def) => {
+				int i;
 
-			// Skip if excluded.
-			for (i = 0; i < excluded.length; ++i) {
-				if (excluded[i].name == def.name)
-					break;
-			}
-			if (i != excluded.length)
-				continue;
+				// Skip if excluded.
+				for (i = 0; i < excluded.length; ++i) {
+					if (excluded[i].name == def.name)
+						break;
+				}
+				if (i != excluded.length)
+					return;
 
-			// Read range.
-			if (def.enum_callback != null) {
-				InputField p = _widgets[def.name];
-				InputField parent_p = _widgets[def.enum_property];
+				// Read range.
+				if (def.enum_callback != null) {
+					InputField field = _widgets[def.name];
+					InputField parent_p = _widgets[def.enum_property];
 
-				p.value_changed.disconnect(on_property_value_changed);
-				def.enum_callback(parent_p, (InputEnum)p, _db._project);
-				p.value_changed.connect(on_property_value_changed);
-			} else if (def.resource_callback != null) {
-				InputField p = _widgets[def.name];
-				InputField parent_p = _widgets[def.enum_property];
+					field.value_changed.disconnect(on_property_value_changed);
+					def.enum_callback(parent_p, (InputEnum)field, _db._project);
+					field.value_changed.connect(on_property_value_changed);
+				} else if (def.resource_callback != null) {
+					InputField field = _widgets[def.name];
+					InputField parent_p = _widgets[def.enum_property];
 
-				p.value_changed.disconnect(on_property_value_changed);
-				def.resource_callback(parent_p, (InputResource)p, _db._project);
-				p.value_changed.connect(on_property_value_changed);
-			}
-		}
+					field.value_changed.disconnect(on_property_value_changed);
+					def.resource_callback(parent_p, (InputResource)field, _db._project);
+					field.value_changed.connect(on_property_value_changed);
+				}
+			});
 	}
 
 	public void read_dynamic_properties_ranges()
@@ -725,30 +722,31 @@ public class PropertyGrid : Gtk.Grid
 		read_dynamic_properties_ranges_except({});
 	}
 
-	public void save_dynamic_properties_values(ref Gee.ArrayList<PropertyDefinition?> properties, ref Gee.ArrayList<GLib.Value?> values)
+	public void save_dynamic_properties_values(ref GLib.GenericArray<PropertyDefinition?> properties, ref GLib.GenericArray<GLib.Value?> values)
 	{
-		foreach (var e in _definitions) {
-			PropertyDefinition def = e.value;
+		GLib.GenericArray<PropertyDefinition?> properties_local = properties;
+		GLib.GenericArray<GLib.Value?> values_local = values;
 
-			if (def.enum_callback != null) {
-				InputField p = _widgets[def.name];
+		_definitions.foreach((p, def) => {
+				if (def.enum_callback != null) {
+					InputField field = _widgets[def.name];
 
-				properties.add(def);
-				values.add(p.union_value());
-			} else if (def.resource_callback != null) {
-				InputField p = _widgets[def.name];
+					properties_local.add(def);
+					values_local.add(field.union_value());
+				} else if (def.resource_callback != null) {
+					InputField field = _widgets[def.name];
 
-				properties.add(def);
-				values.add(p.union_value());
-			}
-		}
+					properties_local.add(def);
+					values_local.add(field.union_value());
+				}
+			});
 	}
 
-	public bool restore_dynamic_properties_values_except(Gee.ArrayList<PropertyDefinition?> properties, Gee.ArrayList<GLib.Value?> values, PropertyDefinition[] excluded)
+	public bool restore_dynamic_properties_values_except(GLib.GenericArray<PropertyDefinition?> properties, GLib.GenericArray<GLib.Value?> values, PropertyDefinition[] excluded)
 	{
 		bool changed = false;
 
-		for (int i = 0; i < properties.size; ++i) {
+		for (int i = 0; i < properties.length; ++i) {
 			PropertyDefinition def = properties[i];
 			GLib.Value val = values[i];
 			InputField p = _widgets[def.name];
@@ -782,7 +780,7 @@ public class PropertyGrid : Gtk.Grid
 		return changed;
 	}
 
-	public bool restore_dynamic_properties_values(Gee.ArrayList<PropertyDefinition?> properties, Gee.ArrayList<GLib.Value?> values)
+	public bool restore_dynamic_properties_values(GLib.GenericArray<PropertyDefinition?> properties, GLib.GenericArray<GLib.Value?> values)
 	{
 		return restore_dynamic_properties_values_except(properties, values, {});
 	}

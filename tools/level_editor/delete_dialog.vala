@@ -38,7 +38,7 @@ public class DeleteDialog : Gtk.Window
 	public Gtk.TreeStore _delete_store;
 	public Gtk.TreeStore _missing_store;
 	public Gtk.TreeModelFilter? _missing_filter;
-	public Gee.HashSet<string> _checked_paths;
+	public GLib.GenericSet<string> _checked_paths;
 	public Gtk.Widget? _missing_group;
 	public Gtk.Label? _missing_header;
 	public Gtk.EventControllerKey _controller_key;
@@ -48,7 +48,7 @@ public class DeleteDialog : Gtk.Window
 	public DeleteDialog(Gtk.Window? parent
 		, ProjectBrowser project_browser
 		, ThumbnailCache thumbnail_cache
-		, Hashtable preview
+		, GLib.HashTable<string, Value?> preview
 		)
 	{
 		_project_browser = project_browser;
@@ -56,7 +56,7 @@ public class DeleteDialog : Gtk.Window
 		_delete_store = create_store(false);
 		_missing_store = create_store();
 		_missing_filter = null;
-		_checked_paths = new Gee.HashSet<string>();
+		_checked_paths = new GLib.GenericSet<string>(GLib.str_hash, GLib.str_equal);
 		_missing_group = null;
 		_missing_header = null;
 
@@ -108,10 +108,10 @@ public class DeleteDialog : Gtk.Window
 		list.hexpand = true;
 		list.vexpand = true;
 
-		Gee.ArrayList<Value?> delete_paths = (Gee.ArrayList<Value?>)preview["delete"];
-		Gee.ArrayList<Value?> associated = (Gee.ArrayList<Value?>)preview["associated"];
-		Gee.ArrayList<Value?> unused = (Gee.ArrayList<Value?>)preview["unused"];
-		Gee.ArrayList<Value?> keep = (Gee.ArrayList<Value?>)preview["keep"];
+		GLib.GenericArray<Value?> delete_paths = (GLib.GenericArray<Value?>)preview["delete"];
+		GLib.GenericArray<Value?> associated = (GLib.GenericArray<Value?>)preview["associated"];
+		GLib.GenericArray<Value?> unused = (GLib.GenericArray<Value?>)preview["unused"];
+		GLib.GenericArray<Value?> keep = (GLib.GenericArray<Value?>)preview["keep"];
 		uint delete_count = append_path_group(_delete_store
 			, _("Delete")
 			, delete_paths
@@ -143,10 +143,10 @@ public class DeleteDialog : Gtk.Window
 				);
 		}
 
-		Gee.ArrayList<Value?> missing_references = (Gee.ArrayList<Value?>)preview["missing_references"];
-		if (missing_references.size != 0) {
-			foreach (Value? item_value in missing_references) {
-				Hashtable item = (Hashtable)item_value;
+		GLib.GenericArray<Value?> missing_references = (GLib.GenericArray<Value?>)preview["missing_references"];
+		if (missing_references.length != 0) {
+			for (int i = 0; i < missing_references.length; ++i) {
+				GLib.HashTable<string, Value?> item = (GLib.HashTable<string, Value?>)missing_references[i];
 				append_path(_missing_store
 					, null
 					, (string)item["path"]
@@ -255,17 +255,17 @@ public class DeleteDialog : Gtk.Window
 
 	public uint append_path_group(Gtk.TreeStore store
 		, string label
-		, Gee.ArrayList<Value?> paths
+		, GLib.GenericArray<Value?> paths
 		, DeleteDialogRowFlags flags
 		)
 	{
-		if (paths.size == 0)
+		if (paths.length == 0)
 			return 0;
 
 		Gtk.TreeIter parent = append_parent(store, label, flags);
-		foreach (Value? item_value in paths)
-			append_path(store, parent, (string)item_value, "", flags);
-		return (uint)paths.size;
+		for (int i = 0; i < paths.length; ++i)
+			append_path(store, parent, (string)paths[i], "", flags);
+		return (uint)paths.length;
 	}
 
 	public void set_checked_recursive(Gtk.TreeStore store, Gtk.TreeIter iter, bool checked)
@@ -500,7 +500,7 @@ public class DeleteDialog : Gtk.Window
 		if (group == null || header == null || filter == null)
 			return;
 
-		_checked_paths.clear();
+		_checked_paths.remove_all();
 		_delete_store.foreach((model, path, iter) => {
 				Value val;
 				model.get_value(iter, DeleteDialogColumn.CHECKED, out val);
@@ -514,14 +514,14 @@ public class DeleteDialog : Gtk.Window
 
 		filter.refilter();
 
-		var missing_paths = new Gee.HashSet<string>();
+		var missing_paths = new GLib.GenericSet<string>(GLib.str_hash, GLib.str_equal);
 		filter.foreach((model, path, iter) => {
 				Value val;
 				model.get_value(iter, DeleteDialogColumn.PATH, out val);
 				missing_paths.add((string)val);
 				return false;
 			});
-		uint count = (uint)missing_paths.size;
+		uint count = missing_paths.length;
 
 		header.set_markup("<b>%s</b>".printf(GLib.Markup.escape_text("%s (%u)".printf(_("Will Reference Missing Resources"), count))));
 		if (count != 0) {
@@ -535,7 +535,7 @@ public class DeleteDialog : Gtk.Window
 
 	public string[] selected()
 	{
-		var paths = new Gee.ArrayList<string>();
+		var paths = new GLib.GenericArray<string>();
 		_delete_store.foreach((model, path, iter) => {
 				Value val;
 				model.get_value(iter, DeleteDialogColumn.CHECKED, out val);
@@ -547,7 +547,7 @@ public class DeleteDialog : Gtk.Window
 				return false;
 			});
 
-		return paths.to_array();
+		return paths.steal();
 	}
 }
 

@@ -950,8 +950,8 @@ public class ProjectBrowser : Gtk.Box
 
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
-	public Gee.ArrayList<string> _nav_history_back;
-	public Gee.ArrayList<string> _nav_history_forward;
+	public GLib.GenericArray<string> _nav_history_back;
+	public GLib.GenericArray<string> _nav_history_forward;
 	public bool _navigating_history;
 	public string _needle;
 	public Gtk.EntryBuffer _filter_buffer;
@@ -1092,8 +1092,8 @@ public class ProjectBrowser : Gtk.Box
 			_folder_view._list_view.queue_draw();
 		});
 
-		_nav_history_back = new Gee.ArrayList<string>();
-		_nav_history_forward = new Gee.ArrayList<string>();
+		_nav_history_back = new GLib.GenericArray<string>();
+		_nav_history_forward = new GLib.GenericArray<string>();
 		_navigating_history = false;
 
 		_needle = "";
@@ -1181,8 +1181,8 @@ public class ProjectBrowser : Gtk.Box
 
 					if (!_navigating_history && kind == ProjectStore.RowKind.FOLDER && previous_folder != null && previous_folder != name) {
 						_nav_history_back.add(previous_folder);
-						_nav_history_forward.clear();
-						_btn_back.sensitive = !_nav_history_back.is_empty;
+						_nav_history_forward.length = 0;
+						_btn_back.sensitive = _nav_history_back.length != 0;
 						_btn_forward.sensitive = false;
 					}
 
@@ -1318,7 +1318,7 @@ public class ProjectBrowser : Gtk.Box
 				if (input.has_suffix("/"))
 					input = input.slice(0, input.length - 1);
 
-				bool found = (input == "") || _project_store._folders.has_key(input);
+				bool found = (input == "") || _project_store._folders.contains(input);
 				if (found) {
 					GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(input));
 					_tree_view.grab_focus();
@@ -1672,11 +1672,11 @@ public class ProjectBrowser : Gtk.Box
 			return;
 		}
 
-		if (_nav_history_back.is_empty)
+		if (_nav_history_back.length == 0)
 			return;
 		_navigating_history = true;
 		_nav_history_forward.add(_folder_view._selected_name);
-		string prev = _nav_history_back.remove_at(_nav_history_back.size - 1);
+		string prev = _nav_history_back.steal_index(_nav_history_back.length - 1);
 		GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(prev));
 		_navigating_history = false;
 	}
@@ -1688,11 +1688,11 @@ public class ProjectBrowser : Gtk.Box
 			return;
 		}
 
-		if (_nav_history_forward.is_empty)
+		if (_nav_history_forward.length == 0)
 			return;
 		_navigating_history = true;
 		_nav_history_back.add(_folder_view._selected_name);
-		string next = _nav_history_forward.remove_at(_nav_history_forward.size - 1);
+		string next = _nav_history_forward.steal_index(_nav_history_forward.length - 1);
 		GLib.Application.get_default().activate_action("open-directory", new GLib.Variant.string(next));
 		_navigating_history = false;
 	}
@@ -1735,8 +1735,8 @@ public class ProjectBrowser : Gtk.Box
 		}
 
 		_address_bar.text = dir_name != "" ? "/" + dir_name + "/" : "/";
-		_btn_back.sensitive = !_nav_history_back.is_empty;
-		_btn_forward.sensitive = !_nav_history_forward.is_empty;
+		_btn_back.sensitive = _nav_history_back.length != 0;
+		_btn_forward.sensitive = _nav_history_forward.length != 0;
 	}
 
 	public void on_favorite_resource(GLib.SimpleAction action, GLib.Variant? param)

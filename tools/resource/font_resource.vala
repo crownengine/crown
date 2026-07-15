@@ -61,7 +61,7 @@ public class FontImportOptions
 		range_max = 126;
 	}
 
-	public void decode(Hashtable obj)
+	public void decode(GLib.HashTable<string, Value?> obj)
 	{
 		font_size = (double)obj["size"];
 		range_min = (int)(double)obj["range_min"];
@@ -69,9 +69,9 @@ public class FontImportOptions
 		options_loaded = true;
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable obj = new Hashtable();
+		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		obj["size"]      = font_size;
 		obj["range_min"] = (double)range_min;

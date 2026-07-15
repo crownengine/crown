@@ -246,31 +246,31 @@ public class PreferencesDialog : Gtk.Window
 		_editor.send(DeviceApi.frame());
 	}
 
-	public void decode(Hashtable settings)
+	public void decode(GLib.HashTable<string, Value?> settings)
 	{
-		Hashtable preferences = settings.has_key("preferences")
-			? (Hashtable)settings["preferences"]
-			: new Hashtable()
+		GLib.HashTable<string, Value?> preferences = settings.contains("preferences")
+			? (GLib.HashTable<string, Value?>)settings["preferences"]
+			: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 			;
 
-		_grid_color_button.value          = Vector3.from_array(preferences.has_key("grid") ? (Gee.ArrayList<GLib.Value?>)preferences["grid"] : _grid_color_button.value.to_array());
-		_grid_disabled_color_button.value = Vector3.from_array(preferences.has_key("grid_disabled") ? (Gee.ArrayList<GLib.Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_array());
-		_axis_x_color_button.value        = Vector3.from_array(preferences.has_key("axis_x") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_array());
-		_axis_y_color_button.value        = Vector3.from_array(preferences.has_key("axis_y") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_y"] : _axis_y_color_button.value.to_array());
-		_axis_z_color_button.value        = Vector3.from_array(preferences.has_key("axis_z") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_z"] : _axis_z_color_button.value.to_array());
-		_axis_selected_color_button.value = Vector3.from_array(preferences.has_key("axis_selected") ? (Gee.ArrayList<GLib.Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
-		_gizmo_size_spin_button.value     = preferences.has_key("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
-		_level_autosave_spin_button.value = preferences.has_key("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
-		_game_keep_above.value            = preferences.has_key("game_keep_above") ? (bool)preferences["game_keep_above"] : _game_keep_above.value;
-		_camera_movement_speed.value      = preferences.has_key("camera_movement_speed") ? (double)preferences["camera_movement_speed"] : _camera_movement_speed.value;
-		_camera_rotation_speed.value      = preferences.has_key("camera_rotation_speed") ? (double)preferences["camera_rotation_speed"] : _camera_rotation_speed.value;
-		_camera_speed_modifier.value      = preferences.has_key("camera_speed_modifier") ? (double)preferences["camera_speed_modifier"] : _camera_speed_modifier.value;
-		_undo_redo_max_size.value         = (preferences.has_key("undo_redo_max_size") ? (double)preferences["undo_redo_max_size"] : _undo_redo_max_size.value);
-		_log_delete_after_days.value      = preferences.has_key("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
-		_console_max_lines.value          = preferences.has_key("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
-		_thumbnail_cache_max_size.value   = (preferences.has_key("thumbnail_cache_max_size") ? (double)preferences["thumbnail_cache_max_size"] : _thumbnail_cache_max_size.value);
+		_grid_color_button.value          = Vector3.from_array(preferences.contains("grid") ? (GLib.GenericArray<Value?>)preferences["grid"] : _grid_color_button.value.to_array());
+		_grid_disabled_color_button.value = Vector3.from_array(preferences.contains("grid_disabled") ? (GLib.GenericArray<Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_array());
+		_axis_x_color_button.value        = Vector3.from_array(preferences.contains("axis_x") ? (GLib.GenericArray<Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_array());
+		_axis_y_color_button.value        = Vector3.from_array(preferences.contains("axis_y") ? (GLib.GenericArray<Value?>)preferences["axis_y"] : _axis_y_color_button.value.to_array());
+		_axis_z_color_button.value        = Vector3.from_array(preferences.contains("axis_z") ? (GLib.GenericArray<Value?>)preferences["axis_z"] : _axis_z_color_button.value.to_array());
+		_axis_selected_color_button.value = Vector3.from_array(preferences.contains("axis_selected") ? (GLib.GenericArray<Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
+		_gizmo_size_spin_button.value     = preferences.contains("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
+		_level_autosave_spin_button.value = preferences.contains("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
+		_game_keep_above.value            = preferences.contains("game_keep_above") ? (bool)preferences["game_keep_above"] : _game_keep_above.value;
+		_camera_movement_speed.value      = preferences.contains("camera_movement_speed") ? (double)preferences["camera_movement_speed"] : _camera_movement_speed.value;
+		_camera_rotation_speed.value      = preferences.contains("camera_rotation_speed") ? (double)preferences["camera_rotation_speed"] : _camera_rotation_speed.value;
+		_camera_speed_modifier.value      = preferences.contains("camera_speed_modifier") ? (double)preferences["camera_speed_modifier"] : _camera_speed_modifier.value;
+		_undo_redo_max_size.value         = (preferences.contains("undo_redo_max_size") ? (double)preferences["undo_redo_max_size"] : _undo_redo_max_size.value);
+		_log_delete_after_days.value      = preferences.contains("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
+		_console_max_lines.value          = preferences.contains("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
+		_thumbnail_cache_max_size.value   = (preferences.contains("thumbnail_cache_max_size") ? (double)preferences["thumbnail_cache_max_size"] : _thumbnail_cache_max_size.value);
 
-		if (preferences.has_key("theme"))
+		if (preferences.contains("theme"))
 			_theme_combo.value = (string)preferences["theme"];
 
 #if CROWN_PLATFORM_WINDOWS
@@ -298,29 +298,29 @@ public class PreferencesDialog : Gtk.Window
 			_external_editor_font,
 		};
 
-		Hashtable external_tools = preferences.has_key("external_tools")
-			? (Hashtable)preferences["external_tools"]
-			: new Hashtable()
+		GLib.HashTable<string, Value?> external_tools = preferences.contains("external_tools")
+			? (GLib.HashTable<string, Value?>)preferences["external_tools"]
+			: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 			;
 
 		for (int i = 0; i < editor_names.length; ++i) {
 			string name = editor_names[i];
 			AppChooserButton button = editor_buttons[i];
 
-			Hashtable editor = external_tools.has_key(name)
-				? (Hashtable)external_tools[name]
-				: new Hashtable()
+			GLib.HashTable<string, Value?> editor = external_tools.contains(name)
+				? (GLib.HashTable<string, Value?>)external_tools[name]
+				: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 				;
 
 			string app = "";
 			string app_id = "";
 
-			if (editor.has_key("app"))
+			if (editor.contains("app"))
 				app = (string)editor["app"];
 			else
 				app = AppChooserButton.APP_DEFAULT;
 
-			if (editor.has_key("app_id"))
+			if (editor.contains("app_id"))
 				app_id = (string)editor["app_id"];
 			else
 				app_id = null;
@@ -330,11 +330,11 @@ public class PreferencesDialog : Gtk.Window
 #endif /* if CROWN_PLATFORM_WINDOWS */
 	}
 
-	public void encode(Hashtable settings)
+	public void encode(GLib.HashTable<string, Value?> settings)
 	{
-		Hashtable preferences = settings.has_key("preferences")
-			? (Hashtable)settings["preferences"]
-			: new Hashtable()
+		GLib.HashTable<string, Value?> preferences = settings.contains("preferences")
+			? (GLib.HashTable<string, Value?>)settings["preferences"]
+			: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 			;
 		settings["preferences"] = preferences;
 
@@ -377,9 +377,9 @@ public class PreferencesDialog : Gtk.Window
 			_external_editor_font,
 		};
 
-		Hashtable external_tools = preferences.has_key("external_tools")
-			? (Hashtable)preferences["external_tools"]
-			: new Hashtable()
+		GLib.HashTable<string, Value?> external_tools = preferences.contains("external_tools")
+			? (GLib.HashTable<string, Value?>)preferences["external_tools"]
+			: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 			;
 		preferences["external_tools"] = external_tools;
 
@@ -387,9 +387,9 @@ public class PreferencesDialog : Gtk.Window
 			string name = editor_names[i];
 			AppChooserButton button = editor_buttons[i];
 
-			Hashtable editor = external_tools.has_key(name)
-				? (Hashtable)external_tools[name]
-				: new Hashtable()
+			GLib.HashTable<string, Value?> editor = external_tools.contains(name)
+				? (GLib.HashTable<string, Value?>)external_tools[name]
+				: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 				;
 			external_tools[name] = editor;
 

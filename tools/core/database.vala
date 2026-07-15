@@ -490,7 +490,7 @@ public struct ObjectTypeInfo
 	double ui_order;
 	ObjectTypeFlags flags;
 	string? user_data;
-	Gee.HashMap<StringId64?, AspectData?> aspects;
+	GLib.HashTable<StringId64?, AspectData?> aspects;
 }
 
 public class Database
@@ -516,8 +516,8 @@ public class Database
 
 	// Data
 	private PropertyDefinition[] _property_definitions;
-	public Gee.HashMap<StringId64?, ObjectTypeInfo?> _object_definitions;
-	public Gee.HashMap<Guid?, Gee.HashMap<string, Value?>> _data;
+	public GLib.HashTable<StringId64?, ObjectTypeInfo?> _object_definitions;
+	public GLib.HashTable<Guid?, GLib.HashTable<string, Value?>> _data;
 	public UndoRedo? _undo_redo;
 	public Project _project;
 	// The number of changes to the database since the last successful state
@@ -534,8 +534,8 @@ public class Database
 	public Database(Project project, UndoRedo? undo_redo = null)
 	{
 		_property_definitions = new PropertyDefinition[0];
-		_object_definitions = new Gee.HashMap<StringId64?, ObjectTypeInfo?>(StringId64.hash_func, StringId64.equal_func);
-		_data = new Gee.HashMap<Guid?, Gee.HashMap<string, Value?>>(Guid.hash_func, Guid.equal_func);
+		_object_definitions = new GLib.HashTable<StringId64?, ObjectTypeInfo?>(StringId64.hash_func, StringId64.equal_func);
+		_data = new GLib.HashTable<Guid?, GLib.HashTable<string, Value?>>(Guid.hash_func, Guid.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
 
@@ -545,13 +545,13 @@ public class Database
 	/// Resets database to clean state.
 	public void reset()
 	{
-		_data.clear();
+		_data.remove_all();
 
 		if (_undo_redo != null)
 			_undo_redo.reset();
 
 		// This is a special field which stores all objects
-		_data[GUID_ZERO] = new Gee.HashMap<string, Value?>();
+		_data[GUID_ZERO] = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 	}
 
 	/// Returns whether the database has been changed since last call to Save().
@@ -570,58 +570,59 @@ public class Database
 		if (type == OBJECT_TYPE_UNIT) {
 			prune_stale_unit_overrides(id);
 		} else if (type == OBJECT_TYPE_LEVEL) {
-			foreach (Guid unit_id in get_set(id, "units"))
+			GLib.GenericSet<Guid?> units = get_set(id, "units");
+			foreach (Guid? unit_id in units)
 				prune_stale_unit_overrides(unit_id);
 		}
 	}
 
 	private void prune_stale_unit_overrides(Guid unit_id)
 	{
-		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> unit_ids = new GLib.GenericArray<Guid?>();
 		Unit.collect_unit_tree(unit_ids, unit_id, this);
 
-		foreach (Guid id in unit_ids)
-			Unit(this, id).prune_stale_overrides();
+		for (int i = 0; i < unit_ids.length; ++i)
+			Unit(this, unit_ids[i]).prune_stale_overrides();
 	}
 
-	private void convert_material(Hashtable json)
+	private void convert_material(GLib.HashTable<string, Value?> json)
 	{
-		if (json.has_key("textures") && json["textures"].holds(typeof(Hashtable))) {
-			Hashtable old_textures = (Hashtable)json["textures"];
-			Gee.ArrayList<Value?> textures = new Gee.ArrayList<Value?>();
+		if (json.contains("textures") && json["textures"].holds(typeof(GLib.HashTable))) {
+			GLib.HashTable<string, Value?> old_textures = (GLib.HashTable<string, Value?>)json["textures"];
+			GLib.GenericArray<Value?> textures = new GLib.GenericArray<Value?>();
 
-			foreach (string name in old_textures.keys) {
-				Hashtable texture = new Hashtable();
+			old_textures.foreach((name, texture_value) => {
+				GLib.HashTable<string, Value?> texture = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 				texture["_type"] = OBJECT_TYPE_TEXTURE_SAMPLER;
 				texture["name"] = name;
-				texture["texture"] = old_textures[name];
+				texture["texture"] = texture_value;
 				textures.add(texture);
-			}
+			});
 
 			json["textures"] = textures;
 		}
 
-		if (json.has_key("uniforms") && json["uniforms"].holds(typeof(Hashtable))) {
-			Hashtable old_uniforms = (Hashtable)json["uniforms"];
-			Gee.ArrayList<Value?> uniforms = new Gee.ArrayList<Value?>();
+		if (json.contains("uniforms") && json["uniforms"].holds(typeof(GLib.HashTable))) {
+			GLib.HashTable<string, Value?> old_uniforms = (GLib.HashTable<string, Value?>)json["uniforms"];
+			GLib.GenericArray<Value?> uniforms = new GLib.GenericArray<Value?>();
 
-			foreach (string name in old_uniforms.keys) {
-				Hashtable old_uniform = (Hashtable)old_uniforms[name];
+			old_uniforms.foreach((name, uniform_value) => {
+				GLib.HashTable<string, Value?> old_uniform = (GLib.HashTable<string, Value?>)uniform_value;
 				string type = (string)old_uniform["type"];
 				Value? value = old_uniform["value"];
 
-				Hashtable uniform = new Hashtable();
+				GLib.HashTable<string, Value?> uniform = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 				uniform["name"] = name;
 
 				if (type == "matrix4x4") {
 					uniform["_type"] = OBJECT_TYPE_UNIFORM_MATRIX4X4;
 
-					Gee.ArrayList<Value?> matrix = (Gee.ArrayList<Value?>)value;
+					GLib.GenericArray<Value?> matrix = (GLib.GenericArray<Value?>)value;
 					string[] rows = { "x", "y", "z", "t" };
 					for (int row = 0; row < 4; ++row) {
 						int offset = row*4;
 
-						Hashtable row_value = new Hashtable();
+						GLib.HashTable<string, Value?> row_value = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 						row_value["x"] = (double)matrix[offset + 0];
 						row_value["y"] = (double)matrix[offset + 1];
 						row_value["z"] = (double)matrix[offset + 2];
@@ -635,13 +636,13 @@ public class Database
 					if (value.holds(typeof(double))) {
 						v[0] = (double)value;
 					} else {
-						Gee.ArrayList<Value?> arr = (Gee.ArrayList<Value?>)value;
-						for (int i = 0; i < arr.size && i < 4; ++i) {
+						GLib.GenericArray<Value?> arr = (GLib.GenericArray<Value?>)value;
+						for (int i = 0; i < arr.length && i < 4; ++i) {
 							v[i] = (double)arr[i];
 						}
 					}
 
-					Hashtable vector = new Hashtable();
+					GLib.HashTable<string, Value?> vector = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 					vector["x"] = v[0];
 					vector["y"] = v[1];
 					vector["z"] = v[2];
@@ -650,7 +651,7 @@ public class Database
 				}
 
 				uniforms.add(uniform);
-			}
+			});
 
 			json["uniforms"] = uniforms;
 		}
@@ -704,14 +705,14 @@ public class Database
 			uint8[] bytes;
 			string? etag;
 			file.load_contents(null, out bytes, out etag);
-			Hashtable json = SJSON.decode(bytes);
+			GLib.HashTable<string, Value?> json = SJSON.decode(bytes);
 
 			UndoRedo? undo_redo = disable_undo();
 			try {
 				// Parse the object's ID or generate a new one if none is found.
-				if (json.has_key("id"))
+				if (json.contains("id"))
 					object_id = Guid.parse((string)json["id"]);
-				else if (json.has_key("_guid"))
+				else if (json.contains("_guid"))
 					object_id = Guid.parse((string)json["_guid"]);
 				else
 					object_id = Guid.new_guid();
@@ -719,7 +720,7 @@ public class Database
 				string type = ResourceId.type(resource_path);
 				StringId64 type_hash = StringId64(type);
 
-				_data[object_id] = new Gee.HashMap<string, Value?>();
+				_data[object_id] = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 				set_type(object_id, type);
 				set_owner(object_id, GUID_ZERO);
 				set_alive(object_id, true);
@@ -788,7 +789,7 @@ public class Database
 	}
 
 	/// Encodes the object @a id into SJSON object.
-	public Hashtable encode(Guid id)
+	public GLib.HashTable<string, Value?> encode(Guid id)
 	{
 		return encode_object(id, get_data(id));
 	}
@@ -834,19 +835,18 @@ public class Database
 			return ((Resource)value).name == null ? "(None)" : ((Resource)value).name;
 		if (value.holds(typeof(Guid)))
 			return ((Guid)value).to_debug_string();
-		if (value.holds(typeof(Gee.HashSet)))
+		if (value.holds(typeof(GLib.GenericSet)))
 			return "Set<Guid>";
 
 		return "<invalid>";
 	}
 
-	public void decode_object_compat(Guid id, Guid owner_id, string db_key, Hashtable json)
+	public void decode_object_compat(Guid id, Guid owner_id, string db_key, GLib.HashTable<string, Value?> json)
 	{
 		string old_db = db_key;
 		string k = db_key;
 
-		string[] keys = json.keys.to_array();
-		foreach (string key in keys) {
+		foreach (unowned string key in json.get_keys()) {
 			// ID is filled by decode_set().
 			if (key == "id"
 				|| key == "_guid"
@@ -859,12 +859,12 @@ public class Database
 
 			k += k == "" ? key : ("." + key);
 
-			if (val.holds(typeof(Hashtable))) {
-				Hashtable ht = (Hashtable)val;
+			if (val.holds(typeof(GLib.HashTable))) {
+				GLib.HashTable<string, Value?> ht = (GLib.HashTable<string, Value?>)val;
 				decode_object(id, owner_id, k, ht);
-			} else if (val.holds(typeof(Gee.ArrayList))) {
-				Gee.ArrayList<Value?> arr = (Gee.ArrayList<Value?>)val;
-				if (arr.size > 0
+			} else if (val.holds(typeof(GLib.GenericArray))) {
+				GLib.GenericArray<Value?> arr = (GLib.GenericArray<Value?>)val;
+				if (arr.length > 0
 					&& arr[0].holds(typeof(double))
 					&& k != "frames" // sprite_animation
 					)
@@ -879,34 +879,34 @@ public class Database
 		}
 	}
 
-	public void decode_object_from_properties(Guid id, Guid owner_id, PropertyDefinition[]? properties, Hashtable json)
+	public void decode_object_from_properties(Guid id, Guid owner_id, PropertyDefinition[]? properties, GLib.HashTable<string, Value?> json)
 	{
 		foreach (PropertyDefinition def in properties) {
 			// Find table and key to read from.
 			string[] keys = def.name.split(".");
 			string key = keys[keys.length - 1];
-			Hashtable input = json;
+			GLib.HashTable<string, Value?> input = json;
 
 			if (keys.length > 1) {
 				for (int i = 0; i < keys.length - 1; ++i) {
 					string f = keys[i];
 
-					if (input.has_key(f)) {
-						input = (Hashtable)input[f];
+					if (input.contains(f)) {
+						input = (GLib.HashTable<string, Value?>)input[f];
 						continue;
 					}
 				}
 			}
 
-			if (!input.has_key(key))
+			if (!input.contains(key))
 				continue;
 
 			// Read property.
 			if (def.type == PropertyType.OBJECTS_SET) {
-				decode_set(id, def.name, (Gee.ArrayList<Value?>)input[key]);
+				decode_set(id, def.name, (GLib.GenericArray<Value?>)input[key]);
 			} else if (def.type == PropertyType.RESOURCE) {
 				Resource res = { null };
-				if (input.has_key(key)) {
+				if (input.contains(key)) {
 					Value? val = input[key];
 					if (val.holds(typeof(string)))
 						res.name = (string)input[key];
@@ -918,16 +918,16 @@ public class Database
 		}
 	}
 
-	public void decode_object(Guid id, Guid owner_id, string db_key, Hashtable json)
+	public void decode_object(Guid id, Guid owner_id, string db_key, GLib.HashTable<string, Value?> json)
 	{
 		string? type = null;
 
 		// The "type" key defines object type only if it appears
 		// in the root of a JSON object (k == "").
 		if (db_key == "" && !has_property(id, "_type")) {
-			if (json.has_key("_type"))
+			if (json.contains("_type"))
 				type = (string)json["_type"];
-			else if (json.has_key("type"))
+			else if (json.contains("type"))
 				type = (string)json["type"];
 
 			assert(type != null);
@@ -952,26 +952,26 @@ public class Database
 			decode_object_compat(id, owner_id, db_key, json);
 	}
 
-	public void decode_set(Guid owner_id, string key, Gee.ArrayList<Value?> json)
+	public void decode_set(Guid owner_id, string key, GLib.GenericArray<Value?> json)
 	{
 		// Set should be created even if it is empty.
 		create_empty_set(owner_id, key);
 
-		for (int i = 0; i < json.size; ++i) {
-			Hashtable obj;
+		for (int i = 0; i < json.length; ++i) {
+			GLib.HashTable<string, Value?> obj;
 			string owner_type = object_type(owner_id);
-			obj = (Hashtable)json[i];
+			obj = (GLib.HashTable<string, Value?>)json[i];
 
 			// Decode object ID.
 			Guid obj_id;
-			if (obj.has_key("id") && owner_type != OBJECT_TYPE_FONT)
+			if (obj.contains("id") && owner_type != OBJECT_TYPE_FONT)
 				obj_id = Guid.parse((string)obj["id"]);
-			else if (obj.has_key("_guid"))
+			else if (obj.contains("_guid"))
 				obj_id = Guid.parse((string)obj["_guid"]);
 			else
 				obj_id = Guid.new_guid();
 
-			_data[obj_id] = new Gee.HashMap<string, Value?>();
+			_data[obj_id] = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 			set_owner(obj_id, owner_id);
 			set_alive(obj_id, true);
@@ -984,15 +984,15 @@ public class Database
 
 	public Value? decode_value(Value? value)
 	{
-		if (value.holds(typeof(Gee.ArrayList))) {
-			Gee.ArrayList<Value?> al = (Gee.ArrayList<Value?>)value;
-			if (al.size == 1)
+		if (value.holds(typeof(GLib.GenericArray))) {
+			GLib.GenericArray<Value?> al = (GLib.GenericArray<Value?>)value;
+			if (al.length == 1)
 				return Vector3((double)al[0], 0.0, 0.0);
-			else if (al.size == 2)
+			else if (al.length == 2)
 				return Vector3((double)al[0], (double)al[1], 0.0);
-			else if (al.size == 3)
+			else if (al.length == 3)
 				return Vector3((double)al[0], (double)al[1], (double)al[2]);
-			else if (al.size == 4)
+			else if (al.length == 4)
 				return Quaternion((double)al[0], (double)al[1], (double)al[2], (double)al[3]);
 			else
 				return Vector3(0.0, 0.0, 0.0);
@@ -1010,30 +1010,29 @@ public class Database
 		}
 	}
 
-	public Hashtable encode_object_compat(Guid id, Gee.HashMap<string, Value?> db)
+	public GLib.HashTable<string, Value?> encode_object_compat(Guid id, GLib.HashTable<string, Value?> db)
 	{
-		Hashtable obj = new Hashtable();
+		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		if (id != GUID_ZERO)
 			obj["_guid"] = id.to_string();
 
-		string[] keys = db.keys.to_array();
-		foreach (string key in keys) {
+		foreach (unowned string key in db.get_keys()) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
 			if (db[key] == null || key == "_owner" || key == "_alive")
 				continue;
 
 			string[] foo = key.split(".");
-			Hashtable x = obj;
+			GLib.HashTable<string, Value?> x = obj;
 			if (foo.length > 1) {
 				for (int i = 0; i < foo.length - 1; ++i) {
 					string f = foo[i];
 
-					if (x.has_key(f)) {
-						x = (Hashtable)x[f];
+					if (x.contains(f)) {
+						x = (GLib.HashTable<string, Value?>)x[f];
 						continue;
 					}
 
-					Hashtable y = new Hashtable();
+					GLib.HashTable<string, Value?> y = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 					x.set(f, y);
 					x = y;
 				}
@@ -1044,7 +1043,7 @@ public class Database
 		return obj;
 	}
 
-	public Hashtable encode_object(Guid id, Gee.HashMap<string, Value?> db)
+	public GLib.HashTable<string, Value?> encode_object(Guid id, GLib.HashTable<string, Value?> db)
 	{
 		assert(is_alive(id));
 
@@ -1054,7 +1053,7 @@ public class Database
 		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_MATERIAL || properties == null)
 			return encode_object_compat(id, db);
 
-		Hashtable obj = new Hashtable();
+		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		if (id != GUID_ZERO) {
 			obj["_guid"] = id.to_string();
 			obj["_type"] = type;
@@ -1069,17 +1068,17 @@ public class Database
 				continue;
 
 			string[] foo = def.name.split(".");
-			Hashtable x = obj;
+			GLib.HashTable<string, Value?> x = obj;
 			if (foo.length > 1) {
 				for (int i = 0; i < foo.length - 1; ++i) {
 					string f = foo[i];
 
-					if (x.has_key(f)) {
-						x = (Hashtable)x[f];
+					if (x.contains(f)) {
+						x = (GLib.HashTable<string, Value?>)x[f];
 						continue;
 					}
 
-					Hashtable y = new Hashtable();
+					GLib.HashTable<string, Value?> y = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 					x.set(f, y);
 					x = y;
 				}
@@ -1092,18 +1091,18 @@ public class Database
 
 	public Value? encode_value(Value? value)
 	{
-		assert(is_valid_value(value) || value.holds(typeof(Gee.HashSet)));
+		assert(is_valid_value(value) || value.holds(typeof(GLib.GenericSet)));
 
 		if (value.holds(typeof(Vector3))) {
 			Vector3 v = (Vector3)value;
-			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+			GLib.GenericArray<Value?> arr = new GLib.GenericArray<Value?>();
 			arr.add(v.x);
 			arr.add(v.y);
 			arr.add(v.z);
 			return arr;
 		} else if (value.holds(typeof(Quaternion))) {
 			Quaternion q = (Quaternion)value;
-			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+			GLib.GenericArray<Value?> arr = new GLib.GenericArray<Value?>();
 			arr.add(q.x);
 			arr.add(q.y);
 			arr.add(q.z);
@@ -1118,10 +1117,10 @@ public class Database
 		} else if (value.holds(typeof(Guid))) {
 			Guid id = (Guid)value;
 			return id.to_string();
-		} else if (value.holds(typeof(Gee.HashSet))) {
-			Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
-			Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
-			foreach (Guid id in hs) {
+		} else if (value.holds(typeof(GLib.GenericSet))) {
+			GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
+			GLib.GenericArray<Value?> arr = new GLib.GenericArray<Value?>();
+			foreach (Guid? id in hs) {
 				if (!is_alive(id))
 					continue;
 				arr.add(encode_object(id, get_data(id)));
@@ -1132,7 +1131,7 @@ public class Database
 		}
 	}
 
-	public Gee.HashMap<string, Value?> get_data(Guid id)
+	public GLib.HashTable<string, Value?> get_data(Guid id)
 	{
 		assert(has_object(id));
 
@@ -1148,7 +1147,7 @@ public class Database
 		if (_debug)
 			logi("set_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
+		GLib.HashTable<string, Value?> ob = get_data(id);
 		ob[key] = value;
 
 		if (_undo_redo != null)
@@ -1160,8 +1159,8 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		ob[key] = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		ob[key] = guid_set_new();
 	}
 
 	public void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
@@ -1174,14 +1173,14 @@ public class Database
 		if (_debug)
 			logi("add_to_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
+		GLib.HashTable<string, Value?> ob = get_data(id);
 
-		if (!ob.has_key(key)) {
-			Gee.HashSet<Guid?> hs = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		if (!ob.contains(key)) {
+			GLib.GenericSet<Guid?> hs = guid_set_new();
 			hs.add(item_id);
 			ob[key] = hs;
 		} else {
-			((Gee.HashSet<Guid?>)ob[key]).add(item_id);
+			((GLib.GenericSet<Guid?>)ob[key]).add(item_id);
 		}
 
 		get_data(item_id)["_owner"] = id;
@@ -1199,8 +1198,8 @@ public class Database
 		if (_debug)
 			logi("remove_from_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		((Gee.HashSet<Guid?>)ob[key]).remove(item_id);
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		((GLib.GenericSet<Guid?>)ob[key]).remove(item_id);
 
 		set_owner(item_id, GUID_ZERO);
 
@@ -1305,7 +1304,7 @@ public class Database
 			_undo_redo._redo.clear();
 		}
 
-		_data[id] = new Gee.HashMap<string, Value?>();
+		_data[id] = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		set_type(id, type);
 		set_owner(id, GUID_ZERO);
 		set_alive(id, true);
@@ -1322,14 +1321,12 @@ public class Database
 
 		string obj_type = object_type(id);
 
-		Gee.HashMap<string, Value?> o = get_data(id);
-		string[] keys = o.keys.to_array();
-
-		foreach (string key in keys) {
+		GLib.HashTable<string, Value?> o = get_data(id);
+		foreach (unowned string key in o.get_keys()) {
 			Value? value = o[key];
-			if (value.holds(typeof(Gee.HashSet))) {
-				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
-				Guid?[] ids = hs.to_array();
+			if (value.holds(typeof(GLib.GenericSet))) {
+				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
+				Guid?[] ids = guid_set_to_array(hs);
 				foreach (Guid item_id in ids) {
 					if (is_alive(item_id))
 						destroy(item_id);
@@ -1356,8 +1353,8 @@ public class Database
 		assert(is_valid_value(null));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null) {
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null) {
 				if (ob[key].holds(typeof(bool)))
 					_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[key]);
 				if (ob[key].holds(typeof(double)))
@@ -1389,8 +1386,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1408,8 +1405,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1427,8 +1424,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1446,8 +1443,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1465,8 +1462,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1484,8 +1481,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, { ((Resource)ob[key]).name });
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1504,8 +1501,8 @@ public class Database
 		assert(is_valid_value(val));
 
 		if (_undo_redo != null) {
-			Gee.HashMap<string, Value?> ob = get_data(id);
-			if (ob.has_key(key) && ob[key] != null)
+			GLib.HashTable<string, Value?> ob = get_data(id);
+			if (ob.contains(key) && ob[key] != null)
 				_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[key]);
 			else
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
@@ -1569,7 +1566,7 @@ public class Database
 
 	public bool has_object(Guid id)
 	{
-		return id == GUID_ZERO || _data.has_key(id);
+		return id == GUID_ZERO || _data.contains(id);
 	}
 
 	public bool has_property(Guid id, string key)
@@ -1582,8 +1579,8 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		Value? value = (ob.has_key(key) ? ob[key] : val);
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		Value? value = (ob.contains(key) ? ob[key] : val);
 
 		if (_debug_getters)
 			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
@@ -1629,23 +1626,23 @@ public class Database
 		return (Guid)get_property(id, key, deffault);
 	}
 
-	public Gee.HashSet<Guid?> get_set(Guid id, string key, Gee.HashSet<Guid?> deffault = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
+	public GLib.GenericSet<Guid?> get_set(Guid id, string key, GLib.GenericSet<Guid?>? deffault = null)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		Gee.HashSet<Guid?> value;
-		if (ob.has_key(key)) {
-			Gee.HashSet<Guid?> objects = (Gee.HashSet<Guid?>)ob[key];
-			value = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		GLib.GenericSet<Guid?> value;
+		if (ob.contains(key)) {
+			GLib.GenericSet<Guid?> objects = (GLib.GenericSet<Guid?>)ob[key];
+			value = guid_set_new();
 
-			foreach (var obj in objects) {
+			foreach (Guid? obj in objects) {
 				if (is_alive(obj))
 					value.add(obj);
 			}
 		} else {
-			value = deffault;
+			value = deffault ?? guid_set_new();
 		}
 
 		if (_debug_getters)
@@ -1654,15 +1651,15 @@ public class Database
 		return value;
 	}
 
-	public Gee.HashMap<string, Value?> get_object(Guid id)
+	public GLib.HashTable<string, Value?> get_object(Guid id)
 	{
-		return (Gee.HashMap<string, Value?>)get_data(GUID_ZERO)[id.to_string()];
+		return (GLib.HashTable<string, Value?>)get_data(GUID_ZERO)[id.to_string()];
 	}
 
 	public string[] get_keys(Guid id)
 	{
-		Gee.HashMap<string, Value?> data = get_data(id);
-		return data.keys.to_array();
+		GLib.HashTable<string, Value?> data = get_data(id);
+		return data.get_keys_as_array();
 	}
 
 	public void add_restore_point(int id, Guid?[] data, uint32 flags = 0u)
@@ -1704,13 +1701,12 @@ public class Database
 
 		dest.create(new_id, object_type(id));
 
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		string[] keys = ob.keys.to_array();
-		foreach (string key in keys) {
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		foreach (unowned string key in ob.get_keys()) {
 			Value? val = ob[key];
-			if (val.holds(typeof(Gee.HashSet))) {
-				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)val;
-				foreach (Guid j in hs) {
+			if (val.holds(typeof(GLib.GenericSet))) {
+				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)val;
+				foreach (Guid? j in hs) {
 					Guid x = Guid.new_guid();
 					duplicate(j, x, dest);
 					dest.add_to_set(new_id, key, x);
@@ -1752,7 +1748,7 @@ public class Database
 			if (def.type != PropertyType.OBJECTS_SET)
 				continue;
 
-			Gee.HashSet<Guid?> objects = get_set(owner_id, def.name);
+			GLib.GenericSet<Guid?> objects = get_set(owner_id, def.name);
 
 			if (objects.contains(id)) {
 				add_to_set(owner_id, def.name, new_id);
@@ -1772,13 +1768,12 @@ public class Database
 
 	public void copy_deep(Database db, Guid id, string new_key)
 	{
-		Gee.HashMap<string, Value?> ob = get_data(id);
-		string[] keys = ob.keys.to_array();
-		foreach (string key in keys) {
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		foreach (unowned string key in ob.get_keys_as_array()) {
 			Value? value = ob[key];
-			if (value.holds(typeof(Gee.HashSet))) {
-				Gee.HashSet<Guid?> hs = (Gee.HashSet<Guid?>)value;
-				foreach (Guid j in hs) {
+			if (value.holds(typeof(GLib.GenericSet))) {
+				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
+				foreach (Guid? j in hs) {
 					db.create(j, object_type(j));
 					copy_deep(db, j, "");
 					db.add_to_set(id, new_key + (new_key == "" ? "" : ".") + key, j);
@@ -2126,7 +2121,7 @@ public class Database
 		)
 	{
 		StringId64 type_hash = StringId64(type);
-		assert(!_object_definitions.has_key(type_hash));
+		assert(!_object_definitions.contains(type_hash));
 		assert(properties.length > 0);
 
 		int first_property = _property_definitions.length;
@@ -2141,7 +2136,7 @@ public class Database
 		info.ui_order = ui_order;
 		info.flags = flags;
 		info.user_data = user_data;
-		info.aspects = new Gee.HashMap<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);
+		info.aspects = new GLib.HashTable<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);
 		_object_definitions[type_hash] = info;
 
 		object_type_added(info);
@@ -2151,7 +2146,7 @@ public class Database
 	// Returns the array of properties (i.e. its definition) of the object @a type.
 	public unowned PropertyDefinition[]? object_definition(StringId64 type)
 	{
-		if (!_object_definitions.has_key(type))
+		if (!_object_definitions.contains(type))
 			return null;
 
 		PropertiesSlice ps = _object_definitions[type].properties;
@@ -2179,7 +2174,7 @@ public class Database
 	// Returns whether the object @a type exists (i.e. has been created with create_object_type()).
 	public bool has_type(StringId64 type)
 	{
-		return _object_definitions.has_key(type);
+		return _object_definitions.contains(type);
 	}
 
 	public string type_name(StringId64 type)
@@ -2199,11 +2194,12 @@ public class Database
 
 	public Guid?[] all_objects_of_type(StringId64 type)
 	{
-		Gee.ArrayList<Guid?> all = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> all = new GLib.GenericArray<Guid?>();
+		GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>> iter = GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>>(_data);
+		unowned Guid? id;
+		unowned GLib.HashTable<string, Value?> data;
 
-		foreach (var item in _data) {
-			Guid id = item.key;
-
+		while (iter.next(out id, out data)) {
 			if (id != GUID_ZERO
 				&& (type == OBJECT_TYPE_ANY || StringId64(object_type(id)) == type)
 				&& is_alive(id)) {
@@ -2211,7 +2207,7 @@ public class Database
 			}
 		}
 
-		return all.to_array();
+		return all.steal();
 	}
 
 	public bool is_subobject_of(Guid subobject_id, Guid object_id, string set_name)
@@ -2252,7 +2248,7 @@ public class Database
 		data.callback = callback;
 
 		info.aspects[aspect] = data;
-		assert(info.aspects.has_key(aspect));
+		assert(info.aspects.contains(aspect));
 		assert(get_aspect(object_type, aspect) == callback);
 	}
 
@@ -2260,7 +2256,7 @@ public class Database
 	{
 		ObjectTypeInfo info = type_info(object_type);
 
-		if (info.aspects.has_key(aspect))
+		if (info.aspects.contains(aspect))
 			return info.aspects[aspect].callback;
 
 		return null;

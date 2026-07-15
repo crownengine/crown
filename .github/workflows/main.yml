@@ -101,7 +101,7 @@ jobs:
         sudo apt-get install gcc-multilib g++-multilib libc6-dev-i386
         sudo apt-get install libgtk-3-dev
         sudo add-apt-repository ppa:vala-team
-        sudo apt-get install valac libgee-0.8-dev
+        sudo apt-get install valac
         sudo apt-get install libxml2-utils # xml-stripblanks
         sudo apt-get install gettext
     - name: linux-make-debug64
@@ -200,7 +200,7 @@ jobs:
     - name: mingw-prepare
       shell: msys2 {0}
       run: |
-        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala mingw-w64-x86_64-libgee gettext
+        pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala gettext
     - name: mingw-make-crown-editor-debug64
       shell: msys2 {0}
       run: |

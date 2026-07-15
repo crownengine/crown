@@ -21,9 +21,9 @@ public class DependenciesDialog : Gtk.Window
 	public ThumbnailCache _thumbnail_cache;
 	public Gtk.Box _content;
 
-	public uint append_items(Gtk.TreeStore store, string label, Gee.ArrayList<Value?> items)
+	public uint append_items(Gtk.TreeStore store, string label, GLib.GenericArray<Value?> items)
 	{
-		if (items.size == 0)
+		if (items.length == 0)
 			return 0;
 
 		Gtk.TreeIter parent;
@@ -42,8 +42,8 @@ public class DependenciesDialog : Gtk.Window
 			);
 
 		uint count = 0;
-		foreach (Value? item_value in items) {
-			string path = (string)item_value;
+		for (int i = 0; i < items.length; ++i) {
+			string path = (string)items[i];
 
 			string? resource_type = ResourceId.type(path);
 			string? resource_name = ResourceId.name(path);
@@ -78,13 +78,13 @@ public class DependenciesDialog : Gtk.Window
 	public void append_group(Gtk.Box box
 		, string title
 		, string tooltip
-		, Gee.ArrayList<Value?> first_items
+		, GLib.GenericArray<Value?> first_items
 		, string first_kind
-		, Gee.ArrayList<Value?> second_items
+		, GLib.GenericArray<Value?> second_items
 		, string second_kind
 		)
 	{
-		if (first_items.size == 0 && second_items.size == 0)
+		if (first_items.length == 0 && second_items.length == 0)
 			return;
 
 		Gtk.TreeStore store = new Gtk.TreeStore(DependenciesDialogColumn.COUNT
@@ -225,15 +225,15 @@ public class DependenciesDialog : Gtk.Window
 		this.add(_content);
 	}
 
-	public void set_content(string resource_path, Hashtable dependencies)
+	public void set_content(string resource_path, GLib.HashTable<string, Value?> dependencies)
 	{
 		foreach (Gtk.Widget child in _content.get_children())
 			child.destroy();
 
-		Gee.ArrayList<Value?> dependency_items = (Gee.ArrayList<Value?>)dependencies["dependencies"];
-		Gee.ArrayList<Value?> reference_items = (Gee.ArrayList<Value?>)dependencies["references"];
-		Gee.ArrayList<Value?> dependent_items = (Gee.ArrayList<Value?>)dependencies["dependents"];
-		Gee.ArrayList<Value?> referrer_items = (Gee.ArrayList<Value?>)dependencies["referrers"];
+		GLib.GenericArray<Value?> dependency_items = (GLib.GenericArray<Value?>)dependencies["dependencies"];
+		GLib.GenericArray<Value?> reference_items = (GLib.GenericArray<Value?>)dependencies["references"];
+		GLib.GenericArray<Value?> dependent_items = (GLib.GenericArray<Value?>)dependencies["dependents"];
+		GLib.GenericArray<Value?> referrer_items = (GLib.GenericArray<Value?>)dependencies["referrers"];
 
 		Gtk.Label path_label = new Gtk.Label(resource_path);
 		path_label.set_xalign(0.0f);
@@ -273,10 +273,10 @@ public class DependenciesDialog : Gtk.Window
 			, _("Required By")
 			);
 
-		if (dependency_items.size == 0
-			&& reference_items.size == 0
-			&& dependent_items.size == 0
-			&& referrer_items.size == 0
+		if (dependency_items.length == 0
+			&& reference_items.length == 0
+			&& dependent_items.length == 0
+			&& referrer_items.length == 0
 			) {
 			Gtk.Label empty = new Gtk.Label(_("No direct dependencies or references."));
 			empty.set_xalign(0.0f);

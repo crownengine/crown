@@ -8,7 +8,7 @@ namespace Crown
 public class User
 {
 	// Data
-	public Hashtable _data;
+	public GLib.HashTable<string, Value?> _data;
 
 	// Signals
 	public signal void recent_project_added(string source_dir, string name, string time);
@@ -19,15 +19,15 @@ public class User
 	{
 	}
 
-	public void decode(Hashtable sjson)
+	public void decode(GLib.HashTable<string, Value?> sjson)
 	{
 		_data = sjson;
 
-		_data.foreach((ee) => {
-				if (ee.key == "recent_projects") {
-					var recent_projects = ee.value as Gee.ArrayList<Value?>;
-					for (int ii = 0; ii < recent_projects.size; ++ii) {
-						Hashtable rp = recent_projects[ii] as Hashtable;
+		_data.foreach((key, value) => {
+				if (key == "recent_projects") {
+					var recent_projects = value as GLib.GenericArray<Value?>;
+					for (int ii = 0; ii < recent_projects.length; ++ii) {
+						GLib.HashTable<string, Value?> rp = recent_projects[ii] as GLib.HashTable<string, Value?>;
 
 						recent_project_added((string)rp["source_dir"]
 							, (string)rp["name"]
@@ -35,14 +35,12 @@ public class User
 							);
 					}
 				} else {
-					logw("Unknown key: `%s`".printf(ee.key));
+					logw("Unknown key: `%s`".printf(key));
 				}
-
-				return true;
 			});
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
 		return _data;
 	}
@@ -50,7 +48,7 @@ public class User
 	public void load(string path)
 	{
 		try {
-			Hashtable sjson = SJSON.load_from_path(path);
+			GLib.HashTable<string, Value?> sjson = SJSON.load_from_path(path);
 			decode(sjson);
 		} catch (JsonSyntaxError e) {
 			loge(e.message);
@@ -68,34 +66,32 @@ public class User
 
 	public void add_or_touch_recent_project(string source_dir, string name)
 	{
-		Gee.ArrayList<Value?> recent_projects = null;
-		Hashtable? project = null;
+		GLib.GenericArray<Value?> recent_projects = null;
+		GLib.HashTable<string, Value?>? project = null;
 
-		_data.foreach ((ee) => {
-				if (ee.key == "recent_projects") {
-					recent_projects = ee.value as Gee.ArrayList<Value?>;
-					for (int ii = 0; ii < recent_projects.size; ++ii) {
-						Hashtable rp = recent_projects[ii] as Hashtable;
+		_data.foreach((key, value) => {
+				if (key == "recent_projects") {
+					recent_projects = value as GLib.GenericArray<Value?>;
+					for (int ii = 0; ii < recent_projects.length; ++ii) {
+						GLib.HashTable<string, Value?> rp = recent_projects[ii] as GLib.HashTable<string, Value?>;
 
 						if ((string)rp["source_dir"] == source_dir) {
 							project = rp;
-							return false; // break
+							break;
 						}
 					}
 				}
-
-				return true;
 			});
 
 		if (recent_projects == null) {
-			recent_projects = new Gee.ArrayList<Value?>();
+			recent_projects = new GLib.GenericArray<Value?>();
 			_data["recent_projects"] = recent_projects;
 		}
 
 		string mtime = new GLib.DateTime.now_utc().to_unix().to_string();
 
 		if (project == null) {
-			project = new Hashtable();
+			project = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 			project["name"]       = source_dir; // FIXME: store project name somewhere inside project directory
 			project["source_dir"] = source_dir;
 			project["mtime"]      = mtime;
@@ -109,21 +105,18 @@ public class User
 
 	public void remove_recent_project(string source_dir)
 	{
-		_data.foreach((ee) => {
-				if (ee.key == "recent_projects") {
-					var recent_projects = ee.value as Gee.ArrayList<Value?>;
-					var it = recent_projects.iterator();
-					for (var has_next = it.next(); has_next; has_next = it.next()) {
-						Hashtable rp = it.get() as Hashtable;
+		_data.foreach((key, value) => {
+				if (key == "recent_projects") {
+					var recent_projects = value as GLib.GenericArray<Value?>;
+					for (int i = 0; i < recent_projects.length; ++i) {
+						GLib.HashTable<string, Value?> rp = recent_projects[i] as GLib.HashTable<string, Value?>;
 						if ((string)rp["source_dir"] == source_dir) {
-							it.remove();
+							recent_projects.remove_index(i);
 							recent_project_removed(source_dir);
-							return false; // break
+							break;
 						}
 					}
 				}
-
-				return true;
 			});
 	}
 
@@ -131,15 +124,12 @@ public class User
 	{
 		int num = 0;
 
-		_data.foreach((ee) => {
-				if (ee.key == "recent_projects") {
-					var recent_projects = ee.value as Gee.ArrayList<Value?>;
+		_data.foreach((key, value) => {
+				if (key == "recent_projects") {
+					var recent_projects = value as GLib.GenericArray<Value?>;
 					if (recent_projects != null)
-						num = recent_projects.size;
-					return false; // break
+						num = recent_projects.length;
 				}
-
-				return true;
 			});
 
 		return num;

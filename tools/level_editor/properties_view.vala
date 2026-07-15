@@ -25,10 +25,10 @@ public class UnitView : PropertyGrid
 		Guid unit_id = _id;
 		Unit unit = Unit(_db, unit_id);
 
-		Gee.ArrayList<Guid?> components_added = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> components_added = new GLib.GenericArray<Guid?>();
 		unit.add_component_type_dependencies(ref components_added, component_type);
 
-		if (components_added.size > 0)
+		if (components_added.length > 0)
 			_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, { unit_id });
 	}
 
@@ -51,15 +51,14 @@ public class UnitView : PropertyGrid
 
 		// Construct 'add components' button.
 		GLib.Menu menu_model = new GLib.Menu();
-		GLib.MenuItem mi;
 
-		foreach (var entry in Unit._component_registry.entries) {
-			mi = new GLib.MenuItem(camel_case(entry.key), null);
+		Unit._component_registry.foreach((component_type, _value) => {
+			GLib.MenuItem mi = new GLib.MenuItem(camel_case(component_type), null);
 			mi.set_action_and_target_value("object.add-component"
-				, new GLib.Variant.string(entry.key)
+				, new GLib.Variant.string(component_type)
 				);
 			menu_model.append_item(mi);
-		}
+		});
 
 		_add_popover = new Gtk.Popover.from_model(null, menu_model);
 
@@ -116,8 +115,8 @@ public class PropertiesView : Gtk.Box
 
 	public DatabaseEditor _database_editor;
 	public Database _database;
-	public Gee.HashMap<string, bool> _expander_states;
-	public Gee.HashMap<string, PropertyGrid> _objects;
+	public GLib.HashTable<string, bool> _expander_states;
+	public GLib.HashTable<string, PropertyGrid> _objects;
 	public Gtk.Viewport _viewport;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public PropertyGridSet _object_view;
@@ -132,8 +131,8 @@ public class PropertiesView : Gtk.Box
 		_database_editor.selection_changed.connect(on_database_selection_changed);
 		_database = database_editor._database;
 
-		_expander_states = new Gee.HashMap<string, bool>();
-		_objects = new Gee.HashMap<string, PropertyGrid>();
+		_expander_states = new GLib.HashTable<string, bool>(GLib.str_hash, GLib.str_equal);
+		_objects = new GLib.HashTable<string, PropertyGrid>(GLib.str_hash, GLib.str_equal);
 
 		// Widgets
 		_object_view = new PropertyGridSet();
@@ -173,39 +172,35 @@ public class PropertiesView : Gtk.Box
 
 	public void show_unit(Guid id)
 	{
-		foreach (var entry in _objects)
-			_expander_states[entry.key] = entry.value._expander.expanded;
+		_objects.foreach((type, cv) => _expander_states[type] = cv._expander.expanded);
 
 		_stack.set_visible_child_name(PROPERTIES);
 
-		foreach (var entry in _objects) {
-			string type = entry.key;
-			PropertyGrid cv = entry.value;
+		_objects.foreach((type, cv) => {
+				bool was_expanded = _expander_states.contains(type) ? _expander_states[type] : false;
 
-			bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
+				Unit unit = Unit(_database, id);
+				Guid component_id;
+				if (unit.has_component(out component_id, type) || type == OBJECT_TYPE_UNIT) {
+					cv._id = id;
+					cv._component_id = component_id;
+					cv._visible = true;
+					cv.read_properties();
 
-			Unit unit = Unit(_database, id);
-			Guid component_id;
-			if (unit.has_component(out component_id, type) || type == OBJECT_TYPE_UNIT) {
-				cv._id = id;
-				cv._component_id = component_id;
-				cv._visible = true;
-				cv.read_properties();
+					if (component_id != GUID_ZERO) {
+						if (id == _database.owner(component_id))
+							cv._expander.get_style_context().remove_class("inherited");
+						else
+							cv._expander.get_style_context().add_class("inherited");
+					}
 
-				if (component_id != GUID_ZERO) {
-					if (id == _database.owner(component_id))
-						cv._expander.get_style_context().remove_class("inherited");
-					else
-						cv._expander.get_style_context().add_class("inherited");
+					cv._expander.expanded = was_expanded;
+				} else {
+					cv._visible = false;
+					cv._id = GUID_ZERO;
+					cv._component_id = GUID_ZERO;
 				}
-
-				cv._expander.expanded = was_expanded;
-			} else {
-				cv._visible = false;
-				cv._id = GUID_ZERO;
-				cv._component_id = GUID_ZERO;
-			}
-		}
+			});
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
@@ -213,30 +208,26 @@ public class PropertiesView : Gtk.Box
 
 	public void show_sound_source(Guid id)
 	{
-		foreach (var entry in _objects)
-			_expander_states[entry.key] = entry.value._expander.expanded;
+		_objects.foreach((type, cv) => _expander_states[type] = cv._expander.expanded);
 
 		_stack.set_visible_child_name(PROPERTIES);
 
-		foreach (var entry in _objects) {
-			string type = entry.key;
-			PropertyGrid cv = entry.value;
+		_objects.foreach((type, cv) => {
+				if (type == OBJECT_TYPE_SOUND_SOURCE) {
+					bool was_expanded = _expander_states.contains(type) ? _expander_states[type] : false;
 
-			if (type == OBJECT_TYPE_SOUND_SOURCE) {
-				bool was_expanded = _expander_states.has_key(type) ? _expander_states[type] : false;
+					cv._id = id;
+					cv._visible = true;
+					cv.read_properties();
 
-				cv._id = id;
-				cv._visible = true;
-				cv.read_properties();
-
-				cv._expander.show();
-				cv._expander.expanded = was_expanded;
-			} else {
-				cv._visible = false;
-				cv._id = GUID_ZERO;
-				cv._component_id = GUID_ZERO;
-			}
-		}
+					cv._expander.show();
+					cv._expander.expanded = was_expanded;
+				} else {
+					cv._visible = false;
+					cv._id = GUID_ZERO;
+					cv._component_id = GUID_ZERO;
+				}
+			});
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
@@ -246,11 +237,10 @@ public class PropertiesView : Gtk.Box
 	{
 		if (objects.length == 0) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
-			foreach (var obj in _objects) {
-				PropertyGrid cv = obj.value;
-				cv._id = GUID_ZERO;
-				cv._component_id = GUID_ZERO;
-			}
+			_objects.foreach((type, cv) => {
+					cv._id = GUID_ZERO;
+					cv._component_id = GUID_ZERO;
+				});
 			return;
 		}
 
@@ -273,12 +263,12 @@ public class PropertiesView : Gtk.Box
 
 	public void on_database_selection_changed()
 	{
-		Gee.ArrayList<Guid?> selection = _database_editor._selection;
+		GLib.GenericArray<Guid?> selection = _database_editor._selection;
 
-		if (selection.size == 0)
+		if (selection.length == 0)
 			set_objects({ GUID_ZERO });
 		else
-			set_objects({ selection.last() });
+			set_objects({ selection[selection.length - 1] });
 	}
 }
 

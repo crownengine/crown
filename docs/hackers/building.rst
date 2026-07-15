@@ -60,7 +60,7 @@ Linux (Ubuntu >= 20.04)
 	libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext
 
 	sudo add-apt-repository ppa:vala-team
-	sudo apt install valac libgee-0.8-dev
+	sudo apt install valac
 
 	# Optionally, to build docs:
 	sudo apt-get install python3-sphinx
@@ -98,7 +98,7 @@ Windows (MSYS2)
 
 	pacman -Sy make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf \
 	mingw-w64-x86_64-gtk3 mingw-w64-x86_64-sassc \
-	mingw-w64-x86_64-vala mingw-w64-x86_64-libgee gettext
+	mingw-w64-x86_64-vala gettext
 
     # Optionally, to build docs:
     pacman -Sy mingw-w64-x86_64-python-sphinx

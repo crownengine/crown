@@ -190,8 +190,7 @@ public class EditorViewport : Gtk.Bin
 
 	public void on_camera_frame_selected(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Guid?[] selected_objects = _database_editor._selection.to_array();
-		_runtime.send_script(LevelEditorApi.frame_objects(selected_objects));
+		_runtime.send_script(LevelEditorApi.frame_objects(_database_editor._selection.data));
 		frame();
 	}
 }

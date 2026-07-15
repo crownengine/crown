@@ -5,7 +5,7 @@
 
 namespace Crown
 {
-public static Gee.ArrayList<GLib.Subprocess?> subprocesses = null;
+public static GLib.GenericArray<GLib.Subprocess?> subprocesses = null;
 
 [DBus (name = "org.crownengine.SubprocessLauncherError")]
 public errordomain SubprocessLauncherError
@@ -50,7 +50,7 @@ public class SubprocessLauncherServer : Object
 	{
 		int ind = subprocess_index(process_id);
 
-		if (ind == subprocesses.size)
+		if (ind == subprocesses.length)
 			throw new SubprocessLauncherError.SUBPROCESS_NOT_FOUND("Process ID %u not found".printf(process_id));
 
 		try {
@@ -59,7 +59,7 @@ public class SubprocessLauncherServer : Object
 
 			if (subprocesses[ind].get_if_exited()) {
 				int exit_status = subprocesses[ind].get_exit_status();
-				subprocesses.remove_at(ind);
+				subprocesses.remove_index(ind);
 				return exit_status;
 			}
 		} catch (GLib.Error e) {
@@ -74,7 +74,7 @@ public class SubprocessLauncherServer : Object
 	{
 		int ind = subprocess_index(process_id);
 
-		if (ind == subprocesses.size)
+		if (ind == subprocesses.length)
 			throw new SubprocessLauncherError.SUBPROCESS_NOT_FOUND("Process ID %u not found".printf(process_id));
 
 		subprocesses[ind].force_exit();
@@ -83,7 +83,7 @@ public class SubprocessLauncherServer : Object
 	public int subprocess_index(uint32 process_id) throws GLib.Error
 	{
 		int ind;
-		for (ind = 0; ind < subprocesses.size; ++ind) {
+		for (ind = 0; ind < subprocesses.length; ++ind) {
 			uint32 id = subprocesses[ind].get_data<uint32>("id");
 			if (id == process_id)
 				break;
@@ -191,7 +191,7 @@ public static void wait_async_ready_callback(Object? source_object, AsyncResult 
 
 	// The last subprocess to exit quits the app.
 	subprocesses.remove(subproc);
-	if (subprocesses.size == 0) {
+	if (subprocesses.length == 0) {
 		loop.quit();
 	}
 }
@@ -202,7 +202,7 @@ public static void monitored_process_exited(GLib.Pid pid, int wait_status)
 	// Terminate any leftover subprocesses it spawned.
 	uint wait_timer_id = 0;
 	GLib.Cancellable cancellable = new GLib.Cancellable();
-	if (subprocesses.size > 0) {
+	if (subprocesses.length > 0) {
 		// Spawn a watchdog to cancel all wait_async() after a while.
 		uint interval_ms = 500;
 		wait_timer_id = GLib.Timeout.add(interval_ms, () => {
@@ -210,17 +210,17 @@ public static void monitored_process_exited(GLib.Pid pid, int wait_status)
 				return GLib.Source.REMOVE;
 			});
 
-		logi("Waiting %ums for %d subprocesses to terminate...".printf(interval_ms, subprocesses.size));
+		logi("Waiting %ums for %d subprocesses to terminate...".printf(interval_ms, subprocesses.length));
 	}
 
 	if (wait_timer_id > 0) {
 		// Wait asynchronously for children to terminate.
-		foreach (var subproc in subprocesses)
-			subproc.wait_async.begin(cancellable, wait_async_ready_callback);
+		for (int i = 0; i < subprocesses.length; ++i)
+			subprocesses[i].wait_async.begin(cancellable, wait_async_ready_callback);
 	} else {
 		// Force children to exit.
-		foreach (var subproc in subprocesses)
-			subproc.force_exit();
+		for (int i = 0; i < subprocesses.length; ++i)
+			subprocesses[i].force_exit();
 
 		loop.quit();
 	}
@@ -229,7 +229,7 @@ public static void monitored_process_exited(GLib.Pid pid, int wait_status)
 public static int launcher_main(string[] args)
 {
 	loop = new GLib.MainLoop(null, false);
-	subprocesses = new Gee.ArrayList<GLib.Subprocess?>();
+	subprocesses = new GLib.GenericArray<GLib.Subprocess?>();
 	GLib.Pid monitored_pid = 0;
 
 	for (int i = 0; i < args.length; ++i) {

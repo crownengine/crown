@@ -24,7 +24,7 @@ public class ThumbnailCache
 	public int _mip0_width;
 	public int _mip0_height;
 	public GLib.List<StringId64?> _list;
-	public Gee.HashMap<StringId64?, CacheEntry?> _map;
+	public GLib.HashTable<StringId64?, CacheEntry?> _map;
 	public uint _max_cache_size;
 	public bool _no_disk_cache; // Debug only: always go through server to get a thumbnail.
 	public bool _request_generation_enabled;
@@ -39,7 +39,7 @@ public class ThumbnailCache
 		_project = project;
 		_thumbnail = thumbnail;
 		_list = new GLib.List<StringId64?>();
-		_map = new Gee.HashMap<StringId64?, CacheEntry?>(StringId64.hash_func, StringId64.equal_func);
+		_map = new GLib.HashTable<StringId64?, CacheEntry?>(StringId64.hash_func, StringId64.equal_func);
 		_no_disk_cache = false;
 		_request_generation_enabled = true;
 
@@ -188,7 +188,7 @@ public class ThumbnailCache
 	public void reset(uint max_size)
 	{
 		_list = new GLib.List<StringId64?>(); // No clear?
-		_map.clear();
+		_map.remove_all();
 
 		double mip0_max_area = (double)max_size * (2.0/3.0); // Remaining 1/3 for mip 1, 2, ...
 		_mip0_width = (int)(Math.sqrt(mip0_max_area));
@@ -217,7 +217,7 @@ public class ThumbnailCache
 		CacheEntry? entry = null;
 
 		// Allocate a subpixbuf slot inside the atlas.
-		if (_map.has_key(resource_id)) {
+		if (_map.contains(resource_id)) {
 			entry = _map.get(resource_id);
 
 			// Set resource_id as most recently used entry.
@@ -234,7 +234,7 @@ public class ThumbnailCache
 				unowned List<StringId64?> lru = _list.nth(0);
 				// Reuse the subpixbuf from the evicted entry.
 				entry_id = _map.get(lru.data).id;
-				_map.unset(lru.data);
+				_map.remove(lru.data);
 				_list.remove_link(lru);
 			} else {
 				// Create a new subpixbuf if the entry is new.
