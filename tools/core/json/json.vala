@@ -33,7 +33,7 @@ public class JSON
 {
 	/// <summary>
 	///  Encodes the hashtable t in the JSON format. The hash table can
-	///  contain, numbers, bools, strings, ArrayLists and Hashtables.
+	///  contain, numbers, bools, strings, GenericArray and HashTable.
 	/// </summary>
 	public static string encode(Value? t) throws JsonWriteError
 	{
@@ -45,7 +45,7 @@ public class JSON
 
 	/// <summary>
 	/// Decodes a JSON bytestream into a hash table with numbers, bools, strings,
-	/// ArrayLists and Hashtables.
+	/// GenericArray and HashTable.
 	/// </summary>
 	public static Value? decode(uint8[] sjson) throws JsonSyntaxError
 	{
@@ -56,32 +56,32 @@ public class JSON
 	/// <summary>
 	/// Convenience function for loading a file.
 	/// </summary>
-	public static Hashtable load(string path) throws JsonSyntaxError
+	public static GLib.HashTable<string, Value?> load(string path) throws JsonSyntaxError
 	{
 		FileStream fs = FileStream.open(path, "rb");
 		if (fs == null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		// Get file size
 		fs.seek(0, FileSeek.END);
 		size_t size = fs.tell();
 		fs.rewind();
 		if (size == 0)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		// Read whole file
 		uint8[] bytes = new uint8[size];
 		size_t bytes_read = fs.read(bytes);
 		if (bytes_read != size)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
-		return decode(bytes) as Hashtable;
+		return (GLib.HashTable<string, Value?>)decode(bytes);
 	}
 
 	/// <summary>
 	/// Convenience function for saving a file.
 	/// </summary>
-	public static void save(Hashtable h, string path) throws JsonWriteError
+	public static void save(GLib.HashTable<string, Value?> h, string path) throws JsonWriteError
 	{
 		FileStream fs = FileStream.open(path, "wb");
 		if (fs == null)
@@ -117,10 +117,10 @@ public class JSON
 			builder.append_printf("%.17g", (double)o);
 		else if (o.holds(typeof(string)))
 			write_string((string)o, builder);
-		else if (o.holds(typeof(Gee.ArrayList)))
-			write_array((Gee.ArrayList)o, builder, indentation);
-		else if (o.holds(typeof(Hashtable)))
-			write_object((Hashtable)o, builder, indentation);
+		else if (o.holds(typeof(GLib.GenericArray)))
+			write_array((GLib.GenericArray<Value?>)o, builder, indentation);
+		else if (o.holds(typeof(GLib.HashTable)))
+			write_object((GLib.HashTable<string, Value?>)o, builder, indentation);
 		else
 			throw new JsonWriteError.BAD_VALUE("Unsupported value type '%s'".printf(o.type_name()));
 	}
@@ -143,30 +143,33 @@ public class JSON
 		builder.append_c('"');
 	}
 
-	static void write_array(Gee.ArrayList<Value?> a, StringBuilder builder, int indentation) throws JsonWriteError
+	static void write_array(GLib.GenericArray<Value?> a, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		bool write_comma = false;
 		builder.append("[ ");
-		foreach (Value? item in a) {
+		for (int i = 0; i < a.length; ++i) {
 			if (write_comma)
 				builder.append(", ");
-			write(item, builder, indentation + 1);
+			write(a[i], builder, indentation + 1);
 			write_comma = true;
 		}
 		builder.append("]");
 	}
 
-	static void write_object(Hashtable t, StringBuilder builder, int indentation) throws JsonWriteError
+	static void write_object(GLib.HashTable<string, Value?> t, StringBuilder builder, int indentation) throws JsonWriteError
 	{
 		builder.append_c('{');
 		bool write_comma = false;
-		foreach (var de in t.entries) {
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(t);
+		unowned string key;
+		unowned Value? value;
+		while (iter.next(out key, out value)) {
 			if (write_comma)
 				builder.append(", ");
 			write_new_line(builder, indentation);
-			write(de.key, builder, indentation);
+			write(key, builder, indentation);
 			builder.append(" : ");
-			write(de.value, builder, indentation);
+			write(value, builder, indentation);
 			write_comma = true;
 		}
 		write_new_line(builder, indentation);
@@ -226,9 +229,9 @@ public class JSON
 		return json[index];
 	}
 
-	static Hashtable parse_object(uint8[] json, ref int index) throws JsonSyntaxError
+	static GLib.HashTable<string, Value?> parse_object(uint8[] json, ref int index) throws JsonSyntaxError
 	{
-		Hashtable ht = new Hashtable();
+		GLib.HashTable<string, Value?> ht = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		consume(json, ref index, "{");
 		skip_whitespace(json, ref index);
 
@@ -244,9 +247,9 @@ public class JSON
 		return ht;
 	}
 
-	static Gee.ArrayList<Value?> parse_array(uint8[] json, ref int index) throws JsonSyntaxError
+	static GLib.GenericArray<Value?> parse_array(uint8[] json, ref int index) throws JsonSyntaxError
 	{
-		Gee.ArrayList<Value?> a = new Gee.ArrayList<Value?>();
+		GLib.GenericArray<Value?> a = new GLib.GenericArray<Value?>();
 		consume(json, ref index, "[");
 		while (next(json, ref index) != ']') {
 			Value? value = parse(json, ref index);
@@ -258,7 +261,7 @@ public class JSON
 
 	static uint8[] parse_binary(uint8[] json, ref int index) throws JsonSyntaxError
 	{
-		Gee.ArrayList<uint8> s = new Gee.ArrayList<uint8>();
+		GLib.ByteArray s = new GLib.ByteArray();
 
 		consume(json, ref index, "\"");
 		while (true) {
@@ -267,30 +270,30 @@ public class JSON
 			if (c == '"') {
 				break;
 			} else if (c != '\\') {
-				s.add(c);
+				s.append({ c });
 			} else {
 				uint8 q = json[index];
 				++index;
 				if (q == '"' || q == '\\' || q == '/')
-					s.add(q);
+					s.append({ q });
 				else if (q == 'b')
-					s.add('\b');
+					s.append({ '\b' });
 				else if (q == 'f')
-					s.add('\f');
+					s.append({ '\f' });
 				else if (q == 'n')
-					s.add('\n');
+					s.append({ '\n' });
 				else if (q == 'r')
-					s.add('\r');
+					s.append({ '\r' });
 				else if (q == 't')
-					s.add('\t');
+					s.append({ '\t' });
 				else if (q == 'u')
 					throw new JsonSyntaxError.BAD_STRING("Unsupported escape character 'u'");
 				else
 					throw new JsonSyntaxError.BAD_STRING("Bad string");
 			}
 		}
-		s.add('\0');
-		return s.to_array();
+		s.append({ '\0' });
+		return s.steal();
 	}
 
 	static string parse_string(uint8[] json, ref int index) throws JsonSyntaxError

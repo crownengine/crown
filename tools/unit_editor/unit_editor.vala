@@ -364,7 +364,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			if (sb.len > 0) {
 				_runtime.send_script(sb.str);
 				if (respawn_objects)
-					_runtime.send_script(LevelEditorApi.selection_set(_database_editor._selection.to_array()));
+					_runtime.send_script(LevelEditorApi.selection_set(_database_editor._selection.data));
 				_editor_viewport.frame();
 			}
 		}

@@ -8,38 +8,44 @@ namespace Crown
 public struct Mesh
 {
 	public Project _project;
-	public Gee.ArrayList<string> _nodes;
+	public GLib.GenericArray<string> _nodes;
 
 	public Mesh(Project project)
 	{
 		_project = project;
-		_nodes = new Gee.ArrayList<string>();
+		_nodes = new GLib.GenericArray<string>();
 	}
 
-	public void decode_node(Hashtable node)
+	public void decode_node(GLib.HashTable<string, Value?> node)
 	{
-		foreach (var e in node.entries) {
-			if (e.key == "matrix_local") {
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(node);
+		unowned string key;
+		unowned Value? value;
+		while (iter.next(out key, out value)) {
+			if (key == "matrix_local") {
 				// Do nothing.
-			} else if (e.key == "geometry") {
+			} else if (key == "geometry") {
 				// Do nothing.
-			} else if (e.key == "children") {
-				decode_nodes((Hashtable)e.value);
+			} else if (key == "children") {
+				decode_nodes((GLib.HashTable<string, Value?>)value);
 			}
 		}
 	}
 
-	public void decode_nodes(Hashtable nodes)
+	public void decode_nodes(GLib.HashTable<string, Value?> nodes)
 	{
-		foreach (var e in nodes.entries) {
-			_nodes.add(e.key);
-			decode_node((Hashtable)e.value);
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(nodes);
+		unowned string key;
+		unowned Value? value;
+		while (iter.next(out key, out value)) {
+			_nodes.add(key);
+			decode_node((GLib.HashTable<string, Value?>)value);
 		}
 	}
 
-	public void decode(Hashtable mesh)
+	public void decode(GLib.HashTable<string, Value?> mesh)
 	{
-		if (mesh.has_key("source")) {
+		if (mesh.contains("source")) {
 			ufbx.Error error = {};
 			ufbx.LoadOpts load_opts = {};
 			load_opts.ignore_all_content = true;
@@ -58,10 +64,13 @@ public struct Mesh
 					_nodes.add((string)node.name.data);
 			}
 		} else {
-			foreach (var e in mesh.entries) {
-				if (e.key == "nodes") {
-					decode_nodes((Hashtable)e.value);
-				} else if (e.key == "geometries") {
+			GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(mesh);
+			unowned string key;
+			unowned Value? value;
+			while (iter.next(out key, out value)) {
+				if (key == "nodes") {
+					decode_nodes((GLib.HashTable<string, Value?>)value);
+				} else if (key == "geometries") {
 					// Do nothing.
 				}
 			}

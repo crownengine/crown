@@ -14,7 +14,7 @@ namespace MeshResource
 		, string resource_name
 		, string import_path
 		, string node_name
-		, Hashtable node
+		, GLib.HashTable<string, Value?> node
 		)
 	{
 		Unit unit = Unit(db, unit_id);
@@ -26,7 +26,7 @@ namespace MeshResource
 		// can reuse the same unit and preserve component GUIDs.
 		db.set_string(unit_id, "editor.import_path", import_path);
 
-		Matrix4x4 matrix_local = Matrix4x4.from_array((Gee.ArrayList<Value?>)node["matrix_local"]);
+		Matrix4x4 matrix_local = Matrix4x4.from_array((GLib.GenericArray<Value?>)node["matrix_local"]);
 		Vector3 position = matrix_local.t.to_vector3();
 		Quaternion rotation = matrix_local.rotation();
 		Vector3 scale = matrix_local.scale();
@@ -93,22 +93,22 @@ namespace MeshResource
 		if (parent_unit_id != unit_id)
 			db.add_to_set(parent_unit_id, "children", unit_id);
 
-		if (node.has_key("children")) {
-			Hashtable children = (Hashtable)node["children"];
+		if (node.contains("children")) {
+			GLib.HashTable<string, Value?> children = (GLib.HashTable<string, Value?>)node["children"];
 
 			// Reuse only children that existed before this import, and assign each
 			// existing child to at most one imported node.
-			Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-			Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+			GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
+			GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
 				? db.get_set(unit_id, "children")
-				: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+				: guid_set_new()
 				;
 
-			foreach (var child in children.entries) {
-				string child_import_path = import_path + "/" + child.key;
+			children.foreach((child_name, child_value) => {
+				string child_import_path = import_path + "/" + child_name;
 				Guid child_unit_id = GUID_ZERO;
 
-				foreach (Guid child_id in old_children) {
+				foreach (Guid? child_id in old_children) {
 					if (matched_children.contains(child_id) || !db.is_alive(child_id))
 						continue;
 					if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
@@ -118,15 +118,15 @@ namespace MeshResource
 				}
 
 				if (child_unit_id == GUID_ZERO) {
-					foreach (Guid child_id in old_children) {
+					foreach (Guid? child_id in old_children) {
 						if (matched_children.contains(child_id) || !db.is_alive(child_id))
 							continue;
 
 						Unit child_unit = Unit(db, child_id);
 						Guid component_id = GUID_ZERO;
-						bool name_matches = db.name(child_id) == child.key;
+						bool name_matches = db.name(child_id) == child_name;
 						if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-							name_matches = child_unit.get_component_string(component_id, "data.name", "") == child.key;
+							name_matches = child_unit.get_component_string(component_id, "data.name", "") == child_name;
 
 						if (name_matches) {
 							child_unit_id = child_id;
@@ -145,10 +145,10 @@ namespace MeshResource
 					, material_name
 					, resource_name
 					, child_import_path
-					, child.key
-					, (Hashtable)child.value
+					, child_name
+					, (GLib.HashTable<string, Value?>)child_value
 					);
-			}
+			});
 		}
 	}
 
@@ -188,10 +188,10 @@ namespace MeshResource
 			}
 
 			try {
-				Hashtable mesh = SJSON.load_from_path(filename_i);
-				Hashtable mesh_nodes = (Hashtable)mesh["nodes"];
+				GLib.HashTable<string, Value?> mesh = SJSON.load_from_path(filename_i);
+				GLib.HashTable<string, Value?> mesh_nodes = (GLib.HashTable<string, Value?>)mesh["nodes"];
 
-				if (mesh_nodes.size > 1) {
+				if (mesh_nodes.length > 1) {
 					// Create an extra "root" unit to accommodate multiple root objects. This
 					// "root" unit will only have a transform centered at origin to allow other
 					// objects to be linked to it via the SceneGraph.
@@ -211,19 +211,19 @@ namespace MeshResource
 				}
 
 				Guid new_unit_id = unit_id;
-				Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-				Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+				GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
+				GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
 					? db.get_set(unit_id, "children")
-					: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+					: guid_set_new()
 					;
-				foreach (var entry in mesh_nodes.entries) {
-					string import_path = mesh_nodes.size > 1 ? "root/" + entry.key : "root";
-					if (mesh_nodes.size > 1) {
+				mesh_nodes.foreach((node_name, node_value) => {
+					string import_path = mesh_nodes.length > 1 ? "root/" + node_name : "root";
+					if (mesh_nodes.length > 1) {
 						// If the mesh contains multiple root objects, create a new unit for each
 						// one of those, otherwise put the components inside the base unit.
 						new_unit_id = GUID_ZERO;
 
-						foreach (Guid child_id in old_children) {
+						foreach (Guid? child_id in old_children) {
 							if (matched_children.contains(child_id) || !db.is_alive(child_id))
 								continue;
 							if (db.get_string(child_id, "editor.import_path", "") == import_path) {
@@ -233,15 +233,15 @@ namespace MeshResource
 						}
 
 						if (new_unit_id == GUID_ZERO) {
-							foreach (Guid child_id in old_children) {
+							foreach (Guid? child_id in old_children) {
 								if (matched_children.contains(child_id) || !db.is_alive(child_id))
 									continue;
 
 								Unit child_unit = Unit(db, child_id);
 								Guid component_id = GUID_ZERO;
-								bool name_matches = db.name(child_id) == entry.key;
+								bool name_matches = db.name(child_id) == node_name;
 								if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-									name_matches = child_unit.get_component_string(component_id, "data.name", "") == entry.key;
+									name_matches = child_unit.get_component_string(component_id, "data.name", "") == node_name;
 
 								if (name_matches) {
 									new_unit_id = child_id;
@@ -260,10 +260,10 @@ namespace MeshResource
 						, material_name
 						, resource_name
 						, import_path
-						, entry.key
-						, (Hashtable)entry.value
+						, node_name
+						, (GLib.HashTable<string, Value?>)node_value
 						);
-				}
+				});
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
 					return ImportResult.ERROR;

@@ -166,11 +166,11 @@ namespace DeviceApi
 		return "{\"type\":\"frame\"}";
 	}
 
-	public string refresh(Gee.ArrayList<Value?> resources)
+	public string refresh(GLib.GenericArray<Value?> resources)
 	{
 		StringBuilder sb = new StringBuilder();
-		foreach (var res in resources) {
-			sb.append("\"%s\",".printf((string)res));
+		for (int i = 0; i < resources.length; ++i) {
+			sb.append("\"%s\",".printf((string)resources[i]));
 		}
 
 		return "{\"type\":\"refresh\",\"list\":[%s]}".printf(sb.str);

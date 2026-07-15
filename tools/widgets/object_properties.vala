@@ -13,8 +13,8 @@ public class ObjectProperties : Gtk.Box
 
 	public DatabaseEditor _database_editor;
 	public Database _database;
-	public Gee.ArrayList<bool> _expanders_states;
-	public Gee.ArrayList<PropertyGrid> _grids;
+	public GLib.GenericArray<bool?> _expanders_states;
+	public GLib.GenericArray<PropertyGrid> _grids;
 	public Gtk.Viewport _viewport;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public PropertyGridSet _object_view;
@@ -27,8 +27,8 @@ public class ObjectProperties : Gtk.Box
 		_database_editor.selection_changed.connect(on_database_selection_changed);
 		_database = database_editor._database;
 
-		_expanders_states = new Gee.ArrayList<bool>();
-		_grids = new Gee.ArrayList<PropertyGrid>();
+		_expanders_states = new GLib.GenericArray<bool?>();
+		_grids = new GLib.GenericArray<PropertyGrid>();
 
 		// Widgets
 		_object_view = new PropertyGridSet();
@@ -58,7 +58,7 @@ public class ObjectProperties : Gtk.Box
 	{
 		if (id == GUID_ZERO) {
 			_stack.set_visible_child_name(NOTHING_TO_SHOW);
-			for (int i = 0; i < _grids.size; ++i) {
+			for (int i = 0; i < _grids.length; ++i) {
 				_grids[i]._id = GUID_ZERO;
 				_grids[i]._component_id = GUID_ZERO;
 			}
@@ -73,7 +73,7 @@ public class ObjectProperties : Gtk.Box
 		_stack.set_visible_child_name(PROPERTIES);
 
 		int num_found = 0;
-		for (int i = 0; i < _grids.size; ++i) {
+		for (int i = 0; i < _grids.length; ++i) {
 			PropertyGrid grid = _grids[i];
 
 			if (Guid.equal_func(grid._id, id)) {
@@ -101,11 +101,11 @@ public class ObjectProperties : Gtk.Box
 
 	public void on_database_selection_changed()
 	{
-		Gee.ArrayList<Guid?> selection = _database_editor._selection;
-		if (selection.size == 0)
+		GLib.GenericArray<Guid?> selection = _database_editor._selection;
+		if (selection.length == 0)
 			set_object(GUID_ZERO);
 		else
-			set_object(selection.last());
+			set_object(selection[selection.length - 1]);
 	}
 }
 

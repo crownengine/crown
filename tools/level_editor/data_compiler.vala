@@ -17,24 +17,24 @@ public class DataCompiler
 	public SourceFunc _delete_apply_callback;
 	public SourceFunc _move_preview_callback;
 	public SourceFunc _move_apply_callback;
-	public Gee.ArrayList<Value?> _refresh_list;
-	public Hashtable _dependencies;
-	public Hashtable _delete_preview;
-	public Hashtable _delete_apply;
-	public Hashtable _move_preview;
-	public Hashtable _move_apply;
+	public GLib.GenericArray<Value?> _refresh_list;
+	public GLib.HashTable<string, Value?> _dependencies;
+	public GLib.HashTable<string, Value?> _delete_preview;
+	public GLib.HashTable<string, Value?> _delete_apply;
+	public GLib.HashTable<string, Value?> _move_preview;
+	public GLib.HashTable<string, Value?> _move_apply;
 	public uint _revision;
 
 	public signal void start();
 	public signal void finished(bool success);
 
-	public void message(Hashtable msg)
+	public void message(GLib.HashTable<string, Value?> msg)
 	{
 		// Guid id = Guid.parse((string)msg["id"]);
 
-		if (msg.has_key("start")) {
+		if (msg.contains("start")) {
 			start();
-		} else if (msg.has_key("success")) {
+		} else if (msg.contains("success")) {
 			compile_finished((bool)msg["success"], (uint)(double)msg["revision"]);
 		}
 	}
@@ -86,10 +86,10 @@ public class DataCompiler
 	}
 
 	/// Returns the list of resources that have changed since @a since_revision.
-	public async Gee.ArrayList<Value?> refresh_list(uint since_revision)
+	public async GLib.GenericArray<Value?> refresh_list(uint since_revision)
 	{
 		if (_refresh_list_callback != null)
-			return new Gee.ArrayList<Value?>();
+			return new GLib.GenericArray<Value?>();
 
 		_runtime.send(DataCompilerApi.refresh_list(since_revision));
 		_refresh_list_callback = refresh_list.callback;
@@ -98,7 +98,7 @@ public class DataCompiler
 		return _refresh_list;
 	}
 
-	public void refresh_list_finished(Gee.ArrayList<Value?> resources)
+	public void refresh_list_finished(GLib.GenericArray<Value?> resources)
 	{
 		unowned GLib.SourceFunc callback = _refresh_list_callback;
 		_refresh_list_callback = null;
@@ -108,10 +108,10 @@ public class DataCompiler
 			callback();
 	}
 
-	public async Hashtable dependencies(string path)
+	public async GLib.HashTable<string, Value?> dependencies(string path)
 	{
 		if (_dependencies_callback != null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		_runtime.send(DataCompilerApi.dependencies(path));
 		_dependencies_callback = dependencies.callback;
@@ -120,7 +120,7 @@ public class DataCompiler
 		return _dependencies;
 	}
 
-	public void dependencies_finished(Hashtable dependencies)
+	public void dependencies_finished(GLib.HashTable<string, Value?> dependencies)
 	{
 		unowned GLib.SourceFunc callback = _dependencies_callback;
 		_dependencies_callback = null;
@@ -130,10 +130,10 @@ public class DataCompiler
 			callback();
 	}
 
-	public async Hashtable delete_preview(string[] paths)
+	public async GLib.HashTable<string, Value?> delete_preview(string[] paths)
 	{
 		if (_delete_preview_callback != null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		_runtime.send(DataCompilerApi.delete_preview(paths));
 		_delete_preview_callback = delete_preview.callback;
@@ -142,7 +142,7 @@ public class DataCompiler
 		return _delete_preview;
 	}
 
-	public void delete_preview_finished(Hashtable preview)
+	public void delete_preview_finished(GLib.HashTable<string, Value?> preview)
 	{
 		unowned GLib.SourceFunc callback = _delete_preview_callback;
 		_delete_preview_callback = null;
@@ -152,10 +152,10 @@ public class DataCompiler
 			callback();
 	}
 
-	public async Hashtable delete_apply(string[] paths, string[]? prune_dirs = null)
+	public async GLib.HashTable<string, Value?> delete_apply(string[] paths, string[]? prune_dirs = null)
 	{
 		if (_delete_apply_callback != null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		_runtime.send(DataCompilerApi.delete_apply(paths, prune_dirs));
 		_delete_apply_callback = delete_apply.callback;
@@ -164,7 +164,7 @@ public class DataCompiler
 		return _delete_apply;
 	}
 
-	public void delete_apply_finished(Hashtable apply)
+	public void delete_apply_finished(GLib.HashTable<string, Value?> apply)
 	{
 		unowned GLib.SourceFunc callback = _delete_apply_callback;
 		_delete_apply_callback = null;
@@ -174,10 +174,10 @@ public class DataCompiler
 			callback();
 	}
 
-	public async Hashtable move_preview(string[] from, string[] to)
+	public async GLib.HashTable<string, Value?> move_preview(string[] from, string[] to)
 	{
 		if (_move_preview_callback != null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		_runtime.send(DataCompilerApi.move_preview(from, to));
 		_move_preview_callback = move_preview.callback;
@@ -186,7 +186,7 @@ public class DataCompiler
 		return _move_preview;
 	}
 
-	public void move_preview_finished(Hashtable preview)
+	public void move_preview_finished(GLib.HashTable<string, Value?> preview)
 	{
 		unowned GLib.SourceFunc callback = _move_preview_callback;
 		_move_preview_callback = null;
@@ -196,10 +196,10 @@ public class DataCompiler
 			callback();
 	}
 
-	public async Hashtable move_apply(string[] from, string[] to, string[]? prune_dirs = null)
+	public async GLib.HashTable<string, Value?> move_apply(string[] from, string[] to, string[]? prune_dirs = null)
 	{
 		if (_move_apply_callback != null)
-			return new Hashtable();
+			return new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		_runtime.send(DataCompilerApi.move_apply(from, to, prune_dirs));
 		_move_apply_callback = move_apply.callback;
@@ -208,7 +208,7 @@ public class DataCompiler
 		return _move_apply;
 	}
 
-	public void move_apply_finished(Hashtable apply)
+	public void move_apply_finished(GLib.HashTable<string, Value?> apply)
 	{
 		unowned GLib.SourceFunc callback = _move_apply_callback;
 		_move_apply_callback = null;

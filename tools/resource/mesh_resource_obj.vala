@@ -94,7 +94,7 @@ namespace OBJImport
 		, string semantic_suffix
 		, TextureUsage usage
 		, bool preserve_alpha
-		, Gee.HashMap<string, string> imported_textures
+		, GLib.HashTable<string, string> imported_textures
 		)
 	{
 		resource_name = null;
@@ -135,7 +135,7 @@ namespace OBJImport
 		string? texture_resource_type    = ResourceId.type(texture_resource_path);
 		string source_image              = texture_source_name + "." + (texture_resource_type != null ? texture_resource_type : "png");
 
-		if (imported_textures.has_key(texture_resource_name) && !preserve_alpha) {
+		if (imported_textures.contains(texture_resource_name) && !preserve_alpha) {
 			resource_name = imported_textures[texture_resource_name];
 			return 0;
 		}
@@ -202,33 +202,31 @@ public class OBJImportOptions
 		tangents = "calculate";
 	}
 
-	public void decode(Hashtable json)
+	public void decode(GLib.HashTable<string, Value?> json)
 	{
-		json.foreach((g) => {
-				if (g.key == "import_textures")
-					import_textures = (bool)g.value;
-				else if (g.key == "create_textures_folder")
-					create_textures_folder = (bool)g.value;
-				else if (g.key == "import_materials")
-					import_materials = (bool)g.value;
-				else if (g.key == "create_materials_folder")
-					create_materials_folder = (bool)g.value;
-				else if (g.key == "create_colliders")
-					create_colliders = (bool)g.value;
-				else if (g.key == "import_lods")
-					import_lods = (bool)g.value;
-				else if (g.key == "tangents")
-					tangents = (string)g.value;
+		json.foreach((key, value) => {
+				if (key == "import_textures")
+					import_textures = (bool)value;
+				else if (key == "create_textures_folder")
+					create_textures_folder = (bool)value;
+				else if (key == "import_materials")
+					import_materials = (bool)value;
+				else if (key == "create_materials_folder")
+					create_materials_folder = (bool)value;
+				else if (key == "create_colliders")
+					create_colliders = (bool)value;
+				else if (key == "import_lods")
+					import_lods = (bool)value;
+				else if (key == "tangents")
+					tangents = (string)value;
 				else
-					logw("Unknown option '%s'".printf(g.key));
-
-				return true;
+					logw("Unknown option '%s'".printf(key));
 			});
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable obj = new Hashtable();
+		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		obj.set("import_textures", import_textures);
 		obj.set("create_textures_folder", import_textures ? create_textures_folder : false);
@@ -246,7 +244,7 @@ public class OBJImportDialog : Gtk.Window
 {
 	public Project _project;
 	public string _destination_dir;
-	public Gee.ArrayList<string> _filenames;
+	public GLib.GenericArray<string> _filenames;
 	public unowned Import _import_result;
 
 	public string _options_path;
@@ -277,7 +275,7 @@ public class OBJImportDialog : Gtk.Window
 	{
 		_project = database._project;
 		_destination_dir = destination_dir;
-		_filenames = new Gee.ArrayList<string>();
+		_filenames = new GLib.GenericArray<string>();
 		foreach (var f in filenames)
 			_filenames.add(f);
 		_import_result = import_result;
@@ -380,7 +378,7 @@ public class OBJImporter
 		, string resource_name
 		, string import_path
 		, ufbx.Node node
-		, Gee.HashMap<unowned ufbx.Material, string> imported_materials
+		, GLib.HashTable<unowned ufbx.Material, string> imported_materials
 		)
 	{
 		Vector3 pos = OBJImport.vector3(node.local_transform.translation);
@@ -430,7 +428,7 @@ public class OBJImporter
 						if (mesh_part.num_triangles > 0 && mesh_part.index < node.materials.data.length)
 							mesh_instance_material = node.materials.data[mesh_part.index];
 					}
-					if (mesh_instance_material != null && imported_materials.has_key(mesh_instance_material))
+					if (mesh_instance_material != null && imported_materials.contains(mesh_instance_material))
 						material_name = imported_materials[mesh_instance_material];
 
 					unit.set_component_string(component_id, "data.geometry_name", editor_name);
@@ -490,14 +488,14 @@ public class OBJImporter
 			if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
-					((Gee.HashSet<Guid?>)components).remove(component_id);
+					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
 			}
 
 			if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
-					((Gee.HashSet<Guid?>)components).remove(component_id);
+					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
 			}
 		}
@@ -507,12 +505,12 @@ public class OBJImporter
 
 		// Reuse only children that existed before this import, and assign each
 		// existing child to at most one imported node.
-		Gee.HashSet<Guid?> matched_children = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
-		Gee.HashSet<Guid?> old_children = db.has_property(unit_id, "children")
+		GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
 			? db.get_set(unit_id, "children")
-			: new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)
+			: guid_set_new()
 			;
-		Gee.ArrayList<Guid?> child_unit_ids = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> child_unit_ids = new GLib.GenericArray<Guid?>();
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
 			unowned ufbx.Node child_node = node.children.data[i];
@@ -525,7 +523,7 @@ public class OBJImporter
 				;
 			Guid child_unit_id = GUID_ZERO;
 
-			foreach (Guid child_id in old_children) {
+			foreach (Guid? child_id in old_children) {
 				if (matched_children.contains(child_id) || !db.is_alive(child_id))
 					continue;
 				if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
@@ -535,7 +533,7 @@ public class OBJImporter
 			}
 
 			if (child_unit_id == GUID_ZERO) {
-				foreach (Guid child_id in old_children) {
+				foreach (Guid? child_id in old_children) {
 					if (matched_children.contains(child_id)
 						|| !db.is_alive(child_id)
 						|| db.name(child_id) != child_editor_name
@@ -565,7 +563,7 @@ public class OBJImporter
 
 		if (options.import_lods) {
 			// Build one LOD group from sibling meshes named *_LOD0, *_LOD1, ...
-			for (int i = 0; i < child_unit_ids.size; ++i) {
+			for (int i = 0; i < child_unit_ids.length; ++i) {
 				unowned ufbx.Node child_node = node.children.data[i];
 				if (child_node.name.data.length == 0)
 					continue;
@@ -591,7 +589,7 @@ public class OBJImporter
 				for (int lod_i = 0; ; ++lod_i) {
 					Guid lod_unit_id = GUID_ZERO;
 					string lod_name = (base_name + "_lod" + lod_i.to_string()).down();
-					for (int ci = 0; ci < child_unit_ids.size; ++ci) {
+					for (int ci = 0; ci < child_unit_ids.length; ++ci) {
 						unowned ufbx.Node n = node.children.data[ci];
 						if (n.name.data.length == 0)
 							continue;
@@ -620,15 +618,16 @@ public class OBJImporter
 			if (unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
-					((Gee.HashSet<Guid?>)components).remove(component_id);
+					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
 			}
 		}
 	}
 
-	public static ImportResult do_import(OBJImportOptions options, Project project, string destination_dir, Gee.ArrayList<string> filenames)
+	public static ImportResult do_import(OBJImportOptions options, Project project, string destination_dir, GLib.GenericArray<string> filenames)
 	{
-		foreach (string filename_i in filenames) {
+		for (int fi = 0; fi < filenames.length; ++fi) {
+			string filename_i = filenames[fi];
 			string resource_path;
 			GLib.File file_dst;
 			GLib.File file_src = File.new_for_path(filename_i);
@@ -682,8 +681,8 @@ public class OBJImporter
 			}
 
 			Database db = new Database(project);
-			Gee.HashMap<string, string> imported_textures = new Gee.HashMap<string, string>();
-			Gee.HashMap<unowned ufbx.Material, string> imported_materials = new Gee.HashMap<unowned ufbx.Material, string>();
+			GLib.HashTable<string, string> imported_textures = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
+			GLib.HashTable<unowned ufbx.Material, string> imported_materials = new GLib.HashTable<unowned ufbx.Material, string>(GLib.direct_hash, GLib.direct_equal);
 
 			// Import materials.
 			if (options.import_materials) {
@@ -933,9 +932,9 @@ public class OBJImporter
 		return ImportResult.SUCCESS;
 	}
 
-	public static string? primary_resource_path(Project project, string destination_dir, Gee.ArrayList<string> filenames, ImportResult result)
+	public static string? primary_resource_path(Project project, string destination_dir, GLib.GenericArray<string> filenames, ImportResult result)
 	{
-		if (result != ImportResult.SUCCESS || filenames.size == 0)
+		if (result != ImportResult.SUCCESS || filenames.length == 0)
 			return null;
 
 		GLib.File file_dst;
@@ -951,7 +950,7 @@ public class OBJImporter
 		, OBJImportOptions options
 		, Project project
 		, string destination_dir
-		, Gee.ArrayList<string> filenames
+		, GLib.GenericArray<string> filenames
 		, string? options_path = null
 		)
 	{
@@ -969,7 +968,7 @@ public class OBJImporter
 
 	public static void import(Import import_result, Database database, string destination_dir, GLib.SList<string> filenames, Gtk.Window? parent_window)
 	{
-		Gee.ArrayList<string> obj_filenames = new Gee.ArrayList<string>();
+		GLib.GenericArray<string> obj_filenames = new GLib.GenericArray<string>();
 		foreach (unowned string filename in filenames)
 			obj_filenames.add(filename);
 

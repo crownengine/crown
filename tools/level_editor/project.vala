@@ -37,7 +37,7 @@ public class Project
 		public StringId32 name;
 		public string filter_name;
 		public unowned ImporterDelegate delegate;
-		public Gee.ArrayList<string> extensions;
+		public GLib.GenericArray<string> extensions;
 		public double order;
 		public Gtk.FileFilter? _filter;
 
@@ -46,7 +46,7 @@ public class Project
 			name = StringId32("");
 			filter_name = "";
 			delegate = null;
-			extensions = new Gee.ArrayList<string>();
+			extensions = new GLib.GenericArray<string>();
 			order = 0.0;
 			_filter = null;
 		}
@@ -55,8 +55,8 @@ public class Project
 		{
 			string e = extension.down();
 
-			foreach (var ext in extensions) {
-				if (e == ext)
+			for (int i = 0; i < extensions.length; ++i) {
+				if (e == extensions[i])
 					return true;
 			}
 
@@ -83,11 +83,11 @@ public class Project
 	public File _level_editor_test_package;
 	public string _platform;
 	public Database _files;
-	public Gee.HashMap<string, Guid?> _map;
+	public GLib.HashTable<string, Guid?> _map;
 	public ImporterData _all_extensions_importer_data;
-	public Gee.ArrayList<ImporterData?> _importers;
+	public GLib.GenericArray<ImporterData?> _importers;
 	public bool _data_compiled;
-	public Hashtable _data_index;
+	public GLib.HashTable<string, Value?> _data_index;
 	public int _flags;
 
 	public signal void file_added(string type, string name, uint64 size, uint64 mtime);
@@ -107,13 +107,13 @@ public class Project
 		_platform = "linux";
 #endif
 		_files = new Database(this);
-		_map = new Gee.HashMap<string, Guid?>();
+		_map = new GLib.HashTable<string, Guid?>(GLib.str_hash, GLib.str_equal);
 		_all_extensions_importer_data = ImporterData();
 		_all_extensions_importer_data.name = StringId32("all");
 		_all_extensions_importer_data.delegate = import_all_extensions;
-		_importers = new Gee.ArrayList<ImporterData?>();
+		_importers = new GLib.GenericArray<ImporterData?>();
 		_data_compiled = false;
-		_data_index = new Hashtable();
+		_data_index = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 	}
 
 	public void data_compiled()
@@ -132,7 +132,7 @@ public class Project
 	{
 		var path = ResourceId.path(type, name);
 
-		if (!_map.has_key(path)) {
+		if (!_map.contains(path)) {
 			logw("mtime: map does not contain path: %s".printf(path));
 			return 0;
 		}
@@ -145,7 +145,7 @@ public class Project
 	public void reset_files()
 	{
 		_files.reset();
-		_map.clear();
+		_map.remove_all();
 
 		files_reset();
 	}
@@ -610,7 +610,7 @@ public class Project
 
 	public void change_file(string path, uint64 size, uint64 mtime)
 	{
-		if (!_map.has_key(path)) {
+		if (!_map.contains(path)) {
 			logw("change_file: map does not contain path: %s".printf(path));
 			return;
 		}
@@ -629,7 +629,7 @@ public class Project
 
 	public void remove_file(string path)
 	{
-		if (!_map.has_key(path)) {
+		if (!_map.contains(path)) {
 			logw("remove_file: map does not contain path: %s".printf(path));
 			return;
 		}
@@ -640,7 +640,7 @@ public class Project
 		_files.remove_from_set(GUID_ZERO, "data", id);
 		_files.destroy(id);
 
-		_map.unset(path);
+		_map.remove(path);
 	}
 
 	public void add_tree(string path)
@@ -682,7 +682,7 @@ public class Project
 	{
 		Project project = database._project;
 
-		Gee.ArrayList<string> paths = new Gee.ArrayList<string>();
+		GLib.GenericArray<string> paths = new GLib.GenericArray<string>();
 		foreach (var item in filenames)
 			paths.add(item);
 
@@ -692,7 +692,7 @@ public class Project
 				return strcmp(a[ext_a: a.length], b[ext_b: b.length]);
 			});
 
-		while (paths.size != 0) {
+		while (paths.length != 0) {
 			// Find importer for the first file in the list of selected filenames.
 			ImporterData? importer = project.find_importer_for_path(paths[0]);
 			if (importer == null) {
@@ -701,28 +701,28 @@ public class Project
 			}
 
 			// Create the list of all filenames importable by importer.
-			Gee.ArrayList<string> importables = new Gee.ArrayList<string>();
-			var cur = paths.list_iterator();
-			for (var has_next = cur.next(); has_next; has_next = cur.next()) {
-				string path = paths[cur.index()];
-
+			GLib.GenericArray<string> importables = new GLib.GenericArray<string>();
+			for (int i = 0; i < paths.length; ) {
+				string path = paths[i];
 				if (importer.can_import_extension(path_extension(path))) {
 					importables.add(path);
-					cur.remove();
+					paths.remove_index(i);
+				} else {
+					++i;
 				}
 			}
 
 			// If importables is empty, filenames must have been filled with
 			// un-importable filenames...
-			if (importables.size == 0) {
+			if (importables.length == 0) {
 				import_result(ImportResult.ERROR);
 				return;
 			}
 
 			// Convert importables to SList<string> to be used as delegate param.
 			SList<string> importables_list = new SList<string>();
-			foreach (var item in importables)
-				importables_list.append(item);
+			for (int i = 0; i < importables.length; ++i)
+				importables_list.append(importables[i]);
 
 			importer.delegate(import_result, database, destination_dir, importables_list, parent_window);
 		}
@@ -744,12 +744,13 @@ public class Project
 	}
 
 	// Returns a Gtk.FileFilter based on file @a extensions list.
-	public Gtk.FileFilter create_gtk_file_filter(string name, Gee.ArrayList<string> extensions)
+	public Gtk.FileFilter create_gtk_file_filter(string name, GLib.GenericArray<string> extensions)
 	{
 		Gtk.FileFilter filter = new Gtk.FileFilter();
 
 		string extensions_comma_separated = "";
-		foreach (var ext in extensions) {
+		for (int i = 0; i < extensions.length; ++i) {
+			string ext = extensions[i];
 			extensions_comma_separated += "*.%s, ".printf(ext);
 			FileFilterFuncData data = new FileFilterFuncData(ext);
 			filter.add_custom(Gtk.FileFilterFlags.FILENAME, data.handler);
@@ -767,8 +768,9 @@ public class Project
 		_importers.sort((a, b) => { return a.order < b.order ? -1 : 1; });
 
 		// Skip duplicated extensions.
-		foreach (string ext in data.extensions) {
-			if (!_all_extensions_importer_data.extensions.contains(ext))
+		for (int i = 0; i < data.extensions.length; ++i) {
+			string ext = data.extensions[i];
+			if (!_all_extensions_importer_data.extensions.find_with_equal_func(ext, GLib.str_equal))
 				_all_extensions_importer_data.extensions.add(ext);
 		}
 
@@ -782,7 +784,8 @@ public class Project
 	{
 		ImporterData data = ImporterData();
 		data.delegate = importer;
-		data.extensions.add_all_array(extensions);
+		foreach (string extension in extensions)
+			data.extensions.add(extension);
 		data.order = order;
 
 		register_importer_internal(name, ref data);
@@ -792,7 +795,8 @@ public class Project
 	// with the specified @a extension.
 	public ImporterData? find_importer_for_extension(string extension)
 	{
-		foreach (var imp in _importers) {
+		for (int i = 0; i < _importers.length; ++i) {
+			ImporterData? imp = _importers[i];
 			if (imp.can_import_extension(extension))
 				return imp;
 		}
@@ -802,7 +806,8 @@ public class Project
 
 	public ImporterData? find_importer_for_name(StringId32 name)
 	{
-		foreach (var imp in _importers) {
+		for (int i = 0; i < _importers.length; ++i) {
+			ImporterData? imp = _importers[i];
 			if (StringId32.equal_func(imp.name, name))
 				return imp;
 		}
@@ -935,7 +940,8 @@ public class Project
 				_all_extensions_importer_data._filter = create_gtk_file_filter("All", _all_extensions_importer_data.extensions);
 			fcd.add_filter(_all_extensions_importer_data._filter);
 			fcd.set_filter(_all_extensions_importer_data._filter);
-			foreach (var importer in _importers) {
+			for (int i = 0; i < _importers.length; ++i) {
+				ImporterData? importer = _importers[i];
 				if (importer._filter == null)
 					importer._filter = create_gtk_file_filter(importer.filter_name, importer.extensions);
 				fcd.add_filter(importer._filter);
@@ -948,7 +954,8 @@ public class Project
 
 						// Find importer callback.
 						selected_importer_name = _all_extensions_importer_data.name;
-						foreach (var imp in _importers) {
+						for (int i = 0; i < _importers.length; ++i) {
+							ImporterData? imp = _importers[i];
 							if (imp._filter == fcd.get_filter() && imp.can_import_filenames(filenames)) {
 								selected_importer_name = imp.name;
 								break;

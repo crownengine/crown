@@ -19,8 +19,8 @@ public class Level
 	// Data
 	public Database _db;
 
-	public Gee.HashMap<string, uint> _unit_names;
-	public Gee.HashMap<string, uint> _sound_names;
+	public GLib.HashTable<string, uint> _unit_names;
+	public GLib.HashTable<string, uint> _sound_names;
 
 	public string _name;
 	public string _path;
@@ -36,8 +36,8 @@ public class Level
 		// Data
 		_db = db;
 
-		_unit_names = new Gee.HashMap<string, uint>();
-		_sound_names = new Gee.HashMap<string, uint>();
+		_unit_names = new GLib.HashTable<string, uint>(GLib.str_hash, GLib.str_equal);
+		_sound_names = new GLib.HashTable<string, uint>(GLib.str_hash, GLib.str_equal);
 
 		reset();
 	}
@@ -47,8 +47,8 @@ public class Level
 	{
 		_db.reset();
 
-		_unit_names.clear();
-		_sound_names.clear();
+		_unit_names.remove_all();
+		_sound_names.remove_all();
 
 		_name = null;
 		_path = null;
@@ -147,12 +147,12 @@ public class Level
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_id });
 	}
 
-	public string add_object_name(Gee.HashMap<string, uint> names, string resource_name)
+	public string add_object_name(GLib.HashTable<string, uint> names, string resource_name)
 	{
 		string basename = GLib.Path.get_basename(resource_name);
 		uint num = 0;
 
-		if (!names.has_key(basename)) {
+		if (!names.contains(basename)) {
 			names[basename] = 1;
 		} else {
 			num = names[basename];
@@ -225,7 +225,7 @@ public class Level
 
 	public Guid?[] filter_runtime_selection(Guid?[] selection)
 	{
-		Gee.ArrayList<Guid?> filtered = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> filtered = new GLib.GenericArray<Guid?>();
 
 		foreach (Guid? id in selection) {
 			if (!_db.has_object(id))
@@ -237,7 +237,7 @@ public class Level
 			filtered.add(id);
 		}
 
-		return filtered.to_array();
+		return filtered.steal();
 	}
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)
@@ -280,34 +280,36 @@ public class Level
 
 	public void send_level()
 	{
-		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
-		Gee.ArrayList<Guid?> sound_ids = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> unit_ids = new GLib.GenericArray<Guid?>();
+		GLib.GenericArray<Guid?> sound_ids = new GLib.GenericArray<Guid?>();
 		units(ref unit_ids);
 		sounds(ref sound_ids);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(LevelEditorApi.reset());
-		Unit.generate_spawn_unit_commands(sb, unit_ids.to_array(), _db);
-		Sound.generate_spawn_sound_commands(sb, sound_ids.to_array(), _db);
+		Unit.generate_spawn_unit_commands(sb, unit_ids.data, _db);
+		Sound.generate_spawn_sound_commands(sb, sound_ids.data, _db);
 		sb.append(LevelEditorApi.spawn_skydome(_db.get_resource(_id, "skydome_unit", "core/units/skydome/skydome")));
 		_runtime.send_script(sb.str);
 
 		send_camera();
 	}
 
-	public void units(ref Gee.ArrayList<Guid?> ids)
+	public void units(ref GLib.GenericArray<Guid?> ids)
 	{
-		Gee.HashSet<Guid?> units = _db.get_set(_id, "units", new Gee.HashSet<Guid?>());
-		ids.add_all(units);
+		GLib.GenericSet<Guid?> units = _db.get_set(_id, "units");
+		foreach (Guid? id in units)
+			ids.add(id);
 	}
 
-	public void sounds(ref Gee.ArrayList<Guid?> ids)
+	public void sounds(ref GLib.GenericArray<Guid?> ids)
 	{
-		Gee.HashSet<Guid?> sounds = _db.get_set(_id, "sounds", new Gee.HashSet<Guid?>());
-		ids.add_all(sounds);
+		GLib.GenericSet<Guid?> sounds = _db.get_set(_id, "sounds");
+		foreach (Guid? id in sounds)
+			ids.add(id);
 	}
 
-	public void objects(ref Gee.ArrayList<Guid?> ids)
+	public void objects(ref GLib.GenericArray<Guid?> ids)
 	{
 		units(ref ids);
 		sounds(ref ids);
@@ -323,10 +325,10 @@ public class Level
 			));
 	}
 
-	public void on_camera(Hashtable msg)
+	public void on_camera(GLib.HashTable<string, Value?> msg)
 	{
-		_db.set(0, _id, "editor.camera.position", Vector3.from_array((Gee.ArrayList<Value?>)msg["position"]));
-		_db.set(0, _id, "editor.camera.rotation", Quaternion.from_array((Gee.ArrayList<Value?>)msg["rotation"]));
+		_db.set(0, _id, "editor.camera.position", Vector3.from_array((GLib.GenericArray<Value?>)msg["position"]));
+		_db.set(0, _id, "editor.camera.rotation", Quaternion.from_array((GLib.GenericArray<Value?>)msg["rotation"]));
 		_db.set(0, _id, "editor.camera.orthographic_size", (double)msg["orthographic_size"]);
 		_db.set(0, _id, "editor.camera.target_distance", (double)msg["target_distance"]);
 	}

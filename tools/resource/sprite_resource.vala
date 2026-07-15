@@ -70,7 +70,7 @@ public class SpriteImportOptions
 		mass = 10.0;
 	}
 
-	public void decode(Hashtable obj)
+	public void decode(GLib.HashTable<string, Value?> obj)
 	{
 		cells = Vector2((double)obj["num_h"], (double)obj["num_v"]);
 		cell = Vector2((double)obj["cell_w"], (double)obj["cell_h"]);
@@ -83,23 +83,23 @@ public class SpriteImportOptions
 		collision_xy = Vector2((double)obj["collision_x"], (double)obj["collision_y"]);
 		collision_wh = Vector2((double)obj["collision_w"], (double)obj["collision_h"]);
 
-		circle_collision_center = Vector2(obj.has_key("circle_collision_center_x") ? (double)obj["circle_collision_center_x"] : cell.x/2.0, obj.has_key("circle_collision_center_y") ? (double)obj["circle_collision_center_y"] : cell.y/2.0);
-		circle_collision_radius = obj.has_key("circle_collision_radius") ? (double)obj["circle_collision_radius"] : 32;
+		circle_collision_center = Vector2(obj.contains("circle_collision_center_x") ? (double)obj["circle_collision_center_x"] : cell.x/2.0, obj.contains("circle_collision_center_y") ? (double)obj["circle_collision_center_y"] : cell.y/2.0);
+		circle_collision_radius = obj.contains("circle_collision_radius") ? (double)obj["circle_collision_radius"] : 32;
 
-		capsule_collision_center = Vector2(obj.has_key("capsule_collision_center_x") ? (double)obj["capsule_collision_center_x"] : cell.x/2.0, obj.has_key("capsule_collision_center_y") ? (double)obj["capsule_collision_center_y"] : cell.y/2.0);
-		capsule_collision_radius = obj.has_key("capsule_collision_radius") ? (double)obj["capsule_collision_radius"] : 32;
-		capsule_collision_height = obj.has_key("capsule_collision_height") ? (double)obj["capsule_collision_height"] : 64;
+		capsule_collision_center = Vector2(obj.contains("capsule_collision_center_x") ? (double)obj["capsule_collision_center_x"] : cell.x/2.0, obj.contains("capsule_collision_center_y") ? (double)obj["capsule_collision_center_y"] : cell.y/2.0);
+		capsule_collision_radius = obj.contains("capsule_collision_radius") ? (double)obj["capsule_collision_radius"] : 32;
+		capsule_collision_height = obj.contains("capsule_collision_height") ? (double)obj["capsule_collision_height"] : 64;
 
-		shape_active_name = obj.has_key("shape_active_name") ? ((string)obj["shape_active_name"]).dup() : "square_collider";
-		actor_class = obj.has_key("actor_class") ? ((string)obj["actor_class"]).dup() : "static";
-		lock_rotation_z = obj.has_key("lock_rotation_z") ? (bool)obj["lock_rotation_z"] : true;
-		mass = obj.has_key("mass") ? (double)obj["mass"] : 10.0;
+		shape_active_name = obj.contains("shape_active_name") ? ((string)obj["shape_active_name"]).dup() : "square_collider";
+		actor_class = obj.contains("actor_class") ? ((string)obj["actor_class"]).dup() : "static";
+		lock_rotation_z = obj.contains("lock_rotation_z") ? (bool)obj["lock_rotation_z"] : true;
+		mass = obj.contains("mass") ? (double)obj["mass"] : 10.0;
 		options_loaded = true;
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable obj = new Hashtable();
+		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		obj["num_h"]                      = cells.x;
 		obj["num_v"]                      = cells.y;

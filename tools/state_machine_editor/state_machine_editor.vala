@@ -26,8 +26,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public Gtk.Box _box;
 	public Gtk.Box _events_box;
 	public Gtk.Box _variables_box;
-	public Gee.HashMap<string, Gtk.Button> _event_buttons;
-	public Gee.HashMap<string, Gtk.Box> _variable_sliders;
+	public GLib.HashTable<string, Gtk.Button> _event_buttons;
+	public GLib.HashTable<string, Gtk.Box> _variable_sliders;
 	public InputResource _unit;
 
 	public string _state_machine_name;
@@ -150,8 +150,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_variables_box.set_size_request(200, -1);
 		_editor_viewport._overlay.add_overlay(_variables_box);
 
-		_event_buttons = new Gee.HashMap<string, Gtk.Button>();
-		_variable_sliders = new Gee.HashMap<string, Gtk.Box>();
+		_event_buttons = new GLib.HashTable<string, Gtk.Button>(GLib.str_hash, GLib.str_equal);
+		_variable_sliders = new GLib.HashTable<string, Gtk.Box>(GLib.str_hash, GLib.str_equal);
 
 		_unit = new InputResource(OBJECT_TYPE_UNIT, _database);
 		_unit.halign = Gtk.Align.START;
@@ -425,9 +425,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void destroy_event_buttons()
 	{
-		foreach (var button in _event_buttons)
-			button.value.destroy();
-		_event_buttons.clear();
+		_event_buttons.foreach((name, button) => button.destroy());
+		_event_buttons.remove_all();
 	}
 
 	public void create_event_buttons()
@@ -446,13 +445,12 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 					continue;
 
 				string event_name = _database.get_string(transition, "event");
-				if (!_event_buttons.has_key(event_name))
+				if (!_event_buttons.contains(event_name))
 					_event_buttons.set(event_name, create_trigger_event_button(transition, event_name));
 			}
 		}
 
-		foreach (var button in _event_buttons)
-			_events_box.pack_start(button.value);
+		_event_buttons.foreach((name, button) => _events_box.pack_start(button));
 		_events_box.show_all();
 	}
 
@@ -467,9 +465,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void destroy_variable_sliders()
 	{
-		foreach (var slider in _variable_sliders)
-			slider.value.destroy();
-		_variable_sliders.clear();
+		_variable_sliders.foreach((name, slider) => slider.destroy());
+		_variable_sliders.remove_all();
 	}
 
 	public void create_variable_sliders()
@@ -483,7 +480,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 				continue;
 
 			string variable_name = _database.get_string(variable, "name");
-			if (!_variable_sliders.has_key(variable_name)) {
+			if (!_variable_sliders.contains(variable_name)) {
 				double min_value = _database.get_double(variable, "min");
 				double max_value = _database.get_double(variable, "max");
 				double current_value = _database.get_double(variable, "value");
@@ -492,8 +489,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		foreach (var slider in _variable_sliders)
-			_variables_box.pack_start(slider.value);
+		_variable_sliders.foreach((name, slider) => _variables_box.pack_start(slider));
 		_variables_box.show_all();
 	}
 

@@ -17,7 +17,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 	}
 
 	public Database _db;
-	public Gee.ArrayList<Guid?> _objects;
+	public GLib.GenericArray<Guid?> _objects;
 	public int _stamp;
 
 	public DatabaseModel(Database db)
@@ -25,7 +25,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 		assert(db != null);
 
 		_db = db;
-		_objects = new Gee.ArrayList<Guid?>(Guid.equal_func);
+		_objects = new GLib.GenericArray<Guid?>();
 		_stamp = (int)GLib.Random.next_int() | 1;
 
 		populate();
@@ -37,8 +37,9 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 
 	public void populate()
 	{
-		_objects.clear();
-		_objects.add_all_array(_db.all_objects_of_type(OBJECT_TYPE_ANY));
+		_objects.length = 0;
+		foreach (Guid? id in _db.all_objects_of_type(OBJECT_TYPE_ANY))
+			_objects.add(id);
 	}
 
 	public Gtk.TreeModelFlags get_flags()
@@ -71,7 +72,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 		unowned int[] indices = path.get_indices();
 		int idx = indices[0];
 
-		if (idx < 0 || idx >= _objects.size)
+		if (idx < 0 || idx >= _objects.length)
 			return false;
 
 		iter.stamp = _stamp;
@@ -85,7 +86,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 			return null;
 
 		int idx = (int)((ulong)iter.user_data);
-		if (idx < 0 || idx >= _objects.size)
+		if (idx < 0 || idx >= _objects.length)
 			return null;
 
 		var path = new Gtk.TreePath();
@@ -101,7 +102,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 			return;
 
 		int idx = (int)((ulong)iter.user_data);
-		if (idx < 0 || idx >= _objects.size)
+		if (idx < 0 || idx >= _objects.length)
 			return;
 
 		Guid id = _objects[idx];
@@ -138,7 +139,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 		}
 
 		int idx = (int)((ulong)iter.user_data);
-		if (idx + 1 >= _objects.size) {
+		if (idx + 1 >= _objects.length) {
 			iter = Gtk.TreeIter();
 			return false;
 		}
@@ -170,7 +171,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 		if (parent != null)
 			return false;
 
-		if (_objects.size == 0)
+		if (_objects.length == 0)
 			return false;
 
 		iter.stamp = _stamp;
@@ -185,7 +186,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 
 	public int iter_n_children(Gtk.TreeIter? iter)
 	{
-		return (iter == null) ? _objects.size : 0;
+		return (iter == null) ? _objects.length : 0;
 	}
 
 	public bool iter_nth_child(out Gtk.TreeIter iter, Gtk.TreeIter? parent, int n)
@@ -194,7 +195,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 		if (parent != null)
 			return false;
 
-		if (n < 0 || n >= _objects.size)
+		if (n < 0 || n >= _objects.length)
 			return false;
 
 		iter.stamp = _stamp;
@@ -218,18 +219,18 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 
 	public void append_new_alive_objects()
 	{
-		int old_size = _objects.size;
+		int old_size = _objects.length;
 		Guid?[] ids = _db.all_objects_of_type(OBJECT_TYPE_ANY);
 
 		foreach (var id in ids) {
-			if (id != null && !_objects.contains(id))
+			if (id != null && !_objects.find_with_equal_func(id, Guid.equal_func))
 				_objects.add(id);
 		}
 
-		if (old_size == _objects.size)
+		if (old_size == _objects.length)
 			return;
 
-		for (int i = old_size; i < _objects.size; i++) {
+		for (int i = old_size; i < _objects.length; i++) {
 			Gtk.TreePath path = new Gtk.TreePath.from_indices(i);
 			Gtk.TreeIter iter = Gtk.TreeIter();
 			iter.stamp = _stamp;
@@ -240,20 +241,21 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 
 	public void remove_dead_objects()
 	{
-		var indices = new Gee.ArrayList<int>();
-		var alive = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		var indices = new GLib.GenericArray<int?>();
+		var alive = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 		foreach (var id in _db.all_objects_of_type(OBJECT_TYPE_ANY))
 			alive.add(id);
 
-		for (int i = 0; i < _objects.size; ++i) {
+		for (int i = 0; i < _objects.length; ++i) {
 			if (!alive.contains(_objects[i]))
 				indices.add(i);
 		}
 
 		indices.sort((a, b) => b - a);
 
-		foreach (int idx in indices) {
-			_objects.remove_at(idx);
+		for (int i = 0; i < indices.length; ++i) {
+			int idx = (int)indices[i];
+			_objects.remove_index(idx);
 			Gtk.TreePath path = new Gtk.TreePath.from_indices(idx);
 			row_deleted(path);
 		}
@@ -275,8 +277,8 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 			if (id == null)
 				continue;
 
-			int idx = _objects.index_of(id);
-			if (idx >= 0) {
+			uint idx;
+			if (_objects.find_with_equal_func(id, Guid.equal_func, out idx)) {
 				Gtk.TreePath path = new Gtk.TreePath.from_indices(idx);
 				Gtk.TreeIter iter = Gtk.TreeIter();
 				iter.stamp = _stamp;

@@ -17,15 +17,15 @@ public struct Vector2
 		this.y = y;
 	}
 
-	public Vector2.from_array(Gee.ArrayList<Value?> arr)
+	public Vector2.from_array(GLib.GenericArray<Value?> arr)
 	{
 		this.x = (double)arr[0];
 		this.y = (double)arr[1];
 	}
 
-	public Gee.ArrayList<Value?> to_array()
+	public GLib.GenericArray<Value?> to_array()
 	{
-		Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+		GLib.GenericArray<Value?> arr = new GLib.GenericArray<Value?>();
 		arr.add(this.x);
 		arr.add(this.y);
 		return arr;

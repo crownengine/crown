@@ -339,7 +339,7 @@ public class ObjectTree : Gtk.Box
 
 		ItemType item_type = ItemType.OBJECT;
 
-		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> ids = new GLib.GenericArray<Guid?>();
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value val;
 
@@ -352,8 +352,8 @@ public class ObjectTree : Gtk.Box
 				}
 			});
 
-		if (ids.size > 0)
-			_database_editor.selection_set(ids.to_array());
+		if (ids.length > 0)
+			_database_editor.selection_set(ids.data);
 
 		_database_editor.selection_changed.connect(on_tree_selection_changed);
 	}
@@ -431,8 +431,7 @@ public class ObjectTree : Gtk.Box
 
 			// Insert the set's content.
 			if (_database.has_property(id, def.name)) {
-				Gee.HashSet<Guid?> deffault_set = new Gee.HashSet<Guid?>();
-				Gee.HashSet<Guid?> children = _database.get_set(id, def.name, deffault_set);
+				GLib.GenericSet<Guid?> children = _database.get_set(id, def.name);
 				foreach (var child_id in children) {
 					if (!_database.is_alive(child_id))
 						continue;
@@ -588,7 +587,7 @@ public class ObjectTree : Gtk.Box
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();
 
-		Gee.ArrayList<Guid?> selection = _database_editor._selection;
+		GLib.GenericArray<Guid?> selection = _database_editor._selection;
 		Gtk.TreePath? last_selected = null;
 
 		_tree_sort.foreach ((model, path, iter) => {
@@ -600,7 +599,8 @@ public class ObjectTree : Gtk.Box
 				Value id;
 				model.get_value(iter, Column.OBJECT_ID, out id);
 
-				foreach (Guid? guid in selection) {
+				for (int i = 0; i < selection.length; ++i) {
+					Guid? guid = selection[i];
 					if ((Guid)id == guid) {
 						_tree_selection.select_iter(iter);
 						last_selected = path;

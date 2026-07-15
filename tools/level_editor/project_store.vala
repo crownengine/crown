@@ -35,7 +35,7 @@ public class ProjectStore
 	public Project _project;
 	public Gtk.ListStore _list_store;
 	public Gtk.TreeStore _tree_store;
-	public Gee.HashMap<string, Gtk.TreeRowReference> _folders;
+	public GLib.HashTable<string, Gtk.TreeRowReference> _folders;
 	public Gtk.TreeRowReference _favorites_root;
 
 	public signal void reset_started();
@@ -72,7 +72,7 @@ public class ProjectStore
 			, typeof(uint32) // user data
 			);
 
-		_folders = new Gee.HashMap<string, Gtk.TreeRowReference>();
+		_folders = new GLib.HashTable<string, Gtk.TreeRowReference>(GLib.str_hash, GLib.str_equal);
 
 		reset();
 	}
@@ -81,7 +81,7 @@ public class ProjectStore
 	{
 		reset_started();
 
-		_folders.clear();
+		_folders.remove_all();
 		_tree_store.clear();
 		_list_store.clear();
 
@@ -138,7 +138,7 @@ public class ProjectStore
 
 		string parent_folder = ResourceId.parent_folder(name);
 
-		if (_folders.has_key(parent_folder)) {
+		if (_folders.contains(parent_folder)) {
 			// Find the name inside the folder.
 			Gtk.TreeIter parent_iter;
 			_tree_store.get_iter(out parent_iter, _folders[parent_folder].get_path());
@@ -168,7 +168,7 @@ public class ProjectStore
 
 	public Gtk.TreePath? project_root_path()
 	{
-		if (!_folders.has_key(ROOT_FOLDER))
+		if (!_folders.contains(ROOT_FOLDER))
 			return null;
 
 		return _folders[ROOT_FOLDER].get_path();
@@ -307,7 +307,7 @@ public class ProjectStore
 			_folders[folder] = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
 			return iter;
 		} else {
-			if (_folders.has_key(folder.substring(0, first_slash))) {
+			if (_folders.contains(folder.substring(0, first_slash))) {
 				return make_tree_internal(folder, first_slash + 1, _folders[folder.substring(0, first_slash)]);
 			} else {
 				Gtk.TreeIter parent_iter;
@@ -341,7 +341,7 @@ public class ProjectStore
 
 	public Gtk.TreeIter find_or_make_tree(string folder)
 	{
-		if (_folders.has_key(folder)) {
+		if (_folders.contains(folder)) {
 			Gtk.TreeIter iter;
 			_tree_store.get_iter(out iter, _folders[folder].get_path());
 			return iter;
@@ -419,7 +419,7 @@ public class ProjectStore
 		string parent_folder = ResourceId.parent_folder(name);
 		Gtk.TreeIter child;
 
-		if (!_folders.has_key(parent_folder))
+		if (!_folders.contains(parent_folder))
 			return;
 
 		// Update the list store entry.
@@ -516,7 +516,7 @@ public class ProjectStore
 		string parent_folder = ResourceId.parent_folder(name);
 		Gtk.TreeIter child;
 
-		if (!_folders.has_key(parent_folder))
+		if (!_folders.contains(parent_folder))
 			return;
 
 		remove_from_favorites(RowKind.RESOURCE, type, name);
@@ -588,7 +588,7 @@ public class ProjectStore
 		if (name == ROOT_FOLDER)
 			return;
 
-		if (!_folders.has_key(name))
+		if (!_folders.contains(name))
 			return;
 
 		remove_from_favorites(RowKind.FOLDER, "", name);
@@ -621,11 +621,12 @@ public class ProjectStore
 
 		// Remove stale TreeRowReferences before removing the row, because deleting a parent row
 		// invalidates every descendant row reference.
-		var it = _folders.map_iterator();
-		for (var has_next = it.next(); has_next; has_next = it.next()) {
-			string ff = it.get_key();
+		GLib.HashTableIter<string, Gtk.TreeRowReference> it = GLib.HashTableIter<string, Gtk.TreeRowReference>(_folders);
+		unowned string ff;
+		unowned Gtk.TreeRowReference trr;
+		while (it.next(out ff, out trr)) {
 			if (ff == name || ff.has_prefix(name + "/"))
-				it.unset();
+				it.remove();
 		}
 
 		if (path == null)
@@ -641,9 +642,9 @@ public class ProjectStore
 		reset();
 	}
 
-	public Gee.ArrayList<Value?> encode_favorites()
+	public GLib.GenericArray<Value?> encode_favorites()
 	{
-		Gee.ArrayList<Value?> favorites = new Gee.ArrayList<Value?>();
+		GLib.GenericArray<Value?> favorites = new GLib.GenericArray<Value?>();
 
 		Gtk.TreeIter parent_iter;
 		_tree_store.get_iter(out parent_iter, favorites_root_path());
@@ -658,7 +659,7 @@ public class ProjectStore
 				_tree_store.get_value(child, Column.NAME, out iter_name);
 				_tree_store.get_value(child, Column.KIND, out iter_kind);
 
-				Hashtable resource = new Hashtable();
+				GLib.HashTable<string, Value?> resource = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 				resource["kind"] = (int)(RowKind)iter_kind;
 				resource["type"] = (string)iter_type;
 				resource["name"] = (string)iter_name;
@@ -672,21 +673,22 @@ public class ProjectStore
 		return favorites;
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable h = new Hashtable();
+		GLib.HashTable<string, Value?> h = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		h["favorites"] = encode_favorites();
 		return h;
 	}
 
-	public void decode_favorites(Gee.ArrayList<Value?> favorites)
+	public void decode_favorites(GLib.GenericArray<Value?> favorites)
 	{
-		foreach (var entry in favorites) {
-			if (entry == null || !entry.holds(typeof(Hashtable)))
+		for (int i = 0; i < favorites.length; ++i) {
+			Value? entry = favorites[i];
+			if (entry == null || !entry.holds(typeof(GLib.HashTable)))
 				continue;
 
-			Hashtable resource = (Hashtable)entry;
-			if (!resource.has_key("kind") || !resource.has_key("type") || !resource.has_key("name"))
+			GLib.HashTable<string, Value?> resource = (GLib.HashTable<string, Value?>)entry;
+			if (!resource.contains("kind") || !resource.contains("type") || !resource.contains("name"))
 				continue;
 
 			Value kind = resource["kind"];
@@ -704,12 +706,12 @@ public class ProjectStore
 		}
 	}
 
-	public void decode(Hashtable h)
+	public void decode(GLib.HashTable<string, Value?> h)
 	{
-		if (h.has_key("favorites")) {
+		if (h.contains("favorites")) {
 			Value favorites = h["favorites"];
-			if (favorites.holds(typeof(Gee.ArrayList)))
-				decode_favorites((Gee.ArrayList<Value?>)favorites);
+			if (favorites.holds(typeof(GLib.GenericArray)))
+				decode_favorites((GLib.GenericArray<Value?>)favorites);
 		}
 	}
 

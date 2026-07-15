@@ -14,7 +14,7 @@ private enum ObjectExists
 
 public struct Unit
 {
-	public static Hashtable _component_registry;
+	public static GLib.HashTable<string, Value?> _component_registry;
 	public Database _db;
 	public Guid _id;
 
@@ -30,7 +30,7 @@ public struct Unit
 		return db.add_from_resource_path(out prefab_id, name + ".unit");
 	}
 
-	private static ObjectExists component_exists_internal(Database db, Guid unit_id, Guid component_id, bool apply_unit_deletes, Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
+	private static ObjectExists component_exists_internal(Database db, Guid unit_id, Guid component_id, bool apply_unit_deletes, GLib.GenericSet<Guid?> visited = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func))
 	{
 		if (!visited.add(unit_id))
 			return ObjectExists.UNKNOWN;
@@ -58,13 +58,14 @@ public struct Unit
 		return exists;
 	}
 
-	private static ObjectExists child_exists_internal(Database db, Guid unit_id, Guid child_id, bool apply_unit_deletes, Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func))
+	private static ObjectExists child_exists_internal(Database db, Guid unit_id, Guid child_id, bool apply_unit_deletes, GLib.GenericSet<Guid?> visited = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func))
 	{
 		if (!visited.add(unit_id))
 			return ObjectExists.UNKNOWN;
 
 		ObjectExists exists = ObjectExists.MISSING;
-		foreach (Guid local_child_id in db.get_set(unit_id, "children")) {
+		GLib.GenericSet<Guid?> children = db.get_set(unit_id, "children");
+		foreach (Guid? local_child_id in children) {
 			if (local_child_id == child_id) {
 				exists = ObjectExists.EXISTS;
 				break;
@@ -91,7 +92,8 @@ public struct Unit
 		}
 
 		if (exists == ObjectExists.EXISTS && apply_unit_deletes) {
-			foreach (Guid deleted_child_id in db.get_set(unit_id, "deleted_children")) {
+			GLib.GenericSet<Guid?> deleted_children = db.get_set(unit_id, "deleted_children");
+			foreach (Guid? deleted_child_id in deleted_children) {
 				if (deleted_child_id == child_id) {
 					exists = ObjectExists.MISSING;
 					break;
@@ -136,7 +138,7 @@ public struct Unit
 
 	private void prune_stale_child_override_set(string key, bool apply_unit_deletes)
 	{
-		foreach (Guid child_id in _db.get_set(_id, key).to_array()) {
+		foreach (Guid child_id in guid_set_to_array(_db.get_set(_id, key))) {
 			if (child_exists_internal(_db, _id, child_id, apply_unit_deletes) == ObjectExists.MISSING)
 				_db.remove_from_set(_id, key, child_id);
 		}
@@ -162,7 +164,7 @@ public struct Unit
 		// Search in components
 		val = _db.get_property(_id, "components");
 		if (val != null) {
-			if (((Gee.HashSet<Guid?>)val).contains(component_id))
+			if (((GLib.GenericSet<Guid?>)val).contains(component_id))
 				return _db.get_property(component_id, key, deffault);
 		}
 
@@ -230,7 +232,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_bool(component_id, key, val);
 			return;
 		}
@@ -244,7 +246,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_double(component_id, key, val);
 			return;
 		}
@@ -258,7 +260,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_string(component_id, key, val);
 			return;
 		}
@@ -272,7 +274,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_vector3(component_id, key, val);
 			return;
 		}
@@ -286,7 +288,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_quaternion(component_id, key, val);
 			return;
 		}
@@ -300,7 +302,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_resource(component_id, key, val);
 			return;
 		}
@@ -314,7 +316,7 @@ public struct Unit
 
 		// Search in components
 		Value? components = _db.get_property(_id, "components");
-		if (components != null && ((Gee.HashSet<Guid?>)components).contains(component_id)) {
+		if (components != null && ((GLib.GenericSet<Guid?>)components).contains(component_id)) {
 			_db.set_reference(component_id, key, val);
 			return;
 		}
@@ -333,7 +335,7 @@ public struct Unit
 		// and it owns it.
 		val = db.get_property(unit_id, "components");
 		if (val != null) {
-			foreach (Guid id in (Gee.HashSet<Guid?>)val) {
+			foreach (Guid? id in (GLib.GenericSet<Guid?>)val) {
 				if ((string)db.object_type(id) == component_type) {
 					component_id = id;
 					return true;
@@ -473,7 +475,7 @@ public struct Unit
 	public static void register_component_type(string type, string depends_on)
 	{
 		if (_component_registry == null)
-			_component_registry = new Hashtable();
+			_component_registry = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		_component_registry[type] = depends_on;
 	}
 
@@ -502,7 +504,7 @@ public struct Unit
 			return -1;
 		}
 
-		Gee.HashSet<Guid?> visited = new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.GenericSet<Guid?> visited = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 		while (true) {
 			if (Guid.equal_func(prefab_id, _id) || visited.contains(prefab_id)) {
 				loge("Cannot set prefab `%s`: prefab cycle detected".printf(prefab_name));
@@ -559,7 +561,7 @@ public struct Unit
 		if (prefab_name != null) {
 			Guid prefab_id = GUID_ZERO;
 			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
-				Guid?[] components = _db.get_set(_id, "components", new Gee.HashSet<Guid?>()).to_array();
+				Guid?[] components = guid_set_to_array(_db.get_set(_id, "components"));
 				foreach (Guid component_id in components) {
 					Guid prefab_component_id;
 					if (!Unit.has_component_static(out prefab_component_id, _db.object_type(component_id), _db, prefab_id))
@@ -683,17 +685,19 @@ public struct Unit
 				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
-			Gee.ArrayList<Guid?> lod_levels = new Gee.ArrayList<Guid?>();
-			lod_levels.add_all(db.get_set(component_id, "data.lod_levels", new Gee.HashSet<Guid?>()));
-			lod_levels.sort((a, b) => {
+			GLib.GenericArray<Guid?> lod_levels = new GLib.GenericArray<Guid?>();
+			GLib.GenericSet<Guid?> lod_level_ids = db.get_set(component_id, "data.lod_levels");
+			foreach (Guid? id in lod_level_ids)
+				lod_levels.add(id);
+			lod_levels.sort_with_data((a, b) => {
 					double screen_size_a = db.get_double(a, "data.screen_size");
 					double screen_size_b = db.get_double(b, "data.screen_size");
 					return screen_size_a > screen_size_b ? -1 : (screen_size_a < screen_size_b ? 1 : 0);
 				});
 
-			Guid[] mesh_renderer_ids = new Guid[lod_levels.size];
-			double[] screen_sizes = new double[lod_levels.size];
-			for (int i = 0; i < lod_levels.size; ++i) {
+			Guid[] mesh_renderer_ids = new Guid[lod_levels.length];
+			double[] screen_sizes = new double[lod_levels.length];
+			for (int i = 0; i < lod_levels.length; ++i) {
 				mesh_renderer_ids[i] = db.get_reference(lod_levels[i], "data.mesh_renderer");
 				screen_sizes[i] = db.get_double(lod_levels[i], "data.screen_size");
 			}
@@ -738,13 +742,13 @@ public struct Unit
 		}
 	}
 
-	public static void collect_unit_tree(Gee.ArrayList<Guid?> unit_ids, Guid unit_id, Database db)
+	public static void collect_unit_tree(GLib.GenericArray<Guid?> unit_ids, Guid unit_id, Database db)
 	{
 		unit_ids.add(unit_id);
 
 		if (db.has_property(unit_id, "children")) {
-			Gee.HashSet<Guid?> children = db.get_set(unit_id, "children", new Gee.HashSet<Guid?>());
-			foreach (Guid child_id in children) {
+			GLib.GenericSet<Guid?> children = db.get_set(unit_id, "children");
+			foreach (Guid? child_id in children) {
 				if (db.is_alive(child_id))
 					collect_unit_tree(unit_ids, child_id, db);
 			}
@@ -765,43 +769,50 @@ public struct Unit
 
 	public static void spawn_unit_tree(StringBuilder sb, Guid unit_id, Database db)
 	{
-		Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
-		Gee.ArrayList<Guid?> components = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> unit_ids = new GLib.GenericArray<Guid?>();
+		GLib.GenericArray<Guid?> components = new GLib.GenericArray<Guid?>();
 		collect_unit_tree(unit_ids, unit_id, db);
 
 		sb.append("editor_tree_nv, editor_tree_nq, editor_tree_nm = Device.temp_count()");
 
-		foreach (Guid id in unit_ids) {
+		for (int i = 0; i < unit_ids.length; ++i) {
+			Guid id = unit_ids[i];
 			Unit unit = Unit(db, id);
 			if (unit.prefab() != null) {
 				spawn_unit(sb, id, db);
 			} else {
 				sb.append(LevelEditorApi.spawn_empty_unit(id));
-				components.add_all(db.get_set(id, "components", new Gee.HashSet<Guid?>()));
+				GLib.GenericSet<Guid?> unit_components = db.get_set(id, "components");
+				foreach (Guid? component_id in unit_components)
+					components.add(component_id);
 			}
 		}
 
-		components.sort((a, b) => {
+		components.sort_with_data((a, b) => {
 				return compare_component_spawn_order(db, a, b);
 			});
 
-		foreach (Guid component_id in components) {
+		for (int i = 0; i < components.length; ++i) {
+			Guid component_id = components[i];
 			if (db.object_type(component_id) == OBJECT_TYPE_TRANSFORM)
 				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
 		}
 
-		foreach (Guid id in unit_ids) {
+		for (int i = 0; i < unit_ids.length; ++i) {
+			Guid id = unit_ids[i];
 			Guid owner_id = db.owner(id);
 			if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
 				sb.append(LevelEditorApi.unit_set_parent(owner_id, id));
 		}
 
-		foreach (Guid component_id in components) {
+		for (int i = 0; i < components.length; ++i) {
+			Guid component_id = components[i];
 			if (db.object_type(component_id) != OBJECT_TYPE_TRANSFORM)
 				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
 		}
 
-		foreach (Guid id in unit_ids) {
+		for (int i = 0; i < unit_ids.length; ++i) {
+			Guid id = unit_ids[i];
 			Unit unit = Unit(db, id);
 			if (unit.prefab() == null) {
 				sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
@@ -830,20 +841,20 @@ public struct Unit
 		} else {
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
-			Guid?[] components = db.get_set(unit_id, "components", new Gee.HashSet<Guid?>()).to_array();
+			Guid?[] components = guid_set_to_array(db.get_set(unit_id, "components"));
 
-			Gee.ArrayList<int> spawn_order = new Gee.ArrayList<int>();
+			GLib.GenericArray<int?> spawn_order = new GLib.GenericArray<int?>();
 			for (int i = 0; i < components.length; ++i)
 				spawn_order.add(i);
 
-			spawn_order.sort((a, b) => {
-					double order_a = db.get_double(components[a], "spawn_order");
-					double order_b = db.get_double(components[b], "spawn_order");
+			spawn_order.sort_with_data((a, b) => {
+					double order_a = db.get_double(components[(int)a], "spawn_order");
+					double order_b = db.get_double(components[(int)b], "spawn_order");
 					return (int)(order_a - order_b);
 				});
 
-			for (int i = 0; i < spawn_order.size; ++i) {
-				Guid component_id = components[spawn_order[i]];
+			for (int i = 0; i < spawn_order.length; ++i) {
+				Guid component_id = components[(int)spawn_order[i]];
 				generate_add_component_commands(sb, unit_id, component_id, db);
 			}
 
@@ -1038,18 +1049,16 @@ public struct Unit
 					));
 				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 
-				_component_registry.foreach((g) => {
-						string component_type = g.key;
+				_component_registry.foreach((component_type, value) => {
 						Guid component_id;
 
 						if (!unit.has_component(out component_id, component_type)) {
 							sb.append(LevelEditorApi.unit_destroy_component_type(unit_id, component_type));
-							return true;
+							return;
 						}
 
 						generate_add_component_commands(sb, unit_id, component_id, db);
 						generate_set_component_commands(sb, unit_id, component_id, db);
-						return true;
 					});
 
 				sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
@@ -1071,7 +1080,7 @@ public struct Unit
 		return (db.type_flags(StringId64(db.object_type(id))) & ObjectTypeFlags.UNIT_COMPONENT) != 0;
 	}
 
-	public void add_component_type_dependencies(ref Gee.ArrayList<Guid?> components_added, string component_type)
+	public void add_component_type_dependencies(ref GLib.GenericArray<Guid?> components_added, string component_type)
 	{
 		Guid dummy;
 		if (has_component(out dummy, component_type))

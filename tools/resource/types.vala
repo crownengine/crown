@@ -90,8 +90,8 @@ public static void node_name_enum_callback(InputField enum_property, InputEnum c
 		Mesh mesh = Mesh.load_from_path(project, path);
 
 		combo.clear();
-		foreach (var node in mesh._nodes)
-			combo.append(node, node);
+		for (int i = 0; i < mesh._nodes.length; ++i)
+			combo.append(mesh._nodes[i], mesh._nodes[i]);
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
@@ -101,13 +101,12 @@ public static void class_enum_callback(InputField property_enum, InputEnum combo
 {
 	try {
 		string path = ResourceId.path("physics_config", "global");
-		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
+		GLib.HashTable<string, Value?> global = SJSON.load_from_path(project.absolute_path(path));
 
 		combo.clear();
-		if (global.has_key("actors")) {
-			Hashtable obj = (Hashtable)global["actors"];
-			foreach (var e in obj)
-				combo.append(e.key, e.key);
+		if (global.contains("actors")) {
+			GLib.HashTable<string, Value?> obj = (GLib.HashTable<string, Value?>)global["actors"];
+			obj.foreach((key, _value) => combo.append(key, key));
 		}
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
@@ -118,13 +117,12 @@ public static void collision_filter_enum_callback(InputField property_enum, Inpu
 {
 	try {
 		string path = ResourceId.path("physics_config", "global");
-		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
+		GLib.HashTable<string, Value?> global = SJSON.load_from_path(project.absolute_path(path));
 
 		combo.clear();
-		if (global.has_key("collision_filters")) {
-			Hashtable obj = (Hashtable)global["collision_filters"];
-			foreach (var e in obj)
-				combo.append(e.key, e.key);
+		if (global.contains("collision_filters")) {
+			GLib.HashTable<string, Value?> obj = (GLib.HashTable<string, Value?>)global["collision_filters"];
+			obj.foreach((key, _value) => combo.append(key, key));
 		}
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
@@ -135,13 +133,12 @@ public static void material_enum_callback(InputField property_enum, InputEnum co
 {
 	try {
 		string path = ResourceId.path("physics_config", "global");
-		Hashtable global = SJSON.load_from_path(project.absolute_path(path));
+		GLib.HashTable<string, Value?> global = SJSON.load_from_path(project.absolute_path(path));
 
 		combo.clear();
-		if (global.has_key("materials")) {
-			Hashtable obj = (Hashtable)global["materials"];
-			foreach (var e in obj)
-				combo.append(e.key, e.key);
+		if (global.contains("materials")) {
+			GLib.HashTable<string, Value?> obj = (GLib.HashTable<string, Value?>)global["materials"];
+			obj.foreach((key, _value) => combo.append(key, key));
 		}
 	} catch (JsonSyntaxError e) {
 		loge(e.message);

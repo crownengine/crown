@@ -504,9 +504,9 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		return Gdk.EVENT_STOP; // Keep window alive.
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable json_obj = new Hashtable();
+		GLib.HashTable<string, Value?> json_obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 
 		// This is the appropriate size to save, see:
 		// https://valadoc.org/gtk+-3.0/Gtk.Window.set_default_size.html
@@ -521,26 +521,26 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 		return json_obj;
 	}
 
-	public void decode(Hashtable json_obj)
+	public void decode(GLib.HashTable<string, Value?> json_obj)
 	{
-		if (json_obj.has_key("width"))
+		if (json_obj.contains("width"))
 			this.default_width = (int)(double)json_obj["width"];
 		else
 			this.default_width = WINDOW_DEFAULT_WIDTH;
 
-		if (json_obj.has_key("height"))
+		if (json_obj.contains("height"))
 			this.default_height = (int)(double)json_obj["height"];
 		else
 			this.default_height = WINDOW_DEFAULT_HEIGHT;
 
-		if (json_obj.has_key("maximized")) {
+		if (json_obj.contains("maximized")) {
 			if ((bool)json_obj["maximized"])
 				this.maximize();
 			else
 				this.unmaximize();
 		}
 
-		if (json_obj.has_key("fullscreen")) {
+		if (json_obj.contains("fullscreen")) {
 			if ((bool)json_obj["fullscreen"])
 				this.fullscreen();
 			else
@@ -1094,8 +1094,8 @@ public class LevelEditorApplication : Gtk.Application
 	public string? _source_dir = null;
 	public string _level_resource = "";
 	public User _user;
-	public Hashtable _settings;
-	public Hashtable _window_state;
+	public GLib.HashTable<string, Value?> _settings;
+	public GLib.HashTable<string, Value?> _window_state;
 
 	// Editor state
 	public double _grid_size;
@@ -1132,7 +1132,7 @@ public class LevelEditorApplication : Gtk.Application
 	public string[] _camera_frame_all_accels;
 
 	// Engine connections
-	public Gee.ArrayList<RuntimeInstance> _runtimes;
+	public GLib.GenericArray<RuntimeInstance> _runtimes;
 	public RuntimeInstance _compiler;
 	public RuntimeInstance _editor;
 	public RuntimeInstance _game;
@@ -1333,7 +1333,7 @@ public class LevelEditorApplication : Gtk.Application
 		_camera_frame_selected_accels = this.get_accels_for_action("viewport.camera-frame-selected");
 		_camera_frame_all_accels = this.get_accels_for_action("app.camera-frame-all");
 
-		_runtimes = new Gee.ArrayList<RuntimeInstance>();
+		_runtimes = new GLib.GenericArray<RuntimeInstance>();
 
 		_compiler = new RuntimeInstance("data_compiler", null);
 		_compiler.message_received.connect(on_message_received);
@@ -1577,8 +1577,8 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		if (_level_editor_window == null) {
 			_level_editor_window = new LevelEditorWindow(this, _header_bar);
-			if (_window_state.has_key("level_editor_window"))
-				_level_editor_window.decode((Hashtable)_window_state["level_editor_window"]);
+			if (_window_state.contains("level_editor_window"))
+				_level_editor_window.decode((GLib.HashTable<string, Value?>)_window_state["level_editor_window"]);
 			_level_editor_window.add(_main_stack);
 			_level_editor_window.insert_action_group("viewport", _editor_viewport._action_group);
 			_level_editor_window.insert_action_group("database", _database_editor._action_group);
@@ -1753,14 +1753,14 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
 	{
 		try {
-			Hashtable msg = JSON.decode(json) as Hashtable;
+			GLib.HashTable<string, Value?> msg = (GLib.HashTable<string, Value?>)JSON.decode(json);
 			handle_message(ri, client, (string)msg["type"], msg);
 		} catch (JsonSyntaxError e) {
 			loge(e.message);
 		}
 	}
 
-	public void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, Hashtable msg)
+	public void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, GLib.HashTable<string, Value?> msg)
 	{
 		if (msg_type == "message") {
 			string system = ri._name + ": " + (string)msg["system"];
@@ -1796,7 +1796,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "refresh") {
 			ri.refresh_finished((bool)msg["success"]);
 		} else if (msg_type == "refresh_list") {
-			_data_compiler.refresh_list_finished((Gee.ArrayList<Value?>)msg["list"]);
+			_data_compiler.refresh_list_finished((GLib.GenericArray<Value?>)msg["list"]);
 		} else if (msg_type == "dependencies") {
 			_data_compiler.dependencies_finished(msg);
 		} else if (msg_type == "delete_preview") {
@@ -1810,9 +1810,9 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "unit_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
 			string name = (string)msg["name"];
-			Gee.ArrayList<Value?> pos = (Gee.ArrayList<Value?>)msg["position"];
-			Gee.ArrayList<Value?> rot = (Gee.ArrayList<Value?>)msg["rotation"];
-			Gee.ArrayList<Value?> scl = (Gee.ArrayList<Value?>)msg["scale"];
+			GLib.GenericArray<Value?> pos = (GLib.GenericArray<Value?>)msg["position"];
+			GLib.GenericArray<Value?> rot = (GLib.GenericArray<Value?>)msg["rotation"];
+			GLib.GenericArray<Value?> scl = (GLib.GenericArray<Value?>)msg["scale"];
 
 			if (_level.on_unit_spawned(id
 					, name
@@ -1826,9 +1826,9 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "sound_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
 			string name = (string)msg["name"];
-			Gee.ArrayList<Value?> pos = (Gee.ArrayList<Value?>)msg["position"];
-			Gee.ArrayList<Value?> rot = (Gee.ArrayList<Value?>)msg["rotation"];
-			Gee.ArrayList<Value?> scl = (Gee.ArrayList<Value?>)msg["scale"];
+			GLib.GenericArray<Value?> pos = (GLib.GenericArray<Value?>)msg["position"];
+			GLib.GenericArray<Value?> rot = (GLib.GenericArray<Value?>)msg["rotation"];
+			GLib.GenericArray<Value?> scl = (GLib.GenericArray<Value?>)msg["scale"];
 			double range = (double)msg["range"];
 			double volume = (double)msg["volume"];
 			bool loop = (bool)msg["loop"];
@@ -1844,45 +1844,47 @@ public class LevelEditorApplication : Gtk.Application
 				);
 			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new Guid?[] { id }, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "move_objects") {
-			Hashtable ids           = (Hashtable)msg["ids"];
-			Hashtable new_positions = (Hashtable)msg["new_positions"];
-			Hashtable new_rotations = (Hashtable)msg["new_rotations"];
-			Hashtable new_scales    = (Hashtable)msg["new_scales"];
+			GLib.HashTable<string, Value?> ids           = (GLib.HashTable<string, Value?>)msg["ids"];
+			GLib.HashTable<string, Value?> new_positions = (GLib.HashTable<string, Value?>)msg["new_positions"];
+			GLib.HashTable<string, Value?> new_rotations = (GLib.HashTable<string, Value?>)msg["new_rotations"];
+			GLib.HashTable<string, Value?> new_scales    = (GLib.HashTable<string, Value?>)msg["new_scales"];
 
-			Gee.ArrayList<string> keys = new Gee.ArrayList<string>.wrap(ids.keys.to_array());
-			keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
+			GLib.List<unowned string> keys = ids.get_keys();
+			keys.sort(GLib.strcmp);
+			int num_keys = (int)keys.length();
 
-			Guid?[] n_ids            = new Guid?[keys.size];
-			Vector3[] n_positions    = new Vector3[keys.size];
-			Quaternion[] n_rotations = new Quaternion[keys.size];
-			Vector3[] n_scales       = new Vector3[keys.size];
+			Guid?[] n_ids            = new Guid?[num_keys];
+			Vector3[] n_positions    = new Vector3[num_keys];
+			Quaternion[] n_rotations = new Quaternion[num_keys];
+			Vector3[] n_scales       = new Vector3[num_keys];
 
-			for (int i = 0; i < keys.size; ++i) {
-				string k = keys[i];
-
-				n_ids[i]       = Guid.parse((string)ids[k]);
-				n_positions[i] = Vector3.from_array((Gee.ArrayList<Value?>)(new_positions[k]));
-				n_rotations[i] = Quaternion.from_array((Gee.ArrayList<Value?>)new_rotations[k]);
-				n_scales[i]    = Vector3.from_array((Gee.ArrayList<Value?>)new_scales[k]);
+			int i = 0;
+			foreach (unowned string key in keys) {
+				n_ids[i]       = Guid.parse((string)ids[key]);
+				n_positions[i] = Vector3.from_array((GLib.GenericArray<Value?>)new_positions[key]);
+				n_rotations[i] = Quaternion.from_array((GLib.GenericArray<Value?>)new_rotations[key]);
+				n_scales[i]    = Vector3.from_array((GLib.GenericArray<Value?>)new_scales[key]);
+				++i;
 			}
 
 			_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
 			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, n_ids, ActionTypeFlags.FROM_SERVER);
 		} else if (msg_type == "selection") {
-			Hashtable objects = (Hashtable)msg["objects"];
+			GLib.HashTable<string, Value?> objects = (GLib.HashTable<string, Value?>)msg["objects"];
 
-			Gee.ArrayList<string> keys = new Gee.ArrayList<string>.wrap(objects.keys.to_array());
-			keys.sort(Gee.Functions.get_compare_func_for(typeof(string)));
+			GLib.List<unowned string> keys = objects.get_keys();
+			keys.sort(GLib.strcmp);
 
-			Guid?[] ids = new Guid?[keys.size];
+			Guid?[] ids = new Guid?[(int)keys.length()];
 
-			for (int i = 0; i < keys.size; ++i) {
-				string k = keys[i];
-				ids[i] = Guid.parse((string)objects[k]);
+			int i = 0;
+			foreach (unowned string key in keys) {
+				ids[i] = Guid.parse((string)objects[key]);
+				++i;
 			}
 
 			_database_editor.selection_read(ids);
-			ui_read_selection(_database_editor._selection.to_array());
+			ui_read_selection(_database_editor._selection.data);
 		} else if (msg_type == "camera") {
 			if (ri == _editor)
 				_level.on_camera(msg);
@@ -1896,7 +1898,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "expr_suggestions") {
 			uint request_id = (uint)(double)msg["id"];
 			uint replace_start = (uint)(double)msg["replace_start"];
-			_console_view.set_lua_suggestions(request_id, replace_start, (Gee.ArrayList<Value?>)msg["items"]);
+			_console_view.set_lua_suggestions(request_id, replace_start, (GLib.GenericArray<Value?>)msg["items"]);
 		} else {
 			loge("Unknown message type: " + msg_type);
 		}
@@ -1936,7 +1938,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (!_editor.is_connected())
 			return;
 
-		Guid?[] runtime_selection = _level.filter_runtime_selection(_database_editor._selection.to_array());
+		Guid?[] runtime_selection = _level.filter_runtime_selection(_database_editor._selection.data);
 		_editor.send_script(LevelEditorApi.selection_set(runtime_selection));
 	}
 
@@ -1951,7 +1953,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 		update_active_window_title();
 	}
 
@@ -1966,7 +1968,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 		update_active_window_title();
 	}
 
@@ -1986,7 +1988,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		bool selection_affected = runtime_respawned;
 		foreach (Guid? changed_id in object_ids) {
-			if (!selection_affected && _database_editor._selection.contains(changed_id)) {
+			if (!selection_affected && _database_editor._selection.find_with_equal_func(changed_id, Guid.equal_func)) {
 				selection_affected = true;
 				break;
 			}
@@ -1999,7 +2001,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (runtime_changed)
 			_editor_viewport.frame();
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 		update_active_window_title();
 	}
 
@@ -2127,9 +2129,9 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		try {
 			// Save temporary package to reference test level.
-			Gee.ArrayList<Value?> level = new Gee.ArrayList<Value?>();
+			GLib.GenericArray<Value?> level = new GLib.GenericArray<Value?>();
 			level.add("_level_editor_test");
-			Hashtable package = new Hashtable();
+			GLib.HashTable<string, Value?> package = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 			package["level"] = level;
 			SJSON.save(package, _project._level_editor_test_package.get_path());
 		} catch (JsonWriteError e) {
@@ -2402,7 +2404,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		compile_and_reload.begin((obj, res) => {
 				if (compile_and_reload.end(res)) {
-					ui_read_selection(_database_editor._selection.to_array());
+					ui_read_selection(_database_editor._selection.data);
 				}
 			});
 		return true;
@@ -2446,9 +2448,9 @@ public class LevelEditorApplication : Gtk.Application
 		return GLib.Source.CONTINUE;
 	}
 
-	public Hashtable encode()
+	public GLib.HashTable<string, Value?> encode()
 	{
-		Hashtable json_obj = new Hashtable();
+		GLib.HashTable<string, Value?> json_obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		json_obj["level_editor_window"] = ((LevelEditorWindow)this.active_window).encode();
 		return json_obj;
 	}
@@ -2744,7 +2746,7 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		}
 
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 	}
 
 	public void on_import(GLib.SimpleAction action, GLib.Variant? param)
@@ -3227,9 +3229,9 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_camera_frame_all(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		Gee.ArrayList<Guid?> all_objects = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> all_objects = new GLib.GenericArray<Guid?>();
 		_level.objects(ref all_objects);
-		_editor.send_script(LevelEditorApi.frame_objects(all_objects.to_array()));
+		_editor.send_script(LevelEditorApi.frame_objects(all_objects.data));
 		_editor_viewport.frame();
 	}
 
@@ -3310,8 +3312,8 @@ public class LevelEditorApplication : Gtk.Application
 		bool success = true;
 
 		_thumbnail_cache._request_generation_enabled = false;
-		foreach (var ri in _runtimes)
-			if (ri.is_connected() && !yield ri.refresh(_data_compiler))
+		for (int i = 0; i < _runtimes.length; ++i)
+			if (_runtimes[i].is_connected() && !yield _runtimes[i].refresh(_data_compiler))
 				success = false;
 		_thumbnail_cache._request_generation_enabled = true;
 
@@ -3322,11 +3324,11 @@ public class LevelEditorApplication : Gtk.Application
 
 			// Apply editor changes to reloaded units.
 			var sb = new GLib.StringBuilder();
-			Gee.ArrayList<Guid?> unit_ids = new Gee.ArrayList<Guid?>();
+			GLib.GenericArray<Guid?> unit_ids = new GLib.GenericArray<Guid?>();
 			_level.units(ref unit_ids);
-			Unit.generate_change_commands(sb, unit_ids.to_array(), _database);
-			foreach (var id in unit_ids)
-				sb.append(LevelEditorApi.unit_freeze(id));
+			Unit.generate_change_commands(sb, unit_ids.data, _database);
+			for (int i = 0; i < unit_ids.length; ++i)
+				sb.append(LevelEditorApi.unit_freeze(unit_ids[i]));
 
 			_editor.send_script(sb.str);
 			_editor_viewport.frame();
@@ -3456,8 +3458,9 @@ public class LevelEditorApplication : Gtk.Application
 		if (!toggle_hidden && !toggle_locked)
 			return;
 
-		Gee.ArrayList<Guid?> object_ids = new Gee.ArrayList<Guid?>();
-		foreach (Guid? object_id in _database_editor._selection) {
+		GLib.GenericArray<Guid?> object_ids = new GLib.GenericArray<Guid?>();
+		for (int i = 0; i < _database_editor._selection.length; ++i) {
+			Guid? object_id = _database_editor._selection[i];
 			if (!_database.has_object(object_id) || !_database.is_alive(object_id))
 				continue;
 
@@ -3468,11 +3471,12 @@ public class LevelEditorApplication : Gtk.Application
 			object_ids.add(object_id);
 		}
 
-		if (object_ids.size == 0)
+		if (object_ids.length == 0)
 			return;
 
 		bool all_set = true;
-		foreach (Guid? object_id in object_ids) {
+		for (int i = 0; i < object_ids.length; ++i) {
+			Guid? object_id = object_ids[i];
 			bool object_state = toggle_hidden
 				? _level.object_hidden(object_id)
 				: _level.object_locked(object_id);
@@ -3483,8 +3487,9 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		bool state = !all_set;
-		Gee.ArrayList<Guid?> changed = new Gee.ArrayList<Guid?>();
-		foreach (Guid? object_id in object_ids) {
+		GLib.GenericArray<Guid?> changed = new GLib.GenericArray<Guid?>();
+		for (int i = 0; i < object_ids.length; ++i) {
+			Guid? object_id = object_ids[i];
 			bool object_state = toggle_hidden
 				? _level.object_hidden(object_id)
 				: _level.object_locked(object_id);
@@ -3498,8 +3503,8 @@ public class LevelEditorApplication : Gtk.Application
 			changed.add(object_id);
 		}
 
-		if (changed.size > 0)
-			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, changed.to_array());
+		if (changed.length > 0)
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, changed.data);
 	}
 
 	public void on_manual(GLib.SimpleAction action, GLib.Variant? param)
@@ -3525,15 +3530,15 @@ public class LevelEditorApplication : Gtk.Application
 		open_directory(_logs_dir.get_path());
 	}
 
-	public bool data_compiler_show_errors(Hashtable response, string title)
+	public bool data_compiler_show_errors(GLib.HashTable<string, Value?> response, string title)
 	{
-		var errors = (Gee.ArrayList<Value?>)response["errors"];
-		if (errors.size == 0)
+		var errors = (GLib.GenericArray<Value?>)response["errors"];
+		if (errors.length == 0)
 			return false;
 
 		var sb = new StringBuilder();
-		foreach (Value? err in errors) {
-			string message = (string)err;
+		for (int i = 0; i < errors.length; ++i) {
+			string message = (string)errors[i];
 			loge(message);
 			sb.append(message);
 			sb.append_c('\n');
@@ -3554,7 +3559,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async bool dependencies_show(string resource_path)
 	{
-		Hashtable dependencies = yield _data_compiler.dependencies(resource_path);
+		GLib.HashTable<string, Value?> dependencies = yield _data_compiler.dependencies(resource_path);
 		if (data_compiler_show_errors(dependencies, _("Cannot show dependencies")))
 			return false;
 
@@ -3585,7 +3590,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		MoveOperation move_operation = new MoveOperation(_project, _database, _level);
 		string error;
-		Hashtable preview = yield _data_compiler.move_preview({ source_path }, { target_path });
+		GLib.HashTable<string, Value?> preview = yield _data_compiler.move_preview({ source_path }, { target_path });
 		if (!(bool)preview["success"]) {
 			data_compiler_show_errors(preview, _("Cannot move resource"));
 			return false;
@@ -3646,7 +3651,7 @@ public class LevelEditorApplication : Gtk.Application
 			return false;
 		}
 
-		Hashtable apply = yield _data_compiler.move_apply(checked_from, checked_to, prune_dirs);
+		GLib.HashTable<string, Value?> apply = yield _data_compiler.move_apply(checked_from, checked_to, prune_dirs);
 		if (!(bool)apply["success"]) {
 			data_compiler_show_errors(apply, _("Cannot move resource"));
 			return false;
@@ -3789,7 +3794,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public async int delete_show(string resource_path, string[]? prune_dirs = null)
 	{
-		Hashtable preview = yield _data_compiler.delete_preview({ resource_path });
+		GLib.HashTable<string, Value?> preview = yield _data_compiler.delete_preview({ resource_path });
 		if (!(bool)preview["success"]) {
 			data_compiler_show_errors(preview, _("Cannot delete resource"));
 			return -1;
@@ -3815,7 +3820,7 @@ public class LevelEditorApplication : Gtk.Application
 		if (checked_paths.length == 0)
 			return 1;
 
-		Hashtable apply = yield _data_compiler.delete_apply(checked_paths, prune_dirs);
+		GLib.HashTable<string, Value?> apply = yield _data_compiler.delete_apply(checked_paths, prune_dirs);
 		if (!(bool)apply["success"]) {
 			data_compiler_show_errors(apply, _("Cannot delete resource"));
 			return -1;
@@ -4408,7 +4413,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		compile_and_reload.begin((obj, res) => {
 				if (compile_and_reload.end(res)) {
-					ui_read_selection(_database_editor._selection.to_array());
+					ui_read_selection(_database_editor._selection.data);
 				}
 			});
 	}
@@ -4558,12 +4563,12 @@ public class LevelEditorApplication : Gtk.Application
 		return new SelectObjectDialog(object_type, database, this.active_window);
 	}
 
-	public void on_level_treeview_selection_changed(Gee.ArrayList<Guid?> selection)
+	public void on_level_treeview_selection_changed(Guid?[] selection)
 	{
-		_database_editor.selection_read(selection.to_array());
+		_database_editor.selection_read(selection);
 
 		ui_read_selection.disconnect(_level_treeview.read_selection);
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 		ui_read_selection.connect(_level_treeview.read_selection);
 
 		send_editor_selection();
@@ -4572,7 +4577,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void on_selection_changed()
 	{
-		ui_read_selection(_database_editor._selection.to_array());
+		ui_read_selection(_database_editor._selection.data);
 
 		send_editor_selection();
 		_editor_viewport.frame();

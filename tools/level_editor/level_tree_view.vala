@@ -91,11 +91,11 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.TreeViewColumn _lock_column;
 	public Gtk.TreeViewColumn? _toggle_drag_column;
 	public bool _toggle_drag_state;
-	public Gee.ArrayList<Guid?> _toggle_drag_changed;
+	public GLib.GenericArray<Guid?> _toggle_drag_changed;
 	public double _toggle_drag_last_x;
 	public double _toggle_drag_last_y;
 
-	public signal void selection_changed(Gee.ArrayList<Guid?> selection);
+	public signal void selection_changed(Guid?[] selection);
 
 	public LevelTreeView(Database db, Level level)
 	{
@@ -110,7 +110,7 @@ public class LevelTreeView : Gtk.Box
 		_needle = "";
 		_toggle_drag_column = null;
 		_toggle_drag_state = false;
-		_toggle_drag_changed = new Gee.ArrayList<Guid?>(Guid.equal_func);
+		_toggle_drag_changed = new GLib.GenericArray<Guid?>();
 		_toggle_drag_last_x = 0.0;
 		_toggle_drag_last_y = 0.0;
 		_filter_entry = new EntrySearch();
@@ -341,7 +341,7 @@ public class LevelTreeView : Gtk.Box
 
 				_toggle_drag_column = column;
 				_toggle_drag_state = state;
-				_toggle_drag_changed.clear();
+				_toggle_drag_changed.length = 0;
 				_toggle_drag_last_x = x;
 				_toggle_drag_last_y = y;
 
@@ -440,14 +440,14 @@ public class LevelTreeView : Gtk.Box
 	public void on_button_released(int n_press, double x, double y)
 	{
 		if (_toggle_drag_column != null) {
-			if (_toggle_drag_changed.size > 0)
+			if (_toggle_drag_changed.length > 0)
 				_db.add_restore_point((int)ActionType.CHANGE_OBJECTS
-					, _toggle_drag_changed.to_array()
+					, _toggle_drag_changed.data
 					, ActionTypeFlags.FROM_SERVER
 					);
 
 			_toggle_drag_column = null;
-			_toggle_drag_changed.clear();
+			_toggle_drag_changed.length = 0;
 			Gtk.drag_source_set(_tree_view, Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
 			return;
 		}
@@ -585,7 +585,7 @@ public class LevelTreeView : Gtk.Box
 
 	public void on_tree_selection_changed()
 	{
-		Gee.ArrayList<Guid?> ids = new Gee.ArrayList<Guid?>();
+		GLib.GenericArray<Guid?> ids = new GLib.GenericArray<Guid?>();
 		_tree_selection.selected_foreach((model, path, iter) => {
 				Value type;
 				model.get_value(iter, Column.TYPE, out type);
@@ -597,7 +597,7 @@ public class LevelTreeView : Gtk.Box
 				ids.add((Guid)id);
 			});
 
-		selection_changed(ids);
+		selection_changed(ids.data);
 	}
 
 	public void read_selection(Guid?[] selection)
@@ -734,8 +734,8 @@ public class LevelTreeView : Gtk.Box
 
 		_tree_view.model = _tree_sort;
 
-		on_objects_created(_db.get_set(_level._id, "units", new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)).to_array());
-		on_objects_created(_db.get_set(_level._id, "sounds", new Gee.HashSet<Guid?>(Guid.hash_func, Guid.equal_func)).to_array());
+		on_objects_created(guid_set_to_array(_db.get_set(_level._id, "units")));
+		on_objects_created(guid_set_to_array(_db.get_set(_level._id, "sounds")));
 
 		_tree_view.expand_all();
 	}

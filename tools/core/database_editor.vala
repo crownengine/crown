@@ -19,7 +19,7 @@ public class DatabaseEditor
 
 	public UndoRedo _undo_redo;
 	public Database _database;
-	public Gee.ArrayList<Guid?> _selection;
+	public GLib.GenericArray<Guid?> _selection;
 	public GLib.SimpleActionGroup _action_group;
 
 	public signal void undo(int action_id);
@@ -34,7 +34,7 @@ public class DatabaseEditor
 		_undo_redo = new UndoRedo(undo_redo_size);
 		_database = database;
 		_database._undo_redo = _undo_redo;
-		_selection = new Gee.ArrayList<Guid?>(Guid.equal_func);
+		_selection = new GLib.GenericArray<Guid?>();
 	}
 
 	public void load_types()
@@ -58,10 +58,12 @@ public class DatabaseEditor
 
 	public void on_duplicate(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_selection.size == 0)
+		if (_selection.length == 0)
 			return;
 
-		Guid?[] ids = _selection.to_array();
+		Guid?[] ids = new Guid?[_selection.length];
+		for (int i = 0; i < _selection.length; ++i)
+			ids[i] = _selection[i];
 		Guid?[] new_ids = new Guid?[ids.length];
 		for (int i = 0; i < new_ids.length; ++i)
 			new_ids[i] = Guid.new_guid();
@@ -75,12 +77,16 @@ public class DatabaseEditor
 
 	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		if (_selection.size == 0)
+		if (_selection.length == 0)
 			return;
 
-		Guid?[] ids = _selection.to_array();
+		Guid?[] ids = new Guid?[_selection.length];
+		for (int i = 0; i < _selection.length; ++i)
+			ids[i] = _selection[i];
 		foreach (Guid id in ids) {
-			_selection.remove(id);
+			uint index;
+			if (_selection.find_with_equal_func(id, Guid.equal_func, out index))
+				_selection.remove_index(index);
 			_database.destroy(id);
 		}
 		selection_changed();
@@ -117,14 +123,15 @@ public class DatabaseEditor
 
 	public void clear_selection()
 	{
-		_selection.clear();
+		_selection.length = 0;
 		selection_changed();
 	}
 
 	public void selection_read(Guid?[] ids)
 	{
-		_selection.clear();
-		_selection.add_all_array(ids);
+		_selection.length = 0;
+		foreach (Guid? id in ids)
+			_selection.add(id);
 	}
 
 	public void selection_set(Guid?[] ids)
@@ -135,8 +142,7 @@ public class DatabaseEditor
 
 	public void send_selection(RuntimeInstance runtime)
 	{
-		Guid?[] ids = _selection.to_array();
-		runtime.send_script(LevelEditorApi.selection_set(ids));
+		runtime.send_script(LevelEditorApi.selection_set(_selection.data));
 	}
 }
 

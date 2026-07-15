@@ -37,7 +37,7 @@ public class EditorView : Gtk.EventBox
 	public uint _window_id;
 	public uint _last_window_id;
 
-	public Gee.HashMap<uint, bool> _keys;
+	public GLib.HashTable<uint, bool> _keys;
 	public bool _input_enabled;
 	public bool _drag_enter;
 	public uint _drag_last_time;
@@ -112,7 +112,7 @@ public class EditorView : Gtk.EventBox
 		_window_id = 0;
 		_last_window_id = 0;
 
-		_keys = new Gee.HashMap<uint, bool>();
+		_keys = new GLib.HashTable<uint, bool>(GLib.direct_hash, GLib.direct_equal);
 		_keys[Gdk.Key.w] = false;
 		_keys[Gdk.Key.a] = false;
 		_keys[Gdk.Key.s] = false;
@@ -420,7 +420,7 @@ public class EditorView : Gtk.EventBox
 		if (keyval == Gdk.Key.Escape)
 			GLib.Application.get_default().activate_action("cancel-place", null);
 
-		if (_keys.has_key(key)) {
+		if (_keys.contains(key)) {
 			if (!_keys[key]) {
 				_buffer.append(LevelEditorApi.key_down(key_to_string(key)));
 
@@ -457,7 +457,7 @@ public class EditorView : Gtk.EventBox
 	{
 		uint key = Gdk.keyval_to_lower(keyval);
 
-		if (_keys.has_key(key)) {
+		if (_keys.contains(key)) {
 			if (_keys[key]) {
 				_buffer.append(LevelEditorApi.key_up(key_to_string(key)));
 

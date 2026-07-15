@@ -46,7 +46,7 @@ public class MoveDialog : Gtk.Window
 		, ThumbnailCache thumbnail_cache
 		, string title
 		, string move_tooltip
-		, Hashtable preview
+		, GLib.HashTable<string, Value?> preview
 		)
 	{
 		_project_browser = project_browser;
@@ -101,22 +101,22 @@ public class MoveDialog : Gtk.Window
 		list.hexpand = true;
 		list.vexpand = true;
 
-		Gee.ArrayList<Value?> move = (Gee.ArrayList<Value?>)preview["move"];
-		Gee.ArrayList<Value?> also_move = (Gee.ArrayList<Value?>)preview["also_move"];
-		if (move.size != 0) {
+		GLib.GenericArray<Value?> move = (GLib.GenericArray<Value?>)preview["move"];
+		GLib.GenericArray<Value?> also_move = (GLib.GenericArray<Value?>)preview["also_move"];
+		if (move.length != 0) {
 			Gtk.TreeIter parent_iter = append_parent(_move_store, _("Move"), MoveDialogRowFlags.CHECKED);
-			foreach (Value? item_value in move) {
-				Hashtable item = (Hashtable)item_value;
+			for (int i = 0; i < move.length; ++i) {
+				GLib.HashTable<string, Value?> item = (GLib.HashTable<string, Value?>)move[i];
 				append_path(_move_store, parent_iter, (string)item["from"], (string)item["to"], MoveDialogRowFlags.CHECKED);
 			}
 		}
-		if (also_move.size != 0) {
+		if (also_move.length != 0) {
 			Gtk.TreeIter parent_iter = append_parent(_move_store
 				, _("Also safe to move")
 				, MoveDialogRowFlags.CHECKED | MoveDialogRowFlags.SENSITIVE
 				);
-			foreach (Value? item_value in also_move) {
-				Hashtable item = (Hashtable)item_value;
+			for (int i = 0; i < also_move.length; ++i) {
+				GLib.HashTable<string, Value?> item = (GLib.HashTable<string, Value?>)also_move[i];
 				append_path(_move_store
 					, parent_iter
 					, (string)item["from"]
@@ -126,46 +126,46 @@ public class MoveDialog : Gtk.Window
 			}
 		}
 
-		bool has_move_paths = move.size != 0 || also_move.size != 0;
+		bool has_move_paths = move.length != 0 || also_move.length != 0;
 		if (has_move_paths) {
 			append_tree_group(list
 				, _("Move")
 				, move_tooltip
 				, _move_store
-				, (uint)(move.size + also_move.size)
+				, (uint)(move.length + also_move.length)
 				, MoveDialogGroupFlags.CHECKBOXES | MoveDialogGroupFlags.EXPAND
 				);
 		}
 
 		Gtk.TreeStore rewrite_store = create_store();
-		var rewrite_paths = new Gee.HashSet<string>();
-		Gee.ArrayList<Value?> rewrite = (Gee.ArrayList<Value?>)preview["rewrite"];
-		foreach (Value? item_value in rewrite) {
-			Hashtable item = (Hashtable)item_value;
+		var rewrite_paths = new GLib.GenericSet<string>(GLib.str_hash, GLib.str_equal);
+		GLib.GenericArray<Value?> rewrite = (GLib.GenericArray<Value?>)preview["rewrite"];
+		for (int i = 0; i < rewrite.length; ++i) {
+			GLib.HashTable<string, Value?> item = (GLib.HashTable<string, Value?>)rewrite[i];
 			string path = (string)item["path"];
 			if (rewrite_paths.add(path))
 				append_path(rewrite_store, null, path, "", MoveDialogRowFlags.SENSITIVE);
 		}
-		if (rewrite_paths.size != 0) {
+		if (rewrite_paths.length != 0) {
 			append_tree_group(list
 				, _("Update References")
 				, _("Source files whose resource references or paths may be rewritten.")
 				, rewrite_store
-				, (uint)rewrite_paths.size
+				, rewrite_paths.length
 				, MoveDialogGroupFlags.NONE
 				);
 		}
 
 		Gtk.TreeStore shared_store = create_store();
-		Gee.ArrayList<Value?> keep = (Gee.ArrayList<Value?>)preview["keep"];
-		foreach (Value? item_value in keep)
-			append_path(shared_store, null, (string)item_value, "", MoveDialogRowFlags.NONE);
-		if (keep.size != 0) {
+		GLib.GenericArray<Value?> keep = (GLib.GenericArray<Value?>)preview["keep"];
+		for (int i = 0; i < keep.length; ++i)
+			append_path(shared_store, null, (string)keep[i], "", MoveDialogRowFlags.NONE);
+		if (keep.length != 0) {
 			append_tree_group(list
 				, _("Shared")
 				, _("Dependencies also used by resources outside the move set.")
 				, shared_store
-				, (uint)keep.size
+				, (uint)keep.length
 				, MoveDialogGroupFlags.CHECKBOXES | MoveDialogGroupFlags.COLLAPSED
 				);
 		}
@@ -476,8 +476,8 @@ public class MoveDialog : Gtk.Window
 
 	public void selected(out string[] checked_from, out string[] checked_to)
 	{
-		var selected_from = new Gee.ArrayList<string>();
-		var selected_to = new Gee.ArrayList<string>();
+		var selected_from = new GLib.GenericArray<string>();
+		var selected_to = new GLib.GenericArray<string>();
 
 		_move_store.foreach((model, path, iter) => {
 				Value val;
@@ -492,8 +492,8 @@ public class MoveDialog : Gtk.Window
 				return false;
 			});
 
-		checked_from = selected_from.to_array();
-		checked_to = selected_to.to_array();
+		checked_from = selected_from.steal();
+		checked_to = selected_to.steal();
 	}
 }
 

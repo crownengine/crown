@@ -442,7 +442,7 @@ public class ConsoleView : Gtk.Box
 		runtime.send(RuntimeApi.suggest(request_id, text));
 	}
 
-	public void set_lua_suggestions(uint request_id, uint replace_start_byte, Gee.ArrayList<Value?> items)
+	public void set_lua_suggestions(uint request_id, uint replace_start_byte, GLib.GenericArray<Value?> items)
 	{
 		if (request_id != _completion_request_id)
 			return;
@@ -458,8 +458,8 @@ public class ConsoleView : Gtk.Box
 		clear_lua_suggestions();
 
 		int suggestions_count = 0;
-		foreach (var item in items) {
-			string s = (string)item;
+		for (int i = 0; i < items.length; ++i) {
+			string s = (string)items[i];
 
 			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 			Gtk.Label label = new Gtk.Label(s);

@@ -21,7 +21,7 @@ public struct Quaternion
 		this.w = w;
 	}
 
-	public Quaternion.from_array(Gee.ArrayList<Value?> arr)
+	public Quaternion.from_array(GLib.GenericArray<Value?> arr)
 	{
 		this.x = (double)arr[0];
 		this.y = (double)arr[1];
@@ -155,9 +155,9 @@ public struct Quaternion
 		this.w *= inv_len;
 	}
 
-	public Gee.ArrayList<Value?> to_array()
+	public GLib.GenericArray<Value?> to_array()
 	{
-		Gee.ArrayList<Value?> arr = new Gee.ArrayList<Value?>();
+		GLib.GenericArray<Value?> arr = new GLib.GenericArray<Value?>();
 		arr.add(this.x);
 		arr.add(this.y);
 		arr.add(this.z);
