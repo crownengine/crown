@@ -973,7 +973,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "open-project",       on_open_project,       "(ssi)", null },
 		{ "open-project-null",  on_open_project,       null,    null },
 		{ "open-projects-list", on_open_projects_list, null,    null },
-		{ "open-project-in-explorer", on_open_project_in_explorer, "s", null },
+		{ "open-in-file-manager", on_open_directory_default, "s", null },
 		{ "save",               on_save,               null,    null },
 		{ "save-as",            on_save_as,            null,    null },
 		{ "import",             on_import,             "(sas)", null },
@@ -2716,7 +2716,7 @@ public class LevelEditorApplication : Gtk.Application
 		md.show_all();
 	}
 
-	public void on_open_project_in_explorer(GLib.SimpleAction action, GLib.Variant? param)
+	public void on_open_directory_default(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		string source_dir = param.get_string();
 		open_directory(source_dir);
@@ -4503,7 +4503,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (name == PANEL_PROJECTS_LIST
 			|| name == PANEL_NEW_PROJECT
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "open-projects-list", "open-project-in-explorer", "remove-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "open-projects-list", "open-in-file-manager", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);

@@ -74,8 +74,8 @@ public class ProjectRow : Gtk.ListBoxRow
 		mi.set_action_and_target_value("app.run-project-game", new GLib.Variant.string(source_dir));
 		menu_model.append_item(mi);
 
-		mi = new GLib.MenuItem(_("Open Project in Explorer"), null);
-		mi.set_action_and_target_value("app.open-project-in-explorer", new GLib.Variant.string(source_dir));
+		mi = new GLib.MenuItem(_("Open in File Manager"), null);
+		mi.set_action_and_target_value("app.open-in-file-manager", new GLib.Variant.string(source_dir));
 		menu_model.append_item(mi);
 
 		_event_box = new Gtk.EventBox();
