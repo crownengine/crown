@@ -41,6 +41,8 @@ game:
 * ``W`` / ``S`` to move forward and backward;
 * ``A`` / ``D`` to strafe left and right;
 * ``Q`` / ``E`` to move the camera up and down.
+* Roll ``Mouse Wheel`` to increase or decrease the moving speed.
+* Hold ``Shift`` / ``Alt`` to temporarily move faster or slower.
 
 Flythrough mode is handy for scanning large environments, testing sightlines,
 or checking level flow at player height.
