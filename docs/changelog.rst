@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.8 --- DD MMM YYYY <v0.63.8>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed LOD Group component not being generated when importing models with LODs starting at non-zero indices.
+
 .. _v0.63.7:
 
 :ref:`0.63.7 --- 15 Jul 2026 <v0.63.7>`
