@@ -297,15 +297,15 @@ public class Level
 
 	public void units(ref GLib.GenericArray<Guid?> ids)
 	{
-		GLib.GenericSet<Guid?> units = _db.get_set(_id, "units");
-		foreach (Guid? id in units)
+		Guid?[] units = _db.get_set(_id, "units");
+		foreach (unowned Guid? id in units)
 			ids.add(id);
 	}
 
 	public void sounds(ref GLib.GenericArray<Guid?> ids)
 	{
-		GLib.GenericSet<Guid?> sounds = _db.get_set(_id, "sounds");
-		foreach (Guid? id in sounds)
+		Guid?[] sounds = _db.get_set(_id, "sounds");
+		foreach (unowned Guid? id in sounds)
 			ids.add(id);
 	}
 

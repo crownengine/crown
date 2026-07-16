@@ -570,8 +570,8 @@ public class Database
 		if (type == OBJECT_TYPE_UNIT) {
 			prune_stale_unit_overrides(id);
 		} else if (type == OBJECT_TYPE_LEVEL) {
-			GLib.GenericSet<Guid?> units = get_set(id, "units");
-			foreach (Guid? unit_id in units)
+			Guid?[] units = get_set(id, "units");
+			foreach (unowned Guid? unit_id in units)
 				prune_stale_unit_overrides(unit_id);
 		}
 	}
@@ -1631,29 +1631,25 @@ public class Database
 		return (Guid)get_property(id, key, deffault);
 	}
 
-	public GLib.GenericSet<Guid?> get_set(Guid id, string key, GLib.GenericSet<Guid?>? deffault = null)
+	public Guid?[] get_set(Guid id, string key)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
 		GLib.HashTable<string, Value?> ob = get_data(id);
-		GLib.GenericSet<Guid?> value;
+		GLib.GenericArray<Guid?> value = new GLib.GenericArray<Guid?>();
 		if (ob.contains(key)) {
 			GLib.GenericSet<Guid?> objects = (GLib.GenericSet<Guid?>)ob[key];
-			value = guid_set_new();
-
-			foreach (Guid? obj in objects) {
+			foreach (unowned Guid? obj in objects) {
 				if (is_alive(obj))
 					value.add(obj);
 			}
-		} else {
-			value = deffault ?? guid_set_new();
 		}
 
 		if (_debug_getters)
-			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
+			logi("get_property %s %s Set<Guid>".printf(debug_string(id), key));
 
-		return value;
+		return value.steal();
 	}
 
 	public GLib.HashTable<string, Value?> get_object(Guid id)
@@ -1755,11 +1751,12 @@ public class Database
 			if (def.type != PropertyType.OBJECTS_SET)
 				continue;
 
-			GLib.GenericSet<Guid?> objects = get_set(owner_id, def.name);
-
-			if (objects.contains(id)) {
-				add_to_set(owner_id, def.name, new_id);
-				break;
+			Guid?[] objects = get_set(owner_id, def.name);
+			foreach (unowned Guid? object_id in objects) {
+				if (Guid.equal_func(object_id, id)) {
+					add_to_set(owner_id, def.name, new_id);
+					return;
+				}
 			}
 		}
 	}
@@ -2225,7 +2222,12 @@ public class Database
 		if (!has_property(object_id, set_name))
 			return false;
 
-		return get_set(object_id, set_name).contains(subobject_id);
+		foreach (unowned Guid? object in get_set(object_id, set_name)) {
+			if (Guid.equal_func(object, subobject_id))
+				return true;
+		}
+
+		return false;
 	}
 
 	public bool find_property(ref uint32 property_index, StringId64 object_type, PropertyType type, string name)

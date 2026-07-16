@@ -92,8 +92,8 @@ public struct MaterialResource
 	private void set_uniform_vector4(string uniform_name, double x, double y, double z, double w)
 	{
 		Guid uniform_id = GUID_ZERO;
-		GLib.GenericSet<Guid?> uniforms = _db.get_set(_id, "uniforms");
-		foreach (Guid? id in uniforms) {
+		Guid?[] uniforms = _db.get_set(_id, "uniforms");
+		foreach (unowned Guid? id in uniforms) {
 			if (_db.get_string(id, "name") == uniform_name) {
 				uniform_id = id;
 				break;
@@ -136,8 +136,8 @@ public struct MaterialResource
 	public void set_texture(string sampler_name, string texture_name)
 	{
 		Guid texture_id = GUID_ZERO;
-		GLib.GenericSet<Guid?> textures = _db.get_set(_id, "textures");
-		foreach (Guid? id in textures) {
+		Guid?[] textures = _db.get_set(_id, "textures");
+		foreach (unowned Guid? id in textures) {
 			if (_db.get_string(id, "name") == sampler_name) {
 				texture_id = id;
 				break;

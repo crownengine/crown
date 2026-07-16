@@ -107,12 +107,4 @@ public GLib.GenericSet<Guid?> guid_set_new()
 	return new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 }
 
-public Guid?[] guid_set_to_array(GLib.GenericSet<Guid?> set)
-{
-	GLib.GenericArray<Guid?> values = new GLib.GenericArray<Guid?>();
-	foreach (Guid? id in set)
-		values.add(id);
-	return values.steal();
-}
-
 } /* namespace Crown */

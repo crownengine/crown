@@ -506,10 +506,7 @@ public class OBJImporter
 		// Reuse only children that existed before this import, and assign each
 		// existing child to at most one imported node.
 		GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-		GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
-			? db.get_set(unit_id, "children")
-			: guid_set_new()
-			;
+		Guid?[] old_children = db.get_set(unit_id, "children");
 		GLib.GenericArray<Guid?> child_unit_ids = new GLib.GenericArray<Guid?>();
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {

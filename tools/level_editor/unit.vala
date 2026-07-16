@@ -36,9 +36,14 @@ public struct Unit
 			return ObjectExists.UNKNOWN;
 
 		ObjectExists exists = ObjectExists.MISSING;
-		if (db.get_set(unit_id, "components").contains(component_id)) {
-			exists = ObjectExists.EXISTS;
-		} else {
+		foreach (unowned Guid? local_component_id in db.get_set(unit_id, "components")) {
+			if (Guid.equal_func(local_component_id, component_id)) {
+				exists = ObjectExists.EXISTS;
+				break;
+			}
+		}
+
+		if (exists == ObjectExists.MISSING) {
 			string? prefab = db.get_resource(unit_id, "prefab");
 			if (prefab != null) {
 				Guid prefab_id;
@@ -64,8 +69,8 @@ public struct Unit
 			return ObjectExists.UNKNOWN;
 
 		ObjectExists exists = ObjectExists.MISSING;
-		GLib.GenericSet<Guid?> children = db.get_set(unit_id, "children");
-		foreach (Guid? local_child_id in children) {
+		Guid?[] children = db.get_set(unit_id, "children");
+		foreach (unowned Guid? local_child_id in children) {
 			if (local_child_id == child_id) {
 				exists = ObjectExists.EXISTS;
 				break;
@@ -92,8 +97,8 @@ public struct Unit
 		}
 
 		if (exists == ObjectExists.EXISTS && apply_unit_deletes) {
-			GLib.GenericSet<Guid?> deleted_children = db.get_set(unit_id, "deleted_children");
-			foreach (Guid? deleted_child_id in deleted_children) {
+			Guid?[] deleted_children = db.get_set(unit_id, "deleted_children");
+			foreach (unowned Guid? deleted_child_id in deleted_children) {
 				if (deleted_child_id == child_id) {
 					exists = ObjectExists.MISSING;
 					break;
@@ -138,7 +143,7 @@ public struct Unit
 
 	private void prune_stale_child_override_set(string key, bool apply_unit_deletes)
 	{
-		foreach (Guid child_id in guid_set_to_array(_db.get_set(_id, key))) {
+		foreach (unowned Guid? child_id in _db.get_set(_id, key)) {
 			if (child_exists_internal(_db, _id, child_id, apply_unit_deletes) == ObjectExists.MISSING)
 				_db.remove_from_set(_id, key, child_id);
 		}
@@ -561,8 +566,7 @@ public struct Unit
 		if (prefab_name != null) {
 			Guid prefab_id = GUID_ZERO;
 			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
-				Guid?[] components = guid_set_to_array(_db.get_set(_id, "components"));
-				foreach (Guid component_id in components) {
+				foreach (unowned Guid? component_id in _db.get_set(_id, "components")) {
 					Guid prefab_component_id;
 					if (!Unit.has_component_static(out prefab_component_id, _db.object_type(component_id), _db, prefab_id))
 						continue;
@@ -685,11 +689,8 @@ public struct Unit
 				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
-			GLib.GenericArray<Guid?> lod_levels = new GLib.GenericArray<Guid?>();
-			GLib.GenericSet<Guid?> lod_level_ids = db.get_set(component_id, "data.lod_levels");
-			foreach (Guid? id in lod_level_ids)
-				lod_levels.add(id);
-			lod_levels.sort_with_data((a, b) => {
+			Guid?[] lod_levels = db.get_set(component_id, "data.lod_levels");
+			GLib.qsort_with_data<Guid?>(lod_levels, sizeof(Guid?), (a, b) => {
 					double screen_size_a = db.get_double(a, "data.screen_size");
 					double screen_size_b = db.get_double(b, "data.screen_size");
 					return screen_size_a > screen_size_b ? -1 : (screen_size_a < screen_size_b ? 1 : 0);
@@ -747,8 +748,8 @@ public struct Unit
 		unit_ids.add(unit_id);
 
 		if (db.has_property(unit_id, "children")) {
-			GLib.GenericSet<Guid?> children = db.get_set(unit_id, "children");
-			foreach (Guid? child_id in children) {
+			Guid?[] children = db.get_set(unit_id, "children");
+			foreach (unowned Guid? child_id in children) {
 				if (db.is_alive(child_id))
 					collect_unit_tree(unit_ids, child_id, db);
 			}
@@ -782,8 +783,8 @@ public struct Unit
 				spawn_unit(sb, id, db);
 			} else {
 				sb.append(LevelEditorApi.spawn_empty_unit(id));
-				GLib.GenericSet<Guid?> unit_components = db.get_set(id, "components");
-				foreach (Guid? component_id in unit_components)
+				Guid?[] unit_components = db.get_set(id, "components");
+				foreach (unowned Guid? component_id in unit_components)
 					components.add(component_id);
 			}
 		}
@@ -841,8 +842,8 @@ public struct Unit
 		} else {
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
-			GLib.List<unowned Guid?> components = db.get_set(unit_id, "components").get_values();
-			components.sort_with_data((a, b) => {
+			Guid?[] components = db.get_set(unit_id, "components");
+			GLib.qsort_with_data<Guid?>(components, sizeof(Guid?), (a, b) => {
 					double order_a = db.get_double(a, "spawn_order");
 					double order_b = db.get_double(b, "spawn_order");
 					return (int)(order_a - order_b);
