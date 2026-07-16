@@ -559,15 +559,39 @@ public class OBJImporter
 		}
 
 		if (options.import_lods) {
-			// Build one LOD group from sibling meshes named *_LOD0, *_LOD1, ...
+			// Build one LOD group from sibling meshes named *_LOD<n>.
 			for (int i = 0; i < child_unit_ids.length; ++i) {
 				unowned ufbx.Node child_node = node.children.data[i];
 				if (child_node.name.data.length == 0)
 					continue;
 
 				string name = (string)child_node.name.data;
-				if (!name.down().has_suffix("_lod0"))
+				string base_name;
+				int first_lod;
+				if (!Mesh.parse_lod_name(out base_name, out first_lod, name))
 					continue;
+				string base_name_lower = base_name.down();
+				GLib.HashTable<int, Guid?> lod_units = new GLib.HashTable<int, Guid?>(GLib.direct_hash, GLib.direct_equal);
+
+				// Index matching LODs and find the lowest index, regardless of sibling order.
+				for (int ci = 0; ci < child_unit_ids.length; ++ci) {
+					unowned ufbx.Node n = node.children.data[ci];
+					if (n.name.data.length == 0)
+						continue;
+
+					string child_base_name;
+					int child_lod;
+					string child_name = (string)n.name.data;
+					if (!Mesh.parse_lod_name(out child_base_name, out child_lod, child_name)
+						|| child_base_name.down() != base_name_lower
+						)
+						continue;
+
+					if (!lod_units.contains(child_lod))
+						lod_units[child_lod] = child_unit_ids[ci];
+					if (child_lod < first_lod)
+						first_lod = child_lod;
+				}
 
 				Guid component_id;
 				if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
@@ -581,25 +605,12 @@ public class OBJImporter
 				db.create_empty_set(component_id, "data.lod_levels");
 
 				double screen_size = 1.0;
-				string base_name = name.substring(0, name.length - 5);
 				// Add levels by suffix until the next LOD mesh is missing.
-				for (int lod_i = 0; ; ++lod_i) {
-					Guid lod_unit_id = GUID_ZERO;
-					string lod_name = (base_name + "_lod" + lod_i.to_string()).down();
-					for (int ci = 0; ci < child_unit_ids.length; ++ci) {
-						unowned ufbx.Node n = node.children.data[ci];
-						if (n.name.data.length == 0)
-							continue;
-
-						string child_name = (string)n.name.data;
-						if (child_name.down() != lod_name)
-							continue;
-
-						lod_unit_id = child_unit_ids[ci];
+				int lod_i = first_lod;
+				for (;;) {
+					if (!lod_units.contains(lod_i))
 						break;
-					}
-					if (lod_unit_id == GUID_ZERO)
-						break;
+					Guid lod_unit_id = lod_units[lod_i];
 
 					Guid level_id = Guid.new_guid();
 					db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
@@ -607,6 +618,10 @@ public class OBJImporter
 					db.set_double(level_id, "data.screen_size", screen_size);
 					db.add_to_set(component_id, "data.lod_levels", level_id);
 					screen_size *= 0.5;
+
+					if (lod_i == int.MAX)
+						break;
+					++lod_i;
 				}
 				return;
 			}
