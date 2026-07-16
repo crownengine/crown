@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-16T16:34:21+00:00" /><meta property="og:title" content="Console" />
+    <meta property="article:modified_time" content="2026-07-16T20:55:07+00:00" /><meta property="og:title" content="Console" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/level_editor/console.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -69,6 +69,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#runtime-connections">Runtime connections</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#commands">Commands</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lua-expressions">Lua expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lua-auto-completion">Lua auto-completion</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#history-navigation">History navigation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#resource-id-lookup">Resource ID lookup</a></li>
 </ul>
@@ -163,6 +164,22 @@ is running.</p>
 </figcaption>
 </figure>
 </section>
+<section id="lua-auto-completion">
+<h2>Lua auto-completion<a class="headerlink" href="#lua-auto-completion" title="Permalink to this headline">¶</a></h2>
+<p>Start typing a Lua expression in the Command Bar and Crown will search and
+display matched symbols in the <a class="reference internal" href="#runtime-connections"><span class="std std-ref">selected runtime</span></a>.
+When searching symbols, Crown scans the Lua <code class="docutils literal notranslate"><span class="pre">_G</span></code> global table, which includes
+the full Crown API as well as any user-defined global name.</p>
+<figure class="align-center" id="id4">
+<img alt="level_editor/images/console_lua_auto_completion.png" src="level_editor/images/console_lua_auto_completion.png" />
+<figcaption>
+<p><span class="caption-text">Suggested matches for the Lua expression being typed.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Continue typing to filter the list, or use the <code class="docutils literal notranslate"><span class="pre">Up</span> <span class="pre">Arrow</span></code> and <code class="docutils literal notranslate"><span class="pre">Down</span> <span class="pre">Arrow</span></code>
+keys to choose a match. Press <code class="docutils literal notranslate"><span class="pre">Tab</span></code> to accept it or <code class="docutils literal notranslate"><span class="pre">Escape</span></code> to dismiss the
+list.</p>
+</section>
 <section id="history-navigation">
 <h2>History navigation<a class="headerlink" href="#history-navigation" title="Permalink to this headline">¶</a></h2>
 <p>The Console keeps a history of executed commands and expressions. Use the <code class="docutils literal notranslate"><span class="pre">Up</span>
@@ -176,9 +193,9 @@ dialog.</p>
 instead of plain-text strings. When the Console detects such numeric IDs, it
 attempts to resolve them back to readable names so logs are easier to
 understand:</p>
-<figure class="align-center" id="id4">
+<figure class="align-center" id="id5">
 <img alt="../_images/console_id_lookup.svg" src="../_images/console_id_lookup.svg" /><figcaption>
-<p><span class="caption-text">Automatic resource ID lookup in the Console.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p><span class="caption-text">Automatic resource ID lookup in the Console.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>
@@ -196,7 +213,7 @@ understand:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 16, 2026.
+      <span class="lastupdated">Last updated on Jul 16, 2026.
       </span></p>
   </div>
 

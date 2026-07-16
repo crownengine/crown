@@ -50,6 +50,23 @@ is running.
 
    Evaluating a Lua expression in the Console.
 
+Lua auto-completion
+===================
+
+Start typing a Lua expression in the Command Bar and Crown will search and
+display matched symbols in the :ref:`selected runtime<Runtime connections>`.
+When searching symbols, Crown scans the Lua ``_G`` global table, which includes
+the full Crown API as well as any user-defined global name.
+
+.. figure:: images/console_lua_auto_completion.png
+   :align: center
+
+   Suggested matches for the Lua expression being typed.
+
+Continue typing to filter the list, or use the ``Up Arrow`` and ``Down Arrow``
+keys to choose a match. Press ``Tab`` to accept it or ``Escape`` to dismiss the
+list.
+
 History navigation
 ==================
 
