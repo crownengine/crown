@@ -102,41 +102,41 @@ namespace MeshResource
 			Guid?[] old_children = db.get_set(unit_id, "children");
 
 			children.foreach((child_name, child_value) => {
-				string child_import_path = import_path + "/" + child_name;
-				Guid child_unit_id = GUID_ZERO;
+					string child_import_path = import_path + "/" + child_name;
+					Guid child_unit_id = GUID_ZERO;
 
-				foreach (Guid? child_id in old_children) {
-					if (matched_children.contains(child_id) || !db.is_alive(child_id))
-						continue;
-					if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
-						child_unit_id = child_id;
-						break;
-					}
-				}
-
-				if (child_unit_id == GUID_ZERO) {
 					foreach (Guid? child_id in old_children) {
 						if (matched_children.contains(child_id) || !db.is_alive(child_id))
 							continue;
-
-						Unit child_unit = Unit(db, child_id);
-						Guid component_id = GUID_ZERO;
-						bool name_matches = db.name(child_id) == child_name;
-						if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-							name_matches = child_unit.get_component_string(component_id, "data.name", "") == child_name;
-
-						if (name_matches) {
+						if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
 							child_unit_id = child_id;
 							break;
 						}
 					}
-				}
 
-				if (child_unit_id == GUID_ZERO)
-					child_unit_id = Guid.new_guid();
-				matched_children.add(child_unit_id);
+					if (child_unit_id == GUID_ZERO) {
+						foreach (Guid? child_id in old_children) {
+							if (matched_children.contains(child_id) || !db.is_alive(child_id))
+								continue;
 
-				create_components(db
+							Unit child_unit = Unit(db, child_id);
+							Guid component_id = GUID_ZERO;
+							bool name_matches = db.name(child_id) == child_name;
+							if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+								name_matches = child_unit.get_component_string(component_id, "data.name", "") == child_name;
+
+							if (name_matches) {
+								child_unit_id = child_id;
+								break;
+							}
+						}
+					}
+
+					if (child_unit_id == GUID_ZERO)
+						child_unit_id = Guid.new_guid();
+					matched_children.add(child_unit_id);
+
+					create_components(db
 					, unit_id
 					, child_unit_id
 					, material_name
@@ -145,7 +145,7 @@ namespace MeshResource
 					, child_name
 					, (GLib.HashTable<string, Value?>)child_value
 					);
-			});
+				});
 		}
 	}
 
@@ -211,44 +211,44 @@ namespace MeshResource
 				GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 				Guid?[] old_children = db.get_set(unit_id, "children");
 				mesh_nodes.foreach((node_name, node_value) => {
-					string import_path = mesh_nodes.length > 1 ? "root/" + node_name : "root";
-					if (mesh_nodes.length > 1) {
-						// If the mesh contains multiple root objects, create a new unit for each
-						// one of those, otherwise put the components inside the base unit.
-						new_unit_id = GUID_ZERO;
+						string import_path = mesh_nodes.length > 1 ? "root/" + node_name : "root";
+						if (mesh_nodes.length > 1) {
+							// If the mesh contains multiple root objects, create a new unit for each
+							// one of those, otherwise put the components inside the base unit.
+							new_unit_id = GUID_ZERO;
 
-						foreach (Guid? child_id in old_children) {
-							if (matched_children.contains(child_id) || !db.is_alive(child_id))
-								continue;
-							if (db.get_string(child_id, "editor.import_path", "") == import_path) {
-								new_unit_id = child_id;
-								break;
-							}
-						}
-
-						if (new_unit_id == GUID_ZERO) {
 							foreach (Guid? child_id in old_children) {
 								if (matched_children.contains(child_id) || !db.is_alive(child_id))
 									continue;
-
-								Unit child_unit = Unit(db, child_id);
-								Guid component_id = GUID_ZERO;
-								bool name_matches = db.name(child_id) == node_name;
-								if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
-									name_matches = child_unit.get_component_string(component_id, "data.name", "") == node_name;
-
-								if (name_matches) {
+								if (db.get_string(child_id, "editor.import_path", "") == import_path) {
 									new_unit_id = child_id;
 									break;
 								}
 							}
-						}
 
-						if (new_unit_id == GUID_ZERO)
-							new_unit_id = Guid.new_guid();
-						matched_children.add(new_unit_id);
-					}
-					create_components(db
+							if (new_unit_id == GUID_ZERO) {
+								foreach (Guid? child_id in old_children) {
+									if (matched_children.contains(child_id) || !db.is_alive(child_id))
+										continue;
+
+									Unit child_unit = Unit(db, child_id);
+									Guid component_id = GUID_ZERO;
+									bool name_matches = db.name(child_id) == node_name;
+									if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+										name_matches = child_unit.get_component_string(component_id, "data.name", "") == node_name;
+
+									if (name_matches) {
+										new_unit_id = child_id;
+										break;
+									}
+								}
+							}
+
+							if (new_unit_id == GUID_ZERO)
+								new_unit_id = Guid.new_guid();
+							matched_children.add(new_unit_id);
+						}
+						create_components(db
 						, unit_id
 						, new_unit_id
 						, material_name
@@ -257,7 +257,7 @@ namespace MeshResource
 						, node_name
 						, (GLib.HashTable<string, Value?>)node_value
 						);
-				});
+					});
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
 					return ImportResult.ERROR;

@@ -50,12 +50,12 @@ public class UnitView : PropertyGrid
 		GLib.Menu menu_model = new GLib.Menu();
 
 		Unit._component_registry.foreach((component_type, _value) => {
-			GLib.MenuItem mi = new GLib.MenuItem(camel_case(component_type), null);
-			mi.set_action_and_target_value("object.add-component"
+				GLib.MenuItem mi = new GLib.MenuItem(camel_case(component_type), null);
+				mi.set_action_and_target_value("object.add-component"
 				, new GLib.Variant.string(component_type)
 				);
-			menu_model.append_item(mi);
-		});
+				menu_model.append_item(mi);
+			});
 
 		_add_popover = new Gtk.Popover.from_model(null, menu_model);
 
