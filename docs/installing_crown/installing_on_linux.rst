@@ -6,10 +6,10 @@ Software requirements
 ---------------------
 
 Any relatively recent Linux distribution with up-to-date graphics drivers should
-work, as long as the following dependencies are installed:
+work, as long as you have an X11 server and the following dependencies are
+installed:
 
 * ``gtk3`` >= 3.24
-* ``gee`` >= 0.8
 
 Installing from crownengine.org
 -------------------------------
