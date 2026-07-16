@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-05T17:25:54+00:00" /><meta property="og:title" content="Building" />
+    <meta property="article:modified_time" content="2026-07-15T16:26:58+00:00" /><meta property="og:title" content="Building" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/building.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -190,7 +190,7 @@
 <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span> <span class="n">libdecor</span><span class="o">-</span><span class="mi">0</span><span class="o">-</span><span class="n">dev</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span> <span class="n">libgtk</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="n">dev</span> <span class="n">gettext</span>
 
 <span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">vala</span><span class="o">-</span><span class="n">team</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">valac</span> <span class="n">libgee</span><span class="o">-</span><span class="mf">0.8</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">valac</span>
 
 <span class="c1"># Optionally, to build docs:</span>
 <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">sphinx</span>
@@ -229,7 +229,7 @@
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">pacman</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">make</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gcc</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">pkgconf</span> \
     <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">gtk3</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">sassc</span> \
-    <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">libgee</span> <span class="n">gettext</span>
+    <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">vala</span> <span class="n">gettext</span>
 
 <span class="c1"># Optionally, to build docs:</span>
 <span class="n">pacman</span> <span class="o">-</span><span class="n">Sy</span> <span class="n">mingw</span><span class="o">-</span><span class="n">w64</span><span class="o">-</span><span class="n">x86_64</span><span class="o">-</span><span class="n">python</span><span class="o">-</span><span class="n">sphinx</span>
@@ -340,7 +340,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 05, 2026.
+      <span class="lastupdated">Last updated on Jul 15, 2026.
       </span></p>
   </div>
 
