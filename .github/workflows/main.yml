@@ -223,7 +223,6 @@ jobs:
         make MAKE_JOBS=4 crown-launcher-mingw-release64
   code-style:
     runs-on: ubuntu-22.04
-    needs: [android-arm, html5, linux, windows]
     steps:
     - uses: actions/checkout@v6
     - name: format
