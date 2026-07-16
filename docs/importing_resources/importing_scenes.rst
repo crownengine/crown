@@ -122,3 +122,13 @@ geometry:
 
    Imported animation clips in the dedicated ``animations`` folder.
 
+Importing LODs
+--------------
+
+Crown generates a ``LOD Group`` component in the root unit and populates it
+automatically when it detects the imported model contains LODs.
+
+A model can explicitly mark a mesh as LOD in a group by adding a ``_LODx``
+suffix to its name. The ``x`` in the suffix can be any non-negative number and
+can be zero-padded (e.g. ``_LOD01``). LODs can start at any number but there
+must be no gaps between successive LODs.
