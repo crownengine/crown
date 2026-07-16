@@ -841,22 +841,15 @@ public struct Unit
 		} else {
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
-			Guid?[] components = guid_set_to_array(db.get_set(unit_id, "components"));
-
-			GLib.GenericArray<int?> spawn_order = new GLib.GenericArray<int?>();
-			for (int i = 0; i < components.length; ++i)
-				spawn_order.add(i);
-
-			spawn_order.sort_with_data((a, b) => {
-					double order_a = db.get_double(components[(int)a], "spawn_order");
-					double order_b = db.get_double(components[(int)b], "spawn_order");
+			GLib.List<unowned Guid?> components = db.get_set(unit_id, "components").get_values();
+			components.sort_with_data((a, b) => {
+					double order_a = db.get_double(a, "spawn_order");
+					double order_b = db.get_double(b, "spawn_order");
 					return (int)(order_a - order_b);
 				});
 
-			for (int i = 0; i < spawn_order.length; ++i) {
-				Guid component_id = components[(int)spawn_order[i]];
+			foreach (unowned Guid? component_id in components)
 				generate_add_component_commands(sb, unit_id, component_id, db);
-			}
 
 			sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
 			sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
@@ -1080,20 +1073,21 @@ public struct Unit
 		return (db.type_flags(StringId64(db.object_type(id))) & ObjectTypeFlags.UNIT_COMPONENT) != 0;
 	}
 
-	public void add_component_type_dependencies(ref GLib.GenericArray<Guid?> components_added, string component_type)
+	public bool add_component_type_dependencies(string component_type)
 	{
 		Guid dummy;
 		if (has_component(out dummy, component_type))
-			return;
+			return false;
 
 		string[] component_type_dependencies = ((string)Unit._component_registry[component_type]).split(", ");
 		foreach (unowned string dependency in component_type_dependencies) {
 			Guid dependency_component_id;
 			if (!has_component(out dependency_component_id, dependency))
-				add_component_type_dependencies(ref components_added, dependency);
+				add_component_type_dependencies(dependency);
 		}
 
-		components_added.add(add_component_type(component_type));
+		add_component_type(component_type);
+		return true;
 	}
 }
 
