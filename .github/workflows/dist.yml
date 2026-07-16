@@ -363,7 +363,7 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
       - name: download-artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ./artifacts_dist
       - name: merge
