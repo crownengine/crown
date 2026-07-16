@@ -248,14 +248,14 @@ public class PropertyGrid : Gtk.Grid
 		GLib.GenericArray<unowned string> dependents = new GLib.GenericArray<unowned string>();
 		// Do not remove if any other component needs us.
 		Unit._component_registry.foreach((registered_type, dependencies_value) => {
-			Guid dummy;
-			if (!unit.has_component(out dummy, registered_type))
-				return;
+				Guid dummy;
+				if (!unit.has_component(out dummy, registered_type))
+					return;
 
-			string[] component_type_dependencies = ((string)dependencies_value).split(", ");
-			if (component_type in component_type_dependencies)
-				dependents.add(registered_type);
-		});
+				string[] component_type_dependencies = ((string)dependencies_value).split(", ");
+				if (component_type in component_type_dependencies)
+					dependents.add(registered_type);
+			});
 
 		if (dependents.length > 0) {
 			StringBuilder sb = new StringBuilder();

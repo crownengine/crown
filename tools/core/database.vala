@@ -592,12 +592,12 @@ public class Database
 			GLib.GenericArray<Value?> textures = new GLib.GenericArray<Value?>();
 
 			old_textures.foreach((name, texture_value) => {
-				GLib.HashTable<string, Value?> texture = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-				texture["_type"] = OBJECT_TYPE_TEXTURE_SAMPLER;
-				texture["name"] = name;
-				texture["texture"] = texture_value;
-				textures.add(texture);
-			});
+					GLib.HashTable<string, Value?> texture = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+					texture["_type"] = OBJECT_TYPE_TEXTURE_SAMPLER;
+					texture["name"] = name;
+					texture["texture"] = texture_value;
+					textures.add(texture);
+				});
 
 			json["textures"] = textures;
 		}
@@ -607,51 +607,51 @@ public class Database
 			GLib.GenericArray<Value?> uniforms = new GLib.GenericArray<Value?>();
 
 			old_uniforms.foreach((name, uniform_value) => {
-				GLib.HashTable<string, Value?> old_uniform = (GLib.HashTable<string, Value?>)uniform_value;
-				string type = (string)old_uniform["type"];
-				Value? value = old_uniform["value"];
+					GLib.HashTable<string, Value?> old_uniform = (GLib.HashTable<string, Value?>)uniform_value;
+					string type = (string)old_uniform["type"];
+					Value? value = old_uniform["value"];
 
-				GLib.HashTable<string, Value?> uniform = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-				uniform["name"] = name;
+					GLib.HashTable<string, Value?> uniform = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+					uniform["name"] = name;
 
-				if (type == "matrix4x4") {
-					uniform["_type"] = OBJECT_TYPE_UNIFORM_MATRIX4X4;
+					if (type == "matrix4x4") {
+						uniform["_type"] = OBJECT_TYPE_UNIFORM_MATRIX4X4;
 
-					GLib.GenericArray<Value?> matrix = (GLib.GenericArray<Value?>)value;
-					string[] rows = { "x", "y", "z", "t" };
-					for (int row = 0; row < 4; ++row) {
-						int offset = row*4;
+						GLib.GenericArray<Value?> matrix = (GLib.GenericArray<Value?>)value;
+						string[] rows = { "x", "y", "z", "t" };
+						for (int row = 0; row < 4; ++row) {
+							int offset = row*4;
 
-						GLib.HashTable<string, Value?> row_value = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-						row_value["x"] = (double)matrix[offset + 0];
-						row_value["y"] = (double)matrix[offset + 1];
-						row_value["z"] = (double)matrix[offset + 2];
-						row_value["w"] = (double)matrix[offset + 3];
-						uniform[rows[row]] = row_value;
-					}
-				} else {
-					uniform["_type"] = OBJECT_TYPE_UNIFORM_VECTOR4;
-
-					double[] v = { 0.0, 0.0, 0.0, 0.0 };
-					if (value.holds(typeof(double))) {
-						v[0] = (double)value;
-					} else {
-						GLib.GenericArray<Value?> arr = (GLib.GenericArray<Value?>)value;
-						for (int i = 0; i < arr.length && i < 4; ++i) {
-							v[i] = (double)arr[i];
+							GLib.HashTable<string, Value?> row_value = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+							row_value["x"] = (double)matrix[offset + 0];
+							row_value["y"] = (double)matrix[offset + 1];
+							row_value["z"] = (double)matrix[offset + 2];
+							row_value["w"] = (double)matrix[offset + 3];
+							uniform[rows[row]] = row_value;
 						}
+					} else {
+						uniform["_type"] = OBJECT_TYPE_UNIFORM_VECTOR4;
+
+						double[] v = { 0.0, 0.0, 0.0, 0.0 };
+						if (value.holds(typeof(double))) {
+							v[0] = (double)value;
+						} else {
+							GLib.GenericArray<Value?> arr = (GLib.GenericArray<Value?>)value;
+							for (int i = 0; i < arr.length && i < 4; ++i) {
+								v[i] = (double)arr[i];
+							}
+						}
+
+						GLib.HashTable<string, Value?> vector = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+						vector["x"] = v[0];
+						vector["y"] = v[1];
+						vector["z"] = v[2];
+						vector["w"] = v[3];
+						uniform["value"] = vector;
 					}
 
-					GLib.HashTable<string, Value?> vector = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-					vector["x"] = v[0];
-					vector["y"] = v[1];
-					vector["z"] = v[2];
-					vector["w"] = v[3];
-					uniform["value"] = vector;
-				}
-
-				uniforms.add(uniform);
-			});
+					uniforms.add(uniform);
+				});
 
 			json["uniforms"] = uniforms;
 		}
