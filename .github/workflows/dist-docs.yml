@@ -40,23 +40,17 @@ jobs:
             echo "is_tag=false" >> $GITHUB_OUTPUT
             if [ -n "${GITHUB_HEAD_REF:-}" ]; then
               BRANCH="${GITHUB_HEAD_REF}"
+            elif [[ "${GITHUB_REF}" == refs/heads/* ]]; then
+              BRANCH="${GITHUB_REF#refs/heads/}"
             else
-              if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
-                BRANCH="${GITHUB_REF#refs/heads/}"
-              else
-                BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-                if [ -z "${BRANCH:-}" ] || [ "${BRANCH}" = "HEAD" ]; then
-                  BRANCH="$(git name-rev --name-only HEAD 2>/dev/null || true)"
-                fi
-                BRANCH="${BRANCH#remotes/origin/}"
+              BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+              if [ -z "${BRANCH:-}" ] || [ "${BRANCH}" = "HEAD" ]; then
+                BRANCH="$(git name-rev --name-only HEAD 2>/dev/null || true)"
               fi
+              BRANCH="${BRANCH#remotes/origin/}"
             fi
             echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
-            if [[ "${BRANCH}" == "master" ]]; then
-              echo "version=master" >> $GITHUB_OUTPUT
-            else
-              echo "version=${BRANCH}" >> $GITHUB_OUTPUT
-            fi
+            echo "version=${BRANCH}" >> $GITHUB_OUTPUT
           fi
 
   docs:
