@@ -149,26 +149,27 @@ class ObjectsSetEditor : Gtk.Box
 		_read_only_note.visible = read_only;
 
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
-		GLib.GenericSet<Guid?> children = guid_set_new();
+		Guid?[] children;
 		if (_grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT && _grid._component_id != GUID_ZERO) {
 			Unit unit = Unit(_grid._db, _grid._id);
-			children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, children);
+			GLib.GenericSet<Guid?> component_children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, guid_set_new());
+			GLib.GenericArray<Guid?> live_children = new GLib.GenericArray<Guid?>();
+			foreach (unowned Guid? child_id in component_children) {
+				if (_grid._db.is_alive(child_id))
+					live_children.add(child_id);
+			}
+			children = live_children.steal();
 		} else {
-			children = _grid._db.get_set(owner_id, _definition.name, children);
+			children = _grid._db.get_set(owner_id, _definition.name);
 		}
 
-		GLib.GenericArray<Guid?> items = new GLib.GenericArray<Guid?>();
-		foreach (Guid? child_id in children) {
-			if (_grid._db.is_alive(child_id))
-				items.add(child_id);
-		}
-		items.sort_with_data((a, b) => {
+		GLib.qsort_with_data<Guid?>(children, sizeof(Guid?), (a, b) => {
 				return strcmp(object_name(a), object_name(b));
 			});
 
 		Gtk.ListBoxRow? row_to_select = null;
-		for (int i = 0; i < items.length; ++i) {
-			Guid child_id = items[i];
+		foreach (unowned Guid? item_id in children) {
+			Guid child_id = item_id;
 			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 			row.set_data("id", child_id.to_string());
 

@@ -734,8 +734,8 @@ public class LevelTreeView : Gtk.Box
 
 		_tree_view.model = _tree_sort;
 
-		on_objects_created(guid_set_to_array(_db.get_set(_level._id, "units")));
-		on_objects_created(guid_set_to_array(_db.get_set(_level._id, "sounds")));
+		on_objects_created(_db.get_set(_level._id, "units"));
+		on_objects_created(_db.get_set(_level._id, "sounds"));
 
 		_tree_view.expand_all();
 	}

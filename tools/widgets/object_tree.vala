@@ -431,8 +431,8 @@ public class ObjectTree : Gtk.Box
 
 			// Insert the set's content.
 			if (_database.has_property(id, def.name)) {
-				GLib.GenericSet<Guid?> children = _database.get_set(id, def.name);
-				foreach (var child_id in children) {
+				Guid?[] children = _database.get_set(id, def.name);
+				foreach (unowned Guid? child_id in children) {
 					if (!_database.is_alive(child_id))
 						continue;
 

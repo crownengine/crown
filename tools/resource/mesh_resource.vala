@@ -99,10 +99,7 @@ namespace MeshResource
 			// Reuse only children that existed before this import, and assign each
 			// existing child to at most one imported node.
 			GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-			GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
-				? db.get_set(unit_id, "children")
-				: guid_set_new()
-				;
+			Guid?[] old_children = db.get_set(unit_id, "children");
 
 			children.foreach((child_name, child_value) => {
 				string child_import_path = import_path + "/" + child_name;
@@ -212,10 +209,7 @@ namespace MeshResource
 
 				Guid new_unit_id = unit_id;
 				GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-				GLib.GenericSet<Guid?> old_children = db.has_property(unit_id, "children")
-					? db.get_set(unit_id, "children")
-					: guid_set_new()
-					;
+				Guid?[] old_children = db.get_set(unit_id, "children");
 				mesh_nodes.foreach((node_name, node_value) => {
 					string import_path = mesh_nodes.length > 1 ? "root/" + node_name : "root";
 					if (mesh_nodes.length > 1) {
