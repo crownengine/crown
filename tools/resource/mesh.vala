@@ -16,6 +16,30 @@ public struct Mesh
 		_nodes = new GLib.GenericArray<string>();
 	}
 
+	public static bool parse_lod_name(out string base_name, out int lod_index, string name)
+	{
+		base_name = "";
+		lod_index = -1;
+
+		string name_lower = name.down();
+		int lod_pos = name_lower.last_index_of("_lod");
+		if (lod_pos == -1)
+			return false;
+
+		string index_string = name_lower.substring(lod_pos + 4);
+		if (index_string.length == 0)
+			return false;
+		for (int i = 0; i < index_string.length; ++i) {
+			if (!index_string[i].isdigit())
+				return false;
+		}
+		if (!int.try_parse(index_string, out lod_index))
+			return false;
+
+		base_name = name.substring(0, lod_pos);
+		return true;
+	}
+
 	public void decode_node(GLib.HashTable<string, Value?> node)
 	{
 		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(node);
