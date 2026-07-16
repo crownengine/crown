@@ -846,7 +846,10 @@ public class Database
 		string old_db = db_key;
 		string k = db_key;
 
-		foreach (unowned string key in json.get_keys()) {
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(json);
+		unowned string key;
+		unowned Value? val;
+		while (iter.next(out key, out val)) {
 			// ID is filled by decode_set().
 			if (key == "id"
 				|| key == "_guid"
@@ -854,8 +857,6 @@ public class Database
 				|| key == "prefab"
 				)
 				continue;
-
-			Value? val = json[key];
 
 			k += k == "" ? key : ("." + key);
 
@@ -1016,9 +1017,12 @@ public class Database
 		if (id != GUID_ZERO)
 			obj["_guid"] = id.to_string();
 
-		foreach (unowned string key in db.get_keys()) {
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(db);
+		unowned string key;
+		unowned Value? value;
+		while (iter.next(out key, out value)) {
 			// Since null-key is equivalent to non-existent key, skip serialization.
-			if (db[key] == null || key == "_owner" || key == "_alive")
+			if (value == null || key == "_owner" || key == "_alive")
 				continue;
 
 			string[] foo = key.split(".");
@@ -1037,7 +1041,7 @@ public class Database
 					x = y;
 				}
 			}
-			x.set(foo[foo.length - 1], encode_value(db[key]));
+			x.set(foo[foo.length - 1], encode_value(value));
 		}
 
 		return obj;
@@ -1322,12 +1326,13 @@ public class Database
 		string obj_type = object_type(id);
 
 		GLib.HashTable<string, Value?> o = get_data(id);
-		foreach (unowned string key in o.get_keys()) {
-			Value? value = o[key];
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(o);
+		unowned string _key;
+		unowned Value? value;
+		while (iter.next(out _key, out value)) {
 			if (value.holds(typeof(GLib.GenericSet))) {
 				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
-				Guid?[] ids = guid_set_to_array(hs);
-				foreach (Guid item_id in ids) {
+				foreach (Guid? item_id in hs) {
 					if (is_alive(item_id))
 						destroy(item_id);
 				}
@@ -1702,32 +1707,34 @@ public class Database
 		dest.create(new_id, object_type(id));
 
 		GLib.HashTable<string, Value?> ob = get_data(id);
-		foreach (unowned string key in ob.get_keys()) {
-			Value? val = ob[key];
-			if (val.holds(typeof(GLib.GenericSet))) {
-				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)val;
+		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(ob);
+		unowned string key;
+		unowned Value? value;
+		while (iter.next(out key, out value)) {
+			if (value.holds(typeof(GLib.GenericSet))) {
+				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
 				foreach (Guid? j in hs) {
 					Guid x = Guid.new_guid();
 					duplicate(j, x, dest);
 					dest.add_to_set(new_id, key, x);
 				}
 			} else {
-				if (ob[key] == null)
+				if (value == null)
 					dest.set_null(new_id, key);
-				else if (ob[key].holds(typeof(bool)))
-					dest.set_bool(new_id, key, (bool)ob[key]);
-				else if (ob[key].holds(typeof(double)))
-					dest.set_double(new_id, key, (double)ob[key]);
-				else if (ob[key].holds(typeof(string)))
-					dest.set_string(new_id, key, (string)ob[key]);
-				else if (ob[key].holds(typeof(Vector3)))
-					dest.set_vector3(new_id, key, (Vector3)ob[key]);
-				else if (ob[key].holds(typeof(Quaternion)))
-					dest.set_quaternion(new_id, key, (Quaternion)ob[key]);
-				else if (ob[key].holds(typeof(Resource)))
-					dest.set_resource(new_id, key, ((Resource)ob[key]).name);
-				else if (ob[key].holds(typeof(Guid)))
-					dest.set_reference(new_id, key, (Guid)ob[key]);
+				else if (value.holds(typeof(bool)))
+					dest.set_bool(new_id, key, (bool)value);
+				else if (value.holds(typeof(double)))
+					dest.set_double(new_id, key, (double)value);
+				else if (value.holds(typeof(string)))
+					dest.set_string(new_id, key, (string)value);
+				else if (value.holds(typeof(Vector3)))
+					dest.set_vector3(new_id, key, (Vector3)value);
+				else if (value.holds(typeof(Quaternion)))
+					dest.set_quaternion(new_id, key, (Quaternion)value);
+				else if (value.holds(typeof(Resource)))
+					dest.set_resource(new_id, key, ((Resource)value).name);
+				else if (value.holds(typeof(Guid)))
+					dest.set_reference(new_id, key, (Guid)value);
 				else
 					assert(false);
 			}

@@ -25,10 +25,7 @@ public class UnitView : PropertyGrid
 		Guid unit_id = _id;
 		Unit unit = Unit(_db, unit_id);
 
-		GLib.GenericArray<Guid?> components_added = new GLib.GenericArray<Guid?>();
-		unit.add_component_type_dependencies(ref components_added, component_type);
-
-		if (components_added.length > 0)
+		if (unit.add_component_type_dependencies(component_type))
 			_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, { unit_id });
 	}
 

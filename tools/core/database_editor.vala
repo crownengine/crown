@@ -61,15 +61,12 @@ public class DatabaseEditor
 		if (_selection.length == 0)
 			return;
 
-		Guid?[] ids = new Guid?[_selection.length];
-		for (int i = 0; i < _selection.length; ++i)
-			ids[i] = _selection[i];
-		Guid?[] new_ids = new Guid?[ids.length];
+		Guid?[] new_ids = new Guid?[_selection.length];
 		for (int i = 0; i < new_ids.length; ++i)
 			new_ids[i] = Guid.new_guid();
 
-		for (int i = 0; i < ids.length; ++i)
-			_database.duplicate_and_add_to_set(ids[i], new_ids[i]);
+		for (int i = 0; i < _selection.length; ++i)
+			_database.duplicate_and_add_to_set(_selection[i], new_ids[i]);
 		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
 
 		selection_set(new_ids);
