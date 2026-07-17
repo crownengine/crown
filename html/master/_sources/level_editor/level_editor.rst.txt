@@ -4,16 +4,16 @@
 Editor overview
 ===============
 
-After opening a :ref:`project` Crown immediately starts compiling the
-resources it contains. Once the process is complete, the Level Editor is
-launched and should look similar to the image below:
+Opening a :ref:`project` starts resource compilation automatically. After Crown
+finishes compiling the resources, it launches the Level Editor, which should
+look similar to the following image:
 
 .. figure:: images/editor_overview.svg
    :align: center
 
    The Level Editor interface in its default configuration.
 
-The Level Editor is split into several panels:
+The Level Editor interface consists of several panels:
 
 ====== ======================= =============
 Number Name                    What it shows
@@ -35,8 +35,8 @@ Layout customization
 Most panels are optional and can be toggled from the ``View`` menu in the
 Menubar.
 
-The Console can be shown or hidden quickly with the ``Ctrl+``` shortcut. Use
-the same shortcut to jump to the Command Bar in the Console.
+Press ``Ctrl+``` to show or hide the Console. When the Console is visible, press
+the same shortcut to move focus to the Command Bar.
 
 Running the game
 ================
@@ -51,5 +51,5 @@ the Titlebar. If the runtime takes too long to stop, it will be forcibly
 terminated. At exit the Console will switch back to communicating with the
 editor's runtime.
 
-To run the full game, choose ``Debug -> Run Game`` from the Menubar. In this
-mode Crown launches the game as it would run for an end user.
+To run the complete game, choose ``Debug -> Run Game`` from the Menubar. Crown
+then launches the game as it would appear to an end user.

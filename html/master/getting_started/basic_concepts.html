@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-18T12:04:24+00:00" /><meta property="og:title" content="Basic Concepts" />
+    <meta property="article:modified_time" content="2026-07-17T17:02:58+00:00" /><meta property="og:title" content="Basic Concepts" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/getting_started/basic_concepts.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="This page describes basic concepts and terminology commonly used when working with Crown. Project: A project in Crown is a folder that contains all the resources that describe your game. Resources are plain-text files (with some exceptions) identified by their relative path (t..." />
+<meta property="og:description" content="This page introduces the basic concepts and terminology used when working with Crown. Project: In Crown, a project is a folder that contains every resource used to describe your game. These resources are mostly plain-text files, with a few exceptions for inherently binary reso..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="This page describes basic concepts and terminology commonly used when working with Crown. Project: A project in Crown is a folder that contains all the resources that describe your game. Resources are plain-text files (with some exceptions) identified by their relative path (t..." />
+<meta name="description" content="This page introduces the basic concepts and terminology used when working with Crown. Project: In Crown, a project is a folder that contains every resource used to describe your game. These resources are mostly plain-text files, with a few exceptions for inherently binary reso..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -117,26 +117,26 @@
              
   <section id="basic-concepts">
 <h1>Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h1>
-<p>This page describes basic concepts and terminology commonly used when working
-with Crown.</p>
+<p>This page introduces the basic concepts and terminology used when working with
+Crown.</p>
 <section id="project">
 <span id="id1"></span><h2>Project<a class="headerlink" href="#project" title="Permalink to this headline">¶</a></h2>
-<p>A project in Crown is a folder that contains all the resources that describe
-your game. Resources are plain-text files (with some exceptions) identified
-by their relative path (to the project’s root).</p>
-<p>You are free to organize resources in a project however you like. However, to
-avoid confusion it is recommended to put units in their own folder because
-they often consist of multiple files (e.g. a resource for a tree may consist
-of a <code class="docutils literal notranslate"><span class="pre">tree.unit</span></code>, <code class="docutils literal notranslate"><span class="pre">tree.material</span></code> and <code class="docutils literal notranslate"><span class="pre">tree.lua</span></code> files).</p>
+<p>In Crown, a project is a folder that contains every resource used to describe
+your game. These resources are mostly plain-text files, with a few exceptions
+for inherently binary resources, such as textures and sounds.</p>
+<p>Except for a few special files, resources can be arranged freely within a Crown
+project.</p>
 </section>
 <section id="resource-paths-and-names">
 <h2>Resource paths and names<a class="headerlink" href="#resource-paths-and-names" title="Permalink to this headline">¶</a></h2>
-<p>All paths in Crown are unix-style (forward slashes). Only canonical/normalized
-paths are allowed.</p>
-<p>Resources in a project are identified by their relative path to the project’s
-folder, without extension.</p>
-<p>For example, to refer to the unit named “units/player/player.unit” you will
-use the string “units/player/player”.</p>
+<p>Resources are identified by their paths relative to the project root, with the
+file extension omitted. Crown uses Unix-style paths with forward slashes
+(<code class="docutils literal notranslate"><span class="pre">/</span></code>).</p>
+<p>For example, the unit at path <code class="docutils literal notranslate"><span class="pre">units/player/player.unit</span></code> is identified by name
+as <code class="docutils literal notranslate"><span class="pre">units/player/player</span></code>.</p>
+<p>All resource paths must be canonical and normalized, strings such as
+<code class="docutils literal notranslate"><span class="pre">units/../units/player/player</span></code> or <code class="docutils literal notranslate"><span class="pre">units\\player\\player</span></code> are invalid
+resource names.</p>
 </section>
 <section id="unit-and-components">
 <h2>Unit and Components<a class="headerlink" href="#unit-and-components" title="Permalink to this headline">¶</a></h2>
@@ -154,19 +154,16 @@ Components to it. No component is mandatory, units can be just empty IDs.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">Light</span></code>, <code class="docutils literal notranslate"><span class="pre">Camera</span></code>, <code class="docutils literal notranslate"><span class="pre">Fog</span></code>, <code class="docutils literal notranslate"><span class="pre">Bloom</span></code> etc.</p></li>
 </ul>
 <p>Components can be added or removed at any time in the editor or at runtime.</p>
-<p>Units support parent-child relationships, allowing complex hierarchies of
-objects to be built from many smaller units (e.g. a car with wheels, body,
-lights etc.).</p>
+<p>Units support parent-child relationships, allowing you to build complex object
+hierarchies from smaller units. For example, a car unit might contain separate
+units for its body, wheels, and lights.</p>
 </section>
 <section id="unit-prefab">
 <h2>Unit Prefab<a class="headerlink" href="#unit-prefab" title="Permalink to this headline">¶</a></h2>
-<p>Units can be saved to disk as a <em>.unit</em> resource, creating a prefab. Other
-units can then reference this prefab, instantly inheriting all of its
-components and hierarchy. Changes to a prefab are automatically propagated to
-every instance of that prefab.</p>
-<p>Unit Prefabs are created by saving existing units inside
-the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Editor overview</span></a>, or, more commonly, by importing them
-from <a class="reference internal" href="../importing_resources/importing_scenes.html#importing-scenes"><span class="std std-ref">scenes</span></a> or <a class="reference internal" href="../importing_resources/importing_sprites.html#importing-sprites"><span class="std std-ref">sprites</span></a>.</p>
+<p>Saving a unit to disk as a <em>.unit</em> resource creates a prefab. Other units can
+reference the prefab and inherit its components and hierarchy. Changes to the
+prefab are automatically propagated to all of its instances.</p>
+<p>You can create unit prefabs by saving existing units in the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor</span></a> or, more commonly, by importing them from <a class="reference internal" href="../importing_resources/importing_scenes.html#importing-scenes"><span class="std std-ref">scenes</span></a> or <a class="reference internal" href="../importing_resources/importing_sprites.html#importing-sprites"><span class="std std-ref">sprites</span></a>.</p>
 </section>
 <section id="world">
 <h2>World<a class="headerlink" href="#world" title="Permalink to this headline">¶</a></h2>
@@ -179,18 +176,18 @@ advances the game simulation. When a World is running it:</p>
 <li><p>renders the visible scene;</p></li>
 <li><p>etc.</p></li>
 </ul>
-<p>A World can be populated manually via code or automatically by loading Level
+<p>You can populate a world manually through code or automatically by loading level
 resources into it.</p>
-<p>A game always has at least one active world. Multiple worlds can exist
-simultaneously (for example, one for the main game and one for a UI overlay),
-though this is uncommon.</p>
+<p>A game always has at least one active world. Although uncommon, multiple worlds
+can run simultaneously, for example, one for the main game and another for a UI
+overlay.</p>
 </section>
 <section id="level">
 <h2>Level<a class="headerlink" href="#level" title="Permalink to this headline">¶</a></h2>
-<p>A Level (<em>.level</em> resource) is a saved collection of units, sounds and other
+<p>A <em>.level</em> resource represents a saved collection of units, sounds, and other
 objects.</p>
-<p>Levels are authored in the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Editor overview</span></a>. A world can load any number of levels
-at the same time, enabling complex multi-layered scenes.</p>
+<p>You create levels in the <a class="reference internal" href="../level_editor/level_editor.html#level-editor"><span class="std std-ref">Level Editor</span></a>. A world can load
+multiple levels simultaneously to form complex, multi-layered scenes.</p>
 </section>
 </section>
 
@@ -206,7 +203,7 @@ at the same time, enabling complex multi-layered scenes.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 18, 2026.
+      <span class="lastupdated">Last updated on Jul 17, 2026.
       </span></p>
   </div>
 
