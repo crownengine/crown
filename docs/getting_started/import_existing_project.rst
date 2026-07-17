@@ -2,8 +2,8 @@
 Importing an existing project
 =============================
 
-Crown projects are just regular folders. If you want to import an existing
-project, click the ``Import...`` button in the projects list:
+Crown projects are just regular folders. To import an existing project, click
+the ``Import...`` button in the Projects List:
 
 .. figure:: images/empty_projects_list.png
    :align: center
@@ -17,7 +17,7 @@ Then, select the folder containing the project and click the ``Open`` button:
 
    Selecting an existing project folder to import.
 
-If the project is correctly recognized, Crown will add it to the projects list:
+If Crown recognizes the project, it adds it to the Projects List:
 
 .. figure:: images/import_project_projects_list.png
    :align: center

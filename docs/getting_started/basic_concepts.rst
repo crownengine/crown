@@ -1,34 +1,34 @@
 Basic Concepts
 ==============
 
-This page describes basic concepts and terminology commonly used when working
-with Crown.
+This page introduces the basic concepts and terminology used when working with
+Crown.
 
 .. _project:
 
 Project
 -------
 
-A project in Crown is a folder that contains all the resources that describe
-your game. Resources are plain-text files (with some exceptions) identified
-by their relative path (to the project's root).
+In Crown, a project is a folder that contains every resource used to describe
+your game. These resources are mostly plain-text files, with a few exceptions
+for inherently binary resources, such as textures and sounds.
 
-You are free to organize resources in a project however you like. However, to
-avoid confusion it is recommended to put units in their own folder because
-they often consist of multiple files (e.g. a resource for a tree may consist
-of a ``tree.unit``, ``tree.material`` and ``tree.lua`` files).
+Except for a few special files, resources can be arranged freely within a Crown
+project.
 
 Resource paths and names
 ------------------------
 
-All paths in Crown are unix-style (forward slashes). Only canonical/normalized
-paths are allowed.
+Resources are identified by their paths relative to the project root, with the
+file extension omitted. Crown uses Unix-style paths with forward slashes
+(``/``).
 
-Resources in a project are identified by their relative path to the project's
-folder, without extension.
+For example, the unit at path ``units/player/player.unit`` is identified by name
+as ``units/player/player``.
 
-For example, to refer to the unit named "units/player/player.unit" you will
-use the string "units/player/player".
+All resource paths must be canonical and normalized, strings such as
+``units/../units/player/player`` or ``units\\player\\player`` are invalid
+resource names.
 
 Unit and Components
 -------------------
@@ -50,21 +50,20 @@ Crown includes a number of predefined components, some examples are:
 
 Components can be added or removed at any time in the editor or at runtime.
 
-Units support parent-child relationships, allowing complex hierarchies of
-objects to be built from many smaller units (e.g. a car with wheels, body,
-lights etc.).
+Units support parent-child relationships, allowing you to build complex object
+hierarchies from smaller units. For example, a car unit might contain separate
+units for its body, wheels, and lights.
 
 Unit Prefab
 -----------
 
-Units can be saved to disk as a *.unit* resource, creating a prefab. Other
-units can then reference this prefab, instantly inheriting all of its
-components and hierarchy. Changes to a prefab are automatically propagated to
-every instance of that prefab.
+Saving a unit to disk as a *.unit* resource creates a prefab. Other units can
+reference the prefab and inherit its components and hierarchy. Changes to the
+prefab are automatically propagated to all of its instances.
 
-Unit Prefabs are created by saving existing units inside
-the :ref:`level_editor`, or, more commonly, by importing them
-from :ref:`scenes <importing_scenes>` or :ref:`sprites <importing_sprites>`.
+You can create unit prefabs by saving existing units in the :ref:`Level Editor
+<level_editor>` or, more commonly, by importing them from :ref:`scenes
+<importing_scenes>` or :ref:`sprites <importing_sprites>`.
 
 World
 -----
@@ -78,18 +77,18 @@ advances the game simulation. When a World is running it:
 - renders the visible scene;
 - etc.
 
-A World can be populated manually via code or automatically by loading Level
+You can populate a world manually through code or automatically by loading level
 resources into it.
 
-A game always has at least one active world. Multiple worlds can exist
-simultaneously (for example, one for the main game and one for a UI overlay),
-though this is uncommon.
+A game always has at least one active world. Although uncommon, multiple worlds
+can run simultaneously, for example, one for the main game and another for a UI
+overlay.
 
 Level
 -----
 
-A Level (*.level* resource) is a saved collection of units, sounds and other
+A *.level* resource represents a saved collection of units, sounds, and other
 objects.
 
-Levels are authored in the :ref:`level_editor`. A world can load any number of levels
-at the same time, enabling complex multi-layered scenes.
+You create levels in the :ref:`Level Editor <level_editor>`. A world can load
+multiple levels simultaneously to form complex, multi-layered scenes.
