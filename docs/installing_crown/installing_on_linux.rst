@@ -15,16 +15,17 @@ installed:
 Installing from crownengine.org
 -------------------------------
 
-`Download Crown <https://www.crownengine.org/download>`_ Tarball and extract it
-somewhere on your filesystem.
+`Download the Crown tarball <https://www.crownengine.org/download>`_, then
+extract its contents to your preferred location.
 
-Open the extracted folder and double-click the ``crown-launcher`` executable to
-launch the Crown Editor.
+Navigate to the extracted folder and launch the Crown Editor by double-clicking
+the ``crown-launcher`` executable.
 
 Installing from Package Manager
 -------------------------------
 
-If you use ArchLinux, you can install Crown directly from AUR:
+On Arch Linux, you can install Crown directly from the Arch User Repository
+(AUR):
 
 .. code::
 

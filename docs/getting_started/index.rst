@@ -3,10 +3,9 @@ Getting Started
 ===============
 
 This section explains how to prepare a project for editing in Crown and
-introduces the basic concepts and terminology used throughout this manual.
-Be sure to read it to avoid confusion later. By the end, you will know how to
-create or import projects and understand how Crown projects are structured at
-a fundamental level.
+introduces the fundamental concepts and terminology used throughout this manual.
+By the end, you will understand how Crown projects are structured and how to
+create or import them. Reading this section will help you avoid confusion later.
 
 .. toctree::
 	:maxdepth: 2
