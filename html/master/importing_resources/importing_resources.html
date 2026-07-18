@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-12T22:25:31+00:00" /><meta property="og:title" content="Importing resources" />
+    <meta property="article:modified_time" content="2026-07-18T01:17:50+00:00" /><meta property="og:title" content="Importing resources" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_resources.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="Drag-and-drop: The quickest way to import assets into a Crown project is to drag-and-drop files from your file manager into the Project Browser. Crown will detect the resource types automatically and open an appropriate importer dialog so you can fine-tune import options. Impo..." />
+<meta property="og:description" content="Importing resources is the process of bringing externally created digital assets into a Crown project. Imported resources such as models, textures, sound files etc. are processed by Crown and made available for use in Levels, Units, and other project content. Drag-and-drop: Th..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/project_browser_right_click_import.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="Drag-and-drop: The quickest way to import assets into a Crown project is to drag-and-drop files from your file manager into the Project Browser. Crown will detect the resource types automatically and open an appropriate importer dialog so you can fine-tune import options. Impo..." />
+<meta name="description" content="Importing resources is the process of bringing externally created digital assets into a Crown project. Imported resources such as models, textures, sound files etc. are processed by Crown and made available for use in Levels, Units, and other project content. Drag-and-drop: Th..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -29,12 +29,13 @@
       <script src="../_static/jquery.js"></script>
       <script src="../_static/underscore.js"></script>
       <script src="../_static/doctools.js"></script>
+      <script src="../_static/js/sidebar_sections.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
     <link rel="next" title="Importing Scenes" href="importing_scenes.html" />
-    <link rel="prev" title="Importing Resources" href="index.html" /> 
+    <link rel="prev" title="Texture Settings" href="../level_editor/texture_settings.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,36 +58,94 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installing_crown/index.html">Installing Crown</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../level_editor/index.html">Level Editor</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Importing Resources</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Importing resources</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#drag-and-drop">Drag-and-drop</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#import-via-project-browser">Import via Project Browser</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#import-via-command-line">Import via Command Line</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/installing.html">Installing Crown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/hardware_requirements.html">Hardware Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/installing_on_linux.html">Installing on Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing_crown/installing_on_windows.html">Installing on Windows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/basic_concepts.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/for_the_impatient.html">For the Impatient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/create_new_project.html">Creating a new project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/import_existing_project.html">Importing an existing project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/level_editor.html">Editor overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Level Editor</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/project_browser.html">Project Browser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/console.html">Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/inspector.html">Inspector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/level_tree.html">Level Tree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/level_viewport.html">Level Viewport</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../level_editor/texture_settings.html">Texture Settings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Importing Resources</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Importing resources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#drag-and-drop">Drag-and-drop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-via-project-browser">Import via Project Browser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-via-command-line">Import via Command Line</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="importing_textures.html">Importing Textures</a></li>
-<li class="toctree-l2"><a class="reference internal" href="importing_sounds.html">Importing Sounds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="importing_fonts.html">Importing Fonts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_textures.html">Importing Textures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_sounds.html">Importing Sounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="importing_fonts.html">Importing Fonts</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../units/index.html">Units</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../rendering/index.html">Rendering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Physics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gameplay/index.html">Writing Gameplay</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Reference</a></li>
+<p class="caption" role="heading"><span class="caption-text">Units</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../units/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units/creating_units.html">Creating Units</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Rendering</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/lighting.html">Lighting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/materials.html">Materials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/shading_environment.html">Shading Environment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics/rigid_bodies.html">Rigid Bodies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/global_physics_config.html">Global Physics Config</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Scripting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/lua_scripting.html">Scripting in Lua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/objects_binding.html">Objects binding and lifetime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gameplay/unit_interaction.html">Interacting with Units</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Deploying</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/android.html">Deploying to Android</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/html5.html">Deploying to HTML5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/desktop.html">Deploying to Desktop Platforms</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/console_commands.html">Console commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/boot_config.html">boot.config reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/command_line.html">Command line</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Engine Hackers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/building.html">Building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/translating.html">Translating</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hackers/console_api.html">Console API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">License</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hackers/index.html">Engine Hackers</a></li>
 </ul>
 
         </div>
@@ -103,7 +162,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">Importing Resources</a></li>
       <li class="breadcrumb-item active">Importing resources</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/importing_resources/importing_resources.rst.txt" rel="nofollow"> View page source</a>
@@ -116,6 +174,10 @@
              
   <section id="importing-resources">
 <span id="id1"></span><h1>Importing resources<a class="headerlink" href="#importing-resources" title="Permalink to this headline">¶</a></h1>
+<p>Importing resources is the process of bringing externally created digital
+assets into a Crown <a class="reference internal" href="../getting_started/basic_concepts.html#project"><span class="std std-ref">project</span></a>. Imported resources such as
+models, textures, sound files etc. are processed by Crown and made available
+for use in Levels, Units, and other project content.</p>
 <section id="drag-and-drop">
 <h2>Drag-and-drop<a class="headerlink" href="#drag-and-drop" title="Permalink to this headline">¶</a></h2>
 <p>The quickest way to import assets into a Crown project is to drag-and-drop
@@ -169,7 +231,7 @@ syntax and the list of supported importer types.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Importing Resources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../level_editor/texture_settings.html" class="btn btn-neutral float-left" title="Texture Settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="importing_scenes.html" class="btn btn-neutral float-right" title="Importing Scenes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -177,7 +239,7 @@ syntax and the list of supported importer types.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 12, 2026.
+      <span class="lastupdated">Last updated on Jul 18, 2026.
       </span></p>
   </div>
 

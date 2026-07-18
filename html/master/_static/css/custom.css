@@ -12,6 +12,18 @@
 	background-color: #343131;
 }
 
+.wy-menu-vertical summary.caption {
+	color: #55a5d9;
+	line-height: 32px;
+	padding: 0 1.618em;
+	margin-top: 2px;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 85%;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
 @media screen and (min-width: 1000px) {
 	.wy-nav-side, .wy-grid-for-nav {
 		margin-left: calc(((100vw - 1000px) / 2));

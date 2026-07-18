@@ -2,14 +2,10 @@
 Hardware Requirements
 =====================
 
-Crown is designed to minimize resource usage and conserve battery life
-whenever possible. It reduces unnecessary background activity and adapts
-performance to the current workload to avoid wasting power.
-
 The following requirements are intended as a baseline for a smooth editor
-experience. Hardware requirements for running games built with Crown depend
-on each game's complexity and can often be significantly reduced through
-careful optimization/tuning.
+experience. Hardware requirements for running games built with Crown depend on
+each game's complexity and can often be significantly reduced through careful
+optimization/tuning.
 
 Minimum
 -------

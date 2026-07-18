@@ -1,8 +1,10 @@
 Basic Concepts
 ==============
 
-This page introduces the basic concepts and terminology used when working with
-Crown.
+This page introduces the fundamental concepts and terminology used when working
+with Crown. Reading this section will give you a high-level understanding of the
+core pieces in a Crown project. It is strongly recommended to read it carefully
+to avoid confusion later.
 
 .. _project:
 
@@ -15,6 +17,12 @@ for inherently binary resources, such as textures and sounds.
 
 Except for a few special files, resources can be arranged freely within a Crown
 project.
+
+.. figure:: images/project_folders.png
+   :align: center
+   :scale: 75%
+
+   Left: four sample projects. Right: resources in a project folder.
 
 Resource paths and names
 ------------------------
@@ -36,6 +44,11 @@ Unit and Components
 Units are the fundamental building blocks in Crown. Units can be used to
 represent any object that exists in a game world - a character, a tree, a
 vehicle, a light etc.
+
+.. figure:: ../units/images/units.png
+   :align: center
+
+   Three example units.
 
 By default, units are empty. You add functionality to a Unit by adding
 Components to it. No component is mandatory, units can be just empty IDs.
