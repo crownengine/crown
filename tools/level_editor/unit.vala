@@ -735,6 +735,15 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.weight")
 				, unit.get_component_double(component_id, "data.intensity")
 				));
+		} else if (db.object_type(component_id) == OBJECT_TYPE_COLOR_GRADING) {
+			sb.append(LevelEditorApi.add_color_grading_component(unit_id, component_id));
+			sb.append(LevelEditorApi.set_color_grading(unit_id
+				, unit.get_component_bool   (component_id, "data.enabled")
+				, unit.get_component_double (component_id, "data.exposure_bias")
+				, unit.get_component_double (component_id, "data.contrast")
+				, unit.get_component_double (component_id, "data.saturation")
+				, unit.get_component_vector3(component_id, "data.color_filter")
+				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_TONEMAP) {
 			sb.append(LevelEditorApi.add_tonemap_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_tonemap(unit_id
@@ -989,6 +998,14 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.threshold")
 				, unit.get_component_double(component_id, "data.weight")
 				, unit.get_component_double(component_id, "data.intensity")
+				));
+		} else if (component_type == OBJECT_TYPE_COLOR_GRADING) {
+			sb.append(LevelEditorApi.set_color_grading(unit_id
+				, unit.get_component_bool   (component_id, "data.enabled")
+				, unit.get_component_double (component_id, "data.exposure_bias")
+				, unit.get_component_double (component_id, "data.contrast")
+				, unit.get_component_double (component_id, "data.saturation")
+				, unit.get_component_vector3(component_id, "data.color_filter")
 				));
 		} else if (component_type == OBJECT_TYPE_TONEMAP) {
 			sb.append(LevelEditorApi.set_tonemap(unit_id

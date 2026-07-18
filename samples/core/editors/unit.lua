@@ -474,6 +474,17 @@ function UnitBox:set_bloom(enabled, threshold, weight, intensity)
 	end
 end
 
+function UnitBox:set_color_grading(enabled, exposure_bias, contrast, saturation, color_filter)
+	local color_grading = RenderWorld.color_grading_instance(self._rw, self._unit_id)
+	if color_grading then
+		RenderWorld.color_grading_set_enabled(self._rw, enabled)
+		RenderWorld.color_grading_set_exposure_bias(self._rw, exposure_bias)
+		RenderWorld.color_grading_set_contrast(self._rw, contrast)
+		RenderWorld.color_grading_set_saturation(self._rw, saturation)
+		RenderWorld.color_grading_set_color_filter(self._rw, color_filter)
+	end
+end
+
 function UnitBox:set_tonemap(type)
 	local tonemap = RenderWorld.tonemap_instance(self._rw, self._unit_id)
 	if tonemap then

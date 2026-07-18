@@ -328,6 +328,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
 	, _bloom_unit(UNIT_INVALID)
+	, _color_grading_unit(UNIT_INVALID)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -343,6 +344,12 @@ RenderWorld::RenderWorld(Allocator &a
 
 	// Bloom.
 	memset((void *)&_bloom_desc, 0, sizeof(_bloom_desc));
+
+	// Color grading.
+	memset((void *)&_color_grading_desc, 0, sizeof(_color_grading_desc));
+	_color_grading_desc.contrast = 1.0f;
+	_color_grading_desc.saturation = 1.0f;
+	_color_grading_desc.color_filter = COLOR4_WHITE;
 
 	// Tonemap.
 	memset((void *)&_tonemap_desc, 0, sizeof(_tonemap_desc));
@@ -1020,6 +1027,72 @@ void RenderWorld::bloom_set_intensity(float intensity)
 void RenderWorld::bloom_set_threshold(float threshold)
 {
 	_bloom_desc.threshold = threshold;
+}
+
+void RenderWorld::color_grading_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
+{
+	const ColorGradingDesc *color_gradings = (ColorGradingDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_color_grading_desc = color_gradings[i];
+		_color_grading_unit = unit;
+	}
+}
+
+ColorGradingId RenderWorld::color_grading_create(UnitId unit, const ColorGradingDesc &desc)
+{
+	u32 unit_lookup = 0;
+	color_grading_create_instances(&desc, 1, &unit, &unit_lookup);
+	return color_grading_instance(unit);
+}
+
+void RenderWorld::color_grading_destroy(u32 color_grading)
+{
+	CE_UNUSED(color_grading);
+	_color_grading_desc = {};
+	_color_grading_desc.contrast = 1.0f;
+	_color_grading_desc.saturation = 1.0f;
+	_color_grading_desc.color_filter = COLOR4_WHITE;
+	_color_grading_unit = UNIT_INVALID;
+}
+
+ColorGradingId RenderWorld::color_grading_instance(UnitId unit)
+{
+	if (_color_grading_unit == unit)
+		return { 0 };
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::color_grading_set_enabled(bool enabled)
+{
+	_color_grading_desc.enabled = enabled ? 1.0f : 0.0f;
+}
+
+void RenderWorld::color_grading_set_exposure_bias(float exposure_bias)
+{
+	_color_grading_desc.exposure_bias = exposure_bias;
+}
+
+void RenderWorld::color_grading_set_contrast(float contrast)
+{
+	_color_grading_desc.contrast = clamp(contrast, 0.0f, 2.0f);
+}
+
+void RenderWorld::color_grading_set_saturation(float saturation)
+{
+	_color_grading_desc.saturation = clamp(saturation, 0.0f, 2.0f);
+}
+
+void RenderWorld::color_grading_set_color_filter(Color4 color_filter)
+{
+	_color_grading_desc.color_filter = color_filter;
 }
 
 void RenderWorld::tonemap_create_instances(const void *components_data
@@ -1766,6 +1839,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	bgfx::touch(View::LIGHTS);
 
 	_pipeline->_bloom = _bloom_desc;
+	_pipeline->_color_grading_desc = _color_grading_desc;
 	_pipeline->_tonemap = _tonemap_desc;
 
 	const Vector4 texel_sizes =

@@ -41,6 +41,21 @@ components = [
 		}
 	}
 	{
+		_guid = "ae463979-efac-4ea9-959d-a551f81e4fe6"
+		_type = "color_grading"
+		data = {
+			enabled = false
+			color_filter = [
+				1
+				1
+				1
+			]
+			exposure_bias = 0
+			contrast = 1
+			saturation = 1
+		}
+	}
+	{
 		_guid = "f7fb0c3b-aaeb-4ea6-a210-0c5130e4352a"
 		_type = "tonemap"
 		data = {

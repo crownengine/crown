@@ -179,6 +179,7 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _bloom_map(BGFX_INVALID_HANDLE)
 	, _map_pixel_size(BGFX_INVALID_HANDLE)
 	, _bloom_params(BGFX_INVALID_HANDLE)
+	, _color_grading_desc_uniform(BGFX_INVALID_HANDLE)
 	, _tonemap_type(BGFX_INVALID_HANDLE)
 {
 	for (u32 i = 0; i < countof(_color_textures); ++i)
@@ -276,6 +277,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
 	_bloom_params = bgfx::createUniform("u_bloom_params", bgfx::UniformType::Vec4);
 
+	_color_grading_desc_uniform = bgfx::createUniform("u_color_grading_desc", bgfx::UniformType::Vec4, 2);
 	_tonemap_type = bgfx::createUniform("u_tonemap_type", bgfx::UniformType::Vec4);
 
 #if CROWN_PLATFORM_EMSCRIPTEN
@@ -335,9 +337,11 @@ void Pipeline::destroy()
 	bgfx::destroy(_sun_shadow_map_texture);
 	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
 
-	// Destroy tonemap resources.
+	// Destroy color-grading and tonemap resources.
 	bgfx::destroy(_tonemap_type);
 	_tonemap_type = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_color_grading_desc_uniform);
+	_color_grading_desc_uniform = BGFX_INVALID_HANDLE;
 
 	// Destroy bloom resources.
 	bgfx::destroy(_bloom_params);
@@ -905,8 +909,12 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
 	}
 
-	// Tonemapping.
+	// Color grading and tonemapping.
 	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+	bgfx::setUniform(_color_grading_desc_uniform
+		, &_color_grading_desc
+		, sizeof(_color_grading_desc)/sizeof(Vector4)
+		);
 	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_tonemap_shader.state);

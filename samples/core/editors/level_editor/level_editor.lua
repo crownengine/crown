@@ -1904,6 +1904,13 @@ function LevelEditor:add_bloom_component(id, component_id)
 	RenderWorld.bloom_create(self._rw, unit_id)
 end
 
+function LevelEditor:add_color_grading_component(id, component_id)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	if RenderWorld.color_grading_instance(self._rw, unit_id) ~= nil then return end
+	RenderWorld.color_grading_create(self._rw, unit_id)
+end
+
 function LevelEditor:add_tonemap_component(id, component_id)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -1939,6 +1946,9 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "bloom" then
 		local inst = RenderWorld.bloom_instance(self._rw, unit_id)
 		if inst then RenderWorld.bloom_destroy(self._rw, inst) end
+	elseif component_type == "color_grading" then
+		local inst = RenderWorld.color_grading_instance(self._rw, unit_id)
+		if inst then RenderWorld.color_grading_destroy(self._rw, inst) end
 	elseif component_type == "tonemap" then
 		local inst = RenderWorld.tonemap_instance(self._rw, unit_id)
 		if inst then RenderWorld.tonemap_destroy(self._rw, inst) end

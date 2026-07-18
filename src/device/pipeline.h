@@ -121,7 +121,9 @@ struct Pipeline
 	bgfx::UniformHandle _bloom_params;
 	BloomDesc _bloom;
 
-	// Tonemap.
+	// Color grading and tonemap.
+	bgfx::UniformHandle _color_grading_desc_uniform;
+	ColorGradingDesc _color_grading_desc;
 	bgfx::UniformHandle _tonemap_type;
 	TonemapDesc _tonemap;
 
