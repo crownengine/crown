@@ -97,6 +97,8 @@ static void create_components(World &w
 			render_world->global_lighting_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("bloom", UINT32_C(0x995dd31c))) {
 			render_world->bloom_create_instances(data, component->num_instances, unit_lookup, unit_index);
+		} else if (component->type == STRING_ID_32("color_grading", UINT32_C(0x486057e5))) {
+			render_world->color_grading_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
 			render_world->tonemap_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {

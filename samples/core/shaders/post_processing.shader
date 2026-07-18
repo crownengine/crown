@@ -230,21 +230,42 @@ bgfx_shaders = {
 		fs_code = """
 			SAMPLER2D(s_color_map, 0);
 			uniform vec4 u_tonemap_type;
+			uniform vec4 u_color_grading_desc[2];
+			#define grading_enabled u_color_grading_desc[0].x
+			#define exposure_bias   u_color_grading_desc[0].y
+			#define contrast        u_color_grading_desc[0].z
+			#define saturation      u_color_grading_desc[0].w
+			#define u_color_filter  u_color_grading_desc[1]
 
 			void main()
 			{
-				vec4 color = vec4(texture2D(s_color_map, v_texcoord0).rgb, 1.0);
+				CONST(vec3 luminance) = vec3(0.2126390059, 0.7151686788, 0.0721923154); // Rec.709 luminance
+				CONST(vec3 gray) = vec3(0.18, 0.18, 0.18);
+
+				vec4 source = texture2D(s_color_map, v_texcoord0);
+				vec3 color = source.rgb;
+
+				if (grading_enabled != 0.0) {
+					color *= u_color_filter.rgb;
+					color *= exp2(exposure_bias);
+					color = gray + contrast * (color - gray);
+
+					float luminance = dot(color, luminance);
+					color = vec3_splat(luminance) + saturation * (color - vec3_splat(luminance));
+				}
+
+				vec4 adjusted_color = vec4(color, source.a);
 
 				if (u_tonemap_type.x == 0.0)
-					gl_FragColor = toGammaAccurate(color);
+					gl_FragColor = toGammaAccurate(adjusted_color);
 				else if (u_tonemap_type.x == 1.0)
-					gl_FragColor = toReinhard(color);
+					gl_FragColor = toReinhard(vec4(max(color, vec3_splat(0.0)), source.a));
 				else if (u_tonemap_type.x == 2.0)
-					gl_FragColor = toFilmic(color);
+					gl_FragColor = toFilmic(adjusted_color);
 				else if (u_tonemap_type.x == 3.0)
-					gl_FragColor = toAcesFilmic(color);
+					gl_FragColor = toAcesFilmic(adjusted_color);
 				else
-					gl_FragColor = color;
+					gl_FragColor = adjusted_color;
 			}
 		"""
 	}
@@ -281,4 +302,3 @@ static_compile = [
 	{ shader = "tonemap" defines = [] }
 
 ]
-

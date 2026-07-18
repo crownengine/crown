@@ -549,6 +549,29 @@ static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, FlatJsonObjec
 	return 0;
 }
 
+static s32 compile_color_grading(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+{
+	CE_UNUSED_2(compiler, opts);
+
+	ColorGradingDesc desc;
+	const bool enabled = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.enabled")));
+	desc.enabled = enabled ? 1.0f : 0.0f;
+	desc.exposure_bias = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.exposure_bias")));
+	desc.contrast = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.contrast")));
+	desc.saturation = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.saturation")));
+	const Vector3 color_filter = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color_filter")));
+	desc.color_filter = { color_filter.x, color_filter.y, color_filter.z, 1.0f };
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(desc.enabled);
+	bw.write(desc.exposure_bias);
+	bw.write(desc.contrast);
+	bw.write(desc.saturation);
+	bw.write(desc.color_filter);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -1392,6 +1415,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "fog",                     &compile_fog,                                        0.0f);
 	unit_compiler::register_component_compiler(*this, "global_lighting",         &compile_global_lighting,                            0.0f);
 	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                                      0.0f);
+	unit_compiler::register_component_compiler(*this, "color_grading",           &compile_color_grading,                              0.0f);
 	unit_compiler::register_component_compiler(*this, "tonemap",                 &compile_tonemap,                                    0.0f);
 }
 

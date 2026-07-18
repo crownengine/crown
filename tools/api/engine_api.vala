@@ -529,6 +529,11 @@ namespace LevelEditorApi
 		return "LevelEditor:add_bloom_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
 	}
 
+	public string add_color_grading_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_color_grading_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string add_tonemap_component(Guid id, Guid component_id)
 	{
 		return "LevelEditor:add_tonemap_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
@@ -650,6 +655,23 @@ namespace LevelEditorApi
 			, threshold
 			, weight
 			, intensity
+			);
+	}
+
+	public string set_color_grading(Guid id
+		, bool enabled
+		, double exposure_bias
+		, double contrast
+		, double saturation
+		, Vector3 color_filter
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_color_grading(%s, %.17g, %.17g, %.17g, %s)".printf(id.to_string()
+			, Lua.bool(enabled)
+			, exposure_bias
+			, contrast
+			, saturation
+			, Lua.quaternion({color_filter.x, color_filter.y, color_filter.z, 1.0})
 			);
 	}
 

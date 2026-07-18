@@ -12,6 +12,7 @@ const string OBJECT_TYPE_ANIMATION_STATE_MACHINE = "animation_state_machine";
 const string OBJECT_TYPE_BLOOM                   = "bloom";
 const string OBJECT_TYPE_CAMERA                  = "camera";
 const string OBJECT_TYPE_COLLIDER                = "collider";
+const string OBJECT_TYPE_COLOR_GRADING           = "color_grading";
 const string OBJECT_TYPE_D6_JOINT                = "d6_joint";
 const string OBJECT_TYPE_FILE                    = "file";
 const string OBJECT_TYPE_FIXED_JOINT             = "fixed_joint";
@@ -81,6 +82,7 @@ const string OBJECT_TYPE_UNIT                    = "unit";
 //   lua_script    7100
 // post-processing 9000
 //   bloom         9100
+//   color_grading 9200
 //   tonemap       9900
 
 public static void node_name_enum_callback(InputField enum_property, InputEnum combo, Project project)
@@ -1823,6 +1825,65 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_BLOOM
 		, properties
 		, 9100
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enabled",
+			deffault = false,
+			tooltip = _("Enable color grading."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.color_filter",
+			editor = PropertyEditorType.COLOR,
+			min = VECTOR3_ZERO,
+			max = VECTOR3_ONE,
+			deffault = VECTOR3_ONE,
+			tooltip = _("Color to multiply with the HDR input to produce a tinted output."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.exposure_bias",
+			deffault = 0.0,
+			tooltip = _("Scene exposure bias in EV."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.contrast",
+			min = 0.0,
+			max = 2.0,
+			deffault = 1.0,
+			tooltip = _("Adjust the tonal range of bright and dark areas. 1.0 means neutral."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.saturation",
+			min = 0.0,
+			max = 2.0,
+			deffault = 1.0,
+			tooltip = _("Adjust the intensity of the colors. 1.0 means neutral."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_COLOR_GRADING
+		, properties
+		, 9200
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 

@@ -329,6 +329,37 @@ struct RenderWorld
 	void bloom_set_threshold(float threshold);
 
 	///
+	void color_grading_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
+	///
+	ColorGradingId color_grading_create(UnitId unit, const ColorGradingDesc &desc);
+
+	///
+	void color_grading_destroy(u32 color_grading);
+
+	///
+	ColorGradingId color_grading_instance(UnitId unit);
+
+	///
+	void color_grading_set_enabled(bool enabled);
+
+	///
+	void color_grading_set_exposure_bias(float exposure_bias);
+
+	///
+	void color_grading_set_contrast(float contrast);
+
+	///
+	void color_grading_set_saturation(float saturation);
+
+	///
+	void color_grading_set_color_filter(Color4 color_filter);
+
+	///
 	void tonemap_create_instances(const void *components_data
 		, u32 num
 		, const UnitId *unit_lookup
@@ -784,6 +815,10 @@ struct RenderWorld
 	// Bloom.
 	UnitId _bloom_unit;
 	BloomDesc _bloom_desc;
+
+	// Color grading.
+	UnitId _color_grading_unit;
+	ColorGradingDesc _color_grading_desc;
 
 	// Tonemap.
 	UnitId _tonemap_unit;

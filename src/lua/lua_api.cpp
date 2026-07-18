@@ -2875,6 +2875,54 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->bloom_set_threshold(stack.get_float(2));
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "color_grading_create", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			ColorGradingDesc desc = {};
+			desc.contrast = 1.0f;
+			desc.saturation = 1.0f;
+			desc.color_filter = COLOR4_WHITE;
+			stack.push_id(stack.get_render_world(1)->color_grading_create(stack.get_unit(2), desc).i);
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "color_grading_destroy", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "color_grading_instance", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			ColorGradingId inst = stack.get_render_world(1)->color_grading_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "color_grading_set_enabled", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_set_enabled(stack.get_bool(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "color_grading_set_exposure_bias", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_set_exposure_bias(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "color_grading_set_contrast", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_set_contrast(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "color_grading_set_saturation", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_set_saturation(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "color_grading_set_color_filter", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->color_grading_set_color_filter(stack.get_color4(2));
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "tonemap_create", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			TonemapDesc desc;

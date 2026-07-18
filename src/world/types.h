@@ -326,6 +326,7 @@ INSTANCE_ID(LightId)
 INSTANCE_ID(FogId)
 INSTANCE_ID(GlobalLightingId)
 INSTANCE_ID(BloomId)
+INSTANCE_ID(ColorGradingId)
 INSTANCE_ID(TonemapId)
 INSTANCE_ID(ColliderId)
 INSTANCE_ID(ActorId)
@@ -421,6 +422,18 @@ struct BloomDesc
 	f32 threshold; ///< The minimum luminance a pixel should have to be included in the bloom layer.
 	f32 weight;    ///< The weight to use when mixing the bloom layer with the main color layer.
 	f32 intensity; ///< The global intensity of the bloom effect.
+};
+
+/// Color grading description.
+///
+/// @ingroup World
+struct ColorGradingDesc
+{
+	f32 enabled;         ///< Whether the color grading is enabled.
+	f32 exposure_bias;   ///<
+	f32 contrast;        ///<
+	f32 saturation;      ///<
+	Color4 color_filter; ///<
 };
 
 struct TonemapType
