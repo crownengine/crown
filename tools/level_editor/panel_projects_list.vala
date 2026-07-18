@@ -88,6 +88,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect((n_press, x, y) => {
 				if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+					_projects_list._list_projects.select_row(this);
 					_menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
 					_menu.set_position(Gtk.PositionType.BOTTOM);
 					_menu.popup();
