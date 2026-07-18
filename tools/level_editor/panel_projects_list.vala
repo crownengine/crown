@@ -7,6 +7,15 @@ namespace Crown
 {
 public class ProjectRow : Gtk.ListBoxRow
 {
+	public const GLib.ActionEntry[] actions =
+	{
+		{ "open",                 on_open,                 null, null },
+		{ "open-in-file-manager", on_open_in_file_manager, null, null },
+		{ "run-game",             on_run_game,             null, null },
+		{ "remove",               on_remove,               null, null },
+	};
+
+	public GLib.SimpleActionGroup _action_group;
 	public Gtk.Box _vbox;
 	public Gtk.Box _hbox;
 	public Gtk.Label _name;
@@ -23,6 +32,9 @@ public class ProjectRow : Gtk.ListBoxRow
 		this.set_data("source_dir", source_dir);
 		this.set_data("mtime", time);
 		_projects_list = pl;
+		_action_group = new GLib.SimpleActionGroup();
+		_action_group.add_action_entries(actions, this);
+		this.insert_action_group("project", _action_group);
 
 		_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
@@ -53,8 +65,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_remove_button.set_halign(Gtk.Align.CENTER);
 		_remove_button.set_valign(Gtk.Align.CENTER);
 		_remove_button.set_margin_end(12);
-		_remove_button.action_name = "app.remove-project";
-		_remove_button.action_target = new GLib.Variant.string(source_dir);
+		_remove_button.action_name = "project.remove";
 		_hbox.pack_end(_remove_button, false, false, 0);
 
 		_open_button = new Gtk.Button.with_label(_("Open"));
@@ -63,8 +74,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_open_button.set_halign(Gtk.Align.CENTER);
 		_open_button.set_valign(Gtk.Align.CENTER);
 		// _open_button.set_margin_end(12);
-		_open_button.action_name = "app.open-project";
-		_open_button.action_target = new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE});
+		_open_button.action_name = "project.open";
 		_hbox.pack_end(_open_button, false, false, 0);
 
 		GLib.Menu menu_model = new GLib.Menu();
@@ -72,24 +82,24 @@ public class ProjectRow : Gtk.ListBoxRow
 
 		GLib.Menu menu_open = new GLib.Menu();
 		mi = new GLib.MenuItem(_("Open in Editor"), null);
-		mi.set_action_and_target_value("app.open-project", new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE}));
+		mi.set_detailed_action("project.open");
 		menu_open.append_item(mi);
 		menu_model.append_section(null, menu_open);
 
 		GLib.Menu menu_actions = new GLib.Menu();
 		mi = new GLib.MenuItem(_("Open in File Manager"), null);
-		mi.set_action_and_target_value("app.open-in-file-manager", new GLib.Variant.string(source_dir));
+		mi.set_detailed_action("project.open-in-file-manager");
 		menu_actions.append_item(mi);
 
 		mi = new GLib.MenuItem(_("Run Game"), null);
-		mi.set_action_and_target_value("app.run-project-game", new GLib.Variant.string(source_dir));
+		mi.set_detailed_action("project.run-game");
 		menu_actions.append_item(mi);
 
 		menu_model.append_section(null, menu_actions);
 
 		GLib.Menu menu_remove = new GLib.Menu();
 		mi = new GLib.MenuItem(_("Remove"), null);
-		mi.set_action_and_target_value("app.remove-project", new GLib.Variant.string(source_dir));
+		mi.set_detailed_action("project.remove");
 		menu_remove.append_item(mi);
 		menu_model.append_section(null, menu_remove);
 
@@ -111,6 +121,50 @@ public class ProjectRow : Gtk.ListBoxRow
 					_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 				}
 			});
+	}
+
+	public void set_project_exists(bool exists)
+	{
+		string[] require_project =
+		{
+			"open",
+			"open-in-file-manager",
+			"run-game",
+		};
+
+		foreach (string action_name in require_project) {
+			GLib.SimpleAction? action = _action_group.lookup_action(action_name) as GLib.SimpleAction;
+			assert(action != null);
+			action.set_enabled(exists);
+		}
+	}
+
+	public void on_open(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		GLib.Application.get_default().activate_action("open-project"
+			, new GLib.Variant.tuple({this.get_data<string>("source_dir"), LEVEL_NONE, ProjectFlags.NONE})
+			);
+	}
+
+	public void on_open_in_file_manager(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		GLib.Application.get_default().activate_action("open-in-file-manager"
+			, new GLib.Variant.string(this.get_data<string>("source_dir"))
+			);
+	}
+
+	public void on_run_game(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		GLib.Application.get_default().activate_action("run-project-game"
+			, new GLib.Variant.string(this.get_data<string>("source_dir"))
+			);
+	}
+
+	public void on_remove(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		GLib.Application.get_default().activate_action("remove-project"
+			, new GLib.Variant.string(this.get_data<string>("source_dir"))
+			);
 	}
 }
 
@@ -208,8 +262,7 @@ public class ProjectsList : Gtk.Box
 		_list_projects.show_all(); // Otherwise the list is not always updated...
 
 		GLib.Idle.add(() => {
-				if (!GLib.FileUtils.test(source_dir, FileTest.EXISTS))
-					row._open_button.sensitive = false;
+				row.set_project_exists(GLib.FileUtils.test(source_dir, FileTest.EXISTS));
 
 				return GLib.Source.REMOVE;
 			});
