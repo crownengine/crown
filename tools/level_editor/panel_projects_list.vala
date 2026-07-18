@@ -70,13 +70,28 @@ public class ProjectRow : Gtk.ListBoxRow
 		GLib.Menu menu_model = new GLib.Menu();
 		GLib.MenuItem mi = null;
 
-		mi = new GLib.MenuItem(_("Run Game"), null);
-		mi.set_action_and_target_value("app.run-project-game", new GLib.Variant.string(source_dir));
-		menu_model.append_item(mi);
+		GLib.Menu menu_open = new GLib.Menu();
+		mi = new GLib.MenuItem(_("Open in Editor"), null);
+		mi.set_action_and_target_value("app.open-project", new GLib.Variant.tuple({source_dir, LEVEL_NONE, ProjectFlags.NONE}));
+		menu_open.append_item(mi);
+		menu_model.append_section(null, menu_open);
 
+		GLib.Menu menu_actions = new GLib.Menu();
 		mi = new GLib.MenuItem(_("Open in File Manager"), null);
 		mi.set_action_and_target_value("app.open-in-file-manager", new GLib.Variant.string(source_dir));
-		menu_model.append_item(mi);
+		menu_actions.append_item(mi);
+
+		mi = new GLib.MenuItem(_("Run Game"), null);
+		mi.set_action_and_target_value("app.run-project-game", new GLib.Variant.string(source_dir));
+		menu_actions.append_item(mi);
+
+		menu_model.append_section(null, menu_actions);
+
+		GLib.Menu menu_remove = new GLib.Menu();
+		mi = new GLib.MenuItem(_("Remove"), null);
+		mi.set_action_and_target_value("app.remove-project", new GLib.Variant.string(source_dir));
+		menu_remove.append_item(mi);
+		menu_model.append_section(null, menu_remove);
 
 		_event_box = new Gtk.EventBox();
 		_event_box.add(_hbox);
