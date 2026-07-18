@@ -117,6 +117,7 @@ html_theme_options = {
 html_static_path = ['_static']
 html_theme_path = ["_themes"]
 html_css_files = ["css/custom.css"]
+html_js_files = ["js/sidebar_sections.js"]
 
 
 # -- Options for HTMLHelp output ------------------------------------------

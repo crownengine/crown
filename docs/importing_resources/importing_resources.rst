@@ -3,6 +3,11 @@
 Importing resources
 ===================
 
+Importing resources is the process of bringing externally created digital
+assets into a Crown :ref:`project <project>`. Imported resources such as
+models, textures, sound files etc. are processed by Crown and made available
+for use in Levels, Units, and other project content.
+
 Drag-and-drop
 -------------
 

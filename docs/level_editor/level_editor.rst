@@ -4,6 +4,12 @@
 Editor overview
 ===============
 
+The Level Editor is the first editor you see when you start Crown and the
+primary workspace for most project tasks. You use it to create and edit levels,
+browse project files, and access specialized editors and tools. It can also
+launch your game, hot-reload resources, and communicate with the running game
+through the Console.
+
 Opening a :ref:`project` starts resource compilation automatically. After Crown
 finishes compiling the resources, it launches the Level Editor, which should
 look similar to the following image:
