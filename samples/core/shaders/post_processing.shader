@@ -27,9 +27,9 @@ bgfx_shaders = {
 
 		code = """
 			uniform vec4 u_bloom_params;
-		#define bloom_weight u_bloom_params.x
-		#define bloom_intensity u_bloom_params.y
-		#define bloom_threshold u_bloom_params.z
+			#define bloom_threshold u_bloom_params.y
+			#define bloom_weight u_bloom_params.z
+			#define bloom_intensity u_bloom_params.w
 		"""
 	}
 

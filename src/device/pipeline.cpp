@@ -854,11 +854,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 
 	// Render bloom.
 	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
-		Vector4 bloom_params;
-		bloom_params.x = _bloom.weight;
-		bloom_params.y = _bloom.intensity;
-		bloom_params.z = _bloom.threshold;
-
 		// Copy color buffer to first bloom mip.
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), bloom_sampler_flags);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
@@ -888,7 +883,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
 			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
-			bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
+			bgfx::setUniform(_bloom_params, &_bloom, sizeof(_bloom)/sizeof(Vector4));
 			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
 			bgfx::setState(_bloom_upsample_shader.state);
 			bgfx::submit(View::BLOOM_UPSAMPLE_0 + i, _bloom_upsample_shader.program);
@@ -897,7 +892,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		// Combine first bloom mip with main color texture.
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 		bgfx::setTexture(1, _bloom_map, bgfx::getTexture(_bloom_frame_buffers[0]), samplerFlags);
-		bgfx::setUniform(_bloom_params, &bloom_params, sizeof(bloom_params)/sizeof(Vector4));
+		bgfx::setUniform(_bloom_params, &_bloom, sizeof(_bloom)/sizeof(Vector4));
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_bloom_combine_shader.state);
 		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
