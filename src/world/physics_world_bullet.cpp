@@ -505,19 +505,21 @@ class MoverClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestCo
 {
 public:
 	btCollisionObject *_me;
-	explicit MoverClosestNotMeConvexResultCallback(btCollisionObject *me)
-		: btCollisionWorld::ClosestConvexResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
+
+	MoverClosestNotMeConvexResultCallback(btCollisionObject *me, const btVector3 &from, const btVector3 &to)
+		: btCollisionWorld::ClosestConvexResultCallback(from, to)
 		, _me(me)
 	{
 	}
 
 	btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convex_result, bool normal_in_world_space) override
 	{
-		if (convex_result.m_hitCollisionObject == _me)
+		const btCollisionObject *hit_object = convex_result.m_hitCollisionObject;
+		if (hit_object == _me)
 			return btScalar(1.0);
 
-		if (!convex_result.m_hitCollisionObject->hasContactResponse()
-			&& btGhostObject::upcast(convex_result.m_hitCollisionObject) == NULL)
+		if (!hit_object->hasContactResponse()
+			&& btGhostObject::upcast(hit_object) == NULL)
 			return btScalar(1.0);
 
 		return ClosestConvexResultCallback::addSingleResult(convex_result, normal_in_world_space);
@@ -950,75 +952,64 @@ struct Mover
 			return false;
 
 		btVector3 stepped = current_position;
-
-		{
-			MoverClosestNotMeConvexResultCallback cb(_ghost);
-			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
-			_collision_world->convexSweepTest(_shape
-				, btTransform(btQuaternion::getIdentity(), stepped + _center)
-				, btTransform(btQuaternion::getIdentity(), stepped + _up * _step_height + _center)
-				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-			if (cb.hasHit()) {
-				CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up sweep hit missing collision object");
-				const btScalar up_hit = btMax(btScalar(0.0f), btMin(cb.m_closestHitFraction, btScalar(1.0f)));
-				if (up_hit <= MIN_SWEEP_HIT_FRACTION)
-					return false;
-				stepped += _up * (_step_height * btMax(btScalar(0.0f), up_hit - skin_width / btMax(_step_height, MIN_TRAVEL_DISTANCE)));
-			} else {
-				stepped += _up * _step_height;
-			}
+		MoverClosestNotMeConvexResultCallback up_cb(_ghost, stepped + _center, stepped + _up * _step_height + _center);
+		up_cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		up_cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		_collision_world->convexSweepTest(_shape
+			, btTransform(btQuaternion::getIdentity(), up_cb.m_convexFromWorld)
+			, btTransform(btQuaternion::getIdentity(), up_cb.m_convexToWorld)
+			, up_cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+		if (up_cb.hasHit()) {
+			CE_ASSERT(up_cb.m_hitCollisionObject != NULL, "Mover step-up sweep hit missing collision object");
+			const btScalar up_hit = btMax(btScalar(0.0f), btMin(up_cb.m_closestHitFraction, btScalar(1.0f)));
+			if (up_hit <= MIN_SWEEP_HIT_FRACTION)
+				return false;
+			stepped += _up * (_step_height * btMax(btScalar(0.0f), up_hit - skin_width / btMax(_step_height, MIN_TRAVEL_DISTANCE)));
+		} else {
+			stepped += _up * _step_height;
 		}
 
 		btVector3 advanced = stepped;
-		{
-			MoverClosestNotMeConvexResultCallback cb(_ghost);
-			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
-			_collision_world->convexSweepTest(_shape
-				, btTransform(btQuaternion::getIdentity(), stepped + _center)
-				, btTransform(btQuaternion::getIdentity(), stepped + lateral + _center)
-				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-			if (cb.hasHit()) {
-				CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up lateral hit missing collision object");
-				const btScalar lat_safe = btMax(btScalar(0.0f), btMin(cb.m_closestHitFraction, btScalar(1.0f)) - skin_width / btMax(lateral_len, MIN_TRAVEL_DISTANCE));
-				if (lat_safe <= MIN_STEP_UP_ADVANCE_FRACTION)
-					return false;
-				advanced += lateral * lat_safe;
-			} else {
-				advanced += lateral;
-			}
+		MoverClosestNotMeConvexResultCallback lateral_cb(_ghost, stepped + _center, stepped + lateral + _center);
+		lateral_cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		lateral_cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		_collision_world->convexSweepTest(_shape
+			, btTransform(btQuaternion::getIdentity(), lateral_cb.m_convexFromWorld)
+			, btTransform(btQuaternion::getIdentity(), lateral_cb.m_convexToWorld)
+			, lateral_cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+		if (lateral_cb.hasHit()) {
+			CE_ASSERT(lateral_cb.m_hitCollisionObject != NULL, "Mover step-up lateral hit missing collision object");
+			const btScalar lat_safe = btMax(btScalar(0.0f), btMin(lateral_cb.m_closestHitFraction, btScalar(1.0f)) - skin_width / btMax(lateral_len, MIN_TRAVEL_DISTANCE));
+			if (lat_safe <= MIN_STEP_UP_ADVANCE_FRACTION)
+				return false;
+			advanced += lateral * lat_safe;
+		} else {
+			advanced += lateral;
 		}
 
-		{
-			const btCapsuleShapeZ *capsule_shape = (const btCapsuleShapeZ *)_shape;
-			const btVector3 lateral_dir = lateral / lateral_len;
-			const btVector3 check_pos = stepped + lateral_dir * capsule_shape->getRadius();
+		const btCapsuleShapeZ *capsule_shape = (const btCapsuleShapeZ *)_shape;
+		const btVector3 check_pos = stepped + lateral / lateral_len * capsule_shape->getRadius();
+		MoverClosestNotMeConvexResultCallback ground_cb(_ghost
+			, check_pos + _center
+			, check_pos - _up * (_step_height + btScalar(0.05f)) + _center
+			);
+		ground_cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
+		ground_cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
+		_collision_world->convexSweepTest(_shape
+			, btTransform(btQuaternion::getIdentity(), ground_cb.m_convexFromWorld)
+			, btTransform(btQuaternion::getIdentity(), ground_cb.m_convexToWorld)
+			, ground_cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
+		if (!ground_cb.hasHit())
+			return false;
+		CE_ASSERT(ground_cb.m_hitCollisionObject != NULL, "Mover step-up landing hit missing collision object");
+		if (ground_cb.m_hitNormalWorld.length2() <= SIMD_EPSILON
+			|| ground_cb.m_hitNormalWorld.normalized().dot(_up) < _max_slope_cosine + btScalar(0.01f))
+			return false;
 
-			MoverClosestNotMeConvexResultCallback cb(_ghost);
-			cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
-			cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
-			_collision_world->convexSweepTest(_shape
-				, btTransform(btQuaternion::getIdentity(), check_pos + _center)
-				, btTransform(btQuaternion::getIdentity(), check_pos - _up * (_step_height + btScalar(0.05f)) + _center)
-				, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
-
-			if (!cb.hasHit())
-				return false;
-			CE_ASSERT(cb.m_hitCollisionObject != NULL, "Mover step-up landing hit missing collision object");
-
-			if (cb.m_hitNormalWorld.length2() <= SIMD_EPSILON)
-				return false;
-			if (cb.m_hitNormalWorld.normalized().dot(_up) < _max_slope_cosine + btScalar(0.01f))
-				return false;
-
-			current_position.setInterpolate3(advanced, advanced - _up * (_step_height + btScalar(0.05f)), cb.m_closestHitFraction);
-			_flags |= MoverFlags::COLLIDES_DOWN;
-			remaining.setValue(0.0f, 0.0f, 0.0f);
-			return true;
-		}
+		current_position.setInterpolate3(advanced, advanced - _up * (_step_height + btScalar(0.05f)), ground_cb.m_closestHitFraction);
+		_flags |= MoverFlags::COLLIDES_DOWN;
+		remaining.setValue(0.0f, 0.0f, 0.0f);
+		return true;
 	}
 
 	void sweep_ground(bool moving_up, bool snap)
@@ -1028,12 +1019,15 @@ struct Mover
 
 		const btScalar probe_distance = btMax(_step_height, btScalar(0.05f));
 
-		MoverClosestNotMeConvexResultCallback cb(_ghost);
+		MoverClosestNotMeConvexResultCallback cb(_ghost
+			, _current_position + _center
+			, _current_position + _center - _up * probe_distance
+			);
 		cb.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
 		cb.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
 		_collision_world->convexSweepTest(_shape
-			, btTransform(btQuaternion::getIdentity(), _current_position + _center)
-			, btTransform(btQuaternion::getIdentity(), _current_position + _center - _up * probe_distance)
+			, btTransform(btQuaternion::getIdentity(), cb.m_convexFromWorld)
+			, btTransform(btQuaternion::getIdentity(), cb.m_convexToWorld)
 			, cb, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
 		if (!cb.hasHit())
 			return;
@@ -1095,12 +1089,15 @@ struct Mover
 			if (length <= min_movement)
 				break;
 
-			MoverClosestNotMeConvexResultCallback callback(_ghost);
+			MoverClosestNotMeConvexResultCallback callback(_ghost
+				, current_position + _center
+				, current_position + remaining + _center
+				);
 			callback.m_collisionFilterGroup = _ghost->m_broadphaseHandle->m_collisionFilterGroup;
 			callback.m_collisionFilterMask = _ghost->m_broadphaseHandle->m_collisionFilterMask;
 			_collision_world->convexSweepTest(_shape
-				, btTransform(btQuaternion::getIdentity(), current_position + _center)
-				, btTransform(btQuaternion::getIdentity(), current_position + remaining + _center)
+				, btTransform(btQuaternion::getIdentity(), callback.m_convexFromWorld)
+				, btTransform(btQuaternion::getIdentity(), callback.m_convexToWorld)
 				, callback, _collision_world->getDispatchInfo().m_allowedCcdPenetration);
 
 			if (!callback.hasHit()) {
