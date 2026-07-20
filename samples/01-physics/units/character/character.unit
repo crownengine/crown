@@ -108,22 +108,6 @@ components = [
 		}
 	}
 	{
-		_guid = "4de9482d-0dc5-495c-a4ce-0bfcc7f57fc5"
-		_type = "actor"
-		data = {
-			class = "keyframed"
-			collision_filter = "player"
-			lock_rotation_x = false
-			lock_rotation_y = false
-			lock_rotation_z = false
-			lock_translation_x = false
-			lock_translation_y = false
-			lock_translation_z = false
-			mass = 1
-			material = "default"
-		}
-	}
-	{
 		_guid = "53b687c2-1368-4e17-aa19-c7dc965531cd"
 		_type = "transform"
 		data = {
@@ -158,36 +142,6 @@ components = [
 			height = 1.8
 			max_slope_angle = 0.78539816339744828
 			radius = 0.5
-		}
-	}
-	{
-		_guid = "7444039a-73a5-4110-a80f-5db06d7c9cbf"
-		_type = "collider"
-		data = {
-			collider_data = {
-				half_extents = [
-					0.5
-					0.5
-					0.5
-				]
-				height = 1
-				position = [
-					0
-					0
-					0
-				]
-				radius = 0.5
-				rotation = [
-					0
-					0
-					0
-					1
-				]
-			}
-			name = "Cube"
-			scene = "core/units/primitives/cube"
-			shape = "box"
-			source = "mesh"
 		}
 	}
 ]
