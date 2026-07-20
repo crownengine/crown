@@ -501,6 +501,24 @@ struct MyFilterCallback : public btOverlapFilterCallback
 	}
 };
 
+template<typename Callback>
+struct ClosestActorResultCallback : public Callback
+{
+	using Callback::Callback;
+
+	bool needsCollision(btBroadphaseProxy *proxy) const override
+	{
+		const btCollisionObject *object = (btCollisionObject *)proxy->m_clientObject;
+		return btRigidBody::upcast(object) != NULL
+			&& (uintptr_t)object->m_userObjectPointer != (uintptr_t)UINT32_MAX
+			&& Callback::needsCollision(proxy)
+			;
+	}
+};
+
+typedef ClosestActorResultCallback<btCollisionWorld::ClosestRayResultCallback> ClosestActorRayResultCallback;
+typedef ClosestActorResultCallback<btCollisionWorld::ClosestConvexResultCallback> ClosestActorConvexResultCallback;
+
 class MoverClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
 public:
@@ -512,21 +530,14 @@ public:
 	{
 	}
 
-	btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convex_result, bool normal_in_world_space) override
-	{
-		const btCollisionObject *hit_object = convex_result.m_hitCollisionObject;
-		if (hit_object == _me)
-			return btScalar(1.0);
-
-		if (!hit_object->hasContactResponse()
-			&& btGhostObject::upcast(hit_object) == NULL)
-			return btScalar(1.0);
-
-		return ClosestConvexResultCallback::addSingleResult(convex_result, normal_in_world_space);
-	}
-
 	bool needsCollision(btBroadphaseProxy *proxy0) const override
 	{
+		const btCollisionObject *object = (btCollisionObject *)proxy0->m_clientObject;
+		if (object == _me
+			|| (object->m_collisionFlags & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)
+			|| (!object->hasContactResponse() && btGhostObject::upcast(object) == NULL))
+			return false;
+
 		bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
 		collides = collides || (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
 		return collides;
@@ -545,6 +556,7 @@ struct MoverFlags
 
 struct Mover
 {
+	static constexpr btScalar COLLISION_ACTOR_SCALE = btScalar(0.80f);
 	static constexpr btScalar MIN_VECTOR_LENGTH_SQUARED = btScalar(0.00000001f);
 	static constexpr btScalar SEPARATION_TOLERANCE = btScalar(0.000001f);
 	static constexpr btScalar MIN_TRAVEL_DISTANCE = btScalar(0.000001f);
@@ -558,6 +570,7 @@ struct Mover
 	btCollisionWorld *_collision_world;
 	btPairCachingGhostObject *_ghost;
 	btConvexShape *_shape;
+	btRigidBody *_collision_actor;
 	btScalar _max_slope_radians;
 	btScalar _max_slope_cosine;
 	btScalar _step_height;
@@ -583,11 +596,12 @@ struct Mover
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	Mover(Allocator &allocator, btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, const MoverDesc &desc, const btVector3 &up)
+	Mover(Allocator &allocator, btCollisionWorld *collision_world, btPairCachingGhostObject *ghost, btRigidBody *collision_actor, const MoverDesc &desc, const btVector3 &up)
 		: _flags(0)
 		, _collision_world(collision_world)
 		, _ghost(ghost)
 		, _shape(CE_NEW(allocator, btCapsuleShapeZ)(desc.capsule.radius, desc.capsule.height))
+		, _collision_actor(collision_actor)
 		, _max_slope_radians(0.0f)
 		, _max_slope_cosine(0.0f)
 		, _step_height(btScalar(0.50f))
@@ -613,7 +627,16 @@ struct Mover
 
 	void destroy_shape(Allocator &allocator)
 	{
+		CE_DELETE(allocator, (btConvexShape *)_collision_actor->m_collisionShape);
 		CE_DELETE(allocator, _shape);
+	}
+
+	void sync_collision_actor_transform(bool teleport)
+	{
+		const btTransform xform = _ghost->m_worldTransform;
+		_collision_actor->setWorldTransform(xform);
+		if (teleport)
+			_collision_actor->setInterpolationWorldTransform(xform);
 	}
 
 	static btVector3 normalized(const btVector3 &v)
@@ -807,8 +830,8 @@ struct Mover
 				btCollisionObject *obj0 = (btCollisionObject *)collision_pair.m_pProxy0->m_clientObject;
 				btCollisionObject *obj1 = (btCollisionObject *)collision_pair.m_pProxy1->m_clientObject;
 
-				if ((obj0 != NULL && !obj0->hasContactResponse())
-					|| (obj1 != NULL && !obj1->hasContactResponse())
+				if ((obj0 != NULL && obj0 != _ghost && !obj0->hasContactResponse())
+					|| (obj1 != NULL && obj1 != _ghost && !obj1->hasContactResponse())
 					|| !needs_collision(obj0, obj1))
 					continue;
 
@@ -861,8 +884,8 @@ struct Mover
 			btCollisionObject *obj0 = (btCollisionObject *)collision_pair.m_pProxy0->m_clientObject;
 			btCollisionObject *obj1 = (btCollisionObject *)collision_pair.m_pProxy1->m_clientObject;
 
-			if ((obj0 != NULL && !obj0->hasContactResponse())
-				|| (obj1 != NULL && !obj1->hasContactResponse())
+			if ((obj0 != NULL && obj0 != _ghost && !obj0->hasContactResponse())
+				|| (obj1 != NULL && obj1 != _ghost && !obj1->hasContactResponse())
 				|| !needs_collision(obj0, obj1))
 				continue;
 
@@ -1053,7 +1076,7 @@ struct Mover
 
 	void move(const btVector3 &delta)
 	{
-		CE_ASSERT(_ghost->hasContactResponse(), "Mover ghost must have contact response");
+		CE_ASSERT(!_ghost->hasContactResponse(), "Mover ghost must not have contact response");
 		CE_ASSERT(_ghost->m_collisionShape == _shape, "Mover ghost shape out of sync");
 		CE_ASSERT(_shape->m_shapeType == CAPSULE_SHAPE_PROXYTYPE, "Mover shape must be a capsule");
 		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
@@ -1176,6 +1199,7 @@ struct Mover
 			update_overlapping_pairs();
 			sweep_ground(moving_up, false);
 		}
+		sync_collision_actor_transform(false);
 	}
 
 	void set_up_direction(const btVector3 &up)
@@ -1192,6 +1216,7 @@ struct Mover
 		btTransform xform = _ghost->m_worldTransform;
 		xform.setRotation(rotation(_up, old_up).inverse() * xform.getRotation());
 		_ghost->setWorldTransform(xform);
+		sync_collision_actor_transform(true);
 	}
 
 	btQuaternion rotation(const btVector3 &v0, const btVector3 &v1) const
@@ -1222,6 +1247,7 @@ struct Mover
 		reset();
 		_ghost->setWorldTransform(btTransform(btQuaternion::getIdentity(), origin + _center));
 		_current_position = origin;
+		sync_collision_actor_transform(true);
 	}
 
 	void set_max_slope(btScalar angle)
@@ -1247,8 +1273,11 @@ struct Mover
 
 	void set_height_radius(Allocator &allocator, float radius, float height)
 	{
+		btConvexShape *old_collision_actor_shape = (btConvexShape *)_collision_actor->m_collisionShape;
 		_ghost->setCollisionShape(CE_NEW(allocator, btCapsuleShapeZ)(radius, height));
+		_collision_actor->setCollisionShape(CE_NEW(allocator, btCapsuleShapeZ)(radius *COLLISION_ACTOR_SCALE, height *COLLISION_ACTOR_SCALE));
 		CE_DELETE(allocator, _shape);
+		CE_DELETE(allocator, old_collision_actor_shape);
 		_shape = (btConvexShape *)_ghost->m_collisionShape;
 		CE_ASSERT(((btCapsuleShape *)_shape)->getUpAxis() == 2, "Mover shape must be a Z capsule");
 	}
@@ -1269,6 +1298,7 @@ struct Mover
 		xform.m_origin += center - _center;
 		_center = center;
 		_ghost->setWorldTransform(xform);
+		sync_collision_actor_transform(true);
 	}
 };
 
@@ -1420,6 +1450,17 @@ struct PhysicsWorldImpl
 		um.register_destroy_callback(&_unit_destroy_callback);
 	}
 
+	void destroy_mover(MoverInstanceData &inst)
+	{
+		btRigidBody *collision_actor = inst.mover->_collision_actor;
+		_dynamics_world->removeRigidBody(collision_actor);
+		_dynamics_world->removeCollisionObject(inst.ghost);
+		inst.mover->destroy_shape(_shapes_pool);
+		CE_DELETE(_bodies_pool, collision_actor);
+		CE_DELETE(_ghosts_pool, inst.ghost);
+		CE_DELETE(*_allocator, inst.mover);
+	}
+
 	~PhysicsWorldImpl()
 	{
 		_unit_manager->unregister_destroy_callback(&_unit_destroy_callback);
@@ -1429,14 +1470,8 @@ struct PhysicsWorldImpl
 			CE_DELETE(*_allocator, _joints[i]);
 		}
 
-		for (u32 i = 0; i < array::size(_mover); ++i) {
-			MoverInstanceData *inst = &_mover[i];
-
-			inst->mover->destroy_shape(_shapes_pool);
-			CE_DELETE(*_allocator, inst->mover);
-			_dynamics_world->removeCollisionObject(inst->ghost);
-			CE_DELETE(_ghosts_pool, inst->ghost);
-		}
+		for (u32 i = 0; i < array::size(_mover); ++i)
+			destroy_mover(_mover[i]);
 
 		for (u32 i = 0; i < array::size(_actor); ++i) {
 			btRigidBody *body = _actor[i].body;
@@ -2002,16 +2037,33 @@ struct PhysicsWorldImpl
 
 			btPairCachingGhostObject *ghost = CE_NEW(_ghosts_pool, btPairCachingGhostObject)();
 			ghost->setWorldTransform(btTransform(to_btQuaternion(QUATERNION_IDENTITY), to_btVector3(translation(tm))));
+			ghost->m_collisionFlags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
 			ghost->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
+
+			btConvexShape *collision_actor_shape = CE_NEW(_shapes_pool, btCapsuleShapeZ)(movers[i].capsule.radius * Mover::COLLISION_ACTOR_SCALE
+				, movers[i].capsule.height * Mover::COLLISION_ACTOR_SCALE
+				);
+			btRigidBody::btRigidBodyConstructionInfo rbinfo(0.0f, NULL, collision_actor_shape);
+			rbinfo.m_restitution = 1.0f;
+			btRigidBody *collision_actor = CE_NEW(_bodies_pool, btRigidBody)(rbinfo);
+			collision_actor->m_collisionFlags |= btCollisionObject::CF_KINEMATIC_OBJECT
+				| btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT
+				;
+			collision_actor->m_userObjectPointer = ((void *)(uintptr_t)UINT32_MAX);
+			collision_actor->m_userIndex = unit._idx;
+			collision_actor->setActivationState(DISABLE_DEACTIVATION);
+			collision_actor->setIgnoreCollisionCheck(ghost, true);
 
 			Mover *mover = CE_NEW(*_allocator, Mover)(_shapes_pool
 				, _dynamics_world
 				, ghost
+				, collision_actor
 				, movers[i]
 				, to_btVector3(VECTOR3_UP)
 				);
 
 			_dynamics_world->addCollisionObject(ghost, f->me, f->mask);
+			_dynamics_world->addRigidBody(collision_actor, f->me, f->mask);
 
 			const u32 last = array::size(_mover);
 			array::push_back(_mover, { unit, ghost, mover });
@@ -2024,11 +2076,7 @@ struct PhysicsWorldImpl
 		const u32 last      = array::size(_mover) - 1;
 		const UnitId u      = _mover[mover.i].unit;
 		const UnitId last_u = _mover[last].unit;
-
-		_mover[mover.i].mover->destroy_shape(_shapes_pool);
-		CE_DELETE(*_allocator, _mover[mover.i].mover);
-		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
-		CE_DELETE(_ghosts_pool, _mover[mover.i].ghost);
+		destroy_mover(_mover[mover.i]);
 
 		_mover[mover.i] = _mover[last];
 		array::pop_back(_mover);
@@ -2094,6 +2142,8 @@ struct PhysicsWorldImpl
 
 		_dynamics_world->removeCollisionObject(_mover[mover.i].ghost);
 		_dynamics_world->addCollisionObject(_mover[mover.i].ghost, f->me, f->mask);
+		_dynamics_world->removeRigidBody(_mover[mover.i].mover->_collision_actor);
+		_dynamics_world->addRigidBody(_mover[mover.i].mover->_collision_actor, f->me, f->mask);
 	}
 
 	Vector3 mover_position(MoverId mover)
@@ -2114,6 +2164,19 @@ struct PhysicsWorldImpl
 	void mover_set_center(MoverId mover, const Vector3 &center)
 	{
 		_mover[mover.i].mover->set_center(to_btVector3(center));
+	}
+
+	void emit_mover_actor_collision_event(u32 mover_i, u32 actor_i, const btVector3 &normal, const btVector3 &position, const btVector3 &direction)
+	{
+		PhysicsMoverActorCollisionEvent ev;
+		ev.mover_unit = _mover[mover_i].unit;
+		ev.actor_unit = _actor[actor_i].unit;
+		ev.actor = make_actor_instance(actor_i);
+		ev.normal = to_vector3(normal);
+		ev.position = to_vector3(position);
+		ev.direction = to_vector3(Mover::normalized(direction));
+		ev.direction_length = (f32)direction.length();
+		event_stream::write(_events, EventType::PHYSICS_MOVER_ACTOR_COLLISION, ev);
 	}
 
 	void mover_move(MoverId mover, const Vector3 &delta)
@@ -2147,15 +2210,7 @@ struct PhysicsWorldImpl
 			if (body != NULL) {
 				const u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
 				if (actor_i < array::size(_actor) && _actor[actor_i].body == body) {
-					PhysicsMoverActorCollisionEvent ev;
-					ev.mover_unit = moving.unit;
-					ev.actor_unit = _actor[actor_i].unit;
-					ev.actor = make_actor_instance(actor_i);
-					ev.normal = to_vector3(hit.normal);
-					ev.position = to_vector3(hit.mover_position);
-					ev.direction = to_vector3(Mover::normalized(mover_delta));
-					ev.direction_length = (f32)mover_delta.length();
-					event_stream::write(_events, EventType::PHYSICS_MOVER_ACTOR_COLLISION, ev);
+					emit_mover_actor_collision_event(mover.i, actor_i, hit.normal, hit.mover_position, mover_delta);
 					continue;
 				}
 			}
@@ -2971,7 +3026,7 @@ struct PhysicsWorldImpl
 		const btVector3 aa = to_btVector3(from);
 		const btVector3 bb = to_btVector3(from + dir*len);
 
-		btCollisionWorld::ClosestRayResultCallback cb(aa, bb);
+		ClosestActorRayResultCallback cb(aa, bb);
 		// Collide with everything.
 		cb.m_collisionFilterGroup = -1;
 		cb.m_collisionFilterMask = -1;
@@ -2980,9 +3035,6 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit()) {
 			const u32 actor_i = (u32)(uintptr_t)btRigidBody::upcast(cb.m_collisionObject)->m_userObjectPointer;
-			if (actor_i == UINT32_MAX)
-				return false;
-
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
 			hit.time     = (f32)cb.m_closestHitFraction;
@@ -3038,7 +3090,7 @@ struct PhysicsWorldImpl
 		const btTransform aa(btQuaternion::getIdentity(), to_btVector3(from));
 		const btTransform bb(btQuaternion::getIdentity(), to_btVector3(from + dir*len));
 
-		btCollisionWorld::ClosestConvexResultCallback cb(btVector3(0, 0, 0), btVector3(0, 0, 0));
+		ClosestActorConvexResultCallback cb(btVector3(0, 0, 0), btVector3(0, 0, 0));
 		// Collide with everything
 		cb.m_collisionFilterGroup = -1;
 		cb.m_collisionFilterMask = -1;
@@ -3046,13 +3098,7 @@ struct PhysicsWorldImpl
 
 		if (cb.hasHit()) {
 			const btRigidBody *body = btRigidBody::upcast(cb.m_hitCollisionObject);
-			if (!body)
-				return false;
-
 			const u32 actor_i = (u32)(uintptr_t)body->m_userObjectPointer;
-			if (actor_i == UINT32_MAX)
-				return false;
-
 			hit.position = to_vector3(cb.m_hitPointWorld);
 			hit.normal   = to_vector3(cb.m_hitNormalWorld);
 			hit.time     = (f32)cb.m_closestHitFraction;
@@ -3224,6 +3270,35 @@ struct PhysicsWorldImpl
 			const btCollisionObject *obj_b = manifold->getBody1();
 			const ActorId a0 = make_actor_instance((u32)(uintptr_t)obj_a->m_userObjectPointer);
 			const ActorId a1 = make_actor_instance((u32)(uintptr_t)obj_b->m_userObjectPointer);
+			const btCollisionObject *companion = obj_a->m_userIndex != -1 ? obj_a : obj_b;
+			if (companion->m_userIndex != -1) {
+				const bool companion_is_a = companion == obj_a;
+				const ActorId actor = companion_is_a ? a1 : a0;
+				const UnitId mover_unit = { (u32)companion->m_userIndex };
+				const MoverId mover = this->mover(mover_unit);
+				if (!is_valid(actor) || !is_valid(mover) || manifold->getNumContacts() == 0)
+					continue;
+
+				const btRigidBody *body = _actor[actor.i].body;
+				if (!body->hasContactResponse()) {
+					const u64 pair = encode_pair(_actor[actor.i].unit, mover_unit);
+					hash_set::insert(*_curr_pairs, pair);
+					if (!hash_set::has(*_prev_pairs, pair)) {
+						PhysicsTriggerEvent ev;
+						ev.trigger_unit = _actor[actor.i].unit;
+						ev.other_unit = mover_unit;
+						ev.type = PhysicsTriggerEvent::ENTER;
+						event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
+					}
+				} else if (!body->isStaticOrKinematicObject()) {
+					btVector3 normal = manifold->getContactPoint(0).m_normalWorldOnB;
+					if (!companion_is_a)
+						normal = -normal;
+					emit_mover_actor_collision_event(mover.i, actor.i, Mover::normalized(normal), _mover[mover.i].mover->_current_position, btVector3(0.0f, 0.0f, 0.0f));
+				}
+				continue;
+			}
+
 			if (!is_valid(a0) || !is_valid(a1))
 				continue;
 
@@ -3292,17 +3367,18 @@ struct PhysicsWorldImpl
 				decode_pair(unit_a, unit_b, *cur);
 				ActorId actor_a = actor(unit_a);
 				ActorId actor_b = actor(unit_b);
+				const bool trigger_a = is_valid(actor_a) && (_actor[actor_a.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE);
+				const bool trigger_b = is_valid(actor_b) && (_actor[actor_b.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 				// If either A or B is a trigger, only generate a trigger event for the trigger unit.
 				// Otherwise generate a regular collision event.
-				if (_actor[actor_a.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE
-					|| _actor[actor_b.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE) {
+				if (trigger_a || trigger_b) {
 					PhysicsTriggerEvent ev;
 					ev.type = PhysicsTriggerEvent::LEAVE;
-					ev.trigger_unit = _actor[actor_a.i].body->m_collisionFlags & btCollisionObject::CF_NO_CONTACT_RESPONSE ? unit_a : unit_b;
+					ev.trigger_unit = trigger_a ? unit_a : unit_b;
 					ev.other_unit = ev.trigger_unit == unit_a ? unit_b : unit_a;
 					event_stream::write(_events, EventType::PHYSICS_TRIGGER, ev);
-				} else {
+				} else if (is_valid(actor_a) && is_valid(actor_b)) {
 					PhysicsCollisionEvent ev;
 					ev.units[0] = unit_a;
 					ev.units[1] = unit_b;
