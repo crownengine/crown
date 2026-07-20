@@ -559,6 +559,7 @@ public struct CommandLineOptions
 {
 	public bool show_help;
 	public bool show_version;
+	public bool run_unit_tests;
 	public string? source_dir;
 	public string? positional_source_dir;
 	public string level_resource;
@@ -582,6 +583,7 @@ public struct CommandLineOptions
 			+ "Options:\n"
 			+ "  -h, --help                       Display this help and exit.\n"
 			+ "  -v, --version                    Display version information and exit.\n"
+			+ "  --run-unit-tests                 Run unit tests and exit.\n"
 			+ "  --source-dir <path>              Project source directory.\n"
 			+ "  --init                           Create a new project.\n"
 			+ "  --import <file>... <path>        Import files into a source-dir relative path.\n"
@@ -625,6 +627,7 @@ public struct CommandLineOptions
 	{
 		show_help = false;
 		show_version = false;
+		run_unit_tests = false;
 		source_dir = null;
 		positional_source_dir = null;
 		level_resource = "";
@@ -640,6 +643,7 @@ public struct CommandLineOptions
 		string? option_source_dir = null;
 		bool option_show_help = false;
 		bool option_show_version = false;
+		bool option_run_unit_tests = false;
 		bool option_do_init = false;
 		bool option_do_import = false;
 		string? option_import_as = null;
@@ -666,6 +670,7 @@ public struct CommandLineOptions
 		{
 			{ "help",               'h', 0, GLib.OptionArg.NONE,     ref option_show_help,                 "Display this help and exit.",           null       },
 			{ "version",            'v', 0, GLib.OptionArg.NONE,     ref option_show_version,              "Display version information and exit.", null       },
+			{ "run-unit-tests",     0,   0, GLib.OptionArg.NONE,     ref option_run_unit_tests,            "Run unit tests and exit.",              null       },
 			{ "source-dir",         0,   0, GLib.OptionArg.FILENAME, ref option_source_dir,                "Project source directory.",             "path"     },
 			{ "init",               0,   0, GLib.OptionArg.NONE,     ref option_do_init,                   "Create a new project.",                 null       },
 			{ "import",             0,   0, GLib.OptionArg.NONE,     ref option_do_import,                 "Import files.",                         null       },
@@ -704,13 +709,14 @@ public struct CommandLineOptions
 
 		show_help = option_show_help;
 		show_version = option_show_version;
+		run_unit_tests = option_run_unit_tests;
 		source_dir = option_source_dir;
 		do_init = option_do_init;
 		do_import = option_do_import;
 		import_as = option_import_as;
 		do_deploy = option_do_deploy;
 
-		if (show_help || show_version)
+		if (show_help || show_version || run_unit_tests)
 			return true;
 
 		int positional_args_begin = 1;
@@ -4790,6 +4796,9 @@ public static int main(string[] args)
 			stdout.printf("%s %s\n", CROWN_EDITOR_NAME, CROWN_VERSION);
 			return 0;
 		}
+
+		if (command_line_options.run_unit_tests)
+			return main_unit_tests();
 	}
 
 	// Redirect GLib logs to internal log*().
