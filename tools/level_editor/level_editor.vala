@@ -3909,7 +3909,7 @@ public class LevelEditorApplication : Gtk.Application
 			create_object_types(tmp_db);
 
 			Guid duplicated_id = Guid.new_guid();
-			_database.duplicate(source_id, duplicated_id, tmp_db);
+			_database.duplicate_one(source_id, duplicated_id, tmp_db);
 
 			if (tmp_db.save(duplicated_absolute_path, duplicated_id) != 0) {
 				loge("Failed to save duplicated resource: %s".printf(duplicated_resource_path));
@@ -4376,7 +4376,7 @@ public class LevelEditorApplication : Gtk.Application
 					} else if (_database.has_object(unit_id)) {
 						Guid prefab_id = Guid.new_guid();
 						Database new_database = new Database(_project);
-						_database.duplicate(unit_id, prefab_id, new_database);
+						_database.duplicate_one(unit_id, prefab_id, new_database);
 						new_database.save(path, prefab_id);
 
 						compile_and_reload.begin((obj, res) => {
