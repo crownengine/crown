@@ -65,8 +65,7 @@ public class DatabaseEditor
 		for (int i = 0; i < new_ids.length; ++i)
 			new_ids[i] = Guid.new_guid();
 
-		for (int i = 0; i < _selection.length; ++i)
-			_database.duplicate_and_add_to_set(_selection[i], new_ids[i]);
+		_database.duplicate_and_add_to_set(_selection.data, new_ids);
 		_database.add_restore_point((int)ActionType.CREATE_OBJECTS, new_ids);
 
 		selection_set(new_ids);

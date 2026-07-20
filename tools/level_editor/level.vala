@@ -96,7 +96,7 @@ public class Level
 
 		_id = Guid.new_guid();
 		UndoRedo? undo_redo = _db.disable_undo();
-		_db.duplicate(template_id, _id);
+		_db.duplicate_one(template_id, _id);
 		_db.restore_undo(undo_redo);
 
 		_path = null;

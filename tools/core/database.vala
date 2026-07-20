@@ -1689,74 +1689,116 @@ public class Database
 		}
 	}
 
-	/// Duplicates the object specified by id and assign new_id to the duplicated object.
-	public void duplicate(Guid id, Guid new_id, Database? dest = null)
+	/// Duplicates the objects specified by @a ids and assigns @a new_ids to the duplicated objects.
+	public void duplicate(Guid?[] ids, Guid?[] new_ids, Database? dest = null)
 	{
-		assert(id != GUID_ZERO);
-		assert(new_id != GUID_ZERO);
-		assert(id != new_id);
-		assert(has_object(id));
+		assert(ids.length == new_ids.length);
 
 		if (dest == null)
 			dest = this;
 
-		dest.create(new_id, object_type(id));
+		GLib.HashTable<Guid?, Guid?> duplicates = new GLib.HashTable<Guid?, Guid?>(Guid.hash_func, Guid.equal_func);
+		GLib.GenericArray<Guid?> objects = new GLib.GenericArray<Guid?>();
+		for (int i = 0; i < ids.length; ++i) {
+			assert(ids[i] != GUID_ZERO);
+			assert(new_ids[i] != GUID_ZERO);
+			assert(ids[i] != new_ids[i]);
+			assert(has_object(ids[i]));
+			assert(!duplicates.contains(ids[i]));
 
-		GLib.HashTable<string, Value?> ob = get_data(id);
-		GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(ob);
-		unowned string key;
-		unowned Value? value;
-		while (iter.next(out key, out value)) {
-			if (value.holds(typeof(GLib.GenericSet))) {
+			duplicates[ids[i]] = new_ids[i];
+			objects.add(ids[i]);
+			dest.create(new_ids[i], object_type(ids[i]));
+		}
+
+		for (uint i = 0; i < objects.length; ++i) {
+			GLib.HashTable<string, Value?> ob = get_data(objects[i]);
+			GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(ob);
+			unowned string _key;
+			unowned Value? value;
+			while (iter.next(out _key, out value)) {
+				if (!value.holds(typeof(GLib.GenericSet)))
+					continue;
+
 				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
 				foreach (Guid? j in hs) {
+					if (!is_alive(j) || duplicates.contains(j))
+						continue;
+
 					Guid x = Guid.new_guid();
-					duplicate(j, x, dest);
-					dest.add_to_set(new_id, key, x);
+					duplicates[j] = x;
+					objects.add(j);
+					dest.create(x, object_type(j));
 				}
-			} else {
-				if (value == null)
-					dest.set_null(new_id, key);
-				else if (value.holds(typeof(bool)))
-					dest.set_bool(new_id, key, (bool)value);
-				else if (value.holds(typeof(double)))
-					dest.set_double(new_id, key, (double)value);
-				else if (value.holds(typeof(string)))
-					dest.set_string(new_id, key, (string)value);
-				else if (value.holds(typeof(Vector3)))
-					dest.set_vector3(new_id, key, (Vector3)value);
-				else if (value.holds(typeof(Quaternion)))
-					dest.set_quaternion(new_id, key, (Quaternion)value);
-				else if (value.holds(typeof(Resource)))
-					dest.set_resource(new_id, key, ((Resource)value).name);
-				else if (value.holds(typeof(Guid)))
-					dest.set_reference(new_id, key, (Guid)value);
-				else
-					assert(false);
+			}
+		}
+
+		for (uint i = 0; i < objects.length; ++i) {
+			Guid source_id = objects[i];
+			Guid duplicate_id = duplicates[source_id];
+			GLib.HashTable<string, Value?> ob = get_data(source_id);
+			GLib.HashTableIter<string, Value?> iter = GLib.HashTableIter<string, Value?>(ob);
+			unowned string key;
+			unowned Value? value;
+			while (iter.next(out key, out value)) {
+				if (value.holds(typeof(GLib.GenericSet))) {
+					GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
+					foreach (Guid? j in hs) {
+						if (!is_alive(j))
+							continue;
+
+						dest.add_to_set(duplicate_id, key, duplicates[j]);
+					}
+				} else {
+					if (value == null) {
+						dest.set_null(duplicate_id, key);
+					} else if (value.holds(typeof(Guid))) {
+						Guid reference = (Guid)value;
+						dest.set_reference(duplicate_id, key, duplicates.contains(reference) ? duplicates[reference] : reference);
+					} else {
+						dest.set_property(duplicate_id, key, value);
+					}
+				}
 			}
 		}
 	}
 
-	public void duplicate_and_add_to_set(Guid id, Guid new_id)
+	/// Duplicates one object only. Use Database.duplicate() to duplicate multiple objects together.
+	public void duplicate_one(Guid id, Guid new_id, Database? dest = null)
 	{
-		duplicate(id, new_id);
+		duplicate({ id }, { new_id }, dest);
+	}
 
-		Guid owner_id = owner(id);
-		if (owner_id == GUID_ZERO)
-			return;
+	public void duplicate_and_add_to_set(Guid?[] ids, Guid?[] new_ids)
+	{
+		duplicate(ids, new_ids);
 
-		PropertyDefinition[]? properties = object_definition(StringId64(object_type(owner_id)));
+		for (int i = 0; i < ids.length; ++i) {
+			Guid id = ids[i];
+			Guid new_id = new_ids[i];
 
-		foreach (PropertyDefinition def in properties) {
-			if (def.type != PropertyType.OBJECTS_SET)
+			Guid owner_id = owner(id);
+			if (owner_id == GUID_ZERO)
 				continue;
 
-			Guid?[] objects = get_set(owner_id, def.name);
-			foreach (unowned Guid? object_id in objects) {
-				if (Guid.equal_func(object_id, id)) {
-					add_to_set(owner_id, def.name, new_id);
-					return;
+			PropertyDefinition[]? properties = object_definition(StringId64(object_type(owner_id)));
+			bool added = false;
+
+			foreach (PropertyDefinition def in properties) {
+				if (def.type != PropertyType.OBJECTS_SET)
+					continue;
+
+				Guid?[] objects = get_set(owner_id, def.name);
+				foreach (unowned Guid? object_id in objects) {
+					if (Guid.equal_func(object_id, id)) {
+						add_to_set(owner_id, def.name, new_id);
+						added = true;
+						break;
+					}
 				}
+
+				if (added)
+					break;
 			}
 		}
 	}
