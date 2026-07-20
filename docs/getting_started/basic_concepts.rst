@@ -20,7 +20,7 @@ project.
 
 .. figure:: images/project_folders.png
    :align: center
-   :scale: 75%
+   :width: 80%
 
    Left: four sample projects. Right: resources in a project folder.
 
