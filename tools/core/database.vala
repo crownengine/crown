@@ -1754,7 +1754,9 @@ public class Database
 						dest.set_null(duplicate_id, key);
 					} else if (value.holds(typeof(Guid))) {
 						Guid reference = (Guid)value;
-						dest.set_reference(duplicate_id, key, duplicates.contains(reference) ? duplicates[reference] : reference);
+						if (duplicates.contains(reference))
+							reference = duplicates[reference];
+						dest.set_reference(duplicate_id, key, reference);
 					} else {
 						dest.set_property(duplicate_id, key, value);
 					}
