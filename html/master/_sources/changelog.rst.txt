@@ -56,6 +56,7 @@ Changelog
 * Tools: fixed a number of issues with Lua suggestions in the Command Bar.
 * Tools: fixed LOD Group component not being generated when importing models with LODs starting at non-zero indices.
 * Tools: fixed a number of issues when duplicating objects and resources.
+* Tools: fixed the camera's minimum near and far ranges in the Inspector.
 * Runtime: fixed keyframed physics actors being created with non-zero mass, which made material restitution behave incorrectly.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not updating mass/inertia.
 * Runtime: fixed ``PhysicsWorld.actor_set_kinematic()`` not restoring body deactivation when switching actors back from kinematic.
