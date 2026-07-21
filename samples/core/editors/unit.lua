@@ -233,6 +233,7 @@ function UnitBox:set_local_pose(pose)
 end
 
 function UnitBox:set_parent(parent_id)
+	local nv, nq, nm = Device.temp_count()
 	local tr = SceneGraph.instance(self._sg, self._unit_id)
 	local parent_unit = LevelEditor._objects[parent_id]:unit_id()
 	local parent_tr = SceneGraph.instance(self._sg, parent_unit)
@@ -252,6 +253,7 @@ function UnitBox:set_parent(parent_id)
 		end
 		self:invalidate_children()
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function UnitBox:on_selected(selected)
@@ -411,17 +413,19 @@ function UnitBox:draw()
 	end
 end
 
-function UnitBox:set_light(type, range, intensity, angle, color, bias, cast_shadows)
+function UnitBox:set_light(type, range, intensity, angle, cr, cg, cb, bias, cast_shadows)
+	local nv, nq, nm = Device.temp_count()
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
 	if light then
 		RenderWorld.light_set_type(self._rw, light, type)
-		RenderWorld.light_set_color(self._rw, light, color)
+		RenderWorld.light_set_color(self._rw, light, Quaternion.from_elements(cr, cg, cb, 1.0))
 		RenderWorld.light_set_range(self._rw, light, range)
 		RenderWorld.light_set_intensity(self._rw, light, intensity)
 		RenderWorld.light_set_spot_angle(self._rw, light, angle)
 		RenderWorld.light_set_shadow_bias(self._rw, light, bias)
 		RenderWorld.light_set_cast_shadows(self._rw, light, cast_shadows)
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function UnitBox:set_animation_state_machine(state_machine_resource)
@@ -432,36 +436,42 @@ function UnitBox:set_animation_state_machine(state_machine_resource)
 	end
 end
 
-function UnitBox:set_mover(height, radius, max_slope_angle, center)
+function UnitBox:set_mover(height, radius, max_slope_angle, cx, cy, cz)
+	local nv, nq, nm = Device.temp_count()
 	local physics_world = World.physics_world(self._world)
 	local mover = PhysicsWorld.mover_instance(physics_world, self._unit_id)
 	if mover then
 		PhysicsWorld.mover_set_height(physics_world, mover, height)
 		PhysicsWorld.mover_set_radius(physics_world, mover, radius)
 		PhysicsWorld.mover_set_max_slope_angle(physics_world, mover, max_slope_angle)
-		PhysicsWorld.mover_set_center(physics_world, mover, center)
+		PhysicsWorld.mover_set_center(physics_world, mover, Vector3(cx, cy, cz))
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
-function UnitBox:set_fog(color, density, range_min, range_max, sun_blend, enabled)
+function UnitBox:set_fog(cr, cg, cb, density, range_min, range_max, sun_blend, enabled)
+	local nv, nq, nm = Device.temp_count()
 	local fog = RenderWorld.fog_instance(self._rw, self._unit_id)
 	if fog then
-		RenderWorld.fog_set_color(self._rw, fog, color)
+		RenderWorld.fog_set_color(self._rw, fog, Vector3(cr, cg, cb))
 		RenderWorld.fog_set_density(self._rw, fog, density)
 		RenderWorld.fog_set_range_min(self._rw, fog, range_min)
 		RenderWorld.fog_set_range_max(self._rw, fog, range_max)
 		RenderWorld.fog_set_sun_blend(self._rw, fog, sun_blend)
 		RenderWorld.fog_set_enabled(self._rw, fog, enabled)
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
-function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ambient_color)
+function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ar, ag, ab)
+	local nv, nq, nm = Device.temp_count()
 	local gl = RenderWorld.global_lighting_instance(self._rw, self._unit_id)
 	if gl then
 		RenderWorld.global_lighting_set_skydome_map(self._rw, skydome_map)
 		RenderWorld.global_lighting_set_skydome_intensity(self._rw, skydome_intensity)
-		RenderWorld.global_lighting_set_ambient_color(self._rw, ambient_color)
+		RenderWorld.global_lighting_set_ambient_color(self._rw, Quaternion.from_elements(ar, ag, ab, 1.0))
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function UnitBox:set_bloom(enabled, threshold, weight, intensity)
@@ -474,15 +484,17 @@ function UnitBox:set_bloom(enabled, threshold, weight, intensity)
 	end
 end
 
-function UnitBox:set_color_grading(enabled, exposure_bias, contrast, saturation, color_filter)
+function UnitBox:set_color_grading(enabled, exposure_bias, contrast, saturation, fr, fg, fb)
+	local nv, nq, nm = Device.temp_count()
 	local color_grading = RenderWorld.color_grading_instance(self._rw, self._unit_id)
 	if color_grading then
 		RenderWorld.color_grading_set_enabled(self._rw, enabled)
 		RenderWorld.color_grading_set_exposure_bias(self._rw, exposure_bias)
 		RenderWorld.color_grading_set_contrast(self._rw, contrast)
 		RenderWorld.color_grading_set_saturation(self._rw, saturation)
-		RenderWorld.color_grading_set_color_filter(self._rw, color_filter)
+		RenderWorld.color_grading_set_color_filter(self._rw, Quaternion.from_elements(fr, fg, fb, 1.0))
 	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function UnitBox:set_tonemap(type)

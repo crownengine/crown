@@ -28,14 +28,19 @@ namespace Lua
 		return "Vector3(%.17g, %.17g, %.17g)".printf(v.x, v.y, v.z);
 	}
 
+	public string vector3_elements(Vector3 v)
+	{
+		return "%.17g, %.17g, %.17g".printf(v.x, v.y, v.z);
+	}
+
 	public string quaternion(Quaternion q)
 	{
 		return "Quaternion.from_elements(%.17g, %.17g, %.17g, %.17g)".printf(q.x, q.y, q.z, q.w);
 	}
 
-	public string matrix4x4(Quaternion q, Vector3 t)
+	public string quaternion_elements(Quaternion q)
 	{
-		return "Matrix4x4.from_quaternion_translation(%s, %s)".printf(quaternion(q), vector3(t));
+		return "%.17g, %.17g, %.17g, %.17g".printf(q.x, q.y, q.z, q.w);
 	}
 
 } /* namespace Lua */
@@ -324,13 +329,11 @@ namespace LevelEditorApi
 		return "LevelEditor:set_rotation_snap(%.17g)".printf(MathUtils.rad(deg));
 	}
 
-	public string spawn_unit(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl)
+	public string spawn_unit(Guid id, string name, Vector3 pos)
 	{
-		return "LevelEditor:spawn_unit(\"%s\", \"%s\", %s, %s, %s)".printf(id.to_string()
+		return "LevelEditor:spawn_unit_at(\"%s\", \"%s\", %s)".printf(id.to_string()
 			, name
-			, Lua.vector3(pos)
-			, Lua.quaternion(rot)
-			, Lua.vector3(scl)
+			, Lua.vector3_elements(pos)
 			);
 	}
 
@@ -346,10 +349,10 @@ namespace LevelEditorApi
 
 	public string spawn_sound(Guid id, string name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
 	{
-		return "LevelEditor:spawn_sound(\"%s\", \"%s\", %s, %s, %.17g, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor:spawn_sound_at(\"%s\", \"%s\", %s, %s, %.17g, %.17g, %s)".printf(id.to_string()
 			, name
-			, Lua.vector3(pos)
-			, Lua.quaternion(rot)
+			, Lua.vector3_elements(pos)
+			, Lua.quaternion_elements(rot)
 			, range
 			, volume
 			, Lua.bool(loop)
@@ -360,9 +363,9 @@ namespace LevelEditorApi
 	{
 		return "LevelEditor:add_transform_component(\"%s\", \"%s\", %s, %s, %s)".printf(id.to_string()
 			, component_id.to_string()
-			, Lua.vector3(pos)
-			, Lua.quaternion(rot)
-			, Lua.vector3(scl)
+			, Lua.vector3_elements(pos)
+			, Lua.quaternion_elements(rot)
+			, Lua.vector3_elements(scl)
 			);
 	}
 
@@ -436,7 +439,7 @@ namespace LevelEditorApi
 			, range
 			, intensity
 			, spot_angle
-			, Lua.vector3(color)
+			, Lua.vector3_elements(color)
 			, shadow_bias
 			, Lua.bool(cast_shadows)
 			);
@@ -480,12 +483,14 @@ namespace LevelEditorApi
 		, Quaternion other_rotation = QUATERNION_IDENTITY
 		)
 	{
-		return "LevelEditor:add_joint_component(\"%s\", \"%s\", \"%s\", %s, %s, %s)".printf(id.to_string()
+		return "LevelEditor:add_joint_component(\"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, joint_type
-			, Lua.matrix4x4(rotation, position)
+			, Lua.vector3_elements(position)
+			, Lua.quaternion_elements(rotation)
 			, other_actor_unit_id == GUID_ZERO ? "nil" : "\"%s\"".printf(other_actor_unit_id.to_string())
-			, Lua.matrix4x4(other_rotation, other_position)
+			, Lua.vector3_elements(other_position)
+			, Lua.quaternion_elements(other_rotation)
 			);
 	}
 
@@ -549,9 +554,9 @@ namespace LevelEditorApi
 	public string move_object(Guid id, Vector3 pos, Quaternion rot, Vector3 scl)
 	{
 		return "LevelEditor:move_object(\"%s\", %s, %s, %s)".printf(id.to_string()
-			, Lua.vector3(pos)
-			, Lua.quaternion(rot)
-			, Lua.vector3(scl)
+			, Lua.vector3_elements(pos)
+			, Lua.quaternion_elements(rot)
+			, Lua.vector3_elements(scl)
 			);
 	}
 
@@ -570,7 +575,7 @@ namespace LevelEditorApi
 			, range
 			, intensity
 			, spot_angle
-			, Lua.quaternion({color.x, color.y, color.z, 1.0})
+			, Lua.vector3_elements(color)
 			, shadow_bias
 			, Lua.bool(cast_shadows)
 			);
@@ -596,7 +601,7 @@ namespace LevelEditorApi
 			, height
 			, radius
 			, max_slope_angle
-			, Lua.vector3(center)
+			, Lua.vector3_elements(center)
 			);
 	}
 
@@ -621,7 +626,7 @@ namespace LevelEditorApi
 		)
 	{
 		return "LevelEditor._objects[\"%s\"]:set_fog(%s, %.17g, %.17g, %.17g, %.17g, %s)".printf(id.to_string()
-			, Lua.vector3(color)
+			, Lua.vector3_elements(color)
 			, density
 			, range_min
 			, range_max
@@ -639,7 +644,7 @@ namespace LevelEditorApi
 		return "LevelEditor._objects[\"%s\"]:set_global_lighting(\"%s\", %.17g, %s)".printf(id.to_string()
 			, skydome_map
 			, skydome_intensity
-			, Lua.quaternion({ambient_color.x, ambient_color.y, ambient_color.z, 1.0})
+			, Lua.vector3_elements(ambient_color)
 			);
 	}
 
@@ -671,7 +676,7 @@ namespace LevelEditorApi
 			, exposure_bias
 			, contrast
 			, saturation
-			, Lua.quaternion({color_filter.x, color_filter.y, color_filter.z, 1.0})
+			, Lua.vector3_elements(color_filter)
 			);
 	}
 

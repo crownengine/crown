@@ -104,7 +104,6 @@ public struct Sound
 
 			Guid id = object_ids[i];
 
-			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			string s = LevelEditorApi.spawn_sound(id
 				, db.get_resource  (id, "name")
 				, db.get_vector3   (id, "position")
@@ -116,7 +115,6 @@ public struct Sound
 			sb.append(s);
 			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
 			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
-			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 		}
 
 		return i;
@@ -145,7 +143,6 @@ public struct Sound
 			Guid id = object_ids[i];
 			Sound sound = Sound(db, id);
 
-			sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 			sb.append(LevelEditorApi.move_object(id
 				, sound.local_position()
 				, sound.local_rotation()
@@ -154,7 +151,6 @@ public struct Sound
 			sb.append(LevelEditorApi.set_sound_range(id, sound.range()));
 			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
 			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
-			sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 		}
 
 		return i;

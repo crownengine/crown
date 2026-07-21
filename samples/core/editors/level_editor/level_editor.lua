@@ -336,19 +336,35 @@ function Selection:send()
 end
 
 function Selection:send_move_objects()
-	local nv, nq, nm = Device.temp_count()
 	local ids = {}
 	local new_positions = {}
 	local new_rotations = {}
 	local new_scales = {}
 
 	local objs = self:objects()
-	for k, v in ipairs(objs) do
+	for _, v in ipairs(objs) do
 		if v:is_spatial() then
-			table.insert(ids, v:id())
-			table.insert(new_positions, v:local_position())
-			table.insert(new_rotations, v:local_rotation())
-			table.insert(new_scales, v:local_scale())
+			local nv, nq, nm = Device.temp_count()
+			local object_index = #ids
+			local vector_index = object_index * 3
+			local rotation_index = object_index * 4
+			local position = v:local_position()
+			local rotation = v:local_rotation()
+			local scale = v:local_scale()
+			local rx, ry, rz, rw = Quaternion.elements(rotation)
+
+			ids[object_index + 1] = v:id()
+			new_positions[vector_index + 1] = position.x
+			new_positions[vector_index + 2] = position.y
+			new_positions[vector_index + 3] = position.z
+			new_rotations[rotation_index + 1] = rx
+			new_rotations[rotation_index + 2] = ry
+			new_rotations[rotation_index + 3] = rz
+			new_rotations[rotation_index + 4] = rw
+			new_scales[vector_index + 1] = scale.x
+			new_scales[vector_index + 2] = scale.y
+			new_scales[vector_index + 3] = scale.z
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 
@@ -358,7 +374,6 @@ function Selection:send_move_objects()
 		, new_rotations = new_rotations
 		, new_scales = new_scales
 		}
-	Device.set_temp_count(nv, nq, nm)
 end
 
 SelectTool = class(SelectTool)
@@ -1384,8 +1399,10 @@ function ScaleTool:mouse_down(x, y)
 			-- Store initial positions and scales for all selected objects.
 			local selection = LevelEditor._selection:objects()
 			for _, obj in pairs(selection) do
+				local nv, nq, nm = Device.temp_count()
 				self._start_positions[#self._start_positions + 1] = Vector3Box(obj:local_position())
 				self._start_scales[#self._start_scales + 1] = Vector3Box(obj:local_scale())
+				Device.set_temp_count(nv, nq, nm)
 			end
 
 			self:set_state("scaling")
@@ -1726,6 +1743,13 @@ function LevelEditor:spawn_unit(id, name, pos)
 	return unit_box
 end
 
+function LevelEditor:spawn_unit_at(id, name, px, py, pz)
+	local nv, nq, nm = Device.temp_count()
+	local unit_box = self:spawn_unit(id, name, Vector3(px, py, pz))
+	Device.set_temp_count(nv, nq, nm)
+	return unit_box
+end
+
 function LevelEditor:spawn_empty_unit(id)
 	local unit = World.spawn_empty_unit(self._world)
 	local unit_box = UnitBox(self._world, id, unit, nil)
@@ -1745,11 +1769,33 @@ function LevelEditor:spawn_sound(id, name, pos, rot, range, volume, loop)
 	return sound
 end
 
-function LevelEditor:add_transform_component(id, component_id, pos, rot, scale)
+function LevelEditor:spawn_sound_at(id, name, px, py, pz, rx, ry, rz, rw, range, volume, loop)
+	local nv, nq, nm = Device.temp_count()
+	local sound = self:spawn_sound(id
+		, name
+		, Vector3(px, py, pz)
+		, Quaternion.from_elements(rx, ry, rz, rw)
+		, range
+		, volume
+		, loop
+		)
+	Device.set_temp_count(nv, nq, nm)
+	return sound
+end
+
+function LevelEditor:add_transform_component(id, component_id, px, py, pz, rx, ry, rz, rw, sx, sy, sz)
+	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	if SceneGraph.instance(self._sg, unit_id) ~= nil then return end
-	SceneGraph.create(self._sg, unit_id, pos, rot, scale)
+	if SceneGraph.instance(self._sg, unit_id) == nil then
+		SceneGraph.create(self._sg
+			, unit_id
+			, Vector3(px, py, pz)
+			, Quaternion.from_elements(rx, ry, rz, rw)
+			, Vector3(sx, sy, sz)
+			)
+	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
@@ -1774,11 +1820,14 @@ function LevelEditor:add_sprite_component(id, component_id, sprite_resource, mat
 	unit_box:set_sprite(sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 end
 
-function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, color)
+function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, cr, cg, cb)
+	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	if RenderWorld.light_instance(self._rw, unit_id) ~= nil then return end
-	RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, color)
+	if RenderWorld.light_instance(self._rw, unit_id) == nil then
+		RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, Vector3(cr, cg, cb))
+	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:add_animation_state_machine_component(id, component_id, state_machine_resource)
@@ -1796,64 +1845,84 @@ function LevelEditor:add_mover_component(id, component_id, height, radius, max_s
 	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter)
 end
 
-function LevelEditor:add_joint_component(id, component_id, joint_type, pose, other_actor_unit_id, other_pose)
+function LevelEditor:add_joint_component(id
+	, component_id
+	, joint_type
+	, px, py, pz
+	, rx, ry, rz, rw
+	, other_actor_unit_id
+	, opx, opy, opz
+	, orx, ory, orz, orw
+	)
+	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	if PhysicsWorld.joint_instance(self._pw, unit_id) ~= nil then return end
-
-	local actor = PhysicsWorld.actor_instance(self._pw, unit_id)
-	if actor == nil then return end
+	local actor = nil
+	if PhysicsWorld.joint_instance(self._pw, unit_id) == nil then
+		actor = PhysicsWorld.actor_instance(self._pw, unit_id)
+	end
 
 	local other_actor = nil
-	if other_actor_unit_id ~= nil then
+	local can_create = actor ~= nil
+	if can_create and other_actor_unit_id ~= nil then
 		local other_actor_unit_box = self._objects[other_actor_unit_id]
-		if other_actor_unit_box == nil then return end
-
-		other_actor = PhysicsWorld.actor_instance(self._pw, other_actor_unit_box:unit_id())
-		if other_actor == nil then return end
-	end
-
-	local jt = nil
-	if joint_type == "fixed_joint" then
-		jt = JointType.FIXED
-	elseif joint_type == "hinge_joint" then
-		jt = JointType.HINGE
-	elseif joint_type == "spherical_joint" then
-		jt = JointType.SPHERICAL
-	elseif joint_type == "limb_joint" then
-		jt = JointType.LIMB
-	elseif joint_type == "spring_joint" then
-		jt = JointType.SPRING
-	elseif joint_type == "d6_joint" then
-		jt = JointType.D6
-	else
-		assert(false)
-	end
-
-	if joint_type == "fixed_joint" then
-		if other_actor ~= nil then
-			local actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, actor)
-			local other_actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, other_actor)
-			PhysicsWorld.joint_create(self._pw
-				, jt
-				, actor
-				, Matrix4x4.identity()
-				, other_actor
-				, Matrix4x4.multiply(Matrix4x4.invert(other_actor_world_pose), actor_world_pose)
-				)
-		else
-			PhysicsWorld.joint_create(self._pw
-				, jt
-				, actor
-				, Matrix4x4.identity()
-				, other_actor
-				, PhysicsWorld.actor_world_pose(self._pw, actor)
-				)
+		can_create = other_actor_unit_box ~= nil
+		if can_create then
+			other_actor = PhysicsWorld.actor_instance(self._pw, other_actor_unit_box:unit_id())
+			can_create = other_actor ~= nil
 		end
-		return
 	end
 
-	PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose)
+	if can_create then
+		local jt = nil
+		if joint_type == "fixed_joint" then
+			jt = JointType.FIXED
+		elseif joint_type == "hinge_joint" then
+			jt = JointType.HINGE
+		elseif joint_type == "spherical_joint" then
+			jt = JointType.SPHERICAL
+		elseif joint_type == "limb_joint" then
+			jt = JointType.LIMB
+		elseif joint_type == "spring_joint" then
+			jt = JointType.SPRING
+		elseif joint_type == "d6_joint" then
+			jt = JointType.D6
+		else
+			assert(false)
+		end
+
+		if joint_type == "fixed_joint" then
+			if other_actor ~= nil then
+				local actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, actor)
+				local other_actor_world_pose = PhysicsWorld.actor_world_pose(self._pw, other_actor)
+				PhysicsWorld.joint_create(self._pw
+					, jt
+					, actor
+					, Matrix4x4.identity()
+					, other_actor
+					, Matrix4x4.multiply(Matrix4x4.invert(other_actor_world_pose), actor_world_pose)
+					)
+			else
+				PhysicsWorld.joint_create(self._pw
+					, jt
+					, actor
+					, Matrix4x4.identity()
+					, other_actor
+					, PhysicsWorld.actor_world_pose(self._pw, actor)
+					)
+			end
+		else
+			local pose = Matrix4x4.from_quaternion_translation(Quaternion.from_elements(rx, ry, rz, rw)
+				, Vector3(px, py, pz)
+				)
+			local other_pose = Matrix4x4.from_quaternion_translation(Quaternion.from_elements(orx, ory, orz, orw)
+				, Vector3(opx, opy, opz)
+				)
+			PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose)
+		end
+	end
+
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:add_lod_group_component(id, component_id, level, mode, mesh_renderer_ids, screen_sizes)
@@ -1980,11 +2049,13 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	end
 end
 
-function LevelEditor:move_object(id, pos, rot, scale)
+function LevelEditor:move_object(id, px, py, pz, rx, ry, rz, rw, sx, sy, sz)
+	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
-	unit_box:set_local_position(pos)
-	unit_box:set_local_rotation(rot)
-	unit_box:set_local_scale(scale)
+	unit_box:set_local_position(Vector3(px, py, pz))
+	unit_box:set_local_rotation(Quaternion.from_elements(rx, ry, rz, rw))
+	unit_box:set_local_scale(Vector3(sx, sy, sz))
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:set_object_hidden(id, hidden)

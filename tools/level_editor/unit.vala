@@ -783,8 +783,6 @@ public struct Unit
 		GLib.GenericArray<Guid?> components = new GLib.GenericArray<Guid?>();
 		collect_unit_tree(unit_ids, unit_id, db);
 
-		sb.append("editor_tree_nv, editor_tree_nq, editor_tree_nm = Device.temp_count()");
-
 		for (int i = 0; i < unit_ids.length; ++i) {
 			Guid id = unit_ids[i];
 			Unit unit = Unit(db, id);
@@ -811,8 +809,9 @@ public struct Unit
 		for (int i = 0; i < unit_ids.length; ++i) {
 			Guid id = unit_ids[i];
 			Guid owner_id = db.owner(id);
-			if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT)
+			if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT) {
 				sb.append(LevelEditorApi.unit_set_parent(owner_id, id));
+			}
 		}
 
 		for (int i = 0; i < components.length; ++i) {
@@ -829,8 +828,6 @@ public struct Unit
 				sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
 			}
 		}
-
-		sb.append("Device.set_temp_count(editor_tree_nv, editor_tree_nq, editor_tree_nm)");
 	}
 
 	public static void spawn_unit(StringBuilder sb, Guid unit_id, Database db)
@@ -838,14 +835,10 @@ public struct Unit
 		Unit unit = Unit(db, unit_id);
 		string? prefab = unit.prefab();
 
-		sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
-
 		if (prefab != null) {
 			sb.append(LevelEditorApi.spawn_unit(unit_id
 				, prefab
 				, unit.local_position()
-				, unit.local_rotation()
-				, unit.local_scale()
 				));
 			generate_change_commands(sb, { unit_id }, db);
 		} else {
@@ -864,8 +857,6 @@ public struct Unit
 			sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
 			sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
 		}
-
-		sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 	}
 
 	public static bool generate_lod_group_subobject_commands(StringBuilder sb, Guid object_id, Database db)
@@ -1052,13 +1043,11 @@ public struct Unit
 				Guid unit_id = object_ids[i];
 				Unit unit = Unit(db, unit_id);
 
-				sb.append("editor_nv, editor_nq, editor_nm = Device.temp_count()");
 				sb.append(LevelEditorApi.move_object(unit_id
 					, unit.local_position()
 					, unit.local_rotation()
 					, unit.local_scale()
 					));
-				sb.append("Device.set_temp_count(editor_nv, editor_nq, editor_nm)");
 
 				_component_registry.foreach((component_type, value) => {
 						Guid component_id;
