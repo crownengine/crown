@@ -2960,12 +2960,7 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "selection", [](lua_State *L) {
 			LuaStack stack(L);
-			RenderWorld *rw = stack.get_render_world(1);
-			UnitId unit = stack.get_unit(2);
-			if (stack.get_bool(3))
-				hash_set::insert(rw->_selection, unit);
-			else
-				hash_set::remove(rw->_selection, unit);
+			stack.get_render_world(1)->selection(stack.get_unit(2), stack.get_bool(3));
 			return 0;
 		});
 

@@ -176,6 +176,7 @@ struct RenderableFlags
 		SPRITE_FLIP_X = u32(1) << 3,
 		SPRITE_FLIP_Y = u32(1) << 4,
 
+		SELECTED      = u32(1) << 30,
 		DIRTY         = u32(1) << 31,
 	};
 };

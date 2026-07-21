@@ -390,6 +390,9 @@ struct RenderWorld
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
 
+	/// Sets whether @a unit is selected.
+	void selection(UnitId unit, bool selected);
+
 	/// Fills @a dl with debug lines
 	void debug_draw(DebugLine &dl);
 
@@ -621,6 +624,7 @@ struct RenderWorld
 			MeshId *previous_mesh;
 			f32 *fade_time;
 			MeshId *selected_mesh;
+			u32 *flags;
 		};
 
 		Allocator *_allocator;
@@ -799,9 +803,6 @@ struct RenderWorld
 	CullingSet _cullable_lights;
 
 	UnitDestroyCallback _unit_destroy_callback;
-
-	// Outlines.
-	HashSet<UnitId> _selection;
 
 	// Fog.
 	UnitId _fog_unit;

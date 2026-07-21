@@ -5,7 +5,6 @@
 
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
-#include "core/containers/hash_set.inl"
 #include "core/list.inl"
 #include "core/math/aabb.h"
 #include "core/math/color4.inl"
@@ -324,7 +323,6 @@ RenderWorld::RenderWorld(Allocator &a
 	, _cullable_objects(a)
 	, _cullable_shadow_casters(a)
 	, _cullable_lights(a)
-	, _selection(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
 	, _bloom_unit(UNIT_INVALID)
@@ -1235,7 +1233,9 @@ void RenderWorld::sync_cullable_sets()
 				continue;
 			idata.flags[i] &= ~RenderableFlags::DIRTY;
 
-			u32 changed = idata.flags[i] ^ idata.prev_flags[i];
+			const u32 changed = (idata.flags[i] ^ idata.prev_flags[i])
+				& (RenderableFlags::VISIBLE | RenderableFlags::SHADOW_CASTER)
+				;
 
 			if ((idata.flags[i] & RenderableFlags::LOD_LEVEL) != 0) {
 				idata.prev_flags[i] = idata.flags[i];
@@ -1279,7 +1279,9 @@ void RenderWorld::sync_cullable_sets()
 				continue;
 			idata.flags[i] &= ~RenderableFlags::DIRTY;
 
-			u32 changed = idata.flags[i] ^ idata.prev_flags[i];
+			const u32 changed = (idata.flags[i] ^ idata.prev_flags[i])
+				& RenderableFlags::VISIBLE
+				;
 
 			if (changed) {
 				idata.prev_flags[i] = idata.flags[i];
@@ -1876,7 +1878,13 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 		}
 	}
 
-	// Render objects.
+	union
+	{
+		u32 u;
+		f32 f;
+	} u2f;
+
+	// Render objects and outlines.
 	u32 sprite_slot = 0;
 	for (u32 ii = 0; ii < visible_objects; ++ii) {
 		const u32 ci = _cullable_objects.render[ii];
@@ -1893,6 +1901,17 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				, _scene_graph
 				, cascaded_lights
 				);
+
+			if ((_mesh_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+				const UnitId unit = _mesh_manager._data.unit[object_id];
+				u2f.u = unit._idx;
+				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+				bgfx::setUniform(_pipeline->_unit_id, &data);
+
+				_mesh_manager.set_instance_data(object_id, *_scene_graph);
+				bgfx::setState(_pipeline->_selection_shader.state);
+				bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+			}
 			break;
 
 		case CullableType::LOD_GROUP: {
@@ -1913,6 +1932,17 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				, _scene_graph
 				, cascaded_lights
 				);
+
+			if ((_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+				const UnitId unit = _lod_group_manager._data.unit[object_id];
+				u2f.u = unit._idx;
+				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+				bgfx::setUniform(_pipeline->_unit_id, &data);
+
+				_mesh_manager.set_instance_data(mesh_i, *_scene_graph);
+				bgfx::setState(_pipeline->_selection_shader.state);
+				bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+			}
 			break;
 		}
 
@@ -1928,89 +1958,22 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				_sprite_manager._data.material[object_id]->bind(_sprite_manager._data.layer[object_id] + View::SPRITE_0
 					, _sprite_manager._data.depth[object_id]
 					);
+
+				if ((_sprite_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+					bgfx::setTransform(to_float_ptr(_sprite_manager._data.world[object_id]));
+					bgfx::setVertexBuffer(0, &sprite_vertex_buffer);
+					bgfx::setIndexBuffer(&sprite_index_buffer, sprite_slot*6, 6);
+
+					const UnitId unit = _sprite_manager._data.unit[object_id];
+					u2f.u = unit._idx;
+					const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
+					bgfx::setUniform(_pipeline->_unit_id, &data);
+					bgfx::setState(_pipeline->_selection_shader.state);
+					bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+				}
 			}
 			++sprite_slot;
 			break;
-
-		case CullableType::LIGHT:
-			break;
-		}
-	}
-
-	// Render outlines.
-	union
-	{
-		u32 u;
-		f32 f;
-	} u2f;
-
-	sprite_slot = 0;
-	for (u32 ii = 0; ii < visible_objects; ++ii) {
-		const u32 ci = _cullable_objects.render[ii];
-		const u32 object_id = _cullable_objects.id[ci];
-
-		switch (_cullable_objects.type[ci]) {
-		case CullableType::MESH: {
-			UnitId unit_id = _mesh_manager._data.unit[object_id];
-			if (!hash_set::has(_selection, unit_id))
-				break;
-
-			u2f.u = unit_id._idx;
-			Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-			bgfx::setUniform(_pipeline->_unit_id, &data);
-
-			_mesh_manager.set_instance_data(object_id, *_scene_graph);
-			bgfx::setState(_pipeline->_selection_shader.state);
-			bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
-			break;
-		}
-
-		case CullableType::LOD_GROUP: {
-			UnitId unit_id = _lod_group_manager._data.unit[object_id];
-			if (!hash_set::has(_selection, unit_id))
-				break;
-
-			const MeshId mesh_to_draw = _lod_group_manager._data.selected_mesh[object_id];
-			if (!is_valid(mesh_to_draw))
-				break;
-
-			const u32 mesh_i = _mesh_manager.index(mesh_to_draw);
-			if ((_mesh_manager._data.flags[mesh_i] & RenderableFlags::VISIBLE) == 0)
-				break;
-
-			u2f.u = unit_id._idx;
-			Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-			bgfx::setUniform(_pipeline->_unit_id, &data);
-
-			_mesh_manager.set_instance_data(mesh_i, *_scene_graph);
-			bgfx::setState(_pipeline->_selection_shader.state);
-			bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
-			break;
-		}
-
-		case CullableType::SPRITE: {
-			UnitId unit_id = _sprite_manager._data.unit[object_id];
-			if (!hash_set::has(_selection, unit_id)) {
-				++sprite_slot;
-				break;
-			}
-
-			if (sprite_buffer_allocated) {
-				bgfx::setTransform(to_float_ptr(_sprite_manager._data.world[object_id]));
-				bgfx::setVertexBuffer(0, &sprite_vertex_buffer);
-				bgfx::setIndexBuffer(&sprite_index_buffer, sprite_slot*6, 6);
-
-				u2f.u = unit_id._idx;
-				Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-				bgfx::setUniform(_pipeline->_unit_id, &data);
-
-				bgfx::setState(_pipeline->_selection_shader.state);
-				bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
-			}
-
-			++sprite_slot;
-			break;
-		}
 
 		case CullableType::LIGHT:
 			break;
@@ -2065,6 +2028,25 @@ void RenderWorld::debug_draw(DebugLine &dl)
 void RenderWorld::enable_debug_drawing(bool enable)
 {
 	_debug_drawing = enable;
+}
+
+void RenderWorld::selection(UnitId unit, bool selected)
+{
+	const u32 selected_flag = selected ? RenderableFlags::SELECTED : 0u;
+	const MeshId mesh = _mesh_manager.mesh(unit);
+	if (is_valid(mesh)) {
+		const u32 mesh_i = _mesh_manager.index(mesh);
+		_mesh_manager._data.flags[mesh_i] = (_mesh_manager._data.flags[mesh_i] & ~RenderableFlags::SELECTED) | selected_flag;
+	}
+
+	const SpriteId sprite = _sprite_manager.sprite(unit);
+	if (is_valid(sprite)) {
+		_sprite_manager._data.flags[sprite.i] = (_sprite_manager._data.flags[sprite.i] & ~RenderableFlags::SELECTED) | selected_flag;
+	}
+
+	const LodGroupId lod_group = _lod_group_manager.lod_group(unit);
+	if (is_valid(lod_group))
+		_lod_group_manager._data.flags[lod_group.i] = (_lod_group_manager._data.flags[lod_group.i] & ~RenderableFlags::SELECTED) | selected_flag;
 }
 
 void RenderWorld::unit_destroyed_callback(UnitId unit)
@@ -2737,6 +2719,7 @@ void RenderWorld::LodGroupManager::allocate(u32 num)
 		+ num*sizeof(MeshId) + alignof(MeshId)
 		+ num*sizeof(f32) + alignof(f32)
 		+ num*sizeof(MeshId) + alignof(MeshId)
+		+ num*sizeof(u32) + alignof(u32)
 		;
 
 	LodGroupInstanceData new_data;
@@ -2757,6 +2740,7 @@ void RenderWorld::LodGroupManager::allocate(u32 num)
 	new_data.previous_mesh = (MeshId *)memory::align_top(new_data.previous_level + num, alignof(MeshId));
 	new_data.fade_time = (f32 *)memory::align_top(new_data.previous_mesh + num, alignof(f32));
 	new_data.selected_mesh = (MeshId *)memory::align_top(new_data.fade_time + num, alignof(MeshId));
+	new_data.flags = (u32 *)memory::align_top(new_data.selected_mesh + num, alignof(u32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.first_entry, _data.first_entry, _data.size * sizeof(u32));
@@ -2771,6 +2755,7 @@ void RenderWorld::LodGroupManager::allocate(u32 num)
 	memcpy(new_data.previous_mesh, _data.previous_mesh, _data.size * sizeof(MeshId));
 	memcpy(new_data.fade_time, _data.fade_time, _data.size * sizeof(f32));
 	memcpy(new_data.selected_mesh, _data.selected_mesh, _data.size * sizeof(MeshId));
+	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -2816,6 +2801,7 @@ void RenderWorld::LodGroupManager::create_instances(const void *components_data
 		_data.previous_mesh[group_idx] = { UINT32_MAX };
 		_data.fade_time[group_idx] = 0.0f;
 		_data.selected_mesh[group_idx] = { UINT32_MAX };
+		_data.flags[group_idx] = 0u;
 
 		u32 first_entry_idx = UINT32_MAX;
 		u32 prev_entry_idx = UINT32_MAX;
@@ -2972,6 +2958,7 @@ void RenderWorld::LodGroupManager::destroy(LodGroupId lod_group)
 	_data.previous_mesh[lod_group.i] = _data.previous_mesh[last];
 	_data.fade_time[lod_group.i] = _data.fade_time[last];
 	_data.selected_mesh[lod_group.i] = _data.selected_mesh[last];
+	_data.flags[lod_group.i] = _data.flags[last];
 
 	--_data.size;
 
