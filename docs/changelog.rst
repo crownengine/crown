@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed LOD Group component not being generated when importing models with LODs starting at non-zero indices.
+* Tools: fixed the camera's minimum near and far ranges in the Inspector.
 
 .. _v0.63.7:
 

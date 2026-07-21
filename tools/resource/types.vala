@@ -491,6 +491,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.near_range",
+			min = 0.01,
 			deffault = 0.1,
 			tooltip = "Objects closer than this value will not be rendered.",
 		},
@@ -498,6 +499,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.far_range",
+			min = 0.01,
 			deffault = 1000.0,
 			tooltip = "Objects farther than this value will not be rendered.",
 		},
