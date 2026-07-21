@@ -1857,23 +1857,45 @@ public class LevelEditorApplication : Gtk.Application
 			GLib.HashTable<string, Value?> new_rotations = (GLib.HashTable<string, Value?>)msg["new_rotations"];
 			GLib.HashTable<string, Value?> new_scales    = (GLib.HashTable<string, Value?>)msg["new_scales"];
 
-			GLib.List<unowned string> keys = ids.get_keys();
-			keys.sort(GLib.strcmp);
-			int num_keys = (int)keys.length();
+			int num_objects = (int)ids.size();
 
-			Guid?[] n_ids            = new Guid?[num_keys];
-			Vector3[] n_positions    = new Vector3[num_keys];
-			Quaternion[] n_rotations = new Quaternion[num_keys];
-			Vector3[] n_scales       = new Vector3[num_keys];
+			Guid?[] n_ids            = new Guid?[num_objects];
+			Vector3[] n_positions    = new Vector3[num_objects];
+			Quaternion[] n_rotations = new Quaternion[num_objects];
+			Vector3[] n_scales       = new Vector3[num_objects];
 
-			int i = 0;
-			foreach (unowned string key in keys) {
-				n_ids[i]       = Guid.parse((string)ids[key]);
-				n_positions[i] = Vector3.from_array((GLib.GenericArray<Value?>)new_positions[key]);
-				n_rotations[i] = Quaternion.from_array((GLib.GenericArray<Value?>)new_rotations[key]);
-				n_scales[i]    = Vector3.from_array((GLib.GenericArray<Value?>)new_scales[key]);
-				++i;
-			}
+			ids.foreach((key, value) => {
+				int object_index = int.parse(key) - 1;
+				n_ids[object_index] = Guid.parse((string)value);
+			});
+			new_positions.foreach((key, value) => {
+				int element_index = int.parse(key) - 1;
+				int object_index = element_index / 3;
+				switch (element_index % 3) {
+				case 0: n_positions[object_index].x = (double)value; break;
+				case 1: n_positions[object_index].y = (double)value; break;
+				case 2: n_positions[object_index].z = (double)value; break;
+				}
+			});
+			new_rotations.foreach((key, value) => {
+				int element_index = int.parse(key) - 1;
+				int object_index = element_index / 4;
+				switch (element_index % 4) {
+				case 0: n_rotations[object_index].x = (double)value; break;
+				case 1: n_rotations[object_index].y = (double)value; break;
+				case 2: n_rotations[object_index].z = (double)value; break;
+				case 3: n_rotations[object_index].w = (double)value; break;
+				}
+			});
+			new_scales.foreach((key, value) => {
+				int element_index = int.parse(key) - 1;
+				int object_index = element_index / 3;
+				switch (element_index % 3) {
+				case 0: n_scales[object_index].x = (double)value; break;
+				case 1: n_scales[object_index].y = (double)value; break;
+				case 2: n_scales[object_index].z = (double)value; break;
+				}
+			});
 
 			_level.on_move_objects(n_ids, n_positions, n_rotations, n_scales);
 			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS, n_ids, ActionTypeFlags.FROM_SERVER);
