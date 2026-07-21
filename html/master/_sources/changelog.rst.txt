@@ -22,6 +22,7 @@ Changelog
 * Tools: Lua suggestions in the Command Bar can now be accepted by pressing Tab.
 * Tools: the Mover component will no longer push dynamic objects and will also handle intersection with triggers on its own, removing the need for supplemental physics components in a unit.
 * Tools: added an option under Preferences -> Viewport to choose the rendering backend used by the editor runtimes.
+* Tools: improved rendering performance of selected objects.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
