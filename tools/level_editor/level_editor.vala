@@ -1373,6 +1373,7 @@ public class LevelEditorApplication : Gtk.Application
 			, LEVEL_EDITOR_BOOT_DIR
 			, EDITOR_ADDRESS
 			, EDITOR_TCP_PORT
+			, _preferences_dialog
 			);
 		_editor = _editor_viewport._runtime;
 		_editor.message_received.connect(on_message_received);
@@ -2219,6 +2220,7 @@ public class LevelEditorApplication : Gtk.Application
 		string args[] =
 		{
 			ENGINE_EXE,
+			"--renderer", _preferences_dialog._editor_renderer.value,
 #if CROWN_PLATFORM_LINUX
 			"--display-server", "x11",
 #endif
@@ -2824,12 +2826,12 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_state_machine_editor == null) {
 			_state_machine_editor = new StateMachineEditor(this
+				, _preferences_dialog
 				, _data_compiler
 				, _project
 				, "core/editors/state_machine_editor"
 				, "127.0.0.1"
 				, 10844
-				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
 				);
 			_state_machine_editor.set_transient_for(_level_editor_window);
 			_state_machine_editor.saved.connect(() => {
@@ -4410,7 +4412,7 @@ public class LevelEditorApplication : Gtk.Application
 				, "core/editors/level_editor"
 				, "127.0.0.1"
 				, 10444
-				, (uint)_preferences_dialog._undo_redo_max_size.value * 1024 * 1024
+				, _preferences_dialog
 				);
 			_unit_editor_dialog.set_transient_for(_level_editor_window);
 			_unit_editor_dialog.saved.connect(on_unit_editor_saved);

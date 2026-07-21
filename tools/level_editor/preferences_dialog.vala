@@ -25,6 +25,7 @@ public class PreferencesDialog : Gtk.Window
 	public InputDouble _camera_movement_speed;
 	public InputAngle _camera_rotation_speed;
 	public InputDouble _camera_speed_modifier;
+	public InputEnum _editor_renderer;
 	public InputBool _game_keep_above;
 	public PropertyGridSet _viewport_set;
 
@@ -147,6 +148,23 @@ public class PreferencesDialog : Gtk.Window
 		cv.add_row(_("Speed Modifier"), _camera_speed_modifier, _("Flythrough camera speed multiplier/divisor."));
 		_viewport_set.add_property_grid(cv, _("Camera"));
 
+#if CROWN_PLATFORM_LINUX
+		_editor_renderer = new InputEnum("vk"
+			, new string[] { "Vulkan", "OpenGL" }
+			, new string[] { "vk", "gl" }
+			);
+#elif CROWN_PLATFORM_WINDOWS
+		_editor_renderer = new InputEnum("d3d11"
+			, new string[] { "Direct3D 11" }
+			, new string[] { "d3d11" }
+			);
+#endif
+
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row("Renderer", _editor_renderer, "Renderer backend used by editor runtimes.\nChanges apply on the next runtime restart.");
+		_viewport_set.add_property_grid(cv, "Editor");
+
 		// Memory and limits page.
 		_undo_redo_max_size = new InputDouble(8, 1, 2048);
 		_log_delete_after_days = new InputDouble(10, 0, 90);
@@ -246,6 +264,15 @@ public class PreferencesDialog : Gtk.Window
 		_editor.send(DeviceApi.frame());
 	}
 
+	public static string validate_editor_renderer(string renderer)
+	{
+#if CROWN_PLATFORM_LINUX
+		return renderer == "gl" ? "gl" : "vk";
+#elif CROWN_PLATFORM_WINDOWS
+		return "d3d11";
+#endif
+	}
+
 	public void decode(GLib.HashTable<string, Value?> settings)
 	{
 		GLib.HashTable<string, Value?> preferences = settings.contains("preferences")
@@ -269,6 +296,7 @@ public class PreferencesDialog : Gtk.Window
 		_log_delete_after_days.value      = preferences.contains("log_expiration") ? (double)preferences["log_expiration"] : _log_delete_after_days.value;
 		_console_max_lines.value          = preferences.contains("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
 		_thumbnail_cache_max_size.value   = (preferences.contains("thumbnail_cache_max_size") ? (double)preferences["thumbnail_cache_max_size"] : _thumbnail_cache_max_size.value);
+		_editor_renderer.value            = validate_editor_renderer(preferences.contains("editor_renderer") ? (string)preferences["editor_renderer"] : _editor_renderer.value);
 
 		if (preferences.contains("theme"))
 			_theme_combo.value = (string)preferences["theme"];
@@ -355,6 +383,7 @@ public class PreferencesDialog : Gtk.Window
 		preferences["console_max_lines"] = _console_max_lines.value;
 		preferences["theme"]          = _theme_combo.value;
 		preferences["thumbnail_cache_max_size"] = _thumbnail_cache_max_size.value;
+		preferences["editor_renderer"] = _editor_renderer.value;
 
 		// External tools.
 		string app;

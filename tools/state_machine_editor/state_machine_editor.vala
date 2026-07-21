@@ -33,23 +33,25 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public string _state_machine_name;
 	public string? _state_machine_path;
 	public Guid _state_machine_id;
+	public PreferencesDialog _preferences;
 
 	public signal void saved();
 
 	public StateMachineEditor(LevelEditorApplication application
+		, PreferencesDialog preferences
 		, DataCompiler data_compiler
 		, Project project
 		, string boot_dir
 		, string console_addr
 		, uint16 console_port
-		, uint32 undo_redo_size
 		)
 	{
 		Object(application: application);
 
 		_application = application;
+		_preferences = preferences;
 		_database = new Database(project);
-		_database_editor = new DatabaseEditor(undo_redo_size, _database);
+		_database_editor = new DatabaseEditor((uint32)preferences._undo_redo_max_size.value * 1024 * 1024, _database);
 		_database_editor.undo.connect(on_undo);
 		_database_editor.redo.connect(on_redo);
 		this.insert_action_group("database", _database_editor._action_group);
@@ -70,6 +72,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			, boot_dir
 			, console_addr
 			, console_port
+			, preferences
 			, ViewportRenderMode.CONTINUOUS
 			);
 		this.insert_action_group("viewport", _editor_viewport._action_group);

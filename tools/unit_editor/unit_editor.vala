@@ -18,6 +18,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public PropertiesView _properties_view;
 	public Level _level;
 	public Statusbar _statusbar;
+	public PreferencesDialog _preferences;
 
 	public Gtk.Paned _paned_object;
 	public Gtk.Paned _paned_inspector;
@@ -29,6 +30,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public string _unit_name;
 	public string? _unit_path;
 	public Guid _unit_id;
+	public string _renderer;
 
 	public signal void saved();
 
@@ -38,14 +40,15 @@ public class UnitEditor : Gtk.ApplicationWindow
 		, string boot_dir
 		, string console_addr
 		, uint16 console_port
-		, uint32 undo_redo_size
+		, PreferencesDialog preferences
 		)
 	{
 		Object(application: application);
 		_application = application;
+		_preferences = preferences;
 
 		_database = new Database(project);
-		_database_editor = new DatabaseEditor(undo_redo_size, _database);
+		_database_editor = new DatabaseEditor((uint32)preferences._undo_redo_max_size.value * 1024 * 1024, _database);
 		_database_editor.undo.connect(on_undo);
 		_database_editor.redo.connect(on_redo);
 		this.insert_action_group("database", _database_editor._action_group);
@@ -68,6 +71,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			, boot_dir
 			, console_addr
 			, console_port
+			, preferences
 			);
 		this.insert_action_group("viewport", _editor_viewport._action_group);
 		_runtime = _editor_viewport._runtime;

@@ -29,6 +29,7 @@ public class EditorViewport : Gtk.Bin
 	public string _boot_dir;
 	public string _console_address;
 	public uint16 _console_port;
+	public PreferencesDialog _preferences;
 	public ViewportRenderMode _render_mode;
 	public bool _input_enabled;
 	public RuntimeInstance _runtime;
@@ -44,6 +45,7 @@ public class EditorViewport : Gtk.Bin
 		, string boot_dir
 		, string console_addr
 		, uint16 console_port
+		, PreferencesDialog preferences
 		, ViewportRenderMode render_mode = ViewportRenderMode.PUMPED
 		, bool input_enabled = true
 		)
@@ -53,6 +55,7 @@ public class EditorViewport : Gtk.Bin
 		_boot_dir = boot_dir;
 		_console_address = console_addr;
 		_console_port = console_port;
+		_preferences = preferences;
 		_render_mode = render_mode;
 		_input_enabled = input_enabled;
 
@@ -93,6 +96,7 @@ public class EditorViewport : Gtk.Bin
 		string args[] =
 		{
 			ENGINE_EXE,
+			"--renderer", _preferences._editor_renderer.value,
 #if CROWN_PLATFORM_LINUX
 			"--display-server", "x11",
 #endif
