@@ -22,7 +22,7 @@ public class InputDouble : InputField
 	public Gtk.Entry _entry;
 	public Gtk.Label _label;
 	public Gtk.EventBox _event_box;
-	public Gtk.Stack _stack;
+	public Gtk.Overlay _overlay;
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
@@ -34,6 +34,7 @@ public class InputDouble : InputField
 
 			if (_inconsistent) {
 				_entry.text = INCONSISTENT_LABEL;
+				_label.set_text(_entry.text);
 			} else {
 				set_value_safe(string_to_double(_entry.text, _value));
 			}
@@ -74,6 +75,7 @@ public class InputDouble : InputField
 		_entry = new Gtk.Entry();
 		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
 		_entry.set_width_chars(1);
+		_entry.editable = false;
 
 		_entry.activate.connect(on_activate);
 		_entry.focus_in_event.connect(on_focus_in);
@@ -85,11 +87,11 @@ public class InputDouble : InputField
 
 		_event_box = new Gtk.EventBox();
 		_event_box.add(_label);
+		_event_box.can_focus = false;
 
-		_stack = new Gtk.Stack();
-		_stack.add_named(_event_box, "label");
-		_stack.add_named(_entry, "entry");
-		_stack.set_visible_child_name("label");
+		_overlay = new Gtk.Overlay();
+		_overlay.add(_entry);
+		_overlay.add_overlay(_event_box);
 
 		_inconsistent = false;
 		_min = min;
@@ -122,7 +124,7 @@ public class InputDouble : InputField
 			});
 #endif
 
-		this.add(_stack);
+		this.add(_overlay);
 	}
 
 	bool _pressed = false;
@@ -150,24 +152,7 @@ public class InputDouble : InputField
 			_dragging = false;
 			return;
 		}
-
-		_stack.set_visible_child_name("entry");
-		_entry.grab_focus();
-
-		uint button = _gesture_click.get_current_button();
-
-		if (button == Gdk.BUTTON_PRIMARY && _entry.has_focus) {
-			if (_inconsistent)
-				_entry.text = "";
-			else
-				_entry.text = format_value(_value, _edit_decimals);
-
-			GLib.Idle.add(() => {
-					_entry.set_position(-1);
-					_entry.select_region(0, -1);
-					return GLib.Source.REMOVE;
-				});
-		}
+		begin_editing();
 	}
 
 	public void on_enter()
@@ -222,6 +207,11 @@ public class InputDouble : InputField
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_entry);
 
+		if (_event_box.visible)
+			_event_box.visible = false;
+
+		_entry.editable = true;
+
 		if (_inconsistent)
 			_entry.text = "";
 		else
@@ -252,9 +242,29 @@ public class InputDouble : InputField
 		}
 
 		_entry.select_region(0, 0);
-		_stack.set_visible_child_name("label");
+		_entry.editable = false;
+		_label.set_text(_entry.text);
+		_event_box.visible = true;
 
 		return Gdk.EVENT_PROPAGATE;
+	}
+
+	void begin_editing()
+	{
+		_event_box.visible = false;
+		_entry.editable = true;
+		_entry.grab_focus();
+
+		if (_inconsistent)
+			_entry.text = "";
+		else
+			_entry.text = format_value(_value, _edit_decimals);
+
+		GLib.Idle.add(() => {
+			_entry.set_position(-1);
+			_entry.select_region(0, -1);
+			return GLib.Source.REMOVE;
+		});
 	}
 
 	public void set_value_safe(double val)
