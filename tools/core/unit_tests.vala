@@ -307,6 +307,50 @@ private static void test_database()
 
 		assert(db.get_set(root, "set").length == 4);
 	}
+
+	// Copy property values when duplicating.
+	{
+		Database db = new Database(p);
+		db.create_object_type("object", props);
+		Guid id = Guid.new_guid();
+		Guid copy = Guid.new_guid();
+		db.create(id, "object");
+		db.set_bool(id, "b", false);
+		db.set_double(id, "d", 2.0);
+		db.set_string(id, "s", "b");
+		db.set_vector3(id, "v", Vector3(4.0, 5.0, 6.0));
+		db.set_quaternion(id, "q", Quaternion(5.0, 6.0, 7.0, 8.0));
+		db.set_resource(id, "r", "b");
+
+		db.duplicate_one(id, copy);
+
+		assert(db.get_bool(copy, "b") == false);
+		assert(db.get_double(copy, "d") == 2.0);
+		assert(db.get_string(copy, "s") == "b");
+		assert(Vector3.equal_func(db.get_vector3(copy, "v"), Vector3(4.0, 5.0, 6.0)));
+		assert(Quaternion.equal_func(db.get_quaternion(copy, "q"), Quaternion(5.0, 6.0, 7.0, 8.0)));
+		assert(db.get_resource(copy, "r") == "b");
+	}
+
+	// Reuse supplied IDs when duplicated roots overlap.
+	{
+		Database db = new Database(p);
+		db.create_object_type("object", props);
+		Guid root = Guid.new_guid();
+		Guid child = Guid.new_guid();
+		Guid copy = Guid.new_guid();
+		Guid copy_child = Guid.new_guid();
+		db.create(root, "object");
+		db.create(child, "object");
+		db.add_to_set(root, "set", child);
+
+		db.duplicate({ root, child }, { copy, copy_child });
+
+		Guid?[] ids = db.get_set(copy, "set");
+		assert(db._data.size() == 5);
+		assert(ids.length == 1);
+		assert(Guid.equal_func(ids[0], copy_child));
+	}
 }
 
 public static int main_unit_tests()
