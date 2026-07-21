@@ -2186,6 +2186,7 @@ function LevelEditor:draw_camera_compass()
 	function draw_circle(gui, center, radius, color)
 		local segments = 36
 		for i=1,segments do
+			local nv, nq, nm = Device.temp_count()
 			local x0 = math.cos(2 * math.pi * ((i - 1) / segments)) * radius
 			local y0 = math.sin(2 * math.pi * ((i - 1) / segments)) * radius
 			local x1 = math.cos(2 * math.pi * ((i - 0) / segments)) * radius
@@ -2198,6 +2199,7 @@ function LevelEditor:draw_camera_compass()
 				, color
 				, center.z
 				)
+			Device.set_temp_count(nv, nq, nm)
 		end
 	end
 
