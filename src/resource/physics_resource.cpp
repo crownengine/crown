@@ -747,8 +747,6 @@ namespace physics_config_resource_internal
 {
 	s32 parse_materials(const char *json, Array<PhysicsMaterial> &objects, CompileOptions &opts)
 	{
-		CE_UNUSED(opts);
-
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
 		RETURN_IF_ERROR(sjson::parse(obj, json));
@@ -764,15 +762,33 @@ namespace physics_config_resource_internal
 			JsonObject material(ta);
 			RETURN_IF_ERROR(sjson::parse_object(material, value));
 
-			PhysicsMaterial mat;
-			mat.name             = StringId32(key.data(), key.length());
-			mat.friction         = RETURN_IF_ERROR(sjson::parse_float(material["friction"]));
-			mat.rolling_friction = RETURN_IF_ERROR(sjson::parse_float(material["rolling_friction"]));
-			mat.restitution      = RETURN_IF_ERROR(sjson::parse_float(material["restitution"]));
-			if (json_object::has(material, "spinning_friction")) {
-				mat.spinning_friction = RETURN_IF_ERROR(sjson::parse_float(material["spinning_friction"]));
-			} else {
-				mat.spinning_friction = 0.5f;
+			PhysicsMaterial mat = {};
+			mat.name              = StringId32(key.data(), key.length());
+			mat.friction          = 0.8f;
+			mat.rolling_friction  = 0.5f;
+			mat.spinning_friction = 0.5f;
+			mat.restitution       = 0.81f;
+
+			auto mcur = json_object::begin(material);
+			auto mend = json_object::end(material);
+			for (; mcur != mend; ++mcur) {
+				JSON_OBJECT_SKIP_HOLE(material, mcur);
+
+				if (mcur->first == "friction") {
+					mat.friction = RETURN_IF_ERROR(sjson::parse_float(mcur->second));
+				} else if (mcur->first == "rolling_friction") {
+					mat.rolling_friction = RETURN_IF_ERROR(sjson::parse_float(mcur->second));
+				} else if (mcur->first == "spinning_friction") {
+					mat.spinning_friction = RETURN_IF_ERROR(sjson::parse_float(mcur->second));
+				} else if (mcur->first == "restitution") {
+					mat.restitution = RETURN_IF_ERROR(sjson::parse_float(mcur->second));
+				} else {
+					opts.warning(PHYSICS_RESOURCE
+						, "Unknown material property: '%.*s'"
+						, mcur->first.length()
+						, mcur->first.data()
+						);
+				}
 			}
 
 			array::push_back(objects, mat);
@@ -783,8 +799,6 @@ namespace physics_config_resource_internal
 
 	s32 parse_actors(const char *json, Array<PhysicsActor> &objects, CompileOptions &opts)
 	{
-		CE_UNUSED(opts);
-
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
 		RETURN_IF_ERROR(sjson::parse(obj, json));
@@ -801,33 +815,39 @@ namespace physics_config_resource_internal
 			RETURN_IF_ERROR(sjson::parse_object(actor, value));
 
 			PhysicsActor pa;
-			pa.name = StringId32(key.data(), key.length());
+			pa.name            = StringId32(key.data(), key.length());
 			pa.linear_damping  = 0.0f;
 			pa.angular_damping = 0.0f;
+			pa.flags           = 0;
 
-			if (json_object::has(actor, "linear_damping")) {
-				pa.linear_damping = RETURN_IF_ERROR(sjson::parse_float(actor["linear_damping"]));
-			}
-			if (json_object::has(actor, "angular_damping")) {
-				pa.angular_damping = RETURN_IF_ERROR(sjson::parse_float(actor["angular_damping"]));
-			}
+			auto acur = json_object::begin(actor);
+			auto aend = json_object::end(actor);
+			for (; acur != aend; ++acur) {
+				JSON_OBJECT_SKIP_HOLE(actor, acur);
 
-			pa.flags = 0;
-			if (json_object::has(actor, "dynamic")) {
-				bool val = RETURN_IF_ERROR(sjson::parse_bool(actor["dynamic"]));
-				pa.flags |= val ? CROWN_PHYSICS_ACTOR_DYNAMIC : 0u;
-			}
-			if (json_object::has(actor, "kinematic")) {
-				bool val = RETURN_IF_ERROR(sjson::parse_bool(actor["kinematic"]));
-				pa.flags |= val ? CROWN_PHYSICS_ACTOR_KINEMATIC : 0u;
-			}
-			if (json_object::has(actor, "disable_gravity")) {
-				bool val = RETURN_IF_ERROR(sjson::parse_bool(actor["disable_gravity"]));
-				pa.flags |= val ? CROWN_PHYSICS_ACTOR_DISABLE_GRAVITY : 0u;
-			}
-			if (json_object::has(actor, "trigger")) {
-				bool val = RETURN_IF_ERROR(sjson::parse_bool(actor["trigger"]));
-				pa.flags |= val ? CROWN_PHYSICS_ACTOR_TRIGGER : 0u;
+				if (acur->first == "linear_damping") {
+					pa.linear_damping = RETURN_IF_ERROR(sjson::parse_float(acur->second));
+				} else if (acur->first == "angular_damping") {
+					pa.angular_damping = RETURN_IF_ERROR(sjson::parse_float(acur->second));
+				} else if (acur->first == "dynamic") {
+					bool val = RETURN_IF_ERROR(sjson::parse_bool(acur->second));
+					pa.flags |= val ? CROWN_PHYSICS_ACTOR_DYNAMIC : 0u;
+				} else if (acur->first == "kinematic") {
+					bool val = RETURN_IF_ERROR(sjson::parse_bool(acur->second));
+					pa.flags |= val ? CROWN_PHYSICS_ACTOR_KINEMATIC : 0u;
+				} else if (acur->first == "disable_gravity") {
+					bool val = RETURN_IF_ERROR(sjson::parse_bool(acur->second));
+					pa.flags |= val ? CROWN_PHYSICS_ACTOR_DISABLE_GRAVITY : 0u;
+				} else if (acur->first == "trigger") {
+					bool val = RETURN_IF_ERROR(sjson::parse_bool(acur->second));
+					pa.flags |= val ? CROWN_PHYSICS_ACTOR_TRIGGER : 0u;
+				} else {
+					opts.warning(PHYSICS_RESOURCE
+						, "Unknown actor property: '%.*s'"
+						, acur->first.length()
+						, acur->first.data()
+						);
+				}
 			}
 
 			array::push_back(objects, pa);
@@ -885,25 +905,35 @@ namespace physics_config_resource_internal
 
 				u32 mask = 0;
 
-				if (json_object::has(filter, "collides_with")) {
-					JsonArray include(ta);
-					RETURN_IF_ERROR(sjson::parse_array(include, filter["collides_with"]));
+				auto fcur = json_object::begin(filter);
+				auto fend = json_object::end(filter);
+				for (; fcur != fend; ++fcur) {
+					JSON_OBJECT_SKIP_HOLE(filter, fcur);
 
-					for (u32 i = 0; i < array::size(include); ++i) {
-						const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(include[i]));
-						mask |= filter_to_mask(fi);
-					}
-				}
+					if (fcur->first == "collides_with") {
+						JsonArray include(ta);
+						RETURN_IF_ERROR(sjson::parse_array(include, fcur->second));
 
-				if (json_object::has(filter, "collides_with_all_except")) {
-					mask = UINT32_MAX;
+						for (u32 i = 0; i < array::size(include); ++i) {
+							const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(include[i]));
+							mask |= filter_to_mask(fi);
+						}
+					} else if (fcur->first == "collides_with_all_except") {
+						mask = UINT32_MAX;
 
-					JsonArray exclude(ta);
-					RETURN_IF_ERROR(sjson::parse_array(exclude, filter["collides_with_all_except"]));
+						JsonArray exclude(ta);
+						RETURN_IF_ERROR(sjson::parse_array(exclude, fcur->second));
 
-					for (u32 i = 0; i < array::size(exclude); ++i) {
-						const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(exclude[i]));
-						mask &= ~filter_to_mask(fi);
+						for (u32 i = 0; i < array::size(exclude); ++i) {
+							const StringId32 fi = RETURN_IF_ERROR(sjson::parse_string_id(exclude[i]));
+							mask &= ~filter_to_mask(fi);
+						}
+					} else {
+						_opts.warning(PHYSICS_RESOURCE
+							, "Unknown collision filter property: '%.*s'"
+							, fcur->first.length()
+							, fcur->first.data()
+							);
 					}
 				}
 
@@ -952,25 +982,32 @@ namespace physics_config_resource_internal
 		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
 		PhysicsConfigResource pcr;
+		pcr.gravity = { 0.0f, 0.0f, -10.0f };
 
-		// Parse materials
 		s32 err = 0;
-		if (json_object::has(obj, "collision_filters")) {
-			err = cfc.parse(obj["collision_filters"]);
-			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
-		}
-		if (json_object::has(obj, "materials")) {
-			err = parse_materials(obj["materials"], materials, opts);
-			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
-		}
-		if (json_object::has(obj, "actors")) {
-			err = parse_actors(obj["actors"], actors, opts);
-			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
-		}
-		if (json_object::has(obj, "gravity")) {
-			pcr.gravity = RETURN_IF_ERROR(sjson::parse_vector3(obj["gravity"]));
-		} else {
-			pcr.gravity = { 0.0f, 0.0f, -10.0f };
+		auto cur = json_object::begin(obj);
+		auto end = json_object::end(obj);
+		for (; cur != end; ++cur) {
+			JSON_OBJECT_SKIP_HOLE(obj, cur);
+
+			if (cur->first == "collision_filters") {
+				err = cfc.parse(cur->second);
+				ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
+			} else if (cur->first == "materials") {
+				err = parse_materials(cur->second, materials, opts);
+				ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
+			} else if (cur->first == "actors") {
+				err = parse_actors(cur->second, actors, opts);
+				ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
+			} else if (cur->first == "gravity") {
+				pcr.gravity = RETURN_IF_ERROR(sjson::parse_vector3(cur->second));
+			} else {
+				opts.warning(PHYSICS_RESOURCE
+					, "Unknown physics config property: '%.*s'"
+					, cur->first.length()
+					, cur->first.data()
+					);
+			}
 		}
 
 		// Setup struct for writing

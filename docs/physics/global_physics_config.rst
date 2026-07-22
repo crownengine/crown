@@ -27,6 +27,11 @@ Example
         trigger = { trigger = true }
     }
 
+Gravity
+========
+
+``gravity = [ 0 0 -10 ]`` the global gravity vector.
+
 .. _physics_materials:
 
 Materials
@@ -45,13 +50,13 @@ object:
 
 Common material properties:
 
-* ``friction``: general contact friction; larger values increase resistance to
-  sliding.
-* ``rolling_friction``: torsional friction orthogonal to the contact normal;
-  helps stop spheres rolling forever.
-* ``spinning_friction``: torsional friction around the contact normal; useful
-  for grasping.
-* ``restitution``: coefficient of restitution; 1 = perfectly elastic
+* ``friction = 0.8``: general contact friction; larger values increase
+  resistance to sliding.
+* ``rolling_friction = 0.5``: torsional friction orthogonal to the contact
+  normal; helps stop spheres rolling forever.
+* ``spinning_friction = 0.5``: torsional friction around the contact normal;
+  useful for grasping.
+* ``restitution = 0.81``: coefficient of restitution; 1 = perfectly elastic
   collision, < 1 = inelastic.
 
 Collision filters
@@ -98,14 +103,14 @@ to :ref:`Actors`. Define classes inside the ``actors`` object:
 
 Common actor class properties:
 
-* ``linear_damping``: resistance applied to linear motion; useful to slow down
-  objects unaffected by friction.
-* ``angular_damping``: resistance applied to angular motion.
-* ``dynamic``: when true, the actor is simulated each frame by the physics
-  engine. If false, the actor cannot move but just collide.
-* ``kinematic``: when true, the actor is driven externally (animation or code)
-  rather than by physics. Kinematic objects push dynamic objects away but are
-  unaffected by them.
-* ``disable_gravity``: disables gravity for the actor.
-* ``trigger``: actor does not produce collision responses but still generates
-  overlap events.
+* ``linear_damping = 0.0``: resistance applied to linear motion; useful to slow
+  down objects unaffected by friction.
+* ``angular_damping = 0.0``: resistance applied to angular motion.
+* ``dynamic = false``: when true, the actor is simulated each frame by the
+  physics engine. If false, the actor cannot move but just collide.
+* ``kinematic = false``: when true, the actor is driven externally (animation or
+  code) rather than by physics. Kinematic objects push dynamic objects away but
+  are unaffected by them.
+* ``disable_gravity = false``: disables gravity for the actor.
+* ``trigger = false``: actor does not produce collision responses but still
+  generates overlap events.
