@@ -214,6 +214,10 @@ bgfx_shaders = {
 				, vec3 f0
 				)
 			{
+				// Keep roughness^4, used in dist_GGX(), in the normalized FP16 range. FP16 smallest
+				// normalized value is 2^-14, requiring: roughness^4 >= 2^-14 ~= 0.089
+				roughness = max(roughness, 0.089);
+
 				vec3 radiance = ao * toLinearAccurate(ambient_color) * albedo;
 
 				int loffset = 0;
