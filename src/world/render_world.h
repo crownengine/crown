@@ -633,6 +633,7 @@ struct RenderWorld
 		Array<LodGroupEntry> _entries;
 		u32 _free_list;
 		HashMap<UnitId, u32> _map;
+		bool _dirty;
 
 		///
 		LodGroupManager(Allocator &a, RenderWorld *rw)
@@ -641,6 +642,7 @@ struct RenderWorld
 			, _entries(a)
 			, _free_list(UINT32_MAX)
 			, _map(a)
+			, _dirty(false)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}
