@@ -63,6 +63,8 @@ public class LevelTreeView : Gtk.Box
 	// Data
 	public Level _level;
 	public Database _db;
+	// Gtk.TreeStore guarantees persistent iters while their rows exist.
+	public GLib.HashTable<Guid?, Gtk.TreeIter?> _object_rows;
 
 	// Widgets
 	public string _needle;
@@ -84,8 +86,8 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
 	public Gtk.GestureMultiPress _gesture_click;
-	public Gtk.TreeRowReference _units_root;
-	public Gtk.TreeRowReference _sounds_root;
+	public Gtk.TreeIter _units_root;
+	public Gtk.TreeIter _sounds_root;
 	public Gtk.TreeViewColumn _name_column;
 	public Gtk.TreeViewColumn _visibility_column;
 	public Gtk.TreeViewColumn _lock_column;
@@ -105,6 +107,7 @@ public class LevelTreeView : Gtk.Box
 		_level = level;
 
 		_db = db;
+		_object_rows = new GLib.HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
 
 		// Widgets
 		_needle = "";
@@ -634,40 +637,37 @@ public class LevelTreeView : Gtk.Box
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags)
 	{
 		foreach (var id in object_ids) {
-			_tree_sort.foreach ((model, path, iter) => {
-					Value type;
-					model.get_value(iter, Column.TYPE, out type);
-					if ((int)type == ItemType.FOLDER)
-						return false;
+			unowned Gtk.TreeIter? iter_ptr = _object_rows.lookup(id);
+			if (iter_ptr == null)
+				continue;
 
-					Value guid;
-					model.get_value(iter, Column.GUID, out guid);
-					Guid guid_model = (Guid)guid;
+			Gtk.TreeIter iter = (Gtk.TreeIter)iter_ptr;
 
-					if (guid_model == id) {
-						Gtk.TreeIter iter_filter;
-						Gtk.TreeIter iter_model;
-						_tree_sort.convert_iter_to_child_iter(out iter_filter, iter);
-						_tree_filter.convert_iter_to_child_iter(out iter_model, iter_filter);
+			Value name;
+			Value object_visible;
+			Value selection_locked;
+			_tree_store.get_value(iter, Column.NAME, out name);
+			_tree_store.get_value(iter, Column.OBJECT_VISIBLE, out object_visible);
+			_tree_store.get_value(iter, Column.SELECTION_LOCKED, out selection_locked);
 
-							bool object_visible_new = !_level.object_hidden(id);
-							bool selection_locked_new = _level.object_locked(id);
+			string name_new = _db.name(id);
+			bool object_visible_new = !_level.object_hidden(id);
+			bool selection_locked_new = _level.object_locked(id);
 
-						_tree_store.set(iter_model
-							, Column.NAME
-							, _db.name(id)
-							, Column.OBJECT_VISIBLE
-							, object_visible_new
-							, Column.SELECTION_LOCKED
-							, selection_locked_new
-							, -1
-							);
-
-							return true;
-						}
-
-					return false;
-				});
+			if ((string)name != name_new
+				|| (bool)object_visible != object_visible_new
+				|| (bool)selection_locked != selection_locked_new
+				) {
+				_tree_store.set(iter
+					, Column.NAME
+					, name_new
+					, Column.OBJECT_VISIBLE
+					, object_visible_new
+					, Column.SELECTION_LOCKED
+					, selection_locked_new
+					, -1
+					);
+			}
 		}
 	}
 
@@ -688,6 +688,7 @@ public class LevelTreeView : Gtk.Box
 		_level = level;
 
 		_tree_view.model = null;
+		_object_rows.remove_all();
 		_tree_store.clear();
 
 		_tree_store.insert_with_values(out iter
@@ -709,7 +710,7 @@ public class LevelTreeView : Gtk.Box
 			, false
 			, -1
 			);
-		_units_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+		_units_root = iter;
 
 		_tree_store.insert_with_values(out iter
 			, null
@@ -730,7 +731,7 @@ public class LevelTreeView : Gtk.Box
 			, false
 			, -1
 			);
-		_sounds_root = new Gtk.TreeRowReference(_tree_store, _tree_store.get_path(iter));
+		_sounds_root = iter;
 
 		_tree_view.model = _tree_sort;
 
@@ -758,9 +759,7 @@ public class LevelTreeView : Gtk.Box
 				Unit u = Unit(_level._db, object_ids[i]);
 					bool object_visible = !_level.object_hidden(u._id);
 					bool selection_locked = _level.object_locked(u._id);
-				Gtk.TreeIter units_iter;
-
-				_tree_store.get_iter(out units_iter, _units_root.get_path());
+				Gtk.TreeIter units_iter = _units_root;
 				_tree_store.insert_with_values(out iter
 					, units_iter
 					, -1
@@ -780,6 +779,7 @@ public class LevelTreeView : Gtk.Box
 					, selection_locked
 					, -1
 					);
+				_object_rows[u._id] = iter;
 			}
 		}
 
@@ -796,10 +796,9 @@ public class LevelTreeView : Gtk.Box
 			bool object_visible = !_level.object_hidden(object_ids[i]);
 			bool selection_locked = _level.object_locked(object_ids[i]);
 
-			Gtk.TreeIter sounds_iter;
+			Gtk.TreeIter sounds_iter = _sounds_root;
 			Gtk.TreeIter iter;
 
-			_tree_store.get_iter(out sounds_iter, _sounds_root.get_path());
 			_tree_store.insert_with_values(out iter
 				, sounds_iter
 				, -1
@@ -819,6 +818,7 @@ public class LevelTreeView : Gtk.Box
 				, selection_locked
 				, -1
 				);
+			_object_rows[object_ids[i]] = iter;
 		}
 
 		return i;
@@ -856,9 +856,7 @@ public class LevelTreeView : Gtk.Box
 				if (_db.object_type(object_ids[i]) != OBJECT_TYPE_UNIT)
 					break;
 
-				Gtk.TreeIter parent_iter;
-				_tree_store.get_iter(out parent_iter, _units_root.get_path());
-				remove_item(object_ids[i], parent_iter);
+				remove_item(object_ids[i]);
 			}
 		}
 
@@ -879,9 +877,7 @@ public class LevelTreeView : Gtk.Box
 			if (_db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
 				break;
 
-			Gtk.TreeIter parent_iter;
-			_tree_store.get_iter(out parent_iter, _sounds_root.get_path());
-			remove_item(object_ids[i], parent_iter);
+			remove_item(object_ids[i]);
 		}
 
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
@@ -906,24 +902,15 @@ public class LevelTreeView : Gtk.Box
 		}
 	}
 
-	public void remove_item(Guid id, Gtk.TreeIter parent_iter)
+	public void remove_item(Guid id)
 	{
-		Gtk.TreeIter child;
+		unowned Gtk.TreeIter? iter_ptr = _object_rows.lookup(id);
+		if (iter_ptr == null)
+			return;
 
-		if (_tree_store.iter_children(out child, parent_iter)) {
-			Value column_id;
-
-			while (true) {
-				_tree_store.get_value(child, Column.GUID, out column_id);
-				if (Guid.equal_func((Guid)column_id, id)) {
-					_tree_store.remove(ref child);
-					break;
-				} else {
-					if (!_tree_store.iter_next(ref child))
-						break;
-				}
-			}
-		}
+		Gtk.TreeIter iter = (Gtk.TreeIter)iter_ptr;
+		_object_rows.remove(id);
+		_tree_store.remove(ref iter);
 	}
 
 	public Gtk.RadioButton add_sort_item(Gtk.RadioButton? group, SortMode mode)
