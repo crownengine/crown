@@ -254,11 +254,8 @@ namespace culling_set
 
 			case CullableType::LIGHT:
 				CE_ASSERT(object_id < lid.size, "Index out of bounds");
-				if ((lid.flag[object_id] & RenderableFlags::DIRTY) != 0) {
-					const Matrix4x4 world = from_translation(lid.shader[object_id].position);
-					const Sphere local = local_sphere(rw._light_manager, object_id);
-					sphere::transform(set.sphere_w[i], local, world);
-				}
+				if ((lid.flag[object_id] & RenderableFlags::DIRTY) != 0)
+					sphere::transform(set.sphere_w[i], local_sphere(rw._light_manager, object_id), lid.world[object_id]);
 				break;
 			}
 		}
@@ -1204,6 +1201,8 @@ void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, cons
 		if (_light_manager.has(*begin)) {
 			LightId light = _light_manager.light(*begin);
 
+			lid.world[light.i] = *world;
+
 			Vector3 pos = translation(*world);
 			Vector3 dir = -z(*world);
 			normalize(dir);
@@ -1324,9 +1323,8 @@ void RenderWorld::sync_cullable_sets()
 				|| lid.type[i] == LightType::SPOT
 				;
 			if (is_local_light) {
-				const Matrix4x4 world = from_translation(lid.shader[i].position);
 				const Sphere sphere = local_sphere(_light_manager, i);
-				culling_set::add(_cullable_lights, { world, sphere, i, CullableType::LIGHT });
+				culling_set::add(_cullable_lights, { lid.world[i], sphere, i, CullableType::LIGHT });
 			}
 
 			lid.prev_flags[i] = lid.flag[i] & ~RenderableFlags::DIRTY;
@@ -3155,6 +3153,7 @@ void RenderWorld::LightManager::allocate(u32 num)
 		+ num*sizeof(UnitId) + alignof(UnitId)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(ShaderData) + alignof(ShaderData)
 		+ num*sizeof(f32) + alignof(f32)
 		+ num*sizeof(f32) + alignof(f32)
@@ -3170,12 +3169,14 @@ void RenderWorld::LightManager::allocate(u32 num)
 	new_data.flag = (u32 *)memory::align_top(new_data.unit + num, alignof(u32));
 	new_data.prev_flags = (u32 *)memory::align_top(new_data.flag + num, alignof(u32));
 	new_data.type = (u32 *)memory::align_top(new_data.prev_flags + num, alignof(u32));
-	new_data.shader = (ShaderData *)memory::align_top(new_data.type + num, alignof(ShaderData));
+	new_data.world = (Matrix4x4 *)memory::align_top(new_data.type + num, alignof(Matrix4x4));
+	new_data.shader = (ShaderData *)memory::align_top(new_data.world + num, alignof(ShaderData));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(*new_data.unit));
 	memcpy(new_data.flag, _data.flag, _data.size * sizeof(*new_data.flag));
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(*new_data.prev_flags));
 	memcpy(new_data.type, _data.type, _data.size * sizeof(*new_data.type));
+	memcpy(new_data.world, _data.world, _data.size * sizeof(*new_data.world));
 	memcpy(new_data.shader, _data.shader, _data.size * sizeof(ShaderData));
 
 	_allocator->deallocate(_data.buffer);
@@ -3215,6 +3216,7 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 		_data.flag[last]               = lights[i].flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last]         = 0;
 		_data.type[last]               = lights[i].type;
+		_data.world[last]              = tm;
 		_data.shader[last].color       = lights[i].color;
 		_data.shader[last].intensity   = lights[i].intensity;
 		_data.shader[last].position    = translation(tm);
@@ -3251,6 +3253,7 @@ void RenderWorld::LightManager::destroy(LightId light)
 	_data.flag[light.i] = _data.flag[last];
 	_data.prev_flags[light.i] = _data.prev_flags[last];
 	_data.type[light.i] = _data.type[last];
+	_data.world[light.i] = _data.world[last];
 	_data.shader[light.i] = _data.shader[last];
 
 	--_data.size;
@@ -3302,7 +3305,7 @@ void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &
 
 			if (bounds) {
 				Sphere s;
-				sphere::transform(s, local_sphere(*this, i), from_translation(pos)); // FIXME: add world to _data.
+				sphere::transform(s, local_sphere(*this, i), _data.world[i]);
 				dl.add_sphere(s.c, s.r, COLOR4_YELLOW);
 			}
 			break;
