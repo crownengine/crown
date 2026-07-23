@@ -966,6 +966,7 @@ void Pipeline::set_global_lighting_params(GlobalLightingDesc *global_lighting)
 	params.x = global_lighting->ambient_color.x;
 	params.y = global_lighting->ambient_color.y;
 	params.z = global_lighting->ambient_color.z;
+	params.w = global_lighting->shadow_distance;
 
 	bgfx::setUniform(_lighting_params, &params, sizeof(params)/sizeof(Vector4));
 }

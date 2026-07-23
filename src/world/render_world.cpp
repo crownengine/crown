@@ -371,6 +371,7 @@ RenderWorld::RenderWorld(Allocator &a
 
 	// Global lighting.
 	memset((void *)&_global_lighting_desc, 0, sizeof(_global_lighting_desc));
+	_global_lighting_desc.shadow_distance = GLOBAL_LIGHTING_DEFAULT_SHADOW_DISTANCE;
 
 	// Bloom.
 	memset((void *)&_bloom_desc, 0, sizeof(_bloom_desc));
@@ -981,6 +982,7 @@ void RenderWorld::global_lighting_destroy(u32 global_lighting)
 {
 	CE_UNUSED(global_lighting);
 	_global_lighting_desc = {};
+	_global_lighting_desc.shadow_distance = GLOBAL_LIGHTING_DEFAULT_SHADOW_DISTANCE;
 	_global_lighting_unit = UNIT_INVALID;
 }
 
@@ -997,6 +999,11 @@ void RenderWorld::global_lighting_set_skydome_intensity(f32 intensity)
 void RenderWorld::global_lighting_set_ambient_color(Color4 color)
 {
 	_global_lighting_desc.ambient_color = { color.x, color.y, color.z };
+}
+
+void RenderWorld::global_lighting_set_shadow_distance(f32 distance)
+{
+	_global_lighting_desc.shadow_distance = max(distance, 0.0f);
 }
 
 void RenderWorld::bloom_create_instances(const void *components_data
@@ -1432,6 +1439,15 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	u32 visible_objects = culling_set::remove_culled(_cullable_objects);
 	RECORD_FLOAT("world.visible_objects", (f32)visible_objects);
 
+	// Limit shadow rendering independently from the camera far plane.
+	Frustum shadow_frustum;
+	frustum::from_matrix(shadow_frustum, proj, caps->homogeneousDepth, bx::Handedness::Right);
+	const f32 shadow_distance = max(_global_lighting_desc.shadow_distance, 0.0f);
+	const f32 shadow_near_distance = fabs(shadow_frustum.planes[4].d);
+	const f32 shadow_far_distance = min(fabs(shadow_frustum.planes[5].d), shadow_distance);
+	shadow_frustum.planes[5].d = -shadow_far_distance;
+	const bool shadow_range_valid = shadow_far_distance > shadow_near_distance;
+
 	// Count sprites for transient buffer allocation and select LOD groups once
 	// before render/selection passes consume selected_mesh.
 	u32 num_visible_sprites = 0;
@@ -1472,7 +1488,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
 
 	array::clear(lm._directional_lights);
-	array::clear(lm._local_lights);
 	array::clear(lm._local_lights_spot);
 	array::clear(lm._local_lights_omni);
 	array::clear(lm._lights_data);
@@ -1496,14 +1511,17 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 		const u32 L = lm._directional_lights[i];
 		const bool cast_shadows = (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0;
 		const bool sun_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0;
-		const bool render_shadow = i == 0 && cast_shadows && sun_shadows;
+		const bool render_shadow = i == 0
+			&& cast_shadows
+			&& sun_shadows
+			&& shadow_range_valid
+			;
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
 		if (render_shadow) {
 			Matrix4x4 light_proj;
 			Matrix4x4 light_view;
 			Frustum splits[MAX_NUM_CASCADES];
-			Frustum frustum;
 
 			// Compute light view matrix.
 			const Vector3 &light_dir = lid.shader[L].direction;
@@ -1513,8 +1531,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 			bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
 
 			// Split the view frustum into MAX_NUM_CASCADES frustums.
-			frustum::from_matrix(frustum, proj, caps->homogeneousDepth, bx::Handedness::Right);
-			frustum::split(splits, MAX_NUM_CASCADES, frustum, 0.75f);
+			frustum::split(splits, MAX_NUM_CASCADES, shadow_frustum, 0.75f);
 
 			// Render the scene once per cascade.
 			for (u32 i = 0; i < MAX_NUM_CASCADES; ++i) {
@@ -1619,17 +1636,15 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 		culling_set::cull_spheres(_cullable_lights, view_frustum, 0, array::size(_cullable_lights.id));
 		culling_set::remove_culled(_cullable_lights);
 
-		for (u32 i = 0; i < array::size(_cullable_lights.render); ++i) {
-			const u32 light_id = _cullable_lights.id[_cullable_lights.render[i]];
-			array::push_back(lm._local_lights, light_id);
-		}
-
-		// Sort culled lights by distance to camera.
-		std::sort(array::begin(lm._local_lights)
-			, array::end(lm._local_lights)
-			, [lm, camera_pos](const u32 &in_a, const u32 &in_b) {
-				const f32 dist_a = distance_squared(camera_pos, lm._data.shader[in_a].position);
-				const f32 dist_b = distance_squared(camera_pos, lm._data.shader[in_b].position);
+		// Sort culled lights by distance to camera, retaining the culling-set
+		// index so the bounds computed during culling can be reused below.
+		std::sort(array::begin(_cullable_lights.render)
+			, array::end(_cullable_lights.render)
+			, [this, camera_pos](const u32 &in_a, const u32 &in_b) {
+				const u32 light_a = _cullable_lights.id[in_a];
+				const u32 light_b = _cullable_lights.id[in_b];
+				const f32 dist_a = distance_squared(camera_pos, _light_manager._data.shader[light_a].position);
+				const f32 dist_b = distance_squared(camera_pos, _light_manager._data.shader[light_b].position);
 				return dist_a < dist_b;
 			});
 
@@ -1642,13 +1657,22 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 
 		// Render local lights. Shadow maps are generated only for the first
 		// LOCAL_LIGHTS_MAX_SHADOW_CASTERS lights that can cast shadows.
-		for (u32 i = 0; i < array::size(lm._local_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
-			LightManager::ShaderData &shader = lid.shader[lm._local_lights[i]];
+		for (u32 i = 0; i < array::size(_cullable_lights.render) && num_lights < MAX_NUM_LIGHTS; ++i) {
+			const u32 cull_index = _cullable_lights.render[i];
+			const u32 light_id = _cullable_lights.id[cull_index];
+			LightManager::ShaderData &shader = lid.shader[light_id];
+			const Sphere &light_sphere = _cullable_lights.sphere_w[cull_index];
 
-			if (lid.type[lm._local_lights[i]] == LightType::SPOT) {
-				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+			const f32 shadow_radius = shadow_distance + light_sphere.r;
+			const bool within_shadow_distance = shadow_range_valid
+				&& distance_squared(camera_pos, light_sphere.c) <= shadow_radius*shadow_radius
+				;
+
+			if (lid.type[light_id] == LightType::SPOT) {
+				const bool cast_shadows = (lid.flag[light_id] & RenderableFlags::SHADOW_CASTER) != 0;
 				const bool render_shadow = cast_shadows
 					&& local_shadows
+					&& within_shadow_distance
 					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
 					;
 
@@ -1657,7 +1681,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 				if (render_shadow) {
 					cur_tile = num_tiles++;
 
-					Sphere light_sphere = sphere::from_cone(shader.position, shader.direction, shader.range, shader.spot_angle);
 					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
 					culling_set::remove_culled(_cullable_shadow_casters);
 
@@ -1707,11 +1730,12 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 					++sm_local_view_id;
 				}
 
-				array::push_back(lm._local_lights_spot, lm._local_lights[i]);
-			} else if (lid.type[lm._local_lights[i]] == LightType::OMNI) {
-				const bool cast_shadows = (lid.flag[lm._local_lights[i]] & RenderableFlags::SHADOW_CASTER) != 0;
+				array::push_back(lm._local_lights_spot, light_id);
+			} else if (lid.type[light_id] == LightType::OMNI) {
+				const bool cast_shadows = (lid.flag[light_id] & RenderableFlags::SHADOW_CASTER) != 0;
 				const bool render_shadow = cast_shadows
 					&& local_shadows
+					&& within_shadow_distance
 					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
 					;
 
@@ -1747,7 +1771,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 						, bx::Handedness::Right
 						);
 
-					Sphere light_sphere = { shader.position, shader.range };
 					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
 					culling_set::remove_culled(_cullable_shadow_casters);
 
@@ -1829,7 +1852,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 					}
 				}
 
-				array::push_back(lm._local_lights_omni, lm._local_lights[i]);
+				array::push_back(lm._local_lights_omni, light_id);
 			} else {
 				CE_FATAL("Unknown local light type");
 			}

@@ -1769,6 +1769,15 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
+			name = "data.shadow_distance",
+			label = _("Shadow Distance"),
+			min = 0.0,
+			deffault = 100.0,
+			tooltip = _("Maximum distance from the camera at which shadows are rendered."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
 			name = "spawn_order",
 			deffault = 0.0,
 			hidden = true,

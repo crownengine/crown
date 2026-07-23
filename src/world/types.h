@@ -42,6 +42,7 @@ typedef u32 SoundInstanceId;
 #define SOUND_WORLD_MARKER             UINT32_C(0x44052b07)
 #define PHYSICS_WORLD_MARKER           UINT32_C(0x1cf49bae)
 #define ANIMATION_STATE_MACHINE_MARKER UINT32_C(0x59a1c462)
+#define GLOBAL_LIGHTING_DEFAULT_SHADOW_DISTANCE 100.0f
 
 /// Enumerates camera projection types.
 ///
@@ -411,6 +412,8 @@ struct GlobalLightingDesc
 	StringId64 skydome_map; ///< Texture to use for skydome rendering.
 	f32 skydome_intensity;  ///< Skydome color intensity multiplier.
 	Vector3 ambient_color;  ///<
+	f32 shadow_distance;    ///< Maximum distance from the camera at which shadows are rendered.
+	f32 _pad;
 };
 
 /// Bloom description.
