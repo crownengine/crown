@@ -722,6 +722,7 @@ struct RenderWorld
 			u32 *flag;            // RenderableFlags::Enum
 			u32 *prev_flags;
 			u32 *type;            // LightType::Enum
+			Matrix4x4 *world;
 			ShaderData *shader;
 		};
 
