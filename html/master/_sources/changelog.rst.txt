@@ -28,6 +28,7 @@ Changelog
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
 * Runtime: added hot-reloading support for mesh animations.
+* Runtime: added configurable shadow distance to the Global Lighting component.
 * Data Compiler/Runtime: identical physics colliders are deduplicated in unit/level resources and shared at runtime to reduce resource size and improve performance.
 * Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
