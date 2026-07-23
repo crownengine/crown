@@ -96,7 +96,8 @@ public class EditorViewport : Gtk.Bin
 		string args[] =
 		{
 			ENGINE_EXE,
-			"--renderer", _preferences._editor_renderer.value,
+			_preferences._editor_renderer.value != "default" ? "--renderer" : "",
+			_preferences._editor_renderer.value != "default" ? _preferences._editor_renderer.value : "",
 #if CROWN_PLATFORM_LINUX
 			"--display-server", "x11",
 #endif

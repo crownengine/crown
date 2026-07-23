@@ -149,14 +149,14 @@ public class PreferencesDialog : Gtk.Window
 		_viewport_set.add_property_grid(cv, _("Camera"));
 
 #if CROWN_PLATFORM_LINUX
-		_editor_renderer = new InputEnum("vk"
-			, new string[] { "Vulkan", "OpenGL" }
-			, new string[] { "vk", "gl" }
+		_editor_renderer = new InputEnum("default"
+			, new string[] { "Default", "Vulkan", "OpenGL" }
+			, new string[] { "default", "vk", "gl" }
 			);
 #elif CROWN_PLATFORM_WINDOWS
-		_editor_renderer = new InputEnum("d3d11"
-			, new string[] { "Direct3D 11" }
-			, new string[] { "d3d11" }
+		_editor_renderer = new InputEnum("default"
+			, new string[] { "Default", "Direct3D 11" }
+			, new string[] { "default", "d3d11" }
 			);
 #endif
 
@@ -267,9 +267,9 @@ public class PreferencesDialog : Gtk.Window
 	public static string validate_editor_renderer(string renderer)
 	{
 #if CROWN_PLATFORM_LINUX
-		return renderer == "gl" ? "gl" : "vk";
+		return renderer == "gl" || renderer == "vk" ? renderer : "default";
 #elif CROWN_PLATFORM_WINDOWS
-		return "d3d11";
+		return renderer == "d3d11" ? renderer : "default";
 #endif
 	}
 

@@ -2242,7 +2242,8 @@ public class LevelEditorApplication : Gtk.Application
 		string args[] =
 		{
 			ENGINE_EXE,
-			"--renderer", _preferences_dialog._editor_renderer.value,
+			_preferences_dialog._editor_renderer.value != "default" ? "--renderer" : "",
+			_preferences_dialog._editor_renderer.value != "default" ? _preferences_dialog._editor_renderer.value : "",
 #if CROWN_PLATFORM_LINUX
 			"--display-server", "x11",
 #endif
