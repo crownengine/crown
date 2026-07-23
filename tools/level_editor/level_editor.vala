@@ -3829,7 +3829,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public async int delete_show(string resource_path, string[]? prune_dirs = null)
+	public async int delete_show(string resource_path, owned string[]? prune_dirs = null)
 	{
 		GLib.HashTable<string, Value?> preview = yield _data_compiler.delete_preview({ resource_path });
 		if (!(bool)preview["success"]) {
