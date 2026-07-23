@@ -301,6 +301,9 @@ struct RenderWorld
 	void global_lighting_set_ambient_color(Color4 color);
 
 	///
+	void global_lighting_set_shadow_distance(f32 distance);
+
+	///
 	void bloom_create_instances(const void *components_data
 		, u32 num
 		, const UnitId *unit_lookup
@@ -733,7 +736,6 @@ struct RenderWorld
 		bool _dirty;
 		Array<ShaderData> _lights_data; // Shader array to send to GPU.
 		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
-		Array<u32> _local_lights;       // Indices to local lights sorted by distance to camera.
 		Array<u32> _local_lights_omni;  // Indices to spot lights that will be rendered this frame.
 		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
 
@@ -745,7 +747,6 @@ struct RenderWorld
 			, _dirty(true)
 			, _lights_data(a)
 			, _directional_lights(a)
-			, _local_lights(a)
 			, _local_lights_omni(a)
 			, _local_lights_spot(a)
 		{

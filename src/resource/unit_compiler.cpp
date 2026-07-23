@@ -489,12 +489,19 @@ static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJ
 	ld.skydome_map       = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.skydome_map")));
 	ld.skydome_intensity = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.skydome_intensity")));
 	ld.ambient_color     = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.ambient_color")));
+	ld.shadow_distance   = GLOBAL_LIGHTING_DEFAULT_SHADOW_DISTANCE;
+	if (flat_json_object::has(obj, "data.shadow_distance")) {
+		ld.shadow_distance = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.shadow_distance")));
+	}
+	ld._pad = 0.0f;
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(ld.skydome_map);
 	bw.write(ld.skydome_intensity);
 	bw.write(ld.ambient_color);
+	bw.write(ld.shadow_distance);
+	bw.write(ld._pad);
 	return 0;
 }
 

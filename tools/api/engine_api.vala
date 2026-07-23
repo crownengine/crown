@@ -639,12 +639,14 @@ namespace LevelEditorApi
 		, string skydome_map
 		, double skydome_intensity
 		, Vector3 ambient_color
+		, double shadow_distance
 		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_global_lighting(\"%s\", %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_global_lighting(\"%s\", %.17g, %s, %.17g)".printf(id.to_string()
 			, skydome_map
 			, skydome_intensity
 			, Lua.vector3_elements(ambient_color)
+			, shadow_distance
 			);
 	}
 

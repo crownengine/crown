@@ -30,6 +30,7 @@ bgfx_shaders = {
 		#	define local_lights_distance_culling_cutoff u_local_lights_params.z
 			uniform vec4 u_lighting_params;
 		#	define ambient_color u_lighting_params.xyz
+		#	define shadow_distance u_lighting_params.w
 
 			CONST(float PI) = 3.14159265358979323846;
 
@@ -219,6 +220,8 @@ bgfx_shaders = {
 				roughness = max(roughness, 0.089);
 
 				vec3 radiance = ao * toLinearAccurate(ambient_color) * albedo;
+				float camera_distance = length(camera_frag_pos);
+				bool receive_shadow = camera_distance <= shadow_distance;
 
 				int loffset = 0;
 				int num_dir = int(u_lights_num.x);
@@ -260,7 +263,7 @@ bgfx_shaders = {
 						, f0
 						);
 
-					if (cast_shadow == 1.0) {
+					if (cast_shadow == 1.0 && receive_shadow) {
 						vec3 shadow_world = shadow_local.xyz;
 						vec3 atlas_offset0 = vec3(atlas_u.x             , atlas_v.x             , atlas_size);
 						vec3 atlas_offset1 = vec3(atlas_u.x + atlas_size, atlas_v.x             , atlas_size);
@@ -329,7 +332,7 @@ bgfx_shaders = {
 						, f0
 						);
 
-					if (cast_shadow == 1.0) {
+					if (cast_shadow == 1.0 && receive_shadow) {
 						// Tetrahedron normals.
 						CONST(vec3 bn) = vec3(        0.0f,  0.81649661f, -0.57735026f);
 						CONST(vec3 yn) = vec3(        0.0f, -0.81649661f, -0.57735026f);
@@ -435,7 +438,7 @@ bgfx_shaders = {
 						, f0
 						);
 
-					if (cast_shadow == 1.0) {
+					if (cast_shadow == 1.0 && receive_shadow) {
 						mat4 mvp = mtxFromCols(lights_data(loffset + 3)
 							, lights_data(loffset + 4)
 							, lights_data(loffset + 5)
@@ -462,7 +465,7 @@ bgfx_shaders = {
 					radiance += apply_distance_fading(local_radiance, position, camera_pos);
 				}
 
-				return apply_fog(emission + radiance, length(camera_frag_pos), sun_color);
+				return apply_fog(emission + radiance, camera_distance, sun_color);
 			}
 		#endif
 		"""

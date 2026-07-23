@@ -463,13 +463,14 @@ function UnitBox:set_fog(cr, cg, cb, density, range_min, range_max, sun_blend, e
 	Device.set_temp_count(nv, nq, nm)
 end
 
-function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ar, ag, ab)
+function UnitBox:set_global_lighting(skydome_map, skydome_intensity, ar, ag, ab, shadow_distance)
 	local nv, nq, nm = Device.temp_count()
 	local gl = RenderWorld.global_lighting_instance(self._rw, self._unit_id)
 	if gl then
 		RenderWorld.global_lighting_set_skydome_map(self._rw, skydome_map)
 		RenderWorld.global_lighting_set_skydome_intensity(self._rw, skydome_intensity)
 		RenderWorld.global_lighting_set_ambient_color(self._rw, Quaternion.from_elements(ar, ag, ab, 1.0))
+		RenderWorld.global_lighting_set_shadow_distance(self._rw, shadow_distance)
 	end
 	Device.set_temp_count(nv, nq, nm)
 end

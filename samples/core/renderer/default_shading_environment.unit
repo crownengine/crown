@@ -36,6 +36,7 @@ components = [
 				0
 				0
 			]
+			shadow_distance = 100
 			skydome_intensity = 1
 			skydome_map = "core/units/skydome/skydome"
 		}

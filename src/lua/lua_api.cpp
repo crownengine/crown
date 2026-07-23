@@ -2802,7 +2802,8 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "global_lighting_create", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			GlobalLightingDesc desc;
+			GlobalLightingDesc desc = {};
+			desc.shadow_distance = GLOBAL_LIGHTING_DEFAULT_SHADOW_DISTANCE;
 			stack.push_id(stack.get_render_world(1)->global_lighting_create(stack.get_unit(2), desc).i);
 			return 1;
 		});
@@ -2833,6 +2834,11 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "global_lighting_set_ambient_color", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->global_lighting_set_ambient_color(stack.get_color4(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "global_lighting_set_shadow_distance", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->global_lighting_set_shadow_distance(stack.get_float(2));
 			return 0;
 		});
 	env.add_module_function("RenderWorld", "bloom_create", [](lua_State *L) {

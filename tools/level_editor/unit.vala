@@ -726,6 +726,7 @@ public struct Unit
 				, unit.get_component_resource (component_id, "data.skydome_map")
 				, unit.get_component_double (component_id, "data.skydome_intensity")
 				, unit.get_component_vector3(component_id, "data.ambient_color")
+				, unit.get_component_double (component_id, "data.shadow_distance", 100.0)
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_BLOOM) {
 			sb.append(LevelEditorApi.add_bloom_component(unit_id, component_id));
@@ -982,6 +983,7 @@ public struct Unit
 				, unit.get_component_resource (component_id, "data.skydome_map")
 				, unit.get_component_double (component_id, "data.skydome_intensity")
 				, unit.get_component_vector3(component_id, "data.ambient_color")
+				, unit.get_component_double (component_id, "data.shadow_distance", 100.0)
 				));
 		} else if (component_type == OBJECT_TYPE_BLOOM) {
 			sb.append(LevelEditorApi.set_bloom(unit_id
