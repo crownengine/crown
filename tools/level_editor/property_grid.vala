@@ -135,7 +135,7 @@ class ObjectsSetEditor : Gtk.Box
 				widget.destroy();
 			});
 
-		if (_grid._id == GUID_ZERO) {
+		if (_grid._id == GUID_ZERO || !_grid._db.is_alive(_grid._id)) {
 			_editor_grid = null;
 			_editor.foreach((widget) => {
 					widget.destroy();

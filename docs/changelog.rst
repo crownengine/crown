@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed LOD Group component not being generated when importing models with LODs starting at non-zero indices.
 * Tools: fixed the camera's minimum near and far ranges in the Inspector.
+* Tools: fixed a crash when undoing the creation of units containing LODs.
 * Runtime: fixed rendering artifacts when setting roughness to 0 in materials using the mesh shader.
 
 .. _v0.63.7:
