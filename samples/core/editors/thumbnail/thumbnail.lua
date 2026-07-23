@@ -112,15 +112,17 @@ end
 function Thumbnail:update(dt)
 	World.update(self._world, dt)
 
-	local req = table.remove(self._requests, 1)
-	if req == nil then
+	if #self._requests == 0 then
 		return
 	end
 
 	if self._object ~= nil then
 		self._object:destroy()
 		self._object = nil
+		return
 	end
+
+	local req = table.remove(self._requests, 1)
 
 	if req.type == "unit" then
 		self._object = UnitPreview(self._world, req.name)
@@ -176,4 +178,3 @@ end
 function screenshot(path)
 	Thumbnail:thumbnail_ready(path)
 end
-
