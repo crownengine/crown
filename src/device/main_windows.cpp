@@ -317,7 +317,7 @@ struct Joypad
 	}
 };
 
-static bool s_exit = false;
+static std::atomic<bool> s_exit;
 static HCURSOR _win_cursors[MouseCursor::COUNT];
 static bool push_event(const OsEvent &ev);
 

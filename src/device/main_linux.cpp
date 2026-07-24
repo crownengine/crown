@@ -444,7 +444,7 @@ struct Joypad
 	}
 };
 
-static bool s_exit = false;
+static std::atomic<bool> s_exit;
 static int exit_pipe[2];
 static bool push_event(const OsEvent &ev);
 
