@@ -135,6 +135,8 @@ public class InputDouble : InputField
 
 	public void on_button_pressed(int n_press, double x, double y)
 	{
+		unfocus_active_widget();
+
 		_pressed = true;
 		_dragging = false;
 		_drag_start_x = x;
@@ -249,6 +251,13 @@ public class InputDouble : InputField
 		return Gdk.EVENT_PROPAGATE;
 	}
 
+	void unfocus_active_widget()
+	{
+		var window = get_toplevel() as Gtk.Window;
+		if (window != null && window.get_focus() != null)
+			window.set_focus(null);
+	}
+
 	void begin_editing()
 	{
 		_event_box.visible = false;
@@ -261,10 +270,10 @@ public class InputDouble : InputField
 			_entry.text = format_value(_value, _edit_decimals);
 
 		GLib.Idle.add(() => {
-			_entry.set_position(-1);
-			_entry.select_region(0, -1);
-			return GLib.Source.REMOVE;
-		});
+				_entry.set_position(-1);
+				_entry.select_region(0, -1);
+				return GLib.Source.REMOVE;
+			});
 	}
 
 	public void set_value_safe(double val)
