@@ -4376,8 +4376,8 @@ void load_api(LuaEnvironment &env)
 
 	env.add_module_function("Input", "events", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			InputEvent *events = device()->_input_manager->_events;
-			u32 num_events = device()->_input_manager->_num_events;
+			InputEvent *events = array::begin(device()->_input_manager->_events);
+			u32 num_events = array::size(device()->_input_manager->_events);
 
 			stack.push_table(num_events);
 			for (u32 i = 0; i < num_events; ++i) {

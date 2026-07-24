@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/error/error.inl"
 #include "core/math/constants.h"
 #include "core/math/vector3.inl"
@@ -194,7 +195,7 @@ InputManager::InputManager(Allocator &a)
 	, _mouse_last_x(INT16_MAX)
 	, _mouse_last_y(INT16_MAX)
 	, _has_delta_axis_event(false)
-	, _num_events(0)
+	, _events(a)
 {
 	_keyboard = input_device::create(*_allocator
 		, "Keyboard"
@@ -352,7 +353,7 @@ void InputManager::read(const OsEvent &event)
 		input_ev.value  = VECTOR3_ZERO;
 		input_ev.device = dev;
 
-		_events[_num_events++] = input_ev;
+		array::push_back(_events, input_ev);
 		break;
 	}
 
@@ -402,7 +403,7 @@ void InputManager::read(const OsEvent &event)
 		input_ev.value  = axis;
 		input_ev.device = dev;
 
-		_events[_num_events++] = input_ev;
+		array::push_back(_events, input_ev);
 		break;
 	}
 
@@ -442,7 +443,7 @@ void InputManager::update()
 	for (u8 i = 0; i < CROWN_MAX_JOYPADS; ++i)
 		_joypad[i]->update();
 
-	_num_events = 0;
+	array::clear(_events);
 }
 
 } // namespace crown
