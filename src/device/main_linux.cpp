@@ -320,11 +320,17 @@ struct Joypad
 	void process_events(u32 joypad_id, const JoypadEvent *events, u32 num_events)
 	{
 		for (u32 ii = 0; ii < num_events; ++ii) {
-			JoypadEvent ev = events[ii];
+			const JoypadEvent ev = events[ii];
 
-			switch (ev.type &= ~JS_EVENT_INIT) {
+			// Skip JS_EVENT_INIT events as they seem to be
+			// unreliable and we really do not care about them
+			// anyway.
+			if ((ev.type & JS_EVENT_INIT) != 0)
+				continue;
+
+			switch (ev.type & ~JS_EVENT_INIT) {
 			case JS_EVENT_AXIS: {
-				// Indices into axis.left/right respectively
+				// Indices into axis.left/right respectively.
 				const u8 axis_idx[] = { 0, 1, 2, 0, 1, 2 };
 				const u8 axis_map[] =
 				{

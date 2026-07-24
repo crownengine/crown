@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed the camera's minimum near and far ranges in the Inspector.
 * Tools: fixed a crash when undoing the creation of units containing LODs.
 * Runtime: fixed rendering artifacts when setting roughness to 0 in materials using the mesh shader.
+* Runtime: Linux: fixed wrong initial state of gamepads on some systems.
 
 .. _v0.63.7:
 
