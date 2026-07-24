@@ -34,7 +34,7 @@ namespace texture_resource_internal
 		u32 size;
 		br.read(size);
 
-		TextureResource *tr = (TextureResource *)a.allocate(sizeof(TextureResource) + size);
+		TextureResource *tr = (TextureResource *)a.allocate(sizeof(TextureResource) + size, alignof(TextureResource));
 
 		void *data = &tr[1];
 		br.read(data, size);

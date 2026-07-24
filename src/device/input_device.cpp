@@ -190,7 +190,7 @@ namespace input_device
 			+ strlen32(name) + 1 + alignof(char)
 			;
 
-		InputDevice *id = (InputDevice *)a.allocate(size);
+		InputDevice *id = (InputDevice *)a.allocate(size, alignof(InputDevice));
 
 		id->_connected       = false;
 		id->_num_buttons     = num_buttons;
