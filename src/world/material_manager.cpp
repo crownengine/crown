@@ -105,7 +105,7 @@ Material *MaterialManager::create_material(const MaterialResource *resource)
 		return material;
 
 	const u32 size = sizeof(Material) + resource->dynamic_data_size;
-	material = (Material *)_allocator->allocate(size);
+	material = (Material *)_allocator->allocate(size, alignof(Material));
 	new (material) Material(*_allocator);
 	material->_resource_manager = _resource_manager;
 	material->_resource = resource;

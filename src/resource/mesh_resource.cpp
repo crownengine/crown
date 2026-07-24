@@ -127,7 +127,7 @@ namespace mesh_resource_internal
 
 			const u32 size = sizeof(MeshGeometry) + vsize + isize;
 
-			MeshGeometry *mg = (MeshGeometry *)a.allocate(size);
+			MeshGeometry *mg = (MeshGeometry *)a.allocate(size, alignof(MeshGeometry));
 			mg->obb             = obb;
 			mg->sphere          = sphere;
 			mg->layout          = layout;

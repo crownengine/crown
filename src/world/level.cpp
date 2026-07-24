@@ -43,7 +43,7 @@ namespace level
 {
 	Level *create(Allocator &a, const LevelResource *level_resource)
 	{
-		Level *l = (Level *)a.allocate(sizeof(*l) + level_resource->num_units*sizeof(UnitId));
+		Level *l = (Level *)a.allocate(sizeof(*l) + level_resource->num_units*sizeof(UnitId), alignof(Level));
 		return new (l) Level(level_resource, (UnitId *)&l[1]);
 	}
 

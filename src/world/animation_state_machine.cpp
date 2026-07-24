@@ -122,7 +122,7 @@ void AnimationStateMachine::allocate(Machine &m, UnitId unit, const StateMachine
 			+ sizeof(UnitId) * skeleton_resource->num_bones
 			+ sizeof(Matrix4x4) * skeleton_resource->num_bones
 			;
-		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size);
+		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size, alignof(AnimationSkeletonInstance));
 		skeleton->num_bones = skeleton_resource->num_bones;
 		skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
 		skeleton->bone_lookup = (UnitId *)&skeleton[1];
