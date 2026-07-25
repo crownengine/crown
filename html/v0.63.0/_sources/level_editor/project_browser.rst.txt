@@ -2,9 +2,9 @@
 Project Browser
 ===============
 
-The Project Browser is where you view and manage the files and resources that
-make up your project. From here you can create or import new resources, open
-them, organize folders, and pin favorites for quick access.
+Use the Project Browser to view and manage the files and resources in your
+project. From here, you can create, import, and open resources, organize them,
+and pin favorites for quick access.
 
 .. figure:: images/project_browser.png
    :align: center
@@ -29,9 +29,8 @@ click the small tree icon at the top-right to toggle the layout mode:
 Folder View
 ===========
 
-The Folder View presents the resources inside the selected folder. You can
-switch between a icon view and a compact list view using the button at the
-top-right of the Folder View:
+The Folder View displays the resources in the selected folder. Use the button in
+its upper-right corner to switch between icon and compact list views:
 
 .. figure:: images/project_browser_icon_list_view.svg
    :align: center

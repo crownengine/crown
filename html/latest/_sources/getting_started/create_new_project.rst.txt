@@ -4,9 +4,8 @@
 Creating a new project
 ======================
 
-After closing a project, or whenever starting the Editor, Crown displays the
-Projects List. From here, you can open/manage existing projects or create new
-ones:
+When you start the Editor or close a project, Crown displays the Projects List.
+From here, you can open and manage existing projects or create new ones:
 
 .. figure:: images/empty_projects_list.png
    :align: center
@@ -20,16 +19,16 @@ Click the ``Create New`` button to start creating a New Project:
 
    The New Project dialog.
 
-First, choose a ``Name`` for your project.  If ``Create Project Folder`` is
-enabled, Crown will automatically create a project folder in the specified
-``Location``, based on the project name. Otherwise, create a new empty folder
-yourself, and select it with the ``Location`` button.
+First, enter a ``Name`` for your project. If ``Create Project Folder`` is
+enabled, Crown automatically creates a folder with that name in the specified
+``Location``. Otherwise, create an empty folder yourself and select it using the
+``Location`` button.
 
 Optionally, you can choose a ``Template`` project from a list of installed
 templates, or leave it to ``None`` to start with a new empty project.
 
-When you are ready, click ``Create`` button and Crown will create the project
-and open it automatically:
+When you are ready, click the ``Create`` button. Crown will create and open the
+project automatically:
 
 .. figure:: images/new_project_editor.png
    :align: center

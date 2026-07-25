@@ -5,8 +5,8 @@ Installing on Windows
 Installing from crownengine.org
 -------------------------------
 
-`Download Crown <https://www.crownengine.org/download>`_ ZIP and extract it
-somewhere on your filesystem.
+`Download the Crown ZIP archive <https://www.crownengine.org/download>`_, then
+extract its contents to your preferred location.
 
-Open the extracted folder and double-click the ``crown-launcher.exe`` executable
-to launch the Crown Editor.
+Navigate to the extracted folder and launch the Crown Editor by double-clicking
+the ``crown-launcher.exe`` executable.
