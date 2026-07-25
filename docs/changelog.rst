@@ -6,6 +6,10 @@ Changelog
 :ref:`0.63.9 --- DD MMM YYYY <v0.63.9>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: Linux: fixed a crash on some rendering backends.
+
 .. _v0.63.8:
 
 :ref:`0.63.8 --- 25 Jul 2026 <v0.63.8>`

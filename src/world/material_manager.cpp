@@ -13,6 +13,7 @@
 #include "world/material_manager.h"
 #include "world/shader_manager.h"
 #include <bgfx/bgfx.h>
+#include <stb_sprintf.h>
 #include <string.h> // memcpy
 
 namespace crown
@@ -33,6 +34,8 @@ MaterialManager::MaterialManager(Allocator &a, ResourceManager &rm, ShaderManage
 	, _shader_manager(&sm)
 	, _materials(a)
 {
+	memset(_default_samplers, UINT8_MAX, sizeof(_default_samplers));
+	_default_texture = BGFX_INVALID_HANDLE;
 }
 
 MaterialManager::~MaterialManager()
@@ -44,11 +47,35 @@ MaterialManager::~MaterialManager()
 
 		_allocator->deallocate(cur->second);
 	}
+
+	for (u32 i = 0; i < countof(_default_samplers); ++i)
+		if (bgfx::isValid(_default_samplers[i]))
+			bgfx::destroy(_default_samplers[i]);
+	if (bgfx::isValid(_default_texture))
+		bgfx::destroy(_default_texture);
 }
 
 void MaterialManager::online(StringId64 id, ResourceManager &rm)
 {
 	using namespace material_resource;
+
+	if (!bgfx::isValid(_default_texture)) {
+		char name[32];
+		for (u32 i = 0; i < countof(_default_samplers); ++i) {
+			stbsp_snprintf(name, sizeof(name), "s_default_%u", i);
+			_default_samplers[i] = bgfx::createUniform(name, bgfx::UniformType::Sampler);
+		}
+
+		const u32 pixel = 0xffffffff;
+		_default_texture = bgfx::createTexture2D(1
+			, 1
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA8
+			, BGFX_TEXTURE_NONE
+			, bgfx::copy(&pixel, sizeof(pixel))
+			);
+	}
 
 	MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
 	Material *material = create_material(mr);
@@ -108,6 +135,7 @@ Material *MaterialManager::create_material(const MaterialResource *resource)
 	material = (Material *)_allocator->allocate(size, alignof(Material));
 	new (material) Material(*_allocator);
 	material->_resource_manager = _resource_manager;
+	material->_material_manager = this;
 	material->_resource = resource;
 	material->_data = (char *)&material[1];
 	material->_shader = _shader_manager->shader(resource->shader);
