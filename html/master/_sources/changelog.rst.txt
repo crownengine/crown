@@ -75,6 +75,7 @@ Changelog
 * Runtime: fixed local shape transforms not being honored.
 * Runtime: fixed rendering artifacts when setting roughness to 0 in materials using the mesh shader.
 * Runtime: Linux: fixed wrong initial state of gamepads on some systems.
+* Runtime: Linux: fixed a crash on some rendering backends.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
 * Lua: fixed ``Quaternion.look()`` returning non-orthonormal rotation matrices.
