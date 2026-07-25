@@ -20,6 +20,7 @@ namespace crown
 struct Material
 {
 	ResourceManager *_resource_manager;
+	MaterialManager *_material_manager;
 	const MaterialResource *_resource;
 	char *_data;
 	ShaderData _shader;

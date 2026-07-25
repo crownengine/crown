@@ -11,6 +11,8 @@
 #include "core/strings/string_id.h"
 #include "resource/types.h"
 
+#define MATERIAL_MAX_TEXTURE_SLOTS 10
+
 namespace crown
 {
 struct MaterialResource

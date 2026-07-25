@@ -280,11 +280,6 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_color_grading_desc_uniform = bgfx::createUniform("u_color_grading_desc", bgfx::UniformType::Vec4, 2);
 	_tonemap_type = bgfx::createUniform("u_tonemap_type", bgfx::UniformType::Vec4);
 
-#if CROWN_PLATFORM_EMSCRIPTEN
-	_html5_default_sampler = bgfx::createUniform("s_webgl_hack", bgfx::UniformType::Sampler);
-	_html5_default_texture = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::R8);
-#endif
-
 	PosTexCoord0Vertex::init();
 	PosVertex::init();
 
@@ -296,13 +291,6 @@ void Pipeline::destroy()
 	// Unbind all views that may still point to our framebuffers.
 	for (u32 id = 0; id < View::COUNT; ++id)
 		bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
-
-#if CROWN_PLATFORM_EMSCRIPTEN
-	bgfx::destroy(_html5_default_sampler);
-	_html5_default_sampler = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_html5_default_texture);
-	_html5_default_texture = BGFX_INVALID_HANDLE;
-#endif
 
 	bgfx::destroy(_lighting_params);
 	_lighting_params = BGFX_INVALID_HANDLE;

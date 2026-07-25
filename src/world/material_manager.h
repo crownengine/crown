@@ -9,8 +9,10 @@
 #include "core/filesystem/types.h"
 #include "core/strings/string_id.h"
 #include "core/types.h"
+#include "resource/material_resource.h"
 #include "resource/types.h"
 #include "world/material.h"
+#include <bgfx/bgfx.h>
 
 namespace crown
 {
@@ -20,6 +22,8 @@ struct MaterialManager
 	ResourceManager *_resource_manager;
 	ShaderManager *_shader_manager;
 	HashMap<const MaterialResource *, Material *> _materials;
+	bgfx::UniformHandle _default_samplers[MATERIAL_MAX_TEXTURE_SLOTS];
+	bgfx::TextureHandle _default_texture;
 
 	///
 	MaterialManager(Allocator &a, ResourceManager &rm, ShaderManager &sm);

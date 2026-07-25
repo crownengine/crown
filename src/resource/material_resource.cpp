@@ -495,6 +495,12 @@ namespace material_resource_internal
 				err = parse_textures(data, obj["textures"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
+		RETURN_IF_FALSE(MATERIAL_RESOURCE
+			, array::size(data.textures) <= MATERIAL_MAX_TEXTURE_SLOTS
+			, opts
+			, "Too many textures (max is %u)"
+			, MATERIAL_MAX_TEXTURE_SLOTS
+			);
 		for (u32 i = 0; i < array::size(data.textures); ++i) {
 			u32 si = 0;
 			for (; si < vector::size(samplers_meta); ++si) {
@@ -507,6 +513,14 @@ namespace material_resource_internal
 					, "Texture references inactive or unknown sampler '%s' in shader '%s'"
 					, (char *)array::begin(data.names) + data.textures[i].sampler_name_offset
 					, shader.c_str()
+					);
+			} else {
+				RETURN_IF_FALSE(MATERIAL_RESOURCE
+					, samplers_meta[si].stage < MATERIAL_MAX_TEXTURE_SLOTS
+					, opts
+					, "Texture sampler '%s' uses reserved slot %u"
+					, (char *)array::begin(data.names) + data.textures[i].sampler_name_offset
+					, samplers_meta[si].stage
 					);
 			}
 		}

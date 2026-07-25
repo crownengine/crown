@@ -1380,9 +1380,6 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, Matrix4x4 *cascaded_lights
 	)
 {
-#if CROWN_PLATFORM_EMSCRIPTEN
-	bgfx::setTexture(0, pipeline->_html5_default_sampler, pipeline->_html5_default_texture);
-#endif
 	bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
 	bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
 	bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);

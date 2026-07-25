@@ -9,6 +9,7 @@
 #include "resource/resource_manager.h"
 #include "resource/texture_resource.h"
 #include "world/material.h"
+#include "world/material_manager.h"
 #include "world/shader_manager.h"
 #include <bgfx/bgfx.h>
 
@@ -26,26 +27,37 @@ void Material::bind(u8 view, u32 depth) const
 {
 	using namespace material_resource;
 
-	// Set samplers.
 	const TextureData *td = texture_data_array(_resource);
-	for (u32 i = 0; i < _resource->num_textures; ++i) {
-		const TextureHandle *th = texture_handle(td, i, _data);
 
-		bgfx::UniformHandle sampler;
-		bgfx::TextureHandle texture;
-		sampler.idx = th->sampler_handle;
-		texture.idx = th->texture_handle;
+	// Keep every sampler declared by the shader bound. Some backends cannot
+	// leave it unbound even when the shader skips the texture access at runtime.
+	for (u32 si = 0; si < _shader.num_samplers; ++si) {
+		const ShaderResource::Sampler &sampler = _shader.samplers[si];
+		if (sampler.stage >= MATERIAL_MAX_TEXTURE_SLOTS)
+			continue;
 
-		for (u32 si = 0; si < _shader.num_samplers; ++si) {
-			if (_shader.samplers[si].name == td[i].name._id) {
-				bgfx::setTexture(_shader.samplers[si].stage
-					, sampler
-					, texture
-					, _shader.samplers[si].state
-					);
+		u32 i = 0;
+		for (; i < _resource->num_textures; ++i) {
+			if (sampler.name == td[i].name._id)
 				break;
-			}
 		}
+
+		bgfx::UniformHandle sampler_handle;
+		bgfx::TextureHandle texture;
+		if (i < _resource->num_textures) {
+			const TextureHandle *th = texture_handle(td, i, _data);
+			sampler_handle.idx = th->sampler_handle;
+			texture.idx = th->texture_handle;
+		} else {
+			sampler_handle = _material_manager->_default_samplers[sampler.stage];
+			texture = _material_manager->_default_texture;
+		}
+
+		bgfx::setTexture(sampler.stage
+			, sampler_handle
+			, texture
+			, sampler.state
+			);
 	}
 
 	// Set uniforms.
