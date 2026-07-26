@@ -151,7 +151,10 @@ public class InputDouble : InputField
 
 		if (_dragging) {
 			logi("was dragging");
+			double drag_end_value = _value;
+			set_value_safe(_drag_start_value, -1); // Avoids unnecessary update
 			_dragging = false;
+			set_value_safe(drag_end_value); // Fires the last commit
 			return;
 		}
 		begin_editing();
@@ -276,8 +279,11 @@ public class InputDouble : InputField
 			});
 	}
 
-	public void set_value_safe(double val)
+	public void set_value_safe(double val, int undo_redo = int.MAX)
 	{
+		if (undo_redo == int.MAX)
+			undo_redo = (int)!_dragging;
+
 		double clamped = val.clamp(_min, _max);
 
 		// Convert to text for displaying.
@@ -289,7 +295,7 @@ public class InputDouble : InputField
 		// Notify value changed.
 		if (_value != clamped) {
 			_value = clamped;
-			value_changed(this);
+			value_changed(this, undo_redo);
 		}
 	}
 

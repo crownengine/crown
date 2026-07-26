@@ -56,13 +56,13 @@ public class InputAngle : InputField
 		this.add(_degrees);
 	}
 
-	public void on_value_changed(InputField p)
+	public void on_value_changed(InputField p, int undo_redo)
 	{
 		double new_radians = MathUtils.rad((double)_degrees.value);
 
 		if (_radians != new_radians) {
 			_radians = new_radians;
-			value_changed(this);
+			value_changed(this, undo_redo);
 		}
 	}
 }
