@@ -52,7 +52,7 @@ public class InputVector2 : Gtk.Box
 		this.pack_start(_y, true);
 	}
 
-	public void on_value_changed()
+	public void on_value_changed(InputField p, int undo_redo)
 	{
 		if (!_stop_emit)
 			value_changed();

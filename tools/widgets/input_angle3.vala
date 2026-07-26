@@ -79,9 +79,9 @@ public class InputAngle3 : InputField
 		this.add(_box);
 	}
 
-	public void on_value_changed(InputField p)
+	public void on_value_changed(InputField p, int undo_redo)
 	{
-		value_changed(this);
+		value_changed(this, undo_redo);
 	}
 }
 

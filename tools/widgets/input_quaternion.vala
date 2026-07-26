@@ -85,7 +85,7 @@ public class InputQuaternion : InputField
 		this.add(_box);
 	}
 
-	public void on_value_changed(InputField p)
+	public void on_value_changed(InputField p, int undo_redo)
 	{
 		double x = MathUtils.rad((double)_x.value);
 		double y = MathUtils.rad((double)_y.value);
@@ -94,7 +94,7 @@ public class InputQuaternion : InputField
 
 		if (_rotation != new_rotation) {
 			_rotation = new_rotation;
-			value_changed(this);
+			value_changed(this, undo_redo);
 		}
 	}
 }
