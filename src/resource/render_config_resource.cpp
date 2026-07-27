@@ -36,6 +36,22 @@ namespace
 		return 0;
 	}
 
+	f32 shadow_map_quality_samples(StringId32 quality)
+	{
+		if (quality == STRING_ID_32("low", UINT32_C(0x8876b146)))
+			return 1.0f;
+		else if (quality == STRING_ID_32("medium", UINT32_C(0x6e03a970)))
+			return 4.0f;
+		else if (quality == STRING_ID_32("high", UINT32_C(0xfc9141f5)))
+			return 9.0f;
+		else if (quality == STRING_ID_32("ultra", UINT32_C(0xf13839af)))
+			return 16.0f;
+		else
+			logw(RENDER_CONFIG_RESOURCE, "Unknown shadow map quality");
+
+		return 16.0f;
+	}
+
 } // namespace
 
 namespace render_settings
@@ -57,8 +73,16 @@ namespace render_settings
 			} else if (cur->first == "sun_shadows") {
 				Value v; v.type = Value::BOOL; v.value.b = RETURN_IF_ERROR(sjson::parse_bool(cur->second));
 				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "sun_shadow_map_quality") {
+				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second));
+				Value v; v.type = Value::FLOAT; v.value.f = shadow_map_quality_samples(quality);
+				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else if (cur->first == "local_lights_shadow_map_size") {
 				Value v; v.type = Value::VECTOR2; v.value.v2 = RETURN_IF_ERROR(sjson::parse_vector2(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "local_lights_shadow_map_quality") {
+				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second));
+				Value v; v.type = Value::FLOAT; v.value.f = shadow_map_quality_samples(quality);
 				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else if (cur->first == "local_lights") {
 				Value v; v.type = Value::BOOL; v.value.b = RETURN_IF_ERROR(sjson::parse_bool(cur->second));
@@ -120,10 +144,18 @@ namespace render_settings
 
 			if (key == STRING_ID_32("sun_shadow_map_size", UINT32_C(0x964ee0ab))) {
 				rs.sun_shadow_map_size = v.value.v2;
+				rs.shadow_map_params[0].x = 1.0f / v.value.v2.x;
+				rs.shadow_map_params[0].y = 1.0f / v.value.v2.y;
 			} else if (key == STRING_ID_32("sun_shadows", UINT32_C(0x4ef88b61))) {
 				set_flag(rs.flags, RenderSettingsFlags::SUN_SHADOWS, v.value.b);
+			} else if (key == STRING_ID_32("sun_shadow_map_quality", UINT32_C(0x97f3e080))) {
+				rs.shadow_map_params[1].x = v.value.f;
 			} else if (key == STRING_ID_32("local_lights_shadow_map_size", UINT32_C(0x28d6b7e9))) {
 				rs.local_lights_shadow_map_size = v.value.v2;
+				rs.shadow_map_params[0].z = 1.0f / v.value.v2.x;
+				rs.shadow_map_params[0].w = 1.0f / v.value.v2.y;
+			} else if (key == STRING_ID_32("local_lights_shadow_map_quality", UINT32_C(0xb6891b6e))) {
+				rs.shadow_map_params[1].y = v.value.f;
 			} else if (key == STRING_ID_32("local_lights", UINT32_C(0x831fd434))) {
 				set_flag(rs.flags, RenderSettingsFlags::LOCAL_LIGHTS, v.value.b);
 			} else if (key == STRING_ID_32("local_lights_shadows", UINT32_C(0x8b47ea20))) {
@@ -194,6 +226,20 @@ namespace render_config_resource_internal
 			;
 		rcr.render_settings.sun_shadow_map_size = { 4096.0f, 4096.0f };
 		rcr.render_settings.local_lights_shadow_map_size = { 2048.0f, 2048.0f };
+		rcr.render_settings.shadow_map_params[0] =
+		{
+			1.0f / rcr.render_settings.sun_shadow_map_size.x,
+			1.0f / rcr.render_settings.sun_shadow_map_size.y,
+			1.0f / rcr.render_settings.local_lights_shadow_map_size.x,
+			1.0f / rcr.render_settings.local_lights_shadow_map_size.y
+		};
+		rcr.render_settings.shadow_map_params[1] =
+		{
+			shadow_map_quality_samples(STRING_ID_32("ultra", UINT32_C(0xf13839af))),
+			shadow_map_quality_samples(STRING_ID_32("ultra", UINT32_C(0xf13839af))),
+			0.0f,
+			0.0f
+		};
 		rcr.render_settings.local_lights_distance_culling_fade = 30.0f;
 		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;
 		rcr.render_settings.lod_fade_duration = 0.2f;
@@ -219,6 +265,8 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.flags);
 		opts.write(rcr.render_settings.sun_shadow_map_size);
 		opts.write(rcr.render_settings.local_lights_shadow_map_size);
+		opts.write(rcr.render_settings.shadow_map_params[0]);
+		opts.write(rcr.render_settings.shadow_map_params[1]);
 		opts.write(rcr.render_settings.local_lights_distance_culling_fade);
 		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
 		opts.write(rcr.render_settings.lod_fade_duration);

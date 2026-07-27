@@ -2,6 +2,8 @@ render_settings = {
 	// Whether shadows for the sun are enabled.
 	// sun_shadows = true
 	// sun_shadow_map_size = [ 4096 4096 ]
+	// low, medium, high or ultra (hard, 4, 9 or 16 taps respectively).
+	// sun_shadow_map_quality = "ultra"
 
 	// Whether local lights are enabled.
 	// local_lights = true
@@ -9,6 +11,8 @@ render_settings = {
 	// Whether shadows for local lights are enabled.
 	// local_lights_shadows = true
 	// local_lights_shadow_map_size = [ 2048 2048 ]
+	// low, medium, high or ultra (hard, 4, 9 or 16 taps respectively).
+	// local_lights_shadow_map_quality = "ultra"
 
 	// Whether distance culling for local lights is enabled.
 	// local_lights_distance_culling = false

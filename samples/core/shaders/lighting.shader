@@ -19,9 +19,11 @@ bgfx_shaders = {
 			SAMPLER2D(u_lights_data, 12); // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
 		#endif
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
-			uniform vec4 u_shadow_maps_texel_sizes;
-		#	define sun_sm_texel_size u_shadow_maps_texel_sizes.xy
-		#	define local_lights_sm_texel_size u_shadow_maps_texel_sizes.zw
+			uniform vec4 u_shadow_map_params[2];
+		#	define sun_sm_texel_size u_shadow_map_params[0].xy
+		#	define local_lights_sm_texel_size u_shadow_map_params[0].zw
+		#	define sun_shadow_map_samples u_shadow_map_params[1].x
+		#	define local_lights_shadow_map_samples u_shadow_map_params[1].y
 			SAMPLER2DSHADOW(u_cascaded_shadow_map, 10);
 			SAMPLER2DSHADOW(u_local_lights_shadow_map, 11);
 			uniform vec4 u_local_lights_params;
@@ -280,13 +282,13 @@ bgfx_shaders = {
 						bool atlas3 = dot(shadow3_near.xyz, shadow_world) >= shadow3_near.w && dot(shadow3_far.xyz, shadow_world) >= shadow3_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
 
 						if (atlas0)
-							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos0, shadow_bias, sun_sm_texel_size);
+							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos0, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 						else if (atlas1)
-							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size);
+							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 						else if (atlas2)
-							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size);
+							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 						else if (atlas3)
-							local_radiance *= PCF(u_cascaded_shadow_map, atlas_shadow_pos3, shadow_bias, sun_sm_texel_size);
+							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos3, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 					}
 
 					radiance += local_radiance;
@@ -401,10 +403,11 @@ bgfx_shaders = {
 							vec3 l = normalize(position - shadow_local.xyz);
 							float ndotl = max(dot(geometric_n, l), 0.05);
 
-							local_radiance *= PCF(u_local_lights_shadow_map
+							local_radiance *= shadow(u_local_lights_shadow_map
 								, atlas_shadow_pos0
 								, shadow_bias * clamp(1.0 + 2.0 * (1.0 - ndotl) / ndotl, 1.0, 8.0)
 								, local_lights_sm_texel_size
+								, local_lights_shadow_map_samples
 								);
 						} else {
 							local_radiance *= 0.0;
@@ -452,10 +455,11 @@ bgfx_shaders = {
 						vec4 atlas_shadow_pos0 = atlas_shadow_coord(mul(mvp, shadow_local), atlas_offset);
 
 						if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
-							local_radiance *= PCF(u_local_lights_shadow_map
+							local_radiance *= shadow(u_local_lights_shadow_map
 								, atlas_shadow_pos0
 								, shadow_bias
 								, local_lights_sm_texel_size
+								, local_lights_shadow_map_samples
 								);
 						} else {
 							local_radiance *= 0.0;

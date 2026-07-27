@@ -212,7 +212,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
-	_u_shadow_maps_texel_sizes = bgfx::createUniform("u_shadow_maps_texel_sizes", bgfx::UniformType::Vec4);
+	_u_shadow_map_params = bgfx::createUniform("u_shadow_map_params", bgfx::UniformType::Vec4, 2);
 
 	// Create cascaded shadow map resources.
 	if (bgfx::isValid(_sun_shadow_map_texture))
@@ -316,8 +316,8 @@ void Pipeline::destroy()
 	// Destroy cascaded shadow map resources.
 	bgfx::destroy(_u_cascaded_lights);
 	_u_cascaded_lights = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_u_shadow_maps_texel_sizes);
-	_u_shadow_maps_texel_sizes = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_u_shadow_map_params);
+	_u_shadow_map_params = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_u_cascaded_shadow_map);
 	_u_cascaded_shadow_map = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_sun_shadow_map_frame_buffer);

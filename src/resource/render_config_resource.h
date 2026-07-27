@@ -30,6 +30,7 @@ struct RenderSettings
 	u32 flags;
 	Vector2 sun_shadow_map_size;
 	Vector2 local_lights_shadow_map_size;
+	Vector4 shadow_map_params[2];             ///< Texel sizes followed by filtering sample counts.
 	f32 local_lights_distance_culling_fade;   ///< Distance from camera at which local lights start to fade.
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.

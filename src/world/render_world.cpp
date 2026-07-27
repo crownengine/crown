@@ -1373,7 +1373,6 @@ void RenderWorld::sync_cullable_sets()
 static void draw_mesh(RenderWorld::MeshManager &mesh
 	, u32 object_id
 	, Pipeline *pipeline
-	, const Vector4 &texel_sizes
 	, const FogDesc &fog_desc
 	, GlobalLightingDesc &global_lighting_desc
 	, SceneGraph *scene_graph
@@ -1383,7 +1382,10 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
 	bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
 	bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
-	bgfx::setUniform(pipeline->_u_shadow_maps_texel_sizes, &texel_sizes);
+	bgfx::setUniform(pipeline->_u_shadow_map_params
+		, pipeline->_render_settings.shadow_map_params
+		, countof(pipeline->_render_settings.shadow_map_params)
+		);
 	bgfx::setUniform(pipeline->_fog_data, (char *)&fog_desc, sizeof(fog_desc) / sizeof(Vector4));
 	pipeline->set_local_lights_params_uniform();
 	pipeline->set_global_lighting_params(&global_lighting_desc);
@@ -1887,14 +1889,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	_pipeline->_color_grading_desc = _color_grading_desc;
 	_pipeline->_tonemap = _tonemap_desc;
 
-	const Vector4 texel_sizes =
-	{
-		1.0f/_pipeline->_render_settings.sun_shadow_map_size.x,
-		1.0f/_pipeline->_render_settings.sun_shadow_map_size.y,
-		1.0f/_pipeline->_render_settings.local_lights_shadow_map_size.x,
-		1.0f/_pipeline->_render_settings.local_lights_shadow_map_size.y
-	};
-
 	bgfx::TransientVertexBuffer sprite_vertex_buffer;
 	bgfx::TransientIndexBuffer sprite_index_buffer;
 	f32 *sprite_vertex_data = NULL;
@@ -1938,7 +1932,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 			draw_mesh(_mesh_manager
 				, object_id
 				, _pipeline
-				, texel_sizes
 				, _fog_desc
 				, _global_lighting_desc
 				, _scene_graph
@@ -1969,7 +1962,6 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 			draw_mesh(_mesh_manager
 				, mesh_i
 				, _pipeline
-				, texel_sizes
 				, _fog_desc
 				, _global_lighting_desc
 				, _scene_graph

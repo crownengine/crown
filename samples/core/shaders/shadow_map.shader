@@ -24,6 +24,37 @@ bgfx_shaders = {
 				return shadow2D(_sampler, vec3(tex_coord.xy, tex_coord.z - bias));
 			}
 
+			float PCF4(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size)
+			{
+				float result = 0.0;
+				vec2 offset = texel_size * shadow_coord.w;
+
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-0.5,  0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 0.5, -0.5) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 0.5,  0.5) * offset, 0.0, 0.0), bias);
+
+				return result / 4.0;
+			}
+
+			float PCF9(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size)
+			{
+				float result = 0.0;
+				vec2 offset = texel_size * shadow_coord.w;
+
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.0, -1.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.0,  0.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(-1.0,  1.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 0.0, -1.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord, bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 0.0,  1.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 1.0, -1.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 1.0,  0.0) * offset, 0.0, 0.0), bias);
+				result += hard_shadow(_sampler, shadow_coord + vec4(vec2( 1.0,  1.0) * offset, 0.0, 0.0), bias);
+
+				return result / 9.0;
+			}
+
 			float PCF(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size)
 			{
 				float result = 0.0;
@@ -50,6 +81,18 @@ bgfx_shaders = {
 				result += hard_shadow(_sampler, shadow_coord + vec4(vec2(1.5,  1.5) * offset, 0.0, 0.0), bias);
 
 				return result / 16.0;
+			}
+
+			float shadow(Sampler _sampler, vec4 shadow_coord, float bias, vec2 texel_size, float samples)
+			{
+				if (samples < 2.0)
+					return hard_shadow(_sampler, shadow_coord, bias);
+				else if (samples < 5.0)
+					return PCF4(_sampler, shadow_coord, bias, texel_size);
+				else if (samples < 10.0)
+					return PCF9(_sampler, shadow_coord, bias, texel_size);
+
+				return PCF(_sampler, shadow_coord, bias, texel_size);
 			}
 		"""
 	}

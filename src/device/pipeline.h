@@ -100,7 +100,7 @@ struct Pipeline
 	bgfx::FrameBufferHandle _sun_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_cascaded_shadow_map;
 	bgfx::UniformHandle _u_cascaded_lights;
-	bgfx::UniformHandle _u_shadow_maps_texel_sizes;
+	bgfx::UniformHandle _u_shadow_map_params;
 	bgfx::TextureHandle _local_lights_shadow_map_texture;
 	bgfx::FrameBufferHandle _local_lights_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_local_lights_shadow_map;
