@@ -23,6 +23,9 @@ namespace obb
 	/// Returns the eight vertices of the box @a obb.
 	void to_vertices(Vector3 vertices[8], const OBB &obb);
 
+	///
+	void transform(OBB &out, const OBB &obb, const Matrix4x4 &m);
+
 	/// Returns a new box which encloses both the box @a a and @a b.
 	/// @note The returned box will have the same orientation as @a a and won't necessarily be the
 	/// smallest enclosing box.

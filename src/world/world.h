@@ -154,6 +154,9 @@ struct World
 	/// Returns the projection matrix of the @a camera.
 	Matrix4x4 camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type = ProjectionType::COUNT);
 
+	/// Returns the projection matrix of the @a camera with the specified depth convention.
+	Matrix4x4 camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type, bool homogeneous_depth);
+
 	/// Returns the view matrix of the @a camera.
 	Matrix4x4 camera_view_matrix(CameraId camera);
 
@@ -198,7 +201,7 @@ struct World
 	void update(f32 dt);
 
 	/// Renders the world using @a view.
-	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp);
+	void render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &cull_proj, const Matrix4x4 &persp);
 
 	/// @copydoc SoundWorld::play().
 	SoundInstanceId play_sound(StringId64 name, const bool loop, const f32 volume, const f32 range, u32 flags, const Vector3 &pos, StringId32 group);

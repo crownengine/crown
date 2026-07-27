@@ -641,9 +641,9 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp)
+void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &cull_proj, const Matrix4x4 &persp)
 {
-	_render_world->render(_dt, view, proj, persp, _skydome_unit, *_lines);
+	_render_world->render(_dt, view, proj, cull_proj, persp, _skydome_unit, *_lines);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);
@@ -709,16 +709,17 @@ ProjectionType::Enum World::camera_projection_type(CameraId camera)
 	return _camera[camera.i].projection_type;
 }
 
-Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type)
+static Matrix4x4 camera_projection_matrix(const World::Camera &cam
+	, f32 aspect_ratio
+	, ProjectionType::Enum projection_type
+	, bool homogeneous_depth
+	)
 {
-	Camera &cam = _camera[camera.i];
-
 	ProjectionType::Enum proj_type = projection_type == ProjectionType::COUNT
 		? cam.projection_type
 		: projection_type
 		;
 
-	const bgfx::Caps *caps = bgfx::getCaps();
 	f32 bx_proj[16];
 	switch (proj_type) {
 	case ProjectionType::ORTHOGRAPHIC:
@@ -730,7 +731,7 @@ Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, Pro
 			, cam.near_range
 			, cam.far_range
 			, 0.0f
-			, caps->homogeneousDepth
+			, homogeneous_depth
 			, bx::Handedness::Right
 			);
 		break;
@@ -741,7 +742,7 @@ Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, Pro
 			, aspect_ratio
 			, cam.near_range
 			, cam.far_range
-			, caps->homogeneousDepth
+			, homogeneous_depth
 			, bx::Handedness::Right
 			);
 		break;
@@ -752,6 +753,28 @@ Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, Pro
 	}
 
 	return from_array(bx_proj);
+}
+
+Matrix4x4 World::camera_projection_matrix(CameraId camera, f32 aspect_ratio, ProjectionType::Enum projection_type)
+{
+	return camera_projection_matrix(camera
+		, aspect_ratio
+		, projection_type
+		, bgfx::getCaps()->homogeneousDepth
+		);
+}
+
+Matrix4x4 World::camera_projection_matrix(CameraId camera
+	, f32 aspect_ratio
+	, ProjectionType::Enum projection_type
+	, bool homogeneous_depth
+	)
+{
+	return crown::camera_projection_matrix(_camera[camera.i]
+		, aspect_ratio
+		, projection_type
+		, homogeneous_depth
+		);
 }
 
 Matrix4x4 World::camera_view_matrix(CameraId camera)
