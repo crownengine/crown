@@ -168,7 +168,11 @@ namespace culling_set
 		Sphere sw;
 		sphere::transform(sw, object.sphere, object.world);
 
+		OBB obbw;
+		obb::transform(obbw, object.obb, object.world);
+
 		array::push_back(set.sphere_w, sw);
+		array::push_back(set.obb_w, obbw);
 		array::push_back(set.id, object.id);
 		array::push_back(set.type, object.type);
 		array::push_back(set.visible, UINT32_MAX);
@@ -177,6 +181,7 @@ namespace culling_set
 	static void clear(CullingSet &set)
 	{
 		array::clear(set.sphere_w);
+		array::clear(set.obb_w);
 		array::clear(set.id);
 		array::clear(set.type);
 		array::clear(set.visible);
@@ -195,11 +200,13 @@ namespace culling_set
 		set.type[ind]     = set.type[last];
 		set.visible[ind]  = set.visible[last];
 		set.sphere_w[ind] = set.sphere_w[last];
+		set.obb_w[ind]    = set.obb_w[last];
 
 		array::pop_back(set.id);
 		array::pop_back(set.type);
 		array::pop_back(set.visible);
 		array::pop_back(set.sphere_w);
+		array::pop_back(set.obb_w);
 	}
 
 	// Fix culling set indices when an instance at index inst is destroyed and the last instance is
@@ -236,20 +243,26 @@ namespace culling_set
 			switch (set.type[i]) {
 			case CullableType::MESH:
 				CE_ASSERT(object_id < mid.size, "Index out of bounds");
-				if ((mid.flags[object_id] & RenderableFlags::DIRTY) != 0)
+				if ((mid.flags[object_id] & RenderableFlags::DIRTY) != 0) {
 					sphere::transform(set.sphere_w[i], mid.sphere[object_id], mid.world[object_id]);
+					obb::transform(set.obb_w[i], mid.obb[object_id], mid.world[object_id]);
+				}
 				break;
 
 			case CullableType::SPRITE:
 				CE_ASSERT(object_id < sid.size, "Index out of bounds");
-				if ((sid.flags[object_id] & RenderableFlags::DIRTY) != 0)
+				if ((sid.flags[object_id] & RenderableFlags::DIRTY) != 0) {
 					sphere::transform(set.sphere_w[i], sid.sphere[object_id], sid.world[object_id]);
+					obb::transform(set.obb_w[i], sid.obb[object_id], sid.world[object_id]);
+				}
 				break;
 
 			case CullableType::LOD_GROUP:
 				CE_ASSERT(object_id < lgid.size, "Index out of bounds");
-				if ((lgid.flags[object_id] & RenderableFlags::DIRTY) != 0)
+				if ((lgid.flags[object_id] & RenderableFlags::DIRTY) != 0) {
 					sphere::transform(set.sphere_w[i], lgid.sphere[object_id], lgid.world[object_id]);
+					obb::transform(set.obb_w[i], lgid.obb[object_id], lgid.world[object_id]);
+				}
 				break;
 
 			case CullableType::LIGHT:
@@ -311,18 +324,72 @@ namespace culling_set
 		LEAVE_PROFILE_SCOPE();
 	}
 
-	/// Returns the number of objects that passed culling test.
-	static u32 remove_culled(CullingSet &set)
+	static void cull_oobs(CullingSet &set, const Matrix4x4 &view_proj, u32 *indices, u32 offset, u32 count)
 	{
-		array::clear(set.render);
-		u32 num = array::size(set.id);
+		ENTER_PROFILE_SCOPE(__func__);
 
-		for (u32 i = 0; i < num; ++i) {
-			if (set.visible[i] != 0)
-				array::push_back(set.render, i);
+		const u32 num = offset + count;
+		for (u32 i = offset; i < num; ++i) {
+			const u32 index = indices[i];
+			const OBB &obb_w = set.obb_w[index];
+
+			Vector3 vertices[8];
+			obb::to_vertices(vertices, obb_w);
+
+			// An OBB is outside the frustum if all its vertices are outside
+			// any one of the six homogeneous clip planes.
+			u32 outside_left   = UINT32_MAX;
+			u32 outside_right  = UINT32_MAX;
+			u32 outside_bottom = UINT32_MAX;
+			u32 outside_top    = UINT32_MAX;
+			u32 outside_near   = UINT32_MAX;
+			u32 outside_far    = UINT32_MAX;
+			for (u32 j = 0; j < countof(vertices); ++j) {
+				const Vector3 &v = vertices[j];
+				const Vector4 vertex = { v.x, v.y, v.z, 1.0f };
+				const Vector4 clip = vertex * view_proj;
+
+				outside_left   &= u32(clip.x < -clip.w);
+				outside_right  &= u32(clip.x > clip.w);
+				outside_bottom &= u32(clip.y < -clip.w);
+				outside_top    &= u32(clip.y > clip.w);
+				outside_near   &= u32(clip.z < -clip.w);
+				outside_far    &= u32(clip.z > clip.w);
+			}
+
+			set.visible[i] = (outside_left
+				| outside_right
+				| outside_bottom
+				| outside_top
+				| outside_near
+				| outside_far
+				) == 0;
 		}
 
-		return array::size(set.render);
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	/// Removes culled objects from @a indices and returns the number of objects left.
+	/// If @a indices is NULL, uses [0, @a count) as input.
+	static u32 remove_culled(CullingSet &set
+		, const u32 *indices = NULL
+		, u32 count = UINT32_MAX
+		)
+	{
+		if (count == UINT32_MAX)
+			count = array::size(set.id);
+
+		u32 num_visible = 0;
+		if (indices == NULL)
+			array::resize(set.render, count);
+
+		for (u32 i = 0; i < count; ++i) {
+			if (set.visible[i] != 0)
+				set.render[num_visible++] = indices != NULL ? indices[i] : i;
+		}
+
+		array::resize(set.render, num_visible);
+		return num_visible;
 	}
 
 } // namespace culling_set
@@ -537,7 +604,7 @@ void RenderWorld::sprite_set_sprite(SpriteId sprite, StringId64 sprite_resource_
 	const SpriteResource *resource = (SpriteResource *)_resource_manager->get(RESOURCE_TYPE_SPRITE, sprite_resource_name);
 	_sprite_manager._data.resource[sprite.i] = resource;
 
-	_sprite_manager._data.aabb[sprite.i] = resource->aabb;
+	_sprite_manager._data.obb[sprite.i] = resource->obb;
 	_sprite_manager._data.sphere[sprite.i] = resource->sphere;
 	_sprite_manager._data.flags[sprite.i] |= RenderableFlags::DIRTY;
 	_sprite_manager._dirty = true;
@@ -617,13 +684,11 @@ OBB RenderWorld::sprite_obb(SpriteId sprite)
 {
 	CE_ASSERT(sprite.i < _sprite_manager._data.size, "Index out of bounds");
 
-	const AABB &aabb = _sprite_manager._data.resource[sprite.i]->aabb;
-	const Matrix4x4 &world = _sprite_manager._data.world[sprite.i];
-
 	OBB obb;
-	obb.tm = from_quaternion_translation(QUATERNION_IDENTITY, aabb::center(aabb)) * world;
-	obb.half_extents = (aabb.max - aabb.min) * 0.5f;
-
+	obb::transform(obb
+		, _sprite_manager._data.obb[sprite.i]
+		, _sprite_manager._data.world[sprite.i]
+		);
 	return obb;
 }
 
@@ -1285,14 +1350,14 @@ void RenderWorld::sync_cullable_sets()
 
 			if ((changed &RenderableFlags::VISIBLE) != 0) {
 				if ((cull_flags &RenderableFlags::VISIBLE) != 0)
-					culling_set::add(_cullable_objects, { mid.world[i], mid.sphere[i], i, CullableType::MESH });
+					culling_set::add(_cullable_objects, { mid.world[i], mid.sphere[i], mid.obb[i], i, CullableType::MESH });
 				else
 					culling_set::remove(_cullable_objects, CullableType::MESH, i);
 			}
 
 			if ((changed &RenderableFlags::SHADOW_CASTER) != 0) {
 				if ((cull_flags &RenderableFlags::SHADOW_CASTER) != 0)
-					culling_set::add(_cullable_shadow_casters, { mid.world[i], mid.sphere[i], i, CullableType::MESH });
+					culling_set::add(_cullable_shadow_casters, { mid.world[i], mid.sphere[i], mid.obb[i], i, CullableType::MESH });
 				else
 					culling_set::remove(_cullable_shadow_casters, CullableType::MESH, i);
 			}
@@ -1313,7 +1378,7 @@ void RenderWorld::sync_cullable_sets()
 
 			if (visibility_changed) {
 				if ((flags &RenderableFlags::VISIBLE) != 0)
-					culling_set::add(_cullable_objects, { sid.world[i], sid.sphere[i], i, CullableType::SPRITE });
+					culling_set::add(_cullable_objects, { sid.world[i], sid.sphere[i], sid.obb[i], i, CullableType::SPRITE });
 				else
 					culling_set::remove(_cullable_objects, CullableType::SPRITE, i);
 			}
@@ -1331,7 +1396,7 @@ void RenderWorld::sync_cullable_sets()
 				;
 			if (is_local_light) {
 				const Sphere sphere = local_sphere(_light_manager, i);
-				culling_set::add(_cullable_lights, { lid.world[i], sphere, i, CullableType::LIGHT });
+				culling_set::add(_cullable_lights, { lid.world[i], sphere, { MATRIX4X4_IDENTITY, VECTOR3_ZERO }, i, CullableType::LIGHT });
 			}
 
 			lid.prev_flags[i] = lid.flag[i] & ~RenderableFlags::DIRTY;
@@ -1395,7 +1460,14 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	mesh._data.material[object_id]->bind(View::MESH);
 }
 
-void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &persp, UnitId skydome_unit, DebugLine &dl)
+void RenderWorld::render(f32 dt
+	, const Matrix4x4 &view
+	, const Matrix4x4 &proj
+	, const Matrix4x4 &cull_proj
+	, const Matrix4x4 &persp
+	, UnitId skydome_unit
+	, DebugLine &dl
+	)
 {
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -1407,7 +1479,7 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 	Matrix4x4 inv_view = view;
 	invert(inv_view);
 	const Vector3 camera_pos = translation(inv_view);
-	const Matrix4x4 view_proj = view * proj;
+	const Matrix4x4 view_proj = view * cull_proj;
 
 	// Skydome.
 	if (skydome_unit.is_valid()) {
@@ -1433,9 +1505,19 @@ void RenderWorld::render(f32 dt, const Matrix4x4 &view, const Matrix4x4 &proj, c
 
 	// Frustum culling of visible objects.
 	Frustum view_frustum;
-	frustum::from_matrix(view_frustum, view_proj, caps->homogeneousDepth, bx::Handedness::Right);
+	frustum::from_matrix(view_frustum, view_proj, true, bx::Handedness::Right);
 	culling_set::cull_spheres(_cullable_objects, view_frustum, 0, array::size(_cullable_objects.id));
 	u32 visible_objects = culling_set::remove_culled(_cullable_objects);
+	culling_set::cull_oobs(_cullable_objects
+		, view_proj
+		, array::begin(_cullable_objects.render)
+		, 0
+		, visible_objects
+		);
+	visible_objects = culling_set::remove_culled(_cullable_objects
+		, array::begin(_cullable_objects.render)
+		, visible_objects
+		);
 	RECORD_FLOAT("world.visible_objects", (f32)visible_objects);
 
 	// Limit shadow rendering independently from the camera far plane.
@@ -2037,10 +2119,10 @@ void RenderWorld::debug_draw(DebugLine &dl)
 	const SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
 
 	for (u32 i = 0; i < sid.size; ++i) {
-		const AABB &aabb = sid.aabb[i];
+		const OBB &obb = sid.obb[i];
 		const Sphere &sphere = sid.sphere[i];
 		const Matrix4x4 &world = sid.world[i];
-		dl.add_aabb(aabb::transform(aabb, world), COLOR4_RED);
+		dl.add_obb(obb.tm * world, obb.half_extents, COLOR4_RED);
 
 		Sphere out;
 		sphere::transform(out, sphere, world);
@@ -2169,7 +2251,7 @@ void RenderWorld::reload_sprites(const SpriteResource *old_resource, const Sprit
 		if (_sprite_manager._data.resource[i] == old_resource) {
 			_sprite_manager._data.resource[i] = new_resource;
 			_sprite_manager._data.frame[i] %= new_resource->num_frames;
-			_sprite_manager._data.aabb[i] = new_resource->aabb;
+			_sprite_manager._data.obb[i] = new_resource->obb;
 			_sprite_manager._data.sphere[i] = new_resource->sphere;
 			_sprite_manager._data.flags[i] |= RenderableFlags::DIRTY;
 			_sprite_manager._dirty = true;
@@ -2493,7 +2575,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 		+ num*sizeof(Material **) + alignof(Material *)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
-		+ num*sizeof(AABB) + alignof(AABB)
+		+ num*sizeof(OBB) + alignof(OBB)
 		+ num*sizeof(Sphere) + alignof(Sphere)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
@@ -2515,8 +2597,8 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	new_data.material = (Material **            )memory::align_top(new_data.resource + num, alignof(Material *));
 	new_data.frame    = (u32 *                  )memory::align_top(new_data.material + num, alignof(u32));
 	new_data.world    = (Matrix4x4 *            )memory::align_top(new_data.frame + num,    alignof(Matrix4x4));
-	new_data.aabb     = (AABB *                 )memory::align_top(new_data.world + num,    alignof(AABB));
-	new_data.sphere   = (Sphere *               )memory::align_top(new_data.aabb + num,     alignof(Sphere));
+	new_data.obb      = (OBB *                  )memory::align_top(new_data.world + num,    alignof(OBB));
+	new_data.sphere   = (Sphere *               )memory::align_top(new_data.obb + num,      alignof(Sphere));
 	new_data.flags    = (u32 *                  )memory::align_top(new_data.sphere + num,   alignof(u32));
 	new_data.prev_flags = (u32 *               )memory::align_top(new_data.flags + num,    alignof(u32));
 	new_data.layer    = (u32 *                  )memory::align_top(new_data.prev_flags + num, alignof(u32));
@@ -2530,7 +2612,7 @@ void RenderWorld::SpriteManager::allocate(u32 num)
 	memcpy(new_data.material, _data.material, _data.size * sizeof(Material **));
 	memcpy(new_data.frame, _data.frame, _data.size * sizeof(u32));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
-	memcpy(new_data.aabb, _data.aabb, _data.size * sizeof(AABB));
+	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
 	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
@@ -2578,7 +2660,7 @@ void RenderWorld::SpriteManager::create_instances(const void *components_data
 		_data.material[last]   = _render_world->_material_manager->get(mat_res);
 		_data.frame[last]      = 0;
 		_data.world[last]      = _render_world->_scene_graph->world_pose(ti);
-		_data.aabb[last]       = sr->aabb;
+		_data.obb[last]        = sr->obb;
 		_data.sphere[last]     = sr->sphere;
 		_data.flags[last]      = sprites[i].flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last] = 0;
@@ -2609,7 +2691,7 @@ void RenderWorld::SpriteManager::destroy(SpriteId inst)
 	_data.material[inst.i]   = _data.material[last];
 	_data.frame[inst.i]      = _data.frame[last];
 	_data.world[inst.i]      = _data.world[last];
-	_data.aabb[inst.i]       = _data.aabb[last];
+	_data.obb[inst.i]        = _data.obb[last];
 	_data.sphere[inst.i]     = _data.sphere[last];
 	_data.flags[inst.i]      = _data.flags[last];
 	_data.prev_flags[inst.i] = _data.prev_flags[last];
@@ -2637,7 +2719,7 @@ void RenderWorld::SpriteManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.material[inst_a],   _data.material[inst_b]);
 	exchange(_data.frame[inst_a],      _data.frame[inst_b]);
 	exchange(_data.world[inst_a],      _data.world[inst_b]);
-	exchange(_data.aabb[inst_a],       _data.aabb[inst_b]);
+	exchange(_data.obb[inst_a],        _data.obb[inst_b]);
 	exchange(_data.sphere[inst_a],     _data.sphere[inst_b]);
 	exchange(_data.flags[inst_a],      _data.flags[inst_b]);
 	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
@@ -2889,6 +2971,7 @@ void RenderWorld::LodGroupManager::create_instances(const void *components_data
 		culling_set::add(_render_world->_cullable_objects
 			, { _data.world[group_idx]
 				, _data.sphere[group_idx]
+				, _data.obb[group_idx]
 				, group_idx
 				, CullableType::LOD_GROUP
 			}

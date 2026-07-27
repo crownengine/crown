@@ -10,6 +10,7 @@
 #include "core/json/sjson.h"
 #include "core/math/aabb.inl"
 #include "core/math/constants.h"
+#include "core/math/matrix4x4.inl"
 #include "core/math/vector2.inl"
 #include "core/math/vector4.inl"
 #include "core/memory/memory.inl"
@@ -157,13 +158,14 @@ namespace sprite_resource_internal
 		// Write
 		SpriteResource sr;
 		sr.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE);
-		sr.aabb = aabb;
+		sr.obb.tm = from_translation(aabb::center(aabb));
+		sr.obb.half_extents = (aabb.max - aabb.min) * 0.5f;
 		sr.sphere = aabb::to_sphere(aabb);
 		sr.num_frames = num_frames;
 		sr.num_verts = num_vertices;
 
 		opts.write(sr.version);
-		opts.write(sr.aabb);
+		opts.write(sr.obb);
 		opts.write(sr.sphere);
 		opts.write(sr.num_frames);
 

@@ -18,7 +18,7 @@ namespace crown
 struct SpriteResource
 {
 	u32 version;
-	AABB aabb;
+	OBB obb;
 	Sphere sphere;
 	u32 num_frames;
 	u32 num_verts;

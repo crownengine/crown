@@ -50,6 +50,12 @@ namespace obb
 		vertices[7] = center - axis_x + axis_y + axis_z;
 	}
 
+	inline void transform(OBB &out, const OBB &obb, const Matrix4x4 &m)
+	{
+		out.tm = obb.tm * m;
+		out.half_extents = obb.half_extents;
+	}
+
 } // namespace obb
 
 } // namespace crown
