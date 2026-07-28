@@ -1612,7 +1612,12 @@ void RenderWorld::render(f32 dt
 			bx::mtxLookAt(to_float_ptr(light_view), eye, at, up, bx::Handedness::Right);
 
 			// Split the view frustum into MAX_NUM_CASCADES frustums.
-			frustum::split(splits, MAX_NUM_CASCADES, shadow_frustum, 0.75f);
+			frustum::split(splits
+				, MAX_NUM_CASCADES
+				, shadow_frustum
+				, _pipeline->_render_settings.sun_shadow_split_weight
+				, _pipeline->_render_settings.sun_shadow_split_overlap
+				);
 
 			// Render the scene once per cascade.
 			for (u32 i = 0; i < MAX_NUM_CASCADES; ++i) {

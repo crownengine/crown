@@ -77,6 +77,12 @@ namespace render_settings
 				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second));
 				Value v; v.type = Value::FLOAT; v.value.f = shadow_map_quality_samples(quality);
 				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "sun_shadow_split_weight") {
+				Value v; v.type = Value::FLOAT; v.value.f = RETURN_IF_ERROR(sjson::parse_float(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "sun_shadow_split_overlap") {
+				Value v; v.type = Value::FLOAT; v.value.f = RETURN_IF_ERROR(sjson::parse_float(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else if (cur->first == "local_lights_shadow_map_size") {
 				Value v; v.type = Value::VECTOR2; v.value.v2 = RETURN_IF_ERROR(sjson::parse_vector2(cur->second));
 				hash_map::set(rs, cur->first.to_string_id(), v);
@@ -150,6 +156,10 @@ namespace render_settings
 				set_flag(rs.flags, RenderSettingsFlags::SUN_SHADOWS, v.value.b);
 			} else if (key == STRING_ID_32("sun_shadow_map_quality", UINT32_C(0x97f3e080))) {
 				rs.shadow_map_params[1].x = v.value.f;
+			} else if (key == STRING_ID_32("sun_shadow_split_weight", UINT32_C(0x9f619477))) {
+				rs.sun_shadow_split_weight = v.value.f;
+			} else if (key == STRING_ID_32("sun_shadow_split_overlap", UINT32_C(0x8e3fa921))) {
+				rs.sun_shadow_split_overlap = v.value.f;
 			} else if (key == STRING_ID_32("local_lights_shadow_map_size", UINT32_C(0x28d6b7e9))) {
 				rs.local_lights_shadow_map_size = v.value.v2;
 				rs.shadow_map_params[0].z = 1.0f / v.value.v2.x;
@@ -240,6 +250,8 @@ namespace render_config_resource_internal
 			0.0f,
 			0.0f
 		};
+		rcr.render_settings.sun_shadow_split_weight = 0.75f;
+		rcr.render_settings.sun_shadow_split_overlap = 0.005f;
 		rcr.render_settings.local_lights_distance_culling_fade = 30.0f;
 		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;
 		rcr.render_settings.lod_fade_duration = 0.2f;
@@ -267,6 +279,8 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.local_lights_shadow_map_size);
 		opts.write(rcr.render_settings.shadow_map_params[0]);
 		opts.write(rcr.render_settings.shadow_map_params[1]);
+		opts.write(rcr.render_settings.sun_shadow_split_weight);
+		opts.write(rcr.render_settings.sun_shadow_split_overlap);
 		opts.write(rcr.render_settings.local_lights_distance_culling_fade);
 		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
 		opts.write(rcr.render_settings.lod_fade_duration);

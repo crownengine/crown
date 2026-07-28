@@ -4,6 +4,11 @@ render_settings = {
 	// sun_shadow_map_size = [ 4096 4096 ]
 	// low, medium, high or ultra (hard, 4, 9 or 16 taps respectively).
 	// sun_shadow_map_quality = "ultra"
+	// Weight of logarithmic sun shadow split distribution in the 0..1 range.
+	// 0 produces evenly spaced splits; 1 concentrates splits near the camera.
+	// sun_shadow_split_weight = 0.75
+	// Fraction of a sun shadow split that overlaps the next.
+	// sun_shadow_split_overlap = 0.005
 
 	// Whether local lights are enabled.
 	// local_lights = true
