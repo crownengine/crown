@@ -599,16 +599,16 @@ public class PropertyGrid : Gtk.Grid
 		read_dynamic_properties_ranges_except({ def });
 
 		UndoRedo? ur = null;
-		if (undo_redo == 0)
+		if (undo_redo == 0 || undo_redo == -1)
 			ur = _db.disable_undo();
 
 		changed = restore_dynamic_properties_values_except(dynamic_properties, dynamic_values, { def }) || changed;
 		changed = write_property_if_changed(def, p.union_value()) || changed;
 
-		if (changed)
+		if (changed && undo_redo != -1)
 			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
 
-		if (undo_redo == 0)
+		if (undo_redo == 0 || undo_redo == -1)
 			_db.restore_undo(ur);
 
 		if (_database_editor != null && _selection_anchor_id != GUID_ZERO)
