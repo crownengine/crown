@@ -22,6 +22,7 @@
 #include "core/math/aabb.inl"
 #include "core/math/color4.inl"
 #include "core/math/constants.h"
+#include "core/math/frustum.inl"
 #include "core/math/intersection.h"
 #include "core/math/math.h"
 #include "core/math/matrix3x3.inl"
@@ -2433,6 +2434,30 @@ static void test_random()
 	}
 }
 
+static void test_frustum()
+{
+	Frustum f;
+	f.planes[0] = { {  1.0f,  0.0f,  0.0f }, 0.0f };
+	f.planes[1] = { { -1.0f,  0.0f,  0.0f }, 0.0f };
+	f.planes[2] = { {  0.0f, -1.0f,  0.0f }, 0.0f };
+	f.planes[3] = { {  0.0f,  1.0f,  0.0f }, 0.0f };
+	f.planes[4] = { {  0.0f,  0.0f, -1.0f }, 0.01f };
+	f.planes[5] = { {  0.0f,  0.0f,  1.0f }, -100.0f };
+
+	Frustum splits[4];
+	frustum::split(splits, countof(splits), f, 0.5f, 0.05f);
+
+	ENSURE(fequal(splits[0].planes[4].d, 0.01f, 0.0001f));
+	ENSURE(fequal(splits[1].planes[4].d, 12.55625f, 0.0001f));
+	ENSURE(fequal(splits[2].planes[4].d, 25.50750f, 0.0001f));
+	ENSURE(fequal(splits[3].planes[4].d, 42.50875f, 0.0001f));
+
+	ENSURE(fequal(splits[0].planes[5].d, -13.1835625f, 0.0001f));
+	ENSURE(fequal(splits[1].planes[5].d, -26.1550625f, 0.0001f));
+	ENSURE(fequal(splits[2].planes[5].d, -43.3588125f, 0.0001f));
+	ENSURE(fequal(splits[3].planes[5].d, -100.0f, 0.0001f));
+}
+
 #define RUN_TEST(name)      \
 	do {                    \
 		printf(#name "\n"); \
@@ -2475,6 +2500,7 @@ int main_unit_tests()
 	RUN_TEST(test_expression_language);
 	RUN_TEST(test_unit_id);
 	RUN_TEST(test_random);
+	RUN_TEST(test_frustum);
 
 	return EXIT_SUCCESS;
 }

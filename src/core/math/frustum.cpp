@@ -90,7 +90,9 @@ namespace frustum
 			splits[i].planes[5].n = f.planes[5].n;
 
 			splits[i - 1].planes[5].n = f.planes[5].n;
-			splits[i - 1].planes[5].d = -splits[i].planes[4].d * overlap;
+			const f32 split_near = splits[i - 1].planes[4].d;
+			const f32 split_far  = splits[i].planes[4].d;
+			splits[i - 1].planes[5].d = -(split_far + (split_far - split_near) * overlap);
 		}
 
 		splits[num - 1].planes[5] = f.planes[5];
