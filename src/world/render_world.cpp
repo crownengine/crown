@@ -3377,9 +3377,9 @@ void RenderWorld::LightManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::LightManager::debug_draw(u32 start_index, u32 num, DebugLine &dl)
+void RenderWorld::LightManager::debug_draw(u32 offset, u32 count, DebugLine &dl)
 {
-	for (u32 i = start_index; i < start_index + num; ++i) {
+	for (u32 i = offset; i < offset + count; ++i) {
 		const Vector3 pos = _data.shader[i].position;
 		const Vector3 dir = _data.shader[i].direction;
 
