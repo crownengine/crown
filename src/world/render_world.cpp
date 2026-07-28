@@ -324,7 +324,41 @@ namespace culling_set
 		LEAVE_PROFILE_SCOPE();
 	}
 
-	static void cull_oobs(CullingSet &set, const Matrix4x4 &view_proj, u32 *indices, u32 offset, u32 count)
+	static void cull_obbs(CullingSet &set, const Plane3 *planes, u32 num_planes, const u32 *indices, u32 offset, u32 count)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+
+		const u32 num = offset + count;
+		for (u32 i = offset; i < num; ++i) {
+			const u32 index = indices[i];
+			const OBB &obb_w = set.obb_w[index];
+			const Vector3 center = translation(obb_w.tm);
+			const Vector3 axis_x = x(obb_w.tm) * obb_w.half_extents.x;
+			const Vector3 axis_y = y(obb_w.tm) * obb_w.half_extents.y;
+			const Vector3 axis_z = z(obb_w.tm) * obb_w.half_extents.z;
+
+			u32 inside = UINT32_MAX;
+			for (u32 j = 0; j < num_planes; ++j) {
+				const Plane3 &plane = planes[j];
+				const f32 radius = fabs(dot(plane.n, axis_x))
+					+ fabs(dot(plane.n, axis_y))
+					+ fabs(dot(plane.n, axis_z))
+					;
+				inside &= u32(dot(plane.n, center) + radius >= plane.d);
+			}
+
+			set.visible[i] = inside;
+		}
+
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	static void cull_obbs(CullingSet &set, const ConvexPolyhedron &polyhedron, const u32 *indices, u32 offset, u32 count)
+	{
+		cull_obbs(set, polyhedron.planes, polyhedron.num_planes, indices, offset, count);
+	}
+
+	static void cull_obbs(CullingSet &set, const Matrix4x4 &view_proj, const u32 *indices, u32 offset, u32 count)
 	{
 		ENTER_PROFILE_SCOPE(__func__);
 
@@ -1508,7 +1542,7 @@ void RenderWorld::render(f32 dt
 	frustum::from_matrix(view_frustum, view_proj, true, bx::Handedness::Right);
 	culling_set::cull_spheres(_cullable_objects, view_frustum, 0, array::size(_cullable_objects.id));
 	u32 visible_objects = culling_set::remove_culled(_cullable_objects);
-	culling_set::cull_oobs(_cullable_objects
+	culling_set::cull_obbs(_cullable_objects
 		, view_proj
 		, array::begin(_cullable_objects.render)
 		, 0
@@ -1705,7 +1739,17 @@ void RenderWorld::render(f32 dt
 				ConvexPolyhedron shadow_region;
 				calculate_shadow_region(shadow_region, split_i_world, light_dir);
 				culling_set::cull_spheres(_cullable_shadow_casters, shadow_region, 0, array::size(_cullable_shadow_casters.id));
-				culling_set::remove_culled(_cullable_shadow_casters);
+				u32 nv = culling_set::remove_culled(_cullable_shadow_casters);
+				culling_set::cull_obbs(_cullable_shadow_casters
+					, shadow_region
+					, array::begin(_cullable_shadow_casters.render)
+					, 0
+					, nv
+					);
+				culling_set::remove_culled(_cullable_shadow_casters
+					, array::begin(_cullable_shadow_casters.render)
+					, nv
+					);
 
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
