@@ -8,6 +8,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed a glitch when setting color values in the Inspector.
 * Runtime: Linux: fixed a crash on some rendering backends.
 
 .. _v0.63.8:
