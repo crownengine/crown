@@ -220,6 +220,7 @@ static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, doub
 public class InputColor3 : InputField
 {
 	public bool _dragging;
+	public bool _silent;
 	public Vector3 _drag_start_rgb;
 	public int _hs_palette_radius;
 	public double _hs_lens_radius_scale;
@@ -519,7 +520,7 @@ public class InputColor3 : InputField
 
 		_hs_palette.queue_draw();
 
-		value_changed(this, (int)!_dragging);
+		value_changed(this, _silent ? -1 : (int)!_dragging);
 	}
 
 	public void on_hsv_value_changed()
@@ -546,7 +547,7 @@ public class InputColor3 : InputField
 
 		_hs_palette.queue_draw();
 
-		value_changed(this, (int)!_dragging);
+		value_changed(this, _silent ? -1 : (int)!_dragging);
 	}
 
 	public void disconnect_rgb()
@@ -645,7 +646,9 @@ public class InputColor3 : InputField
 		double v = 1.0;
 
 		Vector3 current_value = this.value;
+		_silent = true;
 		this.value = _drag_start_rgb;
+		_silent = false;
 		_dragging = false;
 
 		disconnect_rgb();
@@ -721,7 +724,9 @@ public class InputColor3 : InputField
 		double v = 1.0;
 
 		Vector3 current_value = this.value;
+		_silent = true;
 		this.value = _drag_start_rgb;
+		_silent = false;
 		_dragging = false;
 
 		disconnect_rgb();
