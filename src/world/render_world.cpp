@@ -76,13 +76,17 @@ static Sphere obb_sphere(const OBB &obb)
 
 struct ConvexPolyhedron
 {
-	Plane3 planes[18]; // 6 receiver frustum planes + 12 extruded silhouette edge planes.
+	Plane3 planes[19]; // 6 receiver planes + 12 silhouette planes + 1 extrusion cap.
 	u32 num_planes;
 };
 
 // Adapted from Eric Lengyel's CalculateShadowRegion(). It only supports directional lights.
 // See: Foundations of Game Engine Development, vol. 2, Rendering.
-static u32 calculate_shadow_region(ConvexPolyhedron &polyhedron, const Frustum &receiver, const Vector3 &light_dir)
+static void calculate_shadow_region(ConvexPolyhedron &polyhedron
+	, const Frustum &receiver
+	, const Vector3 &light_dir
+	, f32 max_caster_distance
+	)
 {
 	polyhedron.num_planes = 0;
 
@@ -143,7 +147,15 @@ static u32 calculate_shadow_region(ConvexPolyhedron &polyhedron, const Frustum &
 		}
 	}
 
-	return polyhedron.num_planes;
+	f32 min_light_distance = dot(light_dir, vertices[0]);
+	for (u32 i = 1; i < countof(vertices); ++i)
+		min_light_distance = min(min_light_distance, dot(light_dir, vertices[i]));
+
+	CE_ASSERT(polyhedron.num_planes < countof(polyhedron.planes), "Too many shadow region planes");
+	polyhedron.planes[polyhedron.num_planes++] = {
+		light_dir,
+		min_light_distance - max_caster_distance
+	};
 }
 
 namespace culling_set
@@ -1737,7 +1749,11 @@ void RenderWorld::render(f32 dt
 				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
 
 				ConvexPolyhedron shadow_region;
-				calculate_shadow_region(shadow_region, split_i_world, light_dir);
+				calculate_shadow_region(shadow_region
+					, split_i_world
+					, light_dir
+					, _pipeline->_render_settings.sun_shadow_max_caster_distance
+					);
 				culling_set::cull_spheres(_cullable_shadow_casters, shadow_region, 0, array::size(_cullable_shadow_casters.id));
 				u32 nv = culling_set::remove_culled(_cullable_shadow_casters);
 				culling_set::cull_obbs(_cullable_shadow_casters
