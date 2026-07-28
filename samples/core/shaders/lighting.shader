@@ -276,19 +276,40 @@ bgfx_shaders = {
 						vec4 atlas_shadow_pos2 = atlas_shadow_coord(shadow_pos2, atlas_offset2);
 						vec4 atlas_shadow_pos3 = atlas_shadow_coord(shadow_pos3, atlas_offset3);
 
-						bool atlas0 = dot(shadow0_near.xyz, shadow_world) >= shadow0_near.w && dot(shadow0_far.xyz, shadow_world) >= shadow0_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
-						bool atlas1 = dot(shadow1_near.xyz, shadow_world) >= shadow1_near.w && dot(shadow1_far.xyz, shadow_world) >= shadow1_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
-						bool atlas2 = dot(shadow2_near.xyz, shadow_world) >= shadow2_near.w && dot(shadow2_far.xyz, shadow_world) >= shadow2_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
-						bool atlas3 = dot(shadow3_near.xyz, shadow_world) >= shadow3_near.w && dot(shadow3_far.xyz, shadow_world) >= shadow3_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
+						// All near planes have the same normal and all far planes have its opposite.
+						float shadow_depth = dot(shadow0_near.xyz, shadow_world);
+						bool atlas0 = shadow_depth >= shadow0_near.w && shadow_depth <= -shadow0_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
+						bool atlas1 = shadow_depth >= shadow1_near.w && shadow_depth <= -shadow1_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
+						bool atlas2 = shadow_depth >= shadow2_near.w && shadow_depth <= -shadow2_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
+						bool atlas3 = shadow_depth >= shadow3_near.w && shadow_depth <= -shadow3_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
 
-						if (atlas0)
-							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos0, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
-						else if (atlas1)
-							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
-						else if (atlas2)
-							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
-						else if (atlas3)
+						if (atlas0) {
+							float shadow0 = shadow(u_cascaded_shadow_map, atlas_shadow_pos0, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+							if (atlas1 && shadow_depth > shadow1_near.w) {
+								float shadow1 = shadow(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+								float blend = (shadow_depth - shadow1_near.w) * rcp(-shadow0_far.w - shadow1_near.w);
+								shadow0 = mix(shadow0, shadow1, blend);
+							}
+							local_radiance *= shadow0;
+						} else if (atlas1) {
+							float shadow1 = shadow(u_cascaded_shadow_map, atlas_shadow_pos1, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+							if (atlas2 && shadow_depth > shadow2_near.w) {
+								float shadow2 = shadow(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+								float blend = (shadow_depth - shadow2_near.w) * rcp(-shadow1_far.w - shadow2_near.w);
+								shadow1 = mix(shadow1, shadow2, blend);
+							}
+							local_radiance *= shadow1;
+						} else if (atlas2) {
+							float shadow2 = shadow(u_cascaded_shadow_map, atlas_shadow_pos2, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+							if (atlas3 && shadow_depth > shadow3_near.w) {
+								float shadow3 = shadow(u_cascaded_shadow_map, atlas_shadow_pos3, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+								float blend = (shadow_depth - shadow3_near.w) * rcp(-shadow2_far.w - shadow3_near.w);
+								shadow2 = mix(shadow2, shadow3, blend);
+							}
+							local_radiance *= shadow2;
+						} else if (atlas3) {
 							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_pos3, shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
+						}
 					}
 
 					radiance += local_radiance;
