@@ -9,6 +9,8 @@ render_settings = {
 	// sun_shadow_split_weight = 0.75
 	// Fraction of a sun shadow split that overlaps the next.
 	// sun_shadow_split_overlap = 0.005
+	// Maximum distance the shadow caster region extends from each cascade toward the sun.
+	// sun_shadow_max_caster_distance = 250
 
 	// Whether local lights are enabled.
 	// local_lights = true

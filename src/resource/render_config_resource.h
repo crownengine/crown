@@ -33,6 +33,7 @@ struct RenderSettings
 	Vector4 shadow_map_params[2];             ///< Texel sizes followed by filtering sample counts.
 	f32 sun_shadow_split_weight;              ///< Weight of logarithmic sun shadow split distribution.
 	f32 sun_shadow_split_overlap;             ///< Fraction of a sun shadow split that overlaps the next.
+	f32 sun_shadow_max_caster_distance;       ///< Maximum distance the caster region extends toward the sun.
 	f32 local_lights_distance_culling_fade;   ///< Distance from camera at which local lights start to fade.
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.
