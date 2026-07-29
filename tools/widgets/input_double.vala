@@ -76,7 +76,6 @@ public class InputDouble : InputField
 		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
 		_entry.set_width_chars(1);
 		_entry.editable = false;
-		_entry.get_style_context().add_class("input-double-preview");
 
 		_entry.activate.connect(on_activate);
 		_entry.focus_in_event.connect(on_focus_in);
@@ -129,11 +128,11 @@ public class InputDouble : InputField
 		this.add(_overlay);
 	}
 
-	bool _pressed = false;
-	bool _dragging = false;
-	double _drag_start_x = 0.0;
-	double _drag_start_y = 0.0;
-	double _drag_start_value = 0.0;
+	public bool _pressed = false;
+	public bool _dragging = false;
+	public double _drag_start_x = 0.0;
+	public double _drag_start_y = 0.0;
+	public double _drag_start_value = 0.0;
 
 	public void on_button_pressed(int n_press, double x, double y)
 	{
@@ -218,7 +217,6 @@ public class InputDouble : InputField
 			_event_box.visible = false;
 
 		_entry.editable = true;
-		_entry.get_style_context().remove_class("input-double-preview");
 
 		if (_inconsistent)
 			_entry.text = "";
@@ -251,7 +249,6 @@ public class InputDouble : InputField
 
 		_entry.select_region(0, 0);
 		_entry.editable = false;
-		_entry.get_style_context().add_class("input-double-preview");
 		_label.set_text(_entry.text);
 		_event_box.visible = true;
 
@@ -269,7 +266,6 @@ public class InputDouble : InputField
 	{
 		_event_box.visible = false;
 		_entry.editable = true;
-		_entry.get_style_context().remove_class("input-double-preview");
 		_entry.grab_focus();
 
 		if (_inconsistent)
@@ -284,11 +280,8 @@ public class InputDouble : InputField
 			});
 	}
 
-	public void set_value_safe(double val, int undo_redo = int.MAX)
+	public void set_value_safe(double val, int undo_redo = (int)!_dragging)
 	{
-		if (undo_redo == int.MAX)
-			undo_redo = (int)!_dragging;
-
 		double clamped = val.clamp(_min, _max);
 
 		// Convert to text for displaying.
