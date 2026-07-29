@@ -11,6 +11,14 @@ render_settings = {
 	// sun_shadow_split_overlap = 0.005
 	// Maximum distance the shadow caster region extends from each cascade toward the sun.
 	// sun_shadow_max_caster_distance = 250
+	// Whether contribution culling for visible objects is enabled.
+	// object_contribution_culling = false
+	// Whether contribution culling for sun shadows is enabled.
+	// sun_shadow_contribution_culling = true
+	// Objects whose projected width and height are both smaller than this are culled.
+	// object_contribution_culling_min_screen_size = 1.5
+	// Shadow casters whose projected width and height are both smaller than this are culled.
+	// sun_shadow_contribution_culling_min_screen_size = 4
 
 	// Whether local lights are enabled.
 	// local_lights = true

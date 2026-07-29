@@ -16,12 +16,14 @@ struct RenderSettingsFlags
 {
 	enum Enum : u32
 	{
-		SUN_SHADOWS                   = u32(1) << 0, ///< Whether shadows for the sun are enabled.
-		LOCAL_LIGHTS                  = u32(1) << 1, ///< Whether local lights are enabled.
-		LOCAL_LIGHTS_SHADOWS          = u32(1) << 2, ///< Whether shadows for local lights are enabled.
-		LOCAL_LIGHTS_DISTANCE_CULLING = u32(1) << 3, ///< Whether distance culling for local lights is enabled.
-		BLOOM                         = u32(1) << 4, ///< Whether bloom post-processing effect is enabled.
-		MSAA                          = u32(1) << 5  ///< Whether multisample AA is enabled.
+		SUN_SHADOWS                     = u32(1) << 0, ///< Whether shadows for the sun are enabled.
+		LOCAL_LIGHTS                    = u32(1) << 1, ///< Whether local lights are enabled.
+		LOCAL_LIGHTS_SHADOWS            = u32(1) << 2, ///< Whether shadows for local lights are enabled.
+		LOCAL_LIGHTS_DISTANCE_CULLING   = u32(1) << 3, ///< Whether distance culling for local lights is enabled.
+		BLOOM                           = u32(1) << 4, ///< Whether bloom post-processing effect is enabled.
+		MSAA                            = u32(1) << 5, ///< Whether multisample AA is enabled.
+		OBJECT_CONTRIBUTION_CULLING     = u32(1) << 6, ///< Whether contribution culling for visible objects is enabled.
+		SUN_SHADOW_CONTRIBUTION_CULLING = u32(1) << 7 ///< Whether contribution culling for sun shadows is enabled.
 	};
 };
 
@@ -34,6 +36,8 @@ struct RenderSettings
 	f32 sun_shadow_split_weight;              ///< Weight of logarithmic sun shadow split distribution.
 	f32 sun_shadow_split_overlap;             ///< Fraction of a sun shadow split that overlaps the next.
 	f32 sun_shadow_max_caster_distance;       ///< Maximum distance the caster region extends toward the sun.
+	f32 object_contribution_culling_min_screen_size;     ///< Objects smaller than this in both projected dimensions are culled.
+	f32 sun_shadow_contribution_culling_min_screen_size; ///< Shadow casters smaller than this in both projected dimensions are culled.
 	f32 local_lights_distance_culling_fade;   ///< Distance from camera at which local lights start to fade.
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.

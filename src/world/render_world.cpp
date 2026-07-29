@@ -14,6 +14,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/obb.inl"
 #include "core/math/sphere.inl"
+#include "core/math/vector2.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_id.inl"
 #include "core/profiler.h"
@@ -410,6 +411,70 @@ namespace culling_set
 				| outside_near
 				| outside_far
 				) == 0;
+		}
+
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	static void cull_contributions(CullingSet &set
+		, const Matrix4x4 &view_proj
+		, const Vector4 &viewport
+		, f32 threshold
+		, const u32 *indices
+		, u32 offset
+		, u32 count
+		)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+
+		const f32 viewport_max_x = viewport.x + viewport.z;
+		const f32 viewport_max_y = viewport.y + viewport.w;
+		const u32 num = offset + count;
+		for (u32 i = offset; i < num; ++i) {
+			const u32 index = indices[i];
+
+			Vector3 vertices[8];
+			obb::to_vertices(vertices, set.obb_w[index]);
+
+			Vector4 vertices_clip[8];
+			bool intersects_near = false;
+			for (u32 j = 0; j < countof(vertices); ++j) {
+				const Vector3 &v = vertices[j];
+				const Vector4 vertex = { v.x, v.y, v.z, 1.0f };
+				vertices_clip[j] = vertex * view_proj;
+				const f32 near_distance = vertices_clip[j].z + vertices_clip[j].w;
+				intersects_near |= near_distance <= 0.0f
+					|| vertices_clip[j].w <= FLOAT_EPSILON
+					;
+			}
+
+			// Unclipped corners do not bound a near-plane intersection.
+			if (intersects_near) {
+				set.visible[i] = UINT32_MAX;
+				continue;
+			}
+
+			Vector2 min_screen = { FLT_MAX, FLT_MAX };
+			Vector2 max_screen = -min_screen;
+			for (u32 j = 0; j < countof(vertices_clip); ++j) {
+				const Vector4 &clip = vertices_clip[j];
+				const f32 inv_w = 1.0f / clip.w;
+				const Vector2 screen = {
+					viewport.x + viewport.z * (clip.x*inv_w + 1.0f) * 0.5f,
+					viewport.y + viewport.w * (1.0f - clip.y*inv_w) * 0.5f
+				};
+				min_screen = min(min_screen, screen);
+				max_screen = max(max_screen, screen);
+			}
+
+			min_screen.x = clamp(min_screen.x, viewport.x, viewport_max_x);
+			min_screen.y = clamp(min_screen.y, viewport.y, viewport_max_y);
+			max_screen.x = clamp(max_screen.x, viewport.x, viewport_max_x);
+			max_screen.y = clamp(max_screen.y, viewport.y, viewport_max_y);
+
+			const f32 size_w = max_screen.x - min_screen.x;
+			const f32 size_h = max_screen.y - min_screen.y;
+			set.visible[i] = size_w >= threshold || size_h >= threshold;
 		}
 
 		LEAVE_PROFILE_SCOPE();
@@ -1508,9 +1573,9 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 
 void RenderWorld::render(f32 dt
 	, const Matrix4x4 &view
-	, const Matrix4x4 &proj
 	, const Matrix4x4 &cull_proj
 	, const Matrix4x4 &persp
+	, const Vector4 &viewport
 	, UnitId skydome_unit
 	, DebugLine &dl
 	)
@@ -1564,11 +1629,28 @@ void RenderWorld::render(f32 dt
 		, array::begin(_cullable_objects.render)
 		, visible_objects
 		);
+	const f32 object_contribution_threshold = _pipeline->_render_settings.object_contribution_culling_min_screen_size;
+	if ((_pipeline->_render_settings.flags & RenderSettingsFlags::OBJECT_CONTRIBUTION_CULLING)
+		&& object_contribution_threshold > 0.0f
+		) {
+		culling_set::cull_contributions(_cullable_objects
+			, view_proj
+			, viewport
+			, object_contribution_threshold
+			, array::begin(_cullable_objects.render)
+			, 0
+			, visible_objects
+			);
+		visible_objects = culling_set::remove_culled(_cullable_objects
+			, array::begin(_cullable_objects.render)
+			, visible_objects
+			);
+	}
 	RECORD_FLOAT("world.visible_objects", (f32)visible_objects);
 
 	// Limit shadow rendering independently from the camera far plane.
 	Frustum shadow_frustum;
-	frustum::from_matrix(shadow_frustum, proj, caps->homogeneousDepth, bx::Handedness::Right);
+	frustum::from_matrix(shadow_frustum, cull_proj, true, bx::Handedness::Right);
 	const f32 shadow_distance = max(_global_lighting_desc.shadow_distance, 0.0f);
 	const f32 shadow_near_distance = fabs(shadow_frustum.planes[4].d);
 	const f32 shadow_far_distance = min(fabs(shadow_frustum.planes[5].d), shadow_distance);
@@ -1612,6 +1694,8 @@ void RenderWorld::render(f32 dt
 		},
 	};
 
+	static const char *csm_names[] = { "world.csm_0", "world.csm_1", "world.csm_2", "world.csm_3" };
+	CE_STATIC_ASSERT(countof(csm_names) == MAX_NUM_CASCADES);
 	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
 
 	array::clear(lm._directional_lights);
@@ -1762,10 +1846,44 @@ void RenderWorld::render(f32 dt
 					, 0
 					, nv
 					);
-				culling_set::remove_culled(_cullable_shadow_casters
+				nv = culling_set::remove_culled(_cullable_shadow_casters
 					, array::begin(_cullable_shadow_casters.render)
 					, nv
 					);
+
+				const f32 contribution_threshold = _pipeline->_render_settings.sun_shadow_contribution_culling_min_screen_size;
+				if ((_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOW_CONTRIBUTION_CULLING)
+					&& contribution_threshold > 0.0f
+					) {
+					Matrix4x4 cull_light_proj;
+					bx::mtxOrtho(to_float_ptr(cull_light_proj)
+						, box.min.x
+						, box.max.x
+						, box.min.y
+						, box.max.y
+						, -1000.0f
+						,  1000.0f
+						, 0.0f
+						, true
+						, bx::Handedness::Right
+						);
+					const Matrix4x4 light_view_proj = light_view*cull_light_proj;
+					const Vector4 viewport = { 0.0f, 0.0f, tile_size_x, tile_size_y };
+					culling_set::cull_contributions(_cullable_shadow_casters
+						, light_view_proj
+						, viewport
+						, contribution_threshold
+						, array::begin(_cullable_shadow_casters.render)
+						, 0
+						, nv
+						);
+					nv = culling_set::remove_culled(_cullable_shadow_casters
+						, array::begin(_cullable_shadow_casters.render)
+						, nv
+						);
+				}
+
+				RECORD_FLOAT(csm_names[i], (f32)nv);
 
 				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
 			}
