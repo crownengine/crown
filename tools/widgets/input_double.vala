@@ -76,6 +76,7 @@ public class InputDouble : InputField
 		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
 		_entry.set_width_chars(1);
 		_entry.editable = false;
+		_entry.get_style_context().add_class("input-double-preview");
 
 		_entry.activate.connect(on_activate);
 		_entry.focus_in_event.connect(on_focus_in);
@@ -88,6 +89,7 @@ public class InputDouble : InputField
 		_event_box = new Gtk.EventBox();
 		_event_box.add(_label);
 		_event_box.can_focus = false;
+		_event_box.set_visible_window(false);
 
 		_overlay = new Gtk.Overlay();
 		_overlay.add(_entry);
@@ -216,6 +218,7 @@ public class InputDouble : InputField
 			_event_box.visible = false;
 
 		_entry.editable = true;
+		_entry.get_style_context().remove_class("input-double-preview");
 
 		if (_inconsistent)
 			_entry.text = "";
@@ -248,6 +251,7 @@ public class InputDouble : InputField
 
 		_entry.select_region(0, 0);
 		_entry.editable = false;
+		_entry.get_style_context().add_class("input-double-preview");
 		_label.set_text(_entry.text);
 		_event_box.visible = true;
 
@@ -265,6 +269,7 @@ public class InputDouble : InputField
 	{
 		_event_box.visible = false;
 		_entry.editable = true;
+		_entry.get_style_context().remove_class("input-double-preview");
 		_entry.grab_focus();
 
 		if (_inconsistent)
