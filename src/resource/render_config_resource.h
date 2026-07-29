@@ -23,7 +23,8 @@ struct RenderSettingsFlags
 		BLOOM                           = u32(1) << 4, ///< Whether bloom post-processing effect is enabled.
 		MSAA                            = u32(1) << 5, ///< Whether multisample AA is enabled.
 		OBJECT_CONTRIBUTION_CULLING     = u32(1) << 6, ///< Whether contribution culling for visible objects is enabled.
-		SUN_SHADOW_CONTRIBUTION_CULLING = u32(1) << 7 ///< Whether contribution culling for sun shadows is enabled.
+		SUN_SHADOW_CONTRIBUTION_CULLING = u32(1) << 7, ///< Whether contribution culling for sun shadows is enabled.
+		SELECTION                       = u32(1) << 8  ///< Whether selection rendering is enabled.
 	};
 };
 

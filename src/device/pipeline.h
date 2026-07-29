@@ -150,6 +150,9 @@ struct Pipeline
 	Pipeline(ShaderManager &sm);
 
 	///
+	bool selection_enabled() const;
+
+	///
 	void create(u16 width, u16 height, const RenderSettings &render_settings);
 
 	///

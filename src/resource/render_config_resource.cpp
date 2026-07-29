@@ -120,6 +120,9 @@ namespace render_settings
 			} else if (cur->first == "msaa") {
 				Value v; v.type = Value::BOOL; v.value.b = RETURN_IF_ERROR(sjson::parse_bool(cur->second));
 				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "selection") {
+				Value v; v.type = Value::BOOL; v.value.b = RETURN_IF_ERROR(sjson::parse_bool(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else if (cur->first == "msaa_quality") {
 				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second));
 				Value v; v.type = Value::UINT32; v.value.u = msaa_quality_samples(quality);
@@ -201,6 +204,8 @@ namespace render_settings
 				set_flag(rs.flags, RenderSettingsFlags::BLOOM, v.value.b);
 			} else if (key == STRING_ID_32("msaa", UINT32_C(0xaab08183))) {
 				set_flag(rs.flags, RenderSettingsFlags::MSAA, v.value.b);
+			} else if (key == STRING_ID_32("selection", UINT32_C(0x17c0bc11))) {
+				set_flag(rs.flags, RenderSettingsFlags::SELECTION, v.value.b);
 			} else if (key == STRING_ID_32("msaa_quality", UINT32_C(0x7464a369))) {
 				rs.msaa_quality = v.value.u;
 			} else if (key == STRING_ID_32("local_lights_distance_culling_fade", UINT32_C(0xc30a11d4))) {

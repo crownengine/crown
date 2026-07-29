@@ -47,6 +47,9 @@ render_settings = {
 	// msaa = false
 	// low, medium, high or ultra (2, 4, 8 or 16x respectively).
 	// msaa_quality = "ultra"
+
+	// Whether selection rendering is enabled.
+	// selection = false
 }
 
 // Shader libraries to load at boot.

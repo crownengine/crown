@@ -2187,6 +2187,7 @@ void RenderWorld::render(f32 dt
 	} u2f;
 
 	// Render objects and outlines.
+	const bool selection_enabled = _pipeline->selection_enabled();
 	u32 sprite_slot = 0;
 	for (u32 ii = 0; ii < visible_objects; ++ii) {
 		const u32 ci = _cullable_objects.render[ii];
@@ -2203,7 +2204,8 @@ void RenderWorld::render(f32 dt
 				, cascaded_lights
 				);
 
-			if ((_mesh_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+			if (selection_enabled
+				&& (_mesh_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
 				const UnitId unit = _mesh_manager._data.unit[object_id];
 				u2f.u = unit._idx;
 				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
@@ -2233,7 +2235,8 @@ void RenderWorld::render(f32 dt
 				, cascaded_lights
 				);
 
-			if ((_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+			if (selection_enabled
+				&& (_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
 				const UnitId unit = _lod_group_manager._data.unit[object_id];
 				u2f.u = unit._idx;
 				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
@@ -2259,7 +2262,8 @@ void RenderWorld::render(f32 dt
 					, _sprite_manager._data.depth[object_id]
 					);
 
-				if ((_sprite_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
+				if (selection_enabled
+					&& (_sprite_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
 					bgfx::setTransform(to_float_ptr(_sprite_manager._data.world[object_id]));
 					bgfx::setVertexBuffer(0, &sprite_vertex_buffer);
 					bgfx::setIndexBuffer(&sprite_index_buffer, sprite_slot*6, 6);

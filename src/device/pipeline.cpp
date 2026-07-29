@@ -195,20 +195,28 @@ Pipeline::Pipeline(ShaderManager &sm)
 	lookup_default_shaders(*this);
 }
 
+bool Pipeline::selection_enabled() const
+{
+	return (CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS)
+		&& (_render_settings.flags & RenderSettingsFlags::SELECTION) != 0
+		;
+}
+
 void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings)
 {
 	_render_settings = render_settings;
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
-	_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
 
-	_selection_map = bgfx::createUniform("s_selection_map", bgfx::UniformType::Sampler);
-	_selection_depth_map = bgfx::createUniform("s_selection_depth_map", bgfx::UniformType::Sampler);
-
-	_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
-	_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
-	_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
-	_outline_msaa_samples = bgfx::createUniform("u_outline_msaa_samples", bgfx::UniformType::Vec4);
+	if (selection_enabled()) {
+		_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
+		_selection_map = bgfx::createUniform("s_selection_map", bgfx::UniformType::Sampler);
+		_selection_depth_map = bgfx::createUniform("s_selection_depth_map", bgfx::UniformType::Sampler);
+		_outline_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
+		_outline_color = bgfx::createUniform("u_outline_color", bgfx::UniformType::Vec4);
+		_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
+		_outline_msaa_samples = bgfx::createUniform("u_outline_msaa_samples", bgfx::UniformType::Vec4);
+	}
 
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
@@ -347,36 +355,39 @@ void Pipeline::destroy()
 		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
 	}
 
-	bgfx::destroy(_unit_id);
-	_unit_id = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_outline_msaa_samples);
-	_outline_msaa_samples = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_outline_color);
-	_outline_color = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_outline_color_map);
-	_outline_color_map = BGFX_INVALID_HANDLE;
+	if (selection_enabled()) {
+		bgfx::destroy(_unit_id);
+		_unit_id = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_outline_msaa_samples);
+		_outline_msaa_samples = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_outline_color);
+		_outline_color = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_outline_color_map);
+		_outline_color_map = BGFX_INVALID_HANDLE;
 
-	bgfx::destroy(_outline_frame_buffer);
-	_outline_frame_buffer = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_outline_color_texture);
-	_outline_color_texture = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_outline_frame_buffer);
+		_outline_frame_buffer = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_outline_color_texture);
+		_outline_color_texture = BGFX_INVALID_HANDLE;
 
-	bgfx::destroy(_selection_depth_map);
-	_selection_depth_map = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_selection_map);
-	_selection_map = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_selection_depth_map);
+		_selection_depth_map = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_selection_map);
+		_selection_map = BGFX_INVALID_HANDLE;
 
-	bgfx::destroy(_depth_map);
-	_depth_map = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_depth_map);
+		_depth_map = BGFX_INVALID_HANDLE;
+
+		bgfx::destroy(_selection_frame_buffer);
+		_selection_frame_buffer = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_selection_depth_texture);
+		_selection_depth_texture = BGFX_INVALID_HANDLE;
+		bgfx::destroy(_selection_texture);
+		_selection_texture = BGFX_INVALID_HANDLE;
+	}
+
 	bgfx::destroy(_color_map);
 	_color_map = BGFX_INVALID_HANDLE;
-
-	bgfx::destroy(_selection_frame_buffer);
-	_selection_frame_buffer = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_selection_depth_texture);
-	_selection_depth_texture = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_selection_texture);
-	_selection_texture = BGFX_INVALID_HANDLE;
 
 	for (u32 i = 0; i < countof(_colors); ++i) {
 		bgfx::destroy(_colors[i]);
@@ -401,11 +412,10 @@ void Pipeline::reset(u16 width, u16 height)
 	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
 		u64 msaa_flags = u64(1 + _render_settings.msaa_quality) << BGFX_TEXTURE_RT_MSAA_SHIFT;
-#if CROWN_PLATFORM_LINUX /* || CROWN_PLATFORM_WINDOWS */
-		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_MSAA_SAMPLE;
-#else
-		depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
-#endif
+		if (CROWN_PLATFORM_LINUX /* || CROWN_PLATFORM_WINDOWS */)
+			depth_texture_flags |= msaa_flags | BGFX_TEXTURE_MSAA_SAMPLE;
+		else
+			depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
 		color_texture_flags |= msaa_flags;
 	} else {
 		depth_texture_flags |= BGFX_TEXTURE_RT;
@@ -457,52 +467,54 @@ void Pipeline::reset(u16 width, u16 height)
 		bgfx::destroy(_color_sdr);
 	_color_sdr = bgfx::createFrameBuffer(countof(sdr_attach), sdr_attach, true);
 
-	// Create selection frame buffer.
-	if (bgfx::isValid(_selection_texture))
-		bgfx::destroy(_selection_texture);
-	_selection_texture = bgfx::createTexture2D(width
-		, height
-		, false
-		, 1
-		, bgfx::TextureFormat::R32U
-		, BGFX_TEXTURE_RT
-		);
-	if (bgfx::isValid(_selection_depth_texture))
-		bgfx::destroy(_selection_depth_texture);
-	_selection_depth_texture = bgfx::createTexture2D(width
-		, height
-		, false
-		, 1
-		, bgfx::TextureFormat::D24
-		, BGFX_TEXTURE_RT
-		);
-	const bgfx::TextureHandle _selection_frame_buffer_attachments[] =
-	{
-		_selection_texture,
-		_selection_depth_texture
-	};
-	if (bgfx::isValid(_selection_frame_buffer))
-		bgfx::destroy(_selection_frame_buffer);
-	_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
+	if (selection_enabled()) {
+		// Create selection frame buffer.
+		if (bgfx::isValid(_selection_texture))
+			bgfx::destroy(_selection_texture);
+		_selection_texture = bgfx::createTexture2D(width
+			, height
+			, false
+			, 1
+			, bgfx::TextureFormat::R32U
+			, BGFX_TEXTURE_RT
+			);
+		if (bgfx::isValid(_selection_depth_texture))
+			bgfx::destroy(_selection_depth_texture);
+		_selection_depth_texture = bgfx::createTexture2D(width
+			, height
+			, false
+			, 1
+			, bgfx::TextureFormat::D24
+			, BGFX_TEXTURE_RT
+			);
+		const bgfx::TextureHandle _selection_frame_buffer_attachments[] =
+		{
+			_selection_texture,
+			_selection_depth_texture
+		};
+		if (bgfx::isValid(_selection_frame_buffer))
+			bgfx::destroy(_selection_frame_buffer);
+		_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
 
-	// Create outline frame buffer.
-	if (bgfx::isValid(_outline_color_texture))
-		bgfx::destroy(_outline_color_texture);
-	_outline_color_texture = bgfx::createTexture2D(width
-		, height
-		, false
-		, 1
-		, bgfx::TextureFormat::BGRA8
-		, BGFX_TEXTURE_RT
-		);
+		// Create outline frame buffer.
+		if (bgfx::isValid(_outline_color_texture))
+			bgfx::destroy(_outline_color_texture);
+		_outline_color_texture = bgfx::createTexture2D(width
+			, height
+			, false
+			, 1
+			, bgfx::TextureFormat::BGRA8
+			, BGFX_TEXTURE_RT
+			);
 
-	const bgfx::TextureHandle _outline_frame_buffer_attachments[] =
-	{
-		_outline_color_texture
-	};
-	if (bgfx::isValid(_outline_frame_buffer))
-		bgfx::destroy(_outline_frame_buffer);
-	_outline_frame_buffer = bgfx::createFrameBuffer(countof(_outline_frame_buffer_attachments), _outline_frame_buffer_attachments);
+		const bgfx::TextureHandle _outline_frame_buffer_attachments[] =
+		{
+			_outline_color_texture
+		};
+		if (bgfx::isValid(_outline_frame_buffer))
+			bgfx::destroy(_outline_frame_buffer);
+		_outline_frame_buffer = bgfx::createFrameBuffer(countof(_outline_frame_buffer_attachments), _outline_frame_buffer_attachments);
+	}
 
 	// Bloom.
 	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
@@ -651,26 +663,26 @@ void Pipeline::reset(u16 width, u16 height)
 			bgfx::setViewFrameBuffer(id, _color_sdr);
 		} else if (id == View::SELECTION) {
 			view_name = "selection";
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _selection_frame_buffer);
-#endif
+			if (selection_enabled()) {
+				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
+				bgfx::setViewRect(id, 0, 0, width, height);
+				bgfx::setViewFrameBuffer(id, _selection_frame_buffer);
+			}
 		} else if (id == View::OUTLINE) {
 			view_name = "outline";
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
-			bgfx::setViewFrameBuffer(id, _outline_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewTransform(id, NULL, ortho);
-#endif
+			if (selection_enabled()) {
+				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
+				bgfx::setViewFrameBuffer(id, _outline_frame_buffer);
+				bgfx::setViewRect(id, 0, 0, width, height);
+				bgfx::setViewTransform(id, NULL, ortho);
+			}
 		} else if (id == View::OUTLINE_BLIT) {
 			view_name = "outline_blit";
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewTransform(id, NULL, ortho);
-#endif
+			if (selection_enabled()) {
+				bgfx::setViewFrameBuffer(id, _color_sdr);
+				bgfx::setViewRect(id, 0, 0, width, height);
+				bgfx::setViewTransform(id, NULL, ortho);
+			}
 		} else if (id == View::DEBUG) {
 			view_name = "debug";
 			bgfx::setViewRect(id, 0, 0, width, height);
@@ -812,18 +824,16 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::touch(id);
 		} else if (id == View::SELECTION) {
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::touch(id);
-#endif
+			if (selection_enabled()) {
+				bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
+				bgfx::touch(id);
+			}
 		} else if (id == View::OUTLINE) {
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::touch(id);
-#endif
+			if (selection_enabled())
+				bgfx::touch(id);
 		} else if (id == View::OUTLINE_BLIT) {
-#if !CROWN_PLATFORM_EMSCRIPTEN
-			bgfx::touch(id);
-#endif
+			if (selection_enabled())
+				bgfx::touch(id);
 		} else if (id == View::DEBUG) {
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::touch(id);
@@ -903,27 +913,27 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	bgfx::setState(_tonemap_shader.state);
 	bgfx::submit(View::TONEMAP, _tonemap_shader.program);
 
-#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-	bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
-	bgfx::setTexture(1, _selection_depth_map, _selection_depth_texture, samplerFlags);
-	const bool msaa = (_render_settings.flags & RenderSettingsFlags::MSAA) != 0;
-	bgfx::setTexture(2, _depth_map, _depth_texture, samplerFlags);
-	if (msaa) {
-		const Vector4 outline_msaa_samples = { f32(1u << _render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
-		bgfx::setUniform(_outline_msaa_samples, &outline_msaa_samples);
-	}
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
-	bgfx::setUniform(_outline_color, outline_color);
-	const ShaderData &outline_shader = msaa ? _outline_msaa_shader : _outline_shader;
-	bgfx::setState(outline_shader.state);
-	bgfx::submit(View::OUTLINE, outline_shader.program);
+	if (selection_enabled()) {
+		bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
+		bgfx::setTexture(1, _selection_depth_map, _selection_depth_texture, samplerFlags);
+		const bool msaa = (_render_settings.flags & RenderSettingsFlags::MSAA) != 0;
+		bgfx::setTexture(2, _depth_map, _depth_texture, samplerFlags);
+		if (msaa) {
+			const Vector4 outline_msaa_samples = { f32(1u << _render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
+			bgfx::setUniform(_outline_msaa_samples, &outline_msaa_samples);
+		}
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
+		bgfx::setUniform(_outline_color, outline_color);
+		const ShaderData &outline_shader = msaa ? _outline_msaa_shader : _outline_shader;
+		bgfx::setState(outline_shader.state);
+		bgfx::submit(View::OUTLINE, outline_shader.program);
 
-	bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	bgfx::setState(_blit_blend_shader.state);
-	bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
-#endif // if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+		bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_blend_shader.state);
+		bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
+	}
 
 	// Blit to backbuffer.
 	bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
