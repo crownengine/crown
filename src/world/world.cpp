@@ -641,9 +641,9 @@ void World::update(f32 dt)
 	update_scene(dt);
 }
 
-void World::render(const Matrix4x4 &view, const Matrix4x4 &proj, const Matrix4x4 &cull_proj, const Matrix4x4 &persp)
+void World::render(const Matrix4x4 &view, const Matrix4x4 &cull_proj, const Matrix4x4 &persp, const Vector4 &viewport)
 {
-	_render_world->render(_dt, view, proj, cull_proj, persp, _skydome_unit, *_lines);
+	_render_world->render(_dt, view, cull_proj, persp, viewport, _skydome_unit, *_lines);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);

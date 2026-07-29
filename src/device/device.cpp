@@ -958,8 +958,9 @@ void Device::render(World &world, UnitId camera_unit)
 	const Matrix4x4 proj = world.camera_projection_matrix(camera, aspect_ratio);
 	const Matrix4x4 cull_proj = world.camera_projection_matrix(camera, aspect_ratio, ProjectionType::COUNT, true);
 	const Matrix4x4 persp = world.camera_projection_matrix(camera, aspect_ratio, ProjectionType::PERSPECTIVE);
+	const Vector4 viewport = { 0.0f, 0.0f, (f32)_width, (f32)_height };
 
-	world.render(view, proj, cull_proj, persp);
+	world.render(view, cull_proj, persp, viewport);
 	_pipeline->render(_width, _height, view, proj);
 }
 

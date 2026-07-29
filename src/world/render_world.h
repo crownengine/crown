@@ -393,9 +393,9 @@ struct RenderWorld
 	///
 	void render(f32 dt
 		, const Matrix4x4 &view
-		, const Matrix4x4 &proj
 		, const Matrix4x4 &cull_proj
 		, const Matrix4x4 &persp
+		, const Vector4 &viewport
 		, UnitId skydome_unit
 		, DebugLine &dl
 		);
