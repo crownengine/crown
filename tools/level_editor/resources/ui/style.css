@@ -29,24 +29,52 @@ notebook > header tab {
 	min-height: 22px;
 }
 
-.axis > entry {
+.axis entry {
 	min-width: 22px;
 }
 
-.axis.x > entry {
+.axis.x entry {
 	background: rgba(180, 0, 0, 0.2);
 }
 
-.axis.y > entry {
+.axis.y entry {
 	background: rgba(0, 180, 0, 0.2);
 }
 
-.axis.z > entry {
+.axis.z entry {
 	background: rgba(0, 0, 180, 0.2);
 }
 
-.axis.w > entry {
+.axis.w entry {
 	background: rgba(180, 180, 180, 0.2);
+}
+
+.axis.x .label-button {
+	background-image: none;
+	background-color: rgba(180, 0, 0, 0.2);
+	border-color: transparent;
+}
+
+.axis.y .label-button {
+	background-image: none;
+	background-color: rgba(0, 180, 0, 0.2);
+	border-color: transparent;
+}
+
+.axis.z .label-button {
+	background-image: none;
+	background-color: rgba(0, 0, 180, 0.2);
+	border-color: transparent;
+}
+
+.axis.w .label-button {
+	background-image: none;
+	background-color: rgba(180, 180, 180, 0.2);
+	border-color: transparent;
+}
+
+.input-double-preview {
+	color: transparent;
 }
 
 .counter-label {
