@@ -4333,13 +4333,19 @@ void load_api(LuaEnvironment &env)
 			return 0;
 		});
 	env.add_module_function("Gui", "text_extents", [](lua_State *L) {
-			LuaStack stack(L, +1);
-			Vector2 e = stack.get_gui(1)->text_extents(stack.get_int(2)
+			LuaStack stack(L, +3);
+			Vector2 box_min;
+			Vector2 box_max;
+			Vector2 e = stack.get_gui(1)->text_extents(box_min
+				, box_max
+				, stack.get_int(2)
 				, stack.get_string(3)
 				, stack.get_resource_name(4)
 				);
 			stack.push_vector2(e);
-			return 1;
+			stack.push_vector2(box_min);
+			stack.push_vector2(box_max);
+			return 3;
 		});
 	env.add_module_function("Gui", "text_3d", [](lua_State *L) {
 			LuaStack stack(L);

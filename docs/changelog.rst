@@ -37,6 +37,7 @@ Changelog
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
 * Lua: added ``Device.string_id()`` that returns a 32-bits hash of a string.
 * Lua: added ``World.script_world()`` and ``ScriptWorld.broadcast()``.
+* Lua: added minimum and maximum corners to the values returned by ``Gui.text_extents()``.
 
 **Fixes**
 

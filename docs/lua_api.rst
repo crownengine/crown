@@ -241,9 +241,10 @@ An immediate-mode GUI to draw text and various primitive shapes either in 2D or 
 	a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 	to 0.
 
-**text_extents** (gui, font_size, str, font_resource) : Vector2
+**text_extents** (gui, font_size, str, font_resource) : Vector2, Vector2, Vector2
 	Returns the extents of the text *str* if drawn using *font_resource* at size
-	*font_size*.
+	*font_size*, followed by the minimum and maximum corners of its bounding box
+	relative to the text position.
 
 **text_3d** (gui, local_pose, pos, font_size, str, font_resource [, material_resource, color, depth])
 	Draws 3D text.

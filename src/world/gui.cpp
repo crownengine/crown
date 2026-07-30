@@ -512,7 +512,7 @@ void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 fo
 		);
 }
 
-Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
+Vector2 Gui::text_extents(Vector2 &box_min, Vector2 &box_max, u32 font_size, const char *str, StringId64 font)
 {
 	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
@@ -522,8 +522,8 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 	const GlyphData deffault_glyph = {};
 	f32 pen_x = 0.0f;
 	f32 pen_y = 0.0f;
-	Vector2 box_min = { FLT_MAX, FLT_MAX };
-	Vector2 box_max = { -FLT_MAX, -FLT_MAX };
+	box_min = { FLT_MAX, FLT_MAX };
+	box_max = { -FLT_MAX, -FLT_MAX };
 
 	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
 		if (utf8::decode(&state, &cp, *ch) != UTF8_ACCEPT)
@@ -545,8 +545,8 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 		// Glyph position coords.
 		const f32 x0 = pen_x + x_offset;
 		const f32 y0 = pen_y - scale*baseline;
-		const f32 x1 = fround(x0 + scale*glyph->width);
-		const f32 y1 = fround(y0 + scale*glyph->height);
+		const f32 x1 = x0 + scale*glyph->width;
+		const f32 y1 = y0 + scale*glyph->height;
 
 		box_min = min(box_min, { x0, y0 });
 		box_max = max(box_max, { x1, y1 });
@@ -554,11 +554,13 @@ Vector2 Gui::text_extents(const u32 font_size, const char *str, StringId64 font)
 		pen_x += scale*glyph->x_advance;
 	}
 
-	// Avoid returning funny extents empty or malformed strings.
-	box_min = min(box_min, VECTOR2_ZERO);
-	box_max = max(box_max, VECTOR2_ZERO);
+	// Avoid returning funny extents for empty or malformed strings.
+	if (box_min.x == FLT_MAX)
+		box_min = box_max = VECTOR2_ZERO;
 
-	return box_max - box_min;
+	Vector2 extents_max = max(VECTOR2_ZERO, { fround(box_max.x), fround(box_max.y) });
+	Vector2 extents_min = min(VECTOR2_ZERO, box_min);
+	return extents_max - extents_min;
 }
 
 Material *Gui::material(ResourceId material_resource)

@@ -121,8 +121,10 @@ struct Gui
 	///
 	void text(const Vector3 &pos, u32 font_size, const char *str, StringId64 font, StringId64 material, const Color4 &color = COLOR4_WHITE);
 
-	///
-	Vector2 text_extents(const u32 font_size, const char *str, StringId64 font);
+	/// Returns the extents of the text @a str if drawn using @a font at size @a font_size. Sets @a
+	/// box_min and @a box_max with the minimum and maximum corners of the bounding box relative to
+	/// the text position.
+	Vector2 text_extents(Vector2 &box_min, Vector2 &box_max, u32 font_size, const char *str, StringId64 font);
 
 	/// Returns the material @a material_resource.
 	Material *material(ResourceId material_resource);
