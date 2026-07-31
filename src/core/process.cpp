@@ -122,7 +122,7 @@ s32 Process::spawn(const char * const *argv, u32 flags)
 		, NULL
 		, NULL
 		, TRUE // Handles are inherited
-		, (flags & CROWN_PROCESS_STDOUT_PIPE) ? CREATE_NO_WINDOW : 0
+		, (flags & (CROWN_PROCESS_STDOUT_PIPE | CROWN_PROCESS_NO_WINDOW)) ? CREATE_NO_WINDOW : 0
 		, NULL
 		, NULL
 		, &info

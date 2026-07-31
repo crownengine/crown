@@ -29,7 +29,7 @@
 
 using namespace crown;
 
-int main_internal(int argc, char **argv)
+int main_internal(int argc, char **argv, u32 spawn_flags)
 {
 	char launcher_path[4*4096];
 	StringView launcher_dir;
@@ -82,7 +82,7 @@ int main_internal(int argc, char **argv)
 	Process pr;
 	program_argv[0] = (char *)program_exe.c_str();
 
-	if (pr.spawn(program_argv) != 0) {
+	if (pr.spawn(program_argv, spawn_flags) != 0) {
 		printf("Cannot spawn %s\n", program_argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -92,6 +92,8 @@ int main_internal(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	u32 spawn_flags = 0;
+
 #if CROWN_PLATFORM_WINDOWS
 	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
 		const DWORD handles[] = { STD_OUTPUT_HANDLE, STD_ERROR_HANDLE, STD_INPUT_HANDLE };
@@ -106,11 +108,13 @@ int main(int argc, char **argv)
 				setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
 			}
 		}
+	} else {
+		spawn_flags |= CROWN_PROCESS_NO_WINDOW;
 	}
 #endif
 
 	memory_globals::init();
-	int exit_code = main_internal(argc, argv);
+	int exit_code = main_internal(argc, argv, spawn_flags);
 	memory_globals::shutdown();
 	return exit_code;
 }

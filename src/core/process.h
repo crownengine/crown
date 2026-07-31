@@ -21,6 +21,7 @@
 #define CROWN_PROCESS_STDIN_PIPE   UINT32_C(0x1) ///< Create stdin pipe.
 #define CROWN_PROCESS_STDOUT_PIPE  UINT32_C(0x2) ///< Create stdout pipe.
 #define CROWN_PROCESS_STDERR_MERGE UINT32_C(0x4) ///< Merge stderr with stdout.
+#define CROWN_PROCESS_NO_WINDOW    UINT32_C(0x8) ///< Do not create a console window.
 
 namespace crown
 {
