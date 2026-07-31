@@ -250,8 +250,8 @@ bgfx_shaders = {
 					color *= exp2(exposure_bias);
 					color = gray + contrast * (color - gray);
 
-					float luminance = dot(color, luminance);
-					color = vec3_splat(luminance) + saturation * (color - vec3_splat(luminance));
+					float lum = dot(color, luminance);
+					color = vec3_splat(lum) + saturation * (color - vec3_splat(lum));
 				}
 
 				vec4 adjusted_color = vec4(color, source.a);
