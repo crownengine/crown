@@ -193,6 +193,14 @@ StateMachineId AnimationStateMachine::create(UnitId unit, const AnimationStateMa
 
 void AnimationStateMachine::deallocate(Machine &m)
 {
+	if (m.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
+		if (mesh_animation_player::has(*_mesh_animation_player, m.anim_id))
+			mesh_animation_player::destroy(*_mesh_animation_player, m.anim_id);
+	} else if (m.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+		if (sprite_animation_player::has(*_sprite_animation_player, m.anim_id))
+			sprite_animation_player::destroy(*_sprite_animation_player, m.anim_id);
+	}
+
 	if (m.skeleton != NULL) {
 		for (u32 i = 0; i < m.skeleton->num_bones; ++i)
 			_unit_manager->destroy(m.skeleton->bone_lookup[i]);
