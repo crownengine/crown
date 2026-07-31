@@ -438,6 +438,8 @@ void AnimationStateMachine::reload(const MeshAnimationResource *old_resource, co
 void AnimationStateMachine::set_state_machine(StateMachineId state_machine, const StateMachineResource *state_machine_resource)
 {
 	Machine &machine = _machines[state_machine.i];
+	if (machine.state_machine == state_machine_resource)
+		return;
 
 	deallocate(machine);
 	allocate(machine, machine.unit, state_machine_resource);
