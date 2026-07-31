@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed a glitch when setting color values in the Inspector.
 * Runtime: Linux: fixed a crash on some rendering backends.
+* Runtime: fixed a crash caused by animation instances not being released by the state machine when destroyed.
 
 .. _v0.63.8:
 
