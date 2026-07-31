@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-28T15:14:43+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-07-31T16:00:38+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -275,6 +275,7 @@
 <li><p>Runtime: fixed rendering artifacts when setting roughness to 0 in materials using the mesh shader.</p></li>
 <li><p>Runtime: Linux: fixed wrong initial state of gamepads on some systems.</p></li>
 <li><p>Runtime: Linux: fixed a crash on some rendering backends.</p></li>
+<li><p>Runtime: fixed a crash caused by animation instances not being released by the state machine when destroyed.</p></li>
 <li><p>Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.</p></li>
 <li><p>Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.</p></li>
 <li><p>Lua: fixed <code class="docutils literal notranslate"><span class="pre">Quaternion.look()</span></code> returning non-orthonormal rotation matrices.</p></li>
@@ -1211,7 +1212,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 28, 2026.
+      <span class="lastupdated">Last updated on Jul 31, 2026.
       </span></p>
   </div>
 
