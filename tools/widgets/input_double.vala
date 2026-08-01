@@ -116,6 +116,7 @@ public class InputDouble : InputField
 		_gesture_click = new Gtk.GestureMultiPress(_event_box);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
+		_gesture_click.cancel.connect(on_gesture_cancelled);
 
 		_pressed = false;
 		_dragging = false;
@@ -182,6 +183,16 @@ public class InputDouble : InputField
 			_entry.select_region(0, -1);
 			return GLib.Source.REMOVE;
 			});
+	}
+
+	public void on_gesture_cancelled(Gdk.EventSequence? sequence)
+	{
+		_pressed = false;
+
+		if (_dragging) {
+			_dragging = false;
+			set_value_safe(_drag_start_value, 0); // Revert to old value
+		}
 	}
 
 	public void on_enter()
