@@ -27,8 +27,12 @@ public class InputDouble : InputField
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 
+	public uint _tick_callback_id;
+
 	public bool _pressed;
 	public bool _dragging;
+	public double _drag_mouse_x;
+	public double _drag_mouse_y;
 	public double _drag_start_x;
 	public double _drag_start_y;
 	public double _drag_start_value;
@@ -111,15 +115,11 @@ public class InputDouble : InputField
 		_controller_motion = new Gtk.EventControllerMotion(_event_box);
 		_controller_motion.enter.connect(on_enter);
 		_controller_motion.leave.connect(on_leave);
-		_controller_motion.motion.connect(on_motion);
 
 		_gesture_click = new Gtk.GestureMultiPress(_event_box);
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 		_gesture_click.cancel.connect(on_gesture_cancelled);
-
-		_pressed = false;
-		_dragging = false;
 
 #if CROWN_GTK3
 		_entry.scroll_event.connect(() => {
@@ -145,17 +145,32 @@ public class InputDouble : InputField
 		if (window != null && window.get_focus() != null)
 			window.set_focus(null);
 
+		Gdk.Screen screen;
+		int pointer_root_x;
+		int pointer_root_y;
+		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
+
 		_pressed = true;
 		_dragging = false;
-		_drag_start_x = x;
-		_drag_start_y = y;
+		_drag_mouse_x = 0.0;
+		_drag_mouse_y = 0.0;
+		_drag_start_x = (double)pointer_root_x;
+		_drag_start_y = (double)pointer_root_y;
 		_drag_start_value = _value;
+
+		if (_tick_callback_id == 0)
+			_tick_callback_id = add_tick_callback(on_tick);
 	}
 
 	public void on_button_released(int n_press, double x, double y)
 	{
 		logi("button released");
 		_pressed = false;
+
+		if (_tick_callback_id != 0) {
+			remove_tick_callback(_tick_callback_id);
+			_tick_callback_id = 0;
+		}
 
 		if (_dragging) {
 			logi("was dragging");
@@ -164,6 +179,10 @@ public class InputDouble : InputField
 			double drag_end_value = _value;
 			set_value_safe(_drag_start_value, -1); // Avoids unnecessary update
 			set_value_safe(drag_end_value); // Fires the last commit
+
+			Gdk.Display display = Gdk.Display.get_default();
+			Gdk.Cursor deffault = new Gdk.Cursor.from_name(display, "default");
+			_event_box.get_window().set_cursor(deffault);
 
 			return;
 		}
@@ -179,9 +198,9 @@ public class InputDouble : InputField
 			_entry.text = format_value(_value, _edit_decimals);
 
 		GLib.Idle.add(() => {
-			_entry.set_position(-1);
-			_entry.select_region(0, -1);
-			return GLib.Source.REMOVE;
+				_entry.set_position(-1);
+				_entry.select_region(0, -1);
+				return GLib.Source.REMOVE;
 			});
 	}
 
@@ -189,14 +208,26 @@ public class InputDouble : InputField
 	{
 		_pressed = false;
 
+		if (_tick_callback_id != 0) {
+			remove_tick_callback(_tick_callback_id);
+			_tick_callback_id = 0;
+		}
+
 		if (_dragging) {
 			_dragging = false;
 			set_value_safe(_drag_start_value, 0); // Revert to old value
+
+			Gdk.Display display = Gdk.Display.get_default();
+			Gdk.Cursor deffault = new Gdk.Cursor.from_name(display, "default");
+			_event_box.get_window().set_cursor(deffault);
 		}
 	}
 
 	public void on_enter()
 	{
+		if (_dragging)
+			return;
+
 		Gdk.Display display = Gdk.Display.get_default();
 		Gdk.Cursor col_resize = new Gdk.Cursor.from_name(display, "col-resize");
 		_event_box.get_window().set_cursor(col_resize);
@@ -204,37 +235,54 @@ public class InputDouble : InputField
 
 	public void on_leave()
 	{
+		if (_dragging)
+			return;
+
 		Gdk.Display display = Gdk.Display.get_default();
 		Gdk.Cursor deffault = new Gdk.Cursor.from_name(display, "default");
 		_event_box.get_window().set_cursor(deffault);
 	}
 
-	public void on_motion(double x, double y)
+	public bool on_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock)
 	{
-		if (!_pressed) {
-			logi("motion ignored");
-			return;
-		}
+		Gdk.Screen screen;
+		int pointer_root_x;
+		int pointer_root_y;
+		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
+
+		_drag_mouse_x += (double)pointer_root_x - _drag_start_x;
+		_drag_mouse_y += (double)pointer_root_y - _drag_start_y;
+
+		this.get_display().get_default_seat().get_pointer().warp(screen
+			, (int)_drag_start_x
+			, (int)_drag_start_y
+			);
 
 		const double ACTIVATION_MARGIN = 5.0;
-		double dx = x - _drag_start_x;
 
 		if (!_dragging) {
-			if (dx.abs() > ACTIVATION_MARGIN)
+			if (_drag_mouse_x.abs() > ACTIVATION_MARGIN) {
 				_dragging = true;
+
+				Gdk.Display display = Gdk.Display.get_default();
+				Gdk.Cursor none = new Gdk.Cursor.from_name(display, "none");
+				_event_box.get_window().set_cursor(none);
+			}
 		} else {
 			double scale = 0.01;
 			double dx_adjusted;
 
-			if (dx > ACTIVATION_MARGIN)
-				dx_adjusted = dx - ACTIVATION_MARGIN;
-			else if (dx < -ACTIVATION_MARGIN)
-				dx_adjusted = dx + ACTIVATION_MARGIN;
+			if (_drag_mouse_x > ACTIVATION_MARGIN)
+				dx_adjusted = _drag_mouse_x - ACTIVATION_MARGIN;
+			else if (_drag_mouse_x < -ACTIVATION_MARGIN)
+				dx_adjusted = _drag_mouse_x + ACTIVATION_MARGIN;
 			else
 				dx_adjusted = 0.0;
 
 			set_value_safe(_drag_start_value + dx_adjusted*scale);
 		}
+
+		return GLib.Source.CONTINUE;
 	}
 
 	public void on_activate()
