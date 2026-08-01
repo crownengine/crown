@@ -36,7 +36,7 @@ project "crown-editor"
 	configuration {}
 
 	prebuildcommands {
-		"make -C " .. CROWN_DIR .. "tools/po " .. "TARGETDIR=\"$(abspath $(TARGETDIR))\""
+		'make -C "' .. path.join(CROWN_DIR, "tools/po") .. '" TARGETDIR="$(abspath $(TARGETDIR))"'
 	}
 
 	flags {
@@ -100,10 +100,10 @@ project "crown-editor"
 	}
 
 	buildoptions {
-		"-I" .. CROWN_DIR .. "3rdparty/tinyexpr",
-		"-I" .. CROWN_DIR .. "3rdparty/md5",
-		"-I" .. CROWN_DIR .. "3rdparty/ufbx",
-		"-I" .. CROWN_DIR .. "3rdparty/stb",
+		'-I"' .. path.join(CROWN_DIR, "3rdparty/tinyexpr") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "3rdparty/md5") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "3rdparty/ufbx") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "3rdparty/stb") .. '"',
 	}
 
 	files {
