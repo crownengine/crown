@@ -27,6 +27,12 @@ public class InputDouble : InputField
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 
+	public bool _pressed;
+	public bool _dragging;
+	public double _drag_start_x;
+	public double _drag_start_y;
+	public double _drag_start_value;
+
 	public override void set_inconsistent(bool inconsistent)
 	{
 		if (_inconsistent != inconsistent) {
@@ -111,6 +117,9 @@ public class InputDouble : InputField
 		_gesture_click.pressed.connect(on_button_pressed);
 		_gesture_click.released.connect(on_button_released);
 
+		_pressed = false;
+		_dragging = false;
+
 #if CROWN_GTK3
 		_entry.scroll_event.connect(() => {
 				GLib.Signal.stop_emission_by_name(_entry, "scroll-event");
@@ -128,15 +137,12 @@ public class InputDouble : InputField
 		this.add(_overlay);
 	}
 
-	public bool _pressed = false;
-	public bool _dragging = false;
-	public double _drag_start_x = 0.0;
-	public double _drag_start_y = 0.0;
-	public double _drag_start_value = 0.0;
-
 	public void on_button_pressed(int n_press, double x, double y)
 	{
-		unfocus_active_widget();
+		// Unfocus active widgets
+		var window = get_toplevel() as Gtk.Window;
+		if (window != null && window.get_focus() != null)
+			window.set_focus(null);
 
 		_pressed = true;
 		_dragging = false;
@@ -152,13 +158,30 @@ public class InputDouble : InputField
 
 		if (_dragging) {
 			logi("was dragging");
+			_dragging = false;
+
 			double drag_end_value = _value;
 			set_value_safe(_drag_start_value, -1); // Avoids unnecessary update
-			_dragging = false;
 			set_value_safe(drag_end_value); // Fires the last commit
+
 			return;
 		}
-		begin_editing();
+
+		// Begin editing
+		_event_box.visible = false;
+		_entry.editable = true;
+		_entry.grab_focus();
+
+		if (_inconsistent)
+			_entry.text = "";
+		else
+			_entry.text = format_value(_value, _edit_decimals);
+
+		GLib.Idle.add(() => {
+			_entry.set_position(-1);
+			_entry.select_region(0, -1);
+			return GLib.Source.REMOVE;
+			});
 	}
 
 	public void on_enter()
@@ -190,8 +213,16 @@ public class InputDouble : InputField
 				_dragging = true;
 		} else {
 			double scale = 0.01;
-			double adjust = dx > 0 ? -ACTIVATION_MARGIN : ACTIVATION_MARGIN;
-			set_value_safe(_drag_start_value + (dx + adjust)*scale);
+			double dx_adjusted;
+
+			if (dx > ACTIVATION_MARGIN)
+				dx_adjusted = dx - ACTIVATION_MARGIN;
+			else if (dx < -ACTIVATION_MARGIN)
+				dx_adjusted = dx + ACTIVATION_MARGIN;
+			else
+				dx_adjusted = 0.0;
+
+			set_value_safe(_drag_start_value + dx_adjusted*scale);
 		}
 	}
 
@@ -253,31 +284,6 @@ public class InputDouble : InputField
 		_event_box.visible = true;
 
 		return Gdk.EVENT_PROPAGATE;
-	}
-
-	void unfocus_active_widget()
-	{
-		var window = get_toplevel() as Gtk.Window;
-		if (window != null && window.get_focus() != null)
-			window.set_focus(null);
-	}
-
-	void begin_editing()
-	{
-		_event_box.visible = false;
-		_entry.editable = true;
-		_entry.grab_focus();
-
-		if (_inconsistent)
-			_entry.text = "";
-		else
-			_entry.text = format_value(_value, _edit_decimals);
-
-		GLib.Idle.add(() => {
-				_entry.set_position(-1);
-				_entry.select_region(0, -1);
-				return GLib.Source.REMOVE;
-			});
 	}
 
 	public void set_value_safe(double val, int undo_redo = (int)!_dragging)
