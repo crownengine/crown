@@ -406,6 +406,85 @@ function UnitBox:draw()
 		RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines)
 	end
 
+	local camera = World.camera_instance(self._world, self._unit_id)
+	if camera then
+		local nv, nq, nm = Device.temp_count()
+		local editor_camera = LevelEditor:camera()
+		local editor_camera_pose = editor_camera:local_pose()
+		local editor_camera_position = Matrix4x4.translation(editor_camera_pose)
+		local editor_camera_forward = Matrix4x4.y(editor_camera_pose)
+		local editor_camera_far = editor_camera:far_clip_distance()
+
+		local width, height = Device.resolution()
+		local v0 = World.camera_screen_to_world(self._world, camera, Vector3(0,     0,      0))
+		local v1 = World.camera_screen_to_world(self._world, camera, Vector3(width, 0,      0))
+		local v2 = World.camera_screen_to_world(self._world, camera, Vector3(width, height, 0))
+		local v3 = World.camera_screen_to_world(self._world, camera, Vector3(0,     height, 0))
+		local v4 = World.camera_screen_to_world(self._world, camera, Vector3(0,     0,      1))
+		local v5 = World.camera_screen_to_world(self._world, camera, Vector3(width, 0,      1))
+		local v6 = World.camera_screen_to_world(self._world, camera, Vector3(width, height, 1))
+		local v7 = World.camera_screen_to_world(self._world, camera, Vector3(0,     height, 1))
+
+		local max_vertex_depth = math.max(Vector3.dot(v0 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v1 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v2 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v3 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v4 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v5 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v6 - editor_camera_position, editor_camera_forward)
+			, Vector3.dot(v7 - editor_camera_position, editor_camera_forward)
+			)
+
+		-- If any frustum vertex is beyond the editor camera's far clip, bring the entire frustum
+		-- inside it.
+		if max_vertex_depth > editor_camera_far then
+			local far_clip_margin = 0.05
+			local target_depth = (1.0 - far_clip_margin) * editor_camera_far
+			target_depth = math.max(target_depth, editor_camera:near_clip_distance())
+			if editor_camera:is_orthographic() then
+				-- Translate the frustum along the editor camera's view axis to preserve its
+				-- dimensions.
+				local translation = editor_camera_forward * (target_depth - max_vertex_depth)
+				v0 = v0 + translation
+				v1 = v1 + translation
+				v2 = v2 + translation
+				v3 = v3 + translation
+				v4 = v4 + translation
+				v5 = v5 + translation
+				v6 = v6 + translation
+				v7 = v7 + translation
+			else
+				-- Scale the frustum uniformly about the editor camera to preserve its proportions.
+				local scale = target_depth / max_vertex_depth
+				v0 = editor_camera_position + (v0 - editor_camera_position) * scale
+				v1 = editor_camera_position + (v1 - editor_camera_position) * scale
+				v2 = editor_camera_position + (v2 - editor_camera_position) * scale
+				v3 = editor_camera_position + (v3 - editor_camera_position) * scale
+				v4 = editor_camera_position + (v4 - editor_camera_position) * scale
+				v5 = editor_camera_position + (v5 - editor_camera_position) * scale
+				v6 = editor_camera_position + (v6 - editor_camera_position) * scale
+				v7 = editor_camera_position + (v7 - editor_camera_position) * scale
+			end
+		end
+
+		local color = Color4(255, 255, 0, 255)
+		local lines = LevelEditor._lines
+		DebugLine.add_line(lines, v0, v1, color)
+		DebugLine.add_line(lines, v1, v2, color)
+		DebugLine.add_line(lines, v2, v3, color)
+		DebugLine.add_line(lines, v3, v0, color)
+		DebugLine.add_line(lines, v4, v5, color)
+		DebugLine.add_line(lines, v5, v6, color)
+		DebugLine.add_line(lines, v6, v7, color)
+		DebugLine.add_line(lines, v7, v4, color)
+		DebugLine.add_line(lines, v0, v4, color)
+		DebugLine.add_line(lines, v1, v5, color)
+		DebugLine.add_line(lines, v2, v6, color)
+		DebugLine.add_line(lines, v3, v7, color)
+
+		Device.set_temp_count(nv, nq, nm)
+	end
+
 	local physics_world = World.physics_world(self._world)
 	local mover = PhysicsWorld.mover_instance(physics_world, self._unit_id)
 	if mover then
