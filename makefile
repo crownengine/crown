@@ -60,10 +60,10 @@ build/android-arm64/bin/libluajit.a:
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/linux32/bin/luajit:
-	$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit $@
 	-@cp -r 3rdparty/luajit/src/jit build/linux32/bin
-	-@$(MAKE) -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
+	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 build/linux64/bin/luajit:
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit $@
@@ -131,7 +131,7 @@ build/windows64/bin/shaderc.exe: \
 	-@install -m775 -D 3rdparty/bgfx/.build/win64_vs2022/bin/shadercRelease.exe $@
 
 build/projects/android-arm:
-	$(GENIE) --gfxapi=gles3 --compiler=android-arm gmake
+	"$(GENIE)" --gfxapi=gles3 --compiler=android-arm gmake
 android-arm-debug:             \
 	build/projects/android-arm \
 	build/android-arm/bin/libluajit.a
@@ -150,7 +150,7 @@ android-arm:                \
 	android-arm-release
 
 build/projects/android-arm64:
-	$(GENIE) --gfxapi=gles3 --file=scripts/genie.lua --compiler=android-arm64 gmake
+	"$(GENIE)" --gfxapi=gles3 --file=scripts/genie.lua --compiler=android-arm64 gmake
 android-arm64-debug:             \
 	build/projects/android-arm64 \
 	build/android-arm64/bin/libluajit.a
@@ -169,9 +169,9 @@ android-arm64:                \
 	android-arm64-release
 
 build/projects/linux:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
-	$(GENIE) --gfxapi=vulkan-gl32 --with-tools --compiler=linux-gcc gmake
+	"$(GENIE)" --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
+	"$(GENIE)" --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=linux-gcc gmake
+	"$(GENIE)" --gfxapi=vulkan-gl32 --with-tools --compiler=linux-gcc gmake
 linux-debug32:               \
 	build/projects/linux     \
 	build/linux32/bin/luajit \
@@ -202,7 +202,7 @@ linux:                  \
 	linux-release64
 
 build/projects/wasm:
-	$(GENIE) --no-luajit --gfxapi=gles3 --compiler=wasm gmake
+	"$(GENIE)" --no-luajit --gfxapi=gles3 --compiler=wasm gmake
 wasm-debug: \
 	build/projects/wasm
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm crown config=debug
@@ -218,11 +218,11 @@ wasm:                \
 	wasm-release
 
 build/projects/mingw32:
-	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-32bit-compiler gmake
+	"$(GENIE)" --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-32bit-compiler gmake
 build/projects/mingw:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
-	$(GENIE) --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
+	"$(GENIE)" --file=3rdparty/bgfx/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
+	"$(GENIE)" --file=3rdparty/bimg/scripts/genie.lua --with-tools --gcc=mingw-gcc gmake
+	"$(GENIE)" --gfxapi=d3d11 --with-tools --compiler=mingw-gcc gmake
 mingw-debug32:             \
 	build/projects/mingw32 \
 	build/mingw32/bin/luac
@@ -251,9 +251,9 @@ mingw:                  \
 	mingw-release64
 
 build/projects/vs2022:
-	$(GENIE) --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2022
-	$(GENIE) --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2022
-	$(GENIE) --gfxapi=d3d11 --with-tools --no-editor vs2022
+	"$(GENIE)" --file=3rdparty/bgfx/scripts/genie.lua --with-tools vs2022
+	"$(GENIE)" --file=3rdparty/bimg/scripts/genie.lua --with-tools vs2022
+	"$(GENIE)" --gfxapi=d3d11 --with-tools --no-editor vs2022
 windows-debug64:                     \
 	build/projects/vs2022            \
 	build/windows64/bin/luajit.exe   \
@@ -339,32 +339,32 @@ endif
 
 .PHONY: 00-empty
 00-empty: $(SAMPLES_OS)-development64
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 01-physics
 01-physics: $(SAMPLES_OS)-development64
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 02-animation
 02-animation: $(SAMPLES_OS)-development64
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
 .PHONY: 03-joypad
 03-joypad: $(SAMPLES_OS)-development64
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir $(realpath samples/$@) --map-source-dir core $(realpath samples) --compile --platform $(SAMPLES_PLATFORM)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
 
 .PHONY: samples
 samples: 00-empty 01-physics 02-animation 03-joypad
 
 .PHONY: run-00-empty
 run-00-empty: 00-empty
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM)) $(RUN_ARGS)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
 .PHONY: run-01-physics
 run-01-physics: 01-physics
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM)) $(RUN_ARGS)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
 .PHONY: run-02-animation
 run-02-animation: 02-animation
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM)) $(RUN_ARGS)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
 .PHONY: run-03-joypad
 run-03-joypad: 03-joypad
-	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir $(realpath samples/$<_$(SAMPLES_PLATFORM)) $(RUN_ARGS)
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
 
 .PHONY: clean-samples
 clean-samples:
