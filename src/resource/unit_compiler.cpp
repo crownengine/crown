@@ -154,6 +154,10 @@ static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	cd.fov        = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.fov")));
 	cd.near_range = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.near_range")));
 	cd.far_range  = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.far_range")));
+	cd.half_size  = 5.0f;
+	if (flat_json_object::has(obj, "data.orthographic_size")) {
+		cd.half_size = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.orthographic_size")));
+	}
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -161,6 +165,7 @@ static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	bw.write(cd.fov);
 	bw.write(cd.near_range);
 	bw.write(cd.far_range);
+	bw.write(cd.half_size);
 	return 0;
 }
 

@@ -1798,11 +1798,12 @@ function LevelEditor:add_transform_component(id, component_id, px, py, pz, rx, r
 	Device.set_temp_count(nv, nq, nm)
 end
 
-function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range)
+function LevelEditor:add_camera_component(id, component_id, projection, fov, far_range, near_range, orthographic_size)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id();
 	if World.camera_instance(self._world, unit_id) ~= nil then return end
-	World.camera_create(self._world, unit_id, projection, fov, far_range, near_range)
+	local camera = World.camera_create(self._world, unit_id, projection, fov, far_range, near_range)
+	World.camera_set_orthographic_size(self._world, camera, orthographic_size)
 end
 
 function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)

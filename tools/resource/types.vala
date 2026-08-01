@@ -493,6 +493,14 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
+			name = "data.orthographic_size",
+			min = 0.01,
+			deffault = 5.0,
+			tooltip = _("Vertical half-size of the orthographic view volume."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
 			name = "data.near_range",
 			min = 0.01,
 			deffault = 0.1,

@@ -504,6 +504,7 @@ struct CameraDesc
 	f32 fov;        ///< Vertical FOV
 	f32 near_range; ///< Near clipping plane distance
 	f32 far_range;  ///< Far clipping plane distance
+	f32 half_size;  ///< Vertical half-size of the orthographic view volume
 };
 
 /// Actor resource.

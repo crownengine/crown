@@ -369,14 +369,22 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string add_camera_component(Guid id, Guid component_id, string projection, double fov, double far_range, double near_range)
+	public string add_camera_component(Guid id
+		, Guid component_id
+		, string projection
+		, double fov
+		, double far_range
+		, double near_range
+		, double orthographic_size
+		)
 	{
-		return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
+		return "LevelEditor:add_camera_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %.17g)".printf(id.to_string()
 			, component_id.to_string()
 			, projection
 			, fov
 			, far_range
 			, near_range
+			, orthographic_size
 			);
 	}
 
@@ -732,13 +740,20 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string set_camera(Guid id, string projection, double fov, double near_range, double far_range)
+	public string set_camera(Guid id
+		, string projection
+		, double fov
+		, double near_range
+		, double far_range
+		, double orthographic_size
+		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_camera(\"%s\", %.17g, %.17g, %.17g)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_camera(\"%s\", %.17g, %.17g, %.17g, %.17g)".printf(id.to_string()
 			, projection
 			, fov
 			, near_range
 			, far_range
+			, orthographic_size
 			);
 	}
 

@@ -1976,6 +1976,7 @@ void load_api(LuaEnvironment &env)
 			cd.fov        = stack.get_float(4);
 			cd.near_range = stack.get_float(5);
 			cd.far_range  = stack.get_float(6);
+			cd.half_size  = 5.0f;
 
 			stack.push_id(world->camera_create(unit, cd).i);
 			return 1;

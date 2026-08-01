@@ -620,6 +620,7 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.fov")
 				, unit.get_component_double(component_id, "data.far_range")
 				, unit.get_component_double(component_id, "data.near_range")
+				, unit.get_component_double(component_id, "data.orthographic_size")
 				);
 			sb.append(s);
 		} else if (db.object_type(component_id) == OBJECT_TYPE_MESH_RENDERER) {
@@ -936,6 +937,7 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.fov")
 				, unit.get_component_double(component_id, "data.far_range")
 				, unit.get_component_double(component_id, "data.near_range")
+				, unit.get_component_double(component_id, "data.orthographic_size")
 				));
 		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
 			sb.append(LevelEditorApi.set_mesh(unit_id

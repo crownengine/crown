@@ -31,6 +31,7 @@ components = [
 			far_range = 1000
 			fov = 0.78539800000000004
 			near_range = 0.10000000000000001
+			orthographic_size = 5
 			projection = "perspective"
 		}
 		type = "camera"

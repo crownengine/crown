@@ -542,13 +542,14 @@ function UnitBox:set_sprite(sprite_resource_name, material, layer, depth, visibl
 	end
 end
 
-function UnitBox:set_camera(projection, fov, near_range, far_range)
+function UnitBox:set_camera(projection, fov, near_range, far_range, orthographic_size)
 	local camera = World.camera_instance(self._world, self._unit_id)
 	if camera then
 		World.camera_set_projection_type(self._world, camera, projection)
 		World.camera_set_fov(self._world, camera, fov)
 		World.camera_set_near_clip_distance(self._world, camera, near_range)
 		World.camera_set_far_clip_distance(self._world, camera, far_range)
+		World.camera_set_orthographic_size(self._world, camera, orthographic_size)
 	end
 end
 

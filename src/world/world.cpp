@@ -666,6 +666,7 @@ void World::camera_create_instances(const void *data, u32 num, const UnitId *uni
 		c.fov             = cameras[i].fov;
 		c.near_range      = cameras[i].near_range;
 		c.far_range       = cameras[i].far_range;
+		c.half_size       = cameras[i].half_size;
 
 		const u32 last = array::size(_camera);
 		array::push_back(_camera, c);
