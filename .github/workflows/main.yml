@@ -159,54 +159,43 @@ jobs:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v6
-    - name: luajit
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        cd "3rdparty\luajit\src"
-        .\msvcbuild.bat
-    - name: luajit-copy-libs
-      shell: cmd
-      run: |
-        md "build\windows64\bin"
-        cp -r 3rdparty/luajit/src/jit 3rdparty/luajit/src/luajit.exe 3rdparty/luajit/src/lua51.dll 3rdparty/luajit/src/lua51.lib build/windows64/bin
-    - name: windows-generate-projects
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        scripts\genie\bin\windows\genie --file=scripts\genie.lua --with-tools --no-editor vs2022
-    - name: windows-make-debug64
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2022/crown.sln /Build "debug|x64" /Project crown
-    - name: windows-test-debug64
-      shell: cmd
-      run: |
-        build\windows64\bin\crown-debug.exe --run-unit-tests
-    - name: windows-make-development64
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2022/crown.sln /Build "development|x64" /Project crown
-    - name: windows-test-development64
-      shell: cmd
-      run: |
-        build\windows64\bin\crown-development.exe --run-unit-tests
-    - name: windows-make-release64
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        devenv build/projects/vs2022/crown.sln /Build "release|x64" /Project crown
-    - name: windows-test-release64
-      shell: cmd
-      run: |
-        build\windows64\bin\crown-release.exe --run-unit-tests
     - uses: msys2/setup-msys2@v2
     - name: mingw-prepare
       shell: msys2 {0}
       run: |
         pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala gettext
+    - name: mingw-make-debug64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 mingw-debug64
+    - name: mingw-test-debug64
+      shell: msys2 {0}
+      run: |
+        build/mingw64/bin/crown-debug.exe --run-unit-tests
+    - name: mingw-make-development64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 mingw-development64
+    - name: mingw-test-development64
+      shell: msys2 {0}
+      run: |
+        build/mingw64/bin/crown-development.exe --run-unit-tests
+    - name: mingw-make-release64
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 mingw-release64
+    - name: mingw-test-release64
+      shell: msys2 {0}
+      run: |
+        build/mingw64/bin/crown-release.exe --run-unit-tests
+    - name: mingw-compile-samples-windows
+      shell: msys2 {0}
+      run: |
+        export MINGW=/mingw64
+        make MAKE_JOBS=4 samples SAMPLES_PLATFORM=windows
     - name: mingw-make-crown-editor-debug64
       shell: msys2 {0}
       run: |
