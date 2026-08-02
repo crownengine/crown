@@ -1538,6 +1538,7 @@ function LevelEditor:update(dt)
 		self.tool:mouse_move(self._mouse.x, self._mouse.y)
 	end
 	self.tool:update(dt, self._mouse.x, self._mouse.y)
+	World.update_render_transforms(self._world)
 
 	self._mouse.dx = 0
 	self._mouse.dy = 0
