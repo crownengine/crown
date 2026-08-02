@@ -12,6 +12,7 @@
 #include "core/strings/string.h"
 #include "core/strings/string.inl"
 #include <errno.h>
+#include <float.h>  // FLT_MAX
 #include <stdlib.h> // strtod
 
 namespace crown
@@ -148,7 +149,12 @@ namespace json
 
 	f32 parse_float(const char *json)
 	{
-		return (f32)parse_number(json);
+		const f64 val = parse_number(json);
+		if (val < -FLT_MAX || val > FLT_MAX) {
+			CE_FATAL("Number out of f32 range");
+			return 0.0f;
+		}
+		return (f32)val;
 	}
 
 	bool parse_bool(const char *json)

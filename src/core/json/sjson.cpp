@@ -12,6 +12,7 @@
 #include "core/strings/string.inl"
 #include "core/strings/string.h"
 #include <errno.h>
+#include <float.h>
 #include <stdlib.h> // strtod
 #include <stb_sprintf.h>
 
@@ -346,7 +347,12 @@ namespace sjson
 
 	f32 parse_float(const char *json)
 	{
-		return (f32)parse_number(json);
+		const f64 val = parse_number(json);
+		if (val < -FLT_MAX || val > FLT_MAX) {
+			fatal("Number out of f32 range");
+			return 0.0f;
+		}
+		return (f32)val;
 	}
 
 	bool parse_bool(const char *json)
