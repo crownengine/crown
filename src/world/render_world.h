@@ -239,7 +239,7 @@ struct RenderWorld
 	void light_set_cast_shadows(LightId light, bool cast_shadows);
 
 	/// Fills @a dl with debug lines from the @a light.
-	void light_debug_draw(LightId light, DebugLine &dl);
+	void light_debug_draw(LightId light, DebugLine &dl, bool draw_bounds = true);
 
 	///
 	void fog_create_instances(const void *components_data
@@ -780,7 +780,7 @@ struct RenderWorld
 		LightId light(UnitId unit);
 
 		///
-		void debug_draw(u32 start_index, u32 num, DebugLine &dl);
+		void debug_draw(u32 start_index, u32 num, DebugLine &dl, bool draw_bounds);
 
 		///
 		void allocate(u32 num);

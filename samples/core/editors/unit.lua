@@ -403,7 +403,7 @@ function UnitBox:draw()
 
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
 	if light then
-		RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines)
+		RenderWorld.light_debug_draw(self._rw, light, LevelEditor._lines, false)
 	end
 
 	local camera = World.camera_instance(self._world, self._unit_id)

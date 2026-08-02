@@ -1034,10 +1034,10 @@ void RenderWorld::light_set_cast_shadows(LightId light, bool cast_shadows)
 	_light_manager._dirty = true;
 }
 
-void RenderWorld::light_debug_draw(LightId light, DebugLine &dl)
+void RenderWorld::light_debug_draw(LightId light, DebugLine &dl, bool draw_bounds)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager.debug_draw(light.i, 1, dl);
+	_light_manager.debug_draw(light.i, 1, dl, draw_bounds);
 }
 
 void RenderWorld::fog_create_instances(const void *components_data
@@ -2326,7 +2326,7 @@ void RenderWorld::debug_draw(DebugLine &dl)
 		dl.add_sphere(out.c, out.r, COLOR4_ORANGE);
 	}
 
-	_light_manager.debug_draw(0, _light_manager._data.size, dl);
+	_light_manager.debug_draw(0, _light_manager._data.size, dl, true);
 }
 
 void RenderWorld::enable_debug_drawing(bool enable)
@@ -3559,7 +3559,7 @@ void RenderWorld::LightManager::destroy()
 	_allocator->deallocate(_data.buffer);
 }
 
-void RenderWorld::LightManager::debug_draw(u32 offset, u32 count, DebugLine &dl)
+void RenderWorld::LightManager::debug_draw(u32 offset, u32 count, DebugLine &dl, bool draw_bounds)
 {
 	for (u32 i = offset; i < offset + count; ++i) {
 		const Vector3 pos = _data.shader[i].position;
@@ -3574,8 +3574,7 @@ void RenderWorld::LightManager::debug_draw(u32 offset, u32 count, DebugLine &dl)
 		}
 
 		case LightType::OMNI:
-		case LightType::SPOT: {
-			bool bounds = true;
+		case LightType::SPOT:
 			if (_data.type[i] == LightType::OMNI) {
 				dl.add_sphere(pos, _data.shader[i].range, COLOR4_YELLOW);
 			} else {
@@ -3585,13 +3584,12 @@ void RenderWorld::LightManager::debug_draw(u32 offset, u32 count, DebugLine &dl)
 				dl.add_cone(pos + range*dir, pos, radius, COLOR4_YELLOW, 36, 4);
 			}
 
-			if (bounds) {
+			if (draw_bounds) {
 				Sphere s;
 				sphere::transform(s, local_sphere(*this, i), _data.world[i]);
 				dl.add_sphere(s.c, s.r, COLOR4_YELLOW);
 			}
 			break;
-		}
 
 		default:
 			CE_FATAL("Unknown light type");

@@ -2748,7 +2748,10 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "light_debug_draw", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_render_world(1)->light_debug_draw(stack.get_light_instance(2), *stack.get_debug_line(3));
+			stack.get_render_world(1)->light_debug_draw(stack.get_light_instance(2)
+				, *stack.get_debug_line(3)
+				, stack.num_args() > 3 ? stack.get_bool(4) : true
+				);
 			return 0;
 		});
 	env.add_module_function("RenderWorld", "fog_create", [](lua_State *L) {
