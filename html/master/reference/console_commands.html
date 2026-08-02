@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-02T00:39:20+00:00" /><meta property="og:title" content="Console commands" />
+    <meta property="article:modified_time" content="2026-06-18T22:27:48+00:00" /><meta property="og:title" content="Console commands" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/console_commands.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -133,6 +133,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#unpause">unpause</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pause">pause</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graph">graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stat">stat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#physics">physics</a></li>
 </ul>
 </li>
@@ -258,6 +259,20 @@ or <code class="docutils literal notranslate"><span class="pre">blue</span></cod
 </dd>
 </dl>
 </section>
+<section id="stat">
+<h2>stat<a class="headerlink" href="#stat" title="Permalink to this headline">¶</a></h2>
+<p>Show or hide runtime statistics panels. With no parameters, the command toggles
+the <code class="docutils literal notranslate"><span class="pre">general</span></code> panel. Available panel names are defined by the loaded stat
+configuration. The command accepts the following parameters:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&lt;panel&gt;</span> <span class="pre">[on|off]</span></code></dt><dd><p>Toggle the panel, or show/hide it explicitly.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">none</span></code></dt><dd><p>Hide all panels.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">help</span></code></dt><dd><p>List all available panels.</p>
+</dd>
+</dl>
+</section>
 <section id="physics">
 <h2>physics<a class="headerlink" href="#physics" title="Permalink to this headline">¶</a></h2>
 <p>Configure physics debug visualization. The command accepts the following
@@ -293,7 +308,7 @@ parameters:</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 02, 2026.
+      <span class="lastupdated">Last updated on Jun 18, 2026.
       </span></p>
   </div>
 

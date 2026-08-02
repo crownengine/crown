@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-08-02T05:51:57+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-07-30T16:31:18+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -466,8 +466,9 @@ If pos is a Vector3, the z element specifies the drawing depth. Objects with
 a lower depth are drawn in front. If pos is a Vector2, the z elements is set
 to 0.</p>
 </dd>
-<dt><strong>text_extents</strong> (gui, font_size, str, font_resource)<span class="classifier">Vector2</span></dt><dd><p>Returns the extents of the text <em>str</em> if drawn using <em>font_resource</em> at size
-<em>font_size</em>.</p>
+<dt><strong>text_extents</strong> (gui, font_size, str, font_resource)<span class="classifier">Vector2, Vector2, Vector2</span></dt><dd><p>Returns the extents of the text <em>str</em> if drawn using <em>font_resource</em> at size
+<em>font_size</em>, followed by the minimum and maximum corners of its bounding box
+relative to the text position.</p>
 </dd>
 <dt><strong>text_3d</strong> (gui, local_pose, pos, font_size, str, font_resource [, material_resource, color, depth])</dt><dd><p>Draws 3D text.</p>
 </dd>
@@ -1863,7 +1864,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Aug 02, 2026.
+      <span class="lastupdated">Last updated on Jul 30, 2026.
       </span></p>
   </div>
 

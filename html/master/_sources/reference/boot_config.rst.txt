@@ -31,6 +31,9 @@ Generic configurations
 ``render_config = "core/renderer/default"``
 	Render configuration to use.
 
+``stat_config = "core/stat/default"``
+	Runtime statistics configuration to use.
+
 ``window_title = "My window"``
 	Title of the main window on platforms that support it.
 

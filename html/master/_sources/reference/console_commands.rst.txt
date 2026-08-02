@@ -100,6 +100,22 @@ parameters:
 ``samples <graph> <samples>``
 	Set the number of samples to show in a graph.
 
+stat
+----
+
+Show or hide runtime statistics panels. With no parameters, the command toggles
+the ``general`` panel. Available panel names are defined by the loaded stat
+configuration. The command accepts the following parameters:
+
+``<panel> [on|off]``
+	Toggle the panel, or show/hide it explicitly.
+
+``none``
+	Hide all panels.
+
+``help``
+	List all available panels.
+
 physics
 -------
 
