@@ -53,6 +53,7 @@
 #include "resource/expression_language.h"
 #include "resource/lua_resource.h"
 #include "world/types.h"
+#include <float.h>
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
 
@@ -1393,6 +1394,12 @@ static void test_json()
 		ENSURE(fequal(a, 3.14f));
 	}
 	{
+		const f32 positive = json::parse_float("3.4028234663852886e38");
+		const f32 negative = json::parse_float("-3.4028234663852886e38");
+		ENSURE(positive == FLT_MAX);
+		ENSURE(negative == -FLT_MAX);
+	}
+	{
 		const bool a = json::parse_bool("true");
 		ENSURE(a == true);
 	}
@@ -1457,6 +1464,31 @@ static void test_sjson()
 	{
 		const f32 a = sjson::parse_float("3.14");
 		ENSURE(fequal(a, 3.14f));
+	}
+	{
+		const f32 positive = sjson::parse_float("3.4028234663852886e38");
+		const f32 negative = sjson::parse_float("-3.4028234663852886e38");
+		ENSURE(positive == FLT_MAX);
+		ENSURE(negative == -FLT_MAX);
+	}
+	{
+		u32 num_errors = 0;
+		sjson::set_error_callback(count_parse_error, &num_errors);
+
+		sjson::clear_error();
+		const f32 positive = sjson::parse_float("1e100");
+		ENSURE(positive == 0.0f);
+		ENSURE(sjson::has_error());
+		ENSURE(num_errors == 1);
+
+		sjson::clear_error();
+		const f32 negative = sjson::parse_float("-1e100");
+		ENSURE(negative == 0.0f);
+		ENSURE(sjson::has_error());
+		ENSURE(num_errors == 2);
+
+		sjson::set_error_callback(NULL, NULL);
+		sjson::clear_error();
 	}
 	{
 		const bool a = sjson::parse_bool("true");
