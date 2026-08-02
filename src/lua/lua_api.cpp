@@ -2066,6 +2066,13 @@ void load_api(LuaEnvironment &env)
 			stack.get_world(1)->update_scene(stack.get_float(2));
 			return 0;
 		});
+#if CROWN_DEBUG || CROWN_DEVELOPMENT
+	env.add_module_function("World", "update_render_transforms", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_world(1)->update_render_transforms();
+			return 0;
+		});
+#endif
 	env.add_module_function("World", "update", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_world(1)->update(stack.get_float(2));

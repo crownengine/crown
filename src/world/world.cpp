@@ -632,6 +632,21 @@ void World::update_scene(f32 dt)
 	script_world::broadcast(*_script_world, "update", arg_types, args, countof(args));
 }
 
+void World::update_render_transforms()
+{
+#if CROWN_DEBUG || CROWN_DEVELOPMENT
+	_scene_graph->get_changed(_changed_units, _changed_world);
+
+	_render_world->update_transforms(array::begin(_changed_units)
+		, array::end(_changed_units)
+		, array::begin(_changed_world)
+		);
+
+	array::clear(_changed_units);
+	array::clear(_changed_world);
+#endif
+}
+
 void World::update(f32 dt)
 {
 	_dt = dt;

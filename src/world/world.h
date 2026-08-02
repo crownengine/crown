@@ -197,6 +197,10 @@ struct World
 	/// Update scene with @a dt.
 	void update_scene(f32 dt);
 
+	/// Updates render-world transforms with the current scene-graph transforms. Does not update
+	/// other world sub-systems or clear scene-graph changes.
+	void update_render_transforms();
+
 	/// Updates all units and sub-systems with the specified @a dt delta time.
 	void update(f32 dt);
 
