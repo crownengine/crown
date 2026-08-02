@@ -1,12 +1,35 @@
 _guid = "fed25d3f-c771-4082-95d5-b289706c1a2b"
 _type = "level"
+editor = {
+	camera = {
+		orthographic_size = 34.641017900000001
+		position = [
+			2.3833217599999998
+			-15.399295800000001
+			56.226303100000003
+		]
+		rotation = [
+			-0.60654431600000003
+			0.0056415745099999996
+			-0.0073943790000000004
+			0.79499542700000003
+		]
+		target_distance = 53.084560400000001
+		view_type = 0
+	}
+}
+skydome_unit = "core/units/skydome/skydome"
 sounds = [
 ]
 units = [
 	{
 		_guid = "20e3d0f7-28a0-4ceb-8232-c977b858c97d"
 		_type = "unit"
+		children = [
+		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "light_0001"
 		}
 		modified_components = {
@@ -37,7 +60,11 @@ units = [
 	{
 		_guid = "3f6299e4-1a95-4ac4-9a44-c511983518fc"
 		_type = "unit"
+		children = [
+		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit_0025"
 		}
 		modified_components = {
@@ -68,7 +95,11 @@ units = [
 	{
 		_guid = "53895ad6-3a1b-4a9a-a8a3-8735e3402608"
 		_type = "unit"
+		children = [
+		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit_0023"
 		}
 		modified_components = {
@@ -99,7 +130,11 @@ units = [
 	{
 		_guid = "69a216ee-398c-44ff-90e8-3cc8e8fda1eb"
 		_type = "unit"
+		children = [
+		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit_0022"
 		}
 		modified_components = {
@@ -130,7 +165,11 @@ units = [
 	{
 		_guid = "8506efab-8f99-404b-a5aa-4291303c8363"
 		_type = "unit"
+		children = [
+		]
 		editor = {
+			hidden = false
+			locked = false
 			name = "unit_0024"
 		}
 		modified_components = {
@@ -157,5 +196,46 @@ units = [
 			}
 		}
 		prefab = "units/environment/tree/tree"
+	}
+	{
+		_guid = "98fa6ca6-988e-4642-885c-8e3cee47252d"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "camera"
+		}
+		modified_components = {
+			#1d578001-d96b-4b0e-90a9-181b32161a7d = {
+				data = {
+					position = [
+						0
+						0
+						8
+					]
+					rotation = [
+						-0.70710678118654746
+						0
+						0
+						0.70710678118654757
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#2c75ed10-6fe9-4f4c-b28d-80ebca2ef66f = {
+				data = {
+					far_range = 10
+					orthographic_size = 8.4375
+					projection = "orthographic"
+				}
+			}
+		}
+		prefab = "core/units/camera"
 	}
 ]

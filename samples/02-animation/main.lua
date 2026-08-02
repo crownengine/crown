@@ -24,14 +24,6 @@ function Game.level_loaded()
 	Game.sg = World.scene_graph(GameBase.world)
 	Game.sm = World.animation_state_machine(GameBase.world)
 
-	-- Setup camera.
-	local camera = World.camera_instance(GameBase.world, GameBase.camera_unit)
-	World.camera_set_orthographic_size(GameBase.world, camera, 540/2/32)
-	World.camera_set_projection_type(GameBase.world, camera, "orthographic")
-	local camera_transform = SceneGraph.instance(Game.sg, GameBase.camera_unit)
-	SceneGraph.set_local_position(Game.sg, camera_transform, Vector3(0, 0, 8))
-	SceneGraph.set_local_rotation(Game.sg, camera_transform, Quaternion.from_axis_angle(Vector3.right(), -90*(math.pi/180.0)))
-
 	-- Spawn characters.
 	Game.players[1] = World.spawn_unit(GameBase.world, "units/soldier/soldier", Vector3(-2, 0, 0))
 	Game.players[2] = World.spawn_unit(GameBase.world, "units/princess/princess", Vector3(2, 0, 0))
