@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-12T00:42:45+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-08-02T05:51:57+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
@@ -1506,7 +1506,8 @@ It can be either <code class="docutils literal notranslate"><span class="pre">di
 </dd>
 <dt><strong>light_set_cast_shadows</strong> (rw, light, cast_shadows)</dt><dd><p>Sets whether the <em>light</em> casts shadows.</p>
 </dd>
-<dt><strong>light_debug_draw</strong> (rw, light, debug_line)</dt><dd><p>Fills <em>debug_line</em> with debug lines from the <em>light</em>.</p>
+<dt><strong>light_debug_draw</strong> (rw, light, debug_line, [draw_bounds = true])</dt><dd><p>Fills <em>debug_line</em> with debug lines from the <em>light</em>. Draws the light bounds when
+<em>draw_bounds</em> is true.</p>
 </dd>
 </dl>
 </section>
@@ -1862,7 +1863,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 12, 2026.
+      <span class="lastupdated">Last updated on Aug 02, 2026.
       </span></p>
   </div>
 

@@ -1527,8 +1527,9 @@ Light
 **light_set_cast_shadows** (rw, light, cast_shadows)
 	Sets whether the *light* casts shadows.
 
-**light_debug_draw** (rw, light, debug_line)
-	Fills *debug_line* with debug lines from the *light*.
+**light_debug_draw** (rw, light, debug_line, [draw_bounds = true])
+	Fills *debug_line* with debug lines from the *light*. Draws the light bounds when
+	*draw_bounds* is true.
 
 Fog
 ---
