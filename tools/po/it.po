@@ -1120,15 +1120,15 @@ msgstr "Apri il progetto."
 
 #: tools/level_editor/panel_projects_list.vala:84
 msgid "Open in Editor"
-msgstr ""
+msgstr "Apri nell'Editor"
 
 #: tools/level_editor/panel_projects_list.vala:90
 msgid "Open in File Manager"
-msgstr ""
+msgstr "Apri nel File Manager"
 
 #: tools/level_editor/panel_projects_list.vala:101
 msgid "Remove"
-msgstr ""
+msgstr "Rimuovi"
 
 #: tools/level_editor/panel_projects_list.vala:197
 msgid "Projects"
@@ -2269,7 +2269,7 @@ msgstr "Campo visivo verticale."
 
 #: tools/resource/types.vala:502
 msgid "Vertical half-size of the orthographic view volume."
-msgstr ""
+msgstr "Metà della dimensione verticale del volume di vista ortografico."
 
 #: tools/resource/types.vala:510
 msgid "Objects closer than this value will not be rendered."
@@ -2766,11 +2766,11 @@ msgstr "Colore ambiente applicato agli oggetti."
 
 #: tools/resource/types.vala:1784
 msgid "Shadow Distance"
-msgstr ""
+msgstr "Distanza Ombre"
 
 #: tools/resource/types.vala:1787
 msgid "Maximum distance from the camera at which shadows are rendered."
-msgstr ""
+msgstr "Distanza massima dalla telecamera alla quale vengono renderizzate le ombre."
 
 #: tools/resource/types.vala:1811
 msgid "Enable bloom effect."
@@ -2786,23 +2786,23 @@ msgstr "Moltiplicatore intensità bloom."
 
 #: tools/resource/types.vala:1860
 msgid "Enable color grading."
-msgstr ""
+msgstr "Abilita la correzione del colore."
 
 #: tools/resource/types.vala:1870
 msgid "Color to multiply with the HDR input to produce a tinted output."
-msgstr ""
+msgstr "Colore con cui moltiplicare l'input HDR per ottenere un output colorato."
 
 #: tools/resource/types.vala:1877
 msgid "Scene exposure bias in EV."
-msgstr ""
+msgstr "Compensazione dell'esposizione della scena in EV."
 
 #: tools/resource/types.vala:1886
 msgid "Adjust the tonal range of bright and dark areas. 1.0 means neutral."
-msgstr ""
+msgstr "Regola la gamma tonale delle aree chiare e scure. 1.0 indica neutralità."
 
 #: tools/resource/types.vala:1895
 msgid "Adjust the intensity of the colors. 1.0 means neutral."
-msgstr ""
+msgstr "Regola l'intensità dei colori. 1.0 indica neutralità."
 
 #: tools/resource/types.vala:1921
 msgid "Tonemapping operator. Gamma means no tonemapping is applied."
