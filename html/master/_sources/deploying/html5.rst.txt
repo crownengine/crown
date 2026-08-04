@@ -2,6 +2,9 @@
 Deploying to HTML5
 ==================
 
+Configure HTML5 deployer
+========================
+
 Install emscripten
 ------------------
 

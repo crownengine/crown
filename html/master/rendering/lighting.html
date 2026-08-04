@@ -115,6 +115,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="materials.html">Materials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shading_environment.html">Shading Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render_config.html">Render Config</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics</span></p>
 <ul>
@@ -130,6 +131,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Deploying</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/android.html">Deploying to Android</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/html5.html">Deploying to HTML5</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploying/desktop.html">Deploying to Desktop Platforms</a></li>
@@ -232,7 +234,7 @@ street lights and similar sources.</p>
 <p>Crown uses different shadow mapping approaches depending on the light type.
 Directional light shadows are rendered with Cascaded Shadow Maps (4 splits).
 Local lights combine tetrahedron mapping and regular shadow maps inside a
-single shadow atlas. Use the <span class="xref std std-ref">Render Config</span> to tune shadow-map
+single shadow atlas. Use the <a class="reference internal" href="render_config.html#render-config"><span class="std std-ref">Render Config</span></a> to tune shadow-map
 resolution and related parameters.</p>
 <p>Rendering convincing shadows require careful tuning. Two common shadow mapping
 artifacts are shadow acne and peter-panning. Use the Light Component’s

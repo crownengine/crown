@@ -2,6 +2,9 @@
 Deploying to Android
 ====================
 
+Configure Android deployer
+==========================
+
 Install Java JDK
 ----------------
 

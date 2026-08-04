@@ -5,26 +5,26 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-02-14T15:17:34+00:00" /><meta property="og:title" content="Importing Textures" />
+    <meta property="article:modified_time" content="2026-08-04T17:15:08+00:00" /><meta property="og:title" content="Deploying" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://docs.crownengine.org/html/latest/importing_resources/importing_textures.html" />
+<meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/index.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="Textures are usually added to the project indirectly by higher-level importers (for example when Importing Scenes or Importing Sprites). You can also import images as standalone textures when you need it for UI, materials, or other specialized uses. When you import a texture, ..." />
-<meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
+<meta property="og:description" content="Use the integrated deployer to generate final packages ready to be distributed to end-users. Click File-&gt; Deploy to open the Deploy Dialog: The Deploy dialog for Android., Configure the target platform: Navigate to the desired target platform using the tabs at the top. When..." />
+<meta property="og:image" content="https://docs.crownengine.org/html/latest/_images/deploy_dialog.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="Textures are usually added to the project indirectly by higher-level importers (for example when Importing Scenes or Importing Sprites). You can also import images as standalone textures when you need it for UI, materials, or other specialized uses. When you import a texture, ..." />
+<meta name="description" content="Use the integrated deployer to generate final packages ready to be distributed to end-users. Click File-&gt; Deploy to open the Deploy Dialog: The Deploy dialog for Android., Configure the target platform: Navigate to the desired target platform using the tabs at the top. When..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Importing Textures &mdash; Crown 0.64.0 Manual</title>
+  <title>Deploying &mdash; Crown 0.64.0 Manual</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
 
   
     <link rel="shortcut icon" href="../_static/org.crownengine.Crown.svg"/>
-    <link rel="canonical" href="https://docs.crownengine.org/html/latest/importing_resources/importing_textures.html" />
+    <link rel="canonical" href="https://docs.crownengine.org/html/latest/deploying/index.html" />
       <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
       <script src="../_static/jquery.js"></script>
       <script src="../_static/underscore.js"></script>
@@ -34,8 +34,8 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Importing Sounds" href="importing_sounds.html" />
-    <link rel="prev" title="Importing Sprites" href="importing_sprites.html" /> 
+    <link rel="next" title="Deploying to Android" href="android.html" />
+    <link rel="prev" title="Lua API reference" href="../lua_api.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -87,13 +87,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../level_editor/texture_settings.html">Texture Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Importing Resources</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="importing_resources.html">Importing resources</a></li>
-<li class="toctree-l1"><a class="reference internal" href="importing_scenes.html">Importing Scenes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="importing_sprites.html">Importing Sprites</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Importing Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="importing_sounds.html">Importing Sounds</a></li>
-<li class="toctree-l1"><a class="reference internal" href="importing_fonts.html">Importing Fonts</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_resources.html">Importing resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_scenes.html">Importing Scenes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_sprites.html">Importing Sprites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_textures.html">Importing Textures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_sounds.html">Importing Sounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../importing_resources/importing_fonts.html">Importing Fonts</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Units</span></p>
 <ul>
@@ -120,11 +120,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../lua_api.html">Lua API reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Deploying</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/index.html">Deploying</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/android.html">Deploying to Android</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/html5.html">Deploying to HTML5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploying/desktop.html">Deploying to Desktop Platforms</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deploying</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configure-the-target-platform">Configure the target platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-destination-and-config">Output destination and Config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#package-the-project">Package the Project</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="android.html">Deploying to Android</a></li>
+<li class="toctree-l1"><a class="reference internal" href="html5.html">Deploying to HTML5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="desktop.html">Deploying to Desktop Platforms</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
@@ -159,9 +164,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Importing Textures</li>
+      <li class="breadcrumb-item active">Deploying</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/importing_resources/importing_textures.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/deploying/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -169,32 +174,87 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="importing-textures">
-<h1>Importing Textures<a class="headerlink" href="#importing-textures" title="Permalink to this headline">¶</a></h1>
-<p>Textures are usually added to the project indirectly by higher-level
-importers (for example when <a class="reference internal" href="importing_scenes.html#importing-scenes"><span class="std std-ref">Importing Scenes</span></a> or <a class="reference internal" href="importing_sprites.html#importing-sprites"><span class="std std-ref">Importing Sprites</span></a>). You can also import images as standalone textures when you need it
-for UI, materials, or other specialized uses.</p>
-<p>When you import a texture, Crown copies the source image into
-the <a class="reference internal" href="../getting_started/basic_concepts.html#project"><span class="std std-ref">project</span></a> and creates a <code class="docutils literal notranslate"><span class="pre">.texture</span></code> resource file with
-the same name. The <code class="docutils literal notranslate"><span class="pre">.texture</span></code> resource stores processing settings for each
-target platform (compression, mipmaps etc.). Crown uses the <code class="docutils literal notranslate"><span class="pre">.texture</span></code> file
-at compile time to produce optimized GPU-ready assets.</p>
-<p>Open the <a class="reference internal" href="../level_editor/texture_settings.html#texture-settings"><span class="std std-ref">Texture Settings</span></a> tool to review or modify processing options.</p>
+  <section id="deploying">
+<h1>Deploying<a class="headerlink" href="#deploying" title="Permalink to this headline">¶</a></h1>
+<p>Use the integrated deployer to generate final packages ready to be distributed
+to end-users. Click <code class="docutils literal notranslate"><span class="pre">File</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Deploy</span></code> to open the Deploy Dialog:</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/deploy_dialog.png"><img alt="../_images/deploy_dialog.png" src="../_images/deploy_dialog.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">The Deploy dialog for Android.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<section id="configure-the-target-platform">
+<h2>Configure the target platform<a class="headerlink" href="#configure-the-target-platform" title="Permalink to this headline">¶</a></h2>
+<p>Navigate to the desired target platform using the tabs at the top. When
+deploying to a platform that differs from the host platform, you will first be
+asked to configure the deployer:</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/deploy_not_configured.png"><img alt="../_images/deploy_not_configured.png" src="../_images/deploy_not_configured.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Unconfigured Android deployer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Follow the instructions to configure the deployer for your target platform:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="android.html#configure-android-deployer"><span class="std std-ref">Android</span></a></p></li>
+<li><p><a class="reference internal" href="html5.html#configure-html5-deployer"><span class="std std-ref">HTML5</span></a></p></li>
+</ul>
+</div></blockquote>
+<p>After the configuration in done, restart the editor and navigate back to the
+Deployer Dialog to proceed.</p>
+</section>
+<section id="output-destination-and-config">
+<h2>Output destination and Config<a class="headerlink" href="#output-destination-and-config" title="Permalink to this headline">¶</a></h2>
+<p>Select the destination folder where the output will be stored. Next, select the
+desired configuration. You can choose between the <code class="docutils literal notranslate"><span class="pre">Release</span></code> or <code class="docutils literal notranslate"><span class="pre">Development</span></code>
+configurations.</p>
+<p>A project deployed in <code class="docutils literal notranslate"><span class="pre">Release</span></code> mode is stripped of unnecessary components and
+optimized for maximum performance. The <code class="docutils literal notranslate"><span class="pre">Development</span></code> configuration includes
+debugging symbols and other features useful during development.</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/deploy_destination_folder_layout.png" src="../_images/deploy_destination_folder_layout.png" />
+<figcaption>
+<p><span class="caption-text">Destination folder can host multiple platforms and configs.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>You can deploy multiple platforms, arhitectures and configurations in the same
+destination folder. By default Crown creates packages following this tree
+structure:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">&lt;destination&gt;</span></code>/<code class="docutils literal notranslate"><span class="pre">&lt;platform&gt;</span></code>/<code class="docutils literal notranslate"><span class="pre">&lt;architecture&gt;</span></code>/<code class="docutils literal notranslate"><span class="pre">&lt;config&gt;</span></code></p>
+</div></blockquote>
+</section>
+<section id="package-the-project">
+<h2>Package the Project<a class="headerlink" href="#package-the-project" title="Permalink to this headline">¶</a></h2>
+<p>Click the <code class="docutils literal notranslate"><span class="pre">Package</span> <span class="pre">Project</span> <span class="pre">for</span> <span class="pre">&lt;platform&gt;</span></code> at the top to begin packaging the
+project.</p>
+<p>Crown will compile the project and generate a self-contained folder or package
+ready to be distributed. At the end of the process you can choose to navigate to
+the generated binaries or repeat the packaging.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/deploy_completed.png"><img alt="../_images/deploy_completed.png" src="../_images/deploy_completed.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">A package successfully deployed.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="importing_sprites.html" class="btn btn-neutral float-left" title="Importing Sprites" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="importing_sounds.html" class="btn btn-neutral float-right" title="Importing Sounds" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../lua_api.html" class="btn btn-neutral float-left" title="Lua API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="android.html" class="btn btn-neutral float-right" title="Deploying to Android" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Feb 14, 2026.
+      <span class="lastupdated">Last updated on Aug 04, 2026.
       </span></p>
   </div>
 

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-06T22:57:55+00:00" /><meta property="og:title" content="Deploying to Android" />
+    <meta property="article:modified_time" content="2026-08-04T17:15:08+00:00" /><meta property="og:title" content="Deploying to Android" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/android.html" />
 <meta property="og:site_name" content="Crown 0.64.0 Manual" />
-<meta property="og:description" content="Install Java JDK: Install the latest JDK:- https://www.oracle.com/java/technologies/downloads/., Set JAVA_HOME environment variable, if the JDK installer did not:. Install Android SDK &amp; NDK: Install sdkmanager:- https://developer.android.com/tools/sdkmanager., Install Andr..." />
+<meta property="og:description" content="Configure Android deployer: Install Java JDK: Install the latest JDK:- https://www.oracle.com/java/technologies/downloads/., Set JAVA_HOME environment variable, if the JDK installer did not:. Install Android SDK &amp; NDK: Install sdkmanager:- https://developer.android.com/too..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.64.0 Manual" />
-<meta name="description" content="Install Java JDK: Install the latest JDK:- https://www.oracle.com/java/technologies/downloads/., Set JAVA_HOME environment variable, if the JDK installer did not:. Install Android SDK &amp; NDK: Install sdkmanager:- https://developer.android.com/tools/sdkmanager., Install Andr..." />
+<meta name="description" content="Configure Android deployer: Install Java JDK: Install the latest JDK:- https://www.oracle.com/java/technologies/downloads/., Set JAVA_HOME environment variable, if the JDK installer did not:. Install Android SDK &amp; NDK: Install sdkmanager:- https://developer.android.com/too..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -35,7 +35,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
     <link rel="next" title="Deploying to HTML5" href="html5.html" />
-    <link rel="prev" title="Lua API reference" href="../lua_api.html" /> 
+    <link rel="prev" title="Deploying" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -105,6 +105,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../rendering/lighting.html">Lighting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../rendering/materials.html">Materials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../rendering/shading_environment.html">Shading Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rendering/render_config.html">Render Config</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics</span></p>
 <ul>
@@ -120,11 +121,15 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Deploying</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Deploying</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deploying to Android</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-java-jdk">Install Java JDK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-android-sdk-ndk">Install Android SDK &amp; NDK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#generate-a-keystore">Generate a keystore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure-android-deployer">Configure Android deployer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-java-jdk">Install Java JDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-android-sdk-ndk">Install Android SDK &amp; NDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-a-keystore">Generate a keystore</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="html5.html">Deploying to HTML5</a></li>
@@ -175,8 +180,10 @@
              
   <section id="deploying-to-android">
 <h1>Deploying to Android<a class="headerlink" href="#deploying-to-android" title="Permalink to this headline">¶</a></h1>
+<section id="configure-android-deployer">
+<h2>Configure Android deployer<a class="headerlink" href="#configure-android-deployer" title="Permalink to this headline">¶</a></h2>
 <section id="install-java-jdk">
-<h2>Install Java JDK<a class="headerlink" href="#install-java-jdk" title="Permalink to this headline">¶</a></h2>
+<h3>Install Java JDK<a class="headerlink" href="#install-java-jdk" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
 <li><p>Install the latest JDK:</p>
 <blockquote>
@@ -192,7 +199,7 @@
 </div>
 </section>
 <section id="install-android-sdk-ndk">
-<h2>Install Android SDK &amp; NDK<a class="headerlink" href="#install-android-sdk-ndk" title="Permalink to this headline">¶</a></h2>
+<h3>Install Android SDK &amp; NDK<a class="headerlink" href="#install-android-sdk-ndk" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
 <li><p>Install sdkmanager:</p>
 <blockquote>
@@ -213,14 +220,14 @@
 <p>build-tools &gt;= 34.0.0 is required.</p>
 </section>
 <section id="set-environment-variables">
-<h2>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h2>
+<h3>Set environment variables<a class="headerlink" href="#set-environment-variables" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ANDROID_SDK_PATH</span><span class="o">=&lt;</span><span class="n">android_sdk</span><span class="o">&gt;</span>
 <span class="n">export</span> <span class="n">ANDROID_NDK_ROOT</span><span class="o">=&lt;</span><span class="n">android_ndk</span><span class="o">&gt;/&lt;</span><span class="n">version</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </section>
 <section id="generate-a-keystore">
-<h2>Generate a keystore<a class="headerlink" href="#generate-a-keystore" title="Permalink to this headline">¶</a></h2>
+<h3>Generate a keystore<a class="headerlink" href="#generate-a-keystore" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">keytool</span> <span class="o">-</span><span class="n">genkey</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">keystore</span> <span class="n">test</span><span class="o">.</span><span class="n">keystore</span> <span class="o">-</span><span class="n">alias</span> <span class="n">test</span> \
         <span class="o">-</span><span class="n">keyalg</span> <span class="n">RSA</span> <span class="o">-</span><span class="n">keysize</span> <span class="mi">2048</span> <span class="o">-</span><span class="n">validity</span> <span class="mi">10000</span> \
         <span class="o">-</span><span class="n">keypass</span> <span class="mi">123456</span> <span class="o">-</span><span class="n">storepass</span> <span class="mi">123456</span>
@@ -228,12 +235,13 @@
 </div>
 </section>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../lua_api.html" class="btn btn-neutral float-left" title="Lua API reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Deploying" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="html5.html" class="btn btn-neutral float-right" title="Deploying to HTML5" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -241,7 +249,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 06, 2026.
+      <span class="lastupdated">Last updated on Aug 04, 2026.
       </span></p>
   </div>
 

@@ -25,6 +25,7 @@ Changelog
 * Tools: improved rendering performance of selected objects.
 * Tools: improved performance when moving many units in the Level Editor.
 * Tools: added a new ``stat`` console command to show performance statistics.
+* Tools: added a new Color Grading component to adjust the final rendered image.
 * Runtime: improved performance when rendering worlds containing many units.
 * Runtime: improved performance of sun shadows rendering.
 * Runtime: Linux: added a new ``--display-server`` option to select between X11 and Wayland backends. X11 remains the default.
