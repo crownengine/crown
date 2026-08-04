@@ -97,6 +97,8 @@ public class SubprocessLauncherServer : Object
 public interface SubprocessLauncher : Object
 {
 	public abstract uint32 spawnv_async(GLib.SubprocessFlags flags, string[] argv, string working_dir) throws GLib.SpawnError, GLib.Error;
+	// 7200000 = 2 hours = 2*3600*1000 ms.
+	[DBus (timeout = 7200000)]
 	public abstract int wait(uint32 process_id) throws GLib.Error;
 	public abstract void kill(uint32 process_id) throws GLib.Error;
 }
