@@ -92,6 +92,7 @@ Crown |version| Manual
     :hidden:
     :caption: Deploying
 
+    deploying/index
     deploying/android
     deploying/html5
     deploying/desktop
