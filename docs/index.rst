@@ -68,6 +68,7 @@ Crown |version| Manual
     rendering/lighting
     rendering/materials
     rendering/shading_environment
+    rendering/render_config
 
 .. toctree::
     :maxdepth: 2
