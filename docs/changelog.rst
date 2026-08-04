@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a glitch when setting color values in the Inspector.
+* Tools: fixed the "Timeout was reached" error when deploying large projects.
 * Runtime: Linux: fixed a crash on some rendering backends.
 * Runtime: fixed a crash caused by animation instances not being released by the state machine when destroyed.
 
