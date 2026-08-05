@@ -316,6 +316,7 @@ jobs:
   aur:
     needs: finalize
     if: github.event_name == 'push'
+    continue-on-error: true
     runs-on: ubuntu-22.04
     container: archlinux:base-devel
     permissions:
