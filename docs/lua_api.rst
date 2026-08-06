@@ -514,6 +514,8 @@ Pad Axis Names
 * ``left``, ``right``: Returns the direction (x, y) of the left or right thumbstick [-1; +1].
 * ``trigger_left``, ``trigger_right``: The z element represents the left or right trigger [0; +1].
 
+.. _lua_material:
+
 Material
 ========
 
@@ -1372,6 +1374,8 @@ Interface to the integrated profiler.
 
 **record** (name, value)
 	Records *value* with the specified *name*. Value can be either number or Vector3.
+
+.. _lua_render_world:
 
 RenderWorld
 ===========

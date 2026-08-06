@@ -49,11 +49,11 @@ Renderer`` component for example exposes a ``Material`` property.
 Click the folder icon next to the material's name to open the Material Chooser
 and pick the desired material from the list.
 
-You can also assign materials programmatically at runtime via
-the :ref:`RenderWorld` Lua API.
+You can also assign materials programmatically at runtime via the
+:ref:`RenderWorld <lua_render_world>` Lua API.
 
 Modifying Material properties
 =============================
 
-Once a material is assigned, you can modify its properties dynamically from
-Lua scripts using the :ref:`Material` API.
+Once a material is assigned, you can modify its properties dynamically from Lua
+scripts using the :ref:`Material <lua_material>` API.
