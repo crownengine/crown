@@ -59,6 +59,7 @@ Crown |version| Manual
 
     units/introduction
     units/creating_units
+    units/unit_editor
 
 .. toctree::
     :maxdepth: 2
