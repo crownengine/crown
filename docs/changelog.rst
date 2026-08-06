@@ -87,6 +87,7 @@ Changelog
 * Runtime: Linux: fixed wrong initial state of gamepads on some systems.
 * Runtime: Linux: fixed a crash on some rendering backends.
 * Runtime: fixed a crash caused by animation instances not being released by the state machine when destroyed.
+* Runtime: HTML5: fixed MSAA not being enabled.
 * Data Compiler: fixed parsing of malformed (but valid and very common) WAV sounds.
 * Data Compiler: fixed mesh compilers and importers to better detect and avoid empty meshes from reaching the runtime.
 * Lua: fixed ``Quaternion.look()`` returning non-orthonormal rotation matrices.
