@@ -40,7 +40,8 @@ public class InputQuaternion : InputField
 		}
 		set
 		{
-			_rotation = value;
+			if (Quaternion.equal_func(_rotation, value))
+				return;
 
 			// Convert to Euler for displaying.
 			Vector3 euler = value.to_euler();
@@ -61,13 +62,13 @@ public class InputQuaternion : InputField
 	public InputQuaternion(int preview_decimals = 2, int edit_decimals = 3)
 	{
 		_rotation = QUATERNION_IDENTITY;
-		_x = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
+		_x = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
-		_y = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
+		_y = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
-		_z = new InputDouble(0.0, -180.0, 180.0, preview_decimals, edit_decimals);
+		_z = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
 
