@@ -92,10 +92,6 @@ struct StringId64 STRING_ID_64(const char *str, const u64 id);
 	#define _ALLOW_KEYWORD_MACROS
 #endif
 
-#if !defined(alignof)
-	#define alignof(x) __alignof(x)
-#endif
-
 #if !defined(__va_copy)
 	#define __va_copy(dest, src) (dest = src)
 #endif
