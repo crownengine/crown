@@ -498,7 +498,7 @@ public class InputColor3 : InputField
 		_hs_palette.queue_draw();
 	}
 
-	public void on_rgb_value_changed()
+	public void on_rgb_value_changed(InputField p, int undo_redo)
 	{
 		double h = 0.0;
 		double s = 0.0;
@@ -520,10 +520,10 @@ public class InputColor3 : InputField
 
 		_hs_palette.queue_draw();
 
-		value_changed(this, _silent ? -1 : (int)!_dragging);
+		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
 	}
 
-	public void on_hsv_value_changed()
+	public void on_hsv_value_changed(InputField p, int undo_redo)
 	{
 		double r = 1.0;
 		double g = 1.0;
@@ -547,7 +547,7 @@ public class InputColor3 : InputField
 
 		_hs_palette.queue_draw();
 
-		value_changed(this, _silent ? -1 : (int)!_dragging);
+		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
 	}
 
 	public void disconnect_rgb()
