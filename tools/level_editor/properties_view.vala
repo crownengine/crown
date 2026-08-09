@@ -5,6 +5,32 @@
 
 namespace Crown
 {
+public class UnitComponentRow : Gtk.ListBoxRow
+{
+	public string _component_type;
+	public string _ui_name;
+	public string _ui_category;
+	public double _ui_category_order;
+	public double _ui_order;
+
+	public UnitComponentRow(ObjectTypeInfo info, string ui_category, double ui_category_order)
+	{
+		_component_type = info.name;
+		_ui_name = info.ui_name;
+		_ui_category = ui_category;
+		_ui_category_order = ui_category_order;
+		_ui_order = info.ui_order;
+
+		Gtk.Label label = new Gtk.Label(_ui_name);
+		label.xalign = 0.0f;
+		label.margin_start = 12;
+		label.margin_end = 6;
+		label.margin_top = 3;
+		label.margin_bottom = 3;
+		this.add(label);
+	}
+}
+
 public class UnitView : PropertyGrid
 {
 	public InputResource _prefab;
@@ -12,6 +38,7 @@ public class UnitView : PropertyGrid
 	public Gtk.MenuButton _component_add;
 	public Gtk.Box _components;
 	public Gtk.Popover _add_popover;
+	public Gtk.EventControllerKey _component_search_controller_key;
 
 	public const GLib.ActionEntry[] actions =
 	{
@@ -47,17 +74,159 @@ public class UnitView : PropertyGrid
 		_open_prefab.clicked.connect(on_open_prefab_clicked);
 
 		// Construct 'add components' button.
-		GLib.Menu menu_model = new GLib.Menu();
+		EntrySearch search_entry = new EntrySearch();
+		search_entry.set_placeholder_text(_("Search..."));
 
+		Gtk.ListBox component_list = new Gtk.ListBox();
+		component_list.selection_mode = Gtk.SelectionMode.SINGLE;
+
+		GLib.HashTable<string, double?> category_orders = new GLib.HashTable<string, double?>(GLib.str_hash, GLib.str_equal);
 		Unit._component_registry.foreach((component_type, _value) => {
-				GLib.MenuItem mi = new GLib.MenuItem(camel_case(component_type), null);
-				mi.set_action_and_target_value("object.add-component"
-				, new GLib.Variant.string(component_type)
-				);
-				menu_model.append_item(mi);
+				ObjectTypeInfo info = db.type_info(StringId64(component_type));
+				string? category = info.ui_category;
+				if (category != null
+				&& (!category_orders.contains(category) || info.ui_order < category_orders[category])
+				)
+					category_orders[category] = info.ui_order;
 			});
 
-		_add_popover = new Gtk.Popover.from_model(null, menu_model);
+		Unit._component_registry.foreach((component_type, _value) => {
+				ObjectTypeInfo info = db.type_info(StringId64(component_type));
+				string category = info.ui_category != null ? info.ui_category : _("Other");
+				double category_order = info.ui_category != null
+				? category_orders[info.ui_category]
+				: double.MAX;
+
+				component_list.add(new UnitComponentRow(info, category, category_order));
+			});
+
+		component_list.set_sort_func((row_a, row_b) => {
+				UnitComponentRow a = (UnitComponentRow)row_a;
+				UnitComponentRow b = (UnitComponentRow)row_b;
+
+				if (a._ui_category_order != b._ui_category_order)
+					return a._ui_category_order < b._ui_category_order ? -1 : 1;
+
+				int result = a._ui_category.collate(b._ui_category);
+				if (result != 0)
+					return result;
+
+				if (a._ui_order != b._ui_order)
+					return a._ui_order < b._ui_order ? -1 : 1;
+
+				result = a._ui_name.collate(b._ui_name);
+				return result != 0 ? result : a._component_type.collate(b._component_type);
+			});
+
+		component_list.set_filter_func((row) => {
+				UnitComponentRow component_row = (UnitComponentRow)row;
+				string query = search_entry.text.casefold();
+				return query == ""
+				|| component_row._ui_name.casefold().contains(query)
+				|| component_row._ui_category.casefold().contains(query);
+			});
+
+		component_list.set_header_func((row, before) => {
+				UnitComponentRow component_row = (UnitComponentRow)row;
+				UnitComponentRow? before_row = before != null ? (UnitComponentRow)before : null;
+
+				if (before_row == null || component_row._ui_category != before_row._ui_category) {
+					Gtk.Box header = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+					if (before != null)
+						header.pack_start(new Gtk.Separator(Gtk.Orientation.HORIZONTAL), false, false, 0);
+
+					Gtk.Label label = new Gtk.Label(component_row._ui_category);
+					label.xalign = 0.0f;
+					label.margin_start = 6;
+					label.margin_top = 3;
+					label.margin_bottom = 3;
+					label.get_style_context().add_class(Gtk.STYLE_CLASS_DIM_LABEL);
+					header.pack_start(label, false, false, 0);
+
+					row.set_header(header);
+					header.show_all();
+				} else {
+					row.set_header(null);
+				}
+			});
+
+		component_list.row_activated.connect((row) => {
+				UnitComponentRow component_row = (UnitComponentRow)row;
+				_action_group.activate_action("add-component", new GLib.Variant.string(component_row._component_type));
+				_add_popover.popdown();
+			});
+
+		Gtk.ScrolledWindow component_scroller = new Gtk.ScrolledWindow(null, null);
+		component_scroller.hscrollbar_policy = Gtk.PolicyType.NEVER;
+		component_scroller.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
+		component_scroller.set_min_content_width(300);
+		component_scroller.set_max_content_height(400);
+		component_scroller.set_propagate_natural_height(true);
+		component_scroller.add(component_list);
+		component_list.set_adjustment(component_scroller.get_vadjustment());
+
+		search_entry.search_changed.connect(() => {
+				component_list.invalidate_filter();
+				component_list.invalidate_headers();
+				component_list.unselect_all();
+				foreach (Gtk.Widget child in component_list.get_children()) {
+					if (child.get_child_visible()) {
+						component_list.select_row((Gtk.ListBoxRow)child);
+						break;
+					}
+				}
+			});
+		search_entry._entry.activate.connect(() => {
+				Gtk.ListBoxRow? row = component_list.get_selected_row();
+				if (row != null)
+					component_list.row_activated(row);
+			});
+
+		_component_search_controller_key = new Gtk.EventControllerKey(search_entry._entry);
+		_component_search_controller_key.key_pressed.connect((keyval, keycode, state) => {
+				if (keyval == Gdk.Key.Down || keyval == Gdk.Key.Up) {
+					int delta = keyval == Gdk.Key.Down ? 1 : -1;
+					Gtk.ListBoxRow? row = component_list.get_selected_row();
+					if (row == null)
+						return Gdk.EVENT_STOP;
+
+					int index = row.get_index();
+					do {
+						row = component_list.get_row_at_index(index += delta);
+					} while (row != null && !row.get_child_visible());
+
+					if (row != null) {
+						component_list.select_row(row);
+						row.grab_focus();
+						search_entry._entry.grab_focus_without_selecting();
+					}
+					return Gdk.EVENT_STOP;
+				}
+
+				if (keyval == Gdk.Key.Escape) {
+					_add_popover.popdown();
+					return Gdk.EVENT_STOP;
+				}
+
+				return Gdk.EVENT_PROPAGATE;
+			});
+
+		Gtk.Box popover_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
+		popover_box.margin = 6;
+		popover_box.pack_start(search_entry, false, false);
+		popover_box.pack_start(component_scroller);
+
+		_add_popover = new Gtk.Popover(null);
+		_add_popover.add(popover_box);
+		_add_popover.map.connect(() => {
+				search_entry._entry.grab_focus_without_selecting();
+				search_entry.search_changed();
+			});
+		_add_popover.closed.connect(() => {
+				search_entry.text = "";
+				component_list.unselect_all();
+			});
+		popover_box.show_all();
 
 		_component_add = new Gtk.MenuButton();
 		_component_add.label = _("Add Component");

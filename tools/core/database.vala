@@ -487,6 +487,7 @@ public struct ObjectTypeInfo
 	PropertiesSlice properties;
 	string name;
 	string ui_name;
+	string? ui_category;
 	double ui_order;
 	ObjectTypeFlags flags;
 	string? user_data;
@@ -2164,6 +2165,7 @@ public class Database
 	public StringId64 create_object_type(string type
 		, PropertyDefinition[] properties
 		, double ui_order = 0.0
+		, string? ui_category = null
 		, ObjectTypeFlags flags = ObjectTypeFlags.NONE
 		, string? user_data = null
 		)
@@ -2182,6 +2184,7 @@ public class Database
 		info.name = type;
 		info.ui_name = camel_case(type);
 		info.ui_order = ui_order;
+		info.ui_category = ui_category;
 		info.flags = flags;
 		info.user_data = user_data;
 		info.aspects = new GLib.HashTable<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);

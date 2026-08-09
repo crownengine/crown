@@ -194,6 +194,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_TRANSFORM
 		, properties
 		, 500
+		, _("General")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -253,6 +254,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_MESH_RENDERER
 		, properties
 		, 1102
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -323,6 +325,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_SPRITE_RENDERER
 		, properties
 		, 1103
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -402,6 +405,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_LIGHT
 		, properties
 		, 1101
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -467,6 +471,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_LOD_GROUP
 		, properties
 		, 1104
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -529,6 +534,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_CAMERA
 		, properties
 		, 1100
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -620,6 +626,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_COLLIDER
 		, properties
 		, 2100
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -721,6 +728,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_ACTOR
 		, properties
 		, 2101
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -748,6 +756,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_SCRIPT
 		, properties
 		, 7100
+		, _("Scripting")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -774,6 +783,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE
 		, properties
 		, 3100
+		, _("Animation")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -1009,6 +1019,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_FOG
 		, properties
 		, 1105
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -1085,6 +1096,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_MOVER
 		, properties
 		, 2102
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
@@ -1121,6 +1133,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_FIXED_JOINT
 		, properties
 		, 2103
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1169,6 +1182,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_SPHERICAL_JOINT
 		, properties
 		, 2106
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1424,6 +1438,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_D6_JOINT
 		, properties
 		, 2107
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1550,6 +1565,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_LIMB_JOINT
 		, properties
 		, 2108
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1667,6 +1683,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_HINGE_JOINT
 		, properties
 		, 2104
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1745,6 +1762,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_SPRING_JOINT
 		, properties
 		, 2105
+		, _("Physics")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_ACTOR
 		);
@@ -1798,6 +1816,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_GLOBAL_LIGHTING
 		, properties
 		, 1001
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -1847,6 +1866,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_BLOOM
 		, properties
 		, 9100
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -1906,6 +1926,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_COLOR_GRADING
 		, properties
 		, 9200
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
@@ -1932,6 +1953,7 @@ public static void create_object_types(Database database)
 	database.create_object_type(OBJECT_TYPE_TONEMAP
 		, properties
 		, 9900
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 
