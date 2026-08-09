@@ -47,7 +47,7 @@ msgstr "Changer les Objets"
 #: tools/level_editor/delete_dialog.vala:63
 #: tools/level_editor/delete_dialog.vala:85
 msgid "Delete Resources"
-msgstr ""
+msgstr "Supprimer les Ressources"
 
 #: tools/level_editor/delete_dialog.vala:89
 #: tools/level_editor/level_editor.vala:2351
@@ -85,16 +85,16 @@ msgstr "Supprimer"
 
 #: tools/level_editor/delete_dialog.vala:121
 msgid "Associated files"
-msgstr ""
+msgstr "Fichiers associés"
 
 #: tools/level_editor/delete_dialog.vala:126
 msgid "Becomes unused"
-msgstr ""
+msgstr "Devient inutilisé"
 
 #: tools/level_editor/delete_dialog.vala:131
 #: tools/level_editor/move_dialog.vala:165
 msgid "Shared"
-msgstr ""
+msgstr "Partagé"
 
 #: tools/level_editor/delete_dialog.vala:139
 msgid ""
@@ -102,16 +102,20 @@ msgid ""
 "Resources that become unused and shared dependencies are unchecked by "
 "default."
 msgstr ""
+"Ressources sélectionnées et fichiers associés à supprimer.\n"
+"Les ressources qui deviennent des dépendances inutilisées et partagées ne sont pas cochées par "
+"défaut."
 
 #: tools/level_editor/delete_dialog.vala:165
 #: tools/level_editor/delete_dialog.vala:526
 msgid "Will Reference Missing Resources"
-msgstr ""
+msgstr "Référencera Les Ressources Manquantes"
 
 #: tools/level_editor/delete_dialog.vala:166
 msgid ""
 "Resources outside the delete set that will still point to deleted paths."
 msgstr ""
+"Ressources en dehors de l'ensemble de suppression qui pointeront toujours vers des chemins supprimés."
 
 #: tools/level_editor/delete_dialog.vala:385
 #: tools/level_editor/dependencies_dialog.vala:170
@@ -122,7 +126,7 @@ msgstr "Ressource"
 
 #: tools/level_editor/delete_dialog.vala:396
 msgid "Missing Resource"
-msgstr ""
+msgstr "Ressource Manquante"
 
 #: tools/level_editor/dependencies_dialog.vala:206
 #: tools/level_editor/dependencies_dialog.vala:211
@@ -588,19 +592,19 @@ msgstr "Impossible d'afficher les dépendances"
 #: tools/level_editor/level_editor.vala:3684
 #: tools/level_editor/level_editor.vala:3694
 msgid "Cannot move resource"
-msgstr ""
+msgstr "Ne peut pas déplacer la ressource"
 
 #: tools/level_editor/level_editor.vala:3640
 msgid "Move Resources"
-msgstr ""
+msgstr "Déplacer des Ressources"
 
 #: tools/level_editor/level_editor.vala:3641
 msgid "Source paths to move."
-msgstr ""
+msgstr "Chemins sources à déplacer."
 
 #: tools/level_editor/level_editor.vala:3711
 msgid "Move To"
-msgstr ""
+msgstr "Déplacer à"
 
 #: tools/level_editor/level_editor.vala:3716 tools/level_editor/menus.vala:258
 #: tools/level_editor/move_dialog.vala:88
@@ -612,12 +616,12 @@ msgstr "Déplacer"
 #: tools/level_editor/level_editor.vala:3763
 #: tools/level_editor/level_editor.vala:3768
 msgid "Rename"
-msgstr ""
+msgstr "Renommer"
 
 #: tools/level_editor/level_editor.vala:3837
 #: tools/level_editor/level_editor.vala:3863
 msgid "Cannot delete resource"
-msgstr ""
+msgstr "Ne peut pas supprimer la ressource"
 
 #: tools/level_editor/level_editor.vala:3975
 #: tools/level_editor/level_editor.vala:4121
@@ -1016,23 +1020,23 @@ msgstr "Aide"
 
 #: tools/level_editor/move_dialog.vala:115
 msgid "Also safe to move"
-msgstr ""
+msgstr "Aussi sûr à déplacer"
 
 #: tools/level_editor/move_dialog.vala:151
 msgid "Update References"
-msgstr ""
+msgstr "Mettre à Jour les Références"
 
 #: tools/level_editor/move_dialog.vala:152
 msgid "Source files whose resource references or paths may be rewritten."
-msgstr ""
+msgstr "Fichiers sources dont les références de ressources ou les chemins peuvent être réécrits."
 
 #: tools/level_editor/move_dialog.vala:166
 msgid "Dependencies also used by resources outside the move set."
-msgstr ""
+msgstr "Dépendances également utilisées par les ressources en dehors de l'ensemble de déplacement."
 
 #: tools/level_editor/move_dialog.vala:370
 msgid "Old Name"
-msgstr ""
+msgstr "Ancien nom"
 
 #: tools/level_editor/object_editor.vala:61
 #: tools/level_editor/texture_settings_dialog.vala:161
@@ -1116,15 +1120,15 @@ msgstr "Ouvrir le projet."
 
 #: tools/level_editor/panel_projects_list.vala:84
 msgid "Open in Editor"
-msgstr ""
+msgstr Ouvrir dans l'Éditeur""
 
 #: tools/level_editor/panel_projects_list.vala:90
 msgid "Open in File Manager"
-msgstr ""
+msgstr "Ouvrir dans le Gestionnaire de Fichiers"
 
 #: tools/level_editor/panel_projects_list.vala:101
 msgid "Remove"
-msgstr ""
+msgstr "Supprimer"
 
 #: tools/level_editor/panel_projects_list.vala:197
 msgid "Projects"
@@ -1259,8 +1263,7 @@ msgstr "Rester Au-dessus"
 
 #: tools/level_editor/preferences_dialog.vala:134
 msgid "Keep the game window above other windows when running the game."
-msgstr ""
-"Garder la fenêtre au-dessus des autres fenêtres lors de l'exécution du jeu."
+msgstr "Garder la fenêtre au-dessus des autres fenêtres lors de l'exécution du jeu."
 
 #: tools/level_editor/preferences_dialog.vala:146
 msgid "Movement Speed"
@@ -1300,9 +1303,7 @@ msgstr "Supprimer les journaux plus anciens que (jours)"
 
 #: tools/level_editor/preferences_dialog.vala:177
 msgid "Delete logs older than this days old when the application starts."
-msgstr ""
-"Supprimer les journaux plus anciens que ces jours-ci au démarrage de "
-"l'application."
+msgstr "Supprimer les journaux plus anciens que ces jours-ci au démarrage de l'application."
 
 #: tools/level_editor/preferences_dialog.vala:178
 msgid "Console max lines"
@@ -1432,7 +1433,7 @@ msgstr "Ajouter aux Favoris"
 #: tools/level_editor/project_browser.vala:57
 #: tools/level_editor/project_browser.vala:184
 msgid "Move To..."
-msgstr ""
+msgstr "Déplacer Vers..."
 
 #: tools/level_editor/project_browser.vala:85
 msgid "New Script..."
@@ -1626,8 +1627,7 @@ msgstr "Type d'objet inconnu"
 #: tools/level_editor/property_grid.vala:33
 msgid "Inherited sub-objects are read-only here. Edit the unit in Unit Editor."
 msgstr ""
-"Les sous-ibjets hérités sont en lecture seule ici. Éditer l'unité dans "
-"l'Éditeur d'Unité."
+"Les sous-ibjets hérités sont en lecture seule ici. Éditer l'unité dans l'Éditeur d'Unité."
 
 #: tools/level_editor/property_grid.vala:262
 #, c-format
@@ -1871,8 +1871,7 @@ msgstr "Importer LODs"
 #: tools/resource/mesh_resource_fbx.vala:316
 #: tools/resource/mesh_resource_obj.vala:312
 msgid "Create LOD Group component in the root unit if any LOD exists."
-msgstr ""
-"Créer un composant Groupe de LOD dans la racine si tout les LOD existent."
+msgstr "Créer un composant Groupe de LOD dans la racine si tout les LOD existent."
 
 #: tools/resource/mesh_resource_fbx.vala:317
 #: tools/resource/mesh_resource_obj.vala:313
@@ -1882,8 +1881,7 @@ msgstr "Tangentes"
 #: tools/resource/mesh_resource_fbx.vala:317
 #: tools/resource/mesh_resource_obj.vala:313
 msgid "Import tangents from source or calculate them with MikkTSpace."
-msgstr ""
-"Importer les tangentes depuis la source ou les calculer avec MikkTSpace."
+msgstr "Importer les tangentes depuis la source ou les calculer avec MikkTSpace."
 
 #: tools/resource/mesh_resource_fbx.vala:318
 #: tools/resource/mesh_resource_obj.vala:314
@@ -2024,8 +2022,7 @@ msgstr "Couche"
 
 #: tools/resource/sprite_resource.vala:447 tools/resource/types.vala:285
 msgid "Sorting layer. Higher values makes the sprite appear in front."
-msgstr ""
-"Couche de tri. Des valeurs plus élevées font apparaître le sprite devant."
+msgstr "Couche de tri. Des valeurs plus élevées font apparaître le sprite devant."
 
 #: tools/resource/sprite_resource.vala:448
 msgid "Depth"
@@ -2251,9 +2248,7 @@ msgstr ""
 
 #: tools/resource/types.vala:442
 msgid "Select the LOD level to render. Use -1 for automatic selection."
-msgstr ""
-"Sélectionnez le niveau LOD à afficher. Utilisez -1 pour la sélection "
-"automatique."
+msgstr "Sélectionnez le niveau LOD à afficher. Utilisez -1 pour la sélection automatique."
 
 #: tools/resource/types.vala:483
 msgid "Camera projection type."
@@ -2269,7 +2264,7 @@ msgstr "Champ de Vision Verticale."
 
 #: tools/resource/types.vala:502
 msgid "Vertical half-size of the orthographic view volume."
-msgstr ""
+msgstr "Demi-taille verticale du volume de la vue orthographique."
 
 #: tools/resource/types.vala:510
 msgid "Objects closer than this value will not be rendered."
@@ -2281,9 +2276,7 @@ msgstr "Les objets plus éloignés que cette valeur ne seront pas rendus."
 
 #: tools/resource/types.vala:545
 msgid "Collider type. Inline let you specify the geometry manually."
-msgstr ""
-"Type de collisionneur. Inline vous permet de spécifier la géométrie "
-"manuellement."
+msgstr "Type de collisionneur. Inline vous permet de spécifier la géométrie manuellement."
 
 #: tools/resource/types.vala:564
 msgid "Geometry to use as collider (Mesh only)."
@@ -2687,15 +2680,11 @@ msgstr "Comment l'oscillation autour de l'axe Z du joint est contrainte."
 
 #: tools/resource/types.vala:1504
 msgid "Lower twist limit, used when Twist Motion is Limited."
-msgstr ""
-"Limite de torsion inférieure, utilisée lorsque le Mouvement de Torsion est "
-"limité."
+msgstr "Limite de torsion inférieure, utilisée lorsque le Mouvement de Torsion est limité."
 
 #: tools/resource/types.vala:1512
 msgid "Upper twist limit, used when Twist Motion is Limited."
-msgstr ""
-"Limite de torsion supérieure, utilisée lorsque le Mouvement de Torsion est "
-"limité."
+msgstr "Limite de torsion supérieure, utilisée lorsque le Mouvement de Torsion est limité."
 
 #: tools/resource/types.vala:1521
 msgid ""
@@ -2771,11 +2760,11 @@ msgstr "Couleur ambiante appliquée aux objets."
 
 #: tools/resource/types.vala:1784
 msgid "Shadow Distance"
-msgstr ""
+msgstr "Distance de l'Ombre"
 
 #: tools/resource/types.vala:1787
 msgid "Maximum distance from the camera at which shadows are rendered."
-msgstr ""
+msgstr "Distance maximale de la caméra à laquelle les ombres sont rendues."
 
 #: tools/resource/types.vala:1811
 msgid "Enable bloom effect."
@@ -2791,29 +2780,27 @@ msgstr "Multiplicateur de l'intensité du bloom."
 
 #: tools/resource/types.vala:1860
 msgid "Enable color grading."
-msgstr ""
+msgstr "Activer l'étalonnage des couleurs"
 
 #: tools/resource/types.vala:1870
 msgid "Color to multiply with the HDR input to produce a tinted output."
-msgstr ""
+msgstr "Couleur à multiplier avec l'entrée HDR pour produire une sortie teintée."
 
 #: tools/resource/types.vala:1877
 msgid "Scene exposure bias in EV."
-msgstr ""
+msgstr "Biais d'exposition de la scène en EV."
 
 #: tools/resource/types.vala:1886
 msgid "Adjust the tonal range of bright and dark areas. 1.0 means neutral."
-msgstr ""
+msgstr "Ajuste la gamme tonale des zones claires et sombres. 1.0 signifie neutre."
 
 #: tools/resource/types.vala:1895
 msgid "Adjust the intensity of the colors. 1.0 means neutral."
-msgstr ""
+msgstr "Ajuste l'intensité des couleurs. 1.0 signifie neutre."
 
 #: tools/resource/types.vala:1921
 msgid "Tonemapping operator. Gamma means no tonemapping is applied."
-msgstr ""
-"Opérateur de placage tonal. Gamma signifie qu'aucun placage tonal n'est "
-"appliqué."
+msgstr "Opérateur de placage tonal. Gamma signifie qu'aucun placage tonal n'est appliqué."
 
 #: tools/resource/types.vala:1967
 msgid "Unit prefab."
@@ -2961,7 +2948,7 @@ msgstr "Sélectionner %s"
 
 #: tools/widgets/input_object.vala:16
 msgid "(Missing)"
-msgstr ""
+msgstr "(Manquant)"
 
 #: tools/widgets/input_object.vala:86 tools/widgets/input_resource.vala:83
 msgid "Select a resource."
@@ -2979,8 +2966,7 @@ msgstr "Connexion au Compilateur de Données..."
 msgid ""
 "Fix errors and <a href=\"restart\">restart the compiler</a> to continue."
 msgstr ""
-"Corriger les erreurs et <a href=\"restart\">redémarrer le compilateur</a> "
-"pour continuer."
+"Corriger les erreurs et <a href=\"restart\">redémarrer le compilateur</a> pour continuer."
 
 #: tools/widgets/messages.vala:59
 msgid "Data compilation failed."
