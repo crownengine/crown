@@ -44,7 +44,7 @@ fix_semicolon_indentation () {
 
 if [ "${OSTYPE-}" = "linux-gnu" ]; then
 	OS="linux"
-elif [ "${OSTYPE-}" = "msys" ]; then
+elif [ "${OSTYPE-}" = "msys" -o "${OSTYPE-}" = "cygwin" ]; then
 	OS="windows"
 else
 	OS="linux"
