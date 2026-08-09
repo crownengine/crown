@@ -21,26 +21,15 @@
 #include <windows.h>
 #endif /* if defined(__linux__) */
 
-#define SAMPLER_LOG(...) g_printerr("infinite drag sampler: " __VA_ARGS__)
-
 #if defined(__linux__)
 static void initialize_xlib_threads(void) __attribute__((constructor));
 
 static void initialize_xlib_threads(void)
 {
-	if (!XInitThreads()) {
-//		SAMPLER_LOG("X11 thread initialization failed\n");
-	}
+	XInitThreads();
 }
 
 #endif /* if defined(__linux__) */
-
-typedef enum CrownInfiniteDragSamplerBackend
-{
-	CROWN_INFINITE_DRAG_SAMPLER_BACKEND_NONE,
-	CROWN_INFINITE_DRAG_SAMPLER_BACKEND_X11,
-	CROWN_INFINITE_DRAG_SAMPLER_BACKEND_WINDOWS,
-} CrownInfiniteDragSamplerBackend;
 
 typedef struct CrownInfiniteDragSampler
 {
@@ -55,7 +44,6 @@ typedef struct CrownInfiniteDragSampler
 	gint samples;
 	gint released;
 	gint cancel_requested;
-	CrownInfiniteDragSamplerBackend backend;
 	#if defined(__linux__)
 	Window x11_window;
 	gint x11_wake_fd;
@@ -69,8 +57,6 @@ typedef struct CrownInfiniteDragSampler
 	gboolean windows_absolute_initialized;
 	#endif /* if defined(__linux__) */
 } CrownInfiniteDragSampler;
-
-static const char *backend_names[] = { "none", "x11", "windows" };
 
 static void store_delta(CrownInfiniteDragSampler *sampler, gdouble delta_x, gdouble delta_y)
 {
@@ -113,7 +99,6 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX1
 		, &window_y
 		, &child
 		)) {
-// 		SAMPLER_LOG("X11 anchor translation failed\n");
 		return FALSE;
 	}
 
@@ -135,9 +120,7 @@ static void destroy_x11_pointer_grab(Display *display, CrownInfiniteDragX11Grab 
 {
 	if (grab->active) {
 		/* Commit the original position hint before revealing the pointer. */
-		if (warp_x11_pointer_to_anchor(display, grab)) {
-// 			SAMPLER_LOG("X11 pointer restored to anchor=(%d,%d)\n", grab->anchor_x, grab->anchor_y);
-		}
+		warp_x11_pointer_to_anchor(display, grab);
 
 		/* Ungrab while hidden or Xwayland may discard the position hint. */
 		XUngrabPointer(display, CurrentTime);
@@ -174,7 +157,6 @@ static gboolean create_x11_pointer_grab(Display *display
 		, CurrentTime
 		);
 	if (status != GrabSuccess) {
-// 		SAMPLER_LOG("X11 setup failed: pointer grab status=%d\n", status);
 		destroy_x11_pointer_grab(display, grab);
 		return FALSE;
 	}
@@ -189,13 +171,6 @@ static gboolean create_x11_pointer_grab(Display *display
 		destroy_x11_pointer_grab(display, grab);
 		return FALSE;
 	}
-/*
-	SAMPLER_LOG("X11 pointer confined and XFixes-hidden window=0x%lx anchor=(%d,%d)\n"
-		, window
-		, anchor_x
-		, anchor_y
-		);
- */
 	return TRUE;
 }
 
@@ -204,18 +179,15 @@ static gpointer sample_pointer_x11(gpointer data)
 	CrownInfiniteDragSampler *sampler = data;
 	Display *display = XOpenDisplay(NULL);
 	if (display == NULL) {
-//		SAMPLER_LOG("X11 connection failed\n");
 		return NULL;
 	}
 	int screen_number = DefaultScreen(display);
 	Window root = RootWindow(display, screen_number);
-//	SAMPLER_LOG("worker started backend=x11 mode=event-driven screen=%d\n", screen_number);
 
 	int xinput_opcode;
 	int xinput_event;
 	int xinput_error;
 	if (!XQueryExtension(display, "XInputExtension", &xinput_opcode, &xinput_event, &xinput_error)) {
-//		SAMPLER_LOG("X11 setup failed: XInput extension unavailable\n");
 		XCloseDisplay(display);
 		return NULL;
 	}
@@ -227,17 +199,9 @@ static gpointer sample_pointer_x11(gpointer data)
 		|| xinput_major < 2
 		|| (xinput_major == 2 && xinput_minor < 1)
 		) {
-//		SAMPLER_LOG("X11 setup failed: XInput 2.1 unavailable status=%d\n", status);
 		XCloseDisplay(display);
 		return NULL;
 	}
-/*
-	SAMPLER_LOG("XInput version=%d.%d opcode=%d\n"
-		, xinput_major
-		, xinput_minor
-		, xinput_opcode
-		);
- */
 
 	int xfixes_event;
 	int xfixes_error;
@@ -247,16 +211,9 @@ static gpointer sample_pointer_x11(gpointer data)
 		|| !XFixesQueryVersion(display, &xfixes_major, &xfixes_minor)
 		|| xfixes_major < 4
 		) {
-//		SAMPLER_LOG("X11 setup failed: XFixes 4 unavailable\n");
 		XCloseDisplay(display);
 		return NULL;
 	}
-/*
-	SAMPLER_LOG("XFixes version=%d.%d\n"
-		, xfixes_major
-		, xfixes_minor
-		);
- */
 
 	unsigned char mask[XIMaskLen(XI_RawMotion)] = { 0 };
 	XISetMask(mask, XI_RawMotion);
@@ -270,7 +227,6 @@ static gpointer sample_pointer_x11(gpointer data)
 		.mask = mask,
 	};
 	if (XISelectEvents(display, root, &event_mask, 1) != Success) {
-//		SAMPLER_LOG("X11 setup failed: select raw motion\n");
 		XCloseDisplay(display);
 		return NULL;
 	}
@@ -288,8 +244,6 @@ static gpointer sample_pointer_x11(gpointer data)
 		return NULL;
 	}
 
-//	SAMPLER_LOG("X11 raw motion selected on root=0x%lx\n", root);
-
 	while (g_atomic_int_get(&sampler->running)) {
 		while (XPending(display) > 0) {
 			XEvent event;
@@ -297,7 +251,6 @@ static gpointer sample_pointer_x11(gpointer data)
 			if (event.type == ButtonRelease) {
 				g_atomic_int_set(&sampler->released, TRUE);
 				g_atomic_int_set(&sampler->running, FALSE);
-//				SAMPLER_LOG("X11 button released detail=%u\n", event.xbutton.button);
 			} else if (event.type == GenericEvent
 				&& event.xcookie.extension == xinput_opcode
 				&& XGetEventData(display, &event.xcookie)
@@ -306,12 +259,10 @@ static gpointer sample_pointer_x11(gpointer data)
 				if (event.xcookie.evtype == XI_RawButtonRelease) {
 					g_atomic_int_set(&sampler->released, TRUE);
 					g_atomic_int_set(&sampler->running, FALSE);
-//					SAMPLER_LOG("XInput raw button released detail=%u\n", raw->detail);
 				} else if (event.xcookie.evtype == XI_RawButtonPress) {
 					if (sampler->cancel_button != 0 && raw->detail == sampler->cancel_button) {
 						g_atomic_int_set(&sampler->cancel_requested, TRUE);
 						g_atomic_int_set(&sampler->running, FALSE);
-//						SAMPLER_LOG("XInput raw button pressed detail=%u cancel-requested\n", raw->detail);
 					}
 				} else if (event.xcookie.evtype == XI_RawMotion) {
 					int value_index = 0;
@@ -347,7 +298,6 @@ static gpointer sample_pointer_x11(gpointer data)
 			poll_result = poll(descriptors, G_N_ELEMENTS(descriptors), -1);
 		} while (poll_result < 0 && errno == EINTR);
 		if (poll_result < 0) {
-//			SAMPLER_LOG("X11 poll failed error=%d\n", errno);
 			break;
 		}
 		if ((descriptors[1].revents & POLLIN) != 0) {
@@ -356,14 +306,12 @@ static gpointer sample_pointer_x11(gpointer data)
 			}
 		}
 		if ((descriptors[0].revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) {
-//			SAMPLER_LOG("X11 socket poll error=0x%x\n", descriptors[0].revents);
 			break;
 		}
 	}
 
 	destroy_x11_pointer_grab(display, &pointer_grab);
 	XCloseDisplay(display);
-//	SAMPLER_LOG("worker stopped backend=x11\n");
 	return NULL;
 }
 
@@ -393,7 +341,6 @@ static gboolean register_windows_raw_input(HWND target)
 	if (RegisterRawInputDevices(&mouse, 1, sizeof(mouse)))
 		return TRUE;
 
-//	SAMPLER_LOG("Windows RegisterRawInputDevices failed error=%lu\n", GetLastError());
 	return FALSE;
 }
 
@@ -431,7 +378,6 @@ static void process_windows_raw_mouse(CrownInfiniteDragSampler *sampler, const R
 		g_atomic_int_set(&sampler->released, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
 		SetEvent(sampler->windows_stop_event);
-//		SAMPLER_LOG("Windows raw button released\n");
 	}
 }
 
@@ -453,9 +399,7 @@ static LRESULT CALLBACK windows_raw_input_window_proc(HWND window, UINT message,
 			, &input_size
 			, sizeof(RAWINPUTHEADER)
 			);
-		if (result == (UINT)-1) {
-//			SAMPLER_LOG("Windows GetRawInputData failed error=%lu\n", GetLastError());
-		} else if (input.header.dwType == RIM_TYPEMOUSE) {
+		if (result != (UINT)-1 && input.header.dwType == RIM_TYPEMOUSE) {
 			process_windows_raw_mouse(sampler, &input.data.mouse);
 		}
 	}
@@ -474,7 +418,6 @@ static HWND create_windows_raw_input_window(CrownInfiniteDragSampler *sampler)
 		.lpszClassName = WINDOWS_RAW_INPUT_CLASS_NAME,
 	};
 	if (RegisterClassExW(&window_class) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
-//		SAMPLER_LOG("Windows RegisterClassEx failed error=%lu\n", GetLastError());
 		return NULL;
 	}
 
@@ -491,8 +434,6 @@ static HWND create_windows_raw_input_window(CrownInfiniteDragSampler *sampler)
 		, instance
 		, sampler
 		);
-	if (window == NULL)
-//		SAMPLER_LOG("Windows CreateWindowEx failed error=%lu\n", GetLastError());
 	return window;
 }
 
@@ -506,7 +447,6 @@ static void drain_windows_raw_input_messages(void)
 static gpointer sample_pointer_windows(gpointer data)
 {
 	CrownInfiniteDragSampler *sampler = data;
-//	SAMPLER_LOG("worker started backend=windows mode=raw-input\n");
 	HWND window = create_windows_raw_input_window(sampler);
 	gboolean registered = FALSE;
 	if (window == NULL)
@@ -524,10 +464,8 @@ static gpointer sample_pointer_windows(gpointer data)
 		.bottom = sampler->anchor_y + 1,
 	};
 	if (!ClipCursor(&clip)) {
-//		SAMPLER_LOG("Windows ClipCursor failed error=%lu\n", GetLastError());
 		goto setup_failed;
 	}
-//	SAMPLER_LOG("Windows raw input registered and cursor clipped anchor=(%d,%d)\n", sampler->anchor_x, sampler->anchor_y);
 	complete_windows_setup(sampler, TRUE);
 
 	while (g_atomic_int_get(&sampler->running)) {
@@ -540,7 +478,6 @@ static gpointer sample_pointer_windows(gpointer data)
 		if (wait_result == WAIT_OBJECT_0)
 			break;
 		if (wait_result == WAIT_FAILED) {
-//			SAMPLER_LOG("Windows message wait failed error=%lu\n", GetLastError());
 			break;
 		}
 
@@ -551,16 +488,11 @@ static gpointer sample_pointer_windows(gpointer data)
 	drain_windows_raw_input_messages();
 
 	/* Preserve the release invariant: restore, unconfine, then reveal in GTK. */
-	if (!SetCursorPos(sampler->anchor_x, sampler->anchor_y))
-//		SAMPLER_LOG("Windows cursor restore failed error=%lu\n", GetLastError());
-	else
-//		SAMPLER_LOG("Windows pointer restored to anchor=(%d,%d)\n", sampler->anchor_x, sampler->anchor_y);
-	if (!ClipCursor(NULL))
-//		SAMPLER_LOG("Windows ClipCursor release failed error=%lu\n", GetLastError());
+	SetCursorPos(sampler->anchor_x, sampler->anchor_y);
+	ClipCursor(NULL);
 
 	register_windows_raw_input(NULL);
 	DestroyWindow(window);
-//	SAMPLER_LOG("worker stopped backend=windows\n");
 	return NULL;
 
 setup_failed:
@@ -597,39 +529,31 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	sampler->anchor_y = anchor_y;
 	sampler->cancel_button = cancel_button;
 	#if defined(__linux__)
-	sampler->backend = CROWN_INFINITE_DRAG_SAMPLER_BACKEND_X11;
 	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
 	if (sampler->x11_wake_fd < 0) {
-//		SAMPLER_LOG("X11 setup failed: eventfd error=%d\n", errno);
 		g_mutex_clear(&sampler->mutex);
 		g_free(sampler);
 		return NULL;
 	}
 	GdkWindow *toplevel = gdk_window_get_toplevel(window);
 	sampler->x11_window = gdk_x11_window_get_xid(toplevel);
-//	SAMPLER_LOG("start backend=x11 anchor=(%d,%d)\n", anchor_x, anchor_y);
-//	SAMPLER_LOG("X11 toplevel window=0x%lx\n", sampler->x11_window);
 	GdkSeat *seat = gdk_device_get_seat(device);
 	if (seat != NULL) {
 		gdk_seat_ungrab(seat);
 		gdk_display_sync(display);
-//		SAMPLER_LOG("released GTK pointer grab for XInput worker\n");
 	}
 	#elif defined(_WIN32)
 	(void)display;
 	(void)window;
 	(void)device;
-	sampler->backend = CROWN_INFINITE_DRAG_SAMPLER_BACKEND_WINDOWS;
 	g_cond_init(&sampler->windows_setup_cond);
 	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
 	if (sampler->windows_stop_event == NULL) {
-//		SAMPLER_LOG("Windows setup failed: stop event error=%lu\n", GetLastError());
 		g_cond_clear(&sampler->windows_setup_cond);
 		g_mutex_clear(&sampler->mutex);
 		g_free(sampler);
 		return NULL;
 	}
-//	SAMPLER_LOG("start backend=windows anchor=(%d,%d)\n", anchor_x, anchor_y);
 	#else
 	(void)display;
 	(void)window;
@@ -682,7 +606,6 @@ gboolean crown_infinite_drag_sampler_cancel_requested(void *data)
 void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *delta_y, gint *samples)
 {
 	CrownInfiniteDragSampler *sampler = data;
-//	SAMPLER_LOG("stop requested backend=%s\n", backend_names[sampler->backend]);
 	g_atomic_int_set(&sampler->running, FALSE);
 	#if defined(__linux__)
 	if (sampler->x11_wake_fd >= 0) {
@@ -703,13 +626,5 @@ void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *del
 	g_cond_clear(&sampler->windows_setup_cond);
 	#endif
 	g_mutex_clear(&sampler->mutex);
-/*
-	SAMPLER_LOG("stop complete backend=%s final-samples=%d final-delta=(%.3f,%.3f)\n"
-		, backend_names[sampler->backend]
-		, *samples
-		, *delta_x
-		, *delta_y
-		);
- */
 	g_free(sampler);
 }
