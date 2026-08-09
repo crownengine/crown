@@ -60,9 +60,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_objects_tree = new ObjectTree(_database_editor);
 		_properties_view = new PropertiesView(_database_editor);
-		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
-
 		_database_editor.load_types();
+		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
 
 		_editor_viewport = new EditorViewport("unit_editor"
 			, data_compiler
