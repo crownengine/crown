@@ -1120,7 +1120,7 @@ msgstr "Ouvrir le projet."
 
 #: tools/level_editor/panel_projects_list.vala:84
 msgid "Open in Editor"
-msgstr Ouvrir dans l'Éditeur""
+msgstr "Ouvrir dans l'Éditeur"
 
 #: tools/level_editor/panel_projects_list.vala:90
 msgid "Open in File Manager"
