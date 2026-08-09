@@ -188,7 +188,7 @@ public class InputDouble : InputField
 		if (_drag.dragging)
 			return;
 
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
 	}
 
 	public void on_leave()
@@ -231,13 +231,13 @@ public class InputDouble : InputField
 		double drag_end_value = _value;
 		set_value_safe(_drag_start_value, -1);             // avoid a redundant undo entry
 		set_value_safe(drag_end_value);                    // fires the real commit
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
 	}
 
 	public void on_drag_cancelled()
 	{
 		set_value_safe(_drag_start_value, 0);              // revert, undo disabled
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
 	}
 
 	public void on_drag_finished(bool was_dragging)
