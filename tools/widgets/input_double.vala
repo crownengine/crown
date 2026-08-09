@@ -237,7 +237,7 @@ public class InputDouble : InputField
 	public void on_drag_cancelled()
 	{
 		set_value_safe(_drag_start_value, 0);              // revert, undo disabled
-		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
 	}
 
 	public void on_drag_finished(bool was_dragging)
