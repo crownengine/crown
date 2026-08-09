@@ -16,6 +16,11 @@ project "crown-editor"
 		defines {
 			"CROWN_PLATFORM_LINUX"
 		}
+		linkoptions {
+			"-lX11",
+			"-lXi",
+			"-lXfixes",
+		}
 
 	configuration { "windows" }
 		defines {
