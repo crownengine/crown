@@ -5,395 +5,395 @@
 
 namespace Crown
 {
-	public class InputDouble : InputField
+public class InputDouble : InputField
+{
+	public const double INFINITY_VALUE = (double)float.MAX;
+	public const string INFINITY_LABEL = "Infinity";
+	public const int DEFAULT_PREVIEW_DECIMALS = 4;
+	public const int DEFAULT_EDIT_DECIMALS = 5;
+	public const int DRAG_ACTIVATION_INTERVAL_MS = 1;
+	public const int DRAG_UPDATE_INTERVAL_MS = 8;
+	public const double DRAG_ACTIVATION_MARGIN = 5.0;
+
+	public InputDoubleFlags _flags;
+	public bool _inconsistent;
+	public double _min;
+	public double _max;
+	public double _value;
+	public int _preview_decimals;
+	public int _edit_decimals;
+	public Gtk.Entry _entry;
+	public Gtk.Label _label;
+	public Gtk.EventBox _event_box;
+	public Gtk.Overlay _overlay;
+	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerMotion _controller_motion;
+	public Gtk.EventControllerScroll _controller_scroll;
+
+	public InfiniteDragController _drag;
+	public double _drag_start_value;
+	public double _drag_offset;
+	public bool _resetting_click_gesture;
+
+	public override void set_inconsistent(bool inconsistent)
 	{
-		public const double INFINITY_VALUE = (double)float.MAX;
-		public const string INFINITY_LABEL = "Infinity";
-		public const int DEFAULT_PREVIEW_DECIMALS = 4;
-		public const int DEFAULT_EDIT_DECIMALS = 5;
-		public const int DRAG_ACTIVATION_INTERVAL_MS = 1;
-		public const int DRAG_UPDATE_INTERVAL_MS = 8;
-		public const double DRAG_ACTIVATION_MARGIN = 5.0;
+		if (_inconsistent != inconsistent) {
+			_inconsistent = inconsistent;
 
-		public InputDoubleFlags _flags;
-		public bool _inconsistent;
-		public double _min;
-		public double _max;
-		public double _value;
-		public int _preview_decimals;
-		public int _edit_decimals;
-		public Gtk.Entry _entry;
-		public Gtk.Label _label;
-		public Gtk.EventBox _event_box;
-		public Gtk.Overlay _overlay;
-		public Gtk.GestureMultiPress _gesture_click;
-		public Gtk.EventControllerMotion _controller_motion;
-		public Gtk.EventControllerScroll _controller_scroll;
-
-		public InfiniteDragController _drag;
-		public double _drag_start_value;
-		public double _drag_offset;
-		public bool _resetting_click_gesture;
-
-		public override void set_inconsistent(bool inconsistent)
-		{
-			if (_inconsistent != inconsistent) {
-				_inconsistent = inconsistent;
-
-				if (_inconsistent) {
-					_entry.text = INCONSISTENT_LABEL;
-					_label.set_text(_entry.text);
-				} else {
-					set_value_safe(string_to_double(_entry.text, _value));
-				}
+			if (_inconsistent) {
+				_entry.text = INCONSISTENT_LABEL;
+				_label.set_text(_entry.text);
+			} else {
+				set_value_safe(string_to_double(_entry.text, _value));
 			}
 		}
+	}
 
-		public override bool is_inconsistent()
+	public override bool is_inconsistent()
+	{
+		return _inconsistent;
+	}
+
+	public override GLib.Value union_value()
+	{
+		return this.value;
+	}
+
+	public override void set_union_value(GLib.Value v)
+	{
+		this.value = (double)v;
+	}
+
+	public double value
+	{
+		get
 		{
-			return _inconsistent;
+			return _value;
 		}
-
-		public override GLib.Value union_value()
+		set
 		{
-			return this.value;
+			set_value_safe(value);
 		}
+	}
 
-		public override void set_union_value(GLib.Value v)
-		{
-			this.value = (double)v;
-		}
+	public InputDouble(double val, double min, double max, int preview_decimals = DEFAULT_PREVIEW_DECIMALS, int edit_decimals = DEFAULT_EDIT_DECIMALS, InputDoubleFlags flags = InputDoubleFlags.NONE)
+	{
+		_flags = flags;
 
-		public double value
-		{
-			get
-			{
-				return _value;
-			}
-			set
-			{
-				set_value_safe(value);
-			}
-		}
+		_entry = new Gtk.Entry();
+		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
+		_entry.set_width_chars(1);
+		_entry.editable = false;
 
-		public InputDouble(double val, double min, double max, int preview_decimals = DEFAULT_PREVIEW_DECIMALS, int edit_decimals = DEFAULT_EDIT_DECIMALS, InputDoubleFlags flags = InputDoubleFlags.NONE)
-		{
-			_flags = flags;
+		_entry.activate.connect(on_activate);
+		_entry.focus_in_event.connect(on_focus_in);
+		_entry.focus_out_event.connect(on_focus_out);
 
-			_entry = new Gtk.Entry();
-			_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
-			_entry.set_width_chars(1);
-			_entry.editable = false;
+		_label = new Gtk.Label(_entry.text);
+		_label.halign = Gtk.Align.FILL;
+		_label.get_style_context().add_class("label-button");
 
-			_entry.activate.connect(on_activate);
-			_entry.focus_in_event.connect(on_focus_in);
-			_entry.focus_out_event.connect(on_focus_out);
+		_event_box = new Gtk.EventBox();
+		_event_box.add(_label);
+		_event_box.can_focus = false;
+		_event_box.set_visible_window(false);
 
-			_label = new Gtk.Label(_entry.text);
-			_label.halign = Gtk.Align.FILL;
-			_label.get_style_context().add_class("label-button");
+		_drag = new InfiniteDragController(_event_box);
+		_drag.activation_margin = DRAG_ACTIVATION_MARGIN;
+		_drag.activation_poll_ms = DRAG_ACTIVATION_INTERVAL_MS;
+		_drag.update_interval_ms = DRAG_UPDATE_INTERVAL_MS;
+		_drag.axis_mode = InfiniteDragController.Axis.X;
+		_drag.cancel_button = Gdk.BUTTON_SECONDARY;
+		_drag.drag_started.connect(on_drag_started);
+		_drag.drag_delta.connect(on_drag_delta);
+		_drag.drag_committed.connect(on_drag_committed);
+		_drag.drag_cancelled.connect(on_drag_cancelled);
+		_drag.drag_finished.connect(on_drag_finished);
+		_drag.release_detected_externally.connect(reset_click_gesture_after_sampler_release);
 
-			_event_box = new Gtk.EventBox();
-			_event_box.add(_label);
-			_event_box.can_focus = false;
-			_event_box.set_visible_window(false);
+		_overlay = new Gtk.Overlay();
+		_overlay.add(_entry);
+		_overlay.add_overlay(_event_box);
 
-			_drag = new InfiniteDragController(_event_box);
-			_drag.activation_margin = DRAG_ACTIVATION_MARGIN;
-			_drag.activation_poll_ms = DRAG_ACTIVATION_INTERVAL_MS;
-			_drag.update_interval_ms = DRAG_UPDATE_INTERVAL_MS;
-			_drag.axis_mode = InfiniteDragController.Axis.X;
-			_drag.cancel_button = Gdk.BUTTON_SECONDARY;
-			_drag.drag_started.connect(on_drag_started);
-			_drag.drag_delta.connect(on_drag_delta);
-			_drag.drag_committed.connect(on_drag_committed);
-			_drag.drag_cancelled.connect(on_drag_cancelled);
-			_drag.drag_finished.connect(on_drag_finished);
-			_drag.release_detected_externally.connect(reset_click_gesture_after_sampler_release);
+		_inconsistent = false;
+		_min = min;
+		_max = max;
+		_preview_decimals = preview_decimals;
+		_edit_decimals = edit_decimals;
 
-			_overlay = new Gtk.Overlay();
-			_overlay.add(_entry);
-			_overlay.add_overlay(_event_box);
+		set_value_safe(val);
 
-			_inconsistent = false;
-			_min = min;
-			_max = max;
-			_preview_decimals = preview_decimals;
-			_edit_decimals = edit_decimals;
+		_gesture_click = new Gtk.GestureMultiPress(_event_box);
+		_gesture_click.pressed.connect(on_button_pressed);
+		_gesture_click.released.connect(on_button_released);
+		_gesture_click.cancel.connect(on_gesture_cancelled);
 
-			set_value_safe(val);
-
-			_gesture_click = new Gtk.GestureMultiPress(_event_box);
-			_gesture_click.pressed.connect(on_button_pressed);
-			_gesture_click.released.connect(on_button_released);
-			_gesture_click.cancel.connect(on_gesture_cancelled);
-
-			_controller_motion = new Gtk.EventControllerMotion(_event_box);
-			_controller_motion.enter.connect(on_enter);
-			_controller_motion.leave.connect(on_leave);
+		_controller_motion = new Gtk.EventControllerMotion(_event_box);
+		_controller_motion.enter.connect(on_enter);
+		_controller_motion.leave.connect(on_leave);
 
 			#if CROWN_GTK3
-			_entry.scroll_event.connect(() => {
+		_entry.scroll_event.connect(() => {
 				GLib.Signal.stop_emission_by_name(_entry, "scroll-event");
 				return Gdk.EVENT_PROPAGATE;
 			});
 			#else
-			_controller_scroll = new Gtk.EventControllerScroll(_entry, Gtk.EventControllerScrollFlags.BOTH_AXES);
-			_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-			_controller_scroll.scroll.connect(() => {
+		_controller_scroll = new Gtk.EventControllerScroll(_entry, Gtk.EventControllerScrollFlags.BOTH_AXES);
+		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_controller_scroll.scroll.connect(() => {
 				// Consume the event; suppresses the default scroll behavior.
 			});
 			#endif
 
-			this.add(_overlay);
+		this.add(_overlay);
+	}
+
+	public void on_button_pressed(int n_press, double x, double y)
+	{
+		var window = get_toplevel() as Gtk.Window;
+		if (window != null && window.get_focus() != null)
+			window.set_focus(null);
+
+		Gdk.Screen screen;
+		int pointer_root_x, pointer_root_y;
+		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
+
+		_drag_start_value = _value;
+		_drag_offset = 0.0;
+		_drag.start(pointer_root_x, pointer_root_y);
+	}
+
+	public void on_button_released(int n_press, double x, double y)
+	{
+		_drag.release();
+	}
+
+	public void on_gesture_cancelled(Gdk.EventSequence? sequence)
+	{
+		if (_resetting_click_gesture)
+			return;
+
+		_drag.cancel();
+	}
+
+	public void reset_click_gesture_after_sampler_release()
+	{
+		_resetting_click_gesture = true;
+		_gesture_click.reset();
+		_resetting_click_gesture = false;
+	}
+
+	public void on_enter()
+	{
+		if (_drag.dragging)
+			return;
+
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
+	}
+
+	public void on_leave()
+	{
+		if (_drag.dragging)
+			return;
+
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
+	}
+
+	public void on_drag_started()
+	{
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "none"));
+	}
+
+	public void on_drag_delta(double dx, double dy, double total_dx, double total_dy)
+	{
+		double scale = 0.01;
+		if (_min > -INFINITY_VALUE && _max < INFINITY_VALUE && _max > _min) {
+			const double FULL_RANGE_PIXELS = 1000.0;
+			scale = (_max - _min) / FULL_RANGE_PIXELS;
 		}
 
-		public void on_button_pressed(int n_press, double x, double y)
-		{
-			var window = get_toplevel() as Gtk.Window;
-			if (window != null && window.get_focus() != null)
-				window.set_focus(null);
+		double dx_adjusted = total_dx - total_dx.clamp(-_drag.activation_margin, _drag.activation_margin);
+		double target_val = _drag_start_value + (dx_adjusted + _drag_offset) * scale;
 
-			Gdk.Screen screen;
-			int pointer_root_x, pointer_root_y;
-			this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
-
-			_drag_start_value = _value;
-			_drag_offset = 0.0;
-			_drag.start(pointer_root_x, pointer_root_y);
+		if (target_val > _max) {
+			_drag_offset += (_max - target_val) / scale;
+			target_val = _max;
+		} else if (target_val < _min) {
+			_drag_offset += (_min - target_val) / scale;
+			target_val = _min;
 		}
 
-		public void on_button_released(int n_press, double x, double y)
-		{
-			_drag.release();
-		}
+		set_value_safe(target_val);
+	}
 
-		public void on_gesture_cancelled(Gdk.EventSequence? sequence)
-		{
-			if (_resetting_click_gesture)
-				return;
+	public void on_drag_committed()
+	{
+		double drag_end_value = _value;
+		set_value_safe(_drag_start_value, -1);             // avoid a redundant undo entry
+		set_value_safe(drag_end_value);                    // fires the real commit
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
+	}
 
-			_drag.cancel();
-		}
+	public void on_drag_cancelled()
+	{
+		set_value_safe(_drag_start_value, 0);              // revert, undo disabled
+		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
+	}
 
-		public void reset_click_gesture_after_sampler_release()
-		{
-			_resetting_click_gesture = true;
-			_gesture_click.reset();
-			_resetting_click_gesture = false;
-		}
+	public void on_drag_finished(bool was_dragging)
+	{
+		if (was_dragging)
+			return; // already handled by drag_committed/drag_cancelled
 
-		public void on_enter()
-		{
-			if (_drag.dragging)
-				return;
+		// It was a plain click — begin editing, same as today.
+		_event_box.visible = false;
+		_entry.editable = true;
+		_entry.grab_focus();
 
-			_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
-		}
+		if (_inconsistent)
+			_entry.text = "";
+		else
+			_entry.text = format_value(_value, _edit_decimals);
 
-		public void on_leave()
-		{
-			if (_drag.dragging)
-				return;
-
-			_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
-		}
-
-		public void on_drag_started()
-		{
-			_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "none"));
-		}
-
-		public void on_drag_delta(double dx, double dy, double total_dx, double total_dy)
-		{
-			double scale = 0.01;
-			if (_min > -INFINITY_VALUE && _max < INFINITY_VALUE && _max > _min) {
-				const double FULL_RANGE_PIXELS = 1000.0;
-				scale = (_max - _min) / FULL_RANGE_PIXELS;
-			}
-
-			double dx_adjusted = total_dx - total_dx.clamp(-_drag.activation_margin, _drag.activation_margin);
-			double target_val = _drag_start_value + (dx_adjusted + _drag_offset) * scale;
-
-			if (target_val > _max) {
-				_drag_offset += (_max - target_val) / scale;
-				target_val = _max;
-			} else if (target_val < _min) {
-				_drag_offset += (_min - target_val) / scale;
-				target_val = _min;
-			}
-
-			set_value_safe(target_val);
-		}
-
-		public void on_drag_committed()
-		{
-			double drag_end_value = _value;
-			set_value_safe(_drag_start_value, -1);         // avoid a redundant undo entry
-			set_value_safe(drag_end_value);                // fires the real commit
-			_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "col-resize"));
-		}
-
-		public void on_drag_cancelled()
-		{
-			set_value_safe(_drag_start_value, 0);          // revert, undo disabled
-			_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
-		}
-
-		public void on_drag_finished(bool was_dragging)
-		{
-			if (was_dragging)
-				return;     // already handled by drag_committed/drag_cancelled
-
-				// It was a plain click — begin editing, same as today.
-				_event_box.visible = false;
-			_entry.editable = true;
-			_entry.grab_focus();
-
-			if (_inconsistent)
-				_entry.text = "";
-			else
-				_entry.text = format_value(_value, _edit_decimals);
-
-			GLib.Idle.add(() => {
+		GLib.Idle.add(() => {
 				_entry.set_position(-1);
 				_entry.select_region(0, -1);
 				return GLib.Source.REMOVE;
 			});
-		}
+	}
 
-		public void on_activate()
-		{
-			_entry.select_region(0, 0);
-			_entry.set_position(-1);
+	public void on_activate()
+	{
+		_entry.select_region(0, 0);
+		_entry.set_position(-1);
 
+		if (_entry.text != format_value(_value, _edit_decimals))
+			set_value_safe(string_to_double(_entry.text, _value));
+		else
+			_entry.text = format_value(_value, _preview_decimals);
+
+		_label.set_text(_entry.text);
+	}
+
+	public bool on_focus_in(Gdk.EventFocus ev)
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_in(_entry);
+
+		if (_event_box.visible)
+			_event_box.visible = false;
+
+		_entry.editable = true;
+
+		if (_inconsistent)
+			_entry.text = "";
+		else
+			_entry.text = format_value(_value, _edit_decimals);
+
+		_entry.set_position(-1);
+		_entry.select_region(0, -1);
+
+		return Gdk.EVENT_PROPAGATE;
+	}
+
+	public bool on_focus_out(Gdk.EventFocus ef)
+	{
+		var app = (LevelEditorApplication)GLib.Application.get_default();
+		app.entry_any_focus_out(_entry);
+
+		if (_inconsistent) {
+			if (_entry.text != "") {
+				set_value_safe(string_to_double(_entry.text, _value));
+			} else {
+				_entry.text = INCONSISTENT_LABEL;
+			}
+		} else {
 			if (_entry.text != format_value(_value, _edit_decimals))
 				set_value_safe(string_to_double(_entry.text, _value));
 			else
 				_entry.text = format_value(_value, _preview_decimals);
-
-			_label.set_text(_entry.text);
 		}
 
-		public bool on_focus_in(Gdk.EventFocus ev)
-		{
-			var app = (LevelEditorApplication)GLib.Application.get_default();
-			app.entry_any_focus_in(_entry);
+		_entry.select_region(0, 0);
+		_entry.editable = false;
+		_label.set_text(_entry.text);
+		_event_box.visible = true;
 
-			if (_event_box.visible)
-				_event_box.visible = false;
+		return Gdk.EVENT_PROPAGATE;
+	}
 
-			_entry.editable = true;
+	public void set_value_safe(double val, int undo_redo = (int)!_drag.dragging)
+	{
+		double clamped = val.clamp(_min, _max);
 
-			if (_inconsistent)
-				_entry.text = "";
-			else
-				_entry.text = format_value(_value, _edit_decimals);
+		_entry.text = format_value(clamped, _preview_decimals);
+		_label.set_text(_entry.text);
 
-			_entry.set_position(-1);
-			_entry.select_region(0, -1);
+		_inconsistent = false;
 
-			return Gdk.EVENT_PROPAGATE;
-		}
-
-		public bool on_focus_out(Gdk.EventFocus ef)
-		{
-			var app = (LevelEditorApplication)GLib.Application.get_default();
-			app.entry_any_focus_out(_entry);
-
-			if (_inconsistent) {
-				if (_entry.text != "") {
-					set_value_safe(string_to_double(_entry.text, _value));
-				} else {
-					_entry.text = INCONSISTENT_LABEL;
-				}
-			} else {
-				if (_entry.text != format_value(_value, _edit_decimals))
-					set_value_safe(string_to_double(_entry.text, _value));
-				else
-					_entry.text = format_value(_value, _preview_decimals);
-			}
-
-			_entry.select_region(0, 0);
-			_entry.editable = false;
-			_label.set_text(_entry.text);
-			_event_box.visible = true;
-
-			return Gdk.EVENT_PROPAGATE;
-		}
-
-		public void set_value_safe(double val, int undo_redo = (int)!_drag.dragging)
-		{
-			double clamped = val.clamp(_min, _max);
-
-			_entry.text = format_value(clamped, _preview_decimals);
-			_label.set_text(_entry.text);
-
-			_inconsistent = false;
-
-			if (_value != clamped) {
-				_value = clamped;
-				value_changed(this, undo_redo);
-			}
-		}
-
-		/// Returns @a str as double or @a deffault if conversion fails.
-		public double string_to_double(string str, double deffault)
-		{
-			double special_value = 0.0;
-			if ((_flags & InputDoubleFlags.INFINITY) != 0
-				&& try_parse_special_literal(str, out special_value))
-				return special_value;
-
-			TinyExpr.Variable vars[] =
-			{
-				{ "x", &_value }
-			};
-
-			int err;
-			TinyExpr.Expr expr = TinyExpr.compile(str, vars, out err);
-
-			return err == 0 ? TinyExpr.eval(expr) : deffault;
-		}
-
-		public string format_value(double value, int max_decimals)
-		{
-			if ((_flags & InputDoubleFlags.INFINITY) != 0
-				&& value == INFINITY_VALUE)
-				return INFINITY_LABEL;
-
-			return print_max_decimals(value, max_decimals);
-		}
-
-		public bool try_parse_special_literal(string str, out double value)
-		{
-			string normalized = str.strip().down();
-
-			switch (normalized) {
-				case "inf":
-				case "+inf":
-				case "infinity":
-				case "+infinity":
-					value = INFINITY_VALUE;
-					return true;
-
-				default:
-					value = 0.0;
-					return false;
-			}
-		}
-
-		public void set_min(double min)
-		{
-			_min = min;
-			set_value_safe(_value);
-		}
-
-		public void set_max(double max)
-		{
-			_max = max;
-			set_value_safe(_value);
+		if (_value != clamped) {
+			_value = clamped;
+			value_changed(this, undo_redo);
 		}
 	}
+
+	/// Returns @a str as double or @a deffault if conversion fails.
+	public double string_to_double(string str, double deffault)
+	{
+		double special_value = 0.0;
+		if ((_flags & InputDoubleFlags.INFINITY) != 0
+			&& try_parse_special_literal(str, out special_value))
+			return special_value;
+
+		TinyExpr.Variable vars[] =
+		{
+			{ "x", &_value }
+		};
+
+		int err;
+		TinyExpr.Expr expr = TinyExpr.compile(str, vars, out err);
+
+		return err == 0 ? TinyExpr.eval(expr) : deffault;
+	}
+
+	public string format_value(double value, int max_decimals)
+	{
+		if ((_flags & InputDoubleFlags.INFINITY) != 0
+			&& value == INFINITY_VALUE)
+			return INFINITY_LABEL;
+
+		return print_max_decimals(value, max_decimals);
+	}
+
+	public bool try_parse_special_literal(string str, out double value)
+	{
+		string normalized = str.strip().down();
+
+		switch (normalized) {
+		case "inf":
+		case "+inf":
+		case "infinity":
+		case "+infinity":
+			value = INFINITY_VALUE;
+			return true;
+
+		default:
+			value = 0.0;
+			return false;
+		}
+	}
+
+	public void set_min(double min)
+	{
+		_min = min;
+		set_value_safe(_value);
+	}
+
+	public void set_max(double max)
+	{
+		_max = max;
+		set_value_safe(_value);
+	}
+}
 
 } /* namespace Crown */
