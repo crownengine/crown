@@ -315,6 +315,7 @@ public class InputColor3 : InputField
 		_gesture_click.set_button(0);
 		_gesture_click.pressed.connect(on_hs_circle_button_pressed);
 		_gesture_click.released.connect(on_hs_circle_button_released);
+		_gesture_click.cancel.connect(on_hs_circle_gesture_cancelled);
 
 		_controller_motion = new Gtk.EventControllerMotion(_hs_palette);
 		_controller_motion.motion.connect(on_hs_circle_motion);
@@ -329,8 +330,10 @@ public class InputColor3 : InputField
 		_hsv_v_scale.value_changed.connect(on_hsv_v_scale_value_changed);
 
 		_hsv_v_scale_gesture_click = new Gtk.GestureMultiPress(_hsv_v_scale);
+		_hsv_v_scale_gesture_click.set_button(0);
 		_hsv_v_scale_gesture_click.pressed.connect(on_hsv_v_scale_pressed);
 		_hsv_v_scale_gesture_click.released.connect(on_hsv_v_scale_released);
+		_hsv_v_scale_gesture_click.cancel.connect(on_hsv_v_scale_gesture_cancelled);
 
 		_rgb_r = new InputDouble(1.0, 0.0, 1.0);
 		_rgb_g = new InputDouble(1.0, 0.0, 1.0);
@@ -641,6 +644,9 @@ public class InputColor3 : InputField
 
 	public void on_hs_circle_button_released(int n_press, double x, double y)
 	{
+		if (!_dragging)
+			return;
+
 		double h = 0.0;
 		double s = 0.0;
 		double v = 1.0;
@@ -669,6 +675,40 @@ public class InputColor3 : InputField
 		connect_rgb();
 
 		value_changed(this, (int)!_dragging);
+
+		_hs_palette.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
+		_hs_palette.queue_draw();
+	}
+
+	public void on_hs_circle_gesture_cancelled(Gdk.EventSequence? sequence)
+	{
+		if (!_dragging)
+			return;
+
+		double h = 0.0;
+		double s = 0.0;
+		double v = 1.0;
+
+		_dragging = false;
+
+		disconnect_rgb();
+		disconnect_hsv();
+		this.value = _drag_start_rgb;
+		rgb_to_hsv(ref h
+			, ref s
+			, ref v
+			, _rgb_r.value
+			, _rgb_g.value
+			, _rgb_b.value
+			);
+		_hsv_h.value = h;
+		_hsv_s.value = s;
+		_hsv_v.value = v;
+		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
+		connect_hsv();
+		connect_rgb();
+
+		value_changed(this, 0);
 
 		_hs_palette.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
 		_hs_palette.queue_draw();
@@ -719,6 +759,9 @@ public class InputColor3 : InputField
 
 	public void on_hsv_v_scale_released(int n_press, double x, double y)
 	{
+		if (!_dragging)
+			return;
+
 		double h = 0.0;
 		double s = 0.0;
 		double v = 1.0;
@@ -747,6 +790,37 @@ public class InputColor3 : InputField
 		connect_rgb();
 
 		value_changed(this, (int)!_dragging);
+	}
+
+	public void on_hsv_v_scale_gesture_cancelled(Gdk.EventSequence? sequence)
+	{
+		if (!_dragging)
+			return;
+
+		double h = 0.0;
+		double s = 0.0;
+		double v = 1.0;
+
+		_dragging = false;
+
+		disconnect_rgb();
+		disconnect_hsv();
+		this.value = _drag_start_rgb;
+		rgb_to_hsv(ref h
+			, ref s
+			, ref v
+			, _rgb_r.value
+			, _rgb_g.value
+			, _rgb_b.value
+			);
+		_hsv_h.value = h;
+		_hsv_s.value = s;
+		_hsv_v.value = v;
+		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
+		connect_hsv();
+		connect_rgb();
+
+		value_changed(this, 0);
 	}
 }
 
