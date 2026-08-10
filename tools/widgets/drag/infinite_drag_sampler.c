@@ -335,7 +335,7 @@ static gboolean register_windows_raw_input(HWND target)
 	{
 		.usUsagePage = 0x01,
 		.usUsage = 0x02,
-		.dwFlags = target != NULL ? RIDEV_INPUTSINK : RIDEV_REMOVE,
+		.dwFlags = target != NULL ? RIDEV_INPUTSINK | RIDEV_NOLEGACY : RIDEV_REMOVE,
 		.hwndTarget = target,
 	};
 	if (RegisterRawInputDevices(&mouse, 1, sizeof(mouse)))
@@ -372,6 +372,25 @@ static void process_windows_raw_mouse(CrownInfiniteDragSampler *sampler, const R
 	if (delta_x != 0 || delta_y != 0) {
 		store_delta(sampler, delta_x, delta_y);
 		store_sample(sampler);
+	}
+
+	USHORT cancel_button_down = 0;
+	switch (sampler->cancel_button) {
+	case GDK_BUTTON_PRIMARY:
+		cancel_button_down = RI_MOUSE_LEFT_BUTTON_DOWN;
+		break;
+	case GDK_BUTTON_MIDDLE:
+		cancel_button_down = RI_MOUSE_MIDDLE_BUTTON_DOWN;
+		break;
+	case GDK_BUTTON_SECONDARY:
+		cancel_button_down = RI_MOUSE_RIGHT_BUTTON_DOWN;
+		break;
+	}
+	if (cancel_button_down != 0 && (mouse->usButtonFlags & cancel_button_down) != 0) {
+		g_atomic_int_set(&sampler->cancel_requested, TRUE);
+		g_atomic_int_set(&sampler->running, FALSE);
+		SetEvent(sampler->windows_stop_event);
+		return;
 	}
 
 	if ((mouse->usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) != 0) {

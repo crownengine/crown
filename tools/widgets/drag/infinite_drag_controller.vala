@@ -24,7 +24,7 @@ public class InfiniteDragController : GLib.Object
 	public int activation_poll_ms = 1;
 	public int update_interval_ms = 8;
 	public Axis axis_mode = Axis.X;
-	/// X11 button that cancels the drag instead of committing it; 0 disables it.
+	/// Pointer button that cancels the drag instead of committing it; 0 disables it.
 	public int cancel_button = Gdk.BUTTON_SECONDARY;
 
 	public signal void drag_started();
