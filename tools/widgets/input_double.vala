@@ -154,13 +154,9 @@ public class InputDouble : InputField
 		if (window != null && window.get_focus() != null)
 			window.set_focus(null);
 
-		Gdk.Screen screen;
-		int pointer_root_x, pointer_root_y;
-		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
-
 		_drag_start_value = _value;
 		_drag_offset = 0.0;
-		_drag.start(pointer_root_x, pointer_root_y);
+		_drag.start();
 	}
 
 	public void on_button_released(int n_press, double x, double y)

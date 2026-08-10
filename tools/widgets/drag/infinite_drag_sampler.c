@@ -517,7 +517,7 @@ static gpointer sample_pointer(gpointer data)
 	return NULL;
 }
 
-void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint anchor_x, gint anchor_y, gint cancel_button)
+void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint cancel_button)
 {
 	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
@@ -525,8 +525,6 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	sampler->x11_wake_fd = -1;
 	#endif
 	g_atomic_int_set(&sampler->running, TRUE);
-	sampler->anchor_x = anchor_x;
-	sampler->anchor_y = anchor_y;
 	sampler->cancel_button = cancel_button;
 	#if defined(__linux__)
 	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
@@ -537,6 +535,27 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	}
 	GdkWindow *toplevel = gdk_window_get_toplevel(window);
 	sampler->x11_window = gdk_x11_window_get_xid(toplevel);
+	Display *xdisplay = gdk_x11_display_get_xdisplay(display);
+	Window query_root;
+	Window query_child;
+	int window_x;
+	int window_y;
+	unsigned int mask;
+	if (!XQueryPointer(xdisplay
+		, sampler->x11_window
+		, &query_root
+		, &query_child
+		, &sampler->anchor_x
+		, &sampler->anchor_y
+		, &window_x
+		, &window_y
+		, &mask
+		)) {
+		close(sampler->x11_wake_fd);
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
 	GdkSeat *seat = gdk_device_get_seat(device);
 	if (seat != NULL) {
 		gdk_seat_ungrab(seat);
@@ -546,6 +565,14 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	(void)display;
 	(void)window;
 	(void)device;
+	POINT cursor_position;
+	if (!GetCursorPos(&cursor_position)) {
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+	sampler->anchor_x = cursor_position.x;
+	sampler->anchor_y = cursor_position.y;
 	g_cond_init(&sampler->windows_setup_cond);
 	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
 	if (sampler->windows_stop_event == NULL) {

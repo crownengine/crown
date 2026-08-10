@@ -13,8 +13,7 @@ typedef struct CrownInfiniteDragSampler CrownInfiniteDragSampler;
 
 /// cancel_button: X11 button that cancels the drag instead of committing it; 0 disables it.
 CrownInfiniteDragSampler *crown_infinite_drag_sampler_start(GdkDisplay
-*display, GdkWindow *window, GdkDevice *device, gint anchor_x, gint
-anchor_y, gint cancel_button);
+*display, GdkWindow *window, GdkDevice *device, gint cancel_button);
 void crown_infinite_drag_sampler_drain(CrownInfiniteDragSampler *sampler, gdouble *delta_x, gdouble *delta_y, gint *samples);
 gboolean crown_infinite_drag_sampler_released(CrownInfiniteDragSampler
 *sampler);

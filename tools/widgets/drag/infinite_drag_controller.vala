@@ -4,7 +4,7 @@
  */
 
 [CCode (cname = "crown_infinite_drag_sampler_start")]
-extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int anchor_x, int anchor_y, int cancel_button);
+extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int cancel_button);
 [CCode (cname = "crown_infinite_drag_sampler_drain")]
 extern void infinite_drag_sampler_drain(void* sampler, out double delta_x, out double delta_y, out int samples);
 [CCode (cname = "crown_infinite_drag_sampler_released")]
@@ -56,7 +56,7 @@ public class InfiniteDragController : GLib.Object
 	}
 
 	/// Call from the adapter's own gesture "pressed" handler.
-	public void start(int root_x, int root_y)
+	public void start()
 	{
 		_pressed = true;
 		_dragging = false;
@@ -68,7 +68,7 @@ public class InfiniteDragController : GLib.Object
 			Gdk.Device pointer = _widget.get_display().get_default_seat().
 				get_pointer();
 			_sampler = infinite_drag_sampler_start(_widget.get_display(), _widget.
-				get_window(), pointer, root_x, root_y, cancel_button);
+				get_window(), pointer, cancel_button);
 		}
 		if (_sampler == null) {
 			loge("InfiniteDragController: sampler failed to start");
