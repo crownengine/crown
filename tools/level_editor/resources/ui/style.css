@@ -50,7 +50,27 @@ notebook > header tab {
 }
 
 .label-button {
-	opacity: 0;
+	padding-left: 3px;
+}
+
+.axis .label-button {
+	background-image: none;
+}
+
+.axis.x .label-button {
+	background-color: mix(@theme_base_color, rgb(180, 0, 0), 0.2);
+}
+
+.axis.y .label-button {
+	background-color: mix(@theme_base_color, rgb(0, 180, 0), 0.2);
+}
+
+.axis.z .label-button {
+	background-color: mix(@theme_base_color, rgb(0, 0, 180), 0.2);
+}
+
+.axis.w .label-button {
+	background-color: mix(@theme_base_color, rgb(180, 180, 180), 0.2);
 }
 
 .counter-label {
@@ -88,4 +108,3 @@ notebook > header tab {
 	background-color: transparent;
 	border: 0px;
 }
-
