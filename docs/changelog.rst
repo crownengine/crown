@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.1 --- DD MMM YYYY <v0.64.1>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: the transform component will now allow negative scaling values.
+
 .. _v0.64.0:
 
 :ref:`0.64.0 --- 10 Aug 2026 <v0.64.0>`
