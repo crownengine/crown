@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: the transform component will now allow negative scaling values.
+* Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:
 
