@@ -92,6 +92,7 @@ public class InputDouble : InputField
 
 		_label = new Gtk.Label(_entry.text);
 		_label.halign = Gtk.Align.FILL;
+		_label.xalign = 0.0f;
 		_label.get_style_context().add_class("label-button");
 
 		_event_box = new Gtk.EventBox();
