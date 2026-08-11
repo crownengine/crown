@@ -19,6 +19,12 @@ namespace Crown
 public class InfiniteDragController : GLib.Object
 {
 	public enum Axis { X, Y, XY }
+	public enum FinishFlags
+	{
+		NONE   = 0,
+		COMMIT = 1 << 0,
+		FORCED = 1 << 1,
+	}
 
 	public double activation_margin = 5.0;
 	public int activation_poll_ms = 1;
@@ -85,20 +91,23 @@ public class InfiniteDragController : GLib.Object
 	/// Call from the adapter's own gesture "released" handler.
 	public void release()
 	{
-		finish(true, false);
+		finish(FinishFlags.COMMIT);
 	}
 
 	/// Call from the adapter's own gesture "cancel" handler (or on destroy).
 	public void cancel()
 	{
-		finish(false, false);
+		finish(FinishFlags.NONE);
 	}
 
-	/// forced skips the was_dragging check, for an explicit cancel request.
-	private void finish(bool commit, bool forced)
+	/// FORCED skips the was_dragging check, for an explicit cancel request.
+	private void finish(FinishFlags flags)
 	{
 		if (!_pressed)
 			return;
+
+		bool commit = (flags& FinishFlags.COMMIT) != 0;
+		bool forced = (flags& FinishFlags.FORCED) != 0;
 
 		_pressed = false;
 		stop_timers();
@@ -172,7 +181,7 @@ public class InfiniteDragController : GLib.Object
 			return false;
 
 		release_detected_externally();
-		finish(!cancel_requested, cancel_requested);
+		finish(cancel_requested ? FinishFlags.FORCED : FinishFlags.COMMIT);
 		return true;
 	}
 
