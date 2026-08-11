@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: the transform component will now allow negative scaling values.
+* Tools: pressing the ESC key on a numeric entry will now exit it from edit mode.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:

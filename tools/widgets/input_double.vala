@@ -27,6 +27,7 @@ public class InputDouble : InputField
 	public Gtk.EventBox _event_box;
 	public Gtk.Overlay _overlay;
 	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.EventControllerKey _controller_key;
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 
@@ -128,6 +129,9 @@ public class InputDouble : InputField
 		_gesture_click.released.connect(on_button_released);
 		_gesture_click.cancel.connect(on_gesture_cancelled);
 
+		_controller_key = new Gtk.EventControllerKey(_entry);
+		_controller_key.key_pressed.connect(on_key_pressed);
+
 		_controller_motion = new Gtk.EventControllerMotion(_event_box);
 		_controller_motion.enter.connect(on_enter);
 		_controller_motion.leave.connect(on_leave);
@@ -148,11 +152,31 @@ public class InputDouble : InputField
 		this.add(_overlay);
 	}
 
-	public void on_button_pressed(int n_press, double x, double y)
+	public void clear_focus()
 	{
 		var window = get_toplevel() as Gtk.Window;
 		if (window != null && window.get_focus() != null)
 			window.set_focus(null);
+	}
+
+	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval != Gdk.Key.Escape || !_entry.editable)
+			return Gdk.EVENT_PROPAGATE;
+
+		if (_inconsistent)
+			_entry.text = "";
+		else
+			_entry.text = format_value(_value, _edit_decimals);
+
+		clear_focus();
+
+		return Gdk.EVENT_STOP;
+	}
+
+	public void on_button_pressed(int n_press, double x, double y)
+	{
+		clear_focus();
 
 		_drag_start_value = _value;
 		_drag_offset = 0.0;
