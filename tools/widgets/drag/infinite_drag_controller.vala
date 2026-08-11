@@ -37,17 +37,17 @@ public class InfiniteDragController : GLib.Object
 
 	public bool dragging { get { return _dragging; } }
 
-	private unowned Gtk.Widget _widget;
-	private void* _sampler;
-	private uint _activation_timeout_id;
-	private uint _update_timeout_id;
-	private bool _pressed;
-	private bool _dragging;
-	private bool _dirty;
-	private double _total_dx;
-	private double _total_dy;
-	private double _last_dx;
-	private double _last_dy;
+	public unowned Gtk.Widget _widget;
+	public void* _sampler;
+	public uint _activation_timeout_id;
+	public uint _update_timeout_id;
+	public bool _pressed;
+	public bool _dragging;
+	public bool _dirty;
+	public double _total_dx;
+	public double _total_dy;
+	public double _last_dx;
+	public double _last_dy;
 
 	public InfiniteDragController(Gtk.Widget widget)
 	{
