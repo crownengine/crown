@@ -172,7 +172,6 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.VECTOR3,
 			name = "data.scale",
-			min = VECTOR3_ZERO,
 			deffault = VECTOR3_ONE,
 			tooltip = _("Local Scale."),
 		},
