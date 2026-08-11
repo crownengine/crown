@@ -132,18 +132,18 @@ public class InputDouble : InputField
 		_controller_motion.enter.connect(on_enter);
 		_controller_motion.leave.connect(on_leave);
 
-			#if CROWN_GTK3
+#if CROWN_GTK3
 		_entry.scroll_event.connect(() => {
 				GLib.Signal.stop_emission_by_name(_entry, "scroll-event");
 				return Gdk.EVENT_PROPAGATE;
 			});
-			#else
+#else
 		_controller_scroll = new Gtk.EventControllerScroll(_entry, Gtk.EventControllerScrollFlags.BOTH_AXES);
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_scroll.scroll.connect(() => {
 				// Consume the event; suppresses the default scroll behavior.
 			});
-			#endif
+#endif
 
 		this.add(_overlay);
 	}
