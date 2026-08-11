@@ -796,7 +796,13 @@ Matrix4x4 World::camera_projection_matrix(CameraId camera
 Matrix4x4 World::camera_view_matrix(CameraId camera)
 {
 	TransformId ti = _scene_graph->instance(_camera[camera.i].unit);
-	Matrix4x4 view = _scene_graph->world_pose(ti);
+	Quaternion rot = _scene_graph->local_rotation(ti);
+	TransformId parent = _scene_graph->parent(ti);
+	if (is_valid(parent))
+		rot *= _scene_graph->world_rotation(parent);
+	Matrix4x4 view = from_quaternion_translation(rot
+		, _scene_graph->world_position(ti)
+		);
 
 	// Rotate +90 degrees around the X axis.
 	const Vector4 y = view.y;
