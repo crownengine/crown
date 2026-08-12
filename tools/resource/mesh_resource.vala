@@ -7,6 +7,70 @@ namespace Crown
 {
 namespace MeshResource
 {
+	public static string texture_filename(ufbx.Texture texture)
+	{
+		if (texture.filename.data.length > 0)
+			return ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+		else if (texture.relative_filename.data.length > 0)
+			return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+		else if (texture.absolute_filename.data.length > 0)
+			return ((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+		else
+			return "";
+	}
+
+	public static GLib.File? texture_source_file(ufbx.Texture texture, GLib.File model_file)
+	{
+		if (texture.filename.data.length > 0) {
+			string filename = ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+			GLib.File texture_file = File.new_for_path(filename);
+			if (texture_file.query_exists())
+				return texture_file;
+		}
+
+		GLib.File? parent = model_file.get_parent();
+		if (texture.relative_filename.data.length > 0) {
+			string filename = ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
+			GLib.File texture_file = File.new_for_path(filename);
+			if (!Path.is_absolute(filename) && parent != null)
+				texture_file = parent.resolve_relative_path(filename);
+
+			if (texture_file.query_exists())
+				return texture_file;
+		}
+
+		string filename = texture_filename(texture);
+		if (filename.length > 0 && parent != null) {
+			string basename = File.new_for_path(filename).get_basename();
+			GLib.File texture_file = parent.resolve_relative_path(basename);
+			if (texture_file.query_exists())
+				return texture_file;
+
+			string[] texture_directories = { "textures", "images" };
+			GLib.File? directory = parent;
+			while (directory != null) {
+				foreach (unowned string texture_directory in texture_directories) {
+					string path = Path.build_filename(texture_directory, basename);
+					texture_file = directory.resolve_relative_path(path);
+					if (texture_file.query_exists())
+						return texture_file;
+				}
+
+				directory = directory.get_parent();
+			}
+		}
+
+		return null;
+	}
+
+	public enum TextureUsage
+	{
+		NONE   = 0,
+		COLOR  = 1 << 0,
+		NORMAL = 1 << 1,
+		DATA   = 1 << 2,
+	}
+
 	public static void create_components(Database db
 		, Guid parent_unit_id
 		, Guid unit_id
