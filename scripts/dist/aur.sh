@@ -4,6 +4,15 @@
 
 set -eu
 
+commit_package()
+{
+	COMMITLOG=$1
+	updpkgsums
+	makepkg --printsrcinfo > .SRCINFO
+	git add .SRCINFO PKGBUILD
+	git commit -m "${COMMITLOG}"
+}
+
 while true; do
 	case "$1" in
 	-c|--clean)
@@ -14,16 +23,13 @@ while true; do
 		rm crown-*.tar.xz 2> /dev/null
 		exit 0
 		;;
-	-b|--build)
+	-b|--build|--build-release)
 		PKGVER=$2
 		PKGREL=$3
 		COMMITLOG="Crown v${PKGVER}-${PKGREL}"
 		sed -i "s/^pkgver.*/pkgver=${PKGVER}/g" PKGBUILD
 		sed -i "s/^pkgrel.*/pkgrel=${PKGREL}/g" PKGBUILD
-		updpkgsums
-		makepkg --printsrcinfo > .SRCINFO
-		git add .SRCINFO PKGBUILD
-		git commit -m "${COMMITLOG}"
+		commit_package "${COMMITLOG}"
 		exit $?
 		;;
 	-n|--build-nightly)
@@ -38,10 +44,7 @@ while true; do
 		sed -i "s/^_upstream_version.*/_upstream_version=${UPSTREAM_VERSION}/g" PKGBUILD
 		sed -i "s/^_commit.*/_commit=${COMMIT}/g" PKGBUILD
 		sed -i "s/^_gdrive_id.*/_gdrive_id=${GDRIVE_ID}/g" PKGBUILD
-		updpkgsums
-		makepkg --printsrcinfo > .SRCINFO
-		git add .SRCINFO PKGBUILD
-		git commit -m "${COMMITLOG}"
+		commit_package "${COMMITLOG}"
 		exit $?
 		;;
 	-f|--force)
@@ -55,7 +58,7 @@ while true; do
 	-h|--help)
 		echo "Usage:"
 		echo "1) $0 --clean"
-		echo "2) $0 --build <pkgver> <pkgrel>"
+		echo "2) $0 --build-release <pkgver> <pkgrel>"
 		echo "3) $0 --build-nightly <pkgver> <pkgrel> <upstream-version> <commit> <gdrive-file-id>"
 		echo "4) $0 --publish"
 		exit 0
