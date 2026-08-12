@@ -144,12 +144,14 @@ function UnitBox:set_hidden(hidden)
 	for _, child_id in ipairs(self:children()) do
 		local mesh = RenderWorld.mesh_instance(self._rw, child_id)
 		if mesh then
-			RenderWorld.mesh_set_visible(self._rw, mesh, not self._hidden)
+			local visible = child_id ~= self._unit_id or self._mesh_visible
+			RenderWorld.mesh_set_visible(self._rw, mesh, visible and not self._hidden)
 		end
 
 		local sprite = RenderWorld.sprite_instance(self._rw, child_id)
 		if sprite then
-			RenderWorld.sprite_set_visible(self._rw, sprite, not self._hidden)
+			local visible = child_id ~= self._unit_id or self._sprite_visible
+			RenderWorld.sprite_set_visible(self._rw, sprite, visible and not self._hidden)
 		end
 	end
 end
