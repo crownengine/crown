@@ -37,50 +37,15 @@ namespace OBJImport
 		return Quaternion(q.x, q.y, q.z, q.w);
 	}
 
-	public static string texture_filename(ufbx.Texture texture)
-	{
-		if (texture.filename.data.length > 0)
-			return ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-		else if (texture.relative_filename.data.length > 0)
-			return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-		else if (texture.absolute_filename.data.length > 0)
-			return ((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-		else
-			return "";
-	}
-
 	public static string texture_display_name(ufbx.Texture texture)
 	{
-		string filename = texture_filename(texture);
+		string filename = MeshResource.texture_filename(texture);
 		if (filename.length > 0)
 			return filename;
 		else if (texture.name.data.length > 0)
 			return (string)texture.name.data;
 		else
 			return "<unnamed>";
-	}
-
-	public static GLib.File? texture_source_file(ufbx.Texture texture, GLib.File obj_file)
-	{
-		if (texture.relative_filename.data.length > 0) {
-			string filename = ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-			if (Path.is_absolute(filename))
-				return File.new_for_path(filename);
-
-			GLib.File? parent = obj_file.get_parent();
-			return parent != null
-				? parent.resolve_relative_path(filename)
-				: File.new_for_path(filename)
-				;
-		}
-
-		if (texture.filename.data.length > 0)
-			return File.new_for_path(((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S));
-
-		if (texture.absolute_filename.data.length > 0)
-			return File.new_for_path(((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S));
-
-		return null;
 	}
 
 	public static int get_or_import_texture_resource_name(out string? resource_name
@@ -92,7 +57,7 @@ namespace OBJImport
 		, bool create_textures_folder
 		, ufbx.MaterialMap map
 		, string semantic_suffix
-		, TextureUsage usage
+		, MeshResource.TextureUsage usage
 		, bool preserve_alpha
 		, GLib.HashTable<string, string> imported_textures
 		)
@@ -117,7 +82,7 @@ namespace OBJImport
 			textures_path = textures_file.get_path();
 		}
 
-		string texture_filename = OBJImport.texture_filename(texture);
+		string texture_filename = MeshResource.texture_filename(texture);
 		if (texture_filename.length == 0) {
 			logw("'%s' references non-existing texture '%s'".printf(filename, OBJImport.texture_display_name(texture)));
 			return 0;
@@ -141,7 +106,7 @@ namespace OBJImport
 		}
 
 		bool source_image_exists = false;
-		GLib.File? texture_file = OBJImport.texture_source_file(texture, obj_file);
+		GLib.File? texture_file = MeshResource.texture_source_file(texture, obj_file);
 		if (texture_file != null) {
 			try {
 				if (!texture_file.equal(source_image_file))
@@ -162,9 +127,9 @@ namespace OBJImport
 		// Create .texture resource.
 		Guid texture_id = Guid.new_guid();
 		TextureResource texture_resource;
-		if ((usage & TextureUsage.NORMAL) != 0)
+		if ((usage & MeshResource.TextureUsage.NORMAL) != 0)
 			texture_resource = TextureResource.normal_map(db, texture_id, source_image);
-		else if ((usage & TextureUsage.DATA) != 0)
+		else if ((usage & MeshResource.TextureUsage.DATA) != 0)
 			texture_resource = TextureResource.data_map(db, texture_id, source_image);
 		else if (preserve_alpha)
 			texture_resource = TextureResource(db, texture_id, source_image, TextureFormat.BC3, true, false);
@@ -756,8 +721,8 @@ public class OBJImporter
 									&& opacity.texture != null
 									;
 								if (masking) {
-									string color_texture_filename = OBJImport.texture_filename(map.texture);
-									string opacity_texture_filename = OBJImport.texture_filename(opacity.texture);
+									string color_texture_filename = MeshResource.texture_filename(map.texture);
+									string opacity_texture_filename = MeshResource.texture_filename(opacity.texture);
 									masking = map.texture == opacity.texture
 										|| (color_texture_filename.length > 0 && color_texture_filename == opacity_texture_filename)
 										;
@@ -773,7 +738,7 @@ public class OBJImporter
 									, options.create_textures_folder
 									, map
 									, "_df"
-									, TextureUsage.COLOR
+									, MeshResource.TextureUsage.COLOR
 									, masking
 									, imported_textures
 									) != 0)
@@ -792,7 +757,7 @@ public class OBJImporter
 								, options.create_textures_folder
 								, map
 								, "_nr"
-								, TextureUsage.NORMAL
+								, MeshResource.TextureUsage.NORMAL
 								, false
 								, imported_textures
 								) != 0)
@@ -813,7 +778,7 @@ public class OBJImporter
 								, options.create_textures_folder
 								, map
 								, "_mt"
-								, TextureUsage.DATA
+								, MeshResource.TextureUsage.DATA
 								, false
 								, imported_textures
 								) != 0)
@@ -834,7 +799,7 @@ public class OBJImporter
 								, options.create_textures_folder
 								, map
 								, "_rg"
-								, TextureUsage.DATA
+								, MeshResource.TextureUsage.DATA
 								, false
 								, imported_textures
 								) != 0)
@@ -852,7 +817,7 @@ public class OBJImporter
 								, options.create_textures_folder
 								, map
 								, "_ao"
-								, TextureUsage.DATA
+								, MeshResource.TextureUsage.DATA
 								, false
 								, imported_textures
 								) != 0)
@@ -873,7 +838,7 @@ public class OBJImporter
 								, options.create_textures_folder
 								, map
 								, "_em"
-								, TextureUsage.COLOR
+								, MeshResource.TextureUsage.COLOR
 								, false
 								, imported_textures
 								) != 0)

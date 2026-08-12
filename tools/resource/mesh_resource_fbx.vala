@@ -63,49 +63,6 @@ public static string projection_type(ufbx.ProjectionMode ufbx_mode)
 	}
 }
 
-public static string texture_filename(ufbx.Texture texture)
-{
-	if (texture.filename.data.length > 0)
-		return ((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-	else if (texture.relative_filename.data.length > 0)
-		return ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-	else if (texture.absolute_filename.data.length > 0)
-		return ((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-	else
-		return "";
-}
-
-public static GLib.File? texture_source_file(ufbx.Texture texture, GLib.File fbx_file)
-{
-	if (texture.relative_filename.data.length > 0) {
-		string filename = ((string)texture.relative_filename.data).replace("\\", Path.DIR_SEPARATOR_S);
-		if (Path.is_absolute(filename))
-			return File.new_for_path(filename);
-
-		GLib.File? parent = fbx_file.get_parent();
-		return parent != null
-			? parent.resolve_relative_path(filename)
-			: File.new_for_path(filename)
-			;
-	}
-
-	if (texture.filename.data.length > 0)
-		return File.new_for_path(((string)texture.filename.data).replace("\\", Path.DIR_SEPARATOR_S));
-
-	if (texture.absolute_filename.data.length > 0)
-		return File.new_for_path(((string)texture.absolute_filename.data).replace("\\", Path.DIR_SEPARATOR_S));
-
-	return null;
-}
-
-public enum TextureUsage
-{
-	NONE   = 0,
-	COLOR  = 1 << 0,
-	NORMAL = 1 << 1,
-	DATA   = 1 << 2,
-}
-
 [Compact]
 public class FBXImportOptions
 {
@@ -469,7 +426,7 @@ public class FBXImporter
 		, bool create_textures_folder
 		, ufbx.MaterialMap map
 		, string semantic_suffix
-		, TextureUsage usage
+		, MeshResource.TextureUsage usage
 		, bool preserve_alpha
 		, GLib.HashTable<string, string> imported_textures
 		)
@@ -494,7 +451,7 @@ public class FBXImporter
 			textures_path = textures_file.get_path();
 		}
 
-		string texture_filename = Crown.texture_filename(texture);
+		string texture_filename = MeshResource.texture_filename(texture);
 		string texture_basename = texture_filename.length > 0
 			? GLib.File.new_for_path(texture_filename).get_basename()
 			: (string)texture.name.data + ".png"
@@ -533,7 +490,7 @@ public class FBXImporter
 
 			source_image_exists = true;
 		} else {
-			GLib.File? texture_file = Crown.texture_source_file(texture, fbx_file);
+			GLib.File? texture_file = MeshResource.texture_source_file(texture, fbx_file);
 			if (texture_file != null) {
 				try {
 					if (!texture_file.equal(source_image_file))
@@ -555,9 +512,9 @@ public class FBXImporter
 		// Create .texture resource.
 		Guid texture_id = Guid.new_guid();
 		TextureResource texture_resource;
-		if ((usage & TextureUsage.NORMAL) != 0)
+		if ((usage & MeshResource.TextureUsage.NORMAL) != 0)
 			texture_resource = TextureResource.normal_map(db, texture_id, source_image);
-		else if ((usage & TextureUsage.DATA) != 0)
+		else if ((usage & MeshResource.TextureUsage.DATA) != 0)
 			texture_resource = TextureResource.data_map(db, texture_id, source_image);
 		else if (preserve_alpha)
 			texture_resource = TextureResource(db, texture_id, source_image, TextureFormat.BC3, true, false);
@@ -1197,8 +1154,8 @@ public class FBXImporter
 								&& opacity.texture != null
 								;
 							if (masking) {
-								string color_texture_filename = texture_filename(map.texture);
-								string opacity_texture_filename = texture_filename(opacity.texture);
+								string color_texture_filename = MeshResource.texture_filename(map.texture);
+								string opacity_texture_filename = MeshResource.texture_filename(opacity.texture);
 								masking = map.texture == opacity.texture
 									|| (color_texture_filename.length > 0 && color_texture_filename == opacity_texture_filename)
 									;
@@ -1212,8 +1169,8 @@ public class FBXImporter
 									&& transparency.texture != null
 									;
 								if (masking) {
-									string color_texture_filename = texture_filename(map.texture);
-									string transparency_texture_filename = texture_filename(transparency.texture);
+									string color_texture_filename = MeshResource.texture_filename(map.texture);
+									string transparency_texture_filename = MeshResource.texture_filename(transparency.texture);
 									masking = map.texture == transparency.texture
 										|| (color_texture_filename.length > 0 && color_texture_filename == transparency_texture_filename)
 										;
@@ -1228,8 +1185,8 @@ public class FBXImporter
 									&& transparency.texture != null
 									;
 								if (masking) {
-									string color_texture_filename = texture_filename(map.texture);
-									string transparency_texture_filename = texture_filename(transparency.texture);
+									string color_texture_filename = MeshResource.texture_filename(map.texture);
+									string transparency_texture_filename = MeshResource.texture_filename(transparency.texture);
 									masking = map.texture == transparency.texture
 										|| (color_texture_filename.length > 0 && color_texture_filename == transparency_texture_filename)
 										;
@@ -1246,7 +1203,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_df"
-									, TextureUsage.COLOR
+									, MeshResource.TextureUsage.COLOR
 									, masking
 									, imported_textures
 									) != 0)
@@ -1265,7 +1222,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_nr"
-									, TextureUsage.NORMAL
+									, MeshResource.TextureUsage.NORMAL
 									, false
 									, imported_textures
 									) != 0)
@@ -1287,7 +1244,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_mt"
-									, TextureUsage.DATA
+									, MeshResource.TextureUsage.DATA
 									, false
 									, imported_textures
 									) != 0)
@@ -1309,7 +1266,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_rg"
-									, TextureUsage.DATA
+									, MeshResource.TextureUsage.DATA
 									, false
 									, imported_textures
 									) != 0)
@@ -1328,7 +1285,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_ao"
-									, TextureUsage.DATA
+									, MeshResource.TextureUsage.DATA
 									, false
 									, imported_textures
 									) != 0)
@@ -1350,7 +1307,7 @@ public class FBXImporter
 									, options.create_textures_folder
 									, map
 									, "_em"
-									, TextureUsage.COLOR
+									, MeshResource.TextureUsage.COLOR
 									, false
 									, imported_textures
 									) != 0)

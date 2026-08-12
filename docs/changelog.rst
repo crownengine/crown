@@ -12,6 +12,7 @@ Changelog
 * Tools: pressing the ESC key on a numeric entry will now exit it from edit mode.
 * Tools: numeric entries now use a distinct visual style when not in edit mode.
 * Tools: fixed loaded units not honoring the ``cast_shadows`` property in some circumnstances.
+* Tools: fixed importing relocated textures from FBX and OBJ models.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:
