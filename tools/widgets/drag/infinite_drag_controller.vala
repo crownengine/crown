@@ -4,7 +4,7 @@
  */
 
 [CCode (cname = "crown_infinite_drag_sampler_start")]
-extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int cancel_button);
+extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int trigger_button, int cancel_button);
 [CCode (cname = "crown_infinite_drag_sampler_drain")]
 extern void infinite_drag_sampler_drain(void* sampler, out double delta_x, out double delta_y, out int samples);
 [CCode (cname = "crown_infinite_drag_sampler_released")]
@@ -30,6 +30,7 @@ public class InfiniteDragController : GLib.Object
 	public int activation_poll_ms = 1;
 	public int update_interval_ms = 8;
 	public Axis axis_mode = Axis.X;
+	public int trigger_button = Gdk.BUTTON_PRIMARY;
 	/// Pointer button that cancels the drag instead of committing it; 0 disables it.
 	public int cancel_button = Gdk.BUTTON_SECONDARY;
 
@@ -74,13 +75,15 @@ public class InfiniteDragController : GLib.Object
 			Gdk.Device pointer = _widget.get_display().get_default_seat().
 				get_pointer();
 			_sampler = infinite_drag_sampler_start(_widget.get_display(), _widget.
-				get_window(), pointer, cancel_button);
+				get_window(), pointer, trigger_button, cancel_button);
 		}
 		if (_sampler == null) {
 			loge("InfiniteDragController: sampler failed to start");
 			_pressed = false;
 			return;
 		}
+
+		Gtk.grab_add(_widget);
 
 		_activation_timeout_id = GLib.Timeout.add(activation_poll_ms,
 			on_activation_poll);
@@ -112,6 +115,8 @@ public class InfiniteDragController : GLib.Object
 		_pressed = false;
 		stop_timers();
 		stop_sampler(commit);
+
+		Gtk.grab_remove(_widget);
 
 		bool was_dragging = _dragging;
 		_dragging = false;

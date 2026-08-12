@@ -31,8 +31,6 @@ public class EditorView : Gtk.EventBox
 	public bool _mouse_right;
 	public double _flythrough_mouse_x;
 	public double _flythrough_mouse_y;
-	public double _flythrough_anchor_x;
-	public double _flythrough_anchor_y;
 
 	public uint _window_id;
 	public uint _last_window_id;
@@ -53,6 +51,9 @@ public class EditorView : Gtk.EventBox
 #if !CROWN_GTK3
 	public Gtk.EventControllerLegacy _controller_legacy;
 #endif
+
+	public InfiniteDragController _flythrough_drag;
+	public bool _resetting_flythrough_gesture;
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
@@ -106,8 +107,6 @@ public class EditorView : Gtk.EventBox
 		_mouse_right  = false;
 		_flythrough_mouse_x = 0.0;
 		_flythrough_mouse_y = 0.0;
-		_flythrough_anchor_x = 0.0;
-		_flythrough_anchor_y = 0.0;
 
 		_window_id = 0;
 		_last_window_id = 0;
@@ -171,6 +170,16 @@ public class EditorView : Gtk.EventBox
 			_gesture_click.set_button(0);
 			_gesture_click.pressed.connect(on_button_pressed);
 			_gesture_click.released.connect(on_button_released);
+			_gesture_click.cancel.connect(on_gesture_cancelled);
+
+			_flythrough_drag = new InfiniteDragController(this);
+			_flythrough_drag.axis_mode = InfiniteDragController.Axis.XY;
+			_flythrough_drag.activation_margin = 0.0;
+			_flythrough_drag.trigger_button = Gdk.BUTTON_SECONDARY; // must match the button start()
+			_flythrough_drag.cancel_button = 0; // rmb itself drives flythrought; no separate abort button
+			_flythrough_drag.drag_delta.connect(on_flythrough_drag_delta);
+			_flythrough_drag.drag_finished.connect(on_flythrough_drag_finished);
+			_flythrough_drag.release_detected_externally.connect(on_flythrough_release_detected_externally);
 
 			_controller_motion = new Gtk.EventControllerMotion(this);
 			_controller_motion.enter.connect(on_enter);
@@ -333,14 +342,8 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:camera_drag_start('idle')");
 		}
 
-		if (!_mouse_right && _tick_callback_id != 0) {
-			// Wait a little to prevent camera movement keys
-			// from activating unwanted accelerators.
-			_enable_accels_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 300, on_enable_accels);
-			remove_tick_callback(_tick_callback_id);
-			_tick_callback_id = 0;
-			this.get_window().set_cursor(null);
-		}
+		if (!_mouse_right)
+			_flythrough_drag.release();
 
 		if (_buffer.len != 0) {
 			_runtime.send_script(_buffer.str);
@@ -380,12 +383,7 @@ public class EditorView : Gtk.EventBox
 			_buffer.append("LevelEditor:camera_drag_start('flythrough')");
 			_flythrough_mouse_x = x;
 			_flythrough_mouse_y = y;
-			Gdk.Screen screen;
-			int pointer_root_x;
-			int pointer_root_y;
-			this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
-			_flythrough_anchor_x = (double)pointer_root_x;
-			_flythrough_anchor_y = (double)pointer_root_y;
+			_flythrough_drag.start();
 
 			if (_tick_callback_id == 0)
 				_tick_callback_id = add_tick_callback(on_tick);
@@ -405,6 +403,41 @@ public class EditorView : Gtk.EventBox
 			_buffer.erase();
 			_runtime.send(DeviceApi.frame());
 		}
+	}
+
+	public void on_gesture_cancelled(Gdk.EventSequence? sequence)
+	{
+		if (_resetting_flythrough_gesture)
+			return;
+
+		_flythrough_drag.cancel();
+	}
+
+	public void on_flythrough_release_detected_externally()
+	{
+		_resetting_flythrough_gesture = true;
+		_gesture_click.reset();
+		_resetting_flythrough_gesture = false;
+	}
+
+	public void on_flythrough_drag_finished(bool was_dragging)
+	{
+		if (_tick_callback_id == 0)
+			return;
+
+		_mouse_right = false;
+		remove_tick_callback(_tick_callback_id);
+		_tick_callback_id = 0;
+		this.get_window().set_cursor(null);
+
+		// Wait a little to prevent camera movement keys
+		// from  activating unwanted accelerators.
+		_enable_accels_id = GLib.Timeout.add_full(GLib.Priority.DEFAULT, 300, on_enable_accels);
+
+		_buffer.append("LevelEditor:camera_drag_start('idle')");
+		_runtime.send_script(_buffer.str);
+		_buffer.erase();
+		_runtime.send(DeviceApi.frame());
 	}
 
 	public bool on_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
@@ -510,6 +543,12 @@ public class EditorView : Gtk.EventBox
 		}
 	}
 
+	public void on_flythrough_drag_delta(double dx, double dy)
+	{
+		_flythrough_mouse_x += dx;
+		_flythrough_mouse_y += dy;
+	}
+
 	public void on_scroll(double dx, double dy)
 	{
 		Gdk.ModifierType state = 0;
@@ -540,11 +579,7 @@ public class EditorView : Gtk.EventBox
 	{
 		camera_modifier_reset();
 
-		if (_tick_callback_id != 0) {
-			remove_tick_callback(_tick_callback_id);
-			_tick_callback_id = 0;
-			this.get_window().set_cursor(null);
-		}
+		_flythrough_drag.cancel();
 
 		_keys[Gdk.Key.Control_L] = false;
 		_keys[Gdk.Key.Shift_L] = false;
@@ -603,14 +638,6 @@ public class EditorView : Gtk.EventBox
 
 	public bool on_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock)
 	{
-		Gdk.Screen screen;
-		int pointer_root_x;
-		int pointer_root_y;
-		this.get_display().get_default_seat().get_pointer().get_position(out screen, out pointer_root_x, out pointer_root_y);
-
-		_flythrough_mouse_x += (double)pointer_root_x - _flythrough_anchor_x;
-		_flythrough_mouse_y += (double)pointer_root_y - _flythrough_anchor_y;
-
 		int scale = this.get_scale_factor();
 		_buffer.append(LevelEditorApi.set_mouse_state((int)_flythrough_mouse_x*scale
 			, (int)_flythrough_mouse_y*scale
@@ -620,11 +647,6 @@ public class EditorView : Gtk.EventBox
 			));
 		_runtime.send_script(_buffer.str);
 		_buffer.erase();
-
-		this.get_display().get_default_seat().get_pointer().warp(screen
-			, (int)_flythrough_anchor_x
-			, (int)_flythrough_anchor_y
-			);
 
 		_runtime.send(DeviceApi.frame());
 		return GLib.Source.CONTINUE;

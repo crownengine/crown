@@ -14,6 +14,8 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 #include <X11/Xlib.h>
+#include <X11/X.h>
+#include <X11/extensions/xfixeswire.h>
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xfixes.h>
 #elif defined(_WIN32)
@@ -38,6 +40,7 @@ typedef struct CrownInfiniteDragSampler
 	gint running;
 	gint anchor_x;
 	gint anchor_y;
+	gint trigger_button;
 	gint cancel_button;
 	gdouble delta_x;
 	gdouble delta_y;
@@ -49,9 +52,6 @@ typedef struct CrownInfiniteDragSampler
 	gint x11_wake_fd;
 	#elif defined(_WIN32)
 	HANDLE windows_stop_event;
-	GCond windows_setup_cond;
-	gboolean windows_setup_complete;
-	gboolean windows_setup_success;
 	gint windows_absolute_x;
 	gint windows_absolute_y;
 	gboolean windows_absolute_initialized;
@@ -74,27 +74,28 @@ static void store_sample(CrownInfiniteDragSampler *sampler)
 }
 
 #if defined(__linux__)
-typedef struct CrownInfiniteDragX11Grab
+typedef struct CrownInfiniteDragX11Confine
 {
 	Window window;
 	Window root;
 	gint anchor_x;
 	gint anchor_y;
 	gboolean cursor_hidden;
-	gboolean active;
-} CrownInfiniteDragX11Grab;
+	gboolean barriers_active;
+	PointerBarrier barriers[4];
+} CrownInfiniteDragX11Confine;
 
-/* Keep grab+XFixes-hide+XI2-raw-motion together: this combination is what activates Xwayland's relative-pointer device. */
-static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX11Grab *grab)
+/* Keep hide+barriers+XI2-raw-motion together: this combination is what activates Xwayland's relative-pointer device. */
+static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX11Confine *confine)
 {
 	int window_x;
 	int window_y;
 	Window child;
 	if (!XTranslateCoordinates(display
-		, grab->root
-		, grab->window
-		, grab->anchor_x
-		, grab->anchor_y
+		, confine->root
+		, confine->window
+		, confine->anchor_x
+		, confine->anchor_y
 		, &window_x
 		, &window_y
 		, &child
@@ -104,7 +105,7 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX1
 
 	XWarpPointer(display
 		, None
-		, grab->window
+		, confine->window
 		, 0
 		, 0
 		, 0
@@ -116,59 +117,82 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX1
 	return TRUE;
 }
 
-static void destroy_x11_pointer_grab(Display *display, CrownInfiniteDragX11Grab *grab)
+static void destroy_x11_pointer_confine(Display *display, CrownInfiniteDragX11Confine *confine)
 {
-	if (grab->active) {
+	if (confine->barriers_active) {
 		/* Commit the original position hint before revealing the pointer. */
-		warp_x11_pointer_to_anchor(display, grab);
+		warp_x11_pointer_to_anchor(display, confine);
 
-		/* Ungrab while hidden or Xwayland may discard the position hint. */
-		XUngrabPointer(display, CurrentTime);
+		for (int i = 0; i < 4; ++i) {
+			if (confine->barriers[i] != None)
+				XFixesDestroyPointerBarrier(display, confine->barriers[i]);
+		}
 		XSync(display, False);
-		grab->active = FALSE;
+		confine->barriers_active = FALSE;
 	}
-	if (grab->cursor_hidden) {
-		XFixesShowCursor(display, grab->window);
+	if (confine->cursor_hidden) {
+		XFixesShowCursor(display, confine->window);
 		XSync(display, False);
-		grab->cursor_hidden = FALSE;
+		confine->cursor_hidden = FALSE;
 	}
 }
 
-static gboolean create_x11_pointer_grab(Display *display
+static gboolean create_x11_pointer_confine(Display *display
 	, Window root
 	, Window window
 	, gint anchor_x
 	, gint anchor_y
-	, CrownInfiniteDragX11Grab *grab
+	, CrownInfiniteDragX11Confine *confine
 	)
 {
-	grab->window = window;
-	grab->root = root;
-	grab->anchor_x = anchor_x;
-	grab->anchor_y = anchor_y;
-	int status = XGrabPointer(display
-		, window
-		, False
-		, ButtonReleaseMask
-		, GrabModeAsync
-		, GrabModeAsync
-		, window
-		, None
-		, CurrentTime
-		);
-	if (status != GrabSuccess) {
-		destroy_x11_pointer_grab(display, grab);
+	confine->window = window;
+	confine->root = root;
+	confine->anchor_x = anchor_x;
+	confine->anchor_y = anchor_y;
+
+	XWindowAttributes attrs;
+	Window child;
+	int root_x;
+	int root_y;
+	if (!XGetWindowAttributes(display, window, &attrs)
+		|| !XTranslateCoordinates(display, window, root, 0, 0, &root_x, &root_y, &child)
+		) {
 		return FALSE;
 	}
-	grab->active = TRUE;
+
+	int left = root_x;
+	int top = root_y;
+	int right = root_x + attrs.width;
+	int bottom = root_y + attrs.height;
+
+	struct { int x1, y1, x2, y2; int dir; } barrier_defs[4] =
+	{
+		{ left, top, right, top, BarrierNegativeY },
+		{ left, bottom, right, bottom, BarrierPositiveY },
+		{ left, top, left, bottom, BarrierNegativeX },
+		{ right, top, right, bottom, BarrierPositiveX }
+	};
+
+	for (int i = 0; i < 4; ++i) {
+		confine->barriers[i] = XFixesCreatePointerBarrier(display, root
+			, barrier_defs[i].x1, barrier_defs[i].y1
+			, barrier_defs[i].x2, barrier_defs[i].y2
+			, barrier_defs[i].dir, 0, NULL
+			);
+		if (confine->barriers[i] == None) {
+			destroy_x11_pointer_confine(display, confine);
+			return FALSE;
+		}
+	}
+	confine->barriers_active = TRUE;
 
 	XFixesHideCursor(display, window);
 	XSync(display, False);
-	grab->cursor_hidden = TRUE;
+	confine->cursor_hidden = TRUE;
 
 	/* A single warp; repeated warps would be reported as synthetic raw motion. */
-	if (!warp_x11_pointer_to_anchor(display, grab)) {
-		destroy_x11_pointer_grab(display, grab);
+	if (!warp_x11_pointer_to_anchor(display, confine)) {
+		destroy_x11_pointer_confine(display, confine);
 		return FALSE;
 	}
 	return TRUE;
@@ -205,11 +229,11 @@ static gpointer sample_pointer_x11(gpointer data)
 
 	int xfixes_event;
 	int xfixes_error;
-	int xfixes_major = 4;
+	int xfixes_major = 5;
 	int xfixes_minor = 0;
 	if (!XFixesQueryExtension(display, &xfixes_event, &xfixes_error)
 		|| !XFixesQueryVersion(display, &xfixes_major, &xfixes_minor)
-		|| xfixes_major < 4
+		|| xfixes_major < 5
 		) {
 		XCloseDisplay(display);
 		return NULL;
@@ -232,13 +256,13 @@ static gpointer sample_pointer_x11(gpointer data)
 	}
 	XSync(display, False);
 
-	CrownInfiniteDragX11Grab pointer_grab = { 0 };
-	if (!create_x11_pointer_grab(display
+	CrownInfiniteDragX11Confine pointer_confine = { 0 };
+	if (!create_x11_pointer_confine(display
 		, root
 		, sampler->x11_window
 		, sampler->anchor_x
 		, sampler->anchor_y
-		, &pointer_grab
+		, &pointer_confine
 		)) {
 		XCloseDisplay(display);
 		return NULL;
@@ -248,17 +272,16 @@ static gpointer sample_pointer_x11(gpointer data)
 		while (XPending(display) > 0) {
 			XEvent event;
 			XNextEvent(display, &event);
-			if (event.type == ButtonRelease) {
-				g_atomic_int_set(&sampler->released, TRUE);
-				g_atomic_int_set(&sampler->running, FALSE);
-			} else if (event.type == GenericEvent
+			if (event.type == GenericEvent
 				&& event.xcookie.extension == xinput_opcode
 				&& XGetEventData(display, &event.xcookie)
 				) {
 				XIRawEvent *raw = event.xcookie.data;
 				if (event.xcookie.evtype == XI_RawButtonRelease) {
-					g_atomic_int_set(&sampler->released, TRUE);
-					g_atomic_int_set(&sampler->running, FALSE);
+					if ((gint)raw->detail == sampler->trigger_button) {
+						g_atomic_int_set(&sampler->released, TRUE);
+						g_atomic_int_set(&sampler->running, FALSE);
+					}
 				} else if (event.xcookie.evtype == XI_RawButtonPress) {
 					if (sampler->cancel_button != 0 && raw->detail == sampler->cancel_button) {
 						g_atomic_int_set(&sampler->cancel_requested, TRUE);
@@ -310,7 +333,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		}
 	}
 
-	destroy_x11_pointer_grab(display, &pointer_grab);
+	destroy_x11_pointer_confine(display, &pointer_confine);
 	XCloseDisplay(display);
 	return NULL;
 }
@@ -319,15 +342,6 @@ static gpointer sample_pointer_x11(gpointer data)
 static const wchar_t WINDOWS_RAW_INPUT_CLASS_NAME[] = L"CrownInfiniteDragRawInput";
 
 /* Event-driven only: do not replace with cursor-position polling or repeated SetCursorPos calls. */
-
-static void complete_windows_setup(CrownInfiniteDragSampler *sampler, gboolean success)
-{
-	g_mutex_lock(&sampler->mutex);
-	sampler->windows_setup_success = success;
-	sampler->windows_setup_complete = TRUE;
-	g_cond_signal(&sampler->windows_setup_cond);
-	g_mutex_unlock(&sampler->mutex);
-}
 
 static gboolean register_windows_raw_input(HWND target)
 {
@@ -393,7 +407,19 @@ static void process_windows_raw_mouse(CrownInfiniteDragSampler *sampler, const R
 		return;
 	}
 
-	if ((mouse->usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) != 0) {
+	USHORT trigger_button_up = 0;
+	switch (sampler->trigger_button) {
+	case GDK_BUTTON_PRIMARY:
+		trigger_button_up = RI_MOUSE_LEFT_BUTTON_UP;
+		break;
+	case GDK_BUTTON_MIDDLE:
+		trigger_button_up = RI_MOUSE_MIDDLE_BUTTON_UP;
+		break;
+	case GDK_BUTTON_SECONDARY:
+		trigger_button_up = RI_MOUSE_RIGHT_BUTTON_UP;
+		break;
+	}
+	if (trigger_button_up != 0 && (mouse->usButtonFlags & trigger_button_up) != 0) {
 		g_atomic_int_set(&sampler->released, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
 		SetEvent(sampler->windows_stop_event);
@@ -485,7 +511,6 @@ static gpointer sample_pointer_windows(gpointer data)
 	if (!ClipCursor(&clip)) {
 		goto setup_failed;
 	}
-	complete_windows_setup(sampler, TRUE);
 
 	while (g_atomic_int_get(&sampler->running)) {
 		DWORD wait_result = MsgWaitForMultipleObjects(1
@@ -520,7 +545,6 @@ setup_failed:
 	if (window != NULL)
 		DestroyWindow(window);
 	g_atomic_int_set(&sampler->running, FALSE);
-	complete_windows_setup(sampler, FALSE);
 	return NULL;
 }
 
@@ -536,7 +560,7 @@ static gpointer sample_pointer(gpointer data)
 	return NULL;
 }
 
-void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint cancel_button)
+void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint trigger_button, gint cancel_button)
 {
 	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
@@ -544,6 +568,7 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	sampler->x11_wake_fd = -1;
 	#endif
 	g_atomic_int_set(&sampler->running, TRUE);
+	sampler->trigger_button = trigger_button;
 	sampler->cancel_button = cancel_button;
 	#if defined(__linux__)
 	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
@@ -592,10 +617,8 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	}
 	sampler->anchor_x = cursor_position.x;
 	sampler->anchor_y = cursor_position.y;
-	g_cond_init(&sampler->windows_setup_cond);
 	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
 	if (sampler->windows_stop_event == NULL) {
-		g_cond_clear(&sampler->windows_setup_cond);
 		g_mutex_clear(&sampler->mutex);
 		g_free(sampler);
 		return NULL;
@@ -606,21 +629,6 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	(void)device;
 	#endif /* if defined(__linux__) */
 	sampler->thread = g_thread_new("infinite-drag", sample_pointer, sampler);
-	#if defined(_WIN32)
-	g_mutex_lock(&sampler->mutex);
-	while (!sampler->windows_setup_complete)
-		g_cond_wait(&sampler->windows_setup_cond, &sampler->mutex);
-	gboolean setup_success = sampler->windows_setup_success;
-	g_mutex_unlock(&sampler->mutex);
-	if (!setup_success) {
-		g_thread_join(sampler->thread);
-		CloseHandle(sampler->windows_stop_event);
-		g_cond_clear(&sampler->windows_setup_cond);
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
-	#endif
 	return sampler;
 }
 
@@ -669,7 +677,6 @@ void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *del
 		close(sampler->x11_wake_fd);
 	#elif defined(_WIN32)
 	CloseHandle(sampler->windows_stop_event);
-	g_cond_clear(&sampler->windows_setup_cond);
 	#endif
 	g_mutex_clear(&sampler->mutex);
 	g_free(sampler);
