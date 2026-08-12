@@ -11,6 +11,7 @@ Changelog
 * Tools: the transform component will now allow negative scaling values.
 * Tools: pressing the ESC key on a numeric entry will now exit it from edit mode.
 * Tools: numeric entries now use a distinct visual style when not in edit mode.
+* Tools: fixed loaded units not honoring the ``cast_shadows`` property in some circumnstances.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:

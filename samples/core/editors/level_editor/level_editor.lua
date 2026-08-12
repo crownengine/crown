@@ -1807,11 +1807,12 @@ function LevelEditor:add_camera_component(id, component_id, projection, fov, far
 	World.camera_set_orthographic_size(self._world, camera, orthographic_size)
 end
 
-function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible)
+function LevelEditor:add_mesh_component(id, component_id, mesh_resource, geometry_name, material_resource, visible, cast_shadows)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
 	if RenderWorld.mesh_instance(self._rw, unit_id) ~= nil then return end
 	RenderWorld.mesh_create(self._rw, unit_id, mesh_resource, geometry_name, material_resource, visible)
+	unit_box:set_mesh(mesh_resource, geometry_name, material_resource, visible, cast_shadows)
 end
 
 function LevelEditor:add_sprite_component(id, component_id, sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
