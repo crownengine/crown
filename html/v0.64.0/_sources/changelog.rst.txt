@@ -1,6 +1,20 @@
 Changelog
 =========
 
+.. _v0.64.1:
+
+:ref:`0.64.1 --- 12 Aug 2026 <v0.64.1>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: the transform component will now allow negative scaling values.
+* Tools: pressing the ESC key on a numeric entry will now exit it from edit mode.
+* Tools: numeric entries now use a distinct visual style when not in edit mode.
+* Tools: fixed loaded units not honoring the ``cast_shadows`` property in some circumnstances.
+* Tools: fixed importing relocated textures from FBX and OBJ models.
+* Runtime: the camera now ignores the scaling component in its transform.
+
 .. _v0.64.0:
 
 :ref:`0.64.0 --- 10 Aug 2026 <v0.64.0>`
