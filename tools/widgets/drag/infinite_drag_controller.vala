@@ -4,15 +4,15 @@
  */
 
 [CCode (cname = "crown_infinite_drag_sampler_start")]
-extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int trigger_button, int cancel_button, int confine_x, int confine_y, int confine_width, int confine_height);
+extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int trigger_button, int cancel_button);
 [CCode (cname = "crown_infinite_drag_sampler_drain")]
-extern void infinite_drag_sampler_drain(void* sampler, out double delta_x, out double delta_y, out int samples);
+extern void infinite_drag_sampler_drain(void* sampler, out double delta_x, out double delta_y, out double wheel_dx, out double wheel_dy, out int samples);
 [CCode (cname = "crown_infinite_drag_sampler_released")]
 extern bool infinite_drag_sampler_released(void* sampler);
 [CCode (cname = "crown_infinite_drag_sampler_cancel_requested")]
 extern bool infinite_drag_sampler_cancel_requested(void* sampler);
 [CCode (cname = "crown_infinite_drag_sampler_stop")]
-extern void infinite_drag_sampler_stop(void* sampler, out double delta_x, out double delta_y, out int samples);
+extern void infinite_drag_sampler_stop(void* sampler, out double delta_x, out double delta_y, out double wheel_dx, out double wheel_dy, out int samples);
 
 namespace Crown
 {
@@ -36,6 +36,7 @@ public class InfiniteDragController : GLib.Object
 
 	public signal void drag_started();
 	public signal void drag_delta(double dx, double dy, double total_dx, double total_dy);
+	public signal void drag_scroll(double dx, double dy);
 	public signal void drag_committed();
 	public signal void drag_cancelled();
 	public signal void drag_finished(bool was_dragging);
@@ -75,14 +76,8 @@ public class InfiniteDragController : GLib.Object
 			Gdk.Device pointer = _widget.get_display().get_default_seat().
 				get_pointer();
 
-			int origin_x, origin_y;
-			_widget.get_window().get_origin(out origin_x, out origin_y);
-			int width = _widget.get_allocated_width();
-			int height = _widget.get_allocated_height();
-
 			_sampler = infinite_drag_sampler_start(_widget.get_display(), _widget.
-				get_window(), pointer, trigger_button, cancel_button,
-				origin_x, origin_y, width, height);
+				get_window(), pointer, trigger_button, cancel_button);
 		}
 		if (_sampler == null) {
 			loge("InfiniteDragController: sampler failed to start");
@@ -182,10 +177,10 @@ public class InfiniteDragController : GLib.Object
 	/// Returns true if the sampler ended the session (release or cancel).
 	private bool check_ended()
 	{
-		double dx, dy;
+		double dx, dy, wdx, wdy;
 		int samples;
-		infinite_drag_sampler_drain(_sampler, out dx, out dy, out samples);
-		process_samples(dx, dy);
+		infinite_drag_sampler_drain(_sampler, out dx, out dy, out wdx, out wdy, out samples);
+		process_samples(dx, dy, wdx, wdy);
 
 		bool cancel_requested = infinite_drag_sampler_cancel_requested(_sampler);
 		bool released = infinite_drag_sampler_released(_sampler);
@@ -197,7 +192,7 @@ public class InfiniteDragController : GLib.Object
 		return true;
 	}
 
-	private void process_samples(double dx, double dy)
+	private void process_samples(double dx, double dy, double wdx, double wdy)
 	{
 		_last_dx = dx;
 		_last_dy = dy;
@@ -205,6 +200,9 @@ public class InfiniteDragController : GLib.Object
 			_total_dx += dx;
 		if (axis_mode != Axis.X)
 			_total_dy += dy;
+
+		if (wdx != 0.0 || wdy != 0.0)
+			drag_scroll(wdx, wdy);
 
 		if (!_dragging) {
 			double magnitude = (axis_mode == Axis.Y) ? _total_dy.abs() : _total_dx.
@@ -224,12 +222,12 @@ public class InfiniteDragController : GLib.Object
 		if (_sampler == null)
 			return;
 
-		double dx, dy;
+		double dx, dy, wdx, wdy;
 		int samples;
-		infinite_drag_sampler_stop(_sampler, out dx, out dy, out samples);
+		infinite_drag_sampler_stop(_sampler, out dx, out dy, out wdx, out wdy, out samples);
 		_sampler = null;
 		if (process_final_samples)
-			process_samples(dx, dy);
+			process_samples(dx, dy, wdx, wdy);
 	}
 }
 
