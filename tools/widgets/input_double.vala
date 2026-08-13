@@ -146,7 +146,7 @@ public class InputDouble : InputField
 		_controller_scroll = new Gtk.EventControllerScroll(_entry, Gtk.EventControllerScrollFlags.BOTH_AXES);
 		_controller_scroll.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_controller_scroll.scroll.connect(() => {
-				// Consume the event; suppresses the default scroll behavior.
+				// Consume the event to avoid GTK changing values when scrolling over the widget.
 			});
 #endif
 
