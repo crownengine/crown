@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.2 --- DD MMM YYYY <v0.64.2>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
+
 .. _v0.64.1:
 
 :ref:`0.64.1 --- 12 Aug 2026 <v0.64.1>`

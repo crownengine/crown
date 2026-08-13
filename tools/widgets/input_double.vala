@@ -290,10 +290,9 @@ public class InputDouble : InputField
 
 		if (_entry.text != format_value(_value, _edit_decimals))
 			set_value_safe(string_to_double(_entry.text, _value));
-		else
-			_entry.text = format_value(_value, _preview_decimals);
 
-		_label.set_text(_entry.text);
+		_entry.text = format_value(_value, _edit_decimals);
+		_label.set_text(format_value(_value, _preview_decimals));
 	}
 
 	public bool on_focus_in(Gdk.EventFocus ev)
@@ -332,12 +331,12 @@ public class InputDouble : InputField
 			if (_entry.text != format_value(_value, _edit_decimals))
 				set_value_safe(string_to_double(_entry.text, _value));
 			else
-				_entry.text = format_value(_value, _preview_decimals);
+				_entry.text = format_value(_value, _edit_decimals);
 		}
 
 		_entry.select_region(0, 0);
 		_entry.editable = false;
-		_label.set_text(_entry.text);
+		_label.set_text(format_value(_value, _preview_decimals));
 		_event_box.visible = true;
 
 		return Gdk.EVENT_PROPAGATE;
