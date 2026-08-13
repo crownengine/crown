@@ -178,6 +178,7 @@ public class EditorView : Gtk.EventBox
 			_flythrough_drag.trigger_button = Gdk.BUTTON_SECONDARY; // must match the button start()
 			_flythrough_drag.cancel_button = 0; // rmb itself drives flythrought; no separate abort button
 			_flythrough_drag.drag_delta.connect(on_flythrough_drag_delta);
+			_flythrough_drag.drag_scroll.connect(on_scroll);
 			_flythrough_drag.drag_finished.connect(on_flythrough_drag_finished);
 			_flythrough_drag.release_detected_externally.connect(on_flythrough_release_detected_externally);
 
