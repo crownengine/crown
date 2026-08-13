@@ -4,7 +4,7 @@
  */
 
 [CCode (cname = "crown_infinite_drag_sampler_start")]
-extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int trigger_button, int cancel_button);
+extern void* infinite_drag_sampler_start(Gdk.Display display, Gdk.Window window, Gdk.Device device, int trigger_button, int cancel_button, int confine_x, int confine_y, int confine_width, int confine_height);
 [CCode (cname = "crown_infinite_drag_sampler_drain")]
 extern void infinite_drag_sampler_drain(void* sampler, out double delta_x, out double delta_y, out int samples);
 [CCode (cname = "crown_infinite_drag_sampler_released")]
@@ -74,8 +74,15 @@ public class InfiniteDragController : GLib.Object
 		if (_sampler == null) {
 			Gdk.Device pointer = _widget.get_display().get_default_seat().
 				get_pointer();
+
+			int origin_x, origin_y;
+			_widget.get_window().get_origin(out origin_x, out origin_y);
+			int width = _widget.get_allocated_width();
+			int height = _widget.get_allocated_height();
+
 			_sampler = infinite_drag_sampler_start(_widget.get_display(), _widget.
-				get_window(), pointer, trigger_button, cancel_button);
+				get_window(), pointer, trigger_button, cancel_button,
+				origin_x, origin_y, width, height);
 		}
 		if (_sampler == null) {
 			loge("InfiniteDragController: sampler failed to start");
