@@ -381,7 +381,7 @@ static void process_windows_raw_mouse(CrownInfiniteDragSampler *sampler, const R
 	}
 	if ((mouse->usButtonFlags & RI_MOUSE_HWHEEL) != 0) {
 		SHORT wheel_delta = (SHORT)mouse->usButtonData;
-		store_wheel(sampler, (gdouble)wheel_delta/120.0, 0.0)
+		store_wheel(sampler, (gdouble)wheel_delta/120.0, 0.0);
 	}
 
 	if (delta_x != 0 || delta_y != 0) {
