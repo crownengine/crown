@@ -13,6 +13,7 @@ Changelog
 * Tools: numeric entries now use a distinct visual style when not in edit mode.
 * Tools: fixed loaded units not honoring the ``cast_shadows`` property in some circumnstances.
 * Tools: fixed importing relocated textures from FBX and OBJ models.
+* Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:
