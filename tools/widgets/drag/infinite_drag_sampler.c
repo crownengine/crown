@@ -50,6 +50,10 @@ typedef struct CrownInfiniteDragSampler
 	#if defined(__linux__)
 	Window x11_window;
 	gint x11_wake_fd;
+	gint confine_x;
+	gint confine_y;
+	gint confine_width;
+	gint confine_height;
 	#elif defined(_WIN32)
 	HANDLE windows_stop_event;
 	gint windows_absolute_x;
@@ -142,6 +146,10 @@ static gboolean create_x11_pointer_confine(Display *display
 	, Window window
 	, gint anchor_x
 	, gint anchor_y
+	, gint confine_x
+	, gint confine_y
+	, gint confine_width
+	, gint confine_height
 	, CrownInfiniteDragX11Confine *confine
 	)
 {
@@ -150,20 +158,10 @@ static gboolean create_x11_pointer_confine(Display *display
 	confine->anchor_x = anchor_x;
 	confine->anchor_y = anchor_y;
 
-	XWindowAttributes attrs;
-	Window child;
-	int root_x;
-	int root_y;
-	if (!XGetWindowAttributes(display, window, &attrs)
-		|| !XTranslateCoordinates(display, window, root, 0, 0, &root_x, &root_y, &child)
-		) {
-		return FALSE;
-	}
-
-	int left = root_x;
-	int top = root_y;
-	int right = root_x + attrs.width;
-	int bottom = root_y + attrs.height;
+	int left = confine_x;
+	int top = confine_y;
+	int right = confine_x + confine_width;
+	int bottom = confine_y + confine_height;
 
 	struct { int x1, y1, x2, y2; int dir; } barrier_defs[4] =
 	{
@@ -262,6 +260,10 @@ static gpointer sample_pointer_x11(gpointer data)
 		, sampler->x11_window
 		, sampler->anchor_x
 		, sampler->anchor_y
+		, sampler->confine_x
+		, sampler->confine_y
+		, sampler->confine_width
+		, sampler->confine_height
 		, &pointer_confine
 		)) {
 		XCloseDisplay(display);
@@ -560,7 +562,7 @@ static gpointer sample_pointer(gpointer data)
 	return NULL;
 }
 
-void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint trigger_button, gint cancel_button)
+void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint trigger_button, gint cancel_button, gint confine_x, gint confine_y, gint confine_width, gint confine_height)
 {
 	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
@@ -577,6 +579,10 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 		g_free(sampler);
 		return NULL;
 	}
+	sampler->confine_x = confine_x;
+	sampler->confine_y = confine_y;
+	sampler->confine_width = confine_width;
+	sampler->confine_height = confine_height;
 	GdkWindow *toplevel = gdk_window_get_toplevel(window);
 	sampler->x11_window = gdk_x11_window_get_xid(toplevel);
 	Display *xdisplay = gdk_x11_display_get_xdisplay(display);
@@ -609,6 +615,10 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	(void)display;
 	(void)window;
 	(void)device;
+	(void)confine_x;
+	(void)confine_y;
+	(void)confine_width;
+	(void)confine_height;
 	POINT cursor_position;
 	if (!GetCursorPos(&cursor_position)) {
 		g_mutex_clear(&sampler->mutex);
@@ -627,6 +637,10 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	(void)display;
 	(void)window;
 	(void)device;
+	(void)confine_x;
+	(void)confine_y;
+	(void)confine_width;
+	(void)confine_height;
 	#endif /* if defined(__linux__) */
 	sampler->thread = g_thread_new("infinite-drag", sample_pointer, sampler);
 	return sampler;
