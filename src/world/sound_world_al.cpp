@@ -17,6 +17,7 @@
 #include "core/profiler.inl"
 #include "device/log.h"
 #include "resource/resource_manager.h"
+#include "resource/sound_mp3.h"
 #include "resource/sound_resource.inl"
 #include "resource/sound_ogg.h"
 #include "world/sound_world.h"
@@ -88,6 +89,9 @@ struct SoundInstance
 	unsigned char *_vorbis_headers;
 	stb_vorbis *_vorbis;
 
+	// MP3-specific.
+	drmp3 *_mp3;
+
 	void create(const SoundResource *sr, File *stream, bool loop, f32 range, u32 flags, const Vector3 &pos, StringId32 group)
 	{
 		_resource = sr;
@@ -95,6 +99,7 @@ struct SoundInstance
 		_stream_data = NULL;
 		_stream = stream;
 		_vorbis = NULL;
+		_mp3 = NULL;
 		_volume = 1.0f;
 		_group = group;
 		_flags = flags;
@@ -268,6 +273,50 @@ struct SoundInstance
 			}
 
 			return tot_n;
+		} else if (_resource->stream_format == StreamFormat::MP3) {
+			const Mp3StreamMetadata *mp3_metadata = (const Mp3StreamMetadata *)sound_resource::stream_metadata(_resource);
+
+			// Open the stream and skip the samples already stored as PCM.
+			if (_mp3 == NULL) {
+				_mp3 = mp3::create(*_stream, default_allocator());
+				if (_mp3 == NULL)
+					return 0;
+
+				if (_stream_data == NULL) {
+					_stream_data = default_allocator().allocate(_block_size, alignof(f32));
+					_stream_decoded = (u8 *)_stream_data;
+				}
+
+				if (drmp3_seek_to_pcm_frame(_mp3, mp3_metadata->num_frames_skip) != DRMP3_TRUE) {
+					mp3::destroy(_mp3, default_allocator());
+					_mp3 = NULL;
+					return 0;
+				}
+			}
+
+			f32 *decoded = (f32 *)_stream_decoded;
+			u32 total_frames = 0;
+			bool restarted_without_data = false;
+			while (total_frames < _block_samples) {
+				const u64 num_frames = drmp3_read_pcm_frames_f32(_mp3
+					, _block_samples - total_frames
+					, decoded + total_frames * _resource->channels
+					);
+				total_frames += u32(num_frames);
+				if (num_frames != 0) {
+					restarted_without_data = false;
+					continue;
+				}
+
+				if (!_loop
+					|| restarted_without_data
+					|| drmp3_seek_to_pcm_frame(_mp3, 0) != DRMP3_TRUE
+					)
+					break;
+				restarted_without_data = true;
+			}
+
+			return total_frames;
 		} else {
 			CE_FATAL("Unknown stream format");
 			return 0;
@@ -338,6 +387,8 @@ struct SoundInstance
 	void stop()
 	{
 		AL_CHECK(alSourceStop(_source));
+		mp3::destroy(_mp3, default_allocator());
+		_mp3 = NULL;
 		AL_CHECK(alSourceRewind(_source)); // Workaround
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));

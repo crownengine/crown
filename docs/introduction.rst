@@ -107,7 +107,7 @@ Features
 	* 3D audio sources with position and range-based attenuation.
 	* Sound groups for bulk volume adjustments.
 	* Audio streaming.
-	* Formats: WAV and OGG.
+	* Formats: WAV, OGG and MP3.
 
 * Scripting
 	* Integrated Lua runtime can be used to control every aspect of the game.

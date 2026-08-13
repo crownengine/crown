@@ -24,7 +24,8 @@ struct StreamFormat
 	{
 		NONE, ///< Sound has no stream resource.
 		PCM,  ///< Raw PCM audio samples.
-		OGG   ///< Ogg Vorbis audio files.
+		OGG,  ///< Ogg Vorbis audio files.
+		MP3   ///< MP3 audio files.
 	};
 };
 

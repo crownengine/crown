@@ -14,6 +14,7 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "resource/compile_options.inl"
 #   include "resource/sound.h"
+#   include "resource/sound_mp3.h"
 #   include "resource/sound_ogg.h"
 #   include "resource/sound_resource.h"
 #   include "resource/sound_wav.h"
@@ -86,6 +87,8 @@ namespace sound
 			return wav::parse(s, sound_data, opts);
 		} else if (source.has_suffix("ogg") || source.has_suffix("OGG")) {
 			return ogg::parse(s, sound_data, opts);
+		} else if (source.has_suffix("mp3") || source.has_suffix("MP3")) {
+			return mp3::parse(s, sound_data, opts);
 		}
 
 		RETURN_IF_FALSE(SOUND, false, opts, "Unsupported format");

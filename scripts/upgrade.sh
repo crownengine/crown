@@ -642,6 +642,26 @@ update_stb () {
 	git commit -m "3rdparty: update stb"
 }
 
+update_dr_libs () {
+	local REPO=https://github.com/mackron/dr_libs
+	local DEST=3rdparty/dr_libs
+	local BRANCH=master
+
+	# Download latest dr_libs.
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Keep only the MP3 decoder and its license.
+	find "${DEST}" -mindepth 1 -maxdepth 1 \
+		! -name dr_mp3.h \
+		! -name LICENSE \
+		-exec rm -rf {} +
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update dr_libs"
+}
+
 update_lz4 () {
 	local REPO=https://github.com/lz4/lz4
 	local DEST=3rdparty/lz4
@@ -776,6 +796,10 @@ while true; do
 		;;
 	stb)
 		update_stb
+		exit $?
+		;;
+	dr_libs)
+		update_dr_libs
 		exit $?
 		;;
 	lz4)

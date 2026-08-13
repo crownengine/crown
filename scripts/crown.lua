@@ -20,6 +20,7 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "3rdparty/bx/include",
 			CROWN_DIR .. "3rdparty/stb",
 			CROWN_DIR .. "3rdparty/bullet3/src",
+			CROWN_DIR .. "3rdparty/dr_libs",
 			CROWN_DIR .. "3rdparty/openal/include",
 			CROWN_DIR .. "3rdparty/lz4/lib",
 		}
