@@ -6,6 +6,10 @@
 #pragma once
 
 #include "config.h"
+#if CROWN_CAN_COMPILE
+#   include "resource/sound.h"
+#   include "resource/types.h"
+#endif
 
 namespace crown
 {
@@ -20,9 +24,6 @@ struct OggStreamMetadata
 } // namespace crown
 
 #if CROWN_CAN_COMPILE
-#include "resource/sound.h"
-#include "resource/types.h"
-
 namespace crown
 {
 namespace ogg

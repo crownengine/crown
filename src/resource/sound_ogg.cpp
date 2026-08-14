@@ -4,19 +4,6 @@
  */
 
 #include "config.h"
-
-#define STB_VORBIS_NO_PULLDATA_API
-#if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-#if CROWN_COMPILER_CLANG
-#pragma GCC diagnostic ignored "-Wtautological-compare"
-#endif
-#endif
-#include <stb_vorbis.c>
-#if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
-#pragma GCC diagnostic pop
-#endif
 #if CROWN_CAN_COMPILE
 #   include "core/containers/array.inl"
 #   include "core/filesystem/file_buffer.inl"
@@ -27,7 +14,21 @@
 #   include "resource/sound.h"
 #   include "resource/sound_ogg.h"
 #   include "resource/sound_resource.h"
+#endif
 
+#define STB_VORBIS_NO_PULLDATA_API
+#if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wunused-function"
+#if CROWN_COMPILER_CLANG
+#   pragma GCC diagnostic ignored "-Wtautological-compare"
+#endif
+#endif
+#include <stb_vorbis.c>
+#if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
+#   pragma GCC diagnostic pop
+#endif
+#if CROWN_CAN_COMPILE
 LOG_SYSTEM(OGG, "ogg")
 
 namespace crown
