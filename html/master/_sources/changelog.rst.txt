@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.0 --- DD MMM YYYY <v0.65.0>`
 ---------------------------------------
 
+**New Features and Improvements**
+
+* Runtime: added support for MP3 sound files.
+
 **Fixes**
 
 * Tools: the transform component will now allow negative scaling values.

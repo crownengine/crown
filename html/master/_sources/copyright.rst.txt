@@ -753,6 +753,11 @@ Bullet Physics SDK (Zlib)
 
 Real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
 
+dr_mp3 (Public domain or MIT-0)
+-------------------------------
+
+Single-file MP3 audio decoder for C and C++.
+
 FreeType (FreeType Project LICENSE)
 -----------------------------------
 
