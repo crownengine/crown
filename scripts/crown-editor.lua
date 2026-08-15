@@ -4,7 +4,7 @@
 --
 
 project "crown-editor"
-	kind "WindowedApp"
+	kind "ConsoleApp"
 	language "Vala"
 
 	configuration { "debug" }

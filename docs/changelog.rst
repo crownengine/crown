@@ -19,6 +19,7 @@ Changelog
 * Tools: fixed importing relocated textures from FBX and OBJ models.
 * Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
 * Tools: fixed launcher calling the wrong runtime.
+* Tools: Windows: fixed launcher command line interface.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:

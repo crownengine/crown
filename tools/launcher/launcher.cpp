@@ -95,21 +95,9 @@ int main(int argc, char **argv)
 	u32 spawn_flags = 0;
 
 #if CROWN_PLATFORM_WINDOWS
-	if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
-		const DWORD handles[] = { STD_OUTPUT_HANDLE, STD_ERROR_HANDLE, STD_INPUT_HANDLE };
-		const char *modes[] = { "w", "w", "r" };
-		FILE *stdfds[] = { stdout, stderr, stdin };
-
-		for (u32 i = 0; i < countof(handles); ++i) {
-			HANDLE out = GetStdHandle(handles[i]);
-			int fd = _open_osfhandle((intptr_t)out, _O_TEXT);
-			if (fd != -1) {
-				*stdfds[i] = *_fdopen(fd, modes[i]);
-				setvbuf(stdfds[i], NULL, _IONBF, 0); // No buffering.
-			}
-		}
-	} else {
-		spawn_flags |= CROWN_PROCESS_NO_WINDOW;
+	if (argc == 1) {
+		FreeConsole();
+		spawn_flags |= CROWN_PROCESS_NO_WINDOW; // Avoid crown-editor console window.
 	}
 #endif
 

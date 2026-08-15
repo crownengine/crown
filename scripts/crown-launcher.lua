@@ -4,7 +4,7 @@
 --
 
 project ("crown-launcher")
-	kind "WindowedApp"
+	kind "ConsoleApp"
 
 	defines {
 		"CROWN_LOG_TO_CONSOLE=0"
@@ -34,6 +34,9 @@ project ("crown-launcher")
 		links {
 			"dbghelp",
 			"ole32",   -- __imp_CoCreateGuid
+		}
+		files {
+			CROWN_DIR .. "scripts/win32/app.rc",
 		}
 
 	configuration {}
