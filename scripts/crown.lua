@@ -139,6 +139,9 @@ function crown_project(_name, _kind, _defines)
 				"gdi32",
 				"shell32",
 			}
+			files {
+				CROWN_DIR .. "scripts/win32/app.rc",
+			}
 
 		configuration { "linux-* or mingw* or vs*" }
 			includedirs {
