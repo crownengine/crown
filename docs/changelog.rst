@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
 * Tools: fixed launcher calling the wrong runtime.
+* Tools: Windows: fixed launcher command line interface.
 
 .. _v0.64.1:
 

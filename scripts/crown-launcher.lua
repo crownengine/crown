@@ -4,7 +4,7 @@
 --
 
 project ("crown-launcher")
-	kind "WindowedApp"
+	kind "ConsoleApp"
 
 	defines {
 		"CROWN_LOG_TO_CONSOLE=0"
@@ -55,7 +55,13 @@ project ("crown-launcher")
 		CROWN_DIR .. "src/core/time.cpp",
 		CROWN_DIR .. "src/device/log.cpp",
 		CROWN_DIR .. "tools/launcher/launcher.cpp",
+		CROWN_DIR .. "scripts/win32/app.rc",
 	}
+
+	configuration { "not vs*", "not mingw*" }
+		removefiles {
+			CROWN_DIR .. "scripts/win32/app.rc",
+		}
 
 	strip()
 

@@ -158,7 +158,13 @@ function crown_project(_name, _kind, _defines)
 			CROWN_DIR .. "src/**.h",
 			CROWN_DIR .. "src/**.cpp",
 			CROWN_DIR .. "3rdparty/lz4/lib/*.c",
+			CROWN_DIR .. "scripts/win32/app.rc",
 		}
+
+		configuration { "not vs*", "not mingw*" }
+			removefiles {
+				CROWN_DIR .. "scripts/win32/app.rc",
+			}
 
 		strip()
 
