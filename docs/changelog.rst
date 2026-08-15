@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
+* Tools: fixed launcher calling the wrong runtime.
 
 .. _v0.64.1:
 

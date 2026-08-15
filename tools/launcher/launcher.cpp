@@ -42,7 +42,7 @@ int main_internal(int argc, char **argv, u32 spawn_flags)
 	if (argc > 1 && strcmp(argv[1], "editor") == 0) {
 		program_argv = argv + 1;
 	} else if (argc > 1 && strcmp(argv[1], "runtime") == 0) {
-		program_name = "crown-release" EXE_SUFFIX;
+		program_name = "crown-development" EXE_SUFFIX;
 		program_argv = argv + 1;
 	}
 
