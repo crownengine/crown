@@ -8,6 +8,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: added snapping and precision modes to numeric entries.
 * Runtime: added support for MP3 sound files.
 
 **Fixes**
