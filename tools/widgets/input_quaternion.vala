@@ -63,12 +63,18 @@ public class InputQuaternion : InputField
 	{
 		_rotation = QUATERNION_IDENTITY;
 		_x = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
+		_x.set_increments(1.0, 0.1);
+		_x._snap_multiplier = 10.0;
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
 		_y = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
+		_y.set_increments(1.0, 0.1);
+		_y._snap_multiplier = 10.0;
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
 		_z = new InputDouble(0.0, -double.MAX, double.MAX, preview_decimals, edit_decimals);
+		_z.set_increments(1.0, 0.1);
+		_z._snap_multiplier = 10.0;
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
 

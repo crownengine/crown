@@ -22,19 +22,25 @@ public class InputDouble : InputField
 	public double _value;
 	public int _preview_decimals;
 	public int _edit_decimals;
+	public double _increment_regular;   // Per-pixel.
+	public double _increment_precision; // Per-pixel.
+	public double _increment;           // Per-pixel.
+	public double _snap_multiplier;
 	public Gtk.Entry _entry;
 	public Gtk.Label _label;
 	public Gtk.EventBox _event_box;
 	public Gtk.Overlay _overlay;
+	public Gtk.EventControllerKey _event_box_controller_key;
+	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerKey _controller_key;
-	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.EventControllerScroll _controller_scroll;
 
 	public InfiniteDragController _drag;
 	public double _drag_start_value;
 	public double _drag_offset;
 	public bool _resetting_click_gesture;
+	public bool _drag_snap;
 
 	public override void set_inconsistent(bool inconsistent)
 	{
@@ -123,6 +129,10 @@ public class InputDouble : InputField
 		_preview_decimals = preview_decimals;
 		_edit_decimals = edit_decimals;
 
+		set_increments(0.01, 0.001);
+		_snap_multiplier = 1.0;
+
+		drag_reset();
 		set_value_safe(val);
 
 		_gesture_click = new Gtk.GestureMultiPress(_event_box);
@@ -136,6 +146,10 @@ public class InputDouble : InputField
 		_controller_motion = new Gtk.EventControllerMotion(_event_box);
 		_controller_motion.enter.connect(on_enter);
 		_controller_motion.leave.connect(on_leave);
+
+		_event_box_controller_key = new Gtk.EventControllerKey(_event_box);
+		_event_box_controller_key.key_pressed.connect(on_event_box_key_pressed);
+		_event_box_controller_key.key_released.connect(on_event_box_key_released);
 
 #if CROWN_GTK3
 		_entry.scroll_event.connect(() => {
@@ -151,6 +165,13 @@ public class InputDouble : InputField
 #endif
 
 		this.add(_overlay);
+	}
+
+	public void set_increments(double regular, double precision)
+	{
+		_increment_regular = regular;
+		_increment_precision = precision;
+		_increment = regular;
 	}
 
 	public void clear_focus()
@@ -189,6 +210,34 @@ public class InputDouble : InputField
 		_drag.release();
 	}
 
+	public bool on_event_box_key_pressed(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Control_L)
+			_drag_snap = true;
+		else if (keyval == Gdk.Key.Shift_L)
+			_increment = _increment_precision;
+		else
+			return Gdk.EVENT_PROPAGATE;
+
+		if (_drag.dragging)
+			set_value_safe(drag_target_with_modifiers());
+
+		return Gdk.EVENT_STOP;
+	}
+
+	public void on_event_box_key_released(uint keyval, uint keycode, Gdk.ModifierType state)
+	{
+		if (keyval == Gdk.Key.Control_L)
+			_drag_snap = false;
+		else if (keyval == Gdk.Key.Shift_L)
+			_increment = _increment_regular;
+		else
+			return;
+
+		if (_drag.dragging)
+			set_value_safe(drag_target_with_modifiers());
+	}
+
 	public void on_gesture_cancelled(Gdk.EventSequence? sequence)
 	{
 		if (_resetting_click_gesture)
@@ -220,6 +269,36 @@ public class InputDouble : InputField
 		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
 	}
 
+	public void drag_reset()
+	{
+		_increment = _increment_regular;
+		_drag_snap = false;
+	}
+
+	public double drag_target_with_modifiers()
+	{
+		double actual_dx = _drag._total_dx + _drag_offset;
+		double dx_pixels = (double)(int)actual_dx;
+		double target_val = _drag_start_value + dx_pixels * _increment;
+
+		if (_drag_snap) {
+			double rounded = Math.round(target_val / _snap_multiplier);
+			if (rounded == 0.0)
+				rounded = 0.0; // Avoid negative zero.
+			target_val = rounded * _snap_multiplier;
+		}
+
+		if (target_val > _max) {
+			_drag_offset += (_max - target_val) / _increment;
+			target_val = _max;
+		} else if (target_val < _min) {
+			_drag_offset += (_min - target_val) / _increment;
+			target_val = _min;
+		}
+
+		return target_val;
+	}
+
 	public void on_drag_started()
 	{
 		_drag_offset = -_drag._total_dx;
@@ -228,27 +307,12 @@ public class InputDouble : InputField
 
 	public void on_drag_delta(double dx, double dy, double total_dx, double total_dy)
 	{
-		double scale = 0.01;
-		if (_min > -INFINITY_VALUE && _max < INFINITY_VALUE && _max > _min) {
-			const double FULL_RANGE_PIXELS = 1000.0;
-			scale = (_max - _min) / FULL_RANGE_PIXELS;
-		}
-
-		double target_val = _drag_start_value + (total_dx + _drag_offset) * scale;
-
-		if (target_val > _max) {
-			_drag_offset += (_max - target_val) / scale;
-			target_val = _max;
-		} else if (target_val < _min) {
-			_drag_offset += (_min - target_val) / scale;
-			target_val = _min;
-		}
-
-		set_value_safe(target_val);
+		set_value_safe(drag_target_with_modifiers());
 	}
 
 	public void on_drag_committed()
 	{
+		drag_reset();
 		double drag_end_value = _value;
 		set_value_safe(_drag_start_value, -1);             // avoid a redundant undo entry
 		set_value_safe(drag_end_value);                    // fires the real commit
@@ -257,6 +321,7 @@ public class InputDouble : InputField
 
 	public void on_drag_cancelled()
 	{
+		drag_reset();
 		set_value_safe(_drag_start_value, 0);              // revert, undo disabled
 		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "ew-resize"));
 	}
@@ -266,7 +331,8 @@ public class InputDouble : InputField
 		if (was_dragging)
 			return; // already handled by drag_committed/drag_cancelled
 
-		// It was a plain click — begin editing, same as today.
+		drag_reset();
+
 		_event_box.visible = false;
 		_entry.editable = true;
 		_entry.grab_focus();

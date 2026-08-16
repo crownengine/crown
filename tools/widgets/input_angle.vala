@@ -50,6 +50,8 @@ public class InputAngle : InputField
 	public InputAngle(double val = 0.0, double min = 0.0, double max = 360.0)
 	{
 		_degrees = new InputDouble(val, min, max);
+		_degrees.set_increments(1.0, 0.1);
+		_degrees._snap_multiplier = 10.0;
 		_radians = MathUtils.rad(_degrees.value);
 		_degrees.value_changed.connect(on_value_changed);
 

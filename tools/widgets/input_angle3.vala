@@ -58,12 +58,18 @@ public class InputAngle3 : InputField
 	public InputAngle3(Vector3 xyz, Vector3 min, Vector3 max, int preview_decimals = 4, int edit_decimals = 5)
 	{
 		_x = new InputDouble(MathUtils.deg(xyz.x), MathUtils.deg(min.x), MathUtils.deg(max.x), preview_decimals, edit_decimals);
+		_x.set_increments(1.0, 0.1);
+		_x._snap_multiplier = 10.0;
 		_x.get_style_context().add_class("axis");
 		_x.get_style_context().add_class("x");
 		_y = new InputDouble(MathUtils.deg(xyz.y), MathUtils.deg(min.y), MathUtils.deg(max.y), preview_decimals, edit_decimals);
+		_y.set_increments(1.0, 0.1);
+		_y._snap_multiplier = 10.0;
 		_y.get_style_context().add_class("axis");
 		_y.get_style_context().add_class("y");
 		_z = new InputDouble(MathUtils.deg(xyz.z), MathUtils.deg(min.z), MathUtils.deg(max.z), preview_decimals, edit_decimals);
+		_z.set_increments(1.0, 0.1);
+		_z._snap_multiplier = 10.0;
 		_z.get_style_context().add_class("axis");
 		_z.get_style_context().add_class("z");
 
