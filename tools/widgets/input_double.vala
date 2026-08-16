@@ -222,6 +222,7 @@ public class InputDouble : InputField
 
 	public void on_drag_started()
 	{
+		_drag_offset = -_drag._total_dx;
 		_event_box.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "none"));
 	}
 
@@ -233,8 +234,7 @@ public class InputDouble : InputField
 			scale = (_max - _min) / FULL_RANGE_PIXELS;
 		}
 
-		double dx_adjusted = total_dx - total_dx.clamp(-_drag.activation_margin, _drag.activation_margin);
-		double target_val = _drag_start_value + (dx_adjusted + _drag_offset) * scale;
+		double target_val = _drag_start_value + (total_dx + _drag_offset) * scale;
 
 		if (target_val > _max) {
 			_drag_offset += (_max - target_val) / scale;

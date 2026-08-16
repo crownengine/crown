@@ -20,6 +20,7 @@ Changelog
 * Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.
 * Tools: fixed launcher calling the wrong runtime.
 * Tools: Windows: fixed launcher command line interface.
+* Tools: fixed a numeric entries discarding values at the beginning of a drag.
 * Runtime: the camera now ignores the scaling component in its transform.
 
 .. _v0.64.0:
