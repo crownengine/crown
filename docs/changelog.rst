@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.3 --- DD MMM YYYY <v0.64.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed a numeric entries discarding values at the beginning of a drag.
+
 .. _v0.64.2:
 
 :ref:`0.64.2 --- 15 Aug 2026 <v0.64.2>`
