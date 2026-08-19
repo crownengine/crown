@@ -1548,12 +1548,12 @@ namespace shader_resource_internal
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
-			if (json_object::has(obj, "shaders")) {
-				s32 err = parse_shaders(obj["shaders"]);
-				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
-			}
+			if (!is_include) { // Do not merge shaders and static_compile entries.
+				if (json_object::has(obj, "shaders")) {
+					s32 err = parse_shaders(obj["shaders"]);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				}
 
-			if (!is_include) { // Do not merge static_compile entries.
 				if (json_object::has(obj, "static_compile")) {
 					s32 err = parse_static_compile(obj["static_compile"]);
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
