@@ -6,7 +6,6 @@
 #pragma once
 
 #include "core/containers/types.h"
-#include "core/filesystem/types.h"
 #include "core/memory/types.h"
 #include "core/strings/string_id.h"
 #include "resource/shader_resource.h"
@@ -27,16 +26,16 @@ struct ShaderManager
 	explicit ShaderManager(Allocator &a);
 
 	///
-	void *load(File &file, Allocator &a);
+	void create_shaders(const void *shader_resource);
+
+	///
+	void destroy_shaders(const void *shader_resource);
 
 	///
 	void online(StringId64 id, ResourceManager &rm);
 
 	///
 	void offline(StringId64 id, ResourceManager &rm);
-
-	///
-	void unload(Allocator &a, void *res);
 
 	///
 	ShaderData shader(StringId32 name);
