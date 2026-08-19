@@ -216,9 +216,8 @@ bgfx_shaders = {
 			vec4 v_shadow3      : TEXCOORD6 = vec4(0.0, 0.0, 0.0, 0.0);
 			vec4 v_shadow_local : TEXCOORD7 = vec4(0.0, 0.0, 0.0, 0.0);
 			vec3 v_camera_pos   : TEXCOORD8 = vec3(0.0, 0.0, 0.0);
-			vec3 v_world_position : TEXCOORD9 = vec3(0.0, 0.0, 0.0);
-			vec3 v_local_position : TEXCOORD10 = vec3(0.0, 0.0, 0.0);
-			vec3 v_local_normal   : TEXCOORD11 = vec3(0.0, 0.0, 0.0);
+			vec3 v_proj_position : TEXCOORD9 = vec3(0.0, 0.0, 0.0);
+			vec3 v_proj_normal   : TEXCOORD10 = vec3(0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
@@ -244,7 +243,7 @@ bgfx_shaders = {
 #	endif
 		#endif
 #if defined(TRIPLANAR)
-			$output v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_world_position, v_local_position, v_local_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$output v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 #else
 			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 #endif
@@ -254,6 +253,7 @@ bgfx_shaders = {
 			uniform vec4 u_use_normal_map;
 			uniform vec4 u_uv_scale;  // { val=[1 1 1] min=[0 0 0] }
 			uniform vec4 u_uv_offset; // { val=[0 0 0] min=[0 0 0] }
+			uniform vec4 u_uv_local;  // { val=0 min=0 max=1 } if 0 world-space else local-space
 
 			void main()
 			{
@@ -276,13 +276,10 @@ bgfx_shaders = {
 				mat3 normal_matrix = cofactor(model);
 
 				v_position = mul(model, vec4(a_position, 1.0)).xyz;
+				v_normal = normalize(mul(normal_matrix, normal)).xyz;
 #if defined(TRIPLANAR)
-				v_world_position = v_position * u_uv_scale.xyz + u_uv_offset.xyz;
-				v_local_position = a_position * u_uv_scale.xyz + u_uv_offset.xyz;
-				v_normal = normalize(mul(normal_matrix, normal)).xyz;
-				v_local_normal = normal;
-#else
-				v_normal = normalize(mul(normal_matrix, normal)).xyz;
+				v_proj_position = (u_uv_local.r == 1.0 ? a_position : v_position) * u_uv_scale.xyz + u_uv_offset.xyz;
+				v_proj_normal   = u_uv_local.r == 1.0 ? normal : v_normal;
 #endif
 				v_tangent = normalize(mul(normal_matrix, tangent)).xyz;
 				v_bitangent = normalize(mul(normal_matrix, bitangent)).xyz;
@@ -314,7 +311,7 @@ bgfx_shaders = {
 
 		fs_input_output = """
 #if defined(TRIPLANAR)
-			$input v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_world_position, v_local_position, v_local_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$input v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 #else
 			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
 #endif
@@ -344,7 +341,6 @@ bgfx_shaders = {
 			uniform vec4 u_use_emission_map;
 			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 }
 #if defined(TRIPLANAR)
-			uniform vec4 u_uv_local; // { val=0 min=0 max=1 } if 0 world-space else local-space
 			uniform vec4 u_uv_blend; // { val=4 min=1 }
 
 			vec3 triplanar_weights(vec3 n, float power)
@@ -362,25 +358,25 @@ bgfx_shaders = {
 			}
 #endif
 
+#if defined(TRIPLANAR)
+#	define SAMPLE_MAP(map) triplanar_sample(map, uv_x, uv_y, uv_z, weights)
+#else
+#	define SAMPLE_MAP(map) texture2D(map, v_texcoord0)
+#endif
+
 			void main()
 			{
 #if defined(TRIPLANAR)
 				vec3 world_normal = normalize(v_normal);
-				vec3 proj_normal = u_uv_local.r == 1.0 ? normalize(v_local_normal) : world_normal;
-				vec3 proj_position = u_uv_local.r == 1.0 ? v_local_position : v_world_position;
+				vec3 proj_normal = normalize(v_proj_normal);
+				vec3 proj_position = v_proj_position;
 				vec3 weights = triplanar_weights(proj_normal, u_uv_blend.r);
 
 				vec2 uv_x = vec2(proj_position.y, -proj_position.z);
 				vec2 uv_y = vec2(-proj_position.x, -proj_position.z);
 				vec2 uv_z = vec2(proj_position.x, -proj_position.y);
-
-				vec4 albedo = u_use_albedo_map.r == 1.0
-						? triplanar_sample(u_albedo_map, uv_x, uv_y, uv_z, weights)
-						: vec4(u_albedo.rgb, 1.0)
-						;
-#else
-				vec4 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0) : vec4(u_albedo.rgb, 1.0);
 #endif
+				vec4 albedo = u_use_albedo_map.r == 1.0 ? SAMPLE_MAP(u_albedo_map) : vec4(u_albedo.rgb, 1.0);
 		#if defined(MASKED)
 		#	define MASK_ALPHA_CUTOFF 0.5
 				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
@@ -418,17 +414,10 @@ bgfx_shaders = {
 				} else {
 					normal = v_normal;
 				}
-#if defined(TRIPLANAR)
-				float metallic = u_use_metallic_map.r == 1.0 ? triplanar_sample(u_metallic_map, uv_x, uv_y, uv_z, weights).r : u_metallic.r;
-				float roughness = u_use_roughness_map.r == 1.0 ? triplanar_sample(u_roughness_map, uv_x, uv_y, uv_z, weights).r : u_roughness.r;
-				float ao = u_use_ao_map.r == 1.0 ? triplanar_sample(u_ao_map, uv_x, uv_y, uv_z, weights).r : 1.0;
-				vec3 emission = u_emission_intensity.r * (u_use_emission_map.r == 1.0 ? triplanar_sample(u_emission_map, uv_x, uv_y, uv_z, weights).rgb : u_emission_color.rgb);
-#else
-				float metallic = u_use_metallic_map.r == 1.0 ? texture2D(u_metallic_map, v_texcoord0).r : u_metallic.r;
-				float roughness = u_use_roughness_map.r == 1.0 ? texture2D(u_roughness_map, v_texcoord0).r: u_roughness.r;
-				float ao = u_use_ao_map.r == 1.0 ? texture2D(u_ao_map, v_texcoord0).r : 1.0;
-				vec3 emission = u_emission_intensity.r * (u_use_emission_map.r == 1.0 ? texture2D(u_emission_map, v_texcoord0).rgb : u_emission_color.rgb);
-#endif
+				float metallic = u_use_metallic_map.r == 1.0 ? SAMPLE_MAP(u_metallic_map).r : u_metallic.r;
+				float roughness = u_use_roughness_map.r == 1.0 ? SAMPLE_MAP(u_roughness_map).r : u_roughness.r;
+				float ao = u_use_ao_map.r == 1.0 ? SAMPLE_MAP(u_ao_map).r : 1.0;
+				vec3 emission = u_emission_intensity.r * (u_use_emission_map.r == 1.0 ? SAMPLE_MAP(u_emission_map).rgb : u_emission_color.rgb);
 
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
