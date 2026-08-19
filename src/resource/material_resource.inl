@@ -61,6 +61,11 @@ namespace material_resource
 		return (TextureHandle *)(dynamic + td[i].data_offset);
 	}
 
+	char *shader_code(const MaterialResource *mr)
+	{
+		return (char *)mr + mr->shader_code_offset;
+	}
+
 } // namespace material_resource
 
 } // namespace crown

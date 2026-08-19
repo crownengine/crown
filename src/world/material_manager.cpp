@@ -78,6 +78,9 @@ void MaterialManager::online(StringId64 id, ResourceManager &rm)
 	}
 
 	MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
+	if (mr->shader_code_size > 0)
+		_shader_manager->create_shaders(material_resource::shader_code(mr));
+
 	Material *material = create_material(mr);
 
 	const TextureData *td = texture_data_array(mr);
@@ -104,6 +107,9 @@ void MaterialManager::offline(StringId64 id, ResourceManager &rm)
 
 	const MaterialResource *mr = (MaterialResource *)rm.get(RESOURCE_TYPE_MATERIAL, id);
 	Material *material = hash_map::get(_materials, mr, (Material *)NULL);
+
+	if (mr->shader_code_size > 0)
+		_shader_manager->destroy_shaders(material_resource::shader_code(mr));
 
 	const TextureData *td = texture_data_array(mr);
 	for (u32 i = 0; i < mr->num_textures; ++i) {

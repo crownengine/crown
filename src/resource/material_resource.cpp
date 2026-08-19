@@ -488,12 +488,23 @@ namespace material_resource_internal
 		StringId32 shader_id;
 		DynamicString shader_library(ta);
 		DynamicString shader(ta);
+		bool has_code;
 
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]));
 		shader_name_defines(shader_name, defines, shader.c_str());
 
-		s32 err = shader_compiler::compile_variant(shader_fb, &data.uniforms_meta, shader_library, shader_id, shader_name, defines, opts, true, &samplers_meta);
+		s32 err = shader_compiler::compile_variant(has_code
+			, shader_fb
+			, &data.uniforms_meta
+			, shader_library
+			, shader_id
+			, shader_name
+			, defines
+			, opts
+			, &samplers_meta
+			);
 		ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
+
 		opts.add_requirement("shader", shader_library.c_str());
 
 		data.add_shader_uniforms();
@@ -556,6 +567,8 @@ namespace material_resource_internal
 		mr.names_data_offset   = mr.uniform_data_offset + sizeof(UniformData)*array::size(data.uniforms);
 		mr.dynamic_data_size   = array::size(data.dynamic);
 		mr.dynamic_data_offset = mr.names_data_offset + mr.names_data_size;
+		mr.shader_code_size    = has_code ? array::size(shader_code) + 8 /* version + num */ : 0;
+		mr.shader_code_offset  = has_code ? (u32)(uintptr_t)memory::align_top((void *)uintptr_t(mr.dynamic_data_offset + mr.dynamic_data_size), 4) : 0;
 
 		// Write
 		opts.write(mr.version);
@@ -568,6 +581,9 @@ namespace material_resource_internal
 		opts.write(mr.names_data_offset);
 		opts.write(mr.dynamic_data_size);
 		opts.write(mr.dynamic_data_offset);
+		opts.write(mr.shader_code_size);
+		opts.write(mr.shader_code_offset);
+
 		for (u32 i = 0; i < array::size(data.textures); i++) {
 			opts.write(data.textures[i].sampler_name_offset);
 			opts.write(data.textures[i].name._id);
@@ -585,6 +601,12 @@ namespace material_resource_internal
 
 		opts.write(data.names);
 		opts.write(data.dynamic);
+		opts.align(4);
+		if (has_code) {
+			opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
+			opts.write(u32(1)); // num
+			opts.write(shader_code);
+		}
 
 		return 0;
 	}
