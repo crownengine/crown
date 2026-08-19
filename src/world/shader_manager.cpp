@@ -43,6 +43,7 @@ static ShaderBackend::Enum renderer_type_to_shader_backend(bgfx::RendererType::E
 
 ShaderManager::ShaderManager(Allocator &a)
 	: _shader_map(a)
+	, _shader_ref_count(a)
 {
 }
 
@@ -121,12 +122,13 @@ void ShaderManager::create_shaders(const void *shader_resource)
 			continue;
 		}
 
-		char buf[STRING_ID32_BUF_LEN];
-		CE_ASSERT(!hash_map::has(_shader_map, name)
-			, "Duplicate shader variant: #ID(%s)"
-			, name.to_string(buf, sizeof(buf))
-			);
-		CE_UNUSED(buf);
+		if (hash_map::has(_shader_map, name)) {
+			const u32 deffault = 0;
+			const u32 refs = hash_map::get(_shader_ref_count, name, deffault);
+			CE_ASSERT(refs > 0, "Invalid shader reference count");
+			hash_map::set(_shader_ref_count, name, refs + 1);
+			continue;
+		}
 
 		bgfx::ShaderHandle vs = bgfx::createShader(bgfx::makeRef(vs_data, vs_size));
 		CE_ASSERT(bgfx::isValid(vs), "Failed to create vertex shader");
@@ -138,6 +140,7 @@ void ShaderManager::create_shaders(const void *shader_resource)
 		sd.resource = shader_resource;
 #endif
 		hash_map::set(_shader_map, name, sd);
+		hash_map::set(_shader_ref_count, name, 1u);
 	}
 }
 
@@ -153,6 +156,7 @@ void ShaderManager::destroy_shaders(const void *shader_resource)
 	u32 num;
 	br.read(num);
 
+	bool destroyed = false;
 	for (u32 i = 0; i < num; ++i) {
 		StringId32 name;
 		br.read(name._id);
@@ -195,13 +199,30 @@ void ShaderManager::destroy_shaders(const void *shader_resource)
 			br.skip(fs_size);
 		}
 
+		if (!hash_map::has(_shader_map, name)) {
+			CE_ASSERT(false, "Shader variant not found");
+			continue;
+		}
+
+		const u32 deffault = 0;
+		const u32 refs = hash_map::get(_shader_ref_count, name, deffault);
+		CE_ASSERT(refs > 0, "Invalid shader reference count");
+		if (refs > 1) {
+			hash_map::set(_shader_ref_count, name, refs - 1);
+			continue;
+		}
+
 		ShaderData sd = hash_map::get(_shader_map, name, SHADER_DATA_INVALID);
 		bgfx::destroy(sd.program);
 		hash_map::remove(_shader_map, name);
+		hash_map::remove(_shader_ref_count, name);
+		destroyed = true;
 	}
 
-	bgfx::frame();
-	bgfx::frame();
+	if (destroyed) {
+		bgfx::frame();
+		bgfx::frame();
+	}
 }
 
 void ShaderManager::online(StringId64 id, ResourceManager &rm)
