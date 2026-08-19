@@ -19,6 +19,7 @@
 #include "core/process.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/line_reader.inl"
+#include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "device/device.h"
 #include "device/log.h"
@@ -2982,14 +2983,14 @@ namespace shader_compiler
 		}
 	}
 
-	s32 compile_variant(FileBuffer &fb
+	s32 compile_variant(bool &has_code
+		, FileBuffer &fb
 		, Vector<UniformMetadata> *uniform_meta
 		, DynamicString &shader_library
 		, StringId32 &shader_id
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
-		, bool metadata_only
 		, Vector<ShaderResource::Sampler> *sampler_meta
 		)
 	{
@@ -3010,22 +3011,6 @@ namespace shader_compiler
 		shader_name = shader;
 		shader_id = ShaderCompiler::shader_variant_id(shader_name.c_str(), defines_dyn);
 
-		if (metadata_only) {
-			metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
-
-			if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
-				return 0;
-
-			if (shader_library.empty() && s_shader_library_cache != NULL && hash_map::has(*s_shader_library_cache, shader_name)) {
-				const DynamicString empty(default_allocator());
-				shader_library = hash_map::get(*s_shader_library_cache, shader_name, empty);
-				metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
-				if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
-					return 0;
-				shader_library = "";
-			}
-		}
-
 		// Find a shader library that contains the specified shader if none provided. This is slow
 		// and ugly and it only exists for backwards compatibility with older material formats.
 		if (shader_library.empty()) {
@@ -3045,8 +3030,6 @@ namespace shader_compiler
 					const char *sp = shader_library_path.c_str();
 					shader_library.set(sp, (u32)(resource_type(sp) - sp - 1));
 					cache_shader_library(shader_name, shader_library);
-					if (metadata_only)
-						metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
 					break;
 				}
 			}
@@ -3058,10 +3041,37 @@ namespace shader_compiler
 			sc.parse(shader_library_path.c_str(), false);
 		}
 
-		s32 err = sc.compile_variant(fb, uniform_meta, sampler_meta, shader_name, defines_dyn, metadata_only);
+		// Check whether the shader library contains the variant in static_compile.
+		has_code = true;
+		for (u32 i = 0; i < vector::size(sc._static_compile); ++i) {
+			const StaticCompile &sta = sc._static_compile[i];
+
+			if (shader_id == ShaderCompiler::shader_variant_id(sta._shader.c_str(), sta._defines)) {
+				has_code = false; // Code is compiled into the shader resource itself.
+				break;
+			}
+		}
+
+		if (!has_code) {
+			metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
+
+			if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
+				return 0;
+
+			if (shader_library.empty() && s_shader_library_cache != NULL && hash_map::has(*s_shader_library_cache, shader_name)) {
+				const DynamicString empty(default_allocator());
+				shader_library = hash_map::get(*s_shader_library_cache, shader_name, empty);
+				metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
+				if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
+					return 0;
+				shader_library = "";
+			}
+		}
+
+		s32 err = sc.compile_variant(fb, uniform_meta, sampler_meta, shader_name, defines_dyn, !has_code);
 		ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 
-		if (metadata_only) {
+		if (!has_code) {
 			store_metadata_cache(cache_key
 				, shader_library
 				, sc._parsed_includes

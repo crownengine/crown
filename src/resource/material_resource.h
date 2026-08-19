@@ -27,6 +27,8 @@ struct MaterialResource
 	u32 names_data_offset;
 	u32 dynamic_data_size;
 	u32 dynamic_data_offset;
+	u32 shader_code_size;
+	u32 shader_code_offset;
 };
 
 struct TextureData
@@ -83,6 +85,9 @@ namespace material_resource
 
 	///
 	TextureHandle *texture_handle(const TextureData *td, u32 i, char *dynamic);
+
+	///
+	char *shader_code(const MaterialResource *mr);
 
 } // namespace material_resource
 

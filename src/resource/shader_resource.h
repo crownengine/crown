@@ -86,14 +86,14 @@ namespace shader_compiler
 	/// Compiles a @a shader variant and writes it to @a fb. The shader must be defined inside @a
 	/// shader_library. If @a shader_library is empty it tries to find a suitable one in the source
 	/// directories and returns it via @a shader_library itself.
-	s32 compile_variant(FileBuffer &fb
+	s32 compile_variant(bool &has_code
+		, FileBuffer &fb
 		, Vector<UniformMetadata> *uniform_meta
 		, DynamicString &shader_library
 		, StringId32 &shader_id
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
-		, bool metadata_only = false
 		, Vector<ShaderResource::Sampler> *sampler_meta = NULL
 		);
 
