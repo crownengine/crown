@@ -36,25 +36,8 @@ LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
 namespace crown
 {
-ShaderResource::~ShaderResource()
-{
-	Allocator &a = *_data._allocator;
-
-	for (u32 i = 0; i < array::size(_data); ++i) {
-		for (u32 c = 0; c < _data[i].num_codes; ++c) {
-			a.deallocate(_data[i].codes[c].vs_data);
-			a.deallocate(_data[i].codes[c].fs_data);
-		}
-	}
-}
-
 namespace shader_resource_internal
 {
-	void *load(File &file, Allocator &a)
-	{
-		return device()->_shader_manager->load(file, a);
-	}
-
 	void online(StringId64 id, ResourceManager &rm)
 	{
 		device()->_shader_manager->online(id, rm);
@@ -63,11 +46,6 @@ namespace shader_resource_internal
 	void offline(StringId64 id, ResourceManager &rm)
 	{
 		device()->_shader_manager->offline(id, rm);
-	}
-
-	void unload(Allocator &a, void *res)
-	{
-		device()->_shader_manager->unload(a, res);
 	}
 
 } // namespace shader_resource_internal

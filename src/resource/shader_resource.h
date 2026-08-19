@@ -56,42 +56,12 @@ struct ShaderResource
 {
 	enum { MAX_SAMPLERS = 16 };
 
-	explicit ShaderResource(Allocator &a)
-		: _data(a)
-	{
-	}
-
-	~ShaderResource();
-
 	struct Sampler
 	{
 		u32 name;
 		u32 state;
 		u32 stage;
 	};
-
-	struct Code
-	{
-		u32 backend;
-		u32 vs_size;
-		u8 *vs_data;
-		u32 fs_size;
-		u8 *fs_data;
-	};
-
-	struct Data
-	{
-		StringId32 name;
-		u64 state;
-		u32 stencil_front;
-		u32 stencil_back;
-		u32 num_samplers;
-		Sampler samplers[MAX_SAMPLERS];
-		u32 num_codes;
-		Code codes[ShaderBackend::COUNT];
-	};
-
-	Array<Data> _data;
 };
 
 struct ShaderData
@@ -103,7 +73,7 @@ struct ShaderData
 	ShaderResource::Sampler samplers[ShaderResource::MAX_SAMPLERS];
 	bgfx::ProgramHandle program;
 #if CROWN_CAN_RELOAD
-	const ShaderResource *resource;
+	const void *resource;
 #endif
 };
 
