@@ -20,7 +20,9 @@ namespace crown
 struct ShaderManager
 {
 	typedef HashMap<StringId32, ShaderData> ShaderMap;
+	typedef HashMap<StringId32, u32> ShaderRefCountMap;
 	ShaderMap _shader_map;
+	ShaderRefCountMap _shader_ref_count;
 
 	///
 	explicit ShaderManager(Allocator &a);
