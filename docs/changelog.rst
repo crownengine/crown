@@ -24,6 +24,7 @@ Changelog
 * Tools: fixed a numeric entries discarding values at the beginning of a drag.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
+* Data Compiler: fixed wrong 'required' shader generated for some materials.
 
 .. _v0.64.0:
 
