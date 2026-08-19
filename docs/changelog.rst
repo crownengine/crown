@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a numeric entries discarding values at the beginning of a drag.
+* Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 
 .. _v0.64.2:
 

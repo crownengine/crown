@@ -185,7 +185,18 @@ namespace material_resource_internal
 			if (meta != NULL) {
 				// Uniform has been added already by add_shader_uniforms().
 				// Just check for type or range mismatch and overwrite value.
-				RETURN_IF_FALSE(MATERIAL_RESOURCE, type == meta->type, opts, "Uniform %s: type mismatch", meta->name);
+				bool is_vec4[] = { false, true };
+				UniformType::Enum types[] = { type, meta->type };
+				for (int i = 0; i < 2; ++i) {
+					is_vec4[i] = false
+						|| types[i] == UniformType::FLOAT
+						|| types[i] == UniformType::VECTOR2
+						|| types[i] == UniformType::VECTOR3
+						|| types[i] == UniformType::VECTOR4
+						;
+				}
+
+				RETURN_IF_FALSE(MATERIAL_RESOURCE, is_vec4[0] == is_vec4[1], opts, "Uniform %s: type mismatch", meta->name);
 				u32 in = uniform_index(name);
 				CE_ENSURE(in != UINT32_MAX);
 				uniform_values[in] = value;
