@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed a numeric entries discarding values at the beginning of a drag.
+* Tools: fixed resource chooser clearing its search entry when closed.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 

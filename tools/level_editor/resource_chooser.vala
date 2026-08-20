@@ -121,7 +121,6 @@ public class ResourceChooser : Gtk.Box
 			this.pack_start(_editor_stack, true, true, 0);
 		this.pack_start(_scrolled_window, true, true, 0);
 
-		this.unmap.connect(on_unmap);
 	}
 
 	public void on_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column)
@@ -164,11 +163,6 @@ public class ResourceChooser : Gtk.Box
 				}
 			}
 		}
-	}
-
-	public void on_unmap()
-	{
-		_filter_entry.text = "";
 	}
 
 	public void on_filter_entry_text_changed()
