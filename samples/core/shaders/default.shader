@@ -632,12 +632,6 @@ static_compile = [
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "mesh" defines = ["SKINNING" "MASKED"] }
 	{ shader = "mesh" defines = ["NO_LIGHT" "MASKED"] }
-	{ shader = "mesh" defines = ["TRIPLANAR"] }
-	{ shader = "mesh" defines = ["TRIPLANAR" "MASKED"] }
-	{ shader = "mesh" defines = ["TRIPLANAR" "SKINNING"] }
-	{ shader = "mesh" defines = ["TRIPLANAR" "NO_LIGHT"] }
-	{ shader = "mesh" defines = ["TRIPLANAR" "SKINNING" "MASKED"] }
-	{ shader = "mesh" defines = ["TRIPLANAR" "NO_LIGHT" "MASKED"] }
 	{ shader = "skydome" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "blit" defines = ["BLEND_ENABLED"] }
