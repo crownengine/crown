@@ -52,7 +52,7 @@ public class ResourceChooser : Gtk.Box
 		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
-		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry);
+		_filter_entry_controller_key = new Gtk.EventControllerKey(_filter_entry._entry);
 		_filter_entry_controller_key.key_pressed.connect(on_filter_entry_key_pressed);
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
