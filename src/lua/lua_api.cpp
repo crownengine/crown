@@ -465,7 +465,7 @@ static void lua_dump_table(lua_State *L, int i, StringStream &json)
 		comma = true;
 
 		json << "\"";
-		if (stack.is_string(-2) && !stack.is_number(-2))
+		if (lua_type(L, -2) == LUA_TSTRING)
 			json << stack.get_string(-2);
 		else
 			json << array_index++;
@@ -476,9 +476,9 @@ static void lua_dump_table(lua_State *L, int i, StringStream &json)
 		} else if (stack.is_bool(i + 2)) {
 			const bool b = stack.get_bool(i + 2);
 			json << (b ? "true" : "false");
-		} else if (stack.is_number(i + 2)) {
+		} else if (lua_type(L, i + 2) == LUA_TNUMBER) {
 			json << stack.get_float(i + 2);
-		} else if (stack.is_string(i + 2)) {
+		} else if (lua_type(L, i + 2) == LUA_TSTRING) {
 			const char *str = stack.get_string(i + 2);
 			json << "\"";
 			for (; *str; ++str) {
