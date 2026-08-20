@@ -57,6 +57,8 @@ public class ResourceChooser : Gtk.Box
 
 		_tree_filter = new Gtk.TreeModelFilter(_list_store, null);
 		_tree_filter.set_visible_func((model, iter) => {
+				string needle = _filter_entry.text.strip().down();
+
 				Value type;
 				Value name;
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
@@ -68,7 +70,7 @@ public class ResourceChooser : Gtk.Box
 				return type_str != null
 					&& name_str != null
 					&& _user_filter(type_str, name_str)
-					&& (_filter_entry.text.length == 0 || name_str.index_of(_filter_entry.text) > -1)
+					&& (needle.length == 0 || name_str.down().index_of(needle) > -1)
 					;
 			});
 
