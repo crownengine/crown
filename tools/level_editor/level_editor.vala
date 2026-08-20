@@ -4593,7 +4593,21 @@ public class LevelEditorApplication : Gtk.Application
 
 	public SelectResourceDialog new_select_resource_dialog(string resource_type)
 	{
-		return new SelectResourceDialog(resource_type, _project_store, this.active_window);
+		bool graphical = resource_type == OBJECT_TYPE_MATERIAL
+			|| resource_type == OBJECT_TYPE_MESH
+			|| resource_type == OBJECT_TYPE_SPRITE
+			|| resource_type == OBJECT_TYPE_TEXTURE
+			|| resource_type == OBJECT_TYPE_UNIT
+			;
+		SelectResourceDialog.View default_view = graphical
+			? SelectResourceDialog.View.ICON
+			: SelectResourceDialog.View.LIST;
+		return new SelectResourceDialog(resource_type
+			, _project_store
+			, this.active_window
+			, _thumbnail_cache
+			, default_view
+			);
 	}
 
 	public SelectObjectDialog new_select_object_dialog(StringId64 object_type, Database database)

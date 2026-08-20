@@ -9,6 +9,7 @@ Changelog
 **New Features and Improvements**
 
 * Tools: added snapping and precision modes to numeric entries.
+* Tools: added thumbnails and icon view to the Resource Chooser.
 * Runtime: added support for MP3 sound files.
 
 **Fixes**

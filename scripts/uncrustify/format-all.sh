@@ -23,7 +23,6 @@ format_tools_vala () {
 		| grep -v 'level_editor.vala'              \
 		| grep -v 'level_tree_view.vala'           \
 		| grep -v 'project_browser.vala'           \
-		| grep -v 'resource_chooser.vala'          \
 		| grep -v 'user.vala'                      \
 		| grep -v 'mesh_resource_fbx.vala'         \
 		| tr '\n' '\0'                             \
