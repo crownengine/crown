@@ -670,7 +670,6 @@ msgstr ""
 #: tools/level_editor/object_chooser.vala:51
 #: tools/level_editor/project_browser.vala:1107
 #: tools/level_editor/project_browser.vala:1112
-#: tools/level_editor/resource_chooser.vala:52
 #: tools/widgets/object_tree.vala:97
 msgid "Search..."
 msgstr ""
@@ -695,7 +694,6 @@ msgstr ""
 #: tools/level_editor/object_chooser.vala:88
 #: tools/level_editor/panel_new_project.vala:42
 #: tools/level_editor/project_browser.vala:426
-#: tools/level_editor/resource_chooser.vala:86
 #: tools/level_editor/texture_settings_dialog.vala:88
 #: tools/resource/font_resource.vala:265
 #: tools/resource/sprite_resource.vala:431
@@ -1563,10 +1561,13 @@ msgstr ""
 
 #: tools/level_editor/project_browser.vala:1395
 #: tools/level_editor/project_browser.vala:1422
+#: tools/widgets/select_resource_dialog.vala:244
+#: tools/widgets/select_resource_dialog.vala:500
 msgid "List view."
 msgstr ""
 
 #: tools/level_editor/project_browser.vala:1422
+#: tools/widgets/select_resource_dialog.vala:495
 msgid "Icon view."
 msgstr ""
 
@@ -2954,7 +2955,11 @@ msgid "The file must be within the source directory."
 msgstr ""
 
 #: tools/widgets/select_object_dialog.vala:43
-#: tools/widgets/select_resource_dialog.vala:41
 #, c-format
 msgid "Select a %s"
+msgstr ""
+
+#: tools/widgets/select_resource_dialog.vala:92
+#, c-format
+msgid "Search %s..."
 msgstr ""

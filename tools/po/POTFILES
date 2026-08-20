@@ -17,7 +17,6 @@ tools/level_editor/project.vala
 tools/level_editor/project_browser.vala
 tools/level_editor/properties_view.vala
 tools/level_editor/property_grid.vala
-tools/level_editor/resource_chooser.vala
 tools/level_editor/texture_settings_dialog.vala
 tools/resource/font_resource.vala
 tools/resource/mesh_resource_fbx.vala
