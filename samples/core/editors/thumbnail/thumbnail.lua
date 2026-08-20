@@ -110,19 +110,19 @@ function Thumbnail:thumbnail_ready(screenshot_path)
 end
 
 function Thumbnail:update(dt)
-	World.update(self._world, dt)
-
-	if #self._requests == 0 then
-		return
-	end
-
-	if self._object ~= nil then
+	-- Destroy the previous preview before updating the world, so its destruction
+	-- is processed before the next preview is rendered.
+	if #self._requests > 0 and self._object ~= nil then
 		self._object:destroy()
 		self._object = nil
-		return
 	end
 
+	World.update(self._world, dt)
+
 	local req = table.remove(self._requests, 1)
+	if req == nil then
+		return
+	end
 
 	if req.type == "unit" then
 		self._object = UnitPreview(self._world, req.name)

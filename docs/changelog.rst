@@ -12,6 +12,7 @@ Changelog
 * Tools: fixed resource chooser clearing its search entry when closed.
 * Tools: fixed confirming the selected resource with Enter in the resource chooser.
 * Tools: fixed case-sensitive searching in the resource chooser.
+* Tools: fixed missing or outdated thumbnails in the Project Browser.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 
