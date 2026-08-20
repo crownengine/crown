@@ -1,6 +1,22 @@
 Changelog
 =========
 
+.. _v0.64.3:
+
+:ref:`0.64.3 --- 20 Aug 2026 <v0.64.3>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed a numeric entries discarding values at the beginning of a drag.
+* Tools: fixed resource chooser clearing its search entry when closed.
+* Tools: fixed confirming the selected resource with Enter in the resource chooser.
+* Tools: fixed case-sensitive searching in the resource chooser.
+* Tools: fixed missing or outdated thumbnails in the Project Browser.
+* Tools: fixed a crash when generating thumbnails for resources with numeric names.
+* Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
+* Data Compiler: fixed wrong 'required' shader generated for some materials.
+
 .. _v0.64.2:
 
 :ref:`0.64.2 --- 15 Aug 2026 <v0.64.2>`
