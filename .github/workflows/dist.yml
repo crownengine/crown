@@ -313,6 +313,27 @@ jobs:
         with:
           files: ${{ env.DIST_DIR }}/*
 
+  update-website:
+    needs: finalize
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: prepare
+        uses: actions/checkout@v6
+        with:
+          repository: crownengine/crown-website
+          ref: master
+          token: ${{ secrets.WEBSITE_TOKEN }}
+      - name: update-download
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          ./update-download.sh
+          git push origin master
+
   aur-source:
     needs: finalize
     if: github.event_name == 'push' && github.ref_type == 'tag'
