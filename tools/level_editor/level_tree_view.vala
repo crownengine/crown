@@ -608,6 +608,12 @@ public class LevelTreeView : Gtk.Box
 		_tree_selection.changed.disconnect(on_tree_selection_changed);
 		_tree_selection.unselect_all();
 
+		if (selection.length == 0) {
+			_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
+			_selection_changed_blocked = false;
+			return;
+		}
+
 		Gtk.TreePath? last_selected = null;
 
 		_tree_sort.foreach ((model, path, iter) => {
