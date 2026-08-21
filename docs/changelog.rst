@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.4 --- DD MMM YYYY <v0.64.4>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed warnings when deleting sounds in the Level Editor.
+
 .. _v0.64.3:
 
 :ref:`0.64.3 --- 20 Aug 2026 <v0.64.3>`
