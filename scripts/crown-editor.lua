@@ -118,12 +118,14 @@ project "crown-editor"
 		CROWN_DIR .. "3rdparty/tinyexpr/tinyexpr.c",
 		CROWN_DIR .. "3rdparty/md5/md5.c",
 		CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
+		CROWN_DIR .. "scripts/win32/app.rc",
 	}
 
 	configuration { "linux" }
 		removefiles {
 			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerquartz.c",
 			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerwin32.c",
+			CROWN_DIR .. "scripts/win32/app.rc",
 		}
 	configuration { "windows" }
 		removefiles {
