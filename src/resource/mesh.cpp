@@ -31,6 +31,7 @@
 #   include "resource/data_compiler.h"
 #   include "resource/mesh.h"
 #   include "resource/mesh_fbx.h"
+#   include "resource/mesh_gltf.h"
 #   include "resource/mesh_obj.h"
 #   include "resource/mesh_resource.h"
 #   include <algorithm>
@@ -610,6 +611,15 @@ namespace mesh
 			RETURN_IF_FILE_MISSING(MESH, source.c_str(), opts);
 			if (str_has_suffix_case(source.c_str(), ".obj"))
 				return crown::obj::parse(m, source.c_str(), opts);
+			if (str_has_suffix_case(source.c_str(), ".gltf")
+				|| str_has_suffix_case(source.c_str(), ".glb")
+				) {
+				gltf::MeshImportOptions import_options = {};
+				if (json_object::has(obj, "rigid_skinning")) {
+					import_options.rigid_skinning = RETURN_IF_ERROR(sjson::parse_bool(obj["rigid_skinning"]));
+				}
+				return crown::gltf::parse(m, source.c_str(), import_options, opts);
+			}
 
 			Buffer fbx_buf = opts.read(source.c_str());
 			return fbx::parse(m, fbx_buf, opts);

@@ -860,6 +860,8 @@ public class Project
 	public bool is_type_mesh(string type)
 	{
 		return type == "fbx"
+			|| type == "gltf"
+			|| type == "glb"
 			|| type == "obj"
 			|| type == "mesh"
 			;

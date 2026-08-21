@@ -79,7 +79,7 @@ From imported resources
 Some importers generate Units automatically as part of their workflow:
 
 - :doc:`../importing_resources/importing_scenes` generates Units for each
-  geometry, light and camera in a FBX file.
+  geometry, light and camera in a glTF, FBX or OBJ file.
 - :doc:`../importing_resources/importing_sprites` generates a Unit prefab,
   materials and other resources from a spritesheet.
 

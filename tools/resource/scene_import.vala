@@ -66,7 +66,7 @@ public class SceneImportOptions
 
 	public bool has_feature(SceneImportFlags feature)
 	{
-		return (flags & feature) != 0;
+		return (flags& feature) != 0;
 	}
 
 	void decode_option(string key, Value? value)
@@ -423,7 +423,7 @@ public class SceneImportDialog : Gtk.Window
 
 		bool has_options_to_import = _import_units.value
 			|| (_import_animation.value
-				&& (_new_skeleton.value || _import_clips.value))
+			&& (_new_skeleton.value || _import_clips.value))
 			;
 
 		_import.set_sensitive(has_options_to_import && target_skeleton_is_valid);

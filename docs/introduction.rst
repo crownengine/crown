@@ -92,7 +92,7 @@ Features
 	* Immediate-mode GUI API with customizable materials.
 	* TrueType text rendering via texture atlas.
 	* Flipbook sprite animation.
-	* FBX, OBJ and custom mesh formats.
+	* glTF 2.0, FBX, OBJ and custom mesh formats.
 	* DDS, EXR, JPG, KTX, PNG, PVR and TGA texture formats.
 
 * Physics

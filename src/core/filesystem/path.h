@@ -23,6 +23,9 @@ namespace path
 	/// Returns whether the @a path is the root path.
 	bool is_root(const char *path);
 
+	/// Returns whether @a path is relative and its parent components do not escape the root.
+	bool is_within_root(const char *path);
+
 	/// Appends @a path_b to @a path_a and fills @a path with the result.
 	void join(DynamicString &path, const StringView &path_a, const StringView &path_b);
 

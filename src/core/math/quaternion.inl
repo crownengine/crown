@@ -197,6 +197,30 @@ inline Quaternion lerp(const Quaternion &a, const Quaternion &b, f32 t)
 	return normalize(r);
 }
 
+/// Returns the spherical linearly interpolated quaternion between @a a and @a b at time @a t in [0, 1].
+inline Quaternion slerp(const Quaternion &a, const Quaternion &b, f32 t)
+{
+	Quaternion end = b;
+	f32 cosine = clamp(dot(a, end), -1.0f, 1.0f);
+	if (cosine < 0.0f) {
+		end = -end;
+		cosine = -cosine;
+	}
+
+	if (cosine > 0.9995f)
+		return lerp(a, end, t);
+
+	const f32 angle = facos(cosine);
+	const f32 inv_sine = 1.0f / fsin(angle);
+	Quaternion r = a * (fsin((1.0f - t)*angle) * inv_sine);
+	const Quaternion rhs = end * (fsin(t*angle) * inv_sine);
+	r.x += rhs.x;
+	r.y += rhs.y;
+	r.z += rhs.z;
+	r.w += rhs.w;
+	return normalize(r);
+}
+
 /// Returns a string representing the quaternion @q.
 /// @note This function is for debugging purposes only and doesn't
 /// output round-trip safe ASCII conversions. Do not use in production.
