@@ -195,12 +195,12 @@ bgfx_shaders = {
 		includes = [ "common" "lighting" ]
 
 		samplers = {
-			u_albedo_map = { sampler_state = "mirror_anisotropic" }
-			u_normal_map = { sampler_state = "mirror_anisotropic" }
-			u_metallic_map = { sampler_state = "mirror_anisotropic" }
-			u_roughness_map = { sampler_state = "mirror_anisotropic" }
-			u_ao_map = { sampler_state = "mirror_anisotropic" }
-			u_emission_map = { sampler_state = "mirror_anisotropic" }
+			u_albedo_map = { sampler_state = "repeat_anisotropic" }
+			u_normal_map = { sampler_state = "repeat_anisotropic" }
+			u_metallic_map = { sampler_state = "repeat_anisotropic" }
+			u_roughness_map = { sampler_state = "repeat_anisotropic" }
+			u_ao_map = { sampler_state = "repeat_anisotropic" }
+			u_emission_map = { sampler_state = "repeat_anisotropic" }
 		}
 
 		varying = """
@@ -372,9 +372,9 @@ bgfx_shaders = {
 				vec3 proj_position = v_proj_position;
 				vec3 weights = triplanar_weights(proj_normal, u_uv_blend.r);
 
-				vec2 uv_x = vec2(proj_position.y, -proj_position.z);
-				vec2 uv_y = vec2(-proj_position.x, -proj_position.z);
-				vec2 uv_z = vec2(proj_position.x, -proj_position.y);
+				vec2 uv_x = vec2(proj_position.z, proj_position.y);
+				vec2 uv_y = vec2(proj_position.z, -proj_position.x);
+				vec2 uv_z = vec2(-proj_position.x, proj_position.y);
 #endif
 				vec4 albedo = u_use_albedo_map.r == 1.0 ? SAMPLE_MAP(u_albedo_map) : vec4(u_albedo.rgb, 1.0);
 		#if defined(MASKED)
@@ -400,9 +400,9 @@ bgfx_shaders = {
 					vec2 normal_z = texture2DBc5(u_normal_map, uv_z) * 2.0 - 1.0;
 
 					world_normal = normalize(
-						vec3(0.0, normal_x.x, normal_x.y) * weights.x
+						vec3(0.0, -normal_x.y, normal_x.x) * weights.x
 						+ vec3(normal_y.y, 0.0, normal_y.x) * weights.y
-						+ vec3(normal_z.x, normal_z.y, 0.0) * weights.z
+						+ vec3(-normal_z.x, -normal_z.y, 0.0) * weights.z
 						+ world_normal
 					);
 
