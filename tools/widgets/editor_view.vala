@@ -392,8 +392,6 @@ public class EditorView : Gtk.EventBox
 
 			if (_enable_accels_id > 0)
 				GLib.Source.remove(_enable_accels_id);
-
-			this.get_window().set_cursor(new Gdk.Cursor.from_name(this.get_display(), "none"));
 			((LevelEditorApplication)GLib.Application.get_default()).set_conflicting_accels(false);
 		}
 
@@ -430,7 +428,6 @@ public class EditorView : Gtk.EventBox
 		_mouse_right = false;
 		remove_tick_callback(_tick_callback_id);
 		_tick_callback_id = 0;
-		this.get_window().set_cursor(null);
 
 		// Wait a little to prevent camera movement keys
 		// from  activating unwanted accelerators.

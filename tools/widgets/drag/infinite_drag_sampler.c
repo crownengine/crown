@@ -515,6 +515,7 @@ static gpointer sample_pointer_windows(gpointer data)
 	if (!ClipCursor(&clip)) {
 		goto setup_failed;
 	}
+	ShowCursor(FALSE);
 
 	while (g_atomic_int_get(&sampler->running)) {
 		DWORD wait_result = MsgWaitForMultipleObjects(1
@@ -535,9 +536,10 @@ static gpointer sample_pointer_windows(gpointer data)
 	/* GTK may observe the release just before this worker does. */
 	drain_windows_raw_input_messages();
 
-	/* Preserve the release invariant: restore, unconfine, then reveal in GTK. */
+	/* Preserve the release invariant: restore, unconfine, then reveal. */
 	SetCursorPos(sampler->anchor_x, sampler->anchor_y);
 	ClipCursor(NULL);
+	ShowCursor(TRUE);
 
 	register_windows_raw_input(NULL, FALSE);
 	DestroyWindow(window);
