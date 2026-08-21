@@ -645,6 +645,26 @@ update_ufbx () {
 	git commit -m "3rdparty: update ufbx"
 }
 
+update_cgltf () {
+	local REPO=https://github.com/jkuhlmann/cgltf
+	local DEST=3rdparty/cgltf
+	local BRANCH=v1.15
+
+	rm -rf "${DEST}"
+	git_clone "${DEST}" "${REPO}" "${BRANCH}"
+
+	# Keep the single-header library, implementation translation unit and license.
+	rm -rf "${DEST}"/.git
+	find "${DEST}" -mindepth 1 -maxdepth 1 \
+		! -name cgltf.h \
+		! -name LICENSE \
+		-exec rm -rf {} +
+	printf '%s\n' '#define CGLTF_IMPLEMENTATION' '#include "cgltf.h"' > "${DEST}/cgltf.c"
+
+	git add -f "${DEST}"
+	git commit -m "3rdparty: update cgltf"
+}
+
 update_stb () {
 	# Download latest stb libs.
 	local REPO=https://github.com/nothings/stb
@@ -848,6 +868,10 @@ while true; do
 		;;
 	ufbx)
 		update_ufbx
+		exit $?
+		;;
+	cgltf)
+		update_cgltf
 		exit $?
 		;;
 	stb)

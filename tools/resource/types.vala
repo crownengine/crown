@@ -2348,6 +2348,13 @@ public static void create_object_types(Database database)
 			name = "source",
 			resource_type = OBJECT_TYPE_MESH,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "rigid_skinning",
+			deffault = false,
+			hidden = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH, properties);
 
@@ -2662,6 +2669,11 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.STRING,
+			name = "skin_name",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.RESOURCE,
 			name = "target_skeleton",
 			resource_type = OBJECT_TYPE_MESH_SKELETON,
@@ -2716,6 +2728,11 @@ public static void create_object_types(Database database)
 			name = "mesh_resource",
 			label = _("Source Mesh"),
 			resource_type = OBJECT_TYPE_MESH,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "skin_name",
 		},
 		PropertyDefinition()
 		{

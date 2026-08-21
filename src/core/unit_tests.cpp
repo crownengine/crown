@@ -296,6 +296,13 @@ static void test_hash_set()
 	memory_globals::shutdown();
 }
 
+static void test_math()
+{
+	ENSURE(fequal(hermite(1.0f, 2.0f, 4.0f, -1.0f, 0.0f), 1.0f));
+	ENSURE(fequal(hermite(1.0f, 2.0f, 4.0f, -1.0f, 0.5f), 2.875f));
+	ENSURE(fequal(hermite(1.0f, 2.0f, 4.0f, -1.0f, 1.0f), 4.0f));
+}
+
 static void test_vector2()
 {
 	{
@@ -570,6 +577,16 @@ static void test_quaternion()
 		ENSURE(fequal(a.y, 0.0f, 0.00001f));
 		ENSURE(fequal(a.z, 0.0f, 0.00001f));
 		ENSURE(fequal(a.w, 1.0f, 0.00001f));
+	}
+	{
+		const Quaternion a = QUATERNION_IDENTITY;
+		const Quaternion b = from_axis_angle(VECTOR3_ZAXIS, PI_TWO / 3.0f);
+		const Quaternion halfway = slerp(a, b, 0.5f);
+		ENSURE(fequal(halfway.x, 0.0f, 0.00001f));
+		ENSURE(fequal(halfway.y, 0.0f, 0.00001f));
+		ENSURE(fequal(halfway.z, 0.5f, 0.00001f));
+		ENSURE(fequal(halfway.w, fsqrt(0.75f), 0.00001f));
+		ENSURE(fequal(length(halfway), 1.0f, 0.00001f));
 	}
 }
 
@@ -1797,6 +1814,21 @@ static void test_path()
 	}
 #endif // if CROWN_PLATFORM_WINDOWS
 	{
+		ENSURE(path::is_within_root(""));
+		ENSURE(path::is_within_root("."));
+		ENSURE(path::is_within_root("foo"));
+		ENSURE(path::is_within_root("foo/.."));
+		ENSURE(path::is_within_root("foo/../bar"));
+		ENSURE(path::is_within_root("foo/bar/../../baz"));
+		ENSURE(path::is_within_root("foo\\bar\\..\\baz"));
+		ENSURE(!path::is_within_root("/foo"));
+		ENSURE(!path::is_within_root(".."));
+		ENSURE(!path::is_within_root("../foo"));
+		ENSURE(!path::is_within_root("foo/../.."));
+		ENSURE(!path::is_within_root("foo/bar/../../../baz"));
+		ENSURE(!path::is_within_root("foo\\bar\\..\\..\\..\\baz"));
+	}
+	{
 		const char *p = path::basename("");
 		ENSURE(strcmp(p, "") == 0);
 	}
@@ -2520,6 +2552,7 @@ int main_unit_tests()
 	RUN_TEST(test_vector);
 	RUN_TEST(test_hash_map);
 	RUN_TEST(test_hash_set);
+	RUN_TEST(test_math);
 	RUN_TEST(test_vector2);
 	RUN_TEST(test_vector3);
 	RUN_TEST(test_vector4);

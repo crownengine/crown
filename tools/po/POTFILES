@@ -20,6 +20,7 @@ tools/level_editor/property_grid.vala
 tools/level_editor/texture_settings_dialog.vala
 tools/resource/font_resource.vala
 tools/resource/mesh_resource_fbx.vala
+tools/resource/mesh_resource_gltf.vala
 tools/resource/mesh_resource_obj.vala
 tools/resource/scene_import.vala
 tools/resource/sprite_resource.vala

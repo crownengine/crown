@@ -68,6 +68,9 @@ f32 cosine(const f32 p0, const f32 p1, f32 t);
 /// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
 f32 cubic(const f32 p0, const f32 p1, f32 t);
 
+/// Returns the cubic Hermite interpolation between @a p0 and @a p1 with tangents @a m0 and @a m1 at time @a t.
+f32 hermite(const f32 p0, const f32 m0, const f32 p1, const f32 m1, f32 t);
+
 /// Bezier interpolation
 f32 bezier(const f32 p0, const f32 p1, const f32 p2, const f32 p3, f32 t);
 

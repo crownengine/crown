@@ -15,6 +15,7 @@
 #   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/mesh_animation_fbx.h"
+#   include "resource/mesh_animation_gltf.h"
 #   include "resource/mesh_skeleton.h"
 #   include <algorithm> // std::sort
 
@@ -198,14 +199,25 @@ namespace mesh_animation
 
 		// Parse animations.
 		RETURN_IF_ERROR(sjson::parse_string(ma.stack_name, obj["stack_name"]));
+		DynamicString skin_name(ta);
+		if (json_object::has(obj, "skin_name")) {
+			RETURN_IF_ERROR(sjson::parse_string(skin_name, obj["skin_name"]));
+		}
 
 		DynamicString source(ta);
 		if (json_object::has(obj, "source")) {
 			RETURN_IF_ERROR(sjson::parse_string(source, obj["source"]));
 
 			RETURN_IF_FILE_MISSING(MESH_ANIMATION, source.c_str(), opts);
-			Buffer fbx_buf = opts.read(source.c_str());
-			s32 err = fbx::parse(ma, fbx_buf, opts);
+			s32 err;
+			if (str_has_suffix_case(source.c_str(), ".gltf")
+				|| str_has_suffix_case(source.c_str(), ".glb")
+				) {
+				err = gltf::parse(ma, source.c_str(), skin_name.c_str(), opts);
+			} else {
+				Buffer fbx_buf = opts.read(source.c_str());
+				err = fbx::parse(ma, fbx_buf, opts);
+			}
 			ENSURE_OR_RETURN(MESH_ANIMATION, err == 0, opts);
 		} else {
 			RETURN_IF_FALSE(MESH_ANIMATION, false

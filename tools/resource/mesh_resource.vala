@@ -355,12 +355,15 @@ namespace MeshResource
 	public static void import(Import import_result, Database database, string destination_dir, SList<string> filenames, Gtk.Window? parent_window)
 	{
 		SList<string> fbx_filenames = new SList<string>();
+		SList<string> gltf_filenames = new SList<string>();
 		SList<string> obj_filenames = new SList<string>();
 		SList<string> mesh_filenames = new SList<string>();
 		foreach (unowned string filename_i in filenames) {
 			string fi = filename_i.down();
 			if (fi.has_suffix(".fbx"))
 				fbx_filenames.append(filename_i);
+			else if (fi.has_suffix(".gltf") || fi.has_suffix(".glb"))
+				gltf_filenames.append(filename_i);
 			else if (fi.has_suffix(".obj"))
 				obj_filenames.append(filename_i);
 			else if (fi.has_suffix(".mesh"))
@@ -375,12 +378,18 @@ namespace MeshResource
 		if (mesh_filenames != null)
 			res = MeshResource.do_import(database, destination_dir, mesh_filenames, out primary_path);
 
-		// .fbx/.obj files call import_result from their import dialogs.
-		if (res == ImportResult.SUCCESS && fbx_filenames != null && obj_filenames != null) {
-			loge("Mixed FBX and OBJ imports are not supported");
+		// Scene formats call import_result from their import dialogs.
+		int num_scene_formats = (fbx_filenames != null ? 1 : 0)
+			+ (gltf_filenames != null ? 1 : 0)
+			+ (obj_filenames != null ? 1 : 0)
+			;
+		if (res == ImportResult.SUCCESS && num_scene_formats > 1) {
+			loge("Mixed scene format imports are not supported");
 			import_result(ImportResult.ERROR, primary_path);
 		} else if (res == ImportResult.SUCCESS && fbx_filenames != null) {
 			FBXImporter.import(import_result, database, destination_dir, fbx_filenames, parent_window);
+		} else if (res == ImportResult.SUCCESS && gltf_filenames != null) {
+			GLTFImporter.import(import_result, database, destination_dir, gltf_filenames, parent_window);
 		} else if (res == ImportResult.SUCCESS && obj_filenames != null) {
 			OBJImporter.import(import_result, database, destination_dir, obj_filenames, parent_window);
 		} else {

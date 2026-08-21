@@ -753,6 +753,11 @@ Bullet Physics SDK (Zlib)
 
 Real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
 
+cgltf (MIT)
+-----------
+
+Single-file glTF 2.0 loader.
+
 dr_mp3 (Public domain or MIT-0)
 -------------------------------
 

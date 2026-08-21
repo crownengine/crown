@@ -116,6 +116,36 @@ namespace path
 		return c == '/' || c == '\\';
 	}
 
+	bool is_within_root(const char *path)
+	{
+		CE_ENSURE(path != NULL);
+
+		if (is_absolute(path))
+			return false;
+
+		u32 depth = 0;
+		const char *ch = path;
+		while (*ch != '\0') {
+			while (any_separator(*ch))
+				++ch;
+			const char *begin = ch;
+			while (*ch != '\0' && !any_separator(*ch))
+				++ch;
+
+			const StringView component(begin, u32(ch - begin));
+			if (component.length() == 0 || component == ".")
+				continue;
+			if (component == "..") {
+				if (depth == 0)
+					return false;
+				--depth;
+			} else {
+				++depth;
+			}
+		}
+		return true;
+	}
+
 	void reduce(DynamicString &clean, const char *path)
 	{
 		if (path == NULL)

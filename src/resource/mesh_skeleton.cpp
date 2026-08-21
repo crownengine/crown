@@ -12,6 +12,7 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "resource/mesh_skeleton_fbx.h"
 #   include "resource/resource_id.inl"
+#   include "resource/mesh_skeleton_gltf.h"
 #   include "device/log.h"
 #   include "resource/compile_options.inl"
 
@@ -58,7 +59,16 @@ namespace mesh_skeleton
 			RETURN_IF_ERROR(sjson::parse_string(source, mesh_obj["source"]));
 		}
 
+		DynamicString skin_name(ta);
+		if (json_object::has(obj, "skin_name")) {
+			RETURN_IF_ERROR(sjson::parse_string(skin_name, obj["skin_name"]));
+		}
+
 		RETURN_IF_FILE_MISSING(MESH_SKELETON, source.c_str(), opts);
+		if (str_has_suffix_case(source.c_str(), ".gltf")
+			|| str_has_suffix_case(source.c_str(), ".glb")
+			)
+			return gltf::parse(s, source.c_str(), skin_name.c_str(), opts);
 		Buffer fbx_buf = opts.read(source.c_str());
 		return fbx::parse(s, fbx_buf, opts);
 	}
