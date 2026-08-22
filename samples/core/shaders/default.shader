@@ -280,9 +280,25 @@ bgfx_shaders = {
 #if defined(TRIPLANAR)
 				v_proj_position = (u_uv_local.r == 1.0 ? a_position : v_position) * u_uv_scale.xyz + u_uv_offset.xyz;
 				v_proj_normal   = u_uv_local.r == 1.0 ? normal : v_normal;
-#endif
+
+				vec3 proj_normal_abs = abs(v_proj_normal);
+				vec3 proj_axis_sign = sign(v_proj_normal);
+
+				vec3 tri_tangent = vec3(0.0, 0.0, 1.0) * proj_normal_abs.x
+					+ vec3(0.0, 0.0, 1.0) * proj_normal_abs.y
+					+ vec3(-proj_axis_sign.z, 0.0, 0.0) * proj_normal_abs.z
+					;
+				vec3 tri_bitangent = vec3(0.0, -proj_axis_sign.x, 0.0) * proj_normal_abs.x
+					+ vec3(proj_axis_sign.y, 0.0, 0.0) * proj_normal_abs.y
+					+ vec3(0.0, -1.0, 0.0) * proj_normal_abs.z
+					;
+
+				v_tangent = normalize(u_uv_local.r == 1.0 ? mul(normal_matrix, tri_tangent) : tri_tangent);
+				v_bitangent = normalize(u_uv_local.r == 1.0 ? mul(normal_matrix, tri_bitangent) : tri_bitangent);
+#else
 				v_tangent = normalize(mul(normal_matrix, tangent)).xyz;
 				v_bitangent = normalize(mul(normal_matrix, bitangent)).xyz;
+#endif
 
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
@@ -356,6 +372,14 @@ bgfx_shaders = {
 						+ texture2D(map, uv_z) * w.z
 						;
 			}
+
+			vec2 triplanar_sample_bc5(sampler2D map, vec2 uv_x, vec2 uv_y, vec2 uv_z, vec3 w)
+			{
+				return texture2DBc5(map, uv_x) * w.x
+					+ texture2DBc5(map, uv_y) * w.y
+					+ texture2DBc5(map, uv_z) * w.z
+					;
+			}
 #endif
 
 #if defined(TRIPLANAR)
@@ -367,7 +391,6 @@ bgfx_shaders = {
 			void main()
 			{
 #if defined(TRIPLANAR)
-				vec3 world_normal = normalize(v_normal);
 				vec3 proj_normal = normalize(v_proj_normal);
 				vec3 proj_position = v_proj_position;
 				vec3 weights = triplanar_weights(proj_normal, u_uv_blend.r);
@@ -396,26 +419,12 @@ bgfx_shaders = {
 				vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
 #if defined(TRIPLANAR)
-					vec2 normal_x = texture2DBc5(u_normal_map, uv_x) * 2.0 - 1.0;
-					vec2 normal_y = texture2DBc5(u_normal_map, uv_y) * 2.0 - 1.0;
-					vec2 normal_z = texture2DBc5(u_normal_map, uv_z) * 2.0 - 1.0;
-
-					normal_x.y *= axis_sign.x;
-					normal_y.y *= axis_sign.y;
-					normal_z.x *= axis_sign.z;
-
-					world_normal = normalize(
-						vec3(0.0, -normal_x.y, normal_x.x) * weights.x
-						+ vec3(normal_y.y, 0.0, normal_y.x) * weights.y
-						+ vec3(-normal_z.x, -normal_z.y, 0.0) * weights.z
-						+ world_normal
-					);
-
-					normal = mul(world_normal, tbn);
+					vec2 packed_normal = triplanar_sample_bc5(u_normal_map, uv_x, uv_y, uv_z, weights);
 #else
-					normal.xy = texture2DBc5(u_normal_map, v_texcoord0) * 2.0 - 1.0;
-					normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+					vec2 packed_normal = texture2DBc5(u_normal_map, v_texcoord0);
 #endif
+				normal.xy = packed_normal * 2.0 - 1.0;
+				normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
 				} else {
 					normal = v_normal;
 				}
