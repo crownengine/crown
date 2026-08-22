@@ -180,6 +180,8 @@ public class ProjectsList : Gtk.Box
 	public Gtk.ListBox _list_projects;
 	public Gtk.Button _button_import_project;
 	public Gtk.Button _button_new_project;
+	public Gtk.MenuButton _button_new_project_menu;
+	public Gtk.Box _button_new_project_box;
 	public Gtk.Box _buttons_box;
 	public Gtk.Box _projects_box;
 	public Clamp _clamp;
@@ -227,10 +229,22 @@ public class ProjectsList : Gtk.Box
 		_button_new_project.get_style_context().add_class("suggested-action");
 		_button_new_project.action_name = "app.new-project";
 
+		GLib.Menu menu_new_project = new GLib.Menu();
+		menu_new_project.append(_("Temporary Project"), "app.new-temporary-project");
+
+		_button_new_project_menu = new Gtk.MenuButton();
+		_button_new_project_menu.get_style_context().add_class("suggested-action");
+		_button_new_project_menu.set_menu_model(menu_new_project);
+
+		_button_new_project_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_button_new_project_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
+		_button_new_project_box.pack_start(_button_new_project, true, true, 0);
+		_button_new_project_box.pack_start(_button_new_project_menu, false, false, 0);
+
 		_buttons_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_buttons_box.spacing = 6;
 		_buttons_box.pack_start(_local_label, false, true);
-		_buttons_box.pack_end(_button_new_project, false, true);
+		_buttons_box.pack_end(_button_new_project_box, false, true);
 		_buttons_box.pack_end(_button_import_project, false, true);
 
 		_projects_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);

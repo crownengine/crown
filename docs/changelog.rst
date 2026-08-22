@@ -10,6 +10,7 @@ Changelog
 
 * Tools: added snapping and precision modes to numeric entries.
 * Tools: added thumbnails and icon view to the Resource Chooser.
+* Tools: added the ability to create temporary projects from the Projects panel.
 * Runtime: added support for MP3 sound files.
 
 **Fixes**

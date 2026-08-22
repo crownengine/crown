@@ -974,6 +974,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "new-level",          on_new_level,          null,    null },
 		{ "open-level",         on_open_level,         "s",     null },
 		{ "new-project",        on_new_project,        null,    null },
+		{ "new-temporary-project", on_new_temporary_project, null, null },
 		{ "add-project",        on_add_project,        null,    null },
 		{ "remove-project",     on_remove_project,     "s",     null },
 		{ "open-project",       on_open_project,       "(ssi)", null },
@@ -1621,17 +1622,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		if (_source_dir == null) {
 			if (_user.num_projects() == 0) {
-				Project.create_temporary.begin((obj, res) => {
-						string temp_source_dir = Project.create_temporary.end(res);
-
-						if (temp_source_dir != null) {
-							GLib.Application.get_default().activate_action("open-project"
-								, new GLib.Variant.tuple({temp_source_dir, LEVEL_NONE, ProjectFlags.TEMPORARY})
-								);
-						} else {
-							show_panel(PANEL_PROJECTS_LIST);
-						}
-					});
+				activate_action("new-temporary-project", null);
 			} else {
 				show_panel(PANEL_PROJECTS_LIST);
 			}
@@ -2672,9 +2663,9 @@ public class LevelEditorApplication : Gtk.Application
 			Gtk.Dialog dlg = new_level_changed_dialog(this.active_window);
 			dlg.response.connect((response_id) => {
 					if (response_id == Gtk.ResponseType.NO)
-						open_project(source_dir, level_name, ProjectFlags.NONE);
+						open_project(source_dir, level_name, flags);
 					else if (response_id == Gtk.ResponseType.YES)
-						save("open-project", new GLib.Variant.tuple({source_dir, level_name, ProjectFlags.NONE}));
+						save("open-project", new GLib.Variant.tuple({source_dir, level_name, flags}));
 					dlg.destroy();
 				});
 			dlg.show_all();
@@ -2711,6 +2702,21 @@ public class LevelEditorApplication : Gtk.Application
 				});
 			dlg.show_all();
 		}
+	}
+
+	public void on_new_temporary_project(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Project.create_temporary.begin((obj, res) => {
+				string temp_source_dir = Project.create_temporary.end(res);
+
+				if (temp_source_dir != null) {
+					GLib.Application.get_default().activate_action("open-project"
+						, new GLib.Variant.tuple({temp_source_dir, LEVEL_NONE, ProjectFlags.TEMPORARY})
+						);
+				} else {
+					show_panel(PANEL_PROJECTS_LIST);
+				}
+			});
 	}
 
 	public void on_add_project(GLib.SimpleAction action, GLib.Variant? param)
@@ -4539,7 +4545,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (name == PANEL_PROJECTS_LIST
 			|| name == PANEL_NEW_PROJECT
 			) {
-			menu_set_enabled(false, action_entries_file, {"new-project", "add-project", "open-project", "open-project-null", "open-projects-list", "open-in-file-manager", "remove-project", "quit"});
+			menu_set_enabled(false, action_entries_file, {"new-project", "new-temporary-project", "add-project", "open-project", "open-project-null", "open-projects-list", "open-in-file-manager", "remove-project", "quit"});
 			menu_set_enabled(false, action_entries_edit);
 			menu_set_enabled(false, action_entries_create);
 			menu_set_enabled(false, action_entries_camera);
