@@ -77,6 +77,11 @@ sampler_states = {
 		filter_min = "anisotropic"
 		filter_mag = "anisotropic"
 	}
+
+	repeat_anisotropic = {
+		filter_min = "anisotropic"
+		filter_mag = "anisotropic"
+	}
 }
 
 bgfx_shaders = {
