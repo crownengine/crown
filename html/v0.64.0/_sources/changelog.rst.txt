@@ -1,6 +1,17 @@
 Changelog
 =========
 
+.. _v0.64.4:
+
+:ref:`0.64.4 --- 23 Aug 2026 <v0.64.4>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed warnings when deleting sounds in the Level Editor.
+* Tools: fixed rotation inputs not reading values in some cases.
+* Tools: fixed a crash when changing resource properties in some cases.
+
 .. _v0.64.3:
 
 :ref:`0.64.3 --- 20 Aug 2026 <v0.64.3>`
