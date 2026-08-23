@@ -43,6 +43,8 @@ public class InputQuaternion : InputField
 			if (Quaternion.equal_func(_rotation, value))
 				return;
 
+			_rotation = value;
+
 			// Convert to Euler for displaying.
 			Vector3 euler = value.to_euler();
 
