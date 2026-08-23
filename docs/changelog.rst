@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed warnings when deleting sounds in the Level Editor.
 * Tools: fixed rotation inputs not reading values in some cases.
+* Tools: fixed a crash when changing resource properties in some cases.
 
 .. _v0.64.3:
 
