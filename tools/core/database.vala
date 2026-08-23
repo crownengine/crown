@@ -1488,10 +1488,20 @@ public class Database
 
 		if (_undo_redo != null) {
 			GLib.HashTable<string, Value?> ob = get_data(id);
-			if (ob.contains(key) && ob[key] != null)
-				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, { ((Resource)ob[key]).name });
-			else
+			if (!ob.contains(key) || ob[key] == null) {
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+			} else {
+				Value? old_value = ob[key];
+				Resource old_resource = { null };
+				// Unit component overrides loaded by decode_object_compat() are strings.
+				if (old_value.holds(typeof(string))) {
+					old_resource.name = (string)old_value;
+				} else {
+					assert(old_value.holds(typeof(Resource)));
+					old_resource = (Resource)old_value;
+				}
+				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, old_resource);
+			}
 
 			_undo_redo._redo.clear();
 		}

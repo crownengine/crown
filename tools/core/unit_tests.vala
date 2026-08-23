@@ -117,6 +117,30 @@ private static void test_database()
 		assert(db.get_resource(id, "r") == null);
 	}
 
+	// Replace a string-backed resource value.
+	{
+		UndoRedo undo_redo = new UndoRedo();
+		Database db = new Database(p, undo_redo);
+		db.create_object_type("object", props);
+		Guid id = Guid.new_guid();
+		db.create(id, "object");
+
+		UndoRedo? ur = db.disable_undo();
+		db.set_string(id, "r", "a");
+		db.restore_undo(ur);
+		undo_redo.reset();
+
+		db.set_resource(id, "r", "b");
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id });
+		assert(db.get_resource(id, "r") == "b");
+
+		db.undo();
+		assert(db.get_resource(id, "r") == "a");
+
+		db.redo();
+		assert(db.get_resource(id, "r") == "b");
+	}
+
 	// Add and remove an object from a set.
 	{
 		Database db = new Database(p);
