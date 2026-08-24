@@ -12,6 +12,7 @@ Changelog
 * Tools: added thumbnails and icon view to the Resource Chooser.
 * Tools: added the ability to create temporary projects from the Projects panel.
 * Runtime: added support for MP3 sound files.
+* Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 
 **Fixes**
 
