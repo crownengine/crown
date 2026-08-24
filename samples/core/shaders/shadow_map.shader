@@ -98,7 +98,7 @@ bgfx_shaders = {
 	}
 
 	shadow = {
-		includes = [ "common" ]
+		includes = [ "common" "skinning" ]
 
 		varying = """
 			vec3 a_position : POSITION;
@@ -117,16 +117,7 @@ bgfx_shaders = {
 		vs_code = """
 			void main()
 			{
-		#if defined(SKINNING)
-				mat4 model;
-				model  = a_weight.x * u_model[int(a_indices.x)];
-				model += a_weight.y * u_model[int(a_indices.y)];
-				model += a_weight.z * u_model[int(a_indices.z)];
-				model += a_weight.w * u_model[int(a_indices.w)];
-				gl_Position = mul(mul(u_modelViewProj, model), vec4(a_position, 1.0));
-		#else
-				gl_Position = mul(mul(u_viewProj, u_model[0]), vec4(a_position, 1.0));
-		#endif
+				gl_Position = mul(u_modelViewProj, skin(a_position));
 			}
 		"""
 

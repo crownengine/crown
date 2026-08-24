@@ -37,6 +37,7 @@ Changelog
 * Tools: fixed a crash when changing resource properties in some cases.
 * Tools: FBX: mult-clip models will now correctly import all animations.
 * Runtime: the camera now ignores the scaling component in its transform.
+* Runtime: fixed rendering of outlines on skinned meshes.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 
