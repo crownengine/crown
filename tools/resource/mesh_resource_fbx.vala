@@ -417,6 +417,21 @@ public class FBXImportDialog : Gtk.Window
 
 public class FBXImporter
 {
+	private static bool is_valid_animation_basename(string name)
+	{
+		return name != ""
+			&& name.index_of_char('/') == -1
+			&& name.index_of_char('\\') == -1
+			&& name.index_of_char(':') == -1
+			&& name.index_of_char('*') == -1
+			&& name.index_of_char('?') == -1
+			&& name.index_of_char('"') == -1
+			&& name.index_of_char('<') == -1
+			&& name.index_of_char('>') == -1
+			&& name.index_of_char('|') == -1
+			;
+	}
+
 	public static int get_or_import_texture_resource_name(out string? resource_name
 		, Database db
 		, Project project
@@ -1070,10 +1085,30 @@ public class FBXImporter
 						}
 
 						// Extract clips.
-						if (scene.anim_stacks.data.length > 0) {
-							unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[0];
+						GLib.HashTable<string, bool> used_stack_names = new GLib.HashTable<string, bool>(GLib.str_hash, GLib.str_equal);
+						for (size_t anim_i = 0; anim_i < scene.anim_stacks.data.length; ++anim_i) {
+							unowned ufbx.AnimStack anim_stack = scene.anim_stacks.data[anim_i];
+							string stack_name = (string)anim_stack.name.data;
+							string animation_basename = resource_basename;
+							if (scene.anim_stacks.data.length > 1) {
+								if (stack_name == "") {
+									loge("Animation stack %u has no name".printf((uint)anim_i));
+									return ImportResult.ERROR;
+								}
+								if (used_stack_names.contains(stack_name)) {
+									loge("Animation stack name '%s' is not unique".printf(stack_name));
+									return ImportResult.ERROR;
+								}
+								used_stack_names[stack_name] = true;
 
-							string anim_filename = Path.build_filename(animations_path, resource_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
+								if (!is_valid_animation_basename(stack_name)) {
+									loge("Animation stack name '%s' cannot be used as a resource filename".printf(stack_name));
+									return ImportResult.ERROR;
+								}
+								animation_basename = resource_basename + "_" + stack_name;
+							}
+
+							string anim_filename = Path.build_filename(animations_path, animation_basename + "." + OBJECT_TYPE_MESH_ANIMATION);
 							GLib.File anim_file  = GLib.File.new_for_path(anim_filename);
 							string anim_path     = anim_file.get_path();
 
@@ -1086,7 +1121,7 @@ public class FBXImporter
 							db.create(anim_id, OBJECT_TYPE_MESH_ANIMATION);
 							db.set_string(anim_id, "source", resource_path);
 							db.set_string(anim_id, "target_skeleton", target_skeleton);
-							db.set_string(anim_id, "stack_name", (string)anim_stack.name.data);
+							db.set_string(anim_id, "stack_name", stack_name);
 							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
 								return ImportResult.ERROR;
 						}

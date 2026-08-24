@@ -34,6 +34,7 @@ Changelog
 * Tools: fixed warnings when deleting sounds in the Level Editor.
 * Tools: fixed rotation inputs not reading values in some cases.
 * Tools: fixed a crash when changing resource properties in some cases.
+* Tools: FBX: mult-clip models will now correctly import all animations.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
