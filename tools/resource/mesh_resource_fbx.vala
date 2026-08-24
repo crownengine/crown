@@ -1025,6 +1025,8 @@ public class FBXImporter
 
 			// Import animations.
 			StateMachineResource? smr = null;
+			bool create_state_machine = false;
+			string? initial_animation_name = null;
 
 			if (options.import_animation) {
 				string target_skeleton = options.target_skeleton;
@@ -1050,15 +1052,7 @@ public class FBXImporter
 							return ImportResult.ERROR;
 
 						target_skeleton = resource_name;
-
-						// Create .state_machine resource to drive the skeleton.
-						Guid state_machine_id = Guid.new_guid();
-						smr = StateMachineResource.mesh(db
-							, state_machine_id
-							, target_skeleton
-							);
-						if (smr.save(project, resource_name) != 0)
-							return ImportResult.ERROR;
+						create_state_machine = true;
 					}
 				}
 
@@ -1124,8 +1118,22 @@ public class FBXImporter
 							db.set_string(anim_id, "stack_name", stack_name);
 							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
 								return ImportResult.ERROR;
+							if (initial_animation_name == null)
+								initial_animation_name = anim_resource_name;
 						}
 					}
+				}
+
+				if (create_state_machine) {
+					// Create .state_machine resource to drive the skeleton.
+					Guid state_machine_id = Guid.new_guid();
+					smr = StateMachineResource.mesh(db
+						, state_machine_id
+						, target_skeleton
+						, initial_animation_name
+						);
+					if (smr.save(project, resource_name) != 0)
+						return ImportResult.ERROR;
 				}
 			}
 
