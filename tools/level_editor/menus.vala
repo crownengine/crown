@@ -243,6 +243,10 @@ public GLib.Menu make_edit_menu()
 	menu.append_section(null, make_database_editor_menu());
 	ms = new GLib.Menu();
 
+	mi = new GLib.MenuItem(_("Move to Camera"), null);
+	mi.set_detailed_action("app.move-to-camera-view");
+	ms.append_item(mi);
+
 	mi = new GLib.MenuItem(_("Align with Camera View"), null);
 	mi.set_detailed_action("app.align-with-camera-view");
 	ms.append_item(mi);

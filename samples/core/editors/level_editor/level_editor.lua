@@ -2160,7 +2160,7 @@ function LevelEditor:align_to_camera_view()
 	self._selection:send_move_objects()
 end
 
-function LevelEditor:frame_objects(ids)
+function LevelEditor:frame_objects(ids, direction)
 	local num_objects = #ids
 
 	if num_objects == 0 then
@@ -2225,7 +2225,30 @@ function LevelEditor:frame_objects(ids)
 	aabb_center = Vector3.multiply(aabb_max + aabb_min, 0.5)
 	obb_tm, obb_he = Matrix4x4.from_translation(aabb_center), aabb_max - aabb_center
 
-	self._camera:frame_obb(obb_tm, obb_he)
+	if direction == "objects_to_camera" then
+		local obb_radius = Vector3.distance(aabb_center, aabb_center + obb_he)
+		local camera_pose = self._camera:local_pose()
+		local camera_position = Matrix4x4.translation(camera_pose)
+		local camera_forward = Matrix4x4.y(camera_pose)
+		local camera_target_distance = obb_radius*3
+		local target_position = camera_position + camera_forward*camera_target_distance
+		local delta = target_position - aabb_center
+
+		for _, id in pairs(ids) do
+			local nv, nq, nm = Device.temp_count()
+			local obj = self._objects[id]
+			if obj:is_spatial() then
+				obj:set_local_position(obj:local_position() + delta)
+			end
+			Device.set_temp_count(nv, nq, nm)
+		end
+
+		self._selection:send_move_objects()
+		self._camera._target_distance = camera_target_distance
+		self._camera:send_state()
+	else
+		self._camera:frame_obb(obb_tm, obb_he)
+	end
 end
 
 function LevelEditor:draw_camera_compass()

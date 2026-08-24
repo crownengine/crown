@@ -1011,6 +1011,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "grid-size",              on_grid_size,              "i",    "10"    }, // 10*meters.
 		{ "menu-rotation-snap",     null,                      null,   null    },
 		{ "rotation-snap-size",     on_rotation_snap_size,     "i",    "15"    },
+		{ "move-to-camera-view",    on_move_to_camera_view,    null,   null    },
 		{ "align-with-camera-view", on_align_with_camera_view, null,   null    }
 	};
 
@@ -1311,6 +1312,7 @@ public class LevelEditorApplication : Gtk.Application
 		this.set_accels_for_action("viewport.camera-view(5)", new string[] { "KP_7" });
 		this.set_accels_for_action("viewport.camera-view(6)", new string[] { "<Primary>KP_7" });
 		this.set_accels_for_action("viewport.camera-frame-selected", new string[] { "F" });
+		this.set_accels_for_action("app.move-to-camera-view", new string[] { "<Primary><Alt>F" });
 		this.set_accels_for_action("app.align-with-camera-view", new string[] { "<Shift><Primary>F" });
 
 		this.set_accels_for_action("app.camera-frame-all", new string[] { "A" });
@@ -3276,6 +3278,12 @@ public class LevelEditorApplication : Gtk.Application
 		GLib.GenericArray<Guid?> all_objects = new GLib.GenericArray<Guid?>();
 		_level.objects(ref all_objects);
 		_editor.send_script(LevelEditorApi.frame_objects(all_objects.data));
+		_editor_viewport.frame();
+	}
+
+	public void on_move_to_camera_view(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		_editor.send_script(LevelEditorApi.frame_objects(_database_editor._selection.data, "objects_to_camera"));
 		_editor_viewport.frame();
 	}
 

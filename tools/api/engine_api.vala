@@ -284,13 +284,13 @@ namespace LevelEditorApi
 			);
 	}
 
-	public string frame_objects(Guid?[] ids)
+	public string frame_objects(Guid?[] ids, string direction = "camera_to_objects")
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("LevelEditor:frame_objects({");
 		for (int i = 0; i < ids.length; ++i)
 			sb.append("\"%s\",".printf(ids[i].to_string()));
-		sb.append("})");
+		sb.append("}, \"%s\")".printf(direction));
 		return sb.str;
 	}
 
