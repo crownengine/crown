@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.5 --- DD MMM YYYY <v0.64.5>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: FBX: mult-clip models will now correctly import all animations.
+
 .. _v0.64.4:
 
 :ref:`0.64.4 --- 23 Aug 2026 <v0.64.4>`
