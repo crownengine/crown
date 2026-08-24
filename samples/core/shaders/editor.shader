@@ -15,20 +15,26 @@ render_states = {
 
 bgfx_shaders = {
 	selection = {
-		includes = [ "common" ]
+		includes = [ "common" "skinning" ]
 
 		varying = """
 			vec3 a_position  : POSITION;
+			vec4 a_indices   : BLENDINDICES;
+			vec4 a_weight    : BLENDWEIGHT;
 		"""
 
 		vs_input_output = """
+		#if defined(SKINNING)
+			$input a_position, a_indices, a_weight
+		#else // !defined(SKINNING)
 			$input a_position
+		#endif // SKINNING
 		"""
 
 		vs_code = """
 			void main()
 			{
-				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
+				gl_Position = mul(u_modelViewProj, skin(a_position));
 			}
 		"""
 
@@ -172,6 +178,7 @@ shaders = {
 
 static_compile = [
 	{ shader = "selection" defines = [] }
+	{ shader = "selection" defines = ["SKINNING"] }
 	{ shader = "outline" defines = [] }
 	{ shader = "outline" defines = ["MSAA_DEPTH"] }
 

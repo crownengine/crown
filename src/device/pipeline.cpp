@@ -145,6 +145,7 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
 	pl._outline_msaa_shader = pl._shader_manager->shader(STRING_ID_32("outline+MSAA_DEPTH", UINT32_C(0xeb4b24a0)));
 	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
+	pl._selection_skinning_shader = pl._shader_manager->shader(STRING_ID_32("selection+SKINNING", UINT32_C(0x69b27030)));
 	pl._blit_blend_shader = pl._shader_manager->shader(STRING_ID_32("blit+BLEND_ENABLED", UINT32_C(0xb4fe5db5)));
 	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
 	pl._shadow_skinning_shader = pl._shader_manager->shader(STRING_ID_32("shadow+SKINNING", UINT32_C(0x34005875)));

@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: FBX: mult-clip models will now correctly import all animations.
+* Runtime: fixed rendering of outlines on skinned meshes.
 
 .. _v0.64.4:
 
