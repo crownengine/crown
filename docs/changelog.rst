@@ -12,6 +12,7 @@ Changelog
 * Tools: added thumbnails and icon view to the Resource Chooser.
 * Tools: added the ability to create temporary projects from the Projects panel.
 * Tools: added the ability to move objects to the camera view with ``Ctrl+Alt+F``.
+* Tools: imported models will now assign a default animation to imported state machines.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 

@@ -80,9 +80,13 @@ public struct StateMachineResource
 			_db.set_resource(_id, "skeleton_name", skeleton_name);
 	}
 
-	public StateMachineResource.mesh(Database db, Guid id, string skeleton_name)
+	public StateMachineResource.mesh(Database db
+		, Guid id
+		, string skeleton_name
+		, string? initial_animation_name = null
+		)
 	{
-		this(db, id, OBJECT_TYPE_MESH_ANIMATION, null, skeleton_name);
+		this(db, id, OBJECT_TYPE_MESH_ANIMATION, initial_animation_name, skeleton_name);
 	}
 
 	public StateMachineResource.sprite(Database db, Guid id, string? initial_animation_name)
