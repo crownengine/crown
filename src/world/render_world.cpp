@@ -2212,8 +2212,12 @@ void RenderWorld::render(f32 dt
 				bgfx::setUniform(_pipeline->_unit_id, &data);
 
 				_mesh_manager.set_instance_data(object_id, *_scene_graph);
-				bgfx::setState(_pipeline->_selection_shader.state);
-				bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+				const ShaderData &selection_shader = _mesh_manager._data.skeleton[object_id] != NULL
+					? _pipeline->_selection_skinning_shader
+					: _pipeline->_selection_shader
+					;
+				bgfx::setState(selection_shader.state);
+				bgfx::submit(View::SELECTION, selection_shader.program);
 			}
 			break;
 
@@ -2243,8 +2247,12 @@ void RenderWorld::render(f32 dt
 				bgfx::setUniform(_pipeline->_unit_id, &data);
 
 				_mesh_manager.set_instance_data(mesh_i, *_scene_graph);
-				bgfx::setState(_pipeline->_selection_shader.state);
-				bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
+				const ShaderData &selection_shader = _mesh_manager._data.skeleton[mesh_i] != NULL
+					? _pipeline->_selection_skinning_shader
+					: _pipeline->_selection_shader
+					;
+				bgfx::setState(selection_shader.state);
+				bgfx::submit(View::SELECTION, selection_shader.program);
 			}
 			break;
 		}

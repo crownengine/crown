@@ -192,7 +192,7 @@ bgfx_shaders = {
 	}
 
 	mesh = {
-		includes = [ "common" "lighting" ]
+		includes = [ "common" "lighting" "skinning" ]
 
 		samplers = {
 			u_albedo_map = { sampler_state = "repeat_anisotropic" }
@@ -256,25 +256,16 @@ bgfx_shaders = {
 
 			void main()
 			{
-		#if defined(SKINNING)
-				mat4 model;
-				model  = a_weight.x * u_model[int(a_indices.x)];
-				model += a_weight.y * u_model[int(a_indices.y)];
-				model += a_weight.z * u_model[int(a_indices.z)];
-				model += a_weight.w * u_model[int(a_indices.w)];
-				gl_Position = mul(mul(u_modelViewProj, model), vec4(a_position, 1.0));
-				model = mul(u_model[0], model);
-		#else // !defined(SKINNING)
-				gl_Position = mul(mul(u_viewProj, u_model[0]), vec4(a_position, 1.0));
-				mat4 model = u_model[0];
-		#endif // SKINNING
+				vec4 position = skin(a_position);
+				gl_Position = mul(u_modelViewProj, position);
+				vec4 world_position = mul(u_model[0], position);
+				mat3 normal_matrix = skin_normal_transform();
 
 				vec3 normal = decodeNormalUint(a_normal);
 				vec3 tangent = decodeNormalUint(a_tangent);
 				vec3 bitangent = decodeNormalUint(a_bitangent);
-				mat3 normal_matrix = cofactor(model);
 
-				v_position = mul(model, vec4(a_position, 1.0)).xyz;
+				v_position = world_position.xyz;
 				v_normal = normalize(mul(normal_matrix, normal)).xyz;
 		#if defined(TRIPLANAR)
 		#if defined(TRIPLANAR_LOCAL)
@@ -325,11 +316,12 @@ bgfx_shaders = {
 
 		#if !defined(NO_LIGHT)
 				vec3 pos_offset = a_position + normal * 0.01;
-				v_shadow0 = mul(mul(u_cascaded_lights[0], model), vec4(pos_offset, 1.0));
-				v_shadow1 = mul(mul(u_cascaded_lights[1], model), vec4(pos_offset, 1.0));
-				v_shadow2 = mul(mul(u_cascaded_lights[2], model), vec4(pos_offset, 1.0));
-				v_shadow3 = mul(mul(u_cascaded_lights[3], model), vec4(pos_offset, 1.0));
-				v_shadow_local = mul(model, vec4(pos_offset, 1.0));
+				vec4 world_pos_offset = mul(u_model[0], skin(pos_offset));
+				v_shadow0 = mul(u_cascaded_lights[0], world_pos_offset);
+				v_shadow1 = mul(u_cascaded_lights[1], world_pos_offset);
+				v_shadow2 = mul(u_cascaded_lights[2], world_pos_offset);
+				v_shadow3 = mul(u_cascaded_lights[3], world_pos_offset);
+				v_shadow_local = world_pos_offset;
 		#endif // NO_LIGHT
 			}
 		"""

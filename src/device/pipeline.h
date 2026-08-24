@@ -138,6 +138,7 @@ struct Pipeline
 	ShaderData _outline_shader;
 	ShaderData _outline_msaa_shader;
 	ShaderData _selection_shader;
+	ShaderData _selection_skinning_shader;
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
 	ShaderData _skydome_shader;

@@ -1251,4 +1251,44 @@ bgfx_shaders = {
 			#endif // __SHADERLIB_SH__
 		"""
 	}
+
+	skinning = {
+		code = """
+			vec4 skin(vec3 vertex)
+			{
+				return vec4(vertex, 1.0);
+			}
+
+			mat3 skin_normal_transform()
+			{
+				return cofactor(u_model[0]);
+			}
+
+		#if defined(SKINNING)
+			vec4 skin_skinned(vec3 vertex, vec4 indices, vec4 weight)
+			{
+				vec4 position = vec4(vertex, 1.0);
+				return weight.x * mul(u_model[int(indices.x)], position)
+					+ weight.y * mul(u_model[int(indices.y)], position)
+					+ weight.z * mul(u_model[int(indices.z)], position)
+					+ weight.w * mul(u_model[int(indices.w)], position)
+					;
+			}
+
+			mat3 skin_normal_transform_skinned(vec4 indices, vec4 weight)
+			{
+				mat4 skinning_transform;
+				skinning_transform  = weight.x * u_model[int(indices.x)];
+				skinning_transform += weight.y * u_model[int(indices.y)];
+				skinning_transform += weight.z * u_model[int(indices.z)];
+				skinning_transform += weight.w * u_model[int(indices.w)];
+
+				return cofactor(mul(u_model[0], skinning_transform));
+			}
+
+		#	define skin(_vertex) skin_skinned(_vertex, a_indices, a_weight)
+		#	define skin_normal_transform() skin_normal_transform_skinned(a_indices, a_weight)
+		#endif // SKINNING
+		"""
+	}
 }
