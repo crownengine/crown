@@ -13,6 +13,12 @@ namespace crown
 /// @addtogroup Math
 /// @{
 
+template<>
+inline Vector4 splat<Vector4>(f32 value)
+{
+	return { value, value, value, value };
+}
+
 /// Adds the vector @a a to @a b and returns the result.
 inline Vector4 &operator+=(Vector4 &a, const Vector4 &b)
 {

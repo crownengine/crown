@@ -19,6 +19,10 @@ namespace crown
 #define PI_FOURTH     f32(0.78539816339744830961f)
 #define FLOAT_EPSILON f32(1.0e-7f)
 
+/// Returns a vector of type @a T with every element set to @a value.
+template<typename T>
+T splat(f32 value);
+
 /// Returns whether @a a and @a b are equal according to @a epsilon.
 bool fequal(f32 a, f32 b, f32 epsilon = FLOAT_EPSILON);
 
