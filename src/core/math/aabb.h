@@ -26,6 +26,9 @@ namespace aabb
 	/// Creates the AABB @a a from @a num @a boxes.
 	void from_boxes(AABB &b, u32 num, const AABB *boxes);
 
+	/// Returns a new box which encloses both the box @a a and @a b.
+	AABB merge(const AABB &a, const AABB &b);
+
 	/// Returns the center of the box @a b.
 	Vector3 center(const AABB &b);
 
