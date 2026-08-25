@@ -2561,16 +2561,18 @@ static s32 compile_resources_worker(void *user_data)
 			ScopedMutex sm(dc._compiler_mutex);
 
 			// Dependencies and requirements lists must be regenerated each time
-			// the resource is being compiled. For example, if you delete
-			// "foo.unit" from a package, you do not want the list of
-			// requirements to include "foo.unit" again the next time that
-			// package is compiled.
+			// the resource is being compiled since it may no longer reference the
+			// same source paths.
 			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
 			hash_map::clear(hash_map::get(dc._data_dependencies, id, dependencies_deffault));
-			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
-			hash_map::clear(hash_map::get(dc._data_requirements, id, requirements_deffault));
 			hash_map::set(dc._data_dependencies, id, new_dependencies);
-			hash_map::set(dc._data_requirements, id, new_requirements);
+
+			// Packages track their contents as dependencies only.
+			if (!path.has_suffix(".package")) {
+				HashMap<DynamicString, u32> requirements_deffault(default_allocator());
+				hash_map::clear(hash_map::get(dc._data_requirements, id, requirements_deffault));
+				hash_map::set(dc._data_requirements, id, new_requirements);
+			}
 
 			if (!dc.path_is_special(path.c_str())) {
 				hash_map::set(dc._data_index, id, path);
