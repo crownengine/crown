@@ -91,27 +91,27 @@ namespace mesh
 		array::clear(g._index_buffer);
 	}
 
-	bool has_normals(Geometry &g)
+	bool has_normals(const Geometry &g)
 	{
 		return array::size(g._normals) != 0;
 	}
 
-	bool has_tangents(Geometry &g)
+	bool has_tangents(const Geometry &g)
 	{
 		return array::size(g._tangents) != 0;
 	}
 
-	bool has_bitangents(Geometry &g)
+	bool has_bitangents(const Geometry &g)
 	{
 		return array::size(g._bitangents) != 0;
 	}
 
-	bool has_bones(Geometry &g)
+	bool has_bones(const Geometry &g)
 	{
 		return array::size(g._bones) != 0;
 	}
 
-	bool has_uvs(Geometry &g)
+	bool has_uvs(const Geometry &g)
 	{
 		return array::size(g._uvs) != 0;
 	}
