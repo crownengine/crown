@@ -63,6 +63,7 @@ struct DataCompiler
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_dependencies;
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_requirements;
 	HashMap<StringId64, u32> _data_versions;
+	Mutex _compiler_mutex;
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
 	HashMap<StringId64, u32> _data_revisions;

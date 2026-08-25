@@ -16,6 +16,7 @@
 #include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
+#include "core/math/random.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
@@ -26,6 +27,8 @@
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
+#include "core/thread/scoped_mutex.inl"
+#include "core/thread/thread.h"
 #include "core/time.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
@@ -57,6 +60,10 @@ LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 #define CROWN_DATA_DEPENDENCIES "data_dependencies.sjson"
 #define CROWN_DATAIGNORE ".dataignore"
 #define CROWN_DATAFENCE ".datafence"
+
+#ifndef CROWN_DATA_COMPILER_MULTITHREADED
+	#define CROWN_DATA_COMPILER_MULTITHREADED 1
+#endif
 
 namespace crown
 {
@@ -2422,6 +2429,174 @@ void DataCompiler::all_paths_of_type(Vector<DynamicString> &paths, const char *t
 	}
 }
 
+struct CompileResourcesArgs
+{
+	DataCompiler *data_compiler;
+	FilesystemDisk *data_fs;
+	const Vector<DynamicString> *resources;
+	Array<ResourceId> *potentially_stale_outputs;
+	bool *success;
+	Platform::Enum platform;
+	u32 offset;
+	u32 count;
+};
+
+static s32 compile_resources_worker(void *user_data)
+{
+	CompileResourcesArgs &args = *(CompileResourcesArgs *)user_data;
+	DataCompiler &dc = *args.data_compiler;
+	FilesystemDisk &data_fs = *args.data_fs;
+
+	const u32 num = args.offset + args.count;
+	for (u32 i = args.offset; i < num; ++i) {
+		{
+			ScopedMutex sm(dc._compiler_mutex);
+			if (!*args.success)
+				break;
+		}
+
+		const DynamicString &path = (*args.resources)[i];
+		const char *type_str = resource_type(path.c_str());
+		if (type_str == NULL)
+			continue;
+
+		const StringId64 type(type_str);
+		if (!dc.can_compile(type))
+			continue;
+
+		logi(DATA_COMPILER, dc._options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
+
+		const ResourceId id = resource_id(path.c_str());
+		TempAllocator256 ta;
+		DynamicString dest(ta);
+		destination_path(dest, id);
+
+		HashMap<DynamicString, u32> new_dependencies(default_allocator());
+		HashMap<DynamicString, u32> new_requirements(default_allocator());
+
+		DataCompiler::ResourceTypeData rtd;
+		rtd.version = 0;
+		rtd.compiler = NULL;
+		rtd = hash_map::get(dc._compilers, type, rtd);
+		const u32 stored_type_version = dc.data_version_stored(type);
+		const bool type_version_mismatch = stored_type_version != UINT32_MAX
+			&& stored_type_version != rtd.version
+			;
+
+		Buffer output_buffer(default_allocator());
+		FileBuffer output(output_buffer);
+		Buffer stream_output_buffer(default_allocator());
+		FileBuffer stream_output(stream_output_buffer);
+		CompileOptions opts(output
+			, stream_output
+			, new_dependencies
+			, new_requirements
+			, dc
+			, data_fs
+			, data_fs
+			, id
+			, path
+			, args.platform
+			, false
+			);
+
+		bool resource_success = rtd.compiler(opts) == 0;
+
+		if (resource_success) {
+			// Add requirements from globs.
+			auto cur = hash_map::begin(dc._source_index._paths);
+			auto end = hash_map::end(dc._source_index._paths);
+			for (; cur != end; ++cur) {
+				HASH_MAP_SKIP_HOLE(dc._source_index._paths, cur);
+
+				const DynamicString &source_path = cur->first;
+				for (u32 ii = 0, nn = vector::size(opts._new_requirement_globs); ii < nn; ++ii) {
+					if (wildcmp(opts._new_requirement_globs[ii].c_str(), source_path.c_str()))
+						hash_map::set(new_requirements, source_path, 0u);
+				}
+			}
+
+			DynamicString temp_dest(default_allocator());
+			File *outf = data_fs.open_temporary(temp_dest);
+			if (outf->is_open()) {
+				u32 size = array::size(output_buffer);
+				u32 written = outf->write(array::begin(output_buffer), size);
+				resource_success = size == written;
+			} else {
+				loge(DATA_COMPILER, "Failed to write data to disk");
+				resource_success = false;
+			}
+			data_fs.close(*outf);
+
+			if (resource_success) {
+				RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
+				resource_success = rr.error == RenameResult::SUCCESS;
+			}
+
+			if (resource_success && array::size(stream_output_buffer) != 0) {
+				DynamicString stream_temp_dest(default_allocator());
+				File *stream_outf = data_fs.open_temporary(stream_temp_dest);
+				if (stream_outf->is_open()) {
+					u32 size = array::size(stream_output_buffer);
+					u32 written = stream_outf->write(array::begin(stream_output_buffer), size);
+					resource_success = size == written;
+				} else {
+					loge(DATA_COMPILER, "Failed to write streaming data to disk");
+					resource_success = false;
+				}
+				data_fs.close(*stream_outf);
+
+				if (resource_success) {
+					TempAllocator256 stream_ta;
+					DynamicString stream_dest(stream_ta);
+					stream_destination_path(stream_dest, id);
+					RenameResult rr = data_fs.rename(stream_temp_dest.c_str(), stream_dest.c_str());
+					resource_success = rr.error == RenameResult::SUCCESS;
+				}
+			}
+		}
+
+		if (resource_success) {
+			const u64 mtime = data_fs.last_modified_time(dest.c_str());
+			ScopedMutex sm(dc._compiler_mutex);
+
+			// Dependencies and requirements lists must be regenerated each time
+			// the resource is being compiled. For example, if you delete
+			// "foo.unit" from a package, you do not want the list of
+			// requirements to include "foo.unit" again the next time that
+			// package is compiled.
+			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
+			hash_map::clear(hash_map::get(dc._data_dependencies, id, dependencies_deffault));
+			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
+			hash_map::clear(hash_map::get(dc._data_requirements, id, requirements_deffault));
+			hash_map::set(dc._data_dependencies, id, new_dependencies);
+			hash_map::set(dc._data_requirements, id, new_requirements);
+
+			if (!dc.path_is_special(path.c_str())) {
+				hash_map::set(dc._data_index, id, path);
+				hash_map::set(dc._data_mtimes, id, mtime);
+				hash_map::set(dc._data_revisions, id, dc._revision + 1);
+			}
+
+			if (type_version_mismatch)
+				array::push_back(*args.potentially_stale_outputs, id);
+		} else {
+			bool report_failure;
+			{
+				ScopedMutex sm(dc._compiler_mutex);
+				report_failure = *args.success;
+				*args.success = false;
+			}
+
+			if (report_failure)
+				loge(DATA_COMPILER, "Failed to compile data");
+			break;
+		}
+	}
+
+	return 0;
+}
+
 bool DataCompiler::compile_internal(const char *data_dir, const char *platform_name)
 {
 	s64 time_start = time::now();
@@ -2519,6 +2694,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 	// Find the set of resources to be compiled, removed etc.
 	Vector<DynamicString> to_compile(default_allocator());
+	Vector<DynamicString> packages_to_compile(default_allocator());
 	Vector<DynamicString> to_remove(default_allocator());
 	Array<ResourceId> potentially_stale_outputs(default_allocator());
 
@@ -2556,7 +2732,10 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 				|| data_version_dependency_changed
 				|| compile_always
 				) {
-				vector::push_back(to_compile, path);
+				if (path.has_suffix(".package"))
+					vector::push_back(packages_to_compile, path);
+				else
+					vector::push_back(to_compile, path);
 			}
 		}
 	}
@@ -2593,166 +2772,68 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		data_fs.delete_file(dest.c_str());
 	}
 
-	// Sort to_compile so that ".package" resources get compiled last
-	std::sort(vector::begin(to_compile)
-		, vector::end(to_compile)
-		, [](const DynamicString &resource_a, const DynamicString &resource_b) {
-#define PACKAGE ".package"
-			if (resource_a.has_suffix(PACKAGE) && !resource_b.has_suffix(PACKAGE))
-				return false;
-			if (!resource_a.has_suffix(PACKAGE) && resource_b.has_suffix(PACKAGE))
-				return true;
-			return resource_a < resource_b;
-#undef PACKAGE
-		});
-
 	bool success = true;
+	const u32 num_resources = vector::size(to_compile) + vector::size(packages_to_compile);
 
-	// Compile all changed resources
-	for (u32 i = 0; i < vector::size(to_compile); ++i) {
-		const DynamicString &path = to_compile[i];
+#if CROWN_DATA_COMPILER_MULTITHREADED
+	u32 num_workers = 1u;
+	if (num_resources != 0)
+		num_workers = thread::num_logical_cpus();
 
-		const char *type_str = resource_type(path.c_str());
-		if (type_str == NULL)
+	if (num_workers > 1u) {
+		Random random;
+		for (u32 i = vector::size(to_compile); i > 1u; --i) {
+			const u32 j = (u32)random.integer((s32)i);
+			exchange(to_compile[i - 1u], to_compile[j]);
+		}
+	}
+#endif
+
+	const Vector<DynamicString> *phases[] = { &to_compile, &packages_to_compile };
+	for (u32 phase = 0; phase < countof(phases) && success; ++phase) {
+		const Vector<DynamicString> &resources = *phases[phase];
+		const u32 phase_resources = vector::size(resources);
+		if (phase_resources == 0)
 			continue;
 
-		const StringId64 type(type_str);
-		if (!can_compile(type))
-			continue;
+#if CROWN_DATA_COMPILER_MULTITHREADED
+		Array<CompileResourcesArgs> args(default_allocator());
+		Array<Thread *> workers(default_allocator());
+		array::resize(args, num_workers);
+		array::resize(workers, num_workers);
 
-		logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
-
-		// Build destination file path
-		const ResourceId id = resource_id(path.c_str());
-		TempAllocator256 ta;
-		DynamicString dest(ta);
-		destination_path(dest, id);
-
-		// Dependencies and requirements lists must be regenerated each time
-		// the resource is being compiled. For example, if you delete
-		// "foo.unit" from a package, you do not want the list of
-		// requirements to include "foo.unit" again the next time that
-		// package is compiled.
-		HashMap<DynamicString, u32> new_dependencies(default_allocator());
-		HashMap<DynamicString, u32> new_requirements(default_allocator());
-
-		// Compile data.
-		ResourceTypeData rtd;
-		rtd.version = 0;
-		rtd.compiler = NULL;
-		rtd = hash_map::get(_compilers, type, rtd);
-		const u32 stored_type_version = data_version_stored(type);
-		const bool type_version_mismatch = stored_type_version != UINT32_MAX
-			&& stored_type_version != rtd.version
-			;
-
-		Buffer output_buffer(default_allocator());
-		FileBuffer output(output_buffer);
-		Buffer stream_output_buffer(default_allocator());
-		FileBuffer stream_output(stream_output_buffer);
-		CompileOptions opts(output
-			, stream_output
-			, new_dependencies
-			, new_requirements
-			, *this
-			, data_fs
-			, data_fs
-			, id
-			, path
-			, platform
-			, false
-			);
-
-		success = rtd.compiler(opts) == 0;
-
-		if (success) {
-			// Update dependencies and requirements only if compiler(opts)
-			// succeeded. If the compilation fails due to a missing
-			// dependency and you update the dependency database with new
-			// partial data, the next call to compile() would not trigger a
-			// recompilation.
-			HashMap<DynamicString, u32> dependencies_deffault(default_allocator());
-			hash_map::clear(hash_map::get(_data_dependencies, id, dependencies_deffault));
-			HashMap<DynamicString, u32> requirements_deffault(default_allocator());
-			hash_map::clear(hash_map::get(_data_requirements, id, requirements_deffault));
-			hash_map::set(_data_dependencies, id, new_dependencies);
-			{
-				// Add requirements from globs.
-				auto cur = hash_map::begin(_source_index._paths);
-				auto end = hash_map::end(_source_index._paths);
-				for (; cur != end; ++cur) {
-					HASH_MAP_SKIP_HOLE(_source_index._paths, cur);
-
-					const DynamicString &path = cur->first;
-					for (u32 ii = 0, nn = vector::size(opts._new_requirement_globs); ii < nn; ++ii) {
-						if (wildcmp(opts._new_requirement_globs[ii].c_str(), path.c_str()))
-							hash_map::set(new_requirements, path, 0u);
-					}
-				}
-			}
-			hash_map::set(_data_requirements, id, new_requirements);
-
-			// Write output data to disk.
-			DynamicString temp_dest(default_allocator());
-			File *outf = data_fs.open_temporary(temp_dest);
-			if (outf->is_open()) {
-				u32 size = array::size(output_buffer);
-				u32 written = outf->write(array::begin(output_buffer), size);
-				success = size == written;
-			} else {
-				loge(DATA_COMPILER, "Failed to write data to disk");
-				success = false;
-			}
-			data_fs.close(*outf);
-
-			if (success) {
-				RenameResult rr = data_fs.rename(temp_dest.c_str(), dest.c_str());
-				success = rr.error == RenameResult::SUCCESS;
-			}
-
-			if (success) {
-				// Write streaming output data to disk, if any.
-				if (array::size(stream_output_buffer) != 0) {
-					DynamicString temp_dest(default_allocator());
-					File *outf = data_fs.open_temporary(temp_dest);
-					if (outf->is_open()) {
-						u32 size = array::size(stream_output_buffer);
-						u32 written = outf->write(array::begin(stream_output_buffer), size);
-						success = size == written;
-					} else {
-						loge(DATA_COMPILER, "Failed to write streaming data to disk");
-						success = false;
-					}
-					data_fs.close(*outf);
-
-					if (success) {
-						TempAllocator256 ta;
-						DynamicString stream_dest(ta);
-						stream_destination_path(stream_dest, id);
-						RenameResult rr = data_fs.rename(temp_dest.c_str(), stream_dest.c_str());
-						success = rr.error == RenameResult::SUCCESS;
-					}
-				}
-			}
+		for (u32 i = 0; i < num_workers; ++i) {
+			args[i].data_compiler = this;
+			args[i].data_fs = &data_fs;
+			args[i].resources = &resources;
+			args[i].potentially_stale_outputs = &potentially_stale_outputs;
+			args[i].success = &success;
+			args[i].platform = platform;
+			args[i].offset = (u32)((u64)phase_resources * i / num_workers);
+			args[i].count = (u32)((u64)phase_resources * (i + 1) / num_workers) - args[i].offset;
+			workers[i] = CE_NEW(default_allocator(), Thread)();
 		}
 
-		if (success) {
-			// Do not include special paths in content tracking structures.
-			if (!path_is_special(path.c_str())) {
-				hash_map::set(_data_index, id, path);
-				hash_map::set(_data_mtimes, id, data_fs.last_modified_time(dest.c_str()));
-				hash_map::set(_data_revisions, id, _revision + 1);
-			}
+		for (u32 i = 0; i < num_workers; ++i)
+			workers[i]->start(compile_resources_worker, &args[i]);
 
-			// If this compile attempt fails later, this output may remain on disk with
-			// a type version that does not match stored metadata. Invalidate it so the
-			// next compile() run rebuilds only the affected resources.
-			if (type_version_mismatch)
-				array::push_back(potentially_stale_outputs, id);
-		} else {
-			loge(DATA_COMPILER, "Failed to compile data");
-			break;
-		}
+		for (u32 i = 0; i < num_workers; ++i)
+			workers[i]->stop();
+
+		for (u32 i = 0; i < num_workers; ++i)
+			CE_DELETE(default_allocator(), workers[i]);
+#else
+		CompileResourcesArgs args;
+		args.data_compiler = this;
+		args.data_fs = &data_fs;
+		args.resources = &resources;
+		args.potentially_stale_outputs = &potentially_stale_outputs;
+		args.success = &success;
+		args.platform = platform;
+		args.offset = 0u;
+		args.count = phase_resources;
+		compile_resources_worker(&args);
+#endif // if CROWN_DATA_COMPILER_MULTITHREADED
 	}
 
 	if (success) {
@@ -2767,7 +2848,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			hash_map::set(_data_versions, cur->first, cur->second.version);
 		}
 
-		if (vector::size(to_compile)) {
+		if (num_resources != 0) {
 			_revision++;
 			logi(DATA_COMPILER, "Data (rev %u) compiled in " TIME_FMT, _revision, time::seconds(time::now() - time_start));
 		} else {
