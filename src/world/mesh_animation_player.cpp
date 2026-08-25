@@ -6,7 +6,6 @@
 #include "core/containers/array.inl"
 #include "core/event_stream.inl"
 #include "core/math/constants.h"
-#include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
@@ -22,6 +21,22 @@ namespace crown
 {
 namespace mesh_animation_player
 {
+	struct SceneGraphTarget
+	{
+		SceneGraph &_scene_graph;
+		TransformId _transform;
+
+		void set_position(const Vector3 &position)
+		{
+			_scene_graph.set_local_position(_transform, position);
+		}
+
+		void set_rotation(const Quaternion &rotation)
+		{
+			_scene_graph.set_local_rotation(_transform, rotation);
+		}
+	};
+
 	static u32 alloc_track_block(MeshAnimationPlayer &p)
 	{
 		if (p._free_track_block != UINT32_MAX) {
@@ -204,22 +219,9 @@ namespace mesh_animation_player
 			AnimationTrackSegment *track = track_segment(p, anim, track_id);
 
 			CE_ENSURE(track->keys[0].h.time <= ts && ts <= track->keys[1].h.time);
-			u16 n = ts - track->keys[0].h.time;
-			u16 d = track->keys[1].h.time - track->keys[0].h.time;
-			f32 t = f32(n)/f32(d);
-			CE_ENSURE(t >= 0 && t <= 1);
-
-			if (track->keys[0].h.type == AnimationKeyHeader::Type::POSITION) {
-				Vector3 pos = lerp(track->keys[0].p.value, track->keys[1].p.value, t);
-				TransformId ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
-				scene_graph.set_local_position(ti, pos);
-			} else if (track->keys[0].h.type == AnimationKeyHeader::Type::ROTATION) {
-				Quaternion rot = lerp(track->keys[0].r.value, track->keys[1].r.value, t);
-				TransformId ti = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
-				scene_graph.set_local_rotation(ti, rot);
-			} else {
-				CE_FATAL("Unknown key type %u in track %u", track->keys[0].h.type, track_id);
-			}
+			const TransformId transform = scene_graph.instance(bone_lookup[bone_ids[track_id]]);
+			SceneGraphTarget target = { scene_graph, transform };
+			mesh_animation::evaluate_track(target, track->keys[0], track->keys[1], ts);
 		}
 
 		// Generate events.
