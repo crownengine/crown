@@ -1046,7 +1046,7 @@ public class FBXImporter
 
 						Guid animation_skeleton_id = Guid.new_guid();
 						db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
-						db.set_string(animation_skeleton_id, "source", resource_path);
+						db.set_string(animation_skeleton_id, "mesh_resource", resource_name);
 						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
 						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
 							return ImportResult.ERROR;

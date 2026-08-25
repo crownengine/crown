@@ -11,6 +11,7 @@
 #include "core/json/sjson.h"
 #include "core/math/constants.h"
 #include "core/memory/temp_allocator.inl"
+#include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
@@ -32,12 +33,16 @@ namespace mesh_skeleton_resource_internal
 		asr.local_transforms_offset = sizeof(asr);
 		asr.parents_offset = asr.local_transforms_offset + sizeof(BoneTransform) * asr.num_bones;
 		asr.binding_matrices_offset = asr.parents_offset + sizeof(u32) * asr.num_bones;
+		asr._pad = 0u;
+		asr.mesh_resource = StringId64(s.mesh_resource_name.c_str());
 
 		opts.write(asr.version);
 		opts.write(asr.num_bones);
 		opts.write(asr.local_transforms_offset);
 		opts.write(asr.parents_offset);
 		opts.write(asr.binding_matrices_offset);
+		opts.write(asr._pad);
+		opts.write(asr.mesh_resource);
 
 		for (u32 i = 0; i < asr.num_bones; ++i)
 			opts.write(s.local_transforms[i]);
@@ -57,6 +62,8 @@ namespace mesh_skeleton_resource_internal
 
 		if (opts._resource_id._id == resource_id(RESOURCE_TYPE_MESH_SKELETON, STRING_ID_64("core/fallback/fallback", 0xd09058ae71962248))._id) {
 			opts.read();
+			s.mesh_resource_name = "core/fallback/fallback";
+			opts.add_requirement("mesh", "core/fallback/fallback");
 
 			BoneTransform bone_tm;
 			bone_tm.position = VECTOR3_ZERO;

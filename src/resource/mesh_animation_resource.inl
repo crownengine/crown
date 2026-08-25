@@ -4,32 +4,42 @@
  */
 
 #include "core/error/error.inl"
-#include "core/math/quaternion.inl"
-#include "core/math/vector3.inl"
+#include "core/math/matrix4x4.inl"
 #include "resource/mesh_animation_resource.h"
+#include "resource/mesh_skeleton_resource.h"
 
 namespace crown
 {
 namespace mesh_animation_resource
 {
-	const AnimationKey *animation_keys(const MeshAnimationResource *mar)
+	inline const AnimationKey *animation_keys(const MeshAnimationResource *mar)
 	{
 		return (AnimationKey *)((char *)mar + mar->keys_offset);
 	}
 
-	const u16 *bone_ids(const MeshAnimationResource *mar)
+	inline const u16 *bone_ids(const MeshAnimationResource *mar)
 	{
 		return (u16 *)((char *)mar + mar->bone_ids_offset);
 	}
 
-	const u16 *event_times(const MeshAnimationResource *mar)
+	inline const u16 *event_times(const MeshAnimationResource *mar)
 	{
 		return (u16 *)((char *)mar + mar->event_times_offset);
 	}
 
-	const StringId32 *event_names(const MeshAnimationResource *mar)
+	inline const StringId32 *event_names(const MeshAnimationResource *mar)
 	{
 		return (StringId32 *)((char *)mar + mar->event_names_offset);
+	}
+
+	inline const StringId32 *geometry_names(const MeshAnimationResource *mar)
+	{
+		return (StringId32 *)((char *)mar + mar->geometry_names_offset);
+	}
+
+	inline const MeshAnimationBounds *bounds(const MeshAnimationResource *mar)
+	{
+		return (MeshAnimationBounds *)((char *)mar + mar->bounds_offset);
 	}
 
 } // namespace mesh_animation_resource
@@ -64,6 +74,33 @@ namespace mesh_animation
 		const f32 t = f32(elapsed) / f32(duration);
 		CE_ENSURE(t >= 0.0f && t <= 1.0f);
 		interpolate_track(target, a, b, t);
+	}
+
+	inline Matrix4x4 bone_local_transform(const BoneTransform &bone)
+	{
+		Matrix4x4 pose = from_quaternion_translation(bone.rotation, bone.position);
+		set_scale(pose, bone.scale);
+		return pose;
+	}
+
+	inline Matrix4x4 skinning_transform(const Matrix4x4 &binding, const Matrix4x4 &world)
+	{
+		return binding * world;
+	}
+
+	/// Same as common.shader's skin().
+	inline Vector3 skin(const Vector3 &position
+		, const Matrix4x4 *palette
+		, const f32 bone_indices[4]
+		, const f32 weights[4]
+		)
+	{
+		Vector3 skinned = VECTOR3_ZERO;
+		skinned += (position * palette[(u32)bone_indices[0]]) * weights[0];
+		skinned += (position * palette[(u32)bone_indices[1]]) * weights[1];
+		skinned += (position * palette[(u32)bone_indices[2]]) * weights[2];
+		skinned += (position * palette[(u32)bone_indices[3]]) * weights[3];
+		return skinned;
 	}
 
 } // namespace mesh_animation

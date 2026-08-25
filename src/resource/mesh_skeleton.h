@@ -9,6 +9,7 @@
 
 #if CROWN_CAN_COMPILE
 #   include "core/containers/types.h"
+#   include "core/strings/dynamic_string.h"
 #   include "resource/mesh_skeleton_resource.h"
 
 namespace crown
@@ -18,6 +19,7 @@ struct AnimationSkeleton
 	Array<BoneTransform> local_transforms;
 	Array<u32> parents;
 	Array<Matrix4x4> binding_matrices;
+	DynamicString mesh_resource_name;
 
 	///
 	explicit AnimationSkeleton(Allocator &a);

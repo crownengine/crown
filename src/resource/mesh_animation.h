@@ -29,6 +29,17 @@ struct AnimationEvent
 	f32 time;
 };
 
+struct AnimationBounds
+{
+	StringId32 geometry_name;
+	MeshAnimationBounds bounds;
+
+	bool operator<(const AnimationBounds &other) const
+	{
+		return geometry_name._id < other.geometry_name._id;
+	}
+};
+
 struct MeshAnimation
 {
 	Array<AnimationKey> sorted_keys;  ///< Animation keys sorted by access time.
@@ -36,11 +47,15 @@ struct MeshAnimation
 	Array<AnimationKeyIndex> indices; ///< Indices into keys, sorted first by track_id then by type.
 	u32 num_bones;                    ///< Number of bones affected by the animation.
 	f32 total_time;                   ///< Animation duration in seconds.
-	StringId64 target_skeleton;       ///< Reference to the animated skeleton.
+	f32 bounds_sample_rate;           ///< Bounds samples per second, in addition to encoded keys.
+	f32 bounds_epsilon;               ///< Mesh-local padding added to the computed bounds.
+	StringId64 target_skeleton_id;    ///< Reference to the animated skeleton.
+	DynamicString target_skeleton;    ///< Target name used to load the skeleton while compiling.
 	DynamicString stack_name;         ///< Animation name.
 	HashMap<u16, u16> track_ids;      ///< From (bone_id, parameter_type) to track_id.
 	Array<u16> bone_ids;              ///< From track_id to bone_id
 	Array<AnimationEvent> events;     ///< Events sorted by time.
+	Array<AnimationBounds> bounds;    ///< Full clip bounds sorted by geometry name.
 
 	///
 	explicit MeshAnimation(Allocator &a);

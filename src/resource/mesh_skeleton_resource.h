@@ -28,6 +28,8 @@ struct MeshSkeletonResource
 	u32 local_transforms_offset; ///< Offset to first local transform.
 	u32 parents_offset;          ///< Offset to first parent of first transform.
 	u32 binding_matrices_offset; ///< Offset to first binding matrix.
+	u32 _pad;
+	StringId64 mesh_resource;    ///< Owning mesh resource.
 	// BoneTransform local_transforms[num_bones];
 	// u32 parents[num_bones];
 	// Matrix4x4 binding_matrices[num_bones];

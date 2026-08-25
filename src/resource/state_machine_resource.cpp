@@ -21,6 +21,7 @@
 #include "resource/expression_language.h"
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
+#include <algorithm>
 
 LOG_SYSTEM(STATE_MACHINE_RESOURCE, "state_machine_resource")
 
@@ -148,6 +149,7 @@ namespace state_machine_resource_internal
 		Array<u32> _byte_code;
 		DynamicString _animation_type;
 		StringId64 _skeleton_name;
+		Array<StringId64> _animation_names;
 
 		explicit StateMachineCompiler(CompileOptions &opts)
 			: _opts(opts)
@@ -156,6 +158,8 @@ namespace state_machine_resource_internal
 			, _variables(default_allocator())
 			, _byte_code(default_allocator())
 			, _animation_type(default_allocator())
+			, _skeleton_name(u64(0u))
+			, _animation_names(default_allocator())
 		{
 		}
 
@@ -178,6 +182,7 @@ namespace state_machine_resource_internal
 
 					AnimationInfo ai(ta);
 					ai.name = RETURN_IF_ERROR(sjson::parse_resource_name(animation["name"]));
+					array::push_back(_animation_names, ai.name);
 					RETURN_IF_ERROR(sjson::parse_string(ai.weight, animation["weight"]));
 
 					vector::push_back(si.animations, ai);
@@ -391,6 +396,13 @@ namespace state_machine_resource_internal
 
 			err = parse_variables(variables);
 			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
+			// Runtime bounds cover every referenced clip, independently of which
+			// states are ever entered.
+			if (array::size(_animation_names) > 1) {
+				std::sort(array::begin(_animation_names), array::end(_animation_names));
+				const StringId64 *names_end = std::unique(array::begin(_animation_names), array::end(_animation_names));
+				array::resize(_animation_names, (u32)(names_end - array::begin(_animation_names)));
+			}
 
 			err = compute_state_offsets();
 			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
@@ -409,6 +421,8 @@ namespace state_machine_resource_internal
 			smr.bytecode_offset = smr.variables_offset + smr.num_variables*4*2;
 			smr.animation_type = StringId64(_animation_type.c_str());
 			smr.skeleton_name = _skeleton_name;
+			smr.num_animations = array::size(_animation_names);
+			smr.animations_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(smr.bytecode_offset + smr.bytecode_size), alignof(StringId64));
 			_opts.write(smr.version);
 			_opts.write(smr.initial_state_offset);
 			_opts.write(smr.num_variables);
@@ -417,6 +431,8 @@ namespace state_machine_resource_internal
 			_opts.write(smr.bytecode_offset);
 			_opts.write(smr.animation_type);
 			_opts.write(smr.skeleton_name);
+			_opts.write(smr.num_animations);
+			_opts.write(smr.animations_offset);
 
 			// Write states
 			auto cur = hash_map::begin(_states);
@@ -472,6 +488,10 @@ namespace state_machine_resource_internal
 			// Write bytecode
 			for (u32 i = 0; i < array::size(_byte_code); ++i)
 				_opts.write(_byte_code[i]);
+
+			_opts.align(alignof(StringId64));
+			for (u32 i = 0; i < array::size(_animation_names); ++i)
+				_opts.write(_animation_names[i]);
 
 			return 0;
 		}
