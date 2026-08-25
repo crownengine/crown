@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/error/error.inl"
+#include "core/math/quaternion.inl"
+#include "core/math/vector3.inl"
 #include "resource/mesh_animation_resource.h"
 
 namespace crown
@@ -30,5 +33,39 @@ namespace mesh_animation_resource
 	}
 
 } // namespace mesh_animation_resource
+
+namespace mesh_animation
+{
+	/// Interpolates a key pair into @a target, which must implement
+	/// set_position(Vector3) and set_rotation(Quaternion).
+	template<typename Target>
+	inline void interpolate_track(Target &target
+		, const AnimationKey &a
+		, const AnimationKey &b
+		, f32 t
+		)
+	{
+		if (a.h.type == AnimationKeyHeader::Type::POSITION)
+			target.set_position(lerp(a.p.value, b.p.value, t));
+		else
+			target.set_rotation(lerp(a.r.value, b.r.value, t));
+	}
+
+	/// Evaluates a key pair with distinct timestamps into @a target.
+	template<typename Target>
+	inline void evaluate_track(Target &target
+		, const AnimationKey &a
+		, const AnimationKey &b
+		, u16 time
+		)
+	{
+		const u16 elapsed = time - a.h.time;
+		const u16 duration = b.h.time - a.h.time;
+		const f32 t = f32(elapsed) / f32(duration);
+		CE_ENSURE(t >= 0.0f && t <= 1.0f);
+		interpolate_track(target, a, b, t);
+	}
+
+} // namespace mesh_animation
 
 } // namespace crown
