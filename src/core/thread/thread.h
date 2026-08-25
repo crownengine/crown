@@ -13,6 +13,13 @@ namespace crown
 {
 typedef s32 (*ThreadFunction)(void *data);
 
+namespace thread
+{
+	/// Returns the number of logical CPUs available to the system.
+	u32 num_logical_cpus();
+
+} // namespace thread
+
 /// Thread.
 ///
 /// @ingroup Thread.
