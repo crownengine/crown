@@ -21,6 +21,7 @@
 #include "core/strings/line_reader.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
+#include "core/thread/scoped_mutex.inl"
 #include "device/device.h"
 #include "device/log.h"
 #include "resource/compile_options.inl"
@@ -1255,6 +1256,7 @@ namespace shader_resource_internal
 
 	static MetadataCache *s_metadata_cache = NULL;
 	static ShaderLibraryCache *s_shader_library_cache = NULL;
+	static Mutex s_metadata_cache_mutex;
 
 	static MetadataCache &metadata_cache()
 	{
@@ -1297,11 +1299,15 @@ namespace shader_resource_internal
 		, Vector<ShaderResource::Sampler> *sampler_meta
 		)
 	{
-		if (!hash_map::has(metadata_cache(), cache_key))
-			return false;
+		MetadataCacheEntry entry(default_allocator());
+		{
+			ScopedMutex sm(s_metadata_cache_mutex);
+			if (!hash_map::has(metadata_cache(), cache_key))
+				return false;
 
-		const MetadataCacheEntry cached(default_allocator());
-		const MetadataCacheEntry &entry = hash_map::get(metadata_cache(), cache_key, cached);
+			const MetadataCacheEntry cached(default_allocator());
+			entry = hash_map::get(metadata_cache(), cache_key, cached);
+		}
 
 		// Cache hits skip opts.read(), so replay source dependencies for invalidation.
 		for (u32 i = 0; i < vector::size(entry.dependencies); ++i)
@@ -1325,9 +1331,6 @@ namespace shader_resource_internal
 		, const Vector<ShaderResource::Sampler> *sampler_meta
 		)
 	{
-		if (hash_map::has(metadata_cache(), cache_key))
-			return;
-
 		MetadataCacheEntry entry(default_allocator());
 		entry.shader_library = shader_library;
 
@@ -1344,13 +1347,29 @@ namespace shader_resource_internal
 		if (sampler_meta != NULL)
 			entry.sampler_meta = *sampler_meta;
 
+		ScopedMutex sm(s_metadata_cache_mutex);
+		if (hash_map::has(metadata_cache(), cache_key))
+			return;
+
 		hash_map::set(metadata_cache(), cache_key, entry);
 	}
 
 	static void cache_shader_library(const DynamicString &shader, const DynamicString &shader_library)
 	{
+		ScopedMutex sm(s_metadata_cache_mutex);
 		if (!hash_map::has(shader_library_cache(), shader))
 			hash_map::set(shader_library_cache(), shader, shader_library);
+	}
+
+	static bool load_shader_library_cache(DynamicString &shader_library, const DynamicString &shader)
+	{
+		ScopedMutex sm(s_metadata_cache_mutex);
+		if (s_shader_library_cache == NULL || !hash_map::has(*s_shader_library_cache, shader))
+			return false;
+
+		const DynamicString empty(default_allocator());
+		shader_library = hash_map::get(*s_shader_library_cache, shader, empty);
+		return true;
 	}
 
 	struct BgfxShader
@@ -2972,6 +2991,7 @@ namespace shader_compiler
 
 	void clear_metadata_cache()
 	{
+		ScopedMutex sm(s_metadata_cache_mutex);
 		if (s_metadata_cache != NULL) {
 			CE_DELETE(default_allocator(), s_metadata_cache);
 			s_metadata_cache = NULL;
@@ -3058,9 +3078,7 @@ namespace shader_compiler
 			if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
 				return 0;
 
-			if (shader_library.empty() && s_shader_library_cache != NULL && hash_map::has(*s_shader_library_cache, shader_name)) {
-				const DynamicString empty(default_allocator());
-				shader_library = hash_map::get(*s_shader_library_cache, shader_name, empty);
+			if (shader_library.empty() && load_shader_library_cache(shader_library, shader_name)) {
 				metadata_cache_key(cache_key, opts._platform, shader_library, shader_name, defines_dyn);
 				if (load_metadata_cache(cache_key, opts, shader_library, uniform_meta, sampler_meta))
 					return 0;

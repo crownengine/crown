@@ -25,6 +25,7 @@
 #   include "core/strings/dynamic_string.inl"
 #   include "core/strings/string.inl"
 #   include "core/strings/string_id.inl"
+#   include "core/thread/scoped_mutex.inl"
 #   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/data_compiler.h"
@@ -623,6 +624,7 @@ namespace mesh_cache
 {
 	Mesh *get(MeshCache &cache, const char *path)
 	{
+		ScopedMutex sm(cache._mutex);
 		StringId64 path_id(path);
 
 		ListNode *cur;
@@ -639,6 +641,7 @@ namespace mesh_cache
 
 	void add(MeshCache &cache, Mesh *mesh)
 	{
+		ScopedMutex sm(cache._mutex);
 		list::add(mesh->_cache_node, cache._meshes);
 	}
 
