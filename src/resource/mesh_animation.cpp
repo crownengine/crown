@@ -174,11 +174,27 @@ namespace mesh_animation
 		RETURN_IF_ERROR(sjson::parse(obj, buf));
 
 		// Parse skeleton.
-		DynamicString target_skeleton(ta);
-		RETURN_IF_ERROR(sjson::parse_string(target_skeleton, obj["target_skeleton"]));
-		WARN_IF_MISSING(MESH_ANIMATION, "mesh_skeleton", target_skeleton.c_str(), opts);
-		opts.add_requirement("mesh_skeleton", target_skeleton.c_str());
-		ma.target_skeleton = RETURN_IF_ERROR(sjson::parse_resource_name(obj["target_skeleton"]));
+		RETURN_IF_ERROR(sjson::parse_string(ma.target_skeleton, obj["target_skeleton"]));
+		WARN_IF_MISSING(MESH_ANIMATION, "mesh_skeleton", ma.target_skeleton.c_str(), opts);
+		opts.add_requirement("mesh_skeleton", ma.target_skeleton.c_str());
+		ma.target_skeleton_id = RETURN_IF_ERROR(sjson::parse_resource_name(obj["target_skeleton"]));
+
+		if (json_object::has(obj, "bounds_sample_rate")) {
+			ma.bounds_sample_rate = RETURN_IF_ERROR(sjson::parse_float(obj["bounds_sample_rate"]));
+		}
+		if (json_object::has(obj, "bounds_epsilon")) {
+			ma.bounds_epsilon = RETURN_IF_ERROR(sjson::parse_float(obj["bounds_epsilon"]));
+		}
+		RETURN_IF_FALSE(MESH_ANIMATION
+			, ma.bounds_sample_rate >= 10.0f && ma.bounds_sample_rate <= 60.0f
+			, opts
+			, "Bounds sample rate must be between 10 and 60"
+			);
+		RETURN_IF_FALSE(MESH_ANIMATION
+			, ma.bounds_epsilon >= 0.0f
+			, opts
+			, "Bounds epsilon must not be negative"
+			);
 
 		// Parse animations.
 		RETURN_IF_ERROR(sjson::parse_string(ma.stack_name, obj["stack_name"]));
@@ -216,11 +232,15 @@ MeshAnimation::MeshAnimation(Allocator &a)
 	, indices(a)
 	, num_bones(0u)
 	, total_time(0.0f)
-	, target_skeleton(u64(0u))
+	, bounds_sample_rate(30.0f)
+	, bounds_epsilon(0.001f)
+	, target_skeleton_id(u64(0u))
+	, target_skeleton(a)
 	, stack_name(a)
 	, track_ids(a)
 	, bone_ids(a)
 	, events(a)
+	, bounds(a)
 {
 }
 

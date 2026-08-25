@@ -514,6 +514,7 @@ function UnitBox:set_animation_state_machine(state_machine_resource)
 	local state_machine = AnimationStateMachine.instance(animation_state_machine, self._unit_id)
 	if state_machine then
 		AnimationStateMachine.set_state_machine(animation_state_machine, state_machine, state_machine_resource)
+		self:invalidate_obb()
 	end
 end
 

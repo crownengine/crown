@@ -102,8 +102,8 @@ struct RenderWorld
 	/// mesh_resource.
 	void mesh_set_geometry(MeshId mesh, StringId64 mesh_resource, StringId32 geometry);
 
-	///
-	void mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *bones);
+	/// Assigns the @a skeleton and selects the corresponding fixed animation bounds.
+	void mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *skeleton);
 
 	/// Returns the material of the @a mesh.
 	Material *mesh_material(MeshId mesh);
@@ -448,12 +448,13 @@ struct RenderWorld
 			OBB *obb;
 			Sphere *sphere;
 			const AnimationSkeletonInstance **skeleton;
+			UnitId *lod_group_unit; ///< Unit that owns this mesh's LOD group, or invalid.
 			u32 *flags;
 			u32 *prev_flags;
 			u32 *matrix_cache;
+			StringId32 *geometry_name; ///< Needed for animation bounds in all builds.
 #if CROWN_CAN_RELOAD
 			const MaterialResource **material_resource;
-			StringId32 *geometry_name;
 #endif
 		};
 

@@ -20,6 +20,7 @@ struct Gui;
 struct Level;
 struct Material;
 struct MaterialManager;
+struct MeshAnimationBounds;
 struct PhysicsWorld;
 struct RenderWorld;
 struct SceneGraph;
@@ -802,9 +803,13 @@ typedef u32 AnimationId;
 struct AnimationSkeletonInstance
 {
 	u32 num_bones;
+	u32 num_bounds;
+	StringId64 mesh_resource;      ///< Mesh whose geometry names the bounds describe.
 	const Matrix4x4 *offsets;
 	UnitId *bone_lookup;
 	Matrix4x4 *bones;
+	const StringId32 *geometry_names;
+	const MeshAnimationBounds *bounds;
 };
 
 struct UnitEvent

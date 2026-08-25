@@ -23,10 +23,13 @@ struct StateMachineResource
 	u32 bytecode_offset;
 	StringId64 animation_type;
 	StringId64 skeleton_name;
+	u32 num_animations; ///< Number of unique animations referenced by all states.
+	u32 animations_offset;
 	// State[...]
 	// StringId32[num_variables]
 	// f32[num_variables]
 	// u32 bytecode[bytecode_size]
+	// StringId64 animations[num_animations] sorted and deduplicated across all states
 };
 
 struct AnimationArray
@@ -106,6 +109,9 @@ namespace state_machine
 
 	/// Returns the byte code of the state machine.
 	const u32 *byte_code(const StateMachineResource *smr);
+
+	/// Returns all animation resources referenced by the state machine.
+	const StringId64 *animations(const StateMachineResource *smr);
 
 } // namespace state_machine
 

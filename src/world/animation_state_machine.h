@@ -60,6 +60,18 @@ struct AnimationStateMachine
 	void allocate(Machine &m, UnitId unit, const StateMachineResource *smr);
 
 	///
+	void allocate_skeleton(Machine &m);
+
+	///
+	void deallocate_skeleton(Machine &m);
+
+	///
+	void rebuild_skeleton(Machine &m);
+
+	///
+	void reset_skeleton_pose(const Machine &m);
+
+	///
 	void deallocate(Machine &m);
 
 	///

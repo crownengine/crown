@@ -2517,6 +2517,23 @@ public static void create_object_types(Database database)
 			name = "events",
 			object_type = StringId64(OBJECT_TYPE_ANIMATION_EVENT),
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "bounds_sample_rate",
+			label = _("Rate at which the animation is sampled to compute geometry bounds."),
+			deffault = 30.0,
+			min = 10.0,
+			max = 60.0,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "bounds_epsilon",
+			label = _("Extra padding applied to the calculated geometry bounds."),
+			deffault = 0.001,
+			min = 0.0,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_ANIMATION, properties);
 
@@ -2540,8 +2557,10 @@ public static void create_object_types(Database database)
 	{
 		PropertyDefinition()
 		{
-			type = PropertyType.STRING,
-			name = "source",
+			type = PropertyType.RESOURCE,
+			name = "mesh_resource",
+			label = _("Source Mesh"),
+			resource_type = OBJECT_TYPE_MESH,
 		},
 		PropertyDefinition()
 		{

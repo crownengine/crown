@@ -15,6 +15,7 @@ Changelog
 * Tools: imported models will now assign a default animation to imported state machines.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
+* Runtime: animated meshes have now correct pre-computed bounds.
 * Data Compiler: improved performances by compiling resources in parallel.
 
 **Fixes**

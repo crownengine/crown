@@ -47,6 +47,13 @@ union AnimationKey
 	RotationKey r;
 };
 
+/// Complete local-space culling contribution for one geometry over one clip.
+struct MeshAnimationBounds
+{
+	OBB obb;
+	Sphere sphere;
+};
+
 struct MeshAnimationResource
 {
 	u32 version;
@@ -61,11 +68,15 @@ struct MeshAnimationResource
 	u32 num_events;
 	u32 event_times_offset;
 	u32 event_names_offset;
-	u32 _pad1;
+	u32 num_bounds;
+	u32 geometry_names_offset;
+	u32 bounds_offset;
 	// AnimationKey animation_keys[num_keys]
 	// u16 bone_ids[num_bones]
 	// u16 event_times[num_events] sorted by time
 	// u32 event_names[num_events] sorted by time
+	// StringId32 geometry_names[num_bounds] sorted
+	// MeshAnimationBounds bounds[num_bounds] corresponding to geometry_names
 };
 
 namespace mesh_animation_resource
@@ -81,6 +92,12 @@ namespace mesh_animation_resource
 
 	///
 	const StringId32 *event_names(const MeshAnimationResource *mar);
+
+	///
+	const StringId32 *geometry_names(const MeshAnimationResource *mar);
+
+	///
+	const MeshAnimationBounds *bounds(const MeshAnimationResource *mar);
 
 } // namespace mesh_animation_resource
 

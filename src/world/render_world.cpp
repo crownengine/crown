@@ -21,6 +21,7 @@
 #include "device/log.h"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
+#include "resource/mesh_animation_resource.inl"
 #include "resource/render_config_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.inl"
@@ -601,14 +602,58 @@ void RenderWorld::mesh_set_geometry(MeshId mesh, StringId64 mesh_resource, Strin
 	_mesh_manager.set_geometry(mesh_i, mr, geometry);
 }
 
-void RenderWorld::mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *bones)
+static void mesh_update_bounds(RenderWorld &render_world, u32 mesh_i)
+{
+	RenderWorld::MeshManager &mesh_manager = render_world._mesh_manager;
+	RenderWorld::MeshManager::MeshInstanceData &mesh_data = mesh_manager._data;
+	const MeshGeometry *geometry = mesh_data.geometry[mesh_i];
+	const MeshAnimationBounds *bounds = NULL;
+	const AnimationSkeletonInstance *skeleton = mesh_data.skeleton[mesh_i];
+	if (skeleton != NULL) {
+		const MeshResource *mesh_resource = (const MeshResource *)render_world._resource_manager->get(RESOURCE_TYPE_MESH, skeleton->mesh_resource);
+		if (mesh_data.resource[mesh_i] == mesh_resource) {
+			const StringId32 geometry_name = mesh_data.geometry_name[mesh_i];
+			for (u32 i = 0; i < skeleton->num_bounds; ++i) {
+				if (skeleton->geometry_names[i] == geometry_name) {
+					bounds = &skeleton->bounds[i];
+					break;
+				}
+			}
+		}
+	}
+
+	mesh_data.obb[mesh_i] = bounds != NULL ? bounds->obb : geometry->obb;
+	mesh_data.sphere[mesh_i] = bounds != NULL ? bounds->sphere : geometry->sphere;
+	mesh_data.flags[mesh_i] |= RenderableFlags::DIRTY;
+	mesh_manager._dirty = true;
+
+	const UnitId lod_group_unit = mesh_data.lod_group_unit[mesh_i];
+	if (lod_group_unit == UNIT_INVALID)
+		return;
+
+	RenderWorld::LodGroupManager &lod_group_manager = render_world._lod_group_manager;
+	const LodGroupId lod_group = lod_group_manager.lod_group(lod_group_unit);
+	CE_ENSURE(is_valid(lod_group));
+	lod_group_manager.update_bounds(lod_group.i);
+	lod_group_manager._data.flags[lod_group.i] |= RenderableFlags::DIRTY;
+	lod_group_manager._dirty = true;
+}
+
+void RenderWorld::mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *skeleton)
 {
 	const u32 mesh_i = _mesh_manager.index(mesh);
-	_mesh_manager._data.skeleton[mesh_i] = (AnimationSkeletonInstance *)bones;
+	_mesh_manager._data.skeleton[mesh_i] = skeleton;
 
-	UnitId unit = _mesh_manager._data.unit[mesh_i];
-	TransformId ti = _scene_graph->instance(unit);
-	_scene_graph->set_local_pose(ti, MATRIX4X4_IDENTITY);
+	if (skeleton != NULL) {
+		const UnitId unit = _mesh_manager._data.unit[mesh_i];
+		const TransformId ti = _scene_graph->instance(unit);
+		_scene_graph->set_local_pose(ti, MATRIX4X4_IDENTITY);
+		_mesh_manager._data.world[mesh_i] = _scene_graph->world_pose(ti);
+		const LodGroupId lod_group = _lod_group_manager.lod_group(unit);
+		if (is_valid(lod_group))
+			_lod_group_manager._data.world[lod_group.i] = _mesh_manager._data.world[mesh_i];
+	}
+	mesh_update_bounds(*this, mesh_i);
 }
 
 Material *RenderWorld::mesh_material(MeshId mesh)
@@ -2416,24 +2461,10 @@ void RenderWorld::reload_materials(const MaterialResource *old_resource, const M
 void RenderWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)
 {
 #if CROWN_CAN_RELOAD
-	bool reloaded = false;
-
 	for (u32 i = 0; i < _mesh_manager._data.size; ++i) {
 		if (_mesh_manager._data.resource[i] == old_resource) {
 			_mesh_manager.set_geometry(i, new_resource, _mesh_manager._data.geometry_name[i]);
-			_mesh_manager._data.flags[i] |= RenderableFlags::DIRTY;
-			_mesh_manager._dirty = true;
-			reloaded = true;
 		}
-	}
-
-	if (reloaded) {
-		LodGroupManager::LodGroupInstanceData &lgd = _lod_group_manager._data;
-		for (u32 i = 0; i < lgd.size; ++i) {
-			_lod_group_manager.update_bounds(i);
-			lgd.flags[i] |= RenderableFlags::DIRTY;
-		}
-		_lod_group_manager._dirty = true;
 	}
 #else
 	CE_UNUSED_2(old_resource, new_resource);
@@ -2468,12 +2499,13 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(OBB) + alignof(OBB)
 		+ num*sizeof(Sphere) + alignof(Sphere)
 		+ num*sizeof(AnimationSkeletonInstance *) + alignof(AnimationSkeletonInstance *)
+		+ num*sizeof(UnitId) + alignof(UnitId)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(StringId32) + alignof(StringId32)
 #if CROWN_CAN_RELOAD
 		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
-		+ num*sizeof(StringId32) + alignof(StringId32)
 #endif
 		+ 0
 		;
@@ -2492,12 +2524,13 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
 	new_data.sphere        = (Sphere *             )memory::align_top(new_data.obb + num,      alignof(Sphere));
 	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.sphere + num, alignof(AnimationSkeletonInstance *));
-	new_data.flags         = (u32 *                )memory::align_top(new_data.skeleton + num, alignof(u32));
+	new_data.lod_group_unit = (UnitId *             )memory::align_top(new_data.skeleton + num, alignof(UnitId));
+	new_data.flags         = (u32 *                )memory::align_top(new_data.lod_group_unit + num, alignof(u32));
 	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
 	new_data.matrix_cache  = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
+	new_data.geometry_name = (StringId32 *         )memory::align_top(new_data.matrix_cache + num, alignof(StringId32));
 #if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.matrix_cache + num, alignof(MaterialResource *));
-	new_data.geometry_name = (StringId32 *)memory::align_top(new_data.material_resource + num, alignof(StringId32));
+	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.geometry_name + num, alignof(MaterialResource *));
 #endif
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
@@ -2509,12 +2542,13 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
 	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
 	memcpy(new_data.skeleton, _data.skeleton, _data.size * sizeof(AnimationSkeletonInstance *));
+	memcpy(new_data.lod_group_unit, _data.lod_group_unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
 	memcpy(new_data.matrix_cache, _data.matrix_cache, _data.size * sizeof(u32));
+	memcpy(new_data.geometry_name, _data.geometry_name, _data.size * sizeof(StringId32));
 #if CROWN_CAN_RELOAD
 	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
-	memcpy(new_data.geometry_name, _data.geometry_name, _data.size * sizeof(StringId32));
 #endif
 
 	_allocator->deallocate(_data.buffer);
@@ -2562,12 +2596,13 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		_data.obb[last]      = mg->obb;
 		_data.sphere[last]   = mg->sphere;
 		_data.skeleton[last] = NULL;
+		_data.lod_group_unit[last] = UNIT_INVALID;
 		_data.flags[last]    = meshes[i].flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last] = 0;
 		_data.matrix_cache[last] = UINT32_MAX;
+		_data.geometry_name[last] = meshes[i].geometry_name;
 #if CROWN_CAN_RELOAD
 		_data.material_resource[last] = mat_res;
-		_data.geometry_name[last] = meshes[i].geometry_name;
 #endif
 		_dirty = true;
 
@@ -2596,12 +2631,13 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.obb[mesh_i]      = _data.obb[last];
 	_data.sphere[mesh_i]   = _data.sphere[last];
 	_data.skeleton[mesh_i] = _data.skeleton[last];
+	_data.lod_group_unit[mesh_i] = _data.lod_group_unit[last];
 	_data.flags[mesh_i]    = _data.flags[last];
 	_data.prev_flags[mesh_i] = _data.prev_flags[last];
 	_data.matrix_cache[mesh_i] = _data.matrix_cache[last];
+	_data.geometry_name[mesh_i] = _data.geometry_name[last];
 #if CROWN_CAN_RELOAD
 	_data.material_resource[mesh_i] = _data.material_resource[last];
-	_data.geometry_name[mesh_i] = _data.geometry_name[last];
 #endif
 
 	if (mesh_i != last) {
@@ -2637,12 +2673,13 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
 	exchange(_data.sphere[inst_a],   _data.sphere[inst_b]);
 	exchange(_data.skeleton[inst_a], _data.skeleton[inst_b]);
+	exchange(_data.lod_group_unit[inst_a], _data.lod_group_unit[inst_b]);
 	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
 	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
 	exchange(_data.matrix_cache[inst_a], _data.matrix_cache[inst_b]);
+	exchange(_data.geometry_name[inst_a], _data.geometry_name[inst_b]);
 #if CROWN_CAN_RELOAD
 	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
-	exchange(_data.geometry_name[inst_a], _data.geometry_name[inst_b]);
 #endif
 
 	_indices[id_a.i & MESH_INDEX_MASK].index = inst_b;
@@ -2663,13 +2700,8 @@ void RenderWorld::MeshManager::set_geometry(u32 mesh_i, const MeshResource *mr, 
 	_data.geometry[mesh_i] = mg;
 	_data.mesh[mesh_i].vbh = mg->vertex_buffer;
 	_data.mesh[mesh_i].ibh = mg->index_buffer;
-	_data.obb[mesh_i]      = mg->obb;
-	_data.sphere[mesh_i]   = mg->sphere;
-	_data.flags[mesh_i]   |= RenderableFlags::DIRTY;
-	_dirty                 = true;
-#if CROWN_CAN_RELOAD
 	_data.geometry_name[mesh_i] = geometry;
-#endif
+	mesh_update_bounds(*_render_world, mesh_i);
 }
 
 MeshId RenderWorld::MeshManager::mesh(UnitId unit)
@@ -2722,7 +2754,9 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 
 		for (u32 b = 0; b < skeleton->num_bones; ++b) {
 			TransformId bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
-			skeleton->bones[b] = skeleton->offsets[b] * scene_graph.world_pose(bone_ti);
+			skeleton->bones[b] = mesh_animation::skinning_transform(skeleton->offsets[b]
+				, scene_graph.world_pose(bone_ti)
+				);
 		}
 
 		TransformId ti = scene_graph.instance(_data.unit[ii]);
@@ -3144,8 +3178,10 @@ void RenderWorld::LodGroupManager::create_instances(const void *components_data
 					const MeshId mesh = _render_world->mesh_instance(mesh_unit);
 					CE_ASSERT(is_valid(mesh), "LOD group level requires a Mesh Renderer Component");
 					const u32 mesh_i = _render_world->_mesh_manager.index(mesh);
+					CE_ASSERT(_render_world->_mesh_manager._data.lod_group_unit[mesh_i] == UNIT_INVALID, "Mesh already belongs to a LOD group");
 
 					entry.levels[slot].mesh = mesh;
+					_render_world->_mesh_manager._data.lod_group_unit[mesh_i] = unit;
 
 					_render_world->_mesh_manager._data.flags[mesh_i] |= RenderableFlags::LOD_LEVEL | RenderableFlags::DIRTY;
 					_render_world->_mesh_manager._dirty = true;
@@ -3250,6 +3286,7 @@ void RenderWorld::LodGroupManager::destroy(LodGroupId lod_group)
 				continue;
 
 			const u32 mesh_i = _render_world->_mesh_manager.index(mesh);
+			_render_world->_mesh_manager._data.lod_group_unit[mesh_i] = UNIT_INVALID;
 			_render_world->_mesh_manager._data.flags[mesh_i] &= ~RenderableFlags::LOD_LEVEL;
 			_render_world->_mesh_manager._data.flags[mesh_i] |= RenderableFlags::DIRTY;
 			_render_world->_mesh_manager._data.prev_flags[mesh_i] = 0u;

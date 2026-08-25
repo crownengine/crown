@@ -89,6 +89,11 @@ namespace state_machine
 		return (u32 *)((char *)smr + smr->bytecode_offset);
 	}
 
+	const StringId64 *animations(const StateMachineResource *smr)
+	{
+		return (StringId64 *)((char *)smr + smr->animations_offset);
+	}
+
 } // namespace state_machine
 
 } // namespace crown

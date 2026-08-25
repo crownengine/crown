@@ -1839,6 +1839,7 @@ function LevelEditor:add_animation_state_machine_component(id, component_id, sta
 	local animation_state_machine = World.animation_state_machine(self._world)
 	if AnimationStateMachine.instance(animation_state_machine, unit_id) ~= nil then return end
 	AnimationStateMachine.create(animation_state_machine, unit_id, state_machine_resource)
+	unit_box:invalidate_obb()
 end
 
 function LevelEditor:add_mover_component(id, component_id, height, radius, max_slope_angle, filter)

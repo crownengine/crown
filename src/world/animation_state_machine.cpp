@@ -9,12 +9,15 @@
 #include "core/event_stream.inl"
 #include "core/math/constants.h"
 #include "core/math/matrix4x4.inl"
+#include "core/math/obb.inl"
+#include "core/math/sphere.inl"
 #include "core/math/vector3.inl"
 #include "core/memory/globals.h"
 #include "core/profiler.h"
 #include "core/strings/string_id.inl"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
+#include "resource/mesh_animation_resource.inl"
 #include "resource/sprite_resource.h"
 #include "resource/mesh_skeleton_resource.inl"
 #include "resource/state_machine_resource.inl"
@@ -75,23 +78,30 @@ AnimationStateMachine::~AnimationStateMachine()
 	}
 }
 
-static void mesh_set_skeleton_recursively(UnitId unit, AnimationSkeletonInstance *skeleton, SceneGraph &scene_graph, RenderWorld &render_world)
+static void mesh_set_skeleton_in_subtree(UnitId unit, const AnimationSkeletonInstance *skeleton, SceneGraph &scene_graph, RenderWorld &render_world)
 {
-	// Set skeleton in this unit and all its children.
-	UnitId child_id = unit;
-	MeshId mesh = render_world.mesh_instance(child_id);
-	if (is_valid(mesh)) {
-		render_world.mesh_set_skeleton(mesh, skeleton);
-	}
+	// A unit's renderable geometry may live on any node below its state machine.
+	UnitId nodes[MESH_SKELETON_MAX_BONES];
+	u32 node_i = 0;
+	u32 num_nodes = 1;
+	nodes[0] = unit;
 
-	TransformId transform = scene_graph.instance(unit);
-	if (is_valid(transform)) {
-		TransformId cur_child = scene_graph.first_child(transform);
-		while (is_valid(cur_child)) {
-			child_id = scene_graph.owner(cur_child);
-			mesh_set_skeleton_recursively(child_id, skeleton, scene_graph, render_world);
+	while (node_i != num_nodes) {
+		const UnitId node = nodes[node_i++];
+		const MeshId mesh = render_world.mesh_instance(node);
+		if (is_valid(mesh))
+			render_world.mesh_set_skeleton(mesh, skeleton);
 
-			cur_child = scene_graph.next_sibling(cur_child);
+		const TransformId transform = scene_graph.instance(node);
+		if (!is_valid(transform))
+			continue;
+
+		for (TransformId child = scene_graph.first_child(transform)
+			; is_valid(child)
+			; child = scene_graph.next_sibling(child)
+			) {
+			CE_ASSERT(num_nodes < countof(nodes), "Maximum number of skeleton nodes reached");
+			nodes[num_nodes++] = scene_graph.owner(child);
 		}
 	}
 }
@@ -112,52 +122,123 @@ void AnimationStateMachine::allocate(Machine &m, UnitId unit, const StateMachine
 
 	memcpy(m.variables, state_machine::variables(smr), sizeof(*m.variables)*smr->num_variables);
 
-	if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION) {
-		// Spawn the skeleton hierarchy.
-		const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
-		const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
-		const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
+	if (smr->animation_type == RESOURCE_TYPE_MESH_ANIMATION)
+		allocate_skeleton(m);
+}
 
-		u32 size = sizeof(AnimationSkeletonInstance)
-			+ sizeof(UnitId) * skeleton_resource->num_bones
-			+ sizeof(Matrix4x4) * skeleton_resource->num_bones
-			;
-		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size, alignof(AnimationSkeletonInstance));
-		skeleton->num_bones = skeleton_resource->num_bones;
-		skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
-		skeleton->bone_lookup = (UnitId *)&skeleton[1];
-		skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + skeleton_resource->num_bones);
-		m.skeleton = skeleton;
+void AnimationStateMachine::allocate_skeleton(Machine &m)
+{
+	const StateMachineResource *smr = m.state_machine;
+	const StringId64 *animation_names = state_machine::animations(smr);
+	const MeshAnimationResource *first_animation = NULL;
+	if (smr->num_animations != 0) {
+		first_animation = (MeshAnimationResource *)_resource_manager->get(RESOURCE_TYPE_MESH_ANIMATION, animation_names[0]);
+		CE_ASSERT(first_animation->target_skeleton == smr->skeleton_name, "Mesh animation targets a different skeleton");
+	}
 
-		for (u32 i = 0; i < skeleton_resource->num_bones; ++i)
-			skeleton->bone_lookup[i] = _unit_manager->create();
+	const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, smr->skeleton_name);
+	const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
+	const u32 *parents = mesh_skeleton_resource::parents(skeleton_resource);
+	const u32 num_bones = skeleton_resource->num_bones;
+	const u32 num_bounds = first_animation != NULL ? first_animation->num_bounds : 0;
 
-		SceneGraph &scene_graph = *_world->_scene_graph;
-		RenderWorld &render_world = *_world->_render_world;
+	const u32 size = sizeof(AnimationSkeletonInstance)
+		+ sizeof(UnitId) * num_bones
+		+ sizeof(Matrix4x4) * num_bones
+		+ sizeof(StringId32) * num_bounds
+		+ sizeof(MeshAnimationBounds) * num_bounds
+		;
+	AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)default_allocator().allocate(size, alignof(AnimationSkeletonInstance));
+	skeleton->num_bones = num_bones;
+	skeleton->num_bounds = num_bounds;
+	skeleton->mesh_resource = skeleton_resource->mesh_resource;
+	skeleton->offsets = mesh_skeleton_resource::binding_matrices(skeleton_resource);
+	skeleton->bone_lookup = (UnitId *)&skeleton[1];
+	skeleton->bones = (Matrix4x4 *)(skeleton->bone_lookup + num_bones);
+	StringId32 *geometry_names = (StringId32 *)(skeleton->bones + num_bones);
+	MeshAnimationBounds *bounds = (MeshAnimationBounds *)(geometry_names + num_bounds);
+	skeleton->geometry_names = geometry_names;
+	skeleton->bounds = bounds;
+	if (num_bounds != 0) {
+		memcpy(geometry_names, mesh_animation_resource::geometry_names(first_animation), sizeof(StringId32) * num_bounds);
+		memcpy(bounds, mesh_animation_resource::bounds(first_animation), sizeof(MeshAnimationBounds) * num_bounds);
+	}
 
-		for (u32 i = 0; i < skeleton_resource->num_bones; ++i) {
-			TransformId ti = scene_graph.create(skeleton->bone_lookup[i]
-				, local_transforms[i].position
-				, local_transforms[i].rotation
-				, local_transforms[i].scale
-				);
-			if (parents[i] != UINT16_MAX) {
-				TransformId parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
-				scene_graph.link(parent_ti
-					, ti
-					, local_transforms[i].position
-					, local_transforms[i].rotation
-					, local_transforms[i].scale
-					);
-			} else {
-				Vector3 scale = local_transforms[i].scale;
-				Matrix4x4 tr = from_quaternion_translation(local_transforms[i].rotation, local_transforms[i].position);
-				scene_graph.set_local_pose(ti, tr);
-				scene_graph.set_local_scale(ti, scale);
-			}
+	// Every clip uses the same sorted geometry layout from the skeleton's owning mesh.
+	for (u32 i = 1; i < smr->num_animations; ++i) {
+		const MeshAnimationResource *animation = (MeshAnimationResource *)_resource_manager->get(RESOURCE_TYPE_MESH_ANIMATION, animation_names[i]);
+		CE_ASSERT(animation->target_skeleton == smr->skeleton_name, "Mesh animation targets a different skeleton");
+		CE_ASSERT(animation->num_bounds == num_bounds, "Mesh animation bounds do not match the target mesh");
+		const StringId32 *animation_geometry_names = mesh_animation_resource::geometry_names(animation);
+		const MeshAnimationBounds *animation_bounds = mesh_animation_resource::bounds(animation);
+		for (u32 j = 0; j < num_bounds; ++j) {
+			CE_ASSERT(animation_geometry_names[j] == geometry_names[j], "Mesh animation bounds do not match the target mesh");
+			CE_UNUSED(animation_geometry_names);
+			bounds[j].obb = obb::merge(bounds[j].obb, animation_bounds[j].obb);
+			bounds[j].sphere = sphere::merge(bounds[j].sphere, animation_bounds[j].sphere);
 		}
+	}
+	m.skeleton = skeleton;
 
-		mesh_set_skeleton_recursively(unit, skeleton, scene_graph, render_world);
+	for (u32 i = 0; i < num_bones; ++i)
+		skeleton->bone_lookup[i] = _unit_manager->create();
+
+	SceneGraph &scene_graph = *_world->_scene_graph;
+	RenderWorld &render_world = *_world->_render_world;
+
+	for (u32 i = 0; i < num_bones; ++i) {
+		const BoneTransform &bone = local_transforms[i];
+		TransformId ti = scene_graph.create(skeleton->bone_lookup[i]
+			, bone.position
+			, bone.rotation
+			, bone.scale
+			);
+		if (parents[i] != UINT16_MAX) {
+			TransformId parent_ti = scene_graph.instance(skeleton->bone_lookup[parents[i]]);
+			scene_graph.link(parent_ti
+				, ti
+				, bone.position
+				, bone.rotation
+				, bone.scale
+				);
+		} else {
+			const Matrix4x4 pose = mesh_animation::bone_local_transform(bone);
+			scene_graph.set_local_pose(ti, pose);
+		}
+	}
+
+	mesh_set_skeleton_in_subtree(m.unit, skeleton, scene_graph, render_world);
+}
+
+void AnimationStateMachine::deallocate_skeleton(Machine &m)
+{
+	if (m.skeleton == NULL)
+		return;
+
+	mesh_set_skeleton_in_subtree(m.unit, NULL, *_world->_scene_graph, *_world->_render_world);
+	for (u32 i = 0; i < m.skeleton->num_bones; ++i)
+		_unit_manager->destroy(m.skeleton->bone_lookup[i]);
+	default_allocator().deallocate(m.skeleton);
+	m.skeleton = NULL;
+}
+
+void AnimationStateMachine::rebuild_skeleton(Machine &m)
+{
+	deallocate_skeleton(m);
+	allocate_skeleton(m);
+}
+
+void AnimationStateMachine::reset_skeleton_pose(const Machine &m)
+{
+	// Evaluation only writes tracks present in the new clip. Restoring the whole pose prevents
+	// omitted tracks from retaining values from the previous clip.
+	const MeshSkeletonResource *skeleton_resource = (MeshSkeletonResource *)_resource_manager->get(RESOURCE_TYPE_MESH_SKELETON, m.state_machine->skeleton_name);
+	const BoneTransform *local_transforms = mesh_skeleton_resource::local_transforms(skeleton_resource);
+	SceneGraph &scene_graph = *_world->_scene_graph;
+	for (u32 i = 0; i < m.skeleton->num_bones; ++i) {
+		const TransformId transform = scene_graph.instance(m.skeleton->bone_lookup[i]);
+		const Matrix4x4 pose = mesh_animation::bone_local_transform(local_transforms[i]);
+		scene_graph.set_local_pose(transform, pose);
 	}
 }
 
@@ -201,13 +282,9 @@ void AnimationStateMachine::deallocate(Machine &m)
 			sprite_animation_player::destroy(*_sprite_animation_player, m.anim_id);
 	}
 
-	if (m.skeleton != NULL) {
-		for (u32 i = 0; i < m.skeleton->num_bones; ++i)
-			_unit_manager->destroy(m.skeleton->bone_lookup[i]);
-	}
+	deallocate_skeleton(m);
 
 	// TODO: Get rid of these allocations ASAP!
-	default_allocator().deallocate(m.skeleton);
 	default_allocator().deallocate(m.variables);
 }
 
@@ -322,6 +399,7 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 				if (mesh_animation_player::has(*_mesh_animation_player, mi.anim_id))
 					mesh_animation_player::destroy(*_mesh_animation_player, mi.anim_id);
 				mi.anim_id = mesh_animation_player::create(*_mesh_animation_player, (const MeshAnimationResource *)anim_resource);
+				reset_skeleton_pose(mi);
 				mi.time = 0.0f;
 				mi.time_total = ((const MeshAnimationResource *)anim_resource)->total_time;
 			} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
@@ -432,13 +510,24 @@ void AnimationStateMachine::reload(const MeshAnimationResource *old_resource, co
 {
 	for (u32 i = 0; i < array::size(_machines); ++i) {
 		Machine &machine = _machines[i];
+		if (machine.anim_type != RESOURCE_TYPE_MESH_ANIMATION)
+			continue;
 
-		if (machine.anim_type == RESOURCE_TYPE_MESH_ANIMATION && machine.anim_resource == old_resource) {
+		if (machine.anim_resource == old_resource) {
 			machine.anim_resource = new_resource;
 			machine.time_total = new_resource->total_time;
 
 			if (machine.time > machine.time_total)
 				machine.time = !!machine.state->loop ? fmod(machine.time, machine.time_total) : machine.time_total;
+		}
+
+		const StringId64 *animation_names = state_machine::animations(machine.state_machine);
+		for (u32 j = 0; j < machine.state_machine->num_animations; ++j) {
+			const MeshAnimationResource *animation = (MeshAnimationResource *)_resource_manager->get(RESOURCE_TYPE_MESH_ANIMATION, animation_names[j]);
+			if (animation == new_resource) {
+				rebuild_skeleton(machine);
+				break;
+			}
 		}
 	}
 }
@@ -449,8 +538,9 @@ void AnimationStateMachine::set_state_machine(StateMachineId state_machine, cons
 	if (machine.state_machine == state_machine_resource)
 		return;
 
+	const UnitId unit = machine.unit;
 	deallocate(machine);
-	allocate(machine, machine.unit, state_machine_resource);
+	allocate(machine, unit, state_machine_resource);
 }
 
 void AnimationStateMachine::set_state_machine(StateMachineId state_machine, const StringId64 state_machine_name)
