@@ -13,6 +13,7 @@
 #   include "core/math/types.h"
 #   include "core/memory/types.h"
 #   include "core/strings/dynamic_string.h"
+#   include "core/thread/mutex.h"
 #   include "resource/types.h"
 
 namespace crown
@@ -99,6 +100,7 @@ namespace mesh
 struct MeshCache
 {
 	ListNode _meshes;
+	Mutex _mutex;
 
 	///
 	MeshCache();
