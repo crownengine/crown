@@ -64,6 +64,14 @@ namespace aabb
 		}
 	}
 
+	AABB merge(const AABB &a, const AABB &b)
+	{
+		AABB c;
+		c.min = min(a.min, b.min);
+		c.max = max(a.max, b.max);
+		return c;
+	}
+
 	Vector3 vertex(const AABB &b, u32 index)
 	{
 		CE_ASSERT(index < 8, "Index out of bounds");
