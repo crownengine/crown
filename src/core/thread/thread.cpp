@@ -16,11 +16,32 @@
 	#include <windows.h>
 	#include <process.h>
 #else
+	#include <errno.h>
 	#include <pthread.h>
+	#include <unistd.h>
 #endif
 
 namespace crown
 {
+namespace thread
+{
+	u32 num_logical_cpus()
+	{
+#if CROWN_PLATFORM_WINDOWS
+		SYSTEM_INFO system_info;
+		GetSystemInfo(&system_info);
+		return (u32)system_info.dwNumberOfProcessors;
+#elif CROWN_PLATFORM_LINUX
+		const long num_processors = sysconf(_SC_NPROCESSORS_ONLN);
+		CE_ASSERT(num_processors != -1, "sysconf: errno = %d", errno);
+		return (u32)num_processors;
+#else
+		return 1u;
+#endif
+	}
+
+} // namespace thread
+
 struct Private
 {
 	ThreadFunction _function;
