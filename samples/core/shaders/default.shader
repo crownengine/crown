@@ -124,7 +124,7 @@ bgfx_shaders = {
 				gl_Position = mul(u_modelViewProj, vec4(a_position, 1.0));
 		#if defined(DIFFUSE_MAP)
 				v_texcoord0 = a_texcoord0;
-		#endif // DIFFUSE_MAP
+		#endif
 				v_color0 = a_color0;
 			}
 		"""
@@ -136,15 +136,15 @@ bgfx_shaders = {
 		fs_code = """
 		#if defined(DIFFUSE_MAP)
 			SAMPLER2D(u_albedo_map, 0);
-		#endif // DIFFUSE_MAP
+		#endif
 
 			void main()
 			{
 		#if defined(DIFFUSE_MAP)
 				gl_FragColor = toGammaAccurate(texture2D(u_albedo_map, v_texcoord0) * toLinearAccurate(v_color0));
-		#else // !defined(DIFFUSE_MAP)
+		#else
 				gl_FragColor = v_color0;
-		#endif // DIFFUSE_MAP
+		#endif
 			}
 		"""
 	}
@@ -230,23 +230,23 @@ bgfx_shaders = {
 
 		vs_input_output = """
 		#if defined(SKINNING)
-		#if defined(TRIPLANAR)
+		#	if defined(TRIPLANAR)
 			$input a_position, a_normal, a_tangent, a_bitangent, a_indices, a_weight
-		#else // !defined(TRIPLANAR)
+		#	else
 			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0, a_indices, a_weight
-		#endif // TRIPLANAR
-		#else // !defined(SKINNING)
-		#if defined(TRIPLANAR)
+		#	endif
+		#else
+		#	if defined(TRIPLANAR)
 			$input a_position, a_normal, a_tangent, a_bitangent
-		#else // !defined(TRIPLANAR)
+		#	else
 			$input a_position, a_normal, a_tangent, a_bitangent, a_texcoord0
-		#endif // TRIPLANAR
-		#endif // SKINNING
+		#	endif
+		#endif
 		#if defined(TRIPLANAR)
 			$output v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
-		#else // !defined(TRIPLANAR)
+		#else
 			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
-		#endif // TRIPLANAR
+		#endif
 		"""
 
 		vs_code = """
@@ -268,13 +268,13 @@ bgfx_shaders = {
 				v_position = world_position.xyz;
 				v_normal = normalize(mul(normal_matrix, normal)).xyz;
 		#if defined(TRIPLANAR)
-		#if defined(TRIPLANAR_LOCAL)
+		#	if defined(TRIPLANAR_LOCAL)
 				v_proj_position = a_position * u_uv_scale.xyz + u_uv_offset.xyz;
 				v_proj_normal = normal;
-		#else // !defined(TRIPLANAR_LOCAL)
+		#	else
 				v_proj_position = v_position * u_uv_scale.xyz + u_uv_offset.xyz;
 				v_proj_normal = v_normal;
-		#endif // TRIPLANAR_LOCAL
+		#	endif
 
 				vec3 proj_normal_abs = abs(v_proj_normal);
 				vec3 proj_axis_sign = sign(v_proj_normal);
@@ -288,17 +288,17 @@ bgfx_shaders = {
 					+ vec3(0.0, -1.0, 0.0) * proj_normal_abs.z
 					;
 
-		#if defined(TRIPLANAR_LOCAL)
+		#	if defined(TRIPLANAR_LOCAL)
 				v_tangent = normalize(mul(normal_matrix, tri_tangent));
 				v_bitangent = normalize(mul(normal_matrix, tri_bitangent));
-		#else // !defined(TRIPLANAR_LOCAL)
+		#	else
 				v_tangent = normalize(tri_tangent);
 				v_bitangent = normalize(tri_bitangent);
-		#endif // TRIPLANAR_LOCAL
+		#	endif
 		#else // !defined(TRIPLANAR)
 				v_tangent = normalize(mul(normal_matrix, tangent)).xyz;
 				v_bitangent = normalize(mul(normal_matrix, bitangent)).xyz;
-		#endif // TRIPLANAR
+		#endif
 
 				mat3 tbn;
 				if (u_use_normal_map.r == 1.0)
@@ -312,7 +312,7 @@ bgfx_shaders = {
 
 		#if !defined(TRIPLANAR)
 				v_texcoord0 = (a_texcoord0 - vec2_splat(0.5))*u_uv_scale.xy + vec2_splat(0.5) + u_uv_offset.xy;
-		#endif // TRIPLANAR
+		#endif
 
 		#if !defined(NO_LIGHT)
 				vec3 pos_offset = a_position + normal * 0.01;
@@ -322,16 +322,16 @@ bgfx_shaders = {
 				v_shadow2 = mul(u_cascaded_lights[2], world_pos_offset);
 				v_shadow3 = mul(u_cascaded_lights[3], world_pos_offset);
 				v_shadow_local = world_pos_offset;
-		#endif // NO_LIGHT
+		#endif
 			}
 		"""
 
 		fs_input_output = """
 		#if defined(TRIPLANAR)
 			$input v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
-		#else // !defined(TRIPLANAR)
+		#else
 			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
-		#endif // TRIPLANAR
+		#endif
 		"""
 
 		code = """
@@ -385,9 +385,9 @@ bgfx_shaders = {
 
 		#if defined(TRIPLANAR)
 		#	define SAMPLE_MAP(map) triplanar_sample(map, uv_x, uv_y, uv_z, weights)
-		#else // !defined(TRIPLANAR)
+		#else
 		#	define SAMPLE_MAP(map) texture2D(map, v_texcoord0)
-		#endif // TRIPLANAR
+		#endif
 
 			void main()
 			{
@@ -400,27 +400,27 @@ bgfx_shaders = {
 				vec2 uv_x = vec2(proj_position.z, proj_position.y * axis_sign.x);
 				vec2 uv_y = vec2(proj_position.z, -proj_position.x * axis_sign.y);
 				vec2 uv_z = vec2(-proj_position.x * axis_sign.z, proj_position.y);
-		#endif // TRIPLANAR
+		#endif
 				vec4 albedo = u_use_albedo_map.r == 1.0 ? SAMPLE_MAP(u_albedo_map) : vec4(u_albedo.rgb, 1.0);
 		#if defined(MASKED)
 		#	define MASK_ALPHA_CUTOFF 0.5
 				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
 				if (opacity < MASK_ALPHA_CUTOFF)
 					discard;
-		#endif // MASKED
+		#endif
 		#if defined(NO_LIGHT)
 				vec3 radiance = albedo.rgb;
-		#else // !defined(NO_LIGHT)
+		#else
 
 				vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
-		#if defined(TRIPLANAR)
+		#	if defined(TRIPLANAR)
 					vec2 packed_normal = triplanar_sample_bc5(u_normal_map, uv_x, uv_y, uv_z, weights);
-		#else // !defined(TRIPLANAR)
+		#	else
 					vec2 packed_normal = texture2DBc5(u_normal_map, v_texcoord0);
-		#endif // TRIPLANAR
-				normal.xy = packed_normal * 2.0 - 1.0;
-				normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
+		#	endif
+					normal.xy = packed_normal * 2.0 - 1.0;
+					normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
 				} else {
 					normal = v_normal;
 				}

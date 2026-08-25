@@ -15,7 +15,7 @@ bgfx_shaders = {
 		includes = [ "common" ]
 
 		code = """
-			#define Sampler sampler2DShadow
+		#define Sampler sampler2DShadow
 
 			float hard_shadow(Sampler _sampler, vec4 shadow_coord, float bias)
 			{

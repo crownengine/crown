@@ -12,12 +12,12 @@ bgfx_shaders = {
 		#	define LIGHT_SIZE 22 // In vec4 units.
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
-			uniform vec4 u_lights_num;        // num_dir, num_omni, num_spot
-		#if BGFX_SHADER_LANGUAGE_GLSL
-			uniform highp sampler2D u_lights_data; // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
-		#else
-			SAMPLER2D(u_lights_data, 12); // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
-		#endif
+			uniform vec4 u_lights_num;             // num_dir, num_omni, num_spot
+		#	if BGFX_SHADER_LANGUAGE_GLSL
+			uniform highp sampler2D u_lights_data; // See SAMPLER2D(u_lights_data).
+		#	else
+			SAMPLER2D(u_lights_data, 12);          // dir_0, .., dir_n-1, omni_0, .., omni_n-1, spot_0, .., spot_n-1
+		#	endif
 			uniform mat4 u_cascaded_lights[MAX_NUM_CASCADES]; // View-proj-crop matrices for cascaded shadow maps.
 			uniform vec4 u_shadow_map_params[2];
 		#	define sun_sm_texel_size u_shadow_map_params[0].xy
@@ -33,8 +33,6 @@ bgfx_shaders = {
 			uniform vec4 u_lighting_params;
 		#	define ambient_color u_lighting_params.xyz
 		#	define shadow_distance u_lighting_params.w
-
-			CONST(float PI) = 3.14159265358979323846;
 
 			float length_squared(vec3 a)
 			{
@@ -58,7 +56,7 @@ bgfx_shaders = {
 				float r = roughness*roughness;
 				float rr = r*r;
 				float d = ((ndoth*ndoth) * (rr - 1.0) + 1.0);
-				return rr / (PI * (d*d));
+				return rr / (M_PI * (d*d));
 			}
 
 			float geom_schlick_GGX(float ndotv, float roughness)
@@ -94,7 +92,7 @@ bgfx_shaders = {
 				vec3 ks = f;
 				vec3 kd = (vec3_splat(1.0) - ks) * (1.0 - metallic);
 
-				return (kd * albedo / PI + specular) * radiance * ndotl;
+				return (kd * albedo / M_PI + specular) * radiance * ndotl;
 			}
 
 			vec3 calc_dir_light(vec3 n, vec3 v, vec3 color, float intensity, vec3 direction, vec3 albedo, float metallic, float roughness, vec3 f0)
@@ -492,7 +490,7 @@ bgfx_shaders = {
 
 				return apply_fog(emission + radiance, camera_distance, sun_color);
 			}
-		#endif
+		#endif // NO_LIGHT
 		"""
 	}
 
