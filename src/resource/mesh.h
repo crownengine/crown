@@ -72,19 +72,19 @@ struct Mesh
 namespace mesh
 {
 	///
-	bool has_normals(Geometry &g);
+	bool has_normals(const Geometry &g);
 
 	///
-	bool has_tangents(Geometry &g);
+	bool has_tangents(const Geometry &g);
 
 	///
-	bool has_bitangents(Geometry &g);
+	bool has_bitangents(const Geometry &g);
 
 	///
-	bool has_bones(Geometry &g);
+	bool has_bones(const Geometry &g);
 
 	///
-	bool has_uvs(Geometry &g);
+	bool has_uvs(const Geometry &g);
 
 	///
 	s32 parse(Mesh &m, const char *path, CompileOptions &opts);
