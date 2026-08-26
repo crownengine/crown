@@ -18,6 +18,24 @@ components = [
 		}
 	}
 	{
+		_guid = "2b4b7c99-8147-43bd-8b5e-ad431055d967"
+		_type = "vignette"
+		data = {
+			center_x = 0.5
+			center_y = 0.5
+			color = [
+				0
+				0
+				0
+			]
+			enabled = false
+			radius = 0.59999999999999998
+			roundness = 2
+			softness = 0.59999999999999998
+			strength = 0.80000000000000004
+		}
+	}
+	{
 		_guid = "58d8d3ed-9ec2-4e11-ade6-1a3860335bb6"
 		_type = "bloom"
 		data = {

@@ -57,6 +57,7 @@ const string OBJECT_TYPE_TRANSFORM               = "transform";
 const string OBJECT_TYPE_UNIFORM_MATRIX4X4       = "uniform_matrix4x4";
 const string OBJECT_TYPE_UNIFORM_VECTOR4         = "uniform_vector4";
 const string OBJECT_TYPE_UNIT                    = "unit";
+const string OBJECT_TYPE_VIGNETTE                = "vignette";
 
 // UI order reference table:
 //
@@ -87,6 +88,7 @@ const string OBJECT_TYPE_UNIT                    = "unit";
 //   bloom         9100
 //   color_grading 9200
 //   tonemap       9900
+//   vignette      9950
 
 public static void node_name_enum_callback(InputField enum_property, InputEnum combo, Project project)
 {
@@ -194,6 +196,94 @@ public static void create_object_types(Database database)
 		, properties
 		, 500
 		, _("General")
+		, ObjectTypeFlags.UNIT_COMPONENT
+		);
+
+	properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enabled",
+			deffault = false,
+			tooltip = _("Enable vignette effect."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.VECTOR3,
+			name = "data.color",
+			editor = PropertyEditorType.COLOR,
+			min = VECTOR3_ZERO,
+			max = VECTOR3_ONE,
+			deffault = VECTOR3_ZERO,
+			tooltip = _("Tint color of the vignette."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.strength",
+			min = 0.0,
+			max = 1.0,
+			deffault = 0.8,
+			tooltip = _("Overall blend strength of the effect."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.radius",
+			min = 0.0,
+			max = 1.0,
+			deffault = 0.6,
+			tooltip = _("Normalized distance from the center where darkening begins."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.softness",
+			min = 0.0,
+			deffault = 0.6,
+			tooltip = _("Width of the fade between the full scene color and the full tint."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.roundness",
+			min = 0.001,
+			max = 64.0,
+			deffault = 2.0,
+			tooltip = _("Shape exponent: 2.0 is round/elliptical, higher values are squarer."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.center_x",
+			min = 0.0,
+			max = 1.0,
+			deffault = 0.5,
+			tooltip = _("Horizontal center of the vignette."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.center_y",
+			min = 0.0,
+			max = 1.0,
+			deffault = 0.5,
+			tooltip = _("Vertical center of the vignette."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "spawn_order",
+			deffault = 0.0,
+			hidden = true,
+			not_serialized = true,
+		},
+	};
+	database.create_object_type(OBJECT_TYPE_VIGNETTE
+		, properties
+		, 9950
+		, _("Rendering")
 		, ObjectTypeFlags.UNIT_COMPONENT
 		);
 

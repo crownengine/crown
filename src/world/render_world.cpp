@@ -538,6 +538,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _global_lighting_unit(UNIT_INVALID)
 	, _bloom_unit(UNIT_INVALID)
 	, _color_grading_unit(UNIT_INVALID)
+	, _vignette_unit(UNIT_INVALID)
 {
 	_unit_destroy_callback.destroy = unit_destroyed_callback_bridge;
 	_unit_destroy_callback.user_data = this;
@@ -564,6 +565,15 @@ RenderWorld::RenderWorld(Allocator &a
 	// Tonemap.
 	memset((void *)&_tonemap_desc, 0, sizeof(_tonemap_desc));
 	_tonemap_desc.type = TonemapType::REINHARD;
+
+	// Vignette.
+	memset((void *)&_vignette_desc, 0, sizeof(_vignette_desc));
+	_vignette_desc.radius = 0.6f;
+	_vignette_desc.softness = 0.6f;
+	_vignette_desc.roundness = 2.0f;
+	_vignette_desc.color = COLOR4_BLACK;
+	_vignette_desc.color.w = 0.8f;
+	_vignette_desc.center = { 0.5f, 0.5f };
 }
 
 RenderWorld::~RenderWorld()
@@ -1394,6 +1404,75 @@ void RenderWorld::tonemap_set_type(TonemapType::Enum type)
 	_tonemap_desc.type = (f32)type;
 }
 
+void RenderWorld::vignette_create_instances(const void *components_data
+	, u32 num
+	, const UnitId *unit_lookup
+	, const u32 *unit_index
+	)
+{
+	const VignetteDesc *vignettes = (VignetteDesc *)components_data;
+
+	for (u32 i = 0; i < num; ++i) {
+		UnitId unit = unit_lookup[unit_index[i]];
+
+		_vignette_desc = vignettes[i];
+		_vignette_unit = unit;
+	}
+}
+
+VignetteId RenderWorld::vignette_create(UnitId unit, const VignetteDesc &desc)
+{
+	u32 unit_lookup = 0;
+	vignette_create_instances(&desc, 1, &unit, &unit_lookup);
+	return vignette_instance(unit);
+}
+
+void RenderWorld::vignette_destroy(u32 vignette)
+{
+	CE_UNUSED(vignette);
+	_vignette_desc = {};
+	_vignette_unit = UNIT_INVALID;
+}
+
+VignetteId RenderWorld::vignette_instance(UnitId unit)
+{
+	if (_vignette_unit == unit)
+		return { 0 };
+
+	return { UINT32_MAX };
+}
+
+void RenderWorld::vignette_set_enabled(bool enabled)
+{
+	_vignette_desc.enabled = enabled;
+}
+
+void RenderWorld::vignette_set_radius(f32 radius)
+{
+	_vignette_desc.radius = clamp(radius, 0.0f, 1.0f);
+}
+
+void RenderWorld::vignette_set_softness(f32 softness)
+{
+	_vignette_desc.softness = softness;
+}
+
+void RenderWorld::vignette_set_roundness(f32 roundness)
+{
+	_vignette_desc.roundness = clamp(roundness, 0.001f, 64.0f);
+}
+
+void RenderWorld::vignette_set_color(Color4 color)
+{
+	_vignette_desc.color = color;
+}
+
+void RenderWorld::vignette_set_center(Vector2 center)
+{
+	_vignette_desc.center.x = clamp(center.x, 0.0f, 1.0f);
+	_vignette_desc.center.y = clamp(center.y, 0.0f, 1.0f);
+}
+
 void RenderWorld::update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world)
 {
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
@@ -2198,6 +2277,7 @@ void RenderWorld::render(f32 dt
 	_pipeline->_bloom = _bloom_desc;
 	_pipeline->_color_grading_desc = _color_grading_desc;
 	_pipeline->_tonemap = _tonemap_desc;
+	_pipeline->_vignette = _vignette_desc;
 
 	bgfx::TransientVertexBuffer sprite_vertex_buffer;
 	bgfx::TransientIndexBuffer sprite_index_buffer;

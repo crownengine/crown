@@ -44,6 +44,7 @@ struct View
 		BLOOM_UPSAMPLE_LAST   = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
 		BLOOM_COMBINE,
 		DUMMY_BLIT,
+		VIGNETTE,
 		TONEMAP,
 
 		SDR, // SDR rendering below.
@@ -128,6 +129,10 @@ struct Pipeline
 	bgfx::UniformHandle _tonemap_type;
 	TonemapDesc _tonemap;
 
+	// Vignette
+	bgfx::UniformHandle _vignette_desc_uniform;
+	VignetteDesc _vignette;
+
 	// Default shaders.
 	ShaderData _blit_shader;
 	ShaderData _blit_blend_shader;
@@ -146,6 +151,7 @@ struct Pipeline
 	ShaderData _bloom_upsample_shader;
 	ShaderData _bloom_combine_shader;
 	ShaderData _tonemap_shader;
+	ShaderData _vignette_shader;
 
 	///
 	Pipeline(ShaderManager &sm);

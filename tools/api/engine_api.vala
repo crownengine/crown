@@ -552,6 +552,11 @@ namespace LevelEditorApi
 		return "LevelEditor:add_tonemap_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
 	}
 
+	public string add_vignette_component(Guid id, Guid component_id)
+	{
+		return "LevelEditor:add_vignette_component(\"%s\", \"%s\")".printf(id.to_string(), component_id.to_string());
+	}
+
 	public string unit_destroy_component_type(Guid id, string component_type)
 	{
 		return "LevelEditor:unit_destroy_component_type(\"%s\", \"%s\")".printf(id.to_string()
@@ -693,6 +698,29 @@ namespace LevelEditorApi
 	public string set_tonemap(Guid id, string type)
 	{
 		return "LevelEditor._objects[\"%s\"]:set_tonemap(\"%s\")".printf(id.to_string(), type);
+	}
+
+	public string set_vignette(Guid id
+		, bool enabled
+		, Vector3 color
+		, double strength
+		, double radius
+		, double softness
+		, double roundness
+		, double center_x
+		, double center_y
+		)
+	{
+		return "LevelEditor._objects[\"%s\"]:set_vignette(%s, %s, %.17g, %.17g, %.17g, %.17g, %.17g, %.17g)".printf(id.to_string()
+			, Lua.bool(enabled)
+			, Lua.vector3_elements(color)
+			, strength
+			, radius
+			, softness
+			, roundness
+			, center_x
+			, center_y
+			);
 	}
 
 	public string set_sound_range(Guid id, double range)

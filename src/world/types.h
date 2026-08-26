@@ -331,6 +331,7 @@ INSTANCE_ID(GlobalLightingId)
 INSTANCE_ID(BloomId)
 INSTANCE_ID(ColorGradingId)
 INSTANCE_ID(TonemapId)
+INSTANCE_ID(VignetteId)
 INSTANCE_ID(ColliderId)
 INSTANCE_ID(ActorId)
 INSTANCE_ID(MoverId)
@@ -461,6 +462,21 @@ struct TonemapDesc
 {
 	f32 type;      ///< TonemapType::Enum
 	f32 unused[3]; ///<
+};
+
+/// Vignette description
+///
+/// @ingroup World
+struct VignetteDesc
+{
+	bool enabled;
+	char _pad[3];
+	f32 radius;
+	f32 softness;
+	f32 roundness;
+	Color4 color;
+	Vector2 center;
+	f32 _pad2[2];
 };
 
 /// Fog description.
