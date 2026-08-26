@@ -385,6 +385,40 @@ struct RenderWorld
 	void tonemap_set_type(TonemapType::Enum type);
 
 	///
+	void vignette_create_instances(const void *components_data
+		, u32 num
+		, const UnitId *unit_lookup
+		, const u32 *unit_index
+		);
+
+	///
+	VignetteId vignette_create(UnitId unit, const VignetteDesc &desc);
+
+	///
+	void vignette_destroy(u32 vignette);
+
+	///
+	VignetteId vignette_instance(UnitId unit);
+
+	///
+	void vignette_set_enabled(bool enabled);
+
+	///
+	void vignette_set_radius(f32 radius);
+
+	///
+	void vignette_set_softness(f32 softness);
+
+	///
+	void vignette_set_roundness(f32 roundness);
+
+	///
+	void vignette_set_color(Color4 color);
+
+	///
+	void vignette_set_center(Vector2 center);
+
+	///
 	void update_transforms(const UnitId *begin, const UnitId *end, const Matrix4x4 *world);
 
 	///
@@ -839,6 +873,10 @@ struct RenderWorld
 	// Tonemap.
 	UnitId _tonemap_unit;
 	TonemapDesc _tonemap_desc;
+
+	// Vignette.
+	UnitId _vignette_unit;
+	VignetteDesc _vignette_desc;
 };
 
 } // namespace crown

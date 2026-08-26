@@ -751,6 +751,18 @@ public struct Unit
 			sb.append(LevelEditorApi.set_tonemap(unit_id
 				, unit.get_component_string(component_id, "data.type")
 				));
+		} else if (db.object_type(component_id) == OBJECT_TYPE_VIGNETTE) {
+			sb.append(LevelEditorApi.add_vignette_component(unit_id, component_id));
+			sb.append(LevelEditorApi.set_vignette(unit_id
+				, unit.get_component_bool   (component_id, "data.enabled")
+				, unit.get_component_vector3(component_id, "data.color")
+				, unit.get_component_double (component_id, "data.strength")
+				, unit.get_component_double (component_id, "data.radius")
+				, unit.get_component_double (component_id, "data.softness")
+				, unit.get_component_double (component_id, "data.roundness")
+				, unit.get_component_double (component_id, "data.center_x")
+				, unit.get_component_double (component_id, "data.center_y")
+				));
 		}
 	}
 
@@ -1005,6 +1017,17 @@ public struct Unit
 		} else if (component_type == OBJECT_TYPE_TONEMAP) {
 			sb.append(LevelEditorApi.set_tonemap(unit_id
 				, unit.get_component_string(component_id, "data.type")
+				));
+		} else if (component_type == OBJECT_TYPE_VIGNETTE) {
+			sb.append(LevelEditorApi.set_vignette(unit_id
+				, unit.get_component_bool   (component_id, "data.enabled")
+				, unit.get_component_vector3(component_id, "data.color")
+				, unit.get_component_double (component_id, "data.strength")
+				, unit.get_component_double (component_id, "data.radius")
+				, unit.get_component_double (component_id, "data.softness")
+				, unit.get_component_double (component_id, "data.roundness")
+				, unit.get_component_double (component_id, "data.center_x")
+				, unit.get_component_double (component_id, "data.center_y")
 				));
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
 			/* No sync. */

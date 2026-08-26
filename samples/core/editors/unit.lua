@@ -587,6 +587,18 @@ function UnitBox:set_tonemap(type)
 	end
 end
 
+function UnitBox:set_vignette(enabled, cr, cg, cb, strength, radius, softness, roundness, center_x, center_y)
+	local vignette = RenderWorld.vignette_instance(self._rw, self._unit_id)
+	if vignette then
+		RenderWorld.vignette_set_enabled(self._rw, enabled)
+		RenderWorld.vignette_set_color(self._rw, Quaternion.from_elements(cr, cg, cb, strength))
+		RenderWorld.vignette_set_radius(self._rw, radius)
+		RenderWorld.vignette_set_softness(self._rw, softness)
+		RenderWorld.vignette_set_roundness(self._rw, roundness)
+		RenderWorld.vignette_set_center(self._rw, center_x, center_y)
+	end
+end
+
 function UnitBox:set_lod_group(level, mode)
 	local lod_group = RenderWorld.lod_group_instance(self._rw, self._unit_id)
 	if lod_group then

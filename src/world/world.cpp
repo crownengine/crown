@@ -101,6 +101,8 @@ static void create_components(World &w
 			render_world->color_grading_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("tonemap", UINT32_C(0x7089b06b))) {
 			render_world->tonemap_create_instances(data, component->num_instances, unit_lookup, unit_index);
+		} else if (component->type == STRING_ID_32("vignette", UINT32_C(0xb77c3567))) {
+			render_world->vignette_create_instances(data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("script", UINT32_C(0xd18f8ad6))) {
 			script_world::create_instances(*script_world, data, component->num_instances, unit_lookup, unit_index);
 		} else if (component->type == STRING_ID_32("animation_state_machine", UINT32_C(0xe87992ac))) {

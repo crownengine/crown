@@ -154,6 +154,7 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._bloom_upsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_upsample", UINT32_C(0x26773c9c)));
 	pl._bloom_combine_shader = pl._shader_manager->shader(STRING_ID_32("bloom_combine", UINT32_C(0x4413efa4)));
 	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
+	pl._vignette_shader = pl._shader_manager->shader(STRING_ID_32("vignette", UINT32_C(0xb77c3567)));
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
@@ -182,6 +183,8 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _bloom_params(BGFX_INVALID_HANDLE)
 	, _color_grading_desc_uniform(BGFX_INVALID_HANDLE)
 	, _tonemap_type(BGFX_INVALID_HANDLE)
+	, _vignette_desc_uniform(BGFX_INVALID_HANDLE)
+	, _vignette()
 {
 	for (u32 i = 0; i < countof(_color_textures); ++i)
 		_color_textures[i] = BGFX_INVALID_HANDLE;
@@ -288,6 +291,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_color_grading_desc_uniform = bgfx::createUniform("u_color_grading_desc", bgfx::UniformType::Vec4, 2);
 	_tonemap_type = bgfx::createUniform("u_tonemap_type", bgfx::UniformType::Vec4);
+	_vignette_desc_uniform = bgfx::createUniform("u_vignette_desc", bgfx::UniformType::Vec4, 2);
 
 	PosTexCoord0Vertex::init();
 	PosVertex::init();
@@ -333,6 +337,10 @@ void Pipeline::destroy()
 	_sun_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_sun_shadow_map_texture);
 	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
+
+	// Destroy vignette resources
+	bgfx::destroy(_vignette_desc_uniform);
+	_vignette_desc_uniform = BGFX_INVALID_HANDLE;
 
 	// Destroy color-grading and tonemap resources.
 	bgfx::destroy(_tonemap_type);
@@ -652,6 +660,11 @@ void Pipeline::reset(u16 width, u16 height)
 			bgfx::setViewFrameBuffer(id, _colors[1]);
 			bgfx::setViewTransform(id, NULL, ortho);
 			bgfx::setViewRect(id, 0, 0, width, height);
+		} else if (id == View::VIGNETTE) {
+			view_name = "vignette";
+			bgfx::setViewFrameBuffer(id, _colors[0]);
+			bgfx::setViewTransform(id, NULL, ortho);
+			bgfx::setViewRect(id, 0, 0, width, height);
 		} else if (id == View::TONEMAP) {
 			view_name = "tonemap";
 			bgfx::setViewFrameBuffer(id, _color_sdr);
@@ -819,6 +832,8 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 			bgfx::touch(id);
 		} else if (id == View::BLOOM_COMBINE) {
 			bgfx::touch(id);
+		} else if (id == View::VIGNETTE) {
+			bgfx::touch(id);
 		} else if (id == View::TONEMAP) {
 			bgfx::touch(id);
 		} else if (id == View::WORLD_GUI) {
@@ -903,8 +918,21 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
 	}
 
+	if (_vignette.enabled) {
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+		bgfx::setUniform(_vignette_desc_uniform, &_vignette, sizeof(_vignette)/sizeof(Vector4));
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_vignette_shader.state);
+		bgfx::submit(View::VIGNETTE, _vignette_shader.program);
+	} else {
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_shader.state);
+		bgfx::submit(View::VIGNETTE, _blit_shader.program);
+	}
+
 	// Color grading and tonemapping.
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 	bgfx::setUniform(_color_grading_desc_uniform
 		, &_color_grading_desc
 		, sizeof(_color_grading_desc)/sizeof(Vector4)

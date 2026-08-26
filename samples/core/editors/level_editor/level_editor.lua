@@ -1991,6 +1991,13 @@ function LevelEditor:add_tonemap_component(id, component_id)
 	RenderWorld.tonemap_create(self._rw, unit_id)
 end
 
+function LevelEditor:add_vignette_component(id, component_id)
+	local unit_box = self._objects[id]
+	local unit_id = unit_box:unit_id()
+	if RenderWorld.vignette_instance(self._rw, unit_id) ~= nil then return end
+	RenderWorld.vignette_create(self._rw, unit_id)
+end
+
 function LevelEditor:unit_destroy_component_type(id, component_type)
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
@@ -2025,6 +2032,9 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "tonemap" then
 		local inst = RenderWorld.tonemap_instance(self._rw, unit_id)
 		if inst then RenderWorld.tonemap_destroy(self._rw, inst) end
+	elseif component_type == "vignette" then
+		local inst = RenderWorld.vignette_instance(self._rw, unit_id)
+		if inst then RenderWorld.vignette_destroy(self._rw, inst) end
 	elseif component_type == "script" then
 		-- Nothing to do.
 	elseif component_type == "collider" then

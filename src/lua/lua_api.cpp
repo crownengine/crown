@@ -2970,6 +2970,56 @@ void load_api(LuaEnvironment &env)
 			stack.get_render_world(1)->tonemap_set_type(type);
 			return 0;
 		});
+	env.add_module_function("RenderWorld", "vignette_create", [](lua_State *L){
+			LuaStack stack(L, +1);
+			VignetteDesc desc;
+			stack.push_id(stack.get_render_world(1)->vignette_create(stack.get_unit(2), desc).i);
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "vignette_destroy", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_destroy(stack.get_id(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_instance", [](lua_State *L){
+			LuaStack stack(L, +1);
+			VignetteId inst = stack.get_render_world(1)->vignette_instance(stack.get_unit(2));
+			if (is_valid(inst))
+				stack.push_id(inst.i);
+			else
+				stack.push_nil();
+			return 1;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_enabled", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_enabled(stack.get_bool(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_radius", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_radius(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_softness", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_softness(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_roundness", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_roundness(stack.get_float(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_color", [](lua_State *L){
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_color(stack.get_color4(2));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "vignette_set_center", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->vignette_set_center({ stack.get_float(2), stack.get_float(3) });
+			return 0;
+		});
 	env.add_module_function("RenderWorld", "enable_debug_drawing", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->enable_debug_drawing(stack.get_bool(2));

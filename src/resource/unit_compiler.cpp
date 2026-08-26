@@ -584,6 +584,36 @@ static s32 compile_color_grading(Buffer &output, UnitCompiler &compiler, FlatJso
 	return 0;
 }
 
+static s32 compile_vignette(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+{
+	CE_UNUSED_2(compiler, opts);
+
+	VignetteDesc desc;
+	desc.enabled = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.enabled")));
+	memset(&desc._pad, 0, sizeof(desc._pad));
+	desc.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.radius")));
+	desc.softness = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.softness")));
+	desc.roundness = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.roundness")));
+	const f32 strength = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.strength")));
+	const Vector3 color = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")));
+	desc.color = { color.x, color.y, color.z, strength };
+	desc.center.x = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.center_x")));
+	desc.center.y = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.center_y")));
+	memset(&desc._pad2, 0, sizeof(desc._pad2));
+
+	FileBuffer fb(output);
+	BinaryWriter bw(fb);
+	bw.write(desc.enabled);
+	bw.write(desc._pad);
+	bw.write(desc.radius);
+	bw.write(desc.softness);
+	bw.write(desc.roundness);
+	bw.write(desc.color);
+	bw.write(desc.center);
+	bw.write(desc._pad2);
+	return 0;
+}
+
 namespace unit_compiler
 {
 	Buffer read_unit(const char *path, CompileOptions &opts)
@@ -1429,6 +1459,7 @@ UnitCompiler::UnitCompiler(Allocator &a)
 	unit_compiler::register_component_compiler(*this, "bloom",                   &compile_bloom,                                      0.0f);
 	unit_compiler::register_component_compiler(*this, "color_grading",           &compile_color_grading,                              0.0f);
 	unit_compiler::register_component_compiler(*this, "tonemap",                 &compile_tonemap,                                    0.0f);
+	unit_compiler::register_component_compiler(*this, "vignette",                &compile_vignette,                                   0.0f);
 }
 
 UnitCompiler::~UnitCompiler()
