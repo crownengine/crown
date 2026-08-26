@@ -796,7 +796,7 @@ single-file public domain (or MIT licensed) libraries for C/C++.
 tinyexpr (Zlib)
 ---------------
 
-TinyExpr is a very small recursive descent parser and evaluation engine for math expressions.
+Tiny recursive descent expression parser, compiler, and evaluation engine for math expressions.
 
 ufbx (MIT)
 ----------
