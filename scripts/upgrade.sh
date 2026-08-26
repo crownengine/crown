@@ -546,12 +546,15 @@ update_tinyexpr () {
 	# Download latest tinyexpr.
 	local REPO=https://github.com/codeplea/tinyexpr
 	local DEST=3rdparty/tinyexpr
-	local BRANCH=master
+	local BRANCH=v1.1.1
 
 	rm -rf "${DEST}"
 	git_clone "${DEST}" "${REPO}" "${BRANCH}"
 
 	# Cleanup.
+	rm -r "${DEST}"/.github
+	rm "${DEST}"/.gitignore
+	rm "${DEST}"/CITATION.cff
 	rm -r "${DEST}"/doc
 	rm "${DEST}"/benchmark.c
 	rm "${DEST}"/CONTRIBUTING
@@ -563,7 +566,6 @@ update_tinyexpr () {
 	rm "${DEST}"/README.md
 	rm "${DEST}"/repl.c
 	rm "${DEST}"/smoke.c
-	rm "${DEST}"/.travis.yml
 
 	# Add changes and commit.
 	git add -f "${DEST}"
