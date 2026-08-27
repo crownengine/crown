@@ -32,7 +32,7 @@ static void initialize_xlib_threads(void)
 
 #endif /* if defined(__linux__) */
 
-typedef struct CrownInfiniteDragSampler
+struct CrownInfiniteDragSampler
 {
 	GThread *thread;
 	GMutex mutex;
@@ -59,9 +59,9 @@ typedef struct CrownInfiniteDragSampler
 	Window x11_window;
 	gint x11_wake_fd;
 #endif /* if defined(_WIN32) */
-} CrownInfiniteDragSampler;
+};
 
-static void store_delta(CrownInfiniteDragSampler *sampler, gdouble delta_x, gdouble delta_y)
+static void store_delta(struct CrownInfiniteDragSampler *sampler, gdouble delta_x, gdouble delta_y)
 {
 	g_mutex_lock(&sampler->mutex);
 	sampler->delta_x += delta_x;
@@ -69,14 +69,14 @@ static void store_delta(CrownInfiniteDragSampler *sampler, gdouble delta_x, gdou
 	g_mutex_unlock(&sampler->mutex);
 }
 
-static void store_sample(CrownInfiniteDragSampler *sampler)
+static void store_sample(struct CrownInfiniteDragSampler *sampler)
 {
 	g_mutex_lock(&sampler->mutex);
 	sampler->samples += 1;
 	g_mutex_unlock(&sampler->mutex);
 }
 
-static void store_wheel(CrownInfiniteDragSampler *sampler, gdouble wheel_dx, gdouble wheel_dy)
+static void store_wheel(struct CrownInfiniteDragSampler *sampler, gdouble wheel_dx, gdouble wheel_dy)
 {
 	g_mutex_lock(&sampler->mutex);
 	sampler->wheel_dx += wheel_dx;
@@ -106,7 +106,7 @@ static gboolean register_windows_raw_input(HWND target, gboolean preserve_legacy
 	return FALSE;
 }
 
-static void process_windows_raw_mouse(CrownInfiniteDragSampler *sampler, const RAWMOUSE *mouse)
+static void process_windows_raw_mouse(struct CrownInfiniteDragSampler *sampler, const RAWMOUSE *mouse)
 {
 	gint delta_x = 0;
 	gint delta_y = 0;
@@ -191,7 +191,7 @@ static LRESULT CALLBACK windows_raw_input_window_proc(HWND window, UINT message,
 		return TRUE;
 	}
 
-	CrownInfiniteDragSampler *sampler = (CrownInfiniteDragSampler *)GetWindowLongPtrW(window, GWLP_USERDATA);
+	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)GetWindowLongPtrW(window, GWLP_USERDATA);
 	if (message == WM_INPUT && sampler != NULL) {
 		RAWINPUT input;
 		UINT input_size = sizeof(input);
@@ -209,7 +209,7 @@ static LRESULT CALLBACK windows_raw_input_window_proc(HWND window, UINT message,
 	return DefWindowProcW(window, message, wparam, lparam);
 }
 
-static HWND create_windows_raw_input_window(CrownInfiniteDragSampler *sampler)
+static HWND create_windows_raw_input_window(struct CrownInfiniteDragSampler *sampler)
 {
 	HINSTANCE instance = GetModuleHandleW(NULL);
 	WNDCLASSEXW window_class =
@@ -248,7 +248,7 @@ static void drain_windows_raw_input_messages(void)
 
 static gpointer sample_pointer_windows(gpointer data)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	HWND window = create_windows_raw_input_window(sampler);
 	gboolean registered = FALSE;
 	if (window == NULL)
@@ -306,7 +306,7 @@ setup_failed:
 }
 
 #elif defined(__linux__)
-typedef struct CrownInfiniteDragX11Grab
+struct CrownInfiniteDragX11Grab
 {
 	Window window;
 	Window root;
@@ -314,10 +314,10 @@ typedef struct CrownInfiniteDragX11Grab
 	gint anchor_y;
 	gboolean cursor_hidden;
 	gboolean active;
-} CrownInfiniteDragX11Grab;
+};
 
 /* Keep grab+XFixes-hide+XI2-raw-motion together: this combination is what activates Xwayland's relative-pointer device. */
-static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX11Grab *grab)
+static gboolean warp_x11_pointer_to_anchor(Display *display, struct CrownInfiniteDragX11Grab *grab)
 {
 	int window_x;
 	int window_y;
@@ -348,7 +348,7 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, CrownInfiniteDragX1
 	return TRUE;
 }
 
-static void destroy_x11_pointer_grab(Display *display, CrownInfiniteDragX11Grab *grab)
+static void destroy_x11_pointer_grab(Display *display, struct CrownInfiniteDragX11Grab *grab)
 {
 	if (grab->active) {
 		/* Commit the original position hint before revealing the pointer. */
@@ -371,7 +371,7 @@ static gboolean create_x11_pointer_grab(Display *display
 	, Window window
 	, gint anchor_x
 	, gint anchor_y
-	, CrownInfiniteDragX11Grab *grab
+	, struct CrownInfiniteDragX11Grab *grab
 	)
 {
 	grab->window = window;
@@ -408,7 +408,7 @@ static gboolean create_x11_pointer_grab(Display *display
 
 static gpointer sample_pointer_x11(gpointer data)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	Display *display = XOpenDisplay(NULL);
 	if (display == NULL) {
 		return NULL;
@@ -463,7 +463,7 @@ static gpointer sample_pointer_x11(gpointer data)
 	}
 	XSync(display, False);
 
-	CrownInfiniteDragX11Grab pointer_grab = { 0 };
+	struct CrownInfiniteDragX11Grab pointer_grab = { 0 };
 	if (!create_x11_pointer_grab(display
 		, root
 		, sampler->x11_window
@@ -567,7 +567,7 @@ static gpointer sample_pointer(gpointer data)
 
 void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint trigger_button, gint cancel_button, gboolean preserve_legacy_events)
 {
-	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
+	struct CrownInfiniteDragSampler *sampler = g_new0(struct CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
 #if defined(__linux__)
 	sampler->x11_wake_fd = -1;
@@ -643,7 +643,7 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 
 void crown_infinite_drag_sampler_drain(void *data, gdouble *delta_x, gdouble *delta_y, gdouble *wheel_dx, gdouble *wheel_dy, gint *samples)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	g_mutex_lock(&sampler->mutex);
 	*delta_x = sampler->delta_x;
 	*delta_y = sampler->delta_y;
@@ -660,19 +660,19 @@ void crown_infinite_drag_sampler_drain(void *data, gdouble *delta_x, gdouble *de
 
 gboolean crown_infinite_drag_sampler_released(void *data)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	return g_atomic_int_get(&sampler->released);
 }
 
 gboolean crown_infinite_drag_sampler_cancel_requested(void *data)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	return g_atomic_int_get(&sampler->cancel_requested);
 }
 
 void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *delta_y, gdouble *wheel_dx, gdouble *wheel_dy, gint *samples)
 {
-	CrownInfiniteDragSampler *sampler = data;
+	struct CrownInfiniteDragSampler *sampler = data;
 	g_atomic_int_set(&sampler->running, FALSE);
 #if defined(_WIN32)
 	SetEvent(sampler->windows_stop_event);
