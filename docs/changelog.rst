@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: FBX: mult-clip models will now correctly import all animations.
+* Tools: fixed the Project Browser hanging when searching projects with many thumbnails.
 * Runtime: fixed rendering of outlines on skinned meshes.
 
 .. _v0.64.4:

@@ -369,6 +369,7 @@ public class ProjectFolderView : Gtk.Box
 
 		_cell_renderer_pixbuf = new Gtk.CellRendererPixbuf();
 		_cell_renderer_pixbuf.stock_size = Gtk.IconSize.DIALOG;
+		_cell_renderer_pixbuf.set_fixed_size(64, 64);
 		_icon_view.pack_start(_cell_renderer_pixbuf, false);
 		_icon_view.set_cell_data_func(_cell_renderer_pixbuf, icon_view_pixbuf_func);
 
@@ -389,6 +390,7 @@ public class ProjectFolderView : Gtk.Box
 
 		var cell_pixbuf = new Gtk.CellRendererPixbuf();
 		cell_pixbuf.stock_size = Gtk.IconSize.DND;
+		cell_pixbuf.set_fixed_size(32, 32);
 		var cell_text = new Gtk.CellRendererText();
 
 		Gtk.TreeViewColumn column = null;
@@ -1084,15 +1086,7 @@ public class ProjectBrowser : Gtk.Box
 		// Data
 		_project_store = project_store;
 		_thumbnail_cache = thumbnail_cache;
-		_thumbnail_cache.changed.connect(() => {
-			_tree_view.queue_resize();
-			_folder_view._icon_view.queue_resize();
-			_folder_view._list_view.queue_resize();
-
-			_tree_view.queue_draw();
-			_folder_view._icon_view.queue_draw();
-			_folder_view._list_view.queue_draw();
-		});
+		_thumbnail_cache.changed.connect(on_thumbnail_cache_changed);
 
 		_nav_history_back = new GLib.GenericArray<string>();
 		_nav_history_forward = new GLib.GenericArray<string>();
@@ -1115,6 +1109,7 @@ public class ProjectBrowser : Gtk.Box
 
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		cell_pixbuf.stock_size = Gtk.IconSize.SMALL_TOOLBAR;
+		cell_pixbuf.set_fixed_size(16, 16);
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		column.pack_start(cell_pixbuf, false);
@@ -1540,6 +1535,13 @@ public class ProjectBrowser : Gtk.Box
 		_project_store.reset_finished.connect(on_project_store_reset_finished);
 		this.pack_start(_paned);
 		this.show.connect(on_show);
+	}
+
+	public void on_thumbnail_cache_changed()
+	{
+		_tree_view.queue_draw();
+		_folder_view._icon_view.queue_draw();
+		_folder_view._list_view.queue_draw();
 	}
 
 	public void on_show()
