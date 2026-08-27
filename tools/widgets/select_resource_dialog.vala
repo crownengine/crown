@@ -89,6 +89,7 @@ public class SelectResourceDialog : Gtk.Window
 		Gtk.TreeViewColumn name_column = new Gtk.TreeViewColumn();
 		var thumbnail_renderer = new Gtk.CellRendererPixbuf();
 		thumbnail_renderer.stock_size = Gtk.IconSize.DND;
+		thumbnail_renderer.set_fixed_size(32, 32);
 		name_column.pack_start(thumbnail_renderer, false);
 		name_column.set_cell_data_func(thumbnail_renderer, list_view_thumbnail_func);
 
@@ -126,6 +127,7 @@ public class SelectResourceDialog : Gtk.Window
 
 		var icon_renderer = new Gtk.CellRendererPixbuf();
 		icon_renderer.stock_size = Gtk.IconSize.DIALOG;
+		icon_renderer.set_fixed_size(64, 64);
 		_icon_view.pack_start(icon_renderer, false);
 		_icon_view.set_cell_data_func(icon_renderer, icon_view_thumbnail_func);
 
