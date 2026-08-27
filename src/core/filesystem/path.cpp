@@ -11,10 +11,11 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/platform.h"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string.h"
 #include "core/strings/string_view.inl"
 #include "device/types.h"
 #include <ctype.h>  // isalpha, isalnum
-#include <string.h> // strncmp, strrchr
+#include <string.h> // strncmp
 
 namespace crown
 {
@@ -75,19 +76,33 @@ namespace path
 		join(path, StringView(path_a), StringView(path_b));
 	}
 
+	StringView basename(const StringView &path)
+	{
+		const char *slash = find_reverse(path, '/');
+		return slash == NULL
+			? path
+			: StringView(slash + 1, path.length() - u32(slash - path.data()) - 1)
+			;
+	}
+
 	const char *basename(const char *path)
 	{
-		CE_ENSURE(NULL != path);
-		const char *ls = strrchr(path, '/');
-		return ls == NULL ? path : ls + 1;
+		return basename(StringView(path)).data();
+	}
+
+	StringView extension(const StringView &path)
+	{
+		const StringView bn = basename(path);
+		const char *dot = find_reverse(bn, '.');
+		return dot == NULL || dot == bn.data()
+			? StringView()
+			: StringView(dot + 1, bn.length() - u32(dot - bn.data()) - 1)
+			;
 	}
 
 	const char *extension(const char *path)
 	{
-		CE_ENSURE(NULL != path);
-		const char *bn = basename(path);
-		const char *ld = strrchr(bn, '.');
-		return (ld == NULL || ld == bn) ? NULL : ld + 1;
+		return extension(StringView(path)).data();
 	}
 
 	bool has_trailing_separator(const char *path)

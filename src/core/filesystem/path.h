@@ -34,6 +34,9 @@ namespace path
 	/// "/home/project/texture.tga" -> "texture.tga"
 	/// "/home/project" -> "project"
 	/// "/" -> ""
+	StringView basename(const StringView &path);
+
+	/// Returns the basename of the @a path.
 	const char *basename(const char *path);
 
 	/// Returns the extension of the @a path or NULL.
@@ -41,6 +44,9 @@ namespace path
 	/// /home/texture.tga -> "tga"
 	/// /home/texture -> NULL
 	/// /home/.tga -> NULL
+	StringView extension(const StringView &path);
+
+	/// Returns the extension of the @a path or NULL.
 	const char *extension(const char *path);
 
 	/// Returns whether the @a path has a trailing separator.

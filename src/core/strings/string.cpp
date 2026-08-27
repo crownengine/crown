@@ -4,13 +4,31 @@
  */
 
 #include "core/error/error.inl"
+#include "core/functional.h"
 #include "core/strings/string.h"
+#include "core/strings/string_view.inl"
 #include <ctype.h> // tolower
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h> // memchr
 
 namespace crown
 {
+const char *find(const StringView &str, char c)
+{
+	return (const char *)memchr(str.data(), c, str.length());
+}
+
+const char *find_reverse(const StringView &str, char c)
+{
+	for (u32 i = str.length(); i > 0; --i) {
+		if (str.data()[i - 1] == c)
+			return str.data() + i - 1;
+	}
+
+	return NULL;
+}
+
 const char *skip_block(const char *str, char a, char b)
 {
 	u32 num = 0;
@@ -28,36 +46,39 @@ const char *skip_block(const char *str, char a, char b)
 }
 
 // Written by Jack Handy: jakkhandy@hotmail.com
-int wildcmp(const char *wild, const char *str)
+int wildcmp(const StringView &wild, const StringView &str)
 {
-	const char *cp = NULL, *mp = NULL;
+	u32 wild_i = 0;
+	u32 str_i = 0;
+	u32 star_i = UINT32_MAX;
+	u32 match_i = 0;
 
-	while (*str && *wild != '*') {
-		if (*wild != *str && *wild != '?')
-			return 0;
-		++wild;
-		++str;
-	}
-
-	while (*str) {
-		if (*wild == '*') {
-			if (!*++wild)
-				return 1;
-			mp = wild;
-			cp = str + 1;
-		} else if (*wild == *str || *wild == '?') {
-			++wild;
-			++str;
+	while (str_i < str.length()) {
+		if (wild_i < wild.length()
+			&& (wild.data()[wild_i] == '?' || wild.data()[wild_i] == str.data()[str_i])
+			) {
+			++wild_i;
+			++str_i;
+		} else if (wild_i < wild.length() && wild.data()[wild_i] == '*') {
+			star_i = wild_i++;
+			match_i = str_i;
+		} else if (star_i != UINT32_MAX) {
+			wild_i = star_i + 1;
+			str_i = ++match_i;
 		} else {
-			wild = mp;
-			str = cp++;
+			return 0;
 		}
 	}
 
-	while (*wild == '*')
-		++wild;
+	while (wild_i < wild.length() && wild.data()[wild_i] == '*')
+		++wild_i;
 
-	return !*wild;
+	return wild_i == wild.length();
+}
+
+int wildcmp(const char *wild, const char *str)
+{
+	return wildcmp(StringView(wild), StringView(str));
 }
 
 int strncasecmp(const char *str1, const char *str2, u32 len)

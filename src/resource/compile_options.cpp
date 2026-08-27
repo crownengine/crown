@@ -203,6 +203,11 @@ Buffer CompileOptions::read()
 
 void CompileOptions::fake_read(const char *path)
 {
+	fake_read(StringView(path));
+}
+
+void CompileOptions::fake_read(const StringView &path)
+{
 	TempAllocator256 ta;
 	DynamicString path_str(ta);
 	path_str = path;
