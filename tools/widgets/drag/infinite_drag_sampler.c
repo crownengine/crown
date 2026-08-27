@@ -8,18 +8,18 @@
 #include <stdint.h>
 
 #if defined(__linux__)
-#include <errno.h>
-#include <gdk/gdkx.h>
-#include <poll.h>
-#include <sys/eventfd.h>
-#include <unistd.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/extensions/XInput2.h>
-#include <X11/extensions/Xfixes.h>
+#   include <errno.h>
+#   include <gdk/gdkx.h>
+#   include <poll.h>
+#   include <sys/eventfd.h>
+#   include <unistd.h>
+#   include <X11/X.h>
+#   include <X11/Xlib.h>
+#   include <X11/extensions/XInput2.h>
+#   include <X11/extensions/Xfixes.h>
 #elif defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
 #endif /* if defined(__linux__) */
 
 #if defined(__linux__)
@@ -49,16 +49,16 @@ typedef struct CrownInfiniteDragSampler
 	gint samples;
 	gint released;
 	gint cancel_requested;
-	#if defined(__linux__)
+#if defined(__linux__)
 	Window x11_window;
 	gint x11_wake_fd;
-	#elif defined(_WIN32)
+#elif defined(_WIN32)
 	HANDLE windows_stop_event;
 	gint windows_absolute_x;
 	gint windows_absolute_y;
 	gboolean windows_absolute_initialized;
 	gboolean windows_cursor_hidden;
-	#endif /* if defined(__linux__) */
+#endif /* if defined(__linux__) */
 } CrownInfiniteDragSampler;
 
 static void store_delta(CrownInfiniteDragSampler *sampler, gdouble delta_x, gdouble delta_y)
@@ -557,11 +557,11 @@ setup_failed:
 
 static gpointer sample_pointer(gpointer data)
 {
-	#if defined(__linux__)
+#if defined(__linux__)
 	return sample_pointer_x11(data);
-	#elif defined(_WIN32)
+#elif defined(_WIN32)
 	return sample_pointer_windows(data);
-	#endif
+#endif
 	return NULL;
 }
 
@@ -569,14 +569,14 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 {
 	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
-	#if defined(__linux__)
+#if defined(__linux__)
 	sampler->x11_wake_fd = -1;
-	#endif
+#endif
 	g_atomic_int_set(&sampler->running, TRUE);
 	sampler->trigger_button = trigger_button;
 	sampler->cancel_button = cancel_button;
 	sampler->preserve_legacy_events = preserve_legacy_events;
-	#if defined(__linux__)
+#if defined(__linux__)
 	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
 	if (sampler->x11_wake_fd < 0) {
 		g_mutex_clear(&sampler->mutex);
@@ -611,7 +611,7 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 		gdk_seat_ungrab(seat);
 		gdk_display_sync(display);
 	}
-	#elif defined(_WIN32)
+#elif defined(_WIN32)
 	(void)display;
 	(void)window;
 	(void)device;
@@ -632,11 +632,11 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	/* ShowCursor's counter is thread-local, so change it on GTK's UI thread. */
 	ShowCursor(FALSE);
 	sampler->windows_cursor_hidden = TRUE;
-	#else
+#else
 	(void)display;
 	(void)window;
 	(void)device;
-	#endif /* if defined(__linux__) */
+#endif /* if defined(__linux__) */
 	sampler->thread = g_thread_new("infinite-drag", sample_pointer, sampler);
 	return sampler;
 }
@@ -674,29 +674,29 @@ void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *del
 {
 	CrownInfiniteDragSampler *sampler = data;
 	g_atomic_int_set(&sampler->running, FALSE);
-	#if defined(__linux__)
+#if defined(__linux__)
 	if (sampler->x11_wake_fd >= 0) {
 		uint64_t wake_value = 1;
 		while (write(sampler->x11_wake_fd, &wake_value, sizeof(wake_value)) < 0 && errno == EINTR) {
 		}
 	}
-	#elif defined(_WIN32)
+#elif defined(_WIN32)
 	SetEvent(sampler->windows_stop_event);
-	#endif
+#endif
 	g_thread_join(sampler->thread);
-	#if defined(_WIN32)
+#if defined(_WIN32)
 	if (sampler->windows_cursor_hidden) {
 		ShowCursor(TRUE);
 		sampler->windows_cursor_hidden = FALSE;
 	}
-	#endif
+#endif
 	crown_infinite_drag_sampler_drain(sampler, delta_x, delta_y, wheel_dx, wheel_dy, samples);
-	#if defined(__linux__)
+#if defined(__linux__)
 	if (sampler->x11_wake_fd >= 0)
 		close(sampler->x11_wake_fd);
-	#elif defined(_WIN32)
+#elif defined(_WIN32)
 	CloseHandle(sampler->windows_stop_event);
-	#endif
+#endif
 	g_mutex_clear(&sampler->mutex);
 	g_free(sampler);
 }
