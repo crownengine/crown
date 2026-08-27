@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.6 --- DD MMM YYYY <v0.64.6>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: Windows: fixed numeric input drag release.
+
 .. _v0.64.5:
 
 :ref:`0.64.5 --- 27 Aug 2026 <v0.64.5>`

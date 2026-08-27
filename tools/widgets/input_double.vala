@@ -106,6 +106,7 @@ public class InputDouble : InputField
 		_drag.update_interval_ms = DRAG_UPDATE_INTERVAL_MS;
 		_drag.axis_mode = InfiniteDragController.Axis.X;
 		_drag.cancel_button = Gdk.BUTTON_SECONDARY;
+		_drag.preserve_legacy_events = true; // let GTK observe the matching primary-button release
 		_drag.drag_started.connect(on_drag_started);
 		_drag.drag_delta.connect(on_drag_delta);
 		_drag.drag_committed.connect(on_drag_committed);
