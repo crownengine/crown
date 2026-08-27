@@ -50,6 +50,7 @@ project ("crown-launcher")
 		CROWN_DIR .. "src/core/os.cpp",
 		CROWN_DIR .. "src/core/process.cpp",
 		CROWN_DIR .. "src/core/strings/dynamic_string.cpp",
+		CROWN_DIR .. "src/core/strings/string.cpp",
 		CROWN_DIR .. "src/core/strings/string_id.cpp",
 		CROWN_DIR .. "src/core/thread/mutex.cpp",
 		CROWN_DIR .. "src/core/time.cpp",

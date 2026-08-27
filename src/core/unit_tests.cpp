@@ -1127,6 +1127,7 @@ static void test_murmur()
 {
 	const u64 n = murmur64("murmur64", 8, 0);
 	ENSURE(n == 0x90631502d1a3432bu);
+	ENSURE(murmur64(NULL, 0, 0) == 0);
 }
 
 static void test_string_id()
@@ -1135,10 +1136,14 @@ static void test_string_id()
 	{
 		StringId32 a("");
 		ENSURE(a._id == 0);
+		StringId32 b(NULL, 0);
+		ENSURE(b._id == 0);
 	}
 	{
 		StringId64 a("");
 		ENSURE(a._id == 0);
+		StringId64 b(NULL, 0);
+		ENSURE(b._id == 0);
 	}
 	{
 		StringId32 a("murmur32");
@@ -1191,6 +1196,7 @@ static void test_dynamic_string()
 
 		str.set("murmur32", 8);
 		ENSURE(str.length() == 8);
+		ENSURE(str.string_view() == "murmur32");
 
 		const StringId32 id = str.to_string_id();
 		ENSURE(id._id == 0x68bd9babu);
@@ -1215,6 +1221,7 @@ static void test_dynamic_string()
 		str.set("   \tSushi\t   ", 13);
 		str.rtrim();
 		ENSURE(strcmp(str.c_str(), "   \tSushi") == 0);
+		ENSURE(str.string_view() == "   \tSushi");
 	}
 	{
 		TempAllocator1024 ta;
@@ -1319,6 +1326,16 @@ static void test_string_view()
 		StringView sv1("foo");
 		StringView sv2("fooo");
 		ENSURE(sv1 < sv2);
+	}
+	{
+		StringView sv("foo/bar.baz");
+		ENSURE(find(sv, '/') == sv.data() + 3);
+		ENSURE(find_reverse(sv, '.') == sv.data() + 7);
+	}
+	{
+		ENSURE(wildcmp(StringView("f*"), StringView("foo")));
+		ENSURE(wildcmp(StringView("f?o"), StringView("foo")));
+		ENSURE(!wildcmp(StringView("b*"), StringView("foo")));
 	}
 	memory_globals::shutdown();
 }

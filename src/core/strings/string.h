@@ -5,12 +5,22 @@
 
 #pragma once
 
+#include "core/strings/types.h"
 #include "core/types.h"
 
 namespace crown
 {
+/// Returns the first occurrence of @a c in @a str, or NULL.
+const char *find(const StringView &str, char c);
+
+/// Returns the last occurrence of @a c in @a str, or NULL.
+const char *find_reverse(const StringView &str, char c);
+
 ///
 const char *skip_block(const char *str, char a, char b);
+
+///
+int wildcmp(const StringView &wild, const StringView &str);
 
 ///
 int wildcmp(const char *wild, const char *str);

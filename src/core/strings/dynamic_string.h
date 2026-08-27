@@ -75,6 +75,9 @@ struct DynamicString
 	/// Returns the StringId32 of the string.
 	StringId32 to_string_id() const;
 
+	/// Returns a view of the string.
+	StringView string_view() const;
+
 	/// Returns the string as a NULL-terminated string.
 	const char *c_str() const;
 };

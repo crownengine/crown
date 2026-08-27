@@ -114,6 +114,9 @@ struct CompileOptions
 	/// Registers @a path as dependency without reading anything.
 	void fake_read(const char *path);
 
+	/// Registers @a path as dependency without reading anything.
+	void fake_read(const StringView &path);
+
 	///
 	void add_requirement(const char *type, const char *name);
 

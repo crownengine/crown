@@ -9,6 +9,7 @@
 #include "core/error/error.inl"
 #include "core/strings/dynamic_string.h"
 #include "core/strings/string.inl"
+#include "core/strings/string_view.inl"
 #include <string.h> // memmove
 
 namespace crown
@@ -77,33 +78,29 @@ inline DynamicString &operator+=(DynamicString &a, const StringView &fs)
 
 inline bool operator<(const DynamicString &a, const DynamicString &b)
 {
-	return strcmp(a.c_str(), b.c_str()) < 0;
+	return a.string_view() < b.string_view();
 }
 
 inline bool operator==(const DynamicString &a, const DynamicString &b)
 {
-	return array::size(a._data) == array::size(b._data)
-		&& strcmp(a.c_str(), b.c_str()) == 0
-		;
+	return a.string_view() == b.string_view();
 }
 
 inline bool operator!=(const DynamicString &a, const DynamicString &b)
 {
-	return array::size(a._data) != array::size(b._data)
-		|| strcmp(a.c_str(), b.c_str()) != 0
-		;
+	return a.string_view() != b.string_view();
 }
 
 inline bool operator==(const DynamicString &a, const char *str)
 {
 	CE_ENSURE(NULL != str);
-	return strcmp(a.c_str(), str) == 0;
+	return a.string_view() == str;
 }
 
 inline bool operator!=(const DynamicString &a, const char *str)
 {
 	CE_ENSURE(NULL != str);
-	return strcmp(a.c_str(), str) != 0;
+	return !(a.string_view() == str);
 }
 
 inline void DynamicString::reserve(u32 n)
@@ -113,7 +110,7 @@ inline void DynamicString::reserve(u32 n)
 
 inline u32 DynamicString::length() const
 {
-	return strlen32(c_str());
+	return array::size(_data);
 }
 
 inline bool DynamicString::empty() const
@@ -139,7 +136,7 @@ inline void DynamicString::rtrim()
 
 	while (end > str && isspace(*end)) --end;
 
-	*(end + 1) = '\0';
+	array::resize(_data, u32(end - str + 1));
 }
 
 inline void DynamicString::trim()
@@ -160,7 +157,12 @@ inline bool DynamicString::has_suffix(const char *suffix) const
 
 inline StringId32 DynamicString::to_string_id() const
 {
-	return StringId32(c_str());
+	return string_view().to_string_id();
+}
+
+inline StringView DynamicString::string_view() const
+{
+	return StringView(array::begin(_data), array::size(_data));
 }
 
 inline const char *DynamicString::c_str() const
