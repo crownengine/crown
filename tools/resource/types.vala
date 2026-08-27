@@ -2611,7 +2611,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "bounds_sample_rate",
-			label = _("Rate at which the animation is sampled to compute geometry bounds."),
+			tooltip = _("Rate at which the animation is sampled to compute geometry bounds."),
 			deffault = 30.0,
 			min = 10.0,
 			max = 60.0,
@@ -2620,7 +2620,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "bounds_epsilon",
-			label = _("Extra padding applied to the calculated geometry bounds."),
+			tooltip = _("Extra padding applied to the calculated geometry bounds."),
 			deffault = 0.001,
 			min = 0.0,
 		},
