@@ -742,48 +742,64 @@ public class ProjectStore
 			);
 	}
 
+	bool filter_tree(Gtk.TreeIter iter, string needle)
+	{
+		string type;
+		string name;
+		RowKind kind;
+
+		Value val;
+		_tree_store.get_value(iter, Column.TYPE, out val);
+		type = (string)val;
+		_tree_store.get_value(iter, Column.NAME, out val);
+		name = (string)val;
+		_tree_store.get_value(iter, Column.KIND, out val);
+		kind = (RowKind)val;
+
+		bool visible = is_visible(kind, type, name, needle);
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, iter)) {
+			do {
+				visible = filter_tree(child, needle) || visible;
+			} while (_tree_store.iter_next(ref child));
+		}
+
+		_tree_store.get_value(iter, Column.VISIBLE, out val);
+		if ((bool)val != visible)
+			_tree_store.set(iter, Column.VISIBLE, visible, -1);
+
+		return visible;
+	}
+
 	public void filter(string needle)
 	{
-		_tree_store.foreach((model, path, iter) => {
+		Gtk.TreeIter iter;
+		if (_tree_store.iter_children(out iter, null)) {
+			do {
+				filter_tree(iter, needle);
+			} while (_tree_store.iter_next(ref iter));
+		}
+
+		if (_list_store.iter_children(out iter, null)) {
+			do {
 				string type;
 				string name;
 				RowKind kind;
 
 				Value val;
-				model.get_value(iter, ProjectStore.Column.TYPE, out val);
+				_list_store.get_value(iter, Column.TYPE, out val);
 				type = (string)val;
-				model.get_value(iter, ProjectStore.Column.NAME, out val);
+				_list_store.get_value(iter, Column.NAME, out val);
 				name = (string)val;
-				model.get_value(iter, ProjectStore.Column.KIND, out val);
+				_list_store.get_value(iter, Column.KIND, out val);
 				kind = (RowKind)val;
 
-				if (is_visible(kind, type, name, needle)) {
-					// Make this iter and all its ancestors visible.
-					Gtk.TreeIter it = iter;
-					_tree_store.set(it, Column.VISIBLE, true, -1);
-					while (_tree_store.iter_parent(out it, it))
-						_tree_store.set(it, Column.VISIBLE, true, -1);
-				}
-
-				return false; // Continue iterating.
-			});
-
-		_list_store.foreach((model, path, iter) => {
-				string type;
-				string name;
-				RowKind kind;
-
-				Value val;
-				model.get_value(iter, ProjectStore.Column.TYPE, out val);
-				type = (string)val;
-				model.get_value(iter, ProjectStore.Column.NAME, out val);
-				name = (string)val;
-				model.get_value(iter, ProjectStore.Column.KIND, out val);
-				kind = (RowKind)val;
-
-				_list_store.set(iter, ProjectStore.Column.VISIBLE, is_visible(kind, type, name, needle), -1);
-				return false; // Continue iterating.
-			});
+				bool visible = is_visible(kind, type, name, needle);
+				_list_store.get_value(iter, Column.VISIBLE, out val);
+				if ((bool)val != visible)
+					_list_store.set(iter, Column.VISIBLE, visible, -1);
+			} while (_list_store.iter_next(ref iter));
+		}
 	}
 }
 

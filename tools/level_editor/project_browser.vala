@@ -2306,7 +2306,6 @@ public class ProjectBrowser : Gtk.Box
 
 	public void filter(string needle)
 	{
-		_project_store.make_visible(false);
 		_project_store.filter(needle);
 		_tree_search.refilter();
 		_tree_view.expand_all();
