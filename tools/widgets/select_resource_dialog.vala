@@ -15,6 +15,7 @@ public class SelectResourceDialog : Gtk.Window
 
 	// Data
 	public string _resource_type;
+	public string _needle;
 	public Gtk.ListStore _view_store;
 	public ThumbnailCache _thumbnail_cache;
 
@@ -48,6 +49,7 @@ public class SelectResourceDialog : Gtk.Window
 		)
 	{
 		_resource_type = resource_type;
+		_needle = "";
 		_thumbnail_cache = thumbnail_cache;
 
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
@@ -214,8 +216,6 @@ public class SelectResourceDialog : Gtk.Window
 
 	public bool filter_visible_func(Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
-		string needle = _filter_entry.text.strip().down();
-
 		Value type;
 		Value name;
 		model.get_value(iter, ProjectStore.Column.TYPE, out type);
@@ -227,7 +227,7 @@ public class SelectResourceDialog : Gtk.Window
 		return type_str != null
 			&& name_str != null
 			&& type_str == _resource_type
-			&& (needle.length == 0 || name_str.down().index_of(needle) > -1)
+			&& (_needle.length == 0 || name_str.down().index_of(_needle) > -1)
 			;
 	}
 
@@ -447,6 +447,7 @@ public class SelectResourceDialog : Gtk.Window
 
 	public void refilter()
 	{
+		_needle = _filter_entry.text.strip().down();
 		_tree_filter.refilter();
 		rebuild_view_store();
 	}
