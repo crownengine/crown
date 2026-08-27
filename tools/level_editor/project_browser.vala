@@ -474,6 +474,20 @@ public class ProjectFolderView : Gtk.Box
 		_browse_mode = BrowseMode.REGULAR;
 	}
 
+	public void attach_model()
+	{
+		_icon_view.set_model(_list_store);
+		_list_view.set_model(_list_store);
+	}
+
+	public void detach_model()
+	{
+		_first_visible_path = null;
+		_last_visible_path = null;
+		_icon_view.set_model(null);
+		_list_view.set_model(null);
+	}
+
 	public bool on_icon_view_draw(Cairo.Context cr)
 	{
 		Gtk.TreePath first_path;
@@ -1879,6 +1893,7 @@ public class ProjectBrowser : Gtk.Box
 
 	public void update_folder_view()
 	{
+		_folder_view.detach_model();
 		_folder_list_store.clear();
 		_folder_view._list_store.clear();
 
@@ -1886,8 +1901,10 @@ public class ProjectBrowser : Gtk.Box
 			// Get the selected node's type and name.
 			Gtk.TreeModel selected_model;
 			Gtk.TreeIter selected_iter;
-			if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+			if (!_tree_selection.get_selected(out selected_model, out selected_iter)) {
+				_folder_view.attach_model();
 				return;
+			}
 
 			string selected_type;
 			string selected_name;
@@ -2132,6 +2149,8 @@ public class ProjectBrowser : Gtk.Box
 					);
 				return false;
 			});
+
+		_folder_view.attach_model();
 	}
 
 	public void select_project_root()

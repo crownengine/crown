@@ -332,7 +332,9 @@ public class SelectResourceDialog : Gtk.Window
 
 	public void on_project_reset_started()
 	{
+		detach_view_store();
 		_view_store.clear();
+		attach_view_store();
 	}
 
 	public void resource_at_path(Gtk.TreePath path, out string type, out string name)
@@ -449,10 +451,24 @@ public class SelectResourceDialog : Gtk.Window
 		rebuild_view_store();
 	}
 
+	public void attach_view_store()
+	{
+		_tree_view.model = _view_store;
+		_icon_view.model = _view_store;
+	}
+
+	public void detach_view_store()
+	{
+		_tree_view.model = null;
+		_icon_view.model = null;
+	}
+
 	public void rebuild_view_store()
 	{
+		detach_view_store();
 		_view_store.clear();
 		_tree_sort.foreach(copy_view_row);
+		attach_view_store();
 		select_first_result();
 	}
 
