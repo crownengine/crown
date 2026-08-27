@@ -210,65 +210,87 @@ public void set_pixbuf_or_icon(Gtk.CellRenderer cell, Gdk.Pixbuf? pixbuf, string
 	}
 }
 
-public void set_thumbnail(Gtk.CellRenderer cell, ProjectStore.RowKind kind, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
+public string fallback_icon_name(ProjectStore.RowKind kind, string type, ThumbnailCache thumbnail_cache)
 {
 	// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 	if (kind == ProjectStore.RowKind.FOLDER)
-		cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
+		return IconTheme.BROWSER_FOLDER;
 	else if (kind == ProjectStore.RowKind.FAVORITES)
-		cell.set_property("icon-name", IconTheme.BROWSER_FAVORITES);
+		return IconTheme.BROWSER_FAVORITES;
 	else if ((string)type == OBJECT_TYPE_STATE_MACHINE)
-		cell.set_property("icon-name", IconTheme.OBJECT_STATE_MACHINE);
+		return IconTheme.OBJECT_STATE_MACHINE;
 	else if ((string)type == "config")
-		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
+		return IconTheme.OBJECT_CONFIG;
 	else if ((string)type == OBJECT_TYPE_FONT)
-		cell.set_property("icon-name", IconTheme.OBJECT_FONT);
+		return IconTheme.OBJECT_FONT;
 	else if ((string)type == OBJECT_TYPE_LEVEL)
-		cell.set_property("icon-name", IconTheme.OBJECT_LEVEL);
+		return IconTheme.OBJECT_LEVEL;
 	else if ((string)type == OBJECT_TYPE_MATERIAL)
-		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_TEXTURE);
+		return IconTheme.OBJECT_TEXTURE;
 	else if ((string)type == OBJECT_TYPE_MESH)
-		cell.set_property("icon-name", IconTheme.OBJECT_MESH);
+		return IconTheme.OBJECT_MESH;
 	else if ((string)type == "package")
-		cell.set_property("icon-name", IconTheme.OBJECT_PACKAGE);
+		return IconTheme.OBJECT_PACKAGE;
 	else if ((string)type == OBJECT_TYPE_STAT_CONFIG)
-		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
+		return IconTheme.OBJECT_CONFIG;
 	else if ((string)type == "physics_config")
-		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
+		return IconTheme.OBJECT_CONFIG;
 	else if ((string)type == "render_config")
-		cell.set_property("icon-name", IconTheme.OBJECT_CONFIG);
+		return IconTheme.OBJECT_CONFIG;
 	else if ((string)type == "lua")
-		cell.set_property("icon-name", IconTheme.OBJECT_SCRIPT);
+		return IconTheme.OBJECT_SCRIPT;
 	else if ((string)type == OBJECT_TYPE_UNIT)
-		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.LEVEL_OBJECT_UNIT);
+		return IconTheme.LEVEL_OBJECT_UNIT;
 	else if ((string)type == "shader")
-		cell.set_property("icon-name", IconTheme.OBJECT_SHADER);
+		return IconTheme.OBJECT_SHADER;
 	else if ((string)type == OBJECT_TYPE_SOUND)
-		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_SOUND);
+		return IconTheme.OBJECT_SOUND;
 	else if ((string)type == OBJECT_TYPE_SPRITE_ANIMATION)
-		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
+		return IconTheme.OBJECT_ANIMATION;
 	else if ((string)type == OBJECT_TYPE_SPRITE)
-		cell.set_property("icon-name", IconTheme.OBJECT_SPRITE);
+		return IconTheme.OBJECT_SPRITE;
 	else if ((string)type == OBJECT_TYPE_TEXTURE)
-		set_pixbuf_or_icon(cell, thumbnail_cache.get(type, name, icon_size), IconTheme.OBJECT_TEXTURE);
+		return IconTheme.OBJECT_TEXTURE;
 	else if ((string)type == OBJECT_TYPE_MESH_ANIMATION)
-		cell.set_property("icon-name", IconTheme.OBJECT_ANIMATION);
+		return IconTheme.OBJECT_ANIMATION;
 	else if ((string)type == OBJECT_TYPE_MESH_SKELETON)
-		cell.set_property("icon-name", IconTheme.OBJECT_SKELETON);
+		return IconTheme.OBJECT_SKELETON;
 	else {
 		Project project = thumbnail_cache._project;
 		string td = type.down();
 
 		if (project.is_type_image(td))
-			cell.set_property("icon-name", IconTheme.OBJECT_TEXTURE);
+			return IconTheme.OBJECT_TEXTURE;
 		else if (project.is_type_mesh(td))
-			cell.set_property("icon-name", IconTheme.OBJECT_MESH);
+			return IconTheme.OBJECT_MESH;
 		else if (project.is_type_sound(td))
-			cell.set_property("icon-name", IconTheme.OBJECT_SOUND);
+			return IconTheme.OBJECT_SOUND;
 		else if (project.is_type_font(td))
-			cell.set_property("icon-name", IconTheme.OBJECT_FONT);
+			return IconTheme.OBJECT_FONT;
 		else
-			cell.set_property("icon-name", "text-x-generic-symbolic");
+			return "text-x-generic-symbolic";
+	}
+}
+
+public void set_fallback_icon(Gtk.CellRenderer cell, ProjectStore.RowKind kind, string type, ThumbnailCache thumbnail_cache)
+{
+	set_pixbuf_or_icon(cell, null, fallback_icon_name(kind, type, thumbnail_cache));
+}
+
+public void set_thumbnail(Gtk.CellRenderer cell, ProjectStore.RowKind kind, string type, string name, int icon_size, ThumbnailCache thumbnail_cache)
+{
+	if (kind == ProjectStore.RowKind.RESOURCE
+		&& (type == OBJECT_TYPE_MATERIAL
+		|| type == OBJECT_TYPE_UNIT
+		|| type == OBJECT_TYPE_SOUND
+		|| type == OBJECT_TYPE_TEXTURE
+		)) {
+		set_pixbuf_or_icon(cell
+			, thumbnail_cache.get(type, name, icon_size)
+			, fallback_icon_name(kind, type, thumbnail_cache)
+			);
+	} else {
+		set_fallback_icon(cell, kind, type, thumbnail_cache);
 	}
 }
 
