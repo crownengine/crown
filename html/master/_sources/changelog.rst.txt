@@ -13,6 +13,7 @@ Changelog
 * Tools: added the ability to create temporary projects from the Projects panel.
 * Tools: added the ability to move objects to the camera view with ``Ctrl+Alt+F``.
 * Tools: imported models will now assign a default animation to imported state machines.
+* Tools: searching large projects in the Project Browser is now much quicker.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: animated meshes have now correct pre-computed bounds.
@@ -38,6 +39,7 @@ Changelog
 * Tools: fixed rotation inputs not reading values in some cases.
 * Tools: fixed a crash when changing resource properties in some cases.
 * Tools: FBX: mult-clip models will now correctly import all animations.
+* Tools: fixed the Project Browser hanging when searching projects with many thumbnails.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
