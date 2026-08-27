@@ -70,14 +70,14 @@ namespace package_resource_internal
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(reqs, cur);
 
-			const char *req_filename = cur->first.c_str();
-			const char *req_type = resource_type(req_filename);
+			const StringView req_filename = cur->first.string_view();
+			const StringView req_type = resource_type(req_filename);
 			const u32 req_name_len = resource_name_length(req_type, req_filename);
 
 			opts.fake_read(req_filename);
 
-			const StringId64 req_type_hash(req_type);
-			const StringId64 req_name_hash(req_filename, req_name_len);
+			const StringId64 req_type_hash(req_type.data(), req_type.length());
+			const StringId64 req_name_hash(req_filename.data(), req_name_len);
 
 			cur_graph_level = 0;
 			bring_in_requirements(output, &cur_graph_level, resource_id(req_type_hash, req_name_hash), opts);
