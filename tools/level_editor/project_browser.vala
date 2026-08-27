@@ -321,6 +321,8 @@ public class ProjectFolderView : Gtk.Box
 	public ThumbnailCache _thumbnail_cache;
 	public Gtk.ListStore _list_store;
 	public Gtk.IconView _icon_view;
+	public Gtk.TreePath? _first_visible_path;
+	public Gtk.TreePath? _last_visible_path;
 	public Gtk.TreeView _list_view;
 	public Gtk.CellRendererPixbuf _cell_renderer_pixbuf;
 	public Gtk.CellRendererText _cell_renderer_text;
@@ -352,6 +354,7 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view = new Gtk.IconView();
 		_icon_view.set_model(_list_store);
 		_icon_view.set_item_width(80);
+		_icon_view.draw.connect(on_icon_view_draw);
 		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
 		_icon_view.enable_model_drag_dest(DND_TARGETS_DEST, Gdk.DragAction.COPY | Gdk.DragAction.MOVE);
 		_icon_view.drag_data_get.connect(on_drag_data_get);
@@ -469,6 +472,21 @@ public class ProjectFolderView : Gtk.Box
 		this.pack_start(_stack);
 
 		_browse_mode = BrowseMode.REGULAR;
+	}
+
+	public bool on_icon_view_draw(Cairo.Context cr)
+	{
+		Gtk.TreePath first_path;
+		Gtk.TreePath last_path;
+		if (_icon_view.get_visible_range(out first_path, out last_path)) {
+			_first_visible_path = first_path;
+			_last_visible_path = last_path;
+		} else {
+			_first_visible_path = null;
+			_last_visible_path = null;
+		}
+
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void on_drag_data_get(Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
@@ -625,7 +643,14 @@ public class ProjectFolderView : Gtk.Box
 		model.get_value(iter, ProjectStore.Column.KIND, out val);
 		kind = (ProjectStore.RowKind)val;
 
-		set_thumbnail(cell, kind, type, name, 64, _thumbnail_cache);
+		Gtk.TreePath path = model.get_path(iter);
+		if (_first_visible_path != null
+			&& path.compare(_first_visible_path) >= 0
+			&& path.compare(_last_visible_path) <= 0) {
+			set_thumbnail(cell, kind, type, name, 64, _thumbnail_cache);
+		} else {
+			set_fallback_icon(cell, kind, type, _thumbnail_cache);
+		}
 	}
 
 	public void icon_view_text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)

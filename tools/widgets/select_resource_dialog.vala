@@ -29,6 +29,8 @@ public class SelectResourceDialog : Gtk.Window
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _tree_view_window;
 	public Gtk.IconView _icon_view;
+	public Gtk.TreePath? _first_visible_path;
+	public Gtk.TreePath? _last_visible_path;
 	public Gtk.GestureMultiPress _icon_view_gesture_click;
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.Stack _view_stack;
@@ -123,6 +125,7 @@ public class SelectResourceDialog : Gtk.Window
 		_icon_view.set_item_width(80);
 		_icon_view.set_selection_mode(Gtk.SelectionMode.BROWSE);
 		_icon_view.set_tooltip_column(ProjectStore.Column.NAME);
+		_icon_view.draw.connect(on_icon_view_draw);
 		_icon_view.item_activated.connect(confirm_path);
 
 		var icon_renderer = new Gtk.CellRendererPixbuf();
@@ -249,7 +252,14 @@ public class SelectResourceDialog : Gtk.Window
 
 	public void icon_view_thumbnail_func(Gtk.CellLayout layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
-		set_thumbnail_for_iter(cell, model, iter, 64);
+		Gtk.TreePath path = model.get_path(iter);
+		if (_first_visible_path != null
+			&& path.compare(_first_visible_path) >= 0
+			&& path.compare(_last_visible_path) <= 0) {
+			set_thumbnail_for_iter(cell, model, iter, 64);
+		} else {
+			set_fallback_icon_for_iter(cell, model, iter);
+		}
 	}
 
 	public void icon_view_text_func(Gtk.CellLayout layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
@@ -300,6 +310,21 @@ public class SelectResourceDialog : Gtk.Window
 		_tree_view.queue_draw();
 	}
 
+	public bool on_icon_view_draw(Cairo.Context cr)
+	{
+		Gtk.TreePath first_path;
+		Gtk.TreePath last_path;
+		if (_icon_view.get_visible_range(out first_path, out last_path)) {
+			_first_visible_path = first_path;
+			_last_visible_path = last_path;
+		} else {
+			_first_visible_path = null;
+			_last_visible_path = null;
+		}
+
+		return Gdk.EVENT_PROPAGATE;
+	}
+
 	public void on_project_files_changed()
 	{
 		rebuild_view_store();
@@ -339,6 +364,20 @@ public class SelectResourceDialog : Gtk.Window
 			, (string)type
 			, (string)name
 			, size
+			, _thumbnail_cache
+			);
+	}
+
+	public void set_fallback_icon_for_iter(Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value kind;
+		Value type;
+		model.get_value(iter, ProjectStore.Column.KIND, out kind);
+		model.get_value(iter, ProjectStore.Column.TYPE, out type);
+
+		set_fallback_icon(cell
+			, (ProjectStore.RowKind)kind
+			, (string)type
 			, _thumbnail_cache
 			);
 	}
