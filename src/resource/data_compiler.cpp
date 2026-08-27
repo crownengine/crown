@@ -2509,10 +2509,10 @@ static s32 compile_resources_worker(void *user_data)
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(dc._source_index._paths, cur);
 
-				const DynamicString &source_path = cur->first;
+				const StringView source_path = cur->first.string_view();
 				for (u32 ii = 0, nn = vector::size(opts._new_requirement_globs); ii < nn; ++ii) {
-					if (wildcmp(opts._new_requirement_globs[ii].c_str(), source_path.c_str()))
-						hash_map::set(new_requirements, source_path, 0u);
+					if (wildcmp(opts._new_requirement_globs[ii].string_view(), source_path))
+						hash_map::set(new_requirements, cur->first, 0u);
 				}
 			}
 
