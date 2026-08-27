@@ -39,6 +39,7 @@ typedef struct CrownInfiniteDragSampler
 	gint anchor_x;
 	gint anchor_y;
 	gint cancel_button;
+	gboolean preserve_legacy_events;
 	gdouble delta_x;
 	gdouble delta_y;
 	gint samples;
@@ -329,13 +330,15 @@ static void complete_windows_setup(CrownInfiniteDragSampler *sampler, gboolean s
 	g_mutex_unlock(&sampler->mutex);
 }
 
-static gboolean register_windows_raw_input(HWND target)
+static gboolean register_windows_raw_input(HWND target, gboolean preserve_legacy_events)
 {
 	RAWINPUTDEVICE mouse =
 	{
 		.usUsagePage = 0x01,
 		.usUsage = 0x02,
-		.dwFlags = target != NULL ? RIDEV_INPUTSINK | RIDEV_NOLEGACY : RIDEV_REMOVE,
+		.dwFlags = target != NULL
+			? RIDEV_INPUTSINK | (preserve_legacy_events ? 0 : RIDEV_NOLEGACY)
+			: RIDEV_REMOVE,
 		.hwndTarget = target,
 	};
 	if (RegisterRawInputDevices(&mouse, 1, sizeof(mouse)))
@@ -471,7 +474,7 @@ static gpointer sample_pointer_windows(gpointer data)
 	if (window == NULL)
 		goto setup_failed;
 
-	if (!register_windows_raw_input(window))
+	if (!register_windows_raw_input(window, sampler->preserve_legacy_events))
 		goto setup_failed;
 	registered = TRUE;
 
@@ -510,13 +513,13 @@ static gpointer sample_pointer_windows(gpointer data)
 	SetCursorPos(sampler->anchor_x, sampler->anchor_y);
 	ClipCursor(NULL);
 
-	register_windows_raw_input(NULL);
+	register_windows_raw_input(NULL, FALSE);
 	DestroyWindow(window);
 	return NULL;
 
 setup_failed:
 	if (registered)
-		register_windows_raw_input(NULL);
+		register_windows_raw_input(NULL, FALSE);
 	if (window != NULL)
 		DestroyWindow(window);
 	g_atomic_int_set(&sampler->running, FALSE);
@@ -536,7 +539,7 @@ static gpointer sample_pointer(gpointer data)
 	return NULL;
 }
 
-void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint cancel_button)
+void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, GdkDevice *device, gint cancel_button, gboolean preserve_legacy_events)
 {
 	CrownInfiniteDragSampler *sampler = g_new0(CrownInfiniteDragSampler, 1);
 	g_mutex_init(&sampler->mutex);
@@ -545,6 +548,7 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 	#endif
 	g_atomic_int_set(&sampler->running, TRUE);
 	sampler->cancel_button = cancel_button;
+	sampler->preserve_legacy_events = preserve_legacy_events;
 	#if defined(__linux__)
 	sampler->x11_wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
 	if (sampler->x11_wake_fd < 0) {
