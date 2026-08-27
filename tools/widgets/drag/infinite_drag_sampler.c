@@ -57,6 +57,7 @@ typedef struct CrownInfiniteDragSampler
 	gint windows_absolute_x;
 	gint windows_absolute_y;
 	gboolean windows_absolute_initialized;
+	gboolean windows_cursor_hidden;
 	#endif /* if defined(__linux__) */
 } CrownInfiniteDragSampler;
 
@@ -515,7 +516,6 @@ static gpointer sample_pointer_windows(gpointer data)
 	if (!ClipCursor(&clip)) {
 		goto setup_failed;
 	}
-	ShowCursor(FALSE);
 
 	while (g_atomic_int_get(&sampler->running)) {
 		DWORD wait_result = MsgWaitForMultipleObjects(1
@@ -536,10 +536,9 @@ static gpointer sample_pointer_windows(gpointer data)
 	/* GTK may observe the release just before this worker does. */
 	drain_windows_raw_input_messages();
 
-	/* Preserve the release invariant: restore, unconfine, then reveal. */
+	/* Restore and unconfine before the GTK thread reveals the cursor after joining. */
 	SetCursorPos(sampler->anchor_x, sampler->anchor_y);
 	ClipCursor(NULL);
-	ShowCursor(TRUE);
 
 	register_windows_raw_input(NULL, FALSE);
 	DestroyWindow(window);
@@ -630,6 +629,9 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkWindow *window, 
 		g_free(sampler);
 		return NULL;
 	}
+	/* ShowCursor's counter is thread-local, so change it on GTK's UI thread. */
+	ShowCursor(FALSE);
+	sampler->windows_cursor_hidden = TRUE;
 	#else
 	(void)display;
 	(void)window;
@@ -682,6 +684,12 @@ void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *del
 	SetEvent(sampler->windows_stop_event);
 	#endif
 	g_thread_join(sampler->thread);
+	#if defined(_WIN32)
+	if (sampler->windows_cursor_hidden) {
+		ShowCursor(TRUE);
+		sampler->windows_cursor_hidden = FALSE;
+	}
+	#endif
 	crown_infinite_drag_sampler_drain(sampler, delta_x, delta_y, wheel_dx, wheel_dy, samples);
 	#if defined(__linux__)
 	if (sampler->x11_wake_fd >= 0)
