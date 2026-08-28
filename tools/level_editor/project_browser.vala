@@ -354,6 +354,9 @@ public class ProjectFolderView : Gtk.Box
 		_icon_view = new Gtk.IconView();
 		_icon_view.set_model(_list_store);
 		_icon_view.set_item_width(80);
+		_icon_view.set_item_padding(2);
+		_icon_view.set_column_spacing(0);
+		_icon_view.set_row_spacing(0);
 		_icon_view.draw.connect(on_icon_view_draw);
 		_icon_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS_SOURCE, Gdk.DragAction.COPY);
 		_icon_view.enable_model_drag_dest(DND_TARGETS_DEST, Gdk.DragAction.COPY | Gdk.DragAction.MOVE);

@@ -125,6 +125,9 @@ public class SelectResourceDialog : Gtk.Window
 		_icon_view = new Gtk.IconView();
 		_icon_view.model = _view_store;
 		_icon_view.set_item_width(80);
+		_icon_view.set_item_padding(2);
+		_icon_view.set_column_spacing(0);
+		_icon_view.set_row_spacing(0);
 		_icon_view.set_selection_mode(Gtk.SelectionMode.BROWSE);
 		_icon_view.set_tooltip_column(ProjectStore.Column.NAME);
 		_icon_view.draw.connect(on_icon_view_draw);
