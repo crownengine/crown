@@ -23,6 +23,9 @@ Gizmo = Gizmo or {
 	plane_hidden_threshold  = 1.17
 }
 
+local GIZMO_RING_INWARD_MARGIN  = 10 -- Pixels.
+local GIZMO_RING_OUTWARD_MARGIN = 16 -- Pixels.
+
 function Color4.lerp_alpha(color, alpha)
 	local cr, cg, cb, ca = Quaternion.elements(color)
 	local color_transparent = Quaternion.from_elements(cr, cg, cb, 0)
@@ -183,6 +186,24 @@ function line_line(line_a_pt1, line_a_pt2, line_b_pt1, line_b_pt2)
 	local normalized_distance_along_line_a = (b * f - c * e) / d
 	local normalized_distance_along_line_b = (a * f - b * c) / d
 	return normalized_distance_along_line_a, normalized_distance_along_line_b
+end
+
+local function ray_gizmo_ring_intersection(from, dir, center, radius, normal, world_units_per_pixel)
+	local t = Math.ray_plane_intersection(from, dir, center, normal)
+	if t == -1.0 then
+		return -1.0
+	end
+
+	local inner_radius = radius - GIZMO_RING_INWARD_MARGIN*world_units_per_pixel
+	local outer_radius = radius + GIZMO_RING_OUTWARD_MARGIN*world_units_per_pixel
+	local point = from + dir*t
+	local distance_squared = Vector3.distance_squared(point, center)
+	if distance_squared < inner_radius*inner_radius
+		or distance_squared > outer_radius*outer_radius then
+		return -1.0
+	end
+
+	return t
 end
 
 function draw_world_origin_grid(lines, size, step)
@@ -1058,7 +1079,7 @@ function RotateTool:update(dt, x, y)
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.x(tm)),
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.y(tm)),
 			Math.ray_disc_intersection(pos, dir, p, l, Matrix4x4.z(tm)),
-			Math.ray_disc_intersection(pos, dir, p, l*1.25, -cam_forward)
+			ray_gizmo_ring_intersection(pos, dir, p, l*1.25, -cam_forward, l/Gizmo.size)
 		}
 
 		local nearest = nil
@@ -1315,7 +1336,7 @@ function ScaleTool:update(dt, x, y)
 			{ plane_enabled(self:z_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0.25, 0   )), axis_len*Vector3(0.25, 0.25, 0.07)) },
 			{ plane_enabled(self:x_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0   , 0.25, 0.25)), axis_len*Vector3(0.07, 0.25, 0.25)) },
 			{ plane_enabled(self:y_axis(), cam_to_gizmo), 1, Math.ray_obb_intersection(pos, dir, transform(tm, axis_len*Vector3(0.25, 0   , 0.25)), axis_len*Vector3(0.25, 0.07, 0.25)) },
-			{ 1                                         , 2, Math.ray_disc_intersection(pos, dir, Matrix4x4.translation(tm), axis_len*1.25, cam_forward)                                }
+			{ 1                                         , 2, ray_gizmo_ring_intersection(pos, dir, p, axis_len*1.25, cam_forward, axis_len/Gizmo.size)                                  }
 		}
 
 		local nearest = nil
