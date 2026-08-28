@@ -75,7 +75,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_paned.pack2(_objects_properties, true, false);
 
 		this.set_titlebar(_header_bar);
-		this.set_size_request(1000, 600);
+		this.set_default_size(1000, 600);
 
 		int win_w;
 		int win_h;
