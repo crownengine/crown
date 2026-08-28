@@ -353,7 +353,6 @@ public class InputColor3 : InputField
 
 		_rgb_grid = new PropertyGrid();
 		_rgb_grid.row_homogeneous = false;
-		_rgb_grid.label_width_chars = 8;
 		_rgb_grid.add_row(_("Red"), _rgb_r);
 		_rgb_grid.add_row(_("Green"), _rgb_g);
 		_rgb_grid.add_row(_("Blue"), _rgb_b);
@@ -361,7 +360,6 @@ public class InputColor3 : InputField
 
 		_hsv_grid = new PropertyGrid();
 		_hsv_grid.row_homogeneous = false;
-		_hsv_grid.label_width_chars = 8;
 		_hsv_grid.add_row(_("Hue"), _hsv_h);
 		_hsv_grid.add_row(_("Saturation"), _hsv_s);
 		_hsv_grid.add_row(_("Value"), _hsv_v);

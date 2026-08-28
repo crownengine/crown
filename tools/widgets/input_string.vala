@@ -58,6 +58,7 @@ public class InputString : InputField
 		_value = "";
 
 		_entry = new Gtk.Entry();
+		_entry.set_width_chars(0);
 
 		_gesture_click = new Gtk.GestureMultiPress(_entry);
 		_gesture_click.pressed.connect(on_button_pressed);

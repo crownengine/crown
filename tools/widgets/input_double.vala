@@ -89,7 +89,7 @@ public class InputDouble : InputField
 
 		_entry = new Gtk.Entry();
 		_entry.input_purpose = Gtk.InputPurpose.FREE_FORM;
-		_entry.set_width_chars(1);
+		_entry.set_width_chars(0);
 		_entry.editable = false;
 
 		_entry.activate.connect(on_activate);
@@ -97,6 +97,7 @@ public class InputDouble : InputField
 		_entry.focus_out_event.connect(on_focus_out);
 
 		_label = new Gtk.Label(_entry.text);
+		_label.ellipsize = Pango.EllipsizeMode.END;
 		_label.halign = Gtk.Align.FILL;
 		_label.xalign = 0.0f;
 		_label.get_style_context().add_class("label-button");

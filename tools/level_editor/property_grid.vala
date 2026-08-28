@@ -226,7 +226,7 @@ public class PropertyGrid : Gtk.Grid
 	public int _rows;
 	public double _order;
 	public bool _visible;
-	public int label_width_chars;
+	public Gtk.SizeGroup? _label_size_group;
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
 
@@ -315,7 +315,6 @@ public class PropertyGrid : Gtk.Grid
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
 		this.column_spacing = 12;
-		this.label_width_chars = 13;
 
 		// Data
 		_expander = null;
@@ -326,6 +325,7 @@ public class PropertyGrid : Gtk.Grid
 		_rows = 0;
 		_order = 0.0;
 		_visible = true;
+		_label_size_group = null;
 		_selection_anchor_id = selection_anchor_id;
 
 		_gestures = new GLib.HashTable<string, Gtk.GestureMultiPress>(GLib.str_hash, GLib.str_equal);
@@ -364,13 +364,65 @@ public class PropertyGrid : Gtk.Grid
 		_controller_click.released.connect(on_expander_button_released);
 	}
 
+	public void set_label_size_group(Gtk.SizeGroup size_group)
+	{
+		assert(_label_size_group == null);
+
+		_label_size_group = size_group;
+		add_labels_to_size_group();
+	}
+
+	private void add_labels_to_size_group()
+	{
+		if (_label_size_group == null)
+			return;
+
+		for (int row = 0; row < _rows; ++row) {
+			Gtk.Widget? child = this.get_child_at(0, row);
+			if (child != null)
+				_label_size_group.add_widget(child);
+		}
+	}
+
+	private void remove_labels_from_size_group()
+	{
+		if (_label_size_group == null)
+			return;
+
+		for (int row = 0; row < _rows; ++row) {
+			Gtk.Widget? child = this.get_child_at(0, row);
+			if (child != null)
+				_label_size_group.remove_widget(child);
+		}
+	}
+
+	public void show_grid()
+	{
+		if (_visible)
+			return;
+
+		_visible = true;
+		add_labels_to_size_group();
+	}
+
+	public void hide_grid()
+	{
+		if (!_visible)
+			return;
+
+		remove_labels_from_size_group();
+		_visible = false;
+	}
+
 	public Gtk.Widget add_row(string label, Gtk.Widget w, string? tooltip = null)
 	{
 		Gtk.Label l = new Gtk.Label(label);
-		l.width_chars = label_width_chars;
+		l.ellipsize = Pango.EllipsizeMode.END;
 		l.xalign = 1.0f;
 		l.yalign = 0.5f;
 		l.set_tooltip_text(tooltip);
+		if (_visible && _label_size_group != null)
+			_label_size_group.add_widget(l);
 
 		w.hexpand = true;
 
@@ -790,10 +842,13 @@ public class PropertyGrid : Gtk.Grid
 public class PropertyGridSet : Gtk.Box
 {
 	public Gtk.ListBox _list_box;
+	public Gtk.SizeGroup _label_size_group;
 
 	public PropertyGridSet()
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
+
+		_label_size_group = new Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL);
 
 		_list_box = new Gtk.ListBox();
 		_list_box.selection_mode = Gtk.SelectionMode.NONE;
@@ -836,6 +891,7 @@ public class PropertyGridSet : Gtk.Box
 		e.expanded = true;
 		e.add(cv);
 		cv.set_expander(e);
+		cv.set_label_size_group(_label_size_group);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 		row.can_focus = false;
@@ -863,6 +919,7 @@ public class PropertyGridSet : Gtk.Box
 		e.expanded = true;
 		e.add(cv);
 		cv.set_expander(e);
+		cv.set_label_size_group(_label_size_group);
 
 		Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 		row.can_focus = false;

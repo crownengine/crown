@@ -1477,6 +1477,7 @@ public class LevelEditorApplication : Gtk.Application
 		_project_stack = make_compiler_stack(_project_browser);
 		_editor_stack = make_compiler_stack(_editor_viewport);
 		_inspector_stack = make_compiler_stack(_inspector_pane);
+		_inspector_stack.hhomogeneous = false;
 
 		// Game run/stop button.
 		_game_run_stop_image = new Gtk.Image.from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);

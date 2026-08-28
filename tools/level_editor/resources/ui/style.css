@@ -33,10 +33,6 @@ notebook > header tab {
 	min-height: 22px;
 }
 
-.axis entry {
-	min-width: 22px;
-}
-
 .axis.x entry {
 	background: rgba(180, 0, 0, 0.2);
 }

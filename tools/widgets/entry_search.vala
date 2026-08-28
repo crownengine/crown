@@ -17,6 +17,7 @@ public class EntrySearch : Gtk.Box
 		Object(orientation: Gtk.Orientation.HORIZONTAL);
 
 		_entry = new Gtk.SearchEntry();
+		_entry.set_width_chars(0);
 		_search_timeout_id = 0;
 
 		_entry.focus_in_event.connect(on_focus_in);

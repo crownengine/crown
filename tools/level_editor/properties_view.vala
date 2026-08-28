@@ -70,6 +70,8 @@ public class UnitView : PropertyGrid
 		_prefab.value_changed.connect(on_prefab_value_changed);
 
 		_open_prefab = new Gtk.Button.with_label(_("Open Prefab"));
+		Gtk.Label open_prefab_label = (Gtk.Label)_open_prefab.get_child();
+		open_prefab_label.ellipsize = Pango.EllipsizeMode.END;
 		_open_prefab.sensitive = false;
 		_open_prefab.clicked.connect(on_open_prefab_clicked);
 
@@ -230,6 +232,8 @@ public class UnitView : PropertyGrid
 
 		_component_add = new Gtk.MenuButton();
 		_component_add.label = _("Add Component");
+		Gtk.Label component_add_label = (Gtk.Label)_component_add.get_child();
+		component_add_label.ellipsize = Pango.EllipsizeMode.END;
 		_component_add.set_popover(_add_popover);
 
 		_components = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
@@ -316,8 +320,13 @@ public class PropertiesView : Gtk.Box
 		_scrolled_window.add(_viewport);
 
 		_stack = new Gtk.Stack();
-		_stack.add_named(new Gtk.Label(_("Select an object to start editing")), NOTHING_TO_SHOW);
-		_stack.add_named(new Gtk.Label(_("Unknown object type")), UNKNOWN_OBJECT_TYPE);
+		_stack.hhomogeneous = false;
+		Gtk.Label nothing_to_show = new Gtk.Label(_("Select an object to start editing"));
+		nothing_to_show.ellipsize = Pango.EllipsizeMode.END;
+		_stack.add_named(nothing_to_show, NOTHING_TO_SHOW);
+		Gtk.Label unknown_object_type = new Gtk.Label(_("Unknown object type"));
+		unknown_object_type.ellipsize = Pango.EllipsizeMode.END;
+		_stack.add_named(unknown_object_type, UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
 
 		this.pack_start(_stack);
@@ -350,7 +359,7 @@ public class PropertiesView : Gtk.Box
 				if (unit.has_component(out component_id, type) || type == OBJECT_TYPE_UNIT) {
 					cv._id = id;
 					cv._component_id = component_id;
-					cv._visible = true;
+					cv.show_grid();
 					cv.read_properties();
 
 					if (component_id != GUID_ZERO) {
@@ -362,7 +371,7 @@ public class PropertiesView : Gtk.Box
 
 					cv._expander.expanded = was_expanded;
 				} else {
-					cv._visible = false;
+					cv.hide_grid();
 					cv._id = GUID_ZERO;
 					cv._component_id = GUID_ZERO;
 				}
@@ -383,13 +392,13 @@ public class PropertiesView : Gtk.Box
 					bool was_expanded = _expander_states.contains(type) ? _expander_states[type] : false;
 
 					cv._id = id;
-					cv._visible = true;
+					cv.show_grid();
 					cv.read_properties();
 
 					cv._expander.show();
 					cv._expander.expanded = was_expanded;
 				} else {
-					cv._visible = false;
+					cv.hide_grid();
 					cv._id = GUID_ZERO;
 					cv._component_id = GUID_ZERO;
 				}

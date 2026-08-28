@@ -83,6 +83,8 @@ public class InputEnum : InputField
 		_combo.entry_text_column = 1;
 
 		Gtk.CellRendererText renderer = new Gtk.CellRendererText();
+		renderer.ellipsize = Pango.EllipsizeMode.END;
+		renderer.set_fixed_size(0, -1);
 		_combo.pack_start(renderer, true);
 		_combo.add_attribute(renderer, "text", 1);
 
