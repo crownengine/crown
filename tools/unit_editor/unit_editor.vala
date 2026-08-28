@@ -107,8 +107,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 		int win_w;
 		int win_h;
 		this.get_size(out win_w, out win_h);
-		_paned_inspector.set_position(530);
-		_paned_object.set_position(340);
+		int object_panel_width = (int)(win_w * (220.0 / 1280.0));
+		int inspector_panel_width = int.max((int)(win_w * (375.0 / 2560.0)), 232);
+		_paned_object.set_position(object_panel_width);
+		_paned_inspector.set_position(win_w - object_panel_width - inspector_panel_width);
 
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;

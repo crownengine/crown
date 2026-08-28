@@ -108,7 +108,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		int win_w;
 		int win_h;
 		this.get_size(out win_w, out win_h);
-		_paned.set_position(win_w - 360);
+		int inspector_panel_width = (int)(win_w * (360.0 / 1280.0));
+		_paned.set_position(win_w - inspector_panel_width);
 
 		GLib.Menu menu = new GLib.Menu();
 		GLib.MenuItem mi = null;

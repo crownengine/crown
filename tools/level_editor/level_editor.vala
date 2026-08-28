@@ -4603,10 +4603,13 @@ public class LevelEditorApplication : Gtk.Application
 			int win_w;
 			int win_h;
 			this.active_window.get_size(out win_w, out win_h);
-			_editor_pane.set_position(320);
+			// 180, 264 and 348 are just enough to show 2, 3 and 4 project icons respectively.
+			int project_panel_width = int.max((int)(win_w * 0.13125 + 12.0), 180);
+			int inspector_panel_width = int.max((int)(win_w * (375.0 / 2560.0)), 232);
+			_editor_pane.set_position(project_panel_width);
 			_content_pane.set_position(win_h - 250);
 			_inspector_pane.set_position(win_h - 600);
-			_main_pane.set_position(win_w - 375);
+			_main_pane.set_position(win_w - inspector_panel_width);
 
 			menu_set_enabled(true, action_entries_file);
 			menu_set_enabled(true, action_entries_edit);
