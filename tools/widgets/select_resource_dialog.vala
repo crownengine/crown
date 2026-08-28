@@ -53,7 +53,7 @@ public class SelectResourceDialog : Gtk.Window
 		_thumbnail_cache = thumbnail_cache;
 
 		this.set_icon_name(CROWN_EDITOR_ICON_NAME);
-		this.set_default_size(500, 650);
+		this.set_default_size(516, 650);
 
 		if (parent != null) {
 			this.set_transient_for(parent);

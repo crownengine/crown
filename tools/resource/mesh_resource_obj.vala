@@ -302,6 +302,7 @@ public class OBJImportDialog : Gtk.Window
 		on_import_materials_changed();
 
 		this.set_titlebar(_header_bar);
+		this.set_default_size(391, 258);
 		this.add(_box);
 	}
 

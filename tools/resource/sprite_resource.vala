@@ -666,6 +666,7 @@ public class SpriteImportDialog : Gtk.Window
 		_header_bar.pack_end(_import);
 
 		this.set_titlebar(_header_bar);
+		this.set_default_size(1149, 681);
 		this.add(_box);
 		this.map_event.connect(on_map_event);
 

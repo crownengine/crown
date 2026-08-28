@@ -173,6 +173,7 @@ public class TextureSettingsDialog : Gtk.Window
 		_never_opened_before = true;
 		_stack.map.connect(on_stack_map);
 
+		this.set_default_size(560, 342);
 		this.delete_event.connect(on_delete_event);
 	}
 

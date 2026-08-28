@@ -759,6 +759,7 @@ public class DeployDialog : Gtk.Window
 		_controller_key = new Gtk.EventControllerKey(this);
 		_controller_key.key_pressed.connect(on_key_pressed);
 
+		this.set_default_size(464, 623);
 		this.add(_notebook);
 	}
 

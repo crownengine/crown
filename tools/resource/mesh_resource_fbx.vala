@@ -320,6 +320,7 @@ public class FBXImportDialog : Gtk.Window
 		on_import_options_changed();
 
 		this.set_titlebar(_header_bar);
+		this.set_default_size(456, 430);
 		this.add(_box);
 	}
 
