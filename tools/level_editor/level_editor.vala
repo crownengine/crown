@@ -468,12 +468,12 @@ public class LevelEditorWindow : Gtk.ApplicationWindow
 
 	public bool _fullscreen;
 
-	public LevelEditorWindow(Gtk.Application app, Gtk.HeaderBar header_bar)
+	public LevelEditorWindow(Gtk.Application app, Gtk.Widget title_bar)
 	{
 		Object(application: app);
 
 		this.add_action_entries(action_entries, this);
-		this.set_titlebar(header_bar);
+		this.set_titlebar(title_bar);
 
 		this.title = CROWN_EDITOR_NAME;
 		this.window_state_event.connect(this.on_window_state_event);
@@ -1194,7 +1194,11 @@ public class LevelEditorApplication : Gtk.Application
 	public NewProject _new_project;
 	public ProjectsList _projects_list;
 	public Gtk.Stack _main_stack;
+	public Gtk.Label _title_label;
+	public Gtk.Label _title_width;
+	public Gtk.Box _title_button;
 	public Gtk.HeaderBar _header_bar;
+	public Gtk.Overlay _title_bar;
 	public LevelEditorWindow _level_editor_window;
 
 	public uint _save_timer_id;
@@ -1539,7 +1543,49 @@ public class LevelEditorApplication : Gtk.Application
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.show_close_button = true;
 		_header_bar.has_subtitle = false;
-		_header_bar.pack_start(_game_run);
+		_header_bar.custom_title = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+
+		Gtk.MenuBar menubar = new Gtk.MenuBar.from_model(make_menubar());
+		_header_bar.pack_start(menubar);
+
+		_title_width = new Gtk.Label(CROWN_EDITOR_NAME);
+		_title_width.get_style_context().add_class("title");
+		_title_width.opacity = 0.0;
+
+		Gtk.Overlay title_left = new Gtk.Overlay();
+		title_left.hexpand = true;
+		title_left.add(_title_width);
+
+		_title_label = new Gtk.Label(null);
+		_title_label.ellipsize = Pango.EllipsizeMode.END;
+		_title_label.xalign = 1.0f;
+		_title_label.get_style_context().add_class("title");
+		title_left.add_overlay(_title_label);
+
+		Gtk.Box title_right = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		title_right.hexpand = true;
+
+		_title_button = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+
+		Gtk.Box title_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		title_box.halign = Gtk.Align.FILL;
+		title_box.valign = Gtk.Align.CENTER;
+		title_box.pack_start(title_left, true, true, 0);
+		title_box.pack_start(_title_button, false, false, 0);
+		title_box.pack_start(title_right, true, true, 0);
+
+		_title_bar = new Gtk.Overlay();
+		_title_bar.add(_header_bar);
+		_title_bar.add_overlay(title_box);
+		_title_bar.set_overlay_pass_through(title_box, true);
+
+		_game_run.halign = Gtk.Align.CENTER;
+		_game_run.valign = Gtk.Align.CENTER;
+		_title_bar.add_overlay(_game_run);
+
+		menubar.size_allocate.connect(on_menubar_size_allocate);
+		_title_width.size_allocate.connect(on_title_width_size_allocate);
+		_game_run.size_allocate.connect(on_game_run_size_allocate);
 
 		// Delete expired logs
 		if (_preferences_dialog._log_delete_after_days.value != 0) {
@@ -1580,14 +1626,13 @@ public class LevelEditorApplication : Gtk.Application
 		_console_view._entry_history.load(_console_history_file.get_path());
 
 		show_panel(PANEL_WAITING);
-
-		this.set_menubar(make_menubar());
 	}
 
 	public override void activate()
 	{
 		if (_level_editor_window == null) {
-			_level_editor_window = new LevelEditorWindow(this, _header_bar);
+			_level_editor_window = new LevelEditorWindow(this, _title_bar);
+			_level_editor_window.bind_property("title", _title_label, "label", GLib.BindingFlags.SYNC_CREATE);
 			if (_window_state.contains("level_editor_window"))
 				_level_editor_window.decode((GLib.HashTable<string, Value?>)_window_state["level_editor_window"]);
 			_level_editor_window.add(_main_stack);
@@ -1609,6 +1654,24 @@ public class LevelEditorApplication : Gtk.Application
 			, GLib.BusNameWatcherFlags.NONE
 			, on_subprocess_launcher_appeared
 			);
+	}
+
+	public void on_menubar_size_allocate(Gtk.Allocation allocation)
+	{
+		_title_label.margin_start = allocation.x + allocation.width;
+	}
+
+	public void on_title_width_size_allocate(Gtk.Allocation allocation)
+	{
+		int minimum_width;
+		int natural_width;
+		_title_width.get_preferred_width(out minimum_width, out natural_width);
+		_game_run.margin_start = natural_width;
+	}
+
+	public void on_game_run_size_allocate(Gtk.Allocation allocation)
+	{
+		_title_button.width_request = allocation.width;
 	}
 
 	public void on_subprocess_launcher_appeared(GLib.DBusConnection connection, string name)

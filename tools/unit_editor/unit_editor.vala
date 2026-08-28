@@ -22,7 +22,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public Gtk.Paned _paned_object;
 	public Gtk.Paned _paned_inspector;
-	public Gtk.Button _cancel;
 	public Gtk.Button _save;
 	public Gtk.HeaderBar _header_bar;
 	public Gtk.Box _box;
@@ -83,10 +82,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_statusbar = new Statusbar();
 
-		_cancel = new Gtk.Button.with_label(_("Cancel"));
-		_cancel.clicked.connect(() => {
-				close();
-			});
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
 		_save.get_style_context().add_class("suggested-action");
 		_save.clicked.connect(() => {
@@ -96,7 +91,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.title = _("Unit Editor");
 		_header_bar.show_close_button = true;
-		_header_bar.pack_start(_cancel);
 		_header_bar.pack_end(_save);
 
 		_paned_inspector = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
@@ -127,11 +121,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 		mi.set_submenu(make_camera_view_menu());
 		menu.append_item(mi);
 
-		this.show_menubar = false;
 		Gtk.MenuBar menubar = new Gtk.MenuBar.from_model(menu);
+		_header_bar.pack_start(menubar);
 
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		_box.pack_start(menubar, false);
 		_box.pack_start(_paned_object);
 		_box.pack_start(_statusbar, false);
 
