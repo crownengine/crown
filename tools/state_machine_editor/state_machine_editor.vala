@@ -103,7 +103,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_paned.pack2(_inspector_paned, false, false);
 
 		this.set_titlebar(_header_bar);
-		this.set_size_request(1280, 720);
+		this.set_default_size(1280, 720);
 
 		int win_w;
 		int win_h;

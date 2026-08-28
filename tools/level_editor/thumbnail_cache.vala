@@ -294,7 +294,7 @@ public class ThumbnailCache
 			_debug_pixbuf._zoom = 0.4;
 			_debug_window = new Gtk.Window();
 			_debug_window.set_title("ThumbnailCache Debug");
-			_debug_window.set_size_request(800, 800);
+			_debug_window.set_default_size(800, 800);
 			_debug_window.add(_debug_pixbuf);
 			this.changed.connect(() => {
 					_debug_pixbuf.set_pixbuf(_atlas);
