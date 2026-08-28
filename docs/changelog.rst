@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.7 --- DD MMM YYYY <v0.64.7>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed scale/rotate gizmo rings being activated too far from their visible outline.
+
 .. _v0.64.6:
 
 :ref:`0.64.6 --- 28 Aug 2026 <v0.64.6>`
