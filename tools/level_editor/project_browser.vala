@@ -420,6 +420,7 @@ public class ProjectFolderView : Gtk.Box
 		cell_pixbuf.stock_size = Gtk.IconSize.DND;
 		cell_pixbuf.set_fixed_size(32, 32);
 		var cell_text = new Gtk.CellRendererText();
+		cell_text.ellipsize = Pango.EllipsizeMode.END;
 
 		Gtk.TreeViewColumn column = null;
 		column = new Gtk.TreeViewColumn();
@@ -468,6 +469,7 @@ public class ProjectFolderView : Gtk.Box
 		_list_view_window.add(_list_view);
 
 		_stack = new Gtk.Stack();
+		_stack.hhomogeneous = false;
 		_stack.add_named(_icon_view_window, "icon-view");
 		_stack.add_named(_list_view_window, "list-view");
 		_stack.set_visible_child_full("icon-view", Gtk.StackTransitionType.NONE);
@@ -1175,6 +1177,7 @@ public class ProjectBrowser : Gtk.Box
 		cell_pixbuf.stock_size = Gtk.IconSize.SMALL_TOOLBAR;
 		cell_pixbuf.set_fixed_size(16, 16);
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
+		cell_text.ellipsize = Pango.EllipsizeMode.END;
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		column.pack_start(cell_pixbuf, false);
 		column.pack_start(cell_text, true);
@@ -1370,6 +1373,7 @@ public class ProjectBrowser : Gtk.Box
 
 		// Create address bar
 		_address_bar = new Gtk.Entry();
+		_address_bar.set_width_chars(0);
 		_address_bar.set_placeholder_text("/");
 		_address_bar.hexpand = true;
 		_address_bar.activate.connect((ev) => {
@@ -1489,9 +1493,12 @@ public class ProjectBrowser : Gtk.Box
 		_empty_favorites_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		_empty_favorites_box.valign = Gtk.Align.CENTER;
 		_empty_favorites_box.pack_start(new Gtk.Image.from_icon_name(IconTheme.BROWSER_FAVORITES, Gtk.IconSize.DIALOG), false, false);
-		_empty_favorites_box.pack_start(new Gtk.Label(_("Favorites is empty")), false, false);
+		Gtk.Label empty_favorites_label = new Gtk.Label(_("Favorites is empty"));
+		empty_favorites_label.ellipsize = Pango.EllipsizeMode.END;
+		_empty_favorites_box.pack_start(empty_favorites_label, false, false);
 
 		_folder_stack = new Gtk.Stack();
+		_folder_stack.hhomogeneous = false;
 		_folder_stack.add_named(_folder_view, "folder-view");
 		_folder_stack.add_named(_empty_favorites_box, "empty-favorites");
 		_folder_stack.set_visible_child_full("folder-view", Gtk.StackTransitionType.NONE);
