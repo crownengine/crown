@@ -9,6 +9,10 @@ entry {
 	padding-right: 4px;
 }
 
+headerbar {
+	min-height: 36px;
+}
+
 notebook > header tab {
 	min-height: 24px;
 	min-width: 24px;
