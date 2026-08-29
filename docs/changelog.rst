@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed scale/rotate gizmo rings being activated too far from their visible outline.
+* Tools: fixed multiple undo steps being generated when picking colors from the screen.
 
 .. _v0.64.6:
 
