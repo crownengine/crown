@@ -240,6 +240,7 @@ public class InputColor3 : InputField
 	public PropertyGrid _hsv_grid;
 	public InputString _color_string;
 	public Gtk.Button _picker_button;
+	public Gtk.Button _main_picker_button;
 	public GLib.Object _picker;
 	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.EventControllerMotion _controller_motion;
@@ -247,6 +248,7 @@ public class InputColor3 : InputField
 	public Gtk.Box _numeric_box;
 	public Gtk.Box _input_box;
 	public Gtk.Box _utils_box;
+	public Gtk.Box _button_box;
 	public Gtk.Box _rgb_box;
 	public Gtk.Box _hsv_box;
 	public Gtk.Stack _rgb_hsv_stack;
@@ -376,6 +378,9 @@ public class InputColor3 : InputField
 		_picker_button = new Gtk.Button.from_icon_name("color-select-symbolic");
 		_picker_button.set_tooltip_text(_("Pick a color from the screen."));
 		_picker_button.clicked.connect(on_picker_button_clicked);
+		_main_picker_button = new Gtk.Button.from_icon_name("color-select-symbolic");
+		_main_picker_button.set_tooltip_text(_("Pick a color from the screen."));
+		_main_picker_button.clicked.connect(on_picker_button_clicked);
 		_picker = gtk_color_picker_new();
 
 		_rgb_hsv_stack = new Gtk.Stack();
@@ -417,8 +422,13 @@ public class InputColor3 : InputField
 		_color_button.can_focus = false;
 		_color_button.set_popover(_popover);
 
+		_button_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_button_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
+		_button_box.pack_start(_color_button, true, true, 0);
+		_button_box.pack_start(_main_picker_button, false, false, 0);
+
 		this.value_changed.connect(on_value_changed);
-		this.add(_color_button);
+		this.add(_button_box);
 
 		on_value_changed();
 	}
