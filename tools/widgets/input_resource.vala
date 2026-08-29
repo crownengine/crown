@@ -61,6 +61,7 @@ public class InputResource : InputField
 	public InputResource(string type, Database db)
 	{
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
 
 		// Data
 		_type = type;

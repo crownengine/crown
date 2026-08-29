@@ -61,6 +61,7 @@ public class InputFile : InputField
 	public InputFile(Gtk.FileChooserAction action = Gtk.FileChooserAction.OPEN)
 	{
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
 
 		_path = null;
 		_action = action;

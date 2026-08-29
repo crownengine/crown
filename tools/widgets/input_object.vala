@@ -76,6 +76,7 @@ public class InputObject : InputField
 		_database = database;
 
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		_box.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
 
 		_name = new Gtk.Entry();
 		_name.set_width_chars(0);
