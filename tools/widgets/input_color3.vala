@@ -351,8 +351,11 @@ public class InputColor3 : InputField
 		_hsv_s.value_changed.connect(on_hsv_value_changed);
 		_hsv_v.value_changed.connect(on_hsv_value_changed);
 
+		Gtk.SizeGroup label_size_group = new Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL);
+
 		_rgb_grid = new PropertyGrid();
 		_rgb_grid.row_homogeneous = false;
+		_rgb_grid.set_label_size_group(label_size_group);
 		_rgb_grid.add_row(_("Red"), _rgb_r);
 		_rgb_grid.add_row(_("Green"), _rgb_g);
 		_rgb_grid.add_row(_("Blue"), _rgb_b);
@@ -360,6 +363,7 @@ public class InputColor3 : InputField
 
 		_hsv_grid = new PropertyGrid();
 		_hsv_grid.row_homogeneous = false;
+		_hsv_grid.set_label_size_group(label_size_group);
 		_hsv_grid.add_row(_("Hue"), _hsv_h);
 		_hsv_grid.add_row(_("Saturation"), _hsv_s);
 		_hsv_grid.add_row(_("Value"), _hsv_v);
