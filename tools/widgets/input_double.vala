@@ -361,6 +361,8 @@ public class InputDouble : InputField
 
 		_entry.text = format_value(_value, _edit_decimals);
 		_label.set_text(format_value(_value, _preview_decimals));
+
+		clear_focus();
 	}
 
 	public bool on_focus_in(Gdk.EventFocus ev)
