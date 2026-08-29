@@ -45,6 +45,7 @@ Changelog
 * Tools: fixed the Project Browser hanging when searching projects with many thumbnails.
 * Tools: Windows: fixed numeric input drag release.
 * Tools: fixed scale/rotate gizmo rings being activated too far from their visible outline.
+* Tools: fixed multiple undo steps being generated when picking colors from the screen.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
