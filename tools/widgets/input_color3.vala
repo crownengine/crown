@@ -727,8 +727,12 @@ public class InputColor3 : InputField
 	{
 		GLib.Error error = null;
 		Gdk.RGBA? rgba = gtk_color_picker_pick_finish(_picker, result, ref error);
-		if (rgba != null)
+		if (rgba != null) {
+			disconnect_rgb();
 			this.value = Vector3(rgba.red, rgba.green, rgba.blue);
+			connect_rgb();
+			on_rgb_value_changed(_rgb_r, 1);
+		}
 	}
 
 	public void on_picker_button_clicked()
