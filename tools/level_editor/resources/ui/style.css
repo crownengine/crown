@@ -13,6 +13,12 @@ headerbar {
 	min-height: 36px;
 }
 
+headerbar > button {
+	min-height: 24px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
 notebook > header tab {
 	min-height: 24px;
 	min-width: 24px;
