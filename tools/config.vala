@@ -19,6 +19,8 @@ const string CROWN_LATEST_DOCS_URL = CROWN_DOCS_URL + "/html/" + CROWN_MANUAL_VE
 const string CROWN_LATEST_CHANGELOG_URL = CROWN_LATEST_DOCS_URL + "/changelog.html#changelog";
 const string CROWN_FUND_URL = CROWN_WWW_URL + "/fund";
 const string CROWN_CREDITS_URL = CROWN_WWW_URL + "/about/credits";
+const string CROWN_DOWNLOAD_URL = CROWN_WWW_URL + "/download";
+const string CROWN_VERSION_URL = CROWN_WWW_URL + "/version.json";
 
 #if CROWN_PLATFORM_LINUX
 const string ENGINE_DIR = ".";
