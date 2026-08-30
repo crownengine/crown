@@ -1050,14 +1050,15 @@ public class LevelEditorApplication : Gtk.Application
 
 	public const GLib.ActionEntry[] action_entries_debug =
 	{
-		{ "menu-debug",          null,                   null, null },
-		{ "test-level",          on_run_game,            null, null },
-		{ "run-game",            on_run_game,            null, null },
-		{ "run-project-game",    on_run_project_game,    "s",  null },
-		{ "build-data",          on_build_data,          null, null },
-		{ "reload-all",          on_reload_all,          null, null },
-		{ "restart-backend",     on_restart_backend,     null, null },
-		{ "restart-editor-view", on_restart_editor_view, null, null }
+		{ "menu-debug",               null,                        null, null },
+		{ "test-level",               on_run_game,                 null, null },
+		{ "run-game",                 on_run_game,                 null, null },
+		{ "run-project-game",         on_run_project_game,         "s",  null },
+		{ "build-data",               on_build_data,               null, null },
+		{ "reload-all",               on_reload_all,               null, null },
+		{ "restart-backend",          on_restart_backend,          null, null },
+		{ "restart-editor-view",      on_restart_editor_view,      null, null },
+		{ "restart-thumbnail-server", on_restart_thumbnail_server, null, null }
 	};
 
 	public const GLib.ActionEntry[] action_entries_help =
@@ -2346,6 +2347,12 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	public async void restart_thumbnail_server()
+	{
+		yield _thumbnail.stop();
+		yield start_thumbnail();
+	}
+
 	public void on_tool(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		ToolType type = (ToolType)param.get_int32();
@@ -3410,6 +3417,11 @@ public class LevelEditorApplication : Gtk.Application
 		_editor_viewport.restart_runtime.begin((obj, res) => {
 				_editor_viewport.restart_runtime.end(res);
 			});
+	}
+
+	public void on_restart_thumbnail_server(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		restart_thumbnail_server.begin();
 	}
 
 	public void on_build_data(GLib.SimpleAction action, GLib.Variant? param)

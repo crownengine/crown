@@ -481,6 +481,10 @@ public GLib.Menu make_debug_menu()
 	mi.set_detailed_action("app.restart-editor-view");
 	ms.append_item(mi);
 
+	mi = new GLib.MenuItem(_("_Restart Thumbnail Server"), null);
+	mi.set_detailed_action("app.restart-thumbnail-server");
+	ms.append_item(mi);
+
 	menu.append_section(null, ms);
 	ms = new GLib.Menu();
 
