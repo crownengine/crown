@@ -1102,7 +1102,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "browse-logs",  on_browse_logs,  null, null },
 		{ "changelog",    on_changelog,    null, null },
 		{ "donate",       on_donate,       null, null },
-		{ "credits",      on_credits,      null, null }
+		{ "credits",      on_credits,      null, null },
+		{ "upgrade",      on_upgrade,      null, null }
 	};
 
 	public const GLib.ActionEntry[] action_entries_project =
@@ -1231,6 +1232,8 @@ public class LevelEditorApplication : Gtk.Application
 	public Gtk.Label _title_label;
 	public Gtk.Label _title_width;
 	public Gtk.Box _title_button;
+	public uint _check_version_trimer_id;
+	public UpgradeButton _upgrade_button;
 	public Gtk.HeaderBar _header_bar;
 #if !CROWN_GTK3
 	public Gtk.PopoverMenuBar _menubar;
@@ -1659,6 +1662,8 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_new_project, PANEL_NEW_PROJECT);
 		_main_stack.add_named(_main_vbox, PANEL_EDITOR);
 
+		_upgrade_button = new UpgradeButton();
+
 		_header_bar = new Gtk.HeaderBar();
 #if CROWN_GTK3
 		_header_bar.show_close_button = true;
@@ -1674,6 +1679,8 @@ public class LevelEditorApplication : Gtk.Application
 		_menubar = new Gtk.PopoverMenuBar.from_model(make_menubar());
 		_header_bar.pack_start(_menubar);
 #endif
+		_header_bar.pack_end(new Gtk.Separator(Gtk.Orientation.VERTICAL));
+		_header_bar.pack_end(_upgrade_button);
 
 		_title_width = new Gtk.Label(CROWN_EDITOR_NAME);
 #if CROWN_GTK3
@@ -1782,6 +1789,8 @@ public class LevelEditorApplication : Gtk.Application
 
 		_user.load(_user_file.get_path());
 		_console_view._entry_history.load(_console_history_file.get_path());
+
+		_check_version_trimer_id = GLib.Timeout.add(5000, on_check_version);
 
 		show_panel(PANEL_WAITING);
 	}
@@ -4016,6 +4025,15 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
+	public void on_upgrade(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		try {
+			AppInfo.launch_default_for_uri(CROWN_DOWNLOAD_URL, _app_launch_context);
+		} catch (Error e) {
+			loge(e.message);
+		}
+	}
+
 	public void on_browse_logs(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		open_directory(_logs_dir.get_path());
@@ -5180,6 +5198,23 @@ public class LevelEditorApplication : Gtk.Application
 
 		send_editor_selection();
 		_editor_viewport.frame();
+	}
+
+	public bool on_check_version()
+	{
+		if (!_preferences_dialog._internet_access.value)
+			return GLib.Source.REMOVE;
+
+		_check_version_trimer_id = 0;
+
+		Version.query_remote.begin((obj, res) => {
+				Version remote;
+				if (Version.query_remote.end(res, out remote)) {
+					Version local = Version.parse(CROWN_VERSION);
+					_upgrade_button.visible = remote.newer_than(local);
+				}
+			});
+		return GLib.Source.REMOVE;
 	}
 }
 

@@ -34,6 +34,7 @@ public class PreferencesDialog : Gtk.Window
 	public InputDouble _log_delete_after_days;
 	public InputDouble _console_max_lines;
 	public InputDouble _thumbnail_cache_max_size;
+	public InputBool _internet_access;
 	public PropertyGridSet _system_set;
 
 	// External Tools page.
@@ -179,6 +180,14 @@ public class PreferencesDialog : Gtk.Window
 		cv.add_row(_("Thumbnail cache max size (MiB)"), _thumbnail_cache_max_size, _("Maximum size allowed (on RAM) for the thumbnail cache."));
 		_system_set.add_property_grid(cv, _("Memory and Limits"));
 
+		_internet_access = new InputBool();
+		_internet_access.value = true;
+
+		cv = new PropertyGrid();
+		cv.column_homogeneous = true;
+		cv.add_row(_("Internet Access"), _internet_access, _("Allow access to the internet to check for software updates."));
+		_system_set.add_property_grid(cv, _("Network"));
+
 		// External tools page.
 		_external_editor_lua = new AppChooserButton("text/plain");
 		_external_editor_image = new AppChooserButton("image/*");
@@ -305,6 +314,7 @@ public class PreferencesDialog : Gtk.Window
 		_console_max_lines.value          = preferences.contains("console_max_lines") ? (double)preferences["console_max_lines"] : _console_max_lines.value;
 		_thumbnail_cache_max_size.value   = (preferences.contains("thumbnail_cache_max_size") ? (double)preferences["thumbnail_cache_max_size"] : _thumbnail_cache_max_size.value);
 		_editor_renderer.value            = validate_editor_renderer(preferences.contains("editor_renderer") ? (string)preferences["editor_renderer"] : _editor_renderer.value);
+		_internet_access.value             = preferences.contains("internet_access") ? (bool)preferences["internet_access"] : _internet_access.value;
 
 		if (preferences.contains("theme"))
 			_theme_combo.value = (string)preferences["theme"];
@@ -392,6 +402,7 @@ public class PreferencesDialog : Gtk.Window
 		preferences["theme"]          = _theme_combo.value;
 		preferences["thumbnail_cache_max_size"] = _thumbnail_cache_max_size.value;
 		preferences["editor_renderer"] = _editor_renderer.value;
+		preferences["internet_access"] = _internet_access.value;
 
 		// External tools.
 		string app;
