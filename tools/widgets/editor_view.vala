@@ -239,6 +239,18 @@ public class EditorView : Gtk.EventBox
 				_drag_enter = true;
 			}
 
+#if CROWN_GTK3
+			Gdk.ModifierType state;
+			context.get_device().get_state(this.get_window(), null, out state);
+			bool control_pressed = (state & Gdk.ModifierType.CONTROL_MASK) != 0;
+			if (_keys[Gdk.Key.Control_L] != control_pressed) {
+				if (control_pressed)
+					on_key_pressed(Gdk.Key.Control_L, 0, state);
+				else
+					on_key_released(Gdk.Key.Control_L, 0, state);
+			}
+#endif
+
 			if (_time - _drag_last_time >= 1000/MOTION_EVENTS_RATE_HZ) {
 				// Drag motion events seem to fire at a very high frequency compared to regular
 				// motion notify events. Limit them to MOTION_EVENTS_RATE_HZ.
@@ -266,6 +278,8 @@ public class EditorView : Gtk.EventBox
 		GLib.Application.get_default().activate_action("cancel-place", null);
 		_runtime.send(DeviceApi.frame());
 		Gtk.drag_finish(context, true, false, time_);
+		if (_keys[Gdk.Key.Control_L])
+			on_key_released(Gdk.Key.Control_L, 0, 0);
 		return true;
 	}
 
@@ -273,6 +287,8 @@ public class EditorView : Gtk.EventBox
 	{
 		// https://valadoc.org/gtk+-3.0/Gtk.Widget.drag_leave.html
 		_drag_enter = false;
+		if (_keys[Gdk.Key.Control_L])
+			on_key_released(Gdk.Key.Control_L, 0, 0);
 	}
 
 	public bool on_button_event(uint button)
