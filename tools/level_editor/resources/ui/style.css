@@ -15,6 +15,7 @@ headerbar {
 
 headerbar > button {
 	min-height: 24px;
+	min-width: 26px;
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
