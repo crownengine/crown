@@ -305,6 +305,9 @@ public class PropertyGrid : Gtk.Grid
 	public double _order;
 	public bool _visible;
 	public Gtk.SizeGroup? _label_size_group;
+	public InputBool? _expander_input_bool;
+	public Gtk.Widget? _expander_input_label;
+	public int _expander_input_row;
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
 
@@ -417,6 +420,9 @@ public class PropertyGrid : Gtk.Grid
 		_order = 0.0;
 		_visible = true;
 		_label_size_group = null;
+		_expander_input_bool = null;
+		_expander_input_label = null;
+		_expander_input_row = -1;
 		_selection_anchor_id = selection_anchor_id;
 
 #if CROWN_GTK3
@@ -535,6 +541,31 @@ public class PropertyGrid : Gtk.Grid
 		return l;
 	}
 
+	public InputBool? steal_enabled_input_bool()
+	{
+		if (_expander_input_bool == null)
+			return null;
+
+		assert(_expander_input_label != null);
+		assert(_expander_input_row >= 0);
+
+		InputBool input_bool = (InputBool)_expander_input_bool;
+		Gtk.Widget input_label = (Gtk.Widget)_expander_input_label;
+		if (_visible && _label_size_group != null)
+			_label_size_group.remove_widget(input_label);
+
+		this.remove(input_bool);
+		this.remove(input_label);
+		this.remove_row(_expander_input_row);
+		--_rows;
+
+		_expander_input_bool = null;
+		_expander_input_label = null;
+		_expander_input_row = -1;
+
+		return input_bool;
+	}
+
 	public void add_object_type(PropertyDefinition[] properties)
 	{
 		foreach (PropertyDefinition def in properties) {
@@ -638,8 +669,18 @@ public class PropertyGrid : Gtk.Grid
 			_widgets[def.name] = p;
 			_definitions[p] = def;
 
-			if (!def.hidden)
-				add_row(def.label, p, def.tooltip);
+			if (!def.hidden) {
+				Gtk.Widget label = add_row(def.label, p, def.tooltip);
+				if (def.type == PropertyType.BOOL
+					&& (def.name == "enabled" || def.name.has_suffix(".enabled"))
+					) {
+					assert(_expander_input_bool == null);
+					_expander_input_bool = (InputBool)p;
+					_expander_input_label = label;
+					_expander_input_row = _rows - 1;
+					p.set_tooltip_text(def.tooltip);
+				}
+			}
 		}
 	}
 
@@ -1004,8 +1045,25 @@ public class PropertyGridSet : Gtk.Box
 		return ((PropertyGrid)e._child)._visible;
 	}
 
+	private void set_header(Expander expander, Gtk.Label label, InputBool? input_bool)
+	{
+		expander.custom_header = label;
+		if (input_bool == null)
+			return;
+
+		InputBool field = (InputBool)input_bool;
+		field.hexpand = false;
+#if CROWN_GTK3
+		expander._header_box.pack_start(field, false, false);
+		expander._header_box.reorder_child(field, 1);
+#else
+		expander._header_box.insert_child_after(field, expander._arrow_image);
+#endif
+	}
+
 	public Expander add_property_grid(PropertyGrid cv, string label, string? tooltip = null)
 	{
+		InputBool? input_bool = cv.steal_enabled_input_bool();
 		Gtk.Label l = new Gtk.Label(null);
 		l.set_markup("<b>%s</b>".printf(label));
 		l.xalign = 0.0f;
@@ -1013,7 +1071,7 @@ public class PropertyGridSet : Gtk.Box
 		l.set_tooltip_text(label);
 
 		Expander e = new Expander();
-		e.custom_header = l;
+		set_header(e, l, input_bool);
 		e.expanded = true;
 		e.add(cv);
 		cv.set_expander(e);
@@ -1043,18 +1101,8 @@ public class PropertyGridSet : Gtk.Box
 		l.yalign = 0.5f;
 		l.set_tooltip_text(tooltip);
 
-		Gtk.Box b = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
-		InputBool.hexpand = false;
-#if CROWN_GTK3
-		b.pack_start(InputBool, false, false);
-		b.pack_start(l, false, false);
-#else
-		b.append(InputBool);
-		b.append(l);
-#endif
-
 		Expander e = new Expander();
-		e.custom_header = b;
+		set_header(e, l, InputBool);
 		e.expanded = true;
 		e.add(cv);
 		cv.set_expander(e);
