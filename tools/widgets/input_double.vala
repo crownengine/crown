@@ -33,6 +33,9 @@ public class InputDouble : InputField
 	public Gtk.EventControllerKey _controller_key;
 	public Gtk.EventControllerKey _drag_controller_key;
 	public Gtk.EventControllerMotion _controller_motion;
+#if !CROWN_GTK3
+	public Gtk.EventControllerFocus _controller_focus;
+#endif
 	public Gtk.GestureSingle _gesture_click;
 
 	public InfiniteDragController _drag;
@@ -91,7 +94,14 @@ public class InputDouble : InputField
 		_entry.set_width_chars(0);
 		_entry.editable = false;
 		_entry.activate.connect(on_activate);
+#if CROWN_GTK3
 		_entry.notify["has-focus"].connect(on_focus_changed);
+#else
+		_controller_focus = new Gtk.EventControllerFocus();
+		_controller_focus.enter.connect(on_focus_in);
+		_controller_focus.leave.connect(on_focus_out);
+		_entry.add_controller(_controller_focus);
+#endif
 
 		_label = new Gtk.Label(_entry.text);
 		_label.ellipsize = Pango.EllipsizeMode.END;
