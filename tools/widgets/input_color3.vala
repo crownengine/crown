@@ -182,7 +182,7 @@ static void color_from_anchors(out Vector3 rgb, double theta)
 	rgb.z = MathUtils.lerp(primary_colors[idx].z, primary_colors[next].z, t);
 }
 
-static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, double hsv_value)
+static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r)
 {
 	Cairo.MeshPattern mesh = new Cairo.MeshPattern();
 
@@ -199,9 +199,7 @@ static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, doub
 
 		Vector3 base_col;
 		color_from_anchors(out base_col, theta);
-		cols[i].x = base_col.x * hsv_value;
-		cols[i].y = base_col.y * hsv_value;
-		cols[i].z = base_col.z * hsv_value;
+		cols[i] = base_col;
 	}
 
 	for (int i = 0; i < HS_PALETTE_SEGMENTS; ++i) {
@@ -218,9 +216,9 @@ static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, doub
 		mesh.line_to(ox[inext], oy[inext]);
 
 		mesh.set_corner_color_rgb(0
-			, hsv_value
-			, hsv_value
-			, hsv_value
+			, 1.0
+			, 1.0
+			, 1.0
 			);
 		mesh.set_corner_color_rgb(1,
 			cols[i].x,
@@ -254,6 +252,7 @@ public class InputColor3 : InputField
 	public double _hs_lens_radius_scale;
 	public double _hs_lens_small_radius_scale;
 	public Gtk.DrawingArea _hs_palette;
+	public Cairo.ImageSurface? _hs_circle_buffer;
 	public Gtk.Scale _hsv_v_scale;
 	public Gtk.GestureSingle _hsv_v_scale_gesture_click;
 	public InputDouble _rgb_r;
@@ -552,29 +551,46 @@ public class InputColor3 : InputField
 		radius = full_radius - full_radius * _hs_lens_radius_scale;
 	}
 
+	public void create_circle_buffer(int width, int height, double radius)
+	{
+		_hs_circle_buffer = new Cairo.ImageSurface(Cairo.Format.ARGB32, width, height);
+
+		Cairo.Context cr = new Cairo.Context(_hs_circle_buffer);
+		Cairo.MeshPattern mesh = create_circle_mesh(width / 2.0, height / 2.0, radius);
+		cr.arc(width / 2.0, height / 2.0, radius, 0, PI_TWO);
+		cr.clip();
+		cr.set_source(mesh);
+		cr.paint();
+	}
+
 #if CROWN_GTK3
 	public bool on_draw_circle(Cairo.Context cr)
 #else
-	public void on_draw_circle(Gtk.DrawingArea hs_palette, Cairo.Context cr, int w, int h)
+	public void on_draw_circle(Gtk.DrawingArea hs_palette, Cairo.Context cr, int width, int height)
 #endif
 	{
 #if CROWN_GTK3
-		double w = (double)this._hs_palette.get_allocated_width();
-		double h = (double)this._hs_palette.get_allocated_height();
+		int width = this._hs_palette.get_allocated_width();
+		int height = this._hs_palette.get_allocated_height();
 #endif
-		double cx = w / 2.0;
-		double cy = h / 2.0;
+		double cx = width * 0.5;
+		double cy = height * 0.5;
 		double full_radius;
 		double radius;
 		palette_radius(out full_radius, out radius);
 
-		Cairo.MeshPattern mesh = create_circle_mesh(cx, cy, radius, _hsv_v.value);
+		if (_hs_circle_buffer == null
+			|| _hs_circle_buffer.get_width() != width
+			|| _hs_circle_buffer.get_height() != height)
+			create_circle_buffer(width, height, radius);
 
 		cr.save();
 		cr.arc(cx, cy, radius, 0, PI_TWO);
 		cr.clip();
-
-		cr.set_source(mesh);
+		cr.set_source_surface(_hs_circle_buffer, 0.0, 0.0);
+		cr.paint();
+		cr.set_operator(Cairo.Operator.MULTIPLY);
+		cr.set_source_rgb(_hsv_v.value, _hsv_v.value, _hsv_v.value);
 		cr.paint();
 
 		cr.restore();
