@@ -14,7 +14,7 @@ Changelog
 * Tools: added the ability to move objects to the camera view with ``Ctrl+Alt+F``.
 * Tools: imported models will now assign a default animation to imported state machines.
 * Tools: searching large projects in the Project Browser is now much quicker.
-* Tools: optimized vertical space usage in the editor windows by moving the menubar into the titlebar.
+* Tools: optimized vertical space usage in the editor windows by moving the menubar into the titlebar. Also, properties in the Inspector are now better packed.
 * Tools: increased icons density in the Project Browser by removing excessive padding and margins.
 * Tools: property grids' widgets now better adapt when the containing panel is resized horizontally.
 * Tools: added an automatic check for new versions. Access to the internet can be disabled in the preferences.

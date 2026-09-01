@@ -568,7 +568,46 @@ public class PropertyGrid : Gtk.Grid
 
 	public void add_object_type(PropertyDefinition[] properties)
 	{
+		int[] property_groups = new int[properties.length];
+		uint[] group_sizes = new uint[properties.length];
+		Gtk.Box?[] group_boxes = new Gtk.Box?[properties.length];
+		Gtk.SizeGroup?[] group_input_size_groups = new Gtk.SizeGroup?[properties.length];
+		int pi;
+
+		// Assign matching properties to a group led by its first property.
+		for (pi = 0; pi < properties.length; ++pi) {
+			property_groups[pi] = -1;
+			PropertyDefinition def = properties[pi];
+			if (def.hidden || def.type == PropertyType.OBJECTS_SET)
+				continue;
+
+			int dot = def.name.last_index_of_char('.');
+			int underscore = def.name.last_index_of_char('_');
+			if (underscore <= dot + 1 || underscore == def.name.length - 1)
+				continue;
+
+			int group_index = pi;
+			string group = def.name.substring(0, underscore);
+			for (int ii = 0; ii < pi; ++ii) {
+				PropertyDefinition other = properties[ii];
+				if (property_groups[ii] == -1 || other.type != def.type)
+					continue;
+
+				int other_underscore = other.name.last_index_of_char('_');
+				if (group == other.name.substring(0, other_underscore)) {
+					group_index = property_groups[ii];
+					break;
+				}
+			}
+
+			property_groups[pi] = group_index;
+			group_sizes[group_index]++;
+		}
+
+		pi = 0;
 		foreach (PropertyDefinition def in properties) {
+			int group_index = property_groups[pi++];
+
 			// Create input field.
 			InputField? p = null;
 
@@ -670,15 +709,84 @@ public class PropertyGrid : Gtk.Grid
 			_definitions[p] = def;
 
 			if (!def.hidden) {
-				Gtk.Widget label = add_row(def.label, p, def.tooltip);
-				if (def.type == PropertyType.BOOL
-					&& (def.name == "enabled" || def.name.has_suffix(".enabled"))
-					) {
-					assert(_expander_input_bool == null);
-					_expander_input_bool = (InputBool)p;
-					_expander_input_label = label;
-					_expander_input_row = _rows - 1;
+				bool grouped = group_index != -1 && group_sizes[group_index] > 1;
+
+				if (grouped) {
+					// Create or retrieve the group's row and input size group.
+					int underscore = def.name.last_index_of_char('_');
+					string group = def.name.substring(0, underscore);
+					string suffix = def.name.substring(underscore + 1);
+					bool first = group_boxes[group_index] == null;
+					Gtk.Box box;
+					Gtk.SizeGroup input_size_group;
+					if (first) {
+						box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+						group_boxes[group_index] = box;
+						input_size_group = new Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL);
+						group_input_size_groups[group_index] = input_size_group;
+					} else {
+						box = (Gtk.Box)group_boxes[group_index];
+						input_size_group = (Gtk.SizeGroup)group_input_size_groups[group_index];
+					}
+
+					bool axis = def.type == PropertyType.DOUBLE
+						&& (suffix == "x" || suffix == "y" || suffix == "z" || suffix == "w")
+						;
+
+					// Merge the first suffix into the row label; label later fields inline.
+					Gtk.Widget member = p;
+					if (first) {
+						string label = camel_case(group.substring(group.last_index_of_char('.') + 1));
+						if (!axis)
+							label += " " + camel_case(suffix);
+						add_row(label, box, def.tooltip);
+					} else if (!axis) {
+						Gtk.Box labeled_field = new Gtk.Box(Gtk.Orientation.HORIZONTAL, (int)this.column_spacing);
+						Gtk.Label label = new Gtk.Label(camel_case(suffix));
+						label.xalign = 1.0f;
+						label.yalign = 0.5f;
+						label.set_tooltip_text(def.tooltip);
+#if CROWN_GTK3
+						labeled_field.pack_start(label, false, false);
+						labeled_field.pack_start(p, true, true);
+#else
+						labeled_field.append(label);
+						labeled_field.append(p);
+#endif
+						member = labeled_field;
+					}
+
+					if (axis) {
+#if CROWN_GTK3
+						p.get_style_context().add_class("axis");
+						p.get_style_context().add_class(suffix);
+#else
+						p.add_css_class("axis");
+						p.add_css_class(suffix);
+#endif
+					}
+
+					input_size_group.add_widget(p);
 					p.set_tooltip_text(def.tooltip);
+					p.hexpand = true;
+					member.hexpand = true;
+#if CROWN_GTK3
+					box.pack_start(member, true, true);
+#else
+					box.append(member);
+#endif
+				} else {
+					Gtk.Widget label = add_row(def.label, p, def.tooltip);
+
+					if (def.type == PropertyType.BOOL
+						&& (def.name == "enabled" || def.name.has_suffix(".enabled"))
+						) {
+						assert(_expander_input_bool == null);
+						_expander_input_bool = (InputBool)p;
+						_expander_input_label = label;
+						_expander_input_row = _rows - 1;
+						p.set_tooltip_text(def.tooltip);
+					}
 				}
 			}
 		}
