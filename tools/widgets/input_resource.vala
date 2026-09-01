@@ -97,14 +97,15 @@ public class InputResource : InputField
 #endif
 
 #if CROWN_GTK3
-		Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(_name);
+		_gesture_click = new Gtk.GestureMultiPress(_name);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_name_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_name_button_released);
 #else
-		Gtk.GestureClick gesture_click = new Gtk.GestureClick();
-		_name.add_controller(gesture_click);
+		_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_name_button_pressed);
+		((Gtk.GestureClick)_gesture_click).released.connect(on_name_button_released);
+		_name.add_controller(_gesture_click);
 #endif
-		gesture_click.pressed.connect(on_name_button_pressed);
-		gesture_click.released.connect(on_name_button_released);
-		_gesture_click = gesture_click;
 
 		_revealer = new Gtk.Button.from_icon_name("go-jump-symbolic");
 		_revealer.clicked.connect(on_revealer_clicked);

@@ -255,11 +255,7 @@ public class InputColor3 : InputField
 	public double _hs_lens_small_radius_scale;
 	public Gtk.DrawingArea _hs_palette;
 	public Gtk.Scale _hsv_v_scale;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _hsv_v_scale_gesture_click;
-#else
-	public Gtk.GestureClick _hsv_v_scale_gesture_click;
-#endif
+	public Gtk.GestureSingle _hsv_v_scale_gesture_click;
 	public InputDouble _rgb_r;
 	public InputDouble _rgb_g;
 	public InputDouble _rgb_b;
@@ -274,11 +270,7 @@ public class InputColor3 : InputField
 	public Gtk.Button _picker_button;
 	public Gtk.Button _main_picker_button;
 	public GLib.Object _picker;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _gesture_click;
-#else
-	public Gtk.GestureClick _gesture_click;
-#endif
+	public Gtk.GestureSingle _gesture_click;
 	public Gtk.EventControllerMotion _controller_motion;
 	public Gtk.Box _visual_box;
 	public Gtk.Box _numeric_box;
@@ -356,16 +348,17 @@ public class InputColor3 : InputField
 
 #if CROWN_GTK3
 		_gesture_click = new Gtk.GestureMultiPress(_hs_palette);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_hs_circle_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_hs_circle_button_released);
+		((Gtk.GestureMultiPress)_gesture_click).cancel.connect(on_hs_circle_gesture_cancelled);
 #else
 		_gesture_click = new Gtk.GestureClick();
-#endif
-		_gesture_click.set_button(0);
-		_gesture_click.pressed.connect(on_hs_circle_button_pressed);
-		_gesture_click.released.connect(on_hs_circle_button_released);
-		_gesture_click.cancel.connect(on_hs_circle_gesture_cancelled);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_hs_circle_button_pressed);
+		((Gtk.GestureClick)_gesture_click).released.connect(on_hs_circle_button_released);
+		((Gtk.GestureClick)_gesture_click).cancel.connect(on_hs_circle_gesture_cancelled);
 		_hs_palette.add_controller(_gesture_click);
 #endif
+		_gesture_click.set_button(0);
 
 #if CROWN_GTK3
 		_controller_motion = new Gtk.EventControllerMotion(_hs_palette);
@@ -392,16 +385,17 @@ public class InputColor3 : InputField
 
 #if CROWN_GTK3
 		_hsv_v_scale_gesture_click = new Gtk.GestureMultiPress(_hsv_v_scale);
+		((Gtk.GestureMultiPress)_hsv_v_scale_gesture_click).pressed.connect(on_hsv_v_scale_pressed);
+		((Gtk.GestureMultiPress)_hsv_v_scale_gesture_click).released.connect(on_hsv_v_scale_released);
+		((Gtk.GestureMultiPress)_hsv_v_scale_gesture_click).cancel.connect(on_hsv_v_scale_gesture_cancelled);
 #else
 		_hsv_v_scale_gesture_click = new Gtk.GestureClick();
-#endif
-		_hsv_v_scale_gesture_click.set_button(0);
-		_hsv_v_scale_gesture_click.pressed.connect(on_hsv_v_scale_pressed);
-		_hsv_v_scale_gesture_click.released.connect(on_hsv_v_scale_released);
-		_hsv_v_scale_gesture_click.cancel.connect(on_hsv_v_scale_gesture_cancelled);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_hsv_v_scale_gesture_click).pressed.connect(on_hsv_v_scale_pressed);
+		((Gtk.GestureClick)_hsv_v_scale_gesture_click).released.connect(on_hsv_v_scale_released);
+		((Gtk.GestureClick)_hsv_v_scale_gesture_click).cancel.connect(on_hsv_v_scale_gesture_cancelled);
 		_hsv_v_scale.add_controller(_hsv_v_scale_gesture_click);
 #endif
+		_hsv_v_scale_gesture_click.set_button(0);
 
 		_rgb_r = new InputDouble(1.0, 0.0, 1.0);
 		_rgb_g = new InputDouble(1.0, 0.0, 1.0);

@@ -137,11 +137,7 @@ public class ConsoleView : Gtk.Box
 	public Gdk.Cursor _pointer_cursor;
 	public bool _cursor_is_hovering_link;
 	public Gtk.TextView _text_view;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _text_view_gesture_click;
-#else
-	public Gtk.GestureClick _text_view_gesture_click;
-#endif
+	public Gtk.GestureSingle _text_view_gesture_click;
 	public Gtk.EventControllerMotion _text_view_controller_motion;
 	public Gtk.Overlay _text_view_overlay;
 	public Gtk.ScrolledWindow _scrolled_window;
@@ -347,16 +343,16 @@ public class ConsoleView : Gtk.Box
 
 #if CROWN_GTK3
 		_text_view_gesture_click = new Gtk.GestureMultiPress(_text_view);
+		((Gtk.GestureMultiPress)_text_view_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureMultiPress)_text_view_gesture_click).released.connect(on_button_released);
 #else
 		_text_view_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_text_view_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureClick)_text_view_gesture_click).released.connect(on_button_released);
+		_text_view.add_controller(_text_view_gesture_click);
 #endif
 		_text_view_gesture_click.set_button(0);
 		_text_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-		_text_view_gesture_click.pressed.connect(on_button_pressed);
-		_text_view_gesture_click.released.connect(on_button_released);
-#if !CROWN_GTK3
-		_text_view.add_controller(_text_view_gesture_click);
-#endif
 
 #if CROWN_GTK3
 		_text_view_controller_motion = new Gtk.EventControllerMotion(_text_view);

@@ -17,7 +17,7 @@ public class InputFile : InputField
 	public Gtk.Button _selector;
 	public Gtk.EventControllerKey _controller_key;
 #if CROWN_GTK3
-	public Gtk.GestureMultiPress _gesture_click;
+	public Gtk.GestureSingle _gesture_click;
 #endif
 	public Gtk.Box _box;
 
@@ -100,8 +100,8 @@ public class InputFile : InputField
 		_box.pack_start(_name, true, true);
 
 		_gesture_click = new Gtk.GestureMultiPress(_name);
-		_gesture_click.pressed.connect(on_name_button_pressed);
-		_gesture_click.released.connect(on_name_button_released);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_name_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_name_button_released);
 #else
 		_box.append(_name);
 #endif
@@ -202,7 +202,7 @@ public class InputFile : InputField
 
 		return Gdk.EVENT_PROPAGATE;
 	}
-#endif
+#endif /* if CROWN_GTK3 */
 
 #if CROWN_GTK3
 	public bool on_name_focus_out(Gdk.EventFocus ev)

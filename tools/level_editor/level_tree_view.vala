@@ -87,12 +87,11 @@ public class LevelTreeView : Gtk.Box
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
+	public Gtk.GestureSingle _gesture_click;
 #if CROWN_GTK3
-	public Gtk.GestureMultiPress _gesture_click;
 	public Gtk.TreeIter _units_root;
 	public Gtk.TreeIter _sounds_root;
 #else
-	public Gtk.GestureClick _gesture_click;
 	public Gtk.DragSource _drag_source;
 	public Gtk.TreeRowReference _units_root;
 	public Gtk.TreeRowReference _sounds_root;
@@ -280,6 +279,9 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.drag_data_get.connect(on_drag_data_get);
 
 		_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_button_released);
+		((Gtk.GestureMultiPress)_gesture_click).update.connect(on_button_update);
 #else
 		_drag_source = new Gtk.DragSource();
 		_drag_source.actions = Gdk.DragAction.COPY;
@@ -287,15 +289,13 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.add_controller(_drag_source);
 
 		_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureClick)_gesture_click).released.connect(on_button_released);
+		((Gtk.GestureClick)_gesture_click).update.connect(on_button_update);
+		_tree_view.add_controller(_gesture_click);
 #endif
 		_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_gesture_click.set_button(0);
-		_gesture_click.pressed.connect(on_button_pressed);
-		_gesture_click.released.connect(on_button_released);
-		_gesture_click.update.connect(on_button_update);
-#if !CROWN_GTK3
-		_tree_view.add_controller(_gesture_click);
-#endif
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);

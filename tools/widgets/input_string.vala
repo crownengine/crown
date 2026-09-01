@@ -10,10 +10,8 @@ public class InputString : InputField
 	public bool _inconsistent;
 	public string _value;
 	public Gtk.Entry _entry;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _gesture_click;
-#else
-	public Gtk.GestureClick _gesture_click;
+	public Gtk.GestureSingle _gesture_click;
+#if !CROWN_GTK3
 	public Gtk.EventControllerFocus _controller_focus;
 #endif
 
@@ -68,12 +66,12 @@ public class InputString : InputField
 
 #if CROWN_GTK3
 		_gesture_click = new Gtk.GestureMultiPress(_entry);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_button_released);
 #else
 		_gesture_click = new Gtk.GestureClick();
-#endif
-		_gesture_click.pressed.connect(on_button_pressed);
-		_gesture_click.released.connect(on_button_released);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureClick)_gesture_click).released.connect(on_button_released);
 		_entry.add_controller(_gesture_click);
 #endif
 

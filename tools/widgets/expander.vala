@@ -12,10 +12,8 @@ public class Expander : Gtk.Box
 	public bool _expanded = false;
 #if CROWN_GTK3
 	public Gtk.EventBox _header_event_box;
-	public Gtk.GestureMultiPress _gesture_click;
-#else
-	public Gtk.GestureClick _gesture_click;
 #endif
+	public Gtk.GestureSingle _gesture_click;
 	public Gtk.Box _header_box;
 	public Gtk.Image _arrow_image;
 	public Gtk.Widget _header_widget;
@@ -30,10 +28,11 @@ public class Expander : Gtk.Box
 		_header_event_box = new Gtk.EventBox();
 
 		_gesture_click = new Gtk.GestureMultiPress(_header_event_box);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_header_button_pressed);
 #else
 		_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_header_button_pressed);
 #endif
-		_gesture_click.pressed.connect(on_header_button_pressed);
 
 		_header_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 		_header_box.homogeneous = false;

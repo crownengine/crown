@@ -176,7 +176,9 @@ public class EditorView : Gtk.Box
 			this.button_press_event.connect(on_event_box_button_event);
 			this.button_release_event.connect(on_event_box_button_event);
 			_controller_key = new Gtk.EventControllerKey(this);
-			Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(this);
+			_gesture_click = new Gtk.GestureMultiPress(this);
+			((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_button_pressed);
+			((Gtk.GestureMultiPress)_gesture_click).released.connect(on_button_released);
 			_controller_motion = new Gtk.EventControllerMotion(this);
 			_controller_scroll = new Gtk.EventControllerScroll(this, Gtk.EventControllerScrollFlags.BOTH_AXES);
 			_flythrough_drag.drag_scroll.connect(on_scroll);
@@ -186,7 +188,9 @@ public class EditorView : Gtk.Box
 			_controller_legacy.event.connect(on_event_controller_legacy_event);
 			this.add_controller(_controller_legacy);
 			_controller_key = new Gtk.EventControllerKey();
-			Gtk.GestureClick gesture_click = new Gtk.GestureClick();
+			_gesture_click = new Gtk.GestureClick();
+			((Gtk.GestureClick)_gesture_click).pressed.connect(on_button_pressed);
+			((Gtk.GestureClick)_gesture_click).released.connect(on_button_released);
 			_controller_motion = new Gtk.EventControllerMotion();
 			_controller_scroll = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.BOTH_AXES);
 			this.add_controller(_controller_key);
@@ -195,9 +199,6 @@ public class EditorView : Gtk.Box
 			this.add_controller(_controller_scroll);
 			_flythrough_drag.drag_scroll.connect(on_flythrough_scroll);
 #endif /* if CROWN_GTK3 */
-			gesture_click.pressed.connect(on_button_pressed);
-			gesture_click.released.connect(on_button_released);
-			_gesture_click = gesture_click;
 			_controller_key.key_pressed.connect(on_key_pressed);
 			_controller_key.key_released.connect(on_key_released);
 			_gesture_click.set_button(0);

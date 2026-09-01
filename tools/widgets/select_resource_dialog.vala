@@ -26,21 +26,13 @@ public class SelectResourceDialog : Gtk.Window
 	public Gtk.TreeModelFilter _tree_filter;
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _tree_view_gesture_click;
-#else
-	public Gtk.GestureClick _tree_view_gesture_click;
-#endif
+	public Gtk.GestureSingle _tree_view_gesture_click;
 	public Gtk.TreeSelection _tree_selection;
 	public Gtk.ScrolledWindow _tree_view_window;
 	public Gtk.IconView _icon_view;
 	public Gtk.TreePath? _first_visible_path;
 	public Gtk.TreePath? _last_visible_path;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _icon_view_gesture_click;
-#else
-	public Gtk.GestureClick _icon_view_gesture_click;
-#endif
+	public Gtk.GestureSingle _icon_view_gesture_click;
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.Stack _view_stack;
 	public Gtk.Button _view_toggle;
@@ -139,14 +131,13 @@ public class SelectResourceDialog : Gtk.Window
 
 #if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		((Gtk.GestureMultiPress)_tree_view_gesture_click).released.connect(on_tree_view_button_released);
 #else
 		_tree_view_gesture_click = new Gtk.GestureClick();
-#endif
-		_tree_view_gesture_click.set_button(0);
-		_tree_view_gesture_click.released.connect(on_tree_view_button_released);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_tree_view_gesture_click).released.connect(on_tree_view_button_released);
 		_tree_view.add_controller(_tree_view_gesture_click);
 #endif
+		_tree_view_gesture_click.set_button(0);
 
 		_tree_selection = _tree_view.get_selection();
 		_tree_selection.set_mode(Gtk.SelectionMode.BROWSE);
@@ -206,14 +197,13 @@ public class SelectResourceDialog : Gtk.Window
 
 #if CROWN_GTK3
 		_icon_view_gesture_click = new Gtk.GestureMultiPress(_icon_view);
+		((Gtk.GestureMultiPress)_icon_view_gesture_click).released.connect(on_icon_view_button_released);
 #else
 		_icon_view_gesture_click = new Gtk.GestureClick();
-#endif
-		_icon_view_gesture_click.set_button(0);
-		_icon_view_gesture_click.released.connect(on_icon_view_button_released);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_icon_view_gesture_click).released.connect(on_icon_view_button_released);
 		_icon_view.add_controller(_icon_view_gesture_click);
 #endif
+		_icon_view_gesture_click.set_button(0);
 
 #if CROWN_GTK3
 		_icon_view_window = new Gtk.ScrolledWindow(null, null);

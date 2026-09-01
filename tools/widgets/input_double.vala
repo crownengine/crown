@@ -145,15 +145,17 @@ public class InputDouble : InputField
 		set_value_safe(val);
 
 #if CROWN_GTK3
-		Gtk.GestureMultiPress gesture_click = new Gtk.GestureMultiPress(_drag_widget);
+		_gesture_click = new Gtk.GestureMultiPress(_drag_widget);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureMultiPress)_gesture_click).released.connect(on_button_released);
+		((Gtk.GestureMultiPress)_gesture_click).cancel.connect(on_gesture_cancelled);
 #else
-		Gtk.GestureClick gesture_click = new Gtk.GestureClick();
-		_drag_widget.add_controller(gesture_click);
+		_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_button_pressed);
+		((Gtk.GestureClick)_gesture_click).released.connect(on_button_released);
+		((Gtk.GestureClick)_gesture_click).cancel.connect(on_gesture_cancelled);
+		_drag_widget.add_controller(_gesture_click);
 #endif
-		gesture_click.pressed.connect(on_button_pressed);
-		gesture_click.released.connect(on_button_released);
-		gesture_click.cancel.connect(on_gesture_cancelled);
-		_gesture_click = gesture_click;
 
 #if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(_entry);

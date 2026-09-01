@@ -25,11 +25,10 @@ public class ProjectRow : Gtk.ListBoxRow
 #if CROWN_GTK3
 	public Gtk.EventBox _event_box;
 	public Gtk.Popover _menu;
-	public Gtk.GestureMultiPress _gesture_click;
 #else
 	public Gtk.PopoverMenu _menu;
-	public Gtk.GestureClick _gesture_click;
 #endif
+	public Gtk.GestureSingle _gesture_click;
 	public ProjectsList _projects_list;
 
 	public ProjectRow(string source_dir, string time, string name, ProjectsList pl)
@@ -145,27 +144,29 @@ public class ProjectRow : Gtk.ListBoxRow
 		_menu = new Gtk.Popover.from_model(_event_box, menu_model);
 
 		_gesture_click = new Gtk.GestureMultiPress(_event_box);
+		((Gtk.GestureMultiPress)_gesture_click).pressed.connect(on_pressed);
 #else
 		this.set_child(_hbox);
 		_menu = new Gtk.PopoverMenu.from_model(menu_model);
 		_menu.set_parent(this);
 
 		_gesture_click = new Gtk.GestureClick();
-#endif
-		_gesture_click.set_button(0);
-		_gesture_click.pressed.connect((n_press, x, y) => {
-				if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
-					_projects_list._list_projects.select_row(this);
-					_menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
-					_menu.set_position(Gtk.PositionType.BOTTOM);
-					_menu.popup();
-
-					_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
-				}
-			});
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_gesture_click).pressed.connect(on_pressed);
 		this.add_controller(_gesture_click);
-#endif
+#endif /* if CROWN_GTK3 */
+		_gesture_click.set_button(0);
+	}
+
+	public void on_pressed(int n_press, double x, double y)
+	{
+		if (_gesture_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
+			_projects_list._list_projects.select_row(this);
+			_menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
+			_menu.set_position(Gtk.PositionType.BOTTOM);
+			_menu.popup();
+
+			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
+		}
 	}
 
 	public void set_project_exists(bool exists)

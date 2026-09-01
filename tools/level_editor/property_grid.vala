@@ -291,11 +291,7 @@ public class PropertyGrid : Gtk.Grid
 	};
 
 	public Expander? _expander;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _controller_click;
-#else
-	public Gtk.GestureClick _controller_click;
-#endif
+	public Gtk.GestureSingle _controller_click;
 	public GLib.SimpleActionGroup _action_group;
 	public Database? _db;
 	public StringId64 _type;
@@ -311,11 +307,7 @@ public class PropertyGrid : Gtk.Grid
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
 
-#if CROWN_GTK3
-	public GLib.HashTable<string, Gtk.GestureMultiPress> _gestures;
-#else
-	public GLib.HashTable<string, Gtk.GestureClick> _gestures;
-#endif
+	public GLib.HashTable<string, Gtk.GestureSingle> _gestures;
 	public GLib.HashTable<string, InputField> _widgets;
 	public GLib.HashTable<InputField, PropertyDefinition?> _definitions;
 	GLib.GenericArray<ObjectsSetEditor> _object_sets;
@@ -425,11 +417,7 @@ public class PropertyGrid : Gtk.Grid
 		_expander_input_row = -1;
 		_selection_anchor_id = selection_anchor_id;
 
-#if CROWN_GTK3
-		_gestures = new GLib.HashTable<string, Gtk.GestureMultiPress>(GLib.str_hash, GLib.str_equal);
-#else
-		_gestures = new GLib.HashTable<string, Gtk.GestureClick>(GLib.str_hash, GLib.str_equal);
-#endif
+		_gestures = new GLib.HashTable<string, Gtk.GestureSingle>(GLib.str_hash, GLib.str_equal);
 		_widgets = new GLib.HashTable<string, InputField>(GLib.str_hash, GLib.str_equal);
 		_definitions = new GLib.HashTable<InputField, PropertyDefinition?>(GLib.direct_hash, GLib.direct_equal);
 		_object_sets = new GLib.GenericArray<ObjectsSetEditor>();
@@ -462,14 +450,13 @@ public class PropertyGrid : Gtk.Grid
 
 #if CROWN_GTK3
 		_controller_click = new Gtk.GestureMultiPress(e);
+		((Gtk.GestureMultiPress)_controller_click).released.connect(on_expander_button_released);
 #else
 		_controller_click = new Gtk.GestureClick();
-#endif
-		_controller_click.set_button(0);
-		_controller_click.released.connect(on_expander_button_released);
-#if !CROWN_GTK3
+		((Gtk.GestureClick)_controller_click).released.connect(on_expander_button_released);
 		e.add_controller(_controller_click);
 #endif
+		_controller_click.set_button(0);
 	}
 
 	public void set_label_size_group(Gtk.SizeGroup size_group)
@@ -669,14 +656,19 @@ public class PropertyGrid : Gtk.Grid
 
 			p.value_changed.connect(on_property_value_changed);
 
+			Gtk.GestureSingle click;
 #if CROWN_GTK3
-			Gtk.GestureMultiPress click = new Gtk.GestureMultiPress(p);
+			click = new Gtk.GestureMultiPress(p);
 #else
-			Gtk.GestureClick click = new Gtk.GestureClick();
+			click = new Gtk.GestureClick();
 #endif
 			click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 			click.set_button(Gdk.BUTTON_SECONDARY);
-			click.pressed.connect((n_press, x, y) => {
+#if CROWN_GTK3
+			((Gtk.GestureMultiPress)click).pressed.connect((n_press, x, y) => {
+#else
+			((Gtk.GestureClick)click).pressed.connect((n_press, x, y) => {
+#endif
 					if (click.get_current_button() != Gdk.BUTTON_SECONDARY)
 						return;
 

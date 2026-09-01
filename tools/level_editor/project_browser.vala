@@ -332,13 +332,8 @@ public class ProjectFolderView : Gtk.Box
 	public bool _showing_project_folder;
 	public Gtk.ScrolledWindow _icon_view_window;
 	public Gtk.ScrolledWindow _list_view_window;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _icon_view_gesture_click;
-	public Gtk.GestureMultiPress _list_view_gesture_click;
-#else
-	public Gtk.GestureClick _icon_view_gesture_click;
-	public Gtk.GestureClick _list_view_gesture_click;
-#endif
+	public Gtk.GestureSingle _icon_view_gesture_click;
+	public Gtk.GestureSingle _list_view_gesture_click;
 	public Gtk.Stack _stack;
 	public BrowseMode _browse_mode;
 #if !CROWN_GTK3
@@ -405,7 +400,7 @@ public class ProjectFolderView : Gtk.Box
 #else
 		_icon_view_gesture_click = new Gtk.GestureClick();
 		_icon_view_gesture_click.set_button(0);
-		_icon_view_gesture_click.pressed.connect(on_button_pressed);
+		((Gtk.GestureClick)_icon_view_gesture_click).pressed.connect(on_button_pressed);
 		_icon_view.add_controller(_icon_view_gesture_click);
 #endif
 
@@ -454,19 +449,16 @@ public class ProjectFolderView : Gtk.Box
 
 #if CROWN_GTK3
 		_list_view_gesture_click = new Gtk.GestureMultiPress(_list_view);
-#else
-		_list_view_gesture_click = new Gtk.GestureClick();
-#endif
-		_list_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
-		_list_view_gesture_click.set_button(0);
-#if CROWN_GTK3
-		_list_view_gesture_click.pressed.connect((n_press, x, y) => {
+		((Gtk.GestureMultiPress)_list_view_gesture_click).pressed.connect((n_press, x, y) => {
 				on_button_pressed(_list_view_gesture_click.get_current_button(), n_press, x, y);
 			});
 #else
-		_list_view_gesture_click.pressed.connect(on_button_pressed);
+		_list_view_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_list_view_gesture_click).pressed.connect(on_button_pressed);
 		_list_view.add_controller(_list_view_gesture_click);
 #endif
+		_list_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
+		_list_view_gesture_click.set_button(0);
 
 		var cell_pixbuf = new Gtk.CellRendererPixbuf();
 #if CROWN_GTK3
@@ -1267,10 +1259,8 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.Box _folder_view_content;
 	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Paned _paned;
-#if CROWN_GTK3
-	public Gtk.GestureMultiPress _tree_view_gesture_click;
-#else
-	public Gtk.GestureClick _tree_view_gesture_click;
+	public Gtk.GestureSingle _tree_view_gesture_click;
+#if !CROWN_GTK3
 	public Gtk.DragSource _tree_view_drag_source;
 #endif
 	public Gtk.Button _btn_back;
@@ -1491,15 +1481,14 @@ public class ProjectBrowser : Gtk.Box
 
 #if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
+		((Gtk.GestureMultiPress)_tree_view_gesture_click).pressed.connect(on_button_pressed);
 #else
 		_tree_view_gesture_click = new Gtk.GestureClick();
+		((Gtk.GestureClick)_tree_view_gesture_click).pressed.connect(on_button_pressed);
+		_tree_view.add_controller(_tree_view_gesture_click);
 #endif
 		_tree_view_gesture_click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
 		_tree_view_gesture_click.set_button(0);
-		_tree_view_gesture_click.pressed.connect(on_button_pressed);
-#if !CROWN_GTK3
-		_tree_view.add_controller(_tree_view_gesture_click);
-#endif
 
 #if CROWN_GTK3
 		_tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, DND_TARGETS, Gdk.DragAction.COPY);
