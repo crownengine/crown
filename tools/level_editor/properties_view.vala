@@ -371,6 +371,7 @@ public class PropertiesView : Gtk.Box
 	public Gtk.ScrolledWindow _scrolled_window;
 	public PropertyGridSet _object_view;
 	public Gtk.Stack _stack;
+	public Guid _id;
 
 	public PropertiesView(DatabaseEditor database_editor)
 	{
@@ -417,6 +418,8 @@ public class PropertiesView : Gtk.Box
 		_stack.add_named(unknown_object_type, UNKNOWN_OBJECT_TYPE);
 		_stack.add_named(_scrolled_window, PROPERTIES);
 		_stack.vexpand = true;
+
+		_id = GUID_ZERO;
 
 #if CROWN_GTK3
 		this.pack_start(_stack);
@@ -524,8 +527,10 @@ public class PropertiesView : Gtk.Box
 		}
 
 		Guid id = objects[objects.length - 1];
-		if (!_database.has_object(id) || !_database.is_alive(id))
+		if (id == _id || !_database.has_object(id) || !_database.is_alive(id))
 			return;
+
+		_id = id;
 
 		if (_database.object_type(id) == OBJECT_TYPE_UNIT)
 			show_unit(id);
