@@ -52,6 +52,7 @@ Changelog
 * Tools: fixed multiple undo steps being generated when picking colors from the screen.
 * Tools: fixed inhibited Ctrl key when dragging an object into the Editor View.
 * Tools: fixed handling units with deep children hierarchies.
+* Tools: fixed rare editor lockups.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
