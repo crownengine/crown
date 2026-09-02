@@ -311,9 +311,19 @@ public class InputColor3 : InputField
 		set
 		{
 			Vector3 rgb = (Vector3)value;
+			Vector3 old_rgb = this.value;
+
+			disconnect_rgb();
 			_rgb_r.value = rgb.x;
 			_rgb_g.value = rgb.y;
 			_rgb_b.value = rgb.z;
+			connect_rgb();
+
+			if (Vector3.equal_func(this.value, old_rgb))
+				return;
+
+			sync_hsv_from_rgb();
+			value_changed(this, _silent ? -1 : (_dragging ? 0 : 1));
 		}
 	}
 
@@ -653,7 +663,7 @@ public class InputColor3 : InputField
 		_hs_palette.queue_draw();
 	}
 
-	public void on_rgb_value_changed(InputField p, int undo_redo)
+	public void sync_hsv_from_rgb()
 	{
 		double h = 0.0;
 		double s = 0.0;
@@ -674,11 +684,15 @@ public class InputColor3 : InputField
 		connect_hsv();
 
 		_hs_palette.queue_draw();
+	}
 
+	public void on_rgb_value_changed(InputField p, int undo_redo)
+	{
+		sync_hsv_from_rgb();
 		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
 	}
 
-	public void on_hsv_value_changed(InputField p, int undo_redo)
+	public void sync_rgb_from_hsv()
 	{
 		double r = 1.0;
 		double g = 1.0;
@@ -701,6 +715,14 @@ public class InputColor3 : InputField
 		connect_rgb();
 
 		_hs_palette.queue_draw();
+	}
+
+	public void on_hsv_value_changed(InputField p, int undo_redo)
+	{
+		Vector3 old_rgb = this.value;
+		sync_rgb_from_hsv();
+		if (Vector3.equal_func(this.value, old_rgb))
+			return;
 
 		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
 	}
@@ -724,6 +746,7 @@ public class InputColor3 : InputField
 		_hsv_h.value_changed.disconnect(on_hsv_value_changed);
 		_hsv_s.value_changed.disconnect(on_hsv_value_changed);
 		_hsv_v.value_changed.disconnect(on_hsv_value_changed);
+		_hsv_v_scale.value_changed.disconnect(on_hsv_v_scale_value_changed);
 	}
 
 	public void connect_hsv()
@@ -731,6 +754,7 @@ public class InputColor3 : InputField
 		_hsv_h.value_changed.connect(on_hsv_value_changed);
 		_hsv_s.value_changed.connect(on_hsv_value_changed);
 		_hsv_v.value_changed.connect(on_hsv_value_changed);
+		_hsv_v_scale.value_changed.connect(on_hsv_v_scale_value_changed);
 	}
 
 	public void on_value_changed()
@@ -785,14 +809,33 @@ public class InputColor3 : InputField
 		return { cx, cy };
 	}
 
+	public void on_hs_circle_changed(Vector2 hs)
+	{
+		double old_h = _hsv_h.value;
+		double old_s = _hsv_s.value;
+		Vector3 old_rgb = this.value;
+
+		disconnect_hsv();
+		_hsv_h.value = hs.x;
+		_hsv_s.value = hs.y;
+		connect_hsv();
+
+		if (_hsv_h.value == old_h && _hsv_s.value == old_s)
+			return;
+
+		sync_rgb_from_hsv();
+		if (Vector3.equal_func(this.value, old_rgb))
+			return;
+
+		value_changed(this, _silent ? -1 : (int)!_dragging);
+	}
+
 	public void on_hs_circle_button_pressed(int n_press, double x, double y)
 	{
 		_dragging = true;
 		_drag_start_rgb = this.value;
 
-		Vector2 hs = hs_from_xy({ x, y });
-		_hsv_h.value = hs.x;
-		_hsv_s.value = hs.y;
+		on_hs_circle_changed(hs_from_xy({ x, y }));
 
 #if CROWN_GTK3
 		_hs_palette.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "none"));
@@ -807,34 +850,12 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		double h = 0.0;
-		double s = 0.0;
-		double v = 1.0;
-
 		Vector3 current_value = this.value;
 		_silent = true;
 		this.value = _drag_start_rgb;
 		_silent = false;
 		_dragging = false;
-
-		disconnect_rgb();
-		disconnect_hsv();
 		this.value = current_value;
-		rgb_to_hsv(ref h
-			, ref s
-			, ref v
-			, _rgb_r.value
-			, _rgb_g.value
-			, _rgb_b.value
-			);
-		_hsv_h.value = h;
-		_hsv_s.value = s;
-		_hsv_v.value = v;
-		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
-		connect_hsv();
-		connect_rgb();
-
-		value_changed(this, (int)!_dragging);
 
 #if CROWN_GTK3
 		_hs_palette.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
@@ -849,30 +870,8 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		double h = 0.0;
-		double s = 0.0;
-		double v = 1.0;
-
-		_dragging = false;
-
-		disconnect_rgb();
-		disconnect_hsv();
 		this.value = _drag_start_rgb;
-		rgb_to_hsv(ref h
-			, ref s
-			, ref v
-			, _rgb_r.value
-			, _rgb_g.value
-			, _rgb_b.value
-			);
-		_hsv_h.value = h;
-		_hsv_s.value = s;
-		_hsv_v.value = v;
-		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
-		connect_hsv();
-		connect_rgb();
-
-		value_changed(this, 0);
+		_dragging = false;
 
 #if CROWN_GTK3
 		_hs_palette.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "default"));
@@ -888,21 +887,15 @@ public class InputColor3 : InputField
 		if (!_gesture_click.is_active())
 			return;
 #endif
-		Vector2 hs = hs_from_xy({ x, y });
-		_hsv_h.value = hs.x;
-		_hsv_s.value = hs.y;
+		on_hs_circle_changed(hs_from_xy({ x, y }));
 	}
 
 	public void on_color_picked(GLib.Object? object, GLib.AsyncResult result)
 	{
 		GLib.Error error = null;
 		Gdk.RGBA? rgba = gtk_color_picker_pick_finish(_picker, result, ref error);
-		if (rgba != null) {
-			disconnect_rgb();
+		if (rgba != null)
 			this.value = Vector3(rgba.red, rgba.green, rgba.blue);
-			connect_rgb();
-			on_rgb_value_changed(_rgb_r, 1);
-		}
 	}
 
 	public void on_picker_button_clicked()
@@ -927,9 +920,10 @@ public class InputColor3 : InputField
 			, out rgba[2]
 			, out rgba[3]
 			) == 4) {
-			_rgb_r.value = rgba[0] / 255.0;
-			_rgb_g.value = rgba[1] / 255.0;
-			_rgb_b.value = rgba[2] / 255.0;
+			this.value = Vector3(rgba[0] / 255.0
+				, rgba[1] / 255.0
+				, rgba[2] / 255.0
+				);
 			_rgb_a.value = rgba[3] / 255.0;
 		}
 	}
@@ -945,34 +939,12 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		double h = 0.0;
-		double s = 0.0;
-		double v = 1.0;
-
 		Vector3 current_value = this.value;
 		_silent = true;
 		this.value = _drag_start_rgb;
 		_silent = false;
 		_dragging = false;
-
-		disconnect_rgb();
-		disconnect_hsv();
 		this.value = current_value;
-		rgb_to_hsv(ref h
-			, ref s
-			, ref v
-			, _rgb_r.value
-			, _rgb_g.value
-			, _rgb_b.value
-			);
-		_hsv_h.value = h;
-		_hsv_s.value = s;
-		_hsv_v.value = v;
-		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
-		connect_hsv();
-		connect_rgb();
-
-		value_changed(this, (int)!_dragging);
 	}
 
 	public void on_hsv_v_scale_gesture_cancelled(Gdk.EventSequence? sequence)
@@ -980,30 +952,8 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		double h = 0.0;
-		double s = 0.0;
-		double v = 1.0;
-
-		_dragging = false;
-
-		disconnect_rgb();
-		disconnect_hsv();
 		this.value = _drag_start_rgb;
-		rgb_to_hsv(ref h
-			, ref s
-			, ref v
-			, _rgb_r.value
-			, _rgb_g.value
-			, _rgb_b.value
-			);
-		_hsv_h.value = h;
-		_hsv_s.value = s;
-		_hsv_v.value = v;
-		_hsv_v_scale.set_value(1.0 - _hsv_v.value);
-		connect_hsv();
-		connect_rgb();
-
-		value_changed(this, 0);
+		_dragging = false;
 	}
 }
 
