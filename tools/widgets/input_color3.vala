@@ -622,14 +622,9 @@ public class InputColor3 : InputField
 	{
 		Vector2 p = xy_from_hs({ _hsv_h.value, _hsv_s.value });
 
-		cr.save();
 		cr.arc(p.x, p.y, radius, 0, PI_TWO);
-		cr.clip();
-
 		cr.set_source_rgb(_rgb_r.value, _rgb_g.value, _rgb_b.value);
-		cr.paint();
-
-		cr.restore();
+		cr.fill();
 
 		// Draw outline.
 		cr.set_line_width(1.0);
