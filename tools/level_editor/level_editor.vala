@@ -1132,6 +1132,8 @@ public class LevelEditorApplication : Gtk.Application
 		{ "open-unit",           on_open_unit,           "s",    null },
 	};
 
+	const int GAME_STOP_SPINNER_TIMEOUT_MS = 1500;
+
 	// Command line options
 	public uint _launcher_watch_id;
 	public CommandLineOptions _command_line_options;
@@ -1213,6 +1215,7 @@ public class LevelEditorApplication : Gtk.Application
 
 	public Toolbar _toolbar;
 	public Gtk.Image _game_run_stop_image;
+	public Gtk.Spinner _game_stop_spinner;
 	public Gtk.Button _game_run;
 	public Gtk.Notebook _level_tree_view_notebook;
 	public Gtk.Notebook _console_notebook;
@@ -1242,6 +1245,7 @@ public class LevelEditorApplication : Gtk.Application
 	public LevelEditorWindow _level_editor_window;
 
 	public uint _save_timer_id;
+	public uint _game_stop_spinner_timer_id;
 
 	public signal void ui_read_selection(Guid?[] selection);
 
@@ -1556,6 +1560,13 @@ public class LevelEditorApplication : Gtk.Application
 			= _game_run_stop_image.margin_end
 			= _game_run_stop_image.margin_start
 			= _game_run_stop_image.margin_top
+			= 4
+			;
+		_game_stop_spinner = new Gtk.Spinner();
+		_game_stop_spinner.margin_bottom
+			= _game_stop_spinner.margin_end
+			= _game_stop_spinner.margin_start
+			= _game_stop_spinner.margin_top
 			= 4
 			;
 		_game_run = new Gtk.Button();
@@ -2022,12 +2033,40 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		on_runtime_disconnected(ri);
 
+		if (_game_stop_spinner_timer_id > 0) {
+			GLib.Source.remove(_game_stop_spinner_timer_id);
+			_game_stop_spinner_timer_id = 0;
+		} else if (_game_stop_spinner.get_parent() == _game_run) {
+#if CROWN_GTK3
+			_game_run.remove(_game_stop_spinner);
+			_game_run.add(_game_run_stop_image);
+			_game_run_stop_image.show();
+#else
+			_game_run.set_child(_game_run_stop_image);
+#endif
+		}
+		_game_stop_spinner.stop();
+
 		_combo.set_active_id("editor");
 #if CROWN_GTK3
 		_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
 #else
 		_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN);
 #endif
+	}
+
+	public bool on_game_stop_spinner_timeout()
+	{
+		_game_stop_spinner_timer_id = 0;
+		_game_stop_spinner.start();
+#if CROWN_GTK3
+		_game_run.remove(_game_run_stop_image);
+		_game_run.add(_game_stop_spinner);
+		_game_stop_spinner.show();
+#else
+		_game_run.set_child(_game_stop_spinner);
+#endif
+		return GLib.Source.REMOVE;
 	}
 
 	public void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
@@ -3862,7 +3901,17 @@ public class LevelEditorApplication : Gtk.Application
 		if (focus != null)
 			focus.grab_focus();
 
+		// If a stop is pending.
+		if (_game_stop_spinner_timer_id > 0 || _game_stop_spinner.get_parent() == _game_run)
+			return;
+
+		// Spawn a watchdog that triggers if game does not stop timely.
 		var icon_displayed = _game_run_stop_image.icon_name;
+		if (icon_displayed == IconTheme.GAME_STOP && _game.is_connected()) {
+			_game_stop_spinner_timer_id = GLib.Timeout.add(GAME_STOP_SPINNER_TIMEOUT_MS
+				, on_game_stop_spinner_timeout
+				);
+		}
 
 		_game.stop.begin((obj, res) => {
 				_game.stop.end(res);
