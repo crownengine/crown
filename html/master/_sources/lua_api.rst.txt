@@ -1574,11 +1574,10 @@ ResourcePackage
 Represents a collection of resources that can be loaded in group.
 
 **load** (package)
-	Loads all the resources in the *package*.
-
-	.. note::
-		The resources are not immediately available after the call is made,
-		instead, you have to poll for completion with has_loaded().
+    Starts loading all the resources in the *package* asynchronously. The
+    function returns before the resources have been loaded. Call
+    ``ResourcePackage.has_loaded()`` to poll for completion or
+    ``ResourcePackage.flush()`` to wait for completion.
 
 **unload** (package)
 	Unloads all the resources in the *package*.

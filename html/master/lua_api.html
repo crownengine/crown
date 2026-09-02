@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-08-06T07:54:27+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-09-02T21:57:25+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -1544,13 +1544,11 @@ to this function will overwrite any previously created fog instance.</p>
 <section id="resourcepackage">
 <h2>ResourcePackage<a class="headerlink" href="#resourcepackage" title="Permalink to this headline">¶</a></h2>
 <p>Represents a collection of resources that can be loaded in group.</p>
-<dl>
-<dt><strong>load</strong> (package)</dt><dd><p>Loads all the resources in the <em>package</em>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The resources are not immediately available after the call is made,
-instead, you have to poll for completion with has_loaded().</p>
-</div>
+<dl class="simple">
+<dt><strong>load</strong> (package)</dt><dd><p>Starts loading all the resources in the <em>package</em> asynchronously. The
+function returns before the resources have been loaded. Call
+<code class="docutils literal notranslate"><span class="pre">ResourcePackage.has_loaded()</span></code> to poll for completion or
+<code class="docutils literal notranslate"><span class="pre">ResourcePackage.flush()</span></code> to wait for completion.</p>
 </dd>
 <dt><strong>unload</strong> (package)</dt><dd><p>Unloads all the resources in the <em>package</em>.</p>
 </dd>
@@ -1867,7 +1865,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Aug 06, 2026.
+      <span class="lastupdated">Last updated on Sep 02, 2026.
       </span></p>
   </div>
 
