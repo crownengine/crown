@@ -35,6 +35,7 @@ public class ProjectRow : Gtk.ListBoxRow
 	{
 		this.set_data("source_dir", source_dir);
 		this.set_data("mtime", time);
+		this.set_data("name", name);
 		_projects_list = pl;
 		_action_group = new GLib.SimpleActionGroup();
 		_action_group.add_action_entries(actions, this);
@@ -221,10 +222,12 @@ public class ProjectsList : Gtk.Box
 
 	// Widgets
 	public Gtk.Label _projects_list_label;
+	public EntrySearch _filter_entry;
 	public Gtk.Label _local_label;
 	public Gtk.Box _project_list_empty;
 	public Gtk.ListBox _list_projects;
 	public Gtk.ScrolledWindow _scrolled_window;
+	public Gtk.Stack _projects_stack;
 	public Gtk.Button _button_import_project;
 	public Gtk.Button _button_new_project;
 	public Gtk.MenuButton _button_new_project_menu;
@@ -244,6 +247,10 @@ public class ProjectsList : Gtk.Box
 		_projects_list_label = new Gtk.Label(null);
 		_projects_list_label.xalign = 0;
 		_projects_list_label.set_markup("<span font_weight=\"bold\" size=\"x-large\">%s</span>".printf(_("Projects")));
+
+		_filter_entry = new EntrySearch();
+		_filter_entry.set_placeholder_text(_("Search..."));
+		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 
 		_local_label = new Gtk.Label(_("Local"));
 		_local_label.halign = Gtk.Align.START;
@@ -269,6 +276,12 @@ public class ProjectsList : Gtk.Box
 		_project_list_empty.append(label);
 #endif
 
+		var project_filter_empty = new Gtk.Label(null);
+		project_filter_empty.margin_top = 12;
+		project_filter_empty.margin_bottom = 12;
+		project_filter_empty.valign = Gtk.Align.START;
+		project_filter_empty.set_markup("<span font_size=\"large\"><b>%s</b></span>".printf(_("No matching projects found")));
+
 		_list_projects = new Gtk.ListBox();
 		_list_projects.valign = Gtk.Align.START;
 		_list_projects.set_placeholder(_project_list_empty);
@@ -277,6 +290,7 @@ public class ProjectsList : Gtk.Box
 				int64 mtime2 = int64.parse(row2.get_data("mtime"));
 				return mtime1 > mtime2 ? -1 : 1; // LRU
 			});
+		_list_projects.set_filter_func(filter_project_row);
 
 #if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
@@ -286,6 +300,13 @@ public class ProjectsList : Gtk.Box
 		_scrolled_window.set_child(_list_projects);
 #endif
 		_scrolled_window.vexpand = true;
+
+		_projects_stack = new Gtk.Stack();
+		_projects_stack.add_named(_scrolled_window, "projects-list");
+		_projects_stack.add_named(project_filter_empty, "no-matching-projects");
+		_projects_stack.set_visible_child_name("projects-list");
+		_projects_stack.vhomogeneous = false;
+		_projects_stack.vexpand = true;
 
 		_button_import_project = new Gtk.Button.with_label(_("Import..."));
 		_button_import_project.set_tooltip_text(_("Import an existing project."));
@@ -344,11 +365,13 @@ public class ProjectsList : Gtk.Box
 #if CROWN_GTK3
 		_projects_box.pack_start(_projects_list_label, false, true);
 		_projects_box.pack_start(_buttons_box, false, true);
-		_projects_box.pack_start(_scrolled_window, true, true);
+		_projects_box.pack_start(_filter_entry, false, true);
+		_projects_box.pack_start(_projects_stack, true, true);
 #else
 		_projects_box.append(_projects_list_label);
 		_projects_box.append(_buttons_box);
-		_projects_box.append(_scrolled_window);
+		_projects_box.append(_filter_entry);
+		_projects_box.append(_projects_stack);
 #endif
 
 		_clamp = new Clamp();
@@ -365,6 +388,35 @@ public class ProjectsList : Gtk.Box
 		_user.recent_project_removed.connect(on_recent_project_removed);
 	}
 
+	public bool filter_project_row(Gtk.ListBoxRow row)
+	{
+		ProjectRow project_row = (ProjectRow)row;
+		string filter = _filter_entry.text.strip().casefold();
+		return filter == ""
+			|| project_row.get_data<string>("name").casefold().contains(filter)
+			|| project_row.get_data<string>("source_dir").casefold().contains(filter)
+			;
+	}
+
+	public void update_projects_stack()
+	{
+		_projects_stack.set_visible_child_name(_list_projects.get_row_at_index(0) != null
+			&& _project_list_empty.get_child_visible()
+			? "no-matching-projects"
+			: "projects-list"
+			);
+	}
+
+#if CROWN_GTK3
+	public void on_filter_entry_text_changed()
+#else
+	public void on_filter_entry_text_changed(EntrySearch entry)
+#endif
+	{
+		_list_projects.invalidate_filter();
+		update_projects_stack();
+	}
+
 	public void on_recent_project_added(string source_dir, string name, string time)
 	{
 		// Add project row.
@@ -376,6 +428,7 @@ public class ProjectsList : Gtk.Box
 #else
 		_list_projects.append(row);
 #endif
+		update_projects_stack();
 
 		GLib.Idle.add(() => {
 				row.set_project_exists(GLib.FileUtils.test(source_dir, FileTest.EXISTS));
@@ -422,10 +475,11 @@ public class ProjectsList : Gtk.Box
 			var row = (Gtk.ListBoxRow)child;
 			if (row != null && row.get_data<string>("source_dir") == source_dir) {
 				_list_projects.remove(row);
-				return;
+				break;
 			}
 		}
 #endif
+		update_projects_stack();
 	}
 
 	public void invalidate_sort()
