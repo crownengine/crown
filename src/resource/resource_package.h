@@ -18,9 +18,7 @@ struct ResourcePackage
 	ResourceManager *_resource_manager;
 	StringId64 _package_resource_name;
 	const PackageResource *_package_resource;
-	u32 _num_resources_queued;
-	bool _package_resource_queued;
-	bool _loaded;
+	u32 _num_resources_to_load;
 
 	///
 	ResourcePackage(StringId64 id, ResourceManager &resman);
@@ -28,10 +26,9 @@ struct ResourcePackage
 	///
 	~ResourcePackage();
 
-	/// Loads all the resources in the package.
-	/// @note
-	/// The resources are not immediately available after the call is made,
-	/// instead, you have to poll for completion with has_loaded()
+	/// Starts loading all the resources in the package asynchronously. The function returns before
+	/// the resources have been loaded. Call has_loaded() to poll for completion or flush() to wait
+	/// for completion.
 	void load();
 
 	/// Unloads all the resources in the package.

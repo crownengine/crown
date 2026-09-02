@@ -13,6 +13,7 @@ Changelog
 * Tools: fixed inhibited Ctrl key when dragging an object into the Editor View.
 * Tools: fixed handling units with deep children hierarchies.
 * Tools: fixed rare editor lockups.
+* Runtime: fixed the resource loader blocking forever in some cases.
 
 .. _v0.64.6:
 

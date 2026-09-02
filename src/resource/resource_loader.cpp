@@ -20,6 +20,7 @@
 #include "resource/package_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
+#include "resource/resource_package.h"
 #include "resource/types.h"
 
 LOG_SYSTEM(RESOURCE_LOADER, "resource_loader")
@@ -47,14 +48,28 @@ ResourceLoader::~ResourceLoader()
 	_thread.stop();
 }
 
-bool ResourceLoader::add_request(const ResourceRequest &rr)
+void ResourceLoader::add_request(const ResourceRequest &rr)
 {
 	ScopedMutex sm(_mutex);
-	bool success = _requests.push(rr);
-	if (success)
-		_requests_condition.signal();
+	queue::push_back(_requests, rr);
+	_requests_condition.signal();
+}
 
-	return success;
+void ResourceLoader::add_loaded(const ResourceRequest &rr)
+{
+	ScopedMutex sm(_loaded_mutex);
+	queue::push_back(_loaded, rr);
+}
+
+bool ResourceLoader::pop_loaded(ResourceRequest &rr)
+{
+	ScopedMutex sm(_loaded_mutex);
+	if (queue::empty(_loaded))
+		return false;
+
+	rr = queue::front(_loaded);
+	queue::pop_front(_loaded);
+	return true;
 }
 
 void ResourceLoader::register_fallback(StringId64 type, StringId64 name)
@@ -79,85 +94,76 @@ s32 ResourceLoader::run()
 {
 	while (1) {
 		_mutex.lock();
-		while (!_exit.load() && _requests.empty())
+		while (!_exit.load() && queue::empty(_requests))
 			_requests_condition.wait(_mutex);
 
-		_mutex.unlock();
-		if (_exit.load())
+		if (_exit.load()) {
+			_mutex.unlock();
 			break;
+		}
 
-		ResourceRequest rr;
-		while (!_exit.load() && _requests.pop(rr)) {
-			ResourceId res_id = resource_id(rr.type, rr.name);
-			logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id._id);
+		ResourceRequest rr = queue::front(_requests);
+		queue::pop_front(_requests);
+		_mutex.unlock();
 
-			TempAllocator128 ta;
-			DynamicString path(ta);
-			destination_path(path, res_id);
+		ResourceId res_id = resource_id(rr.type, rr.name);
+		logd(RESOURCE_LOADER, "Load " RESOURCE_ID_FMT, res_id._id);
 
-			if (_is_bundle) {
-				if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG) {
-					File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-					CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id._id);
+		TempAllocator128 ta;
+		DynamicString path(ta);
+		destination_path(path, res_id);
 
-					// Load the resource.
-					rr.data = rr.load_function(*file, *rr.allocator);
-
-					_data_filesystem.close(*file);
-				} else {
-					const PackageResource *pkg = rr.package_resource;
-					CE_ASSERT(pkg != NULL, "Missing package for bundled resource: " RESOURCE_ID_FMT, res_id._id);
-
-					// Find the resource inside the package.
-					for (u32 ii = 0; ii < pkg->num_resources; ++ii) {
-						const ResourceOffset *offt = package_resource::resource_offset(pkg, ii);
-						if (offt->type == rr.type && offt->name == rr.name) {
-							const void *resource_data = package_resource::data(pkg) + offt->offset;
-
-							// Load the resource.
-							FileMemory fm(resource_data, offt->size);
-							rr.data = rr.load_function(fm, *rr.allocator);
-							break;
-						}
-					}
-				}
-			} else {
+		if (_is_bundle) {
+			if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG) {
 				File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-				if (!file->is_open()) {
-					logw(RESOURCE_LOADER, "Cannot load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
-
-					StringId64 fallback_name;
-					fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
-					CE_ENSURE(fallback_name._id != 0);
-
-					res_id = resource_id(rr.type, fallback_name);
-					destination_path(path, res_id);
-
-					_data_filesystem.close(*file);
-					file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
-				}
-				CE_ASSERT(file->is_open(), "Cannot load fallback resource: " RESOURCE_ID_FMT, res_id._id);
+				CE_ASSERT(file->is_open(), "Cannot load " RESOURCE_ID_FMT, res_id._id);
 
 				// Load the resource.
 				rr.data = rr.load_function(*file, *rr.allocator);
 
 				_data_filesystem.close(*file);
-			}
+			} else {
+				CE_ASSERT(rr.resource_package != NULL, "Missing package for bundled resource: " RESOURCE_ID_FMT, res_id._id);
+				const PackageResource *pkg = rr.resource_package->_package_resource;
+				CE_ASSERT(pkg != NULL, "Missing package for bundled resource: " RESOURCE_ID_FMT, res_id._id);
 
-#define MAX_TRIES 16
-			while (1) {
-				u32 num_tries = 0;
-				while (num_tries++ < MAX_TRIES) {
-					if (_loaded.push(rr))
+				// Find the resource inside the package.
+				for (u32 ii = 0; ii < pkg->num_resources; ++ii) {
+					const ResourceOffset *offt = package_resource::resource_offset(pkg, ii);
+					if (offt->type == rr.type && offt->name == rr.name) {
+						const void *resource_data = package_resource::data(pkg) + offt->offset;
+
+						// Load the resource.
+						FileMemory fm(resource_data, offt->size);
+						rr.data = rr.load_function(fm, *rr.allocator);
 						break;
+					}
 				}
-				if (num_tries < MAX_TRIES)
-					break;
-
-				os::sleep(16);
 			}
-#undef MAX_TRIES
+		} else {
+			File *file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+			if (!file->is_open()) {
+				logw(RESOURCE_LOADER, "Cannot load resource: " RESOURCE_ID_FMT ". Falling back...", res_id._id);
+
+				StringId64 fallback_name;
+				fallback_name = hash_map::get(_fallback, rr.type, fallback_name);
+				CE_ENSURE(fallback_name._id != 0);
+
+				res_id = resource_id(rr.type, fallback_name);
+				destination_path(path, res_id);
+
+				_data_filesystem.close(*file);
+				file = _data_filesystem.open(path.c_str(), FileOpenMode::READ);
+			}
+			CE_ASSERT(file->is_open(), "Cannot load fallback resource: " RESOURCE_ID_FMT, res_id._id);
+
+			// Load the resource.
+			rr.data = rr.load_function(*file, *rr.allocator);
+
+			_data_filesystem.close(*file);
 		}
+
+		add_loaded(rr);
 	}
 
 	return 0;

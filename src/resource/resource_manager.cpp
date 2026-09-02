@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "resource/package_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/resource_loader.h"
 #include "resource/resource_manager.h"
+#include "resource/resource_package.h"
 #include "resource/simple_resource.h"
 
 namespace crown
@@ -43,7 +44,7 @@ bool operator!=(const ResourceManager::ResourceData &a, const ResourceManager::R
 	return !(a == b);
 }
 
-const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { PACKAGE_RESOURCE_NONE, UINT32_MAX, 0u, NULL, NULL };
+const ResourceManager::ResourceData ResourceManager::ResourceData::NOT_FOUND = { UINT32_MAX, 0u, NULL, NULL };
 
 bool operator==(const ResourceManager::ResourceTypeData &a, const ResourceManager::ResourceTypeData &b)
 {
@@ -73,10 +74,9 @@ struct hash<ResourceManager::ResourcePair>
 
 namespace resource_manager_internal
 {
-	void add_resource(ResourceManager &rm, StringId64 package_name, StringId64 type, StringId64 name, Allocator *allocator, void *data)
+	void add_resource(ResourceManager &rm, StringId64 type, StringId64 name, Allocator *allocator, void *data)
 	{
 		ResourceManager::ResourceData rd;
-		rd.package_name = package_name;
 		rd.references = 1;
 		rd.online_sequence_num = 0;
 		rd.allocator = allocator;
@@ -113,14 +113,13 @@ ResourceManager::~ResourceManager()
 	}
 }
 
-bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order, const PackageResource *package_resource)
+void ResourceManager::load(ResourcePackage *resource_package, StringId64 type, StringId64 name, u32 online_order)
 {
 	ResourcePair id = { type, name };
 	ResourceData &rd = hash_map::get(_resources, id, ResourceData::NOT_FOUND);
 
 	ResourceRequest rr;
-	rr.package_name = package_name;
-	rr.package_resource = package_resource;
+	rr.resource_package = resource_package;
 	rr.type = type;
 	rr.name = name;
 	rr.online_order = online_order;
@@ -137,7 +136,8 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 
 		rr.allocator = &_resource_heap;
 		rr.load_function = rtd.load;
-		return _resource_loader->add_request(rr);
+		_resource_loader->add_request(rr);
+		return;
 	}
 
 	rd.references++;
@@ -146,8 +146,7 @@ bool ResourceManager::try_load(StringId64 package_name, StringId64 type, StringI
 	// in complete_requests() by keeping the online_sequence_num updated.
 	rr.allocator = NULL;
 	rr.load_function = NULL;
-	_resource_loader->_loaded.push(rr);
-	return true;
+	_resource_loader->add_loaded(rr);
 }
 
 void ResourceManager::unload(StringId64 type, StringId64 name)
@@ -185,9 +184,7 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 	hash_map::remove(_resources, id);
 
 	// Load the new resource.
-	while (!try_load(rd.package_name, type, name, 0)) {
-		complete_requests();
-	}
+	load(NULL, type, name, 0);
 
 	// Wait until the new resource has been loaded.
 	while (!hash_map::has(_resources, id))
@@ -212,9 +209,7 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 	const ResourcePair id = { type, name };
 
 	if (_autoload && !hash_map::has(_resources, id)) {
-		while (!try_load(PACKAGE_RESOURCE_NONE, type, name, 0)) {
-			complete_requests();
-		}
+		load(NULL, type, name, 0);
 
 		while (!hash_map::has(_resources, id)) {
 			complete_requests();
@@ -244,20 +239,16 @@ void ResourceManager::enable_autoload(bool enable)
 void ResourceManager::complete_requests()
 {
 	ResourceRequest rr;
-	while (_resource_loader->_loaded.pop(rr)) {
-		if (rr.type == RESOURCE_TYPE_PACKAGE || rr.type == RESOURCE_TYPE_CONFIG || _autoload) {
-			// Always add packages and configs to the resource map because they never have
-			// requirements and are never required by any resource, hence no online() order
-			// constraints apply.
-			resource_manager_internal::add_resource(*this
-				, rr.package_name
-				, rr.type
-				, rr.name
-				, rr.allocator
-				, rr.data
-				);
-		} else {
-			ResourcePair rp { RESOURCE_TYPE_PACKAGE, rr.package_name };
+	while (_resource_loader->pop_loaded(rr)) {
+		ResourcePackage *package = rr.resource_package;
+		const bool has_online_order = package != NULL
+			&& rr.type != RESOURCE_TYPE_PACKAGE
+			&& rr.type != RESOURCE_TYPE_CONFIG
+			&& !_autoload
+			;
+
+		if (has_online_order) {
+			ResourcePair rp { RESOURCE_TYPE_PACKAGE, package->_package_resource_name };
 			ResourceData &pkg_data = hash_map::get(_resources, rp, ResourceData::NOT_FOUND);
 			CE_ENSURE(pkg_data != ResourceData::NOT_FOUND);
 
@@ -265,18 +256,38 @@ void ResourceManager::complete_requests()
 				// Cannot process this resource yet; we need to wait for all its requirements to be
 				// put online() first. Put the request back into the loaded queue to try again
 				// later.
-				_resource_loader->_loaded.push(rr);
-			} else {
-				++pkg_data.online_sequence_num;
+				_resource_loader->add_loaded(rr);
+				continue;
+			}
 
-				if (!rr.is_spurious()) {
-					// If this is a non-spurious request, add it to the resource map.
-					resource_manager_internal::add_resource(*this
-						, rr.package_name
-						, rr.type
-						, rr.name
-						, rr.allocator
-						, rr.data
+			++pkg_data.online_sequence_num;
+		}
+
+		if (!rr.is_spurious()) {
+			resource_manager_internal::add_resource(*this
+				, rr.type
+				, rr.name
+				, rr.allocator
+				, rr.data
+				);
+		}
+
+		if (package != NULL) {
+			CE_ENSURE(package->_num_resources_to_load > 0);
+			--package->_num_resources_to_load;
+
+			if (package->_package_resource == NULL) {
+				CE_ENSURE(rr.type == RESOURCE_TYPE_PACKAGE);
+				CE_ENSURE(rr.name == package->_package_resource_name);
+				package->_package_resource = (PackageResource *)get(RESOURCE_TYPE_PACKAGE, package->_package_resource_name);
+				package->_num_resources_to_load = package->_package_resource->num_resources;
+
+				for (u32 ii = 0; ii < package->_package_resource->num_resources; ++ii) {
+					const ResourceOffset *ro = package_resource::resource_offset(package->_package_resource, ii);
+					load(package
+						, ro->type
+						, ro->name
+						, ro->online_order
 						);
 				}
 			}

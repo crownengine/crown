@@ -19,9 +19,7 @@ ResourcePackage::ResourcePackage(StringId64 id, ResourceManager &resman)
 	, _resource_manager(&resman)
 	, _package_resource_name(id)
 	, _package_resource(NULL)
-	, _num_resources_queued(0)
-	, _package_resource_queued(false)
-	, _loaded(false)
+	, _num_resources_to_load(0)
 {
 }
 
@@ -33,33 +31,15 @@ ResourcePackage::~ResourcePackage()
 
 void ResourcePackage::load()
 {
-	// Load the package resource itself.
-	if (!_package_resource_queued) {
-		_package_resource_queued = _resource_manager->try_load(PACKAGE_RESOURCE_NONE
-			, RESOURCE_TYPE_PACKAGE
-			, _package_resource_name
-			, 0
-			);
-	} else {
-		if (_package_resource == NULL) {
-			if (!_resource_manager->can_get(RESOURCE_TYPE_PACKAGE, _package_resource_name)) {
-				_resource_manager->complete_requests();
-				return;
-			}
+	if (_package_resource != NULL || _num_resources_to_load != 0)
+		return;
 
-			_package_resource = (PackageResource *)_resource_manager->get(RESOURCE_TYPE_PACKAGE, _package_resource_name);
-		}
-
-		// Now that the package resource has been loaded, issue loading requests for all the
-		// resources it contains.
-		for (u32 ii = _num_resources_queued; ii < _package_resource->num_resources; ++ii) {
-			const ResourceOffset *ro = package_resource::resource_offset(_package_resource, ii);
-			if (!_resource_manager->try_load(_package_resource_name, ro->type, ro->name, ro->online_order, _package_resource))
-				break;
-
-			++_num_resources_queued;
-		}
-	}
+	_num_resources_to_load = 1;
+	_resource_manager->load(this
+		, RESOURCE_TYPE_PACKAGE
+		, _package_resource_name
+		, 0
+		);
 }
 
 void ResourcePackage::unload()
@@ -82,22 +62,7 @@ void ResourcePackage::flush()
 
 bool ResourcePackage::has_loaded()
 {
-	if (_loaded)
-		return _loaded;
-
-	load();
-
-	if (_package_resource == NULL)
-		return false;
-
-	for (u32 ii = 0; ii < _package_resource->num_resources; ++ii) {
-		const ResourceOffset *ro = package_resource::resource_offset(_package_resource, ii);
-		if (!_resource_manager->can_get(ro->type, ro->name))
-			return false;
-	}
-
-	_loaded = true;
-	return _loaded;
+	return _package_resource != NULL && _num_resources_to_load == 0;
 }
 
 } // namespace crown
