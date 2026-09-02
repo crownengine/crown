@@ -1532,6 +1532,7 @@ public class LevelEditorApplication : Gtk.Application
 		_main_stack.add_named(_projects_list, PANEL_PROJECTS_LIST);
 		_main_stack.add_named(_new_project, PANEL_NEW_PROJECT);
 		_main_stack.add_named(_main_vbox, PANEL_EDITOR);
+		_main_stack.vhomogeneous = false;
 
 		_header_bar = new Gtk.HeaderBar();
 		_header_bar.show_close_button = true;
