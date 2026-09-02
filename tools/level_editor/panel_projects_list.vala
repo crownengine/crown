@@ -224,6 +224,7 @@ public class ProjectsList : Gtk.Box
 	public Gtk.Label _local_label;
 	public Gtk.Box _project_list_empty;
 	public Gtk.ListBox _list_projects;
+	public Gtk.ScrolledWindow _scrolled_window;
 	public Gtk.Button _button_import_project;
 	public Gtk.Button _button_new_project;
 	public Gtk.MenuButton _button_new_project_menu;
@@ -269,12 +270,22 @@ public class ProjectsList : Gtk.Box
 #endif
 
 		_list_projects = new Gtk.ListBox();
+		_list_projects.valign = Gtk.Align.START;
 		_list_projects.set_placeholder(_project_list_empty);
 		_list_projects.set_sort_func((row1, row2) => {
 				int64 mtime1 = int64.parse(row1.get_data("mtime"));
 				int64 mtime2 = int64.parse(row2.get_data("mtime"));
 				return mtime1 > mtime2 ? -1 : 1; // LRU
 			});
+
+#if CROWN_GTK3
+		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+		_scrolled_window.add(_list_projects);
+#else
+		_scrolled_window = new Gtk.ScrolledWindow();
+		_scrolled_window.set_child(_list_projects);
+#endif
+		_scrolled_window.vexpand = true;
 
 		_button_import_project = new Gtk.Button.with_label(_("Import..."));
 		_button_import_project.set_tooltip_text(_("Import an existing project."));
@@ -333,11 +344,11 @@ public class ProjectsList : Gtk.Box
 #if CROWN_GTK3
 		_projects_box.pack_start(_projects_list_label, false, true);
 		_projects_box.pack_start(_buttons_box, false, true);
-		_projects_box.pack_start(_list_projects, false, true);
+		_projects_box.pack_start(_scrolled_window, true, true);
 #else
 		_projects_box.append(_projects_list_label);
 		_projects_box.append(_buttons_box);
-		_projects_box.append(_list_projects);
+		_projects_box.append(_scrolled_window);
 #endif
 
 		_clamp = new Clamp();
