@@ -27,7 +27,7 @@ public class ConsoleClient : GLib.Object
 			_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
 			if (_connection != null) {
 				connected(address, port);
-				receive_async();
+				receive_async.begin();
 			}
 		} catch (Error e) {
 			// Ignore
@@ -80,23 +80,22 @@ public class ConsoleClient : GLib.Object
 		send("{\"type\":\"repl\",\"repl\":\"\"\"%s\"\"\"}".printf(lua));
 	}
 
-	public void receive_async()
-	{
-		_connection.input_stream.read_bytes_async.begin(4, GLib.Priority.DEFAULT, null, on_read);
-	}
-
-	public void on_read(Object? obj, AsyncResult ar)
+	public async void receive_async()
 	{
 		try {
-			InputStream input_stream = (InputStream)obj;
-			uint8[] header = input_stream.read_bytes_async.end(ar).get_data();
+			InputStream input_stream = _connection.input_stream;
+			uint8 header[4];
+			size_t bytes_read;
+			bool header_read = yield input_stream.read_all_async(header
+				, GLib.Priority.DEFAULT
+				, null
+				, out bytes_read
+				);
 
-			// Connection closed gracefully
-			if (header.length == 0) {
+			if (!header_read || bytes_read != header.length) {
 				close();
 				return;
 			}
-			assert(header.length > 0);
 
 			// FIXME: Add bit conversion utils
 			uint32 size = 0;
@@ -106,11 +105,18 @@ public class ConsoleClient : GLib.Object
 			size |= header[0] << 0;
 
 			uint8[] data = new uint8[size];
-			size_t bytes_read = 0;
-			if (input_stream.read_all(data, out bytes_read)) {
-				message_received(this, data);
-				receive_async();
+			bool data_read = yield input_stream.read_all_async(data
+				, GLib.Priority.DEFAULT
+				, null
+				, out bytes_read
+				);
+			if (!data_read || bytes_read != data.length) {
+				close();
+				return;
 			}
+
+			message_received(this, data);
+			receive_async.begin();
 		} catch (Error e) {
 			if (e.code == 44) // An existing connection was forcibly closed by the remote host.
 				close();
