@@ -856,6 +856,7 @@ public class Database
 				|| key == "_guid"
 				|| key == "_alive"
 				|| key == "prefab"
+				|| key == "children"
 				)
 				continue;
 

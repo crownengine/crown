@@ -375,6 +375,28 @@ private static void test_database()
 		assert(ids.length == 1);
 		assert(Guid.equal_func(ids[0], copy_child));
 	}
+
+	// Decode unit children only once.
+	{
+		Database db = new Database(p);
+		create_object_types(db);
+		Guid root = Guid.new_guid();
+		db.create(root, OBJECT_TYPE_UNIT);
+
+		GLib.HashTable<string, Value?> child = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		child["_type"] = OBJECT_TYPE_UNIT;
+		child["children"] = new GLib.GenericArray<Value?>();
+
+		GLib.GenericArray<Value?> children = new GLib.GenericArray<Value?>();
+		children.add(child);
+		GLib.HashTable<string, Value?> json = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		json["_type"] = OBJECT_TYPE_UNIT;
+		json["children"] = children;
+
+		db.decode_object(root, GUID_ZERO, "", json);
+		assert(db.get_set(root, "children").length == 1);
+		assert(db._data.size() == 3);
+	}
 }
 
 public static int main_unit_tests()
