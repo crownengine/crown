@@ -55,6 +55,7 @@ Changelog
 * Tools: fixed rare editor lockups.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
+* Runtime: fixed the resource loader blocking forever in some cases.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 

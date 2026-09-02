@@ -35,7 +35,6 @@ struct ResourceManager
 
 	struct ResourceData
 	{
-		StringId64 package_name;
 		u32 references;
 		u32 online_sequence_num;
 		Allocator *allocator;
@@ -71,11 +70,9 @@ struct ResourceManager
 	///
 	~ResourceManager();
 
-	/// Tries to load the resource (@a type, @a name) from @a package.
-	/// When the load queue is full, it may fail returning false. In such case,
-	/// you must call complete_requests() and try again later until true is returned.
-	/// Use can_get() to check whether the resource can be used.
-	bool try_load(StringId64 package_name, StringId64 type, StringId64 name, u32 online_order, const PackageResource *package_resource = NULL);
+	/// Starts loading the resource (@a type, @a name) from @a resource_package asynchronously. The
+	/// function returns before the resource has been loaded. Call can_get() to poll for completion.
+	void load(ResourcePackage *resource_package, StringId64 type, StringId64 name, u32 online_order);
 
 	/// Unloads the resource @a type @a name.
 	void unload(StringId64 type, StringId64 name);
