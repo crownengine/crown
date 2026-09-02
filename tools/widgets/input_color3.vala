@@ -660,7 +660,6 @@ public class InputColor3 : InputField
 		if (v < 0.0) v = 0.0;
 		if (v > 1.0) v = 1.0;
 		_hsv_v.value = 1.0 - v;
-		_hs_palette.queue_draw();
 	}
 
 	public void sync_hsv_from_rgb()
