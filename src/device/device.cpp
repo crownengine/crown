@@ -1057,6 +1057,13 @@ void Device::refresh(const char *json)
 				refresh_lua = true;
 			} else if (resource_type == RESOURCE_TYPE_TEXTURE) {
 				_material_manager->reload_textures((TextureResource *)old_resource, (TextureResource *)new_resource);
+
+				ListNode *cur;
+				list_for_each(cur, &_worlds)
+				{
+					World *w = (World *)container_of(cur, World, _node);
+					w->_render_world->reload_light_cookies((TextureResource *)old_resource, (TextureResource *)new_resource);
+				}
 			} else if (resource_type == RESOURCE_TYPE_SHADER) {
 				_pipeline->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);
 				_material_manager->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);

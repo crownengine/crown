@@ -32,6 +32,11 @@ render_settings = {
 	// Whether distance culling for local lights is enabled.
 	// local_lights_distance_culling = false
 
+	// Whether cookie textures are enabled for lights (sun and local lights alike).
+	// lights_cookie_enabled = true
+	// Fixed total size of the shared atlas that light cookies are packed into.
+	// lights_cookie_atlas_size = [ 1024 1024 ]
+
 	// Distance from camera at which local lights start to fade.
 	// local_lights_distance_culling_fade = 30
 	// Distance from camera at which local lights disappear.

@@ -24,7 +24,8 @@ struct RenderSettingsFlags
 		MSAA                            = u32(1) << 5, ///< Whether multisample AA is enabled.
 		OBJECT_CONTRIBUTION_CULLING     = u32(1) << 6, ///< Whether contribution culling for visible objects is enabled.
 		SUN_SHADOW_CONTRIBUTION_CULLING = u32(1) << 7, ///< Whether contribution culling for sun shadows is enabled.
-		SELECTION                       = u32(1) << 8  ///< Whether selection rendering is enabled.
+		SELECTION                       = u32(1) << 8, ///< Whether selection rendering is enabled.
+		LIGHTS_COOKIE                   = u32(1) << 9  ///< Whether cookie textures for lights are enabled.
 	};
 };
 
@@ -43,6 +44,7 @@ struct RenderSettings
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.
 	u32 msaa_quality;
+	Vector2 lights_cookie_atlas_size; ///< Fixed total size of the shared light cookie atlas.
 };
 
 struct RenderConfigResource
