@@ -437,9 +437,13 @@ namespace LevelEditorApi
 		, Vector3 color
 		, double shadow_bias
 		, bool cast_shadows
+		, string? cookie
+		, double cookie_scale
+		, double cookie_x
+		, double cookie_y
 		)
 	{
-		return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor:add_light_component(\"%s\", \"%s\", \"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s, %s, %.17g, %.17g, %.17g)".printf(id.to_string()
 			, component_id.to_string()
 			, type
 			, range
@@ -448,6 +452,10 @@ namespace LevelEditorApi
 			, Lua.vector3_elements(color)
 			, shadow_bias
 			, Lua.bool(cast_shadows)
+			, cookie == null ? "nil" : "\"%s\"".printf(cookie)
+			, cookie_scale
+			, cookie_x
+			, cookie_y
 			);
 	}
 
@@ -579,9 +587,13 @@ namespace LevelEditorApi
 		, Vector3 color
 		, double shadow_bias
 		, bool cast_shadows
+		, string? cookie
+		, double cookie_scale
+		, double cookie_x
+		, double cookie_y
 		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_light(\"%s\", %.17g, %.17g, %.17g, %s, %.17g, %s, %s, %.17g, %.17g, %.17g)".printf(id.to_string()
 			, type
 			, range
 			, intensity
@@ -589,6 +601,10 @@ namespace LevelEditorApi
 			, Lua.vector3_elements(color)
 			, shadow_bias
 			, Lua.bool(cast_shadows)
+			, cookie == null ? "nil" : "\"%s\"".printf(cookie)
+			, cookie_scale
+			, cookie_x
+			, cookie_y
 			);
 	}
 

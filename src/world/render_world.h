@@ -242,6 +242,13 @@ struct RenderWorld
 	/// Sets the shadow @a bias of the @a light.
 	void light_set_shadow_bias(LightId light, f32 bias);
 
+	/// Sets the @a cookie texture resource of the @a light. Use StringId64()
+	/// to remove any cookie currently assigned to the light.
+	void light_set_cookie(LightId light, StringId64 cookie);
+
+	/// Sets the cookie @a scale, followed by its local X/Y offsets.
+	void light_set_cookie_scale_and_offset(LightId light, const Vector3 &scale_and_offset);
+
 	/// Sets whether the @a light casts shadows.
 	void light_set_cast_shadows(LightId light, bool cast_shadows);
 
@@ -461,6 +468,9 @@ struct RenderWorld
 
 	///
 	void reload_sprites(const SpriteResource *old_resource, const SpriteResource *new_resource);
+
+	///
+	void reload_light_cookies(const TextureResource *old_resource, const TextureResource *new_resource);
 
 	/// Callback to customize drawing of objects.
 	typedef void (*DrawOverride)(u8 view_id, UnitId unit_id, RenderWorld *rw);
@@ -785,6 +795,19 @@ struct RenderWorld
 			f32 shadow_bias;
 			f32 cast_shadows;
 			f32 _pad;
+			Vector4 cookie_rect; // 22 (min_u, min_v, max_u, max_v) texel centers of normalized light's cookie tile.
+			Vector4 cookie_up;   // 23 World-space light up.xyz and render-target originBottomLeft in w.
+			Vector4 cookie_transform; // 24 Scale in x, local X/Y offsets in yz.
+		};
+
+		// Resolved cookie texture data, cached so the render loop never has to call
+		// ResourceManager::get(). Refreshed by light_set_cookie() and, in reloadable
+		// builds, by reload_light_cookies().
+		struct CookieData
+		{
+			bgfx::TextureHandle handle;
+			u16 width;
+			u16 height;
 		};
 
 		struct LightInstanceData
@@ -799,6 +822,10 @@ struct RenderWorld
 			u32 *type;            // LightType::Enum
 			Matrix4x4 *world;
 			ShaderData *shader;
+			CookieData *cookie_data;
+#if CROWN_CAN_RELOAD
+			const TextureResource **cookie_resource;
+#endif
 		};
 
 		Allocator *_allocator;
