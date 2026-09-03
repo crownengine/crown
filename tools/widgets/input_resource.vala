@@ -18,6 +18,7 @@ public class InputResource : InputField
 	public string _type;
 	public bool _name_unset;
 	public bool _nullable;
+	public ThumbnailCache _thumbnail_cache;
 	public Gtk.Entry _name;
 	public Gtk.Button _selector;
 	public Gtk.Button _revealer;
@@ -60,6 +61,7 @@ public class InputResource : InputField
 			_name_unset = value == null;
 			_name.text = value != null ? value : UNSET_RESOURCE;
 			_revealer.sensitive = value != null;
+			update_thumbnail();
 		}
 	}
 
@@ -76,6 +78,7 @@ public class InputResource : InputField
 		_type = type;
 		_name_unset = true;
 		_nullable = false;
+		_thumbnail_cache = ((LevelEditorApplication)GLib.Application.get_default())._thumbnail_cache;
 
 		// Widgets
 		_name = new Gtk.Entry();
@@ -84,6 +87,8 @@ public class InputResource : InputField
 		_name.hexpand = true;
 		_name.changed.connect(on_name_value_changed);
 		_name.activate.connect(on_name_activate);
+		_name.has_tooltip = true;
+		_name.query_tooltip.connect(on_name_query_tooltip);
 #if CROWN_GTK3
 		_name.focus_in_event.connect(on_name_focus_in);
 		_name.focus_out_event.connect(on_name_focus_out);
@@ -154,6 +159,7 @@ public class InputResource : InputField
 #endif
 
 		this.value = null;
+		_thumbnail_cache.changed.connect(on_thumbnail_cache_changed);
 
 		db._project.file_added.connect(on_file_added_or_changed);
 		db._project.file_changed.connect(on_file_added_or_changed);
@@ -164,6 +170,68 @@ public class InputResource : InputField
 #else
 		this.set_child(_box);
 #endif
+	}
+
+	public bool update_thumbnail()
+	{
+		bool thumbnails_enabled = _type == OBJECT_TYPE_MATERIAL
+			|| _type == OBJECT_TYPE_UNIT
+			|| _type == OBJECT_TYPE_TEXTURE
+			;
+		Gdk.Pixbuf? pixbuf = null;
+		if (!_name_unset && thumbnails_enabled)
+			pixbuf = _thumbnail_cache.get(_type, _name.text, 16);
+
+		if (_name_unset || !thumbnails_enabled) {
+			_name.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, null);
+		} else if (pixbuf != null) {
+#if CROWN_GTK3
+			_name.set_icon_from_pixbuf(Gtk.EntryIconPosition.PRIMARY, pixbuf);
+#else
+			_name.set_icon_from_paintable(Gtk.EntryIconPosition.PRIMARY, Gdk.Texture.for_pixbuf(pixbuf));
+#endif
+		} else {
+			_name.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY
+				, fallback_icon_name(ProjectStore.RowKind.RESOURCE, _type, _thumbnail_cache)
+				);
+		}
+
+		return GLib.Source.REMOVE;
+	}
+
+	public bool on_name_query_tooltip(int x, int y, bool keyboard_tooltip, Gtk.Tooltip tooltip)
+	{
+		if (keyboard_tooltip
+			|| _name_unset
+			|| _name.get_icon_at_pos(x, y) != (int)Gtk.EntryIconPosition.PRIMARY
+			)
+			return false;
+
+		Gdk.Pixbuf? pixbuf = _thumbnail_cache.get(_type
+			, _name.text
+			, ThumbnailCache.THUMBNAIL_SIZE
+			);
+#if CROWN_GTK3
+		tooltip.set_icon(pixbuf);
+#else
+		if (pixbuf != null)
+			tooltip.set_icon(Gdk.Texture.for_pixbuf(pixbuf));
+		else
+			tooltip.set_icon(null);
+#endif
+		tooltip.set_markup("<b>%s</b>\n%s: %s".printf(GLib.Markup.escape_text(_name.text)
+			, _("Type")
+			, GLib.Markup.escape_text(_type)
+			));
+		tooltip.set_tip_area(_name.get_icon_area(Gtk.EntryIconPosition.PRIMARY));
+
+		return true;
+	}
+
+	public void on_thumbnail_cache_changed()
+	{
+		if (!_name_unset)
+			GLib.Idle.add(update_thumbnail);
 	}
 
 	public void on_selector_clicked()
