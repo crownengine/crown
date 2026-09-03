@@ -5,9 +5,30 @@
 
 namespace Crown
 {
-public static string print_max_decimals(double num, int max_decimals)
+public const int PRINT_MAX_DECIMALS_BUFFER_SIZE = 512;
+
+public static unowned string print_max_decimals(char[] buffer, double num, int max_decimals)
 {
-	string formatted = "%.*f".printf(max_decimals, num);
+	assert(max_decimals >= 0);
+	assert(max_decimals <= buffer.length - double.MAX_10_EXP - 4);
+
+	char format[16];
+	int num_digits = 1;
+	for (int precision = max_decimals; precision >= 10; precision /= 10)
+		++num_digits;
+
+	format[0] = '%';
+	format[1] = '.';
+	format[2 + num_digits] = 'f';
+	format[3 + num_digits] = '\0';
+
+	int precision = max_decimals;
+	for (int ii = 1 + num_digits; ii >= 2; --ii) {
+		format[ii] = (char)('0' + precision % 10);
+		precision /= 10;
+	}
+
+	unowned string formatted = num.format(buffer, (string)format);
 	int len = formatted.length;
 
 	if (max_decimals > 0) {
@@ -18,13 +39,10 @@ public static string print_max_decimals(double num, int max_decimals)
 		// Remove trailing decimal point, if any.
 		if (len > 0 && formatted[len - 1] == '.')
 			len--;
-
-		return formatted.substring(0, len);
 	}
 
-	// Strip the decimal point and anything after.
-	int dot = formatted.index_of_char('.');
-	return (dot >= 0) ? formatted.substring(0, dot) : formatted;
+	buffer[len] = '\0';
+	return formatted;
 }
 
 public static string camel_case(string str)

@@ -227,10 +227,11 @@ public class InputDouble : InputField
 		if (keyval != Gdk.Key.Escape || !_entry.editable)
 			return Gdk.EVENT_PROPAGATE;
 
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
 		if (_inconsistent)
 			_entry.text = "";
 		else
-			_entry.text = format_value(_value, _edit_decimals);
+			_entry.text = format_value(buffer, _value, _edit_decimals);
 
 		clear_focus();
 
@@ -392,10 +393,11 @@ public class InputDouble : InputField
 		_entry.editable = true;
 		_entry.grab_focus();
 
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
 		if (_inconsistent)
 			_entry.text = "";
 		else
-			_entry.text = format_value(_value, _edit_decimals);
+			_entry.text = format_value(buffer, _value, _edit_decimals);
 
 		GLib.Idle.add(() => {
 				_entry.set_position(-1);
@@ -409,10 +411,11 @@ public class InputDouble : InputField
 		_entry.select_region(0, 0);
 		_entry.set_position(-1);
 
-		if (_entry.text != format_value(_value, _edit_decimals))
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
+		if (_entry.text != format_value(buffer, _value, _edit_decimals))
 			set_value_safe(string_to_double(_entry.text, _value));
 
-		_entry.text = format_value(_value, _edit_decimals);
+		_entry.text = format_value(buffer, _value, _edit_decimals);
 
 		clear_focus();
 	}
@@ -443,10 +446,11 @@ public class InputDouble : InputField
 
 		_entry.editable = true;
 
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
 		if (_inconsistent)
 			_entry.text = "";
 		else
-			_entry.text = format_value(_value, _edit_decimals);
+			_entry.text = format_value(buffer, _value, _edit_decimals);
 
 		_entry.set_position(-1);
 		_entry.select_region(0, -1);
@@ -456,6 +460,7 @@ public class InputDouble : InputField
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
 
 		if (_inconsistent) {
 			if (_entry.text != "") {
@@ -464,10 +469,10 @@ public class InputDouble : InputField
 				_entry.text = INCONSISTENT_LABEL;
 			}
 		} else {
-			if (_entry.text != format_value(_value, _edit_decimals))
+			if (_entry.text != format_value(buffer, _value, _edit_decimals))
 				set_value_safe(string_to_double(_entry.text, _value));
 			else
-				_entry.text = format_value(_value, _edit_decimals);
+				_entry.text = format_value(buffer, _value, _edit_decimals);
 		}
 
 		_entry.select_region(0, 0);
@@ -484,11 +489,12 @@ public class InputDouble : InputField
 	{
 		double clamped = val.clamp(_min, _max);
 
-		_entry.text = format_value(clamped, _preview_decimals);
-
 		_inconsistent = false;
 
 		if (_value != clamped) {
+			char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
+			format_value(buffer, clamped, _preview_decimals);
+			_entry.text = (string)buffer;
 			_value = clamped;
 			value_changed(this, undo_redo);
 		}
@@ -513,13 +519,13 @@ public class InputDouble : InputField
 		return err == 0 ? TinyExpr.eval(expr) : deffault;
 	}
 
-	public string format_value(double value, int max_decimals)
+	public unowned string format_value(char[] buffer, double value, int max_decimals)
 	{
 		if ((_flags & InputDoubleFlags.INFINITY) != 0
 			&& value == INFINITY_VALUE)
 			return INFINITY_LABEL;
 
-		return print_max_decimals(value, max_decimals);
+		return print_max_decimals(buffer, value, max_decimals);
 	}
 
 	public bool try_parse_special_literal(string str, out double value)
