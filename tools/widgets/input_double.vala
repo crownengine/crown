@@ -143,7 +143,10 @@ public class InputDouble : InputField
 		_snap_multiplier = 1.0;
 
 		drag_reset();
-		set_value_safe(val);
+
+		_value = val.clamp(_min, _max);
+		char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
+		_entry.text = format_value(buffer, _value, _preview_decimals);
 
 #if CROWN_GTK3
 		_gesture_click = new Gtk.GestureMultiPress(_drag_widget);
