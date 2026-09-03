@@ -20,6 +20,7 @@ Changelog
 * Tools: added an automatic check for new versions. Access to the internet can be disabled in the preferences.
 * Tools: improved performance of HSV color picker.
 * Tools: added the ability to filter projects in the Projects List.
+* Tools: resource inputs for units, textures and materials now show a thumbnail and a tooltip with additional info.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.
