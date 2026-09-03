@@ -27,7 +27,6 @@ public class InputDouble : InputField
 	public double _increment;           // Per-pixel.
 	public double _snap_multiplier;
 	public Gtk.Entry _entry;
-	public Gtk.Label _label;
 	public Gtk.Widget _drag_widget;
 	public Gtk.Overlay _overlay;
 	public Gtk.EventControllerKey _controller_key;
@@ -51,7 +50,6 @@ public class InputDouble : InputField
 
 			if (_inconsistent) {
 				_entry.text = INCONSISTENT_LABEL;
-				_label.set_text(_entry.text);
 			} else {
 				set_value_safe(string_to_double(_entry.text, _value));
 			}
@@ -103,22 +101,15 @@ public class InputDouble : InputField
 		_entry.add_controller(_controller_focus);
 #endif
 
-		_label = new Gtk.Label(_entry.text);
-		_label.ellipsize = Pango.EllipsizeMode.END;
-		_label.halign = Gtk.Align.FILL;
-		_label.xalign = 0.0f;
 #if CROWN_GTK3
-		_label.get_style_context().add_class("label-button");
-
 		Gtk.EventBox event_box = new Gtk.EventBox();
-		event_box.add(_label);
 		event_box.can_focus = false;
 		event_box.set_visible_window(false);
 		_drag_widget = event_box;
+		_entry.get_style_context().add_class("label-button");
 #else
-		_label.add_css_class("label-button");
-		_label.focusable = false;
-		_drag_widget = _label;
+		_drag_widget = _entry;
+		_entry.add_css_class("label-button");
 #endif
 		_drag = new InfiniteDragController(_drag_widget);
 		_drag.activation_margin = DRAG_ACTIVATION_MARGIN;
@@ -393,6 +384,11 @@ public class InputDouble : InputField
 		drag_reset();
 
 		_drag_widget.visible = false;
+#if CROWN_GTK3
+		_entry.get_style_context().remove_class("label-button");
+#else
+		_entry.remove_css_class("label-button");
+#endif
 		_entry.editable = true;
 		_entry.grab_focus();
 
@@ -417,7 +413,6 @@ public class InputDouble : InputField
 			set_value_safe(string_to_double(_entry.text, _value));
 
 		_entry.text = format_value(_value, _edit_decimals);
-		_label.set_text(format_value(_value, _preview_decimals));
 
 		clear_focus();
 	}
@@ -437,8 +432,14 @@ public class InputDouble : InputField
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_entry);
 
-		if (_drag_widget.visible)
+		if (_drag_widget.visible) {
 			_drag_widget.visible = false;
+#if CROWN_GTK3
+			_entry.get_style_context().remove_class("label-button");
+#else
+			_entry.remove_css_class("label-button");
+#endif
+		}
 
 		_entry.editable = true;
 
@@ -471,8 +472,12 @@ public class InputDouble : InputField
 
 		_entry.select_region(0, 0);
 		_entry.editable = false;
-		_label.set_text(format_value(_value, _preview_decimals));
 		_drag_widget.visible = true;
+#if CROWN_GTK3
+		_entry.get_style_context().add_class("label-button");
+#else
+		_entry.add_css_class("label-button");
+#endif
 	}
 
 	public void set_value_safe(double val, int undo_redo = (int)!_drag.dragging)
@@ -480,7 +485,6 @@ public class InputDouble : InputField
 		double clamped = val.clamp(_min, _max);
 
 		_entry.text = format_value(clamped, _preview_decimals);
-		_label.set_text(_entry.text);
 
 		_inconsistent = false;
 
