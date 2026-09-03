@@ -494,7 +494,7 @@ function UnitBox:draw()
 	end
 end
 
-function UnitBox:set_light(type, range, intensity, angle, cr, cg, cb, bias, cast_shadows)
+function UnitBox:set_light(type, range, intensity, angle, cr, cg, cb, bias, cast_shadows, cookie, cookie_scale, cookie_x, cookie_y)
 	local nv, nq, nm = Device.temp_count()
 	local light = RenderWorld.light_instance(self._rw, self._unit_id)
 	if light then
@@ -505,6 +505,8 @@ function UnitBox:set_light(type, range, intensity, angle, cr, cg, cb, bias, cast
 		RenderWorld.light_set_spot_angle(self._rw, light, angle)
 		RenderWorld.light_set_shadow_bias(self._rw, light, bias)
 		RenderWorld.light_set_cast_shadows(self._rw, light, cast_shadows)
+		RenderWorld.light_set_cookie(self._rw, light, cookie)
+		RenderWorld.light_set_cookie_transform(self._rw, light, Vector3(cookie_scale, cookie_x, cookie_y))
 	end
 	Device.set_temp_count(nv, nq, nm)
 end

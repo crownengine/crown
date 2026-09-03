@@ -43,6 +43,7 @@ struct RenderSettings
 	f32 local_lights_distance_culling_cutoff; ///< Distance from camera at which local lights disappear.
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.
 	u32 msaa_quality;
+	Vector2 lights_cookie_atlas_size; ///< Fixed total size of the shared light cookie atlas.
 };
 
 struct RenderConfigResource

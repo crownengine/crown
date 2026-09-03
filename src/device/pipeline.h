@@ -11,7 +11,10 @@
 #include "world/types.h"
 #include <bgfx/bgfx.h>
 
-#define LIGHT_SIZE 22     // Size of a light in vec4 units.
+struct stbrp_context;
+struct stbrp_node;
+
+#define LIGHT_SIZE 25     // Size of a light in vec4 units.
 #define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
@@ -21,6 +24,7 @@
 #define LOCAL_LIGHTS_MAX_SHADOW_CASTERS 16 // Maximum number of local shadow-casting lights per frame.
 CE_STATIC_ASSERT(LOCAL_LIGHTS_MAX_SHADOW_CASTERS <= MAX_NUM_LIGHTS);
 #define LOCAL_LIGHTS_SM_MAX_VIEWS (LOCAL_LIGHTS_MAX_SHADOW_CASTERS * 4) // Worst case all omni casters.
+#define LOCAL_LIGHTS_COOKIE_ATLAS_SLOT 13
 #define BLOOM_MIPS 6
 
 struct View
@@ -31,17 +35,20 @@ struct View
 		COLOR_1,
 		CASCADE_CLEAR,
 		CASCADE_0,
-		CASCADE_LAST          = CASCADE_0 + MAX_NUM_CASCADES,
-		SM_LOCAL_CLEAR        = CASCADE_LAST,
+		CASCADE_LAST                    = CASCADE_0 + MAX_NUM_CASCADES,
+		SM_LOCAL_CLEAR                  = CASCADE_LAST,
 		SM_LOCAL_0,
-		SM_LOCAL_LAST         = SM_LOCAL_0 + LOCAL_LIGHTS_SM_MAX_VIEWS,
-		LIGHTS                = SM_LOCAL_LAST,
+		SM_LOCAL_LAST                   = SM_LOCAL_0 + LOCAL_LIGHTS_SM_MAX_VIEWS,
+		LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR = SM_LOCAL_LAST,
+		LOCAL_LIGHTS_COOKIE_ATLAS_0,
+		LOCAL_LIGHTS_COOKIE_ATLAS_LAST  = LOCAL_LIGHTS_COOKIE_ATLAS_0 + MAX_NUM_LIGHTS,
+		LIGHTS                          = LOCAL_LIGHTS_COOKIE_ATLAS_LAST,
 		MESH,
 		BLOOM_COPY,
 		BLOOM_DOWNSAMPLE_0,
-		BLOOM_DOWNSAMPLE_LAST = BLOOM_DOWNSAMPLE_0 + BLOOM_MIPS - 1,
+		BLOOM_DOWNSAMPLE_LAST           = BLOOM_DOWNSAMPLE_0 + BLOOM_MIPS - 1,
 		BLOOM_UPSAMPLE_0,
-		BLOOM_UPSAMPLE_LAST   = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
+		BLOOM_UPSAMPLE_LAST             = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
 		BLOOM_COMBINE,
 		DUMMY_BLIT,
 		VIGNETTE,
@@ -116,6 +123,14 @@ struct Pipeline
 	bgfx::UniformHandle _fog_data;
 	bgfx::UniformHandle _lighting_params;
 
+	// Light cookies.
+	bgfx::UniformHandle _u_lights_cookie_atlas;
+	bgfx::TextureHandle _lights_cookie_atlas_texture;
+	bgfx::FrameBufferHandle _lights_cookie_atlas_frame_buffer;
+	bool _lights_cookie_atlas_supported;
+	stbrp_context *_lights_cookie_atlas_packer; // Re-initialized every frame.
+	stbrp_node *_lights_cookie_atlas_packer_nodes; // Sized once for fixed atlas width.
+
 	// Bloom.
 	bgfx::FrameBufferHandle _bloom_frame_buffers[BLOOM_MIPS];
 	bgfx::UniformHandle _bloom_map;
@@ -170,6 +185,13 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+
+	///
+	void begin_light_cookie_atlas();
+
+	/// Packs @a texture into the atlas, renders it and returns its normalized
+	/// texel-center bounds. Returns zero if it does not fit.
+	Vector4 add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 width, u16 height);
 
 	///
 	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);

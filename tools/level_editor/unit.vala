@@ -655,6 +655,10 @@ public struct Unit
 				, unit.get_component_vector3(component_id, "data.color")
 				, unit.get_component_double (component_id, "data.shadow_bias", 0.0001)
 				, unit.get_component_bool   (component_id, "data.cast_shadows", true)
+				, unit.get_component_resource(component_id, "data.cookie")
+				, unit.get_component_double (component_id, "data.cookie_scale", 1.0)
+				, unit.get_component_double (component_id, "data.cookie_x", 0.0)
+				, unit.get_component_double (component_id, "data.cookie_y", 0.0)
 				);
 			sb.append(s);
 		} else if (db.object_type(component_id) == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
@@ -978,6 +982,10 @@ public struct Unit
 				, unit.get_component_vector3(component_id, "data.color")
 				, unit.get_component_double (component_id, "data.shadow_bias", 0.0001)
 				, unit.get_component_bool   (component_id, "data.cast_shadows", true)
+				, unit.get_component_resource(component_id, "data.cookie")
+				, unit.get_component_double (component_id, "data.cookie_scale", 1.0)
+				, unit.get_component_double (component_id, "data.cookie_x", 0.0)
+				, unit.get_component_double (component_id, "data.cookie_y", 0.0)
 				));
 		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
 			sb.append(LevelEditorApi.set_animation_state_machine(unit_id

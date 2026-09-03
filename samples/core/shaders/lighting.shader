@@ -9,7 +9,7 @@ bgfx_shaders = {
 
 		code = """
 		#if !defined(NO_LIGHT)
-		#	define LIGHT_SIZE 22 // In vec4 units.
+		#	define LIGHT_SIZE 25 // In vec4 units.
 		#	define MAX_NUM_LIGHTS 32
 		#	define MAX_NUM_CASCADES 4
 			uniform vec4 u_lights_num;             // num_dir, num_omni, num_spot
@@ -26,6 +26,7 @@ bgfx_shaders = {
 		#	define local_lights_shadow_map_samples u_shadow_map_params[1].y
 			SAMPLER2DSHADOW(u_cascaded_shadow_map, 10);
 			SAMPLER2DSHADOW(u_local_lights_shadow_map, 11);
+			SAMPLER2D(u_lights_cookie_atlas, 13);
 			uniform vec4 u_local_lights_params;
 		#	define local_lights_distance_culling u_local_lights_params.x
 		#	define local_lights_distance_culling_fade u_local_lights_params.y
@@ -189,6 +190,21 @@ bgfx_shaders = {
 					;
 			}
 
+			vec3 sample_light_cookie(vec4 rect, vec2 uv, vec4 transform, float center, float flip_y)
+			{
+				uv = (uv - center) / max(transform.x, 0.001) + center + transform.yz;
+				uv.y = flip_y > 0.0 ? 1.0 - uv.y : uv.y;
+				vec2 atlas_uv = mix(rect.xy, rect.zw, fract(uv));
+				return texture2D(u_lights_cookie_atlas, atlas_uv).rgb;
+			}
+
+			vec2 equirectangular_uv(vec3 direction)
+			{
+				return vec2(atan2(direction.x, direction.z) * (0.5 / M_PI) + 0.5
+					, acos(clamp(direction.y, -1.0, 1.0)) / M_PI
+					);
+			}
+
 			vec4 lights_data(int offset)
 			{
 				float u = (float(offset) + 0.5) / float(LIGHT_SIZE * MAX_NUM_LIGHTS);
@@ -231,7 +247,7 @@ bgfx_shaders = {
 				vec3 sun_color = vec3(1, 1, 1);
 
 				if (num_dir > 0) {
-					// Brightest directional light (index == 0) generates cascaded shadow maps.
+					// Brightest directional light (index == 0) generates cascaded shadow maps and supports a cookie.
 					vec3 light_color  = lights_data(loffset +  0).rgb;
 					float intensity   = lights_data(loffset +  0).w;
 					vec3 direction    = lights_data(loffset +  2).xyz;
@@ -248,6 +264,11 @@ bgfx_shaders = {
 					float atlas_size  = lights_data(loffset + 21).x;
 					float shadow_bias = lights_data(loffset + 21).y;
 					float cast_shadow = lights_data(loffset + 21).z;
+					vec4 cookie_rect  = lights_data(loffset + 22);
+					vec4 cookie_up    = lights_data(loffset + 23);
+					// .x is the scale (world-space size in meters of one cookie
+					// tile), .yz is the (x, y) offset of the cookie pattern.
+					vec4 cookie_transform = lights_data(loffset + 24);
 					loffset += LIGHT_SIZE;
 
 					sun_color = light_color;
@@ -262,6 +283,14 @@ bgfx_shaders = {
 						, roughness
 						, f0
 						);
+
+					if (cookie_rect.z > 0.0) {
+						vec3 cookie_right = cross(direction, cookie_up.xyz);
+						vec2 cookie_uv = vec2(dot(shadow_local.xyz, cookie_right)
+							, dot(shadow_local.xyz, cookie_up.xyz)
+							);
+						local_radiance *= sample_light_cookie(cookie_rect, cookie_uv, cookie_transform, 0.0, cookie_up.w);
+					}
 
 					if (cast_shadow == 1.0 && receive_shadow) {
 						vec3 shadow_world = shadow_local.xyz;
@@ -337,7 +366,11 @@ bgfx_shaders = {
 					float intensity   = lights_data(loffset + 0).w;
 					vec3 position     = lights_data(loffset + 1).xyz;
 					float range       = lights_data(loffset + 1).w;
+					vec3 direction    = lights_data(loffset + 2).xyz;
 					float cast_shadow = lights_data(loffset + 21).z;
+					vec4 cookie_rect  = lights_data(loffset + 22);
+					vec4 cookie_up    = lights_data(loffset + 23);
+					vec4 cookie_transform = lights_data(loffset + 24);
 					vec3 light_pos    = mul(position, tbn);
 
 					vec3 local_radiance = calc_omni_light(n
@@ -352,6 +385,17 @@ bgfx_shaders = {
 						, roughness
 						, f0
 						);
+
+					if (cookie_rect.z > 0.0) {
+						vec3 to_frag = normalize(shadow_local.xyz - position);
+						vec3 cookie_right = cross(direction, cookie_up.xyz);
+						vec3 cookie_direction = vec3(dot(to_frag, cookie_right)
+							, dot(to_frag, cookie_up.xyz)
+							, dot(to_frag, direction)
+							);
+						vec2 cookie_uv = equirectangular_uv(cookie_direction);
+						local_radiance *= sample_light_cookie(cookie_rect, cookie_uv, cookie_transform, 0.5, cookie_up.w);
+					}
 
 					if (cast_shadow == 1.0 && receive_shadow) {
 						// Tetrahedron normals.
@@ -444,6 +488,8 @@ bgfx_shaders = {
 					vec3 direction    = lights_data(loffset + 2).xyz;
 					float spot_angle  = lights_data(loffset + 2).w;
 					float cast_shadow = lights_data(loffset + 21).z;
+					vec4 cookie_rect  = lights_data(loffset + 22);
+					vec4 cookie_transform = lights_data(loffset + 24);
 
 					vec3 local_radiance = calc_spot_light(n
 						, v
@@ -460,28 +506,37 @@ bgfx_shaders = {
 						, f0
 						);
 
-					if (cast_shadow == 1.0 && receive_shadow) {
+					if (cookie_rect.z > 0.0 || (cast_shadow == 1.0 && receive_shadow)) {
 						mat4 mvp = mtxFromCols(lights_data(loffset + 3)
 							, lights_data(loffset + 4)
 							, lights_data(loffset + 5)
 							, lights_data(loffset + 6)
 							);
-						vec4 atlas_u      = lights_data(loffset + 19);
-						vec4 atlas_v      = lights_data(loffset + 20);
-						float atlas_size  = lights_data(loffset + 21).x;
-						float shadow_bias = lights_data(loffset + 21).y;
-						vec3 atlas_offset = vec3(atlas_u.x, atlas_v.x, atlas_size);
-						vec4 atlas_shadow_pos0 = atlas_shadow_coord(mul(mvp, shadow_local), atlas_offset);
+						vec4 light_clip = mul(mvp, shadow_local);
 
-						if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
-							local_radiance *= shadow(u_local_lights_shadow_map
-								, atlas_shadow_pos0
-								, shadow_bias
-								, local_lights_sm_texel_size
-								, local_lights_shadow_map_samples
-								);
-						} else {
-							local_radiance *= 0.0;
+						if (cookie_rect.z > 0.0) {
+							vec2 cookie_uv = light_clip.xy / light_clip.w;
+							local_radiance *= sample_light_cookie(cookie_rect, cookie_uv, cookie_transform, 0.5, 0.0);
+						}
+
+						if (cast_shadow == 1.0 && receive_shadow) {
+							vec4 atlas_u      = lights_data(loffset + 19);
+							vec4 atlas_v      = lights_data(loffset + 20);
+							float atlas_size  = lights_data(loffset + 21).x;
+							float shadow_bias = lights_data(loffset + 21).y;
+							vec3 atlas_offset = vec3(atlas_u.x, atlas_v.x, atlas_size);
+							vec4 atlas_shadow_pos0 = atlas_shadow_coord(light_clip, atlas_offset);
+
+							if (shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset)) {
+								local_radiance *= shadow(u_local_lights_shadow_map
+									, atlas_shadow_pos0
+									, shadow_bias
+									, local_lights_sm_texel_size
+									, local_lights_shadow_map_samples
+									);
+							} else {
+								local_radiance *= 0.0;
+							}
 						}
 					}
 

@@ -25,6 +25,7 @@
 #include "resource/render_config_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.inl"
+#include "resource/texture_resource.h"
 #include "world/debug_line.h"
 #include "world/material.h"
 #include "world/material_manager.h"
@@ -41,6 +42,8 @@ LOG_SYSTEM(RENDER_WORLD, "render_world")
 
 namespace crown
 {
+CE_STATIC_ASSERT(sizeof(RenderWorld::LightManager::ShaderData) == LIGHT_SIZE * sizeof(Vector4));
+
 // Extract bounding sphere in local space.
 static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
 {
@@ -59,6 +62,37 @@ static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
 	}
 
 	return s;
+}
+
+static Vector3 prepare_light_cookie(Pipeline &pipeline
+	, ResourceManager &resource_manager
+	, RenderWorld::LightManager::ShaderData &shader
+	, StringId64 cookie
+	, const Matrix4x4 &world
+	, u16 &view
+	)
+{
+	Vector3 light_up = y(world);
+	light_up -= shader.direction * dot(light_up, shader.direction);
+	normalize(light_up);
+	shader.cookie_up = {
+		light_up.x,
+		light_up.y,
+		light_up.z,
+		bgfx::getCaps()->originBottomLeft ? 1.0f : 0.0f
+	};
+
+	shader.cookie_rect = VECTOR4_ZERO;
+	if (cookie != StringId64()) {
+		const TextureResource *texture = (const TextureResource *)resource_manager.get(RESOURCE_TYPE_TEXTURE, cookie);
+		shader.cookie_rect = pipeline.add_light_cookie(view
+			, texture->handle
+			, texture->width
+			, texture->height
+			);
+	}
+
+	return light_up;
 }
 
 static Sphere obb_sphere(const OBB &obb)
@@ -1024,6 +1058,19 @@ f32 RenderWorld::light_shadow_bias(LightId light)
 	return _light_manager._data.shader[light.i].shadow_bias;
 }
 
+StringId64 RenderWorld::light_cookie(LightId light)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	return _light_manager._data.cookie[light.i];
+}
+
+Vector3 RenderWorld::light_cookie_transform(LightId light)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	const Vector4 &transform = _light_manager._data.shader[light.i].cookie_transform;
+	return { transform.x, transform.y, transform.z };
+}
+
 void RenderWorld::light_set_color(LightId light, const Color4 &col)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
@@ -1070,6 +1117,18 @@ void RenderWorld::light_set_shadow_bias(LightId light, f32 bias)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.shader[light.i].shadow_bias = bias;
+}
+
+void RenderWorld::light_set_cookie(LightId light, StringId64 cookie)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.cookie[light.i] = cookie;
+}
+
+void RenderWorld::light_set_cookie_transform(LightId light, const Vector3 &transform)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+	_light_manager._data.shader[light.i].cookie_transform = { transform.x, transform.y, transform.z, 0.0f };
 }
 
 void RenderWorld::light_set_cast_shadows(LightId light, bool cast_shadows)
@@ -1690,6 +1749,11 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	pipeline->set_local_lights_params_uniform();
 	pipeline->set_global_lighting_params(&global_lighting_desc);
 	bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
+	bgfx::setTexture(LOCAL_LIGHTS_COOKIE_ATLAS_SLOT
+		, pipeline->_u_lights_cookie_atlas
+		, pipeline->_lights_cookie_atlas_texture
+		, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+		);
 
 	mesh.set_instance_data(object_id, *scene_graph);
 	mesh._data.material[object_id]->bind(View::MESH);
@@ -1841,6 +1905,9 @@ void RenderWorld::render(f32 dt
 			return lm._data.shader[in_a].intensity > lm._data.shader[in_b].intensity;
 		});
 
+	u16 cookie_view_id = View::LOCAL_LIGHTS_COOKIE_ATLAS_0;
+	_pipeline->begin_light_cookie_atlas();
+
 	// Render directional lights.
 	for (u32 i = 0; i < array::size(lm._directional_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
 		const u32 L = lm._directional_lights[i];
@@ -1851,6 +1918,11 @@ void RenderWorld::render(f32 dt
 			&& sun_shadows
 			&& shadow_range_valid
 			;
+
+		lid.shader[L].cookie_rect = VECTOR4_ZERO;
+
+		if (i == 0)
+			prepare_light_cookie(*_pipeline, *_resource_manager, lid.shader[L], lid.cookie[L], lid.world[L], cookie_view_id);
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
 		if (render_shadow) {
@@ -2056,6 +2128,14 @@ void RenderWorld::render(f32 dt
 				&& distance_squared(camera_pos, light_sphere.c) <= shadow_radius*shadow_radius
 				;
 
+			const Vector3 light_up = prepare_light_cookie(*_pipeline
+				, *_resource_manager
+				, shader
+				, lid.cookie[light_id]
+				, lid.world[light_id]
+				, cookie_view_id
+				);
+
 			if (lid.type[light_id] == LightType::SPOT) {
 				const bool cast_shadows = (lid.flag[light_id] & RenderableFlags::SHADOW_CASTER) != 0;
 				const bool render_shadow = cast_shadows
@@ -2066,13 +2146,10 @@ void RenderWorld::render(f32 dt
 
 				shader.cast_shadows = f32(render_shadow);
 
-				if (render_shadow) {
-					cur_tile = num_tiles++;
-
-					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
-					culling_set::remove_culled(_cullable_shadow_casters);
-
-					// Compute light view-proj matrix.
+				// Spot cookies use the same light projection as spot shadows, but
+				// they must not depend on a shadow map actually being rendered.
+				// Local shadows may be disabled, distance-culled or over budget.
+				if (render_shadow || shader.cookie_rect.z > 0.0f) {
 					Matrix4x4 light_view;
 					Matrix4x4 light_proj;
 					const Vector3 &light_dir = shader.direction;
@@ -2080,8 +2157,7 @@ void RenderWorld::render(f32 dt
 					const f32 near = 0.1f;
 					const Vector3 at  = light_pos + light_dir;
 					const Vector3 eye = light_pos - light_dir * near; // Move light eye backwards to compensate for non-zero near proj plane.
-					const Vector3 up  = VECTOR3_UP;
-					bx::mtxLookAt(to_float_ptr(light_view), { eye.x, eye.y, eye.z }, { at.x, at.y, at.z }, { up.x, up.y, up.z }, bx::Handedness::Right);
+					bx::mtxLookAt(to_float_ptr(light_view), { eye.x, eye.y, eye.z }, { at.x, at.y, at.z }, { light_up.x, light_up.y, light_up.z }, bx::Handedness::Right);
 					bx::mtxProj(to_float_ptr(light_proj)
 						, fdeg(shader.spot_angle) * 2.0f
 						, 1.0f // Square depth texture.
@@ -2093,29 +2169,36 @@ void RenderWorld::render(f32 dt
 
 					shader.mvp[0] = light_view * light_proj * crop;
 
-					Vector4 rect = {
-						f32(tile_size * (cur_tile % tile_cols)),
-						f32(tile_size * (cur_tile / tile_cols)),
-						f32(tile_size),
-						f32(tile_size)
-					};
+					if (render_shadow) {
+						cur_tile = num_tiles++;
 
-					shader.atlas_u.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
-					shader.atlas_v.x = caps->originBottomLeft
-						? 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x)
-						: rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x
-						;
-					shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+						culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
+						culling_set::remove_culled(_cullable_shadow_casters);
 
-					bgfx::setViewRect(sm_local_view_id
-						, (u16)rect.x
-						, (u16)rect.y
-						, (u16)rect.z
-						, (u16)rect.w
-						);
-					bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
-					_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
-					++sm_local_view_id;
+						Vector4 rect = {
+							f32(tile_size * (cur_tile % tile_cols)),
+							f32(tile_size * (cur_tile / tile_cols)),
+							f32(tile_size),
+							f32(tile_size)
+						};
+
+						shader.atlas_u.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+						shader.atlas_v.x = caps->originBottomLeft
+							? 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x)
+							: rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x
+							;
+						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+
+						bgfx::setViewRect(sm_local_view_id
+							, (u16)rect.x
+							, (u16)rect.y
+							, (u16)rect.z
+							, (u16)rect.w
+							);
+						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
+						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
+						++sm_local_view_id;
+					}
 				}
 
 				array::push_back(lm._local_lights_spot, light_id);
@@ -3565,6 +3648,7 @@ void RenderWorld::LightManager::allocate(u32 num)
 		+ num*sizeof(f32) + alignof(f32)
 		+ num*sizeof(f32) + alignof(f32)
 		+ num*sizeof(u32) + alignof(u32)
+		+ num*sizeof(StringId64) + alignof(StringId64)
 		;
 
 	LightInstanceData new_data;
@@ -3578,6 +3662,7 @@ void RenderWorld::LightManager::allocate(u32 num)
 	new_data.type = (u32 *)memory::align_top(new_data.prev_flags + num, alignof(u32));
 	new_data.world = (Matrix4x4 *)memory::align_top(new_data.type + num, alignof(Matrix4x4));
 	new_data.shader = (ShaderData *)memory::align_top(new_data.world + num, alignof(ShaderData));
+	new_data.cookie = (StringId64 *)memory::align_top(new_data.shader + num, alignof(StringId64));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(*new_data.unit));
 	memcpy(new_data.flag, _data.flag, _data.size * sizeof(*new_data.flag));
@@ -3585,6 +3670,7 @@ void RenderWorld::LightManager::allocate(u32 num)
 	memcpy(new_data.type, _data.type, _data.size * sizeof(*new_data.type));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(*new_data.world));
 	memcpy(new_data.shader, _data.shader, _data.size * sizeof(ShaderData));
+	memcpy(new_data.cookie, _data.cookie, _data.size * sizeof(*new_data.cookie));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -3634,10 +3720,19 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 		_data.shader[last].atlas_u     = VECTOR4_ZERO;
 		_data.shader[last].atlas_v     = VECTOR4_ZERO;
 		_data.shader[last].map_size    = 0.0f;
+		_data.shader[last].cookie_rect = VECTOR4_ZERO;
+		_data.shader[last].cookie_up   = VECTOR4_ZERO;
+		_data.shader[last].cookie_transform = {
+			lights[i].cookie_transform.x,
+			lights[i].cookie_transform.y,
+			lights[i].cookie_transform.z,
+			0.0f
+		};
 		_data.shader[last].mvp[0]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[1]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[2]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[3]      = MATRIX4X4_IDENTITY;
+		_data.cookie[last]             = lights[i].cookie;
 		_dirty                         = true;
 
 		++_data.size;
@@ -3662,6 +3757,7 @@ void RenderWorld::LightManager::destroy(LightId light)
 	_data.type[light.i] = _data.type[last];
 	_data.world[light.i] = _data.world[last];
 	_data.shader[light.i] = _data.shader[last];
+	_data.cookie[light.i] = _data.cookie[last];
 
 	--_data.size;
 

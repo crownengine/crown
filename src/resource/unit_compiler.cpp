@@ -360,6 +360,12 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	return 0;
 }
 
+static f32 parse_float_or(FlatJsonObject &obj, const char *key, f32 fallback)
+{
+	const char *value = flat_json_object::get(obj, key);
+	return value != NULL ? sjson::parse_float(value) : fallback;
+}
+
 static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
@@ -381,10 +387,7 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	ld.intensity   = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.intensity")));
 	ld.spot_angle  = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.spot_angle")));
 	ld.color       = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")));
-	ld.shadow_bias = 0.0004f;
-	if (flat_json_object::has(obj, "data.shadow_bias")) {
-		ld.shadow_bias = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.shadow_bias")));
-	}
+	ld.shadow_bias = RETURN_IF_ERROR(parse_float_or(obj, "data.shadow_bias", 0.0004f));
 	ld.flags = 0u;
 	if (flat_json_object::has(obj, "data.cast_shadows")) {
 		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")));
@@ -393,8 +396,30 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 		ld.flags |= RenderableFlags::SHADOW_CASTER;
 	}
 
+	ld.cookie = StringId64();
+	const char *cookie_json = flat_json_object::get(obj, "data.cookie");
+	if (cookie_json != NULL) {
+		DynamicString cookie(ta);
+		RETURN_IF_ERROR(sjson::parse_string(cookie, cookie_json));
+
+		if (!cookie.empty()) {
+			WARN_IF_MISSING(UNIT_COMPILER, "texture"
+				, cookie.c_str()
+				, opts
+				);
+			opts.add_requirement("texture", cookie.c_str());
+			ld.cookie = RETURN_IF_ERROR(sjson::parse_resource_name(cookie_json));
+		}
+	}
+
+	ld.cookie_transform = { 1.0f, 0.0f, 0.0f };
+	ld.cookie_transform.x = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_scale", 1.0f));
+	ld.cookie_transform.y = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_x", 0.0f));
+	ld.cookie_transform.z = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_y", 0.0f));
+
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
+	bw.write(ld.cookie);
 	bw.write(ld.type);
 	bw.write(ld.range);
 	bw.write(ld.intensity);
@@ -402,6 +427,7 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	bw.write(ld.color);
 	bw.write(ld.shadow_bias);
 	bw.write(ld.flags);
+	bw.write(ld.cookie_transform);
 	return 0;
 }
 

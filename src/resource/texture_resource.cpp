@@ -41,6 +41,8 @@ namespace texture_resource_internal
 
 		tr->mem        = bgfx::makeRef(data, size);
 		tr->handle.idx = BGFX_INVALID_HANDLE;
+		tr->width      = 0;
+		tr->height     = 0;
 
 		return tr;
 	}
@@ -48,7 +50,10 @@ namespace texture_resource_internal
 	void online(StringId64 id, ResourceManager &rm)
 	{
 		TextureResource *tr = (TextureResource *)rm.get(RESOURCE_TYPE_TEXTURE, id);
-		tr->handle = bgfx::createTexture(tr->mem);
+		bgfx::TextureInfo info;
+		tr->handle = bgfx::createTexture(tr->mem, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, 0, &info);
+		tr->width  = info.width;
+		tr->height = info.height;
 	}
 
 	void offline(StringId64 id, ResourceManager &rm)

@@ -3,12 +3,16 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/memory/allocator.h"
+#include "core/memory/globals.h"
 #include "core/strings/string_id.inl"
 #include "core/types.h"
 #include "device/pipeline.h"
 #include "world/shader_manager.h"
 #include "core/math/matrix4x4.inl"
 #include <bx/math.h>
+#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb_rect_pack.h>
 
 namespace crown
 {
@@ -178,6 +182,12 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _u_lights_cookie_atlas(BGFX_INVALID_HANDLE)
+	, _lights_cookie_atlas_texture(BGFX_INVALID_HANDLE)
+	, _lights_cookie_atlas_frame_buffer(BGFX_INVALID_HANDLE)
+	, _lights_cookie_atlas_supported(false)
+	, _lights_cookie_atlas_packer(NULL)
+	, _lights_cookie_atlas_packer_nodes(NULL)
 	, _bloom_map(BGFX_INVALID_HANDLE)
 	, _map_pixel_size(BGFX_INVALID_HANDLE)
 	, _bloom_params(BGFX_INVALID_HANDLE)
@@ -285,6 +295,39 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
 	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
 
+	_lights_cookie_atlas_supported = bgfx::isTextureValid(0
+		, false
+		, 1
+		, bgfx::TextureFormat::RGBA8
+		, BGFX_TEXTURE_RT
+		);
+	_u_lights_cookie_atlas = bgfx::createUniform("u_lights_cookie_atlas", bgfx::UniformType::Sampler);
+	if (_lights_cookie_atlas_supported) {
+		const u16 atlas_w = (u16)_render_settings.lights_cookie_atlas_size.x;
+		const u16 atlas_h = (u16)_render_settings.lights_cookie_atlas_size.y;
+		_lights_cookie_atlas_texture = bgfx::createTexture2D(atlas_w
+			, atlas_h
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA8
+			, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+			);
+		_lights_cookie_atlas_frame_buffer = bgfx::createFrameBuffer(1, &_lights_cookie_atlas_texture);
+		_lights_cookie_atlas_packer = (stbrp_context *)default_allocator().allocate(sizeof(stbrp_context));
+		_lights_cookie_atlas_packer_nodes = (stbrp_node *)default_allocator().allocate(sizeof(stbrp_node) * atlas_w);
+	} else {
+		// Keep the sampler valid on renderers without RGBA8 render targets.
+		const u32 pixel = 0x00000000;
+		_lights_cookie_atlas_texture = bgfx::createTexture2D(1
+			, 1
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA8
+			, BGFX_TEXTURE_NONE
+			, bgfx::copy(&pixel, sizeof(pixel))
+			);
+	}
+
 	_bloom_map = bgfx::createUniform("s_bloom_map", bgfx::UniformType::Sampler);
 	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
 	_bloom_params = bgfx::createUniform("u_bloom_params", bgfx::UniformType::Vec4);
@@ -315,6 +358,21 @@ void Pipeline::destroy()
 	_lights_data = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_lights_num);
 	_lights_num = BGFX_INVALID_HANDLE;
+
+	// Destroy light cookie resources.
+	bgfx::destroy(_u_lights_cookie_atlas);
+	_u_lights_cookie_atlas = BGFX_INVALID_HANDLE;
+	if (bgfx::isValid(_lights_cookie_atlas_frame_buffer))
+		bgfx::destroy(_lights_cookie_atlas_frame_buffer);
+	_lights_cookie_atlas_frame_buffer = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_lights_cookie_atlas_texture);
+	_lights_cookie_atlas_texture = BGFX_INVALID_HANDLE;
+	if (_lights_cookie_atlas_packer != NULL) {
+		default_allocator().deallocate(_lights_cookie_atlas_packer);
+		default_allocator().deallocate(_lights_cookie_atlas_packer_nodes);
+		_lights_cookie_atlas_packer = NULL;
+		_lights_cookie_atlas_packer_nodes = NULL;
+	}
 
 	// Destroy local-lights shadow map resources.
 	bgfx::destroy(_u_local_lights_params);
@@ -619,6 +677,24 @@ void Pipeline::reset(u16 width, u16 height)
 		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
 			view_name = "sm_local_lights";
 			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
+		} else if (id == View::LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR) {
+			view_name = "lights_cookie_atlas_clear";
+			if (_lights_cookie_atlas_supported) {
+				bgfx::setViewFrameBuffer(id, _lights_cookie_atlas_frame_buffer);
+				bgfx::setViewRect(id
+					, 0
+					, 0
+					, (u16)_render_settings.lights_cookie_atlas_size.x
+					, (u16)_render_settings.lights_cookie_atlas_size.y
+					);
+				bgfx::setViewClear(id, BGFX_CLEAR_COLOR, 0x00000000, 1.0f, 0);
+			}
+		} else if (id >= View::LOCAL_LIGHTS_COOKIE_ATLAS_0 && id < View::LOCAL_LIGHTS_COOKIE_ATLAS_LAST) {
+			view_name = "lights_cookie_atlas";
+			if (_lights_cookie_atlas_supported) {
+				bgfx::setViewFrameBuffer(id, _lights_cookie_atlas_frame_buffer);
+				bgfx::setViewTransform(id, NULL, ortho);
+			}
 		} else if (id == View::LIGHTS) {
 			view_name = "lights_data";
 		} else if (id == View::MESH) {
@@ -969,6 +1045,58 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 	bgfx::setState(_blit_shader.state);
 	bgfx::submit(View::BLIT, _blit_shader.program);
+}
+
+void Pipeline::begin_light_cookie_atlas()
+{
+	if (!_lights_cookie_atlas_supported)
+		return;
+
+	const u16 width = (u16)_render_settings.lights_cookie_atlas_size.x;
+	const u16 height = (u16)_render_settings.lights_cookie_atlas_size.y;
+	stbrp_init_target(_lights_cookie_atlas_packer
+		, width
+		, height
+		, _lights_cookie_atlas_packer_nodes
+		, width
+		);
+	bgfx::touch(View::LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR);
+}
+
+Vector4 Pipeline::add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 width, u16 height)
+{
+	if (!_lights_cookie_atlas_supported)
+		return VECTOR4_ZERO;
+
+	stbrp_rect packed = { 0, width, height, 0, 0, 0 };
+	stbrp_pack_rects(_lights_cookie_atlas_packer, &packed, 1);
+	if (!packed.was_packed)
+		return VECTOR4_ZERO;
+
+	CE_ASSERT(view < View::LOCAL_LIGHTS_COOKIE_ATLAS_LAST, "Too many light cookies");
+	bgfx::setViewRect(view, packed.x, packed.y, width, height);
+	const u32 sampler_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
+	bgfx::setTexture(0, _color_map, texture, sampler_flags);
+	screenSpaceQuad(width, height, 0.0f, bgfx::getCaps()->originBottomLeft);
+	bgfx::setState(_blit_shader.state);
+	bgfx::submit(view++, _blit_shader.program);
+
+	const f32 atlas_w = _render_settings.lights_cookie_atlas_size.x;
+	const f32 atlas_h = _render_settings.lights_cookie_atlas_size.y;
+	const f32 min_v = bgfx::getCaps()->originBottomLeft
+		? atlas_h - f32(packed.y) - f32(height) + 0.5f
+		: f32(packed.y) + 0.5f
+		;
+	const f32 max_v = bgfx::getCaps()->originBottomLeft
+		? atlas_h - f32(packed.y) - 0.5f
+		: f32(packed.y) + f32(height) - 0.5f
+		;
+	return {
+		(f32(packed.x) + 0.5f) / atlas_w,
+		min_v / atlas_h,
+		(f32(packed.x) + f32(width) - 0.5f) / atlas_w,
+		max_v / atlas_h
+	};
 }
 
 void Pipeline::reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource)

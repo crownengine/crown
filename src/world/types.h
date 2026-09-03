@@ -397,6 +397,7 @@ struct AnimationStateMachineDesc
 /// @ingroup World
 struct LightDesc
 {
+	StringId64 cookie; ///< Cookie texture resource, or StringId64() for none.
 	u32 type;          ///< LightType::Enum
 	f32 range;         ///< In meters.
 	f32 intensity;     ///<
@@ -404,6 +405,7 @@ struct LightDesc
 	Vector3 color;     ///< Color of the light.
 	f32 shadow_bias;   ///<
 	u32 flags;         ///< RenderableFlags::Enum
+	Vector3 cookie_transform; ///< Scale followed by the local X/Y offsets.
 };
 
 /// Global lighting description.
