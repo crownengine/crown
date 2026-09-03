@@ -5,6 +5,21 @@
 
 namespace Crown
 {
+private static void test_string()
+{
+	stdout.printf("test_print_max_decimals\n");
+
+	char buffer[PRINT_MAX_DECIMALS_BUFFER_SIZE];
+	assert(print_max_decimals(buffer, 0.0, 4) == "0");
+	assert(print_max_decimals(buffer, 1.0, 4) == "1");
+	assert(print_max_decimals(buffer, 1.2, 4) == "1.2");
+	assert(print_max_decimals(buffer, 1.23456, 4) == "1.2346");
+	assert(print_max_decimals(buffer, -1.23456, 4) == "-1.2346");
+	assert(print_max_decimals(buffer, 1.6, 0) == "2");
+	assert(print_max_decimals(buffer, 0.00001, 4) == "0");
+	assert(print_max_decimals(buffer, double.MAX, 5).length == 309);
+}
+
 private static void test_database()
 {
 	stdout.printf("test_database\n");
@@ -401,6 +416,7 @@ private static void test_database()
 
 public static int main_unit_tests()
 {
+	test_string();
 	test_database();
 	return 0;
 }
