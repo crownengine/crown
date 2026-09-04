@@ -238,7 +238,7 @@ public class InputDouble : InputField
 
 		clear_focus();
 
-		return Gdk.EVENT_STOP;
+		return Gdk.EVENT_PROPAGATE;
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)
