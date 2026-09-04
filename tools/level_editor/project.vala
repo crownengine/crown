@@ -410,6 +410,15 @@ public class Project
 		}
 	}
 
+	public int create_package(string directory, string name)
+	{
+		string package_path = Path.build_filename(directory, name + ".package");
+		string path = this.absolute_path(package_path);
+
+		FileStream fs = FileStream.open(path, "wb");
+		return fs != null? fs.puts("\n") : -1;
+	}
+
 	public int create_script(string directory, string name, bool empty)
 	{
 		string script_name = Path.build_filename(directory, name);

@@ -102,6 +102,10 @@ public GLib.Menu? project_entry_menu_create(ProjectStore.RowKind kind, string ty
 		mi.set_action_and_target_value("app.create-directory", new GLib.Variant.tuple({(string)name, ""}));
 		create_menu.append_item(mi);
 
+		mi = new GLib.MenuItem(_("New Package..."), null);
+		mi.set_action_and_target_value("app.create-package", new GLib.Variant.tuple({(string)name, ""}));
+		create_menu.append_item(mi);
+
 		menu.append_section(null, create_menu);
 
 		GLib.Menu destroy_menu = new GLib.Menu();

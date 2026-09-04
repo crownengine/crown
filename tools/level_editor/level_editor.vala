@@ -1119,6 +1119,7 @@ public class LevelEditorApplication : Gtk.Application
 		{ "create-unit",          on_create_unit,          "(ss)",  null },
 		{ "create-state-machine", on_create_state_machine, "(sss)", null },
 		{ "create-material",      on_create_material,      "(ss)",  null },
+		{ "create-package",       on_create_package_file,  "(ss)",  null },
 		{ "open-containing",      on_open_containing,      "s",     null },
 		{ "texture-settings",     on_texture_settings,     "s",     null },
 		{ "state-machine-editor", on_state_machine_editor, "s",     null },
@@ -4657,6 +4658,9 @@ public class LevelEditorApplication : Gtk.Application
 				string skeleton_name = num_params > 2 ? (string)param.get_child_value(2) : "";
 				do_create_state_machine(dir_name, res_name, skeleton_name);
 				break;
+			case "package":
+				do_create_package_file(dir_name, res_name);
+				break;
 			default:
 				loge("Unknown resource type: %s".printf(type));
 				return;
@@ -4683,6 +4687,9 @@ public class LevelEditorApplication : Gtk.Application
 			break;
 		case OBJECT_TYPE_STATE_MACHINE:
 			title = _("State Machine Name");
+			break;
+		case "package":
+			title = _("Package Name");
 			break;
 		default:
 			title = _("Resource Name");
@@ -4804,6 +4811,23 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_create_directory(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		on_create_resource(param, ProjectStore.RowKind.FOLDER, "", 2);
+	}
+
+	public void do_create_package_file(string dir_name, string package_name)
+	{
+		if (package_name == "")
+			return;
+
+		int ec = _project.create_package(dir_name, package_name);
+		if (ec < 0) {
+			loge("Failed to create package %s".printf(package_name));
+			return;
+		}
+	}
+
+	public void on_create_package_file(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		on_create_resource(param, ProjectStore.RowKind.RESOURCE, "package", 2);
 	}
 
 	public async bool compile_and_reload()
