@@ -481,30 +481,35 @@ public class ProjectFolderView : Gtk.Box
 		column.title = _("Basename");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_basename_text_func);
+		column.expand = true;
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
 		column.title = _("Type");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_type_text_func);
+		column.expand = true;
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
 		column.title = _("Size");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_size_text_func);
+		column.expand = true;
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
 		column.title = _("Modified");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_mtime_text_func);
+		column.expand = true;
 		_list_view.append_column(column);
 
 		column = new Gtk.TreeViewColumn();
 		column.title = _("Name");
 		column.pack_start(cell_text, true);
 		column.set_cell_data_func(cell_text, list_view_name_text_func);
+		column.expand = true;
 		_list_view.append_column(column);
 
 		_empty_pixbuf = new Gdk.Pixbuf.from_data({ 0x00, 0x00, 0x00, 0x00 }, Gdk.Colorspace.RGB, true, 8, 1, 1, 4);
