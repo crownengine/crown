@@ -1,6 +1,21 @@
 Changelog
 =========
 
+.. _v0.64.7:
+
+:ref:`0.64.7 --- 04 Sep 2026 <v0.64.7>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed scale/rotate gizmo rings being activated too far from their visible outline.
+* Tools: fixed multiple undo steps being generated when picking colors from the screen.
+* Tools: fixed inhibited Ctrl key when dragging an object into the Editor View.
+* Tools: fixed handling units with deep children hierarchies.
+* Tools: fixed rare editor lockups.
+* Tools: fixed revealing a resource while the Project Browser was in search mode.
+* Runtime: fixed the resource loader blocking forever in some cases.
+
 .. _v0.64.6:
 
 :ref:`0.64.6 --- 28 Aug 2026 <v0.64.6>`
