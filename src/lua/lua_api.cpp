@@ -2664,6 +2664,8 @@ void load_api(LuaEnvironment &env)
 			ld.intensity  = stack.get_float(5);
 			ld.spot_angle = stack.get_float(6);
 			ld.color      = stack.get_vector3(7);
+			ld.cookie           = StringId64();
+			ld.cookie_transform = { 1.0f, 0.0f, 0.0f };
 
 			stack.push_id(stack.get_render_world(1)->light_create(stack.get_unit(2), ld).i);
 			return 1;
@@ -2713,6 +2715,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_float(stack.get_render_world(1)->light_shadow_bias(stack.get_light_instance(2)));
 			return 1;
 		});
+	env.add_module_function("RenderWorld", "light_cookie_transform", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_vector3(stack.get_render_world(1)->light_cookie_transform(stack.get_light_instance(2)));
+			return 1;
+		});
 	env.add_module_function("RenderWorld", "light_set_type", [](lua_State *L) {
 			LuaStack stack(L);
 
@@ -2746,6 +2753,21 @@ void load_api(LuaEnvironment &env)
 	env.add_module_function("RenderWorld", "light_set_shadow_bias", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_render_world(1)->light_set_shadow_bias(stack.get_light_instance(2), stack.get_float(3));
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "light_set_cookie", [](lua_State *L) {
+			LuaStack stack(L);
+			const char *cookie = stack.get_string(3);
+			const StringId64 cookie_id = (cookie != NULL && cookie[0] != '\0')
+				? stack.get_resource_name(3)
+				: StringId64()
+				;
+			stack.get_render_world(1)->light_set_cookie(stack.get_light_instance(2), cookie_id);
+			return 0;
+		});
+	env.add_module_function("RenderWorld", "light_set_cookie_transform", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_render_world(1)->light_set_cookie_transform(stack.get_light_instance(2), stack.get_vector3(3));
 			return 0;
 		});
 	env.add_module_function("RenderWorld", "light_set_cast_shadows", [](lua_State *L) {

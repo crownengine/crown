@@ -101,6 +101,9 @@ namespace render_settings
 			} else if (cur->first == "local_lights_shadow_map_size") {
 				Value v; v.type = Value::VECTOR2; v.value.v2 = RETURN_IF_ERROR(sjson::parse_vector2(cur->second));
 				hash_map::set(rs, cur->first.to_string_id(), v);
+			} else if (cur->first == "lights_cookie_atlas_size") {
+				Value v; v.type = Value::VECTOR2; v.value.v2 = RETURN_IF_ERROR(sjson::parse_vector2(cur->second));
+				hash_map::set(rs, cur->first.to_string_id(), v);
 			} else if (cur->first == "local_lights_shadow_map_quality") {
 				StringId32 quality = RETURN_IF_ERROR(sjson::parse_string_id(cur->second));
 				Value v; v.type = Value::FLOAT; v.value.f = shadow_map_quality_samples(quality);
@@ -192,6 +195,8 @@ namespace render_settings
 				rs.local_lights_shadow_map_size = v.value.v2;
 				rs.shadow_map_params[0].z = 1.0f / v.value.v2.x;
 				rs.shadow_map_params[0].w = 1.0f / v.value.v2.y;
+			} else if (key == STRING_ID_32("lights_cookie_atlas_size", UINT32_C(0x920613bf))) {
+				rs.lights_cookie_atlas_size = v.value.v2;
 			} else if (key == STRING_ID_32("local_lights_shadow_map_quality", UINT32_C(0xb6891b6e))) {
 				rs.shadow_map_params[1].y = v.value.f;
 			} else if (key == STRING_ID_32("local_lights", UINT32_C(0x831fd434))) {
@@ -290,6 +295,7 @@ namespace render_config_resource_internal
 		rcr.render_settings.local_lights_distance_culling_cutoff = 60.0f;
 		rcr.render_settings.lod_fade_duration = 0.2f;
 		rcr.render_settings.msaa_quality = msaa_quality_samples(STRING_ID_32("ultra", UINT32_C(0xf13839af)));
+		rcr.render_settings.lights_cookie_atlas_size = { 1024.0f, 1024.0f };
 
 		// Parse.
 		if (json_object::has(obj, "render_settings")) {
@@ -322,6 +328,7 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.local_lights_distance_culling_cutoff);
 		opts.write(rcr.render_settings.lod_fade_duration);
 		opts.write(rcr.render_settings.msaa_quality);
+		opts.write(rcr.render_settings.lights_cookie_atlas_size);
 
 		return 0;
 	}

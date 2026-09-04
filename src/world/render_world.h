@@ -217,6 +217,12 @@ struct RenderWorld
 	/// Returns the shadow bias of the @a light.
 	f32 light_shadow_bias(LightId light);
 
+	/// Returns the cookie texture resource of the @a light, or StringId64() if none.
+	StringId64 light_cookie(LightId light);
+
+	/// Returns the cookie scale and local X/Y offsets of the @a light.
+	Vector3 light_cookie_transform(LightId light);
+
 	/// Sets the @a type of the @a light.
 	void light_set_type(LightId light, LightType::Enum type);
 
@@ -234,6 +240,13 @@ struct RenderWorld
 
 	/// Sets the shadow @a bias of the @a light.
 	void light_set_shadow_bias(LightId light, f32 bias);
+
+	/// Sets the @a cookie texture resource of the @a light. Use StringId64()
+	/// to remove any cookie currently assigned to the light.
+	void light_set_cookie(LightId light, StringId64 cookie);
+
+	/// Sets the cookie @a transform: scale followed by local X/Y offsets.
+	void light_set_cookie_transform(LightId light, const Vector3 &transform);
 
 	/// Sets whether the @a light casts shadows.
 	void light_set_cast_shadows(LightId light, bool cast_shadows);
@@ -758,6 +771,9 @@ struct RenderWorld
 			f32 shadow_bias;
 			f32 cast_shadows;
 			f32 _pad;
+			Vector4 cookie_rect; // 22 (min_u, min_v, max_u, max_v) texel centers of normalized light's cookie tile.
+			Vector4 cookie_up;   // 23 World-space light up.xyz and render-target originBottomLeft in w.
+			Vector4 cookie_transform; // 24 Scale in x, local X/Y offsets in yz.
 		};
 
 		struct LightInstanceData
@@ -772,6 +788,7 @@ struct RenderWorld
 			u32 *type;            // LightType::Enum
 			Matrix4x4 *world;
 			ShaderData *shader;
+			StringId64 *cookie;
 		};
 
 		Allocator *_allocator;

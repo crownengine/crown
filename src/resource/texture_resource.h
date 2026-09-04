@@ -18,6 +18,8 @@ struct TextureResource
 {
 	const bgfx::Memory *mem;
 	bgfx::TextureHandle handle;
+	u16 width;
+	u16 height;
 };
 
 } // namespace crown

@@ -484,6 +484,37 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.RESOURCE,
+			name = "data.cookie",
+			label = _("Cookie"),
+			resource_type = OBJECT_TYPE_TEXTURE,
+			deffault = "",
+			tooltip = _("Light cookie pattern."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.cookie_scale",
+			min = 0.001,
+			deffault = 1.0,
+			tooltip = _("World size in meters of one tile of the cookie pattern (Directional), or a zoom factor for the projected cookie (Omni, Spot)."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.cookie_x",
+			deffault = 0.0,
+			tooltip = _("Offset of the cookie pattern along X axis."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.DOUBLE,
+			name = "data.cookie_y",
+			deffault = 0.0,
+			tooltip = _("Offset of the cookie pattern along Y axis."),
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "spawn_order",
 			deffault = 1.0,
