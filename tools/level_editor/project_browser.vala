@@ -2844,8 +2844,7 @@ public class ProjectBrowser : Gtk.Box
 	public void exit_search()
 	{
 #if CROWN_GTK3
-		uint8 empty[] = { '\0' };
-		_filter_buffer.set_text(empty);
+		_filter_entry_folder.text = "";
 #else
 		_filter_entry_tree.text = "";
 		_filter_entry_folder.text = "";
