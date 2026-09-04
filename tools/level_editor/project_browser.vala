@@ -21,6 +21,18 @@ public string project_path(ProjectStore.RowKind kind, string type, string name)
 	return ResourceId.path(type, name);
 }
 
+private void activate_project_entry_delete_action(ProjectStore.RowKind kind, string type, string name)
+{
+	if (kind == ProjectStore.RowKind.FOLDER) {
+		if (name == ProjectStore.ROOT_FOLDER || name == "..")
+			return;
+
+		GLib.Application.get_default().activate_action("delete-directory", new GLib.Variant.string(name));
+	} else if (kind == ProjectStore.RowKind.RESOURCE) {
+		GLib.Application.get_default().activate_action("delete-file", new GLib.Variant.string(project_path(kind, type, name)));
+	}
+}
+
 // Menu items common to files and folders.
 public GLib.Menu? project_entry_menu_common(ProjectStore.RowKind kind, string type, string name)
 {
@@ -308,6 +320,11 @@ public enum BrowseMode
 
 public class ProjectFolderView : Gtk.Box
 {
+	public const GLib.ActionEntry[] actions =
+	{
+		{ "delete", on_delete, null, null }
+	};
+
 #if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS_SOURCE =
 	{
@@ -322,6 +339,7 @@ public class ProjectFolderView : Gtk.Box
 
 	public string _selected_type;
 	public string _selected_name;
+	public GLib.SimpleActionGroup _action_group;
 	public ProjectBrowser _project_browser;
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
@@ -350,6 +368,10 @@ public class ProjectFolderView : Gtk.Box
 	public ProjectFolderView(ProjectBrowser project_browser, ProjectStore project_store, ThumbnailCache thumbnail_cache)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
+
+		_action_group = new GLib.SimpleActionGroup();
+		_action_group.add_action_entries(actions, this);
+		this.insert_action_group("project-browser", _action_group);
 
 		_project_browser = project_browser;
 		_project_store = project_store;
@@ -830,6 +852,20 @@ public class ProjectFolderView : Gtk.Box
 		activate_path(path);
 	}
 
+	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Gtk.TreePath? path;
+		if (!selected_path(out path))
+			return;
+
+		ProjectStore.RowKind kind;
+		string type;
+		string name;
+		resource_at_path(out kind, out type, out name, path);
+
+		activate_project_entry_delete_action(kind, type, name);
+	}
+
 	public void activate_path(Gtk.TreePath path)
 	{
 		ProjectStore.RowKind kind;
@@ -1185,6 +1221,11 @@ public class ProjectFolderView : Gtk.Box
 
 public class ProjectBrowser : Gtk.Box
 {
+	public const GLib.ActionEntry[] actions =
+	{
+		{ "delete", on_delete, null, null }
+	};
+
 #if CROWN_GTK3
 	public const Gtk.TargetEntry[] DND_TARGETS =
 	{
@@ -1232,6 +1273,7 @@ public class ProjectBrowser : Gtk.Box
 
 	public ProjectStore _project_store;
 	public ThumbnailCache _thumbnail_cache;
+	public GLib.SimpleActionGroup _action_group;
 	public GLib.GenericArray<string> _nav_history_back;
 	public GLib.GenericArray<string> _nav_history_forward;
 	public bool _navigating_history;
@@ -1487,6 +1529,10 @@ public class ProjectBrowser : Gtk.Box
 #endif /* if 0 */
 		_tree_view.headers_visible = false;
 		_tree_view.row_activated.connect(on_tree_row_activated);
+
+		_action_group = new GLib.SimpleActionGroup();
+		_action_group.add_action_entries(actions, this);
+		_tree_view.insert_action_group("project-browser", _action_group);
 
 #if CROWN_GTK3
 		_tree_view_gesture_click = new Gtk.GestureMultiPress(_tree_view);
@@ -2328,6 +2374,27 @@ public class ProjectBrowser : Gtk.Box
 		string name = (string)param.get_child_value(2);
 
 		_project_store.remove_from_favorites(kind, type, name);
+	}
+
+	public void on_delete(GLib.SimpleAction action, GLib.Variant? param)
+	{
+		Gtk.TreeModel selected_model;
+		Gtk.TreeIter selected_iter;
+		if (!_tree_selection.get_selected(out selected_model, out selected_iter))
+			return;
+
+		Value val;
+		ProjectStore.RowKind kind;
+		string type;
+		string name;
+		selected_model.get_value(selected_iter, ProjectStore.Column.TYPE, out val);
+		type = (string)val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.NAME, out val);
+		name = (string)val;
+		selected_model.get_value(selected_iter, ProjectStore.Column.KIND, out val);
+		kind = (ProjectStore.RowKind)val;
+
+		activate_project_entry_delete_action(kind, type, name);
 	}
 
 	public void on_button_pressed(int n_press, double x, double y)
