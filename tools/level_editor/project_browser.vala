@@ -2248,8 +2248,7 @@ public class ProjectBrowser : Gtk.Box
 
 	public void exit_search()
 	{
-		uint8 empty[] = { '\0' };
-		_filter_buffer.set_text(empty);
+		_filter_entry_folder.text = "";
 	}
 
 	public void on_search_started()
