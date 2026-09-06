@@ -813,9 +813,9 @@ int Device::main_loop()
 	}
 
 	_window->set_title(_boot_config.window_title.c_str());
-	_window->set_fullscreen(_boot_config.fullscreen);
 	if (!_options._hidden)
 		_window->show();
+	_window->set_fullscreen(_boot_config.fullscreen);
 
 	{
 		DynamicString save_dir(default_allocator());

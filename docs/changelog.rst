@@ -62,6 +62,7 @@ Changelog
 * Runtime: fixed the resource loader blocking forever in some cases.
 * Runtime: HTML5: fixed a crash when loading large packages.
 * Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
+* Runtime: respect fullscreen setting in boot.config.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
