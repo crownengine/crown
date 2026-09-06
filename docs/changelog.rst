@@ -13,6 +13,7 @@ Changelog
 * Runtime: HTML5: fixed a crash when launching large games.
 * Runtime: respect fullscreen setting in boot.config.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
+* Lua: fixed an error when type checking SoundWorld instances.
 
 .. _v0.64.7:
 

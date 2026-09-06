@@ -14,63 +14,77 @@
 
 namespace crown
 {
+struct SoundWorldImpl;
+
 /// Manages sound objects in a World.
 ///
 /// @ingroup World
 struct SoundWorld
 {
+	u32 _marker;
+	Allocator *_allocator;
+	SoundWorldImpl *_impl;
+
+	SoundWorld(Allocator &a, ResourceManager &rm);
+
 	///
-	virtual ~SoundWorld() = default;
+	~SoundWorld();
+
+	///
+	SoundWorld(const SoundWorld &) = delete;
+
+	///
+	SoundWorld &operator=(const SoundWorld &) = delete;
 
 	/// Plays the sound with the specified @a name at the specified @a position, with the specified
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	/// @a group identifies the sound's group, see SoundWorld::set_group_volume().
-	virtual SoundInstanceId play(StringId64 name
+	SoundInstanceId play(StringId64 name
 		, bool loop
 		, f32 volume
 		, f32 range
 		, u32 flags = PlaySoundFlags::NONE
 		, const Vector3 &pos = VECTOR3_ZERO
 		, StringId32 group = StringId32(0u)
-		) = 0;
+		);
 
 	/// Stops the sound with the specified @a id.
 	/// After this call, the instance will be destroyed.
-	virtual void stop(SoundInstanceId id) = 0;
+	void stop(SoundInstanceId id);
 
 	/// Returns whether the sound @a id is playing.
-	virtual bool is_playing(SoundInstanceId id) = 0;
+	bool is_playing(SoundInstanceId id);
 
 	/// Stops all the sounds in the world.
-	virtual void stop_all() = 0;
+	void stop_all();
 
 	/// Pauses all the sounds in the world
-	virtual void pause_all() = 0;
+	void pause_all();
 
 	/// Resumes all previously paused sounds in the world.
-	virtual void resume_all() = 0;
+	void resume_all();
 
 	/// Sets the @a positions (in world space) of @a num sound instances @a ids.
-	virtual void set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions) = 0;
+	void set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions);
 
 	/// Sets the @a ranges (in meters) of @a num sound instances @a ids.
-	virtual void set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges) = 0;
+	void set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges);
 
 	/// Sets the @a volumes of @a num sound instances @a ids.
-	virtual void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes) = 0;
+	void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes);
 
 	///
-	virtual void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr) = 0;
+	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr);
 
 	/// Sets the @a pose of the listener in world space.
-	virtual void set_listener_pose(const Matrix4x4 &pose) = 0;
+	void set_listener_pose(const Matrix4x4 &pose);
 
 	/// Sets the @a volume of the sound @a group. The volume of the sounds within
 	/// @a group is multiplied by the group's volume.
-	virtual void set_group_volume(StringId32 group, f32 volume) = 0;
+	void set_group_volume(StringId32 group, f32 volume);
 
 	///
-	virtual void update() = 0;
+	void update();
 };
 
 namespace sound_world
