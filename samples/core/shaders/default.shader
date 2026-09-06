@@ -441,7 +441,7 @@ bgfx_shaders = {
 				vec3 radiance = calc_lighting(tbn, n, normalize(v_normal), v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
 		#endif // NO_LIGHT
 
-				gl_FragColor = vec4(radiance, 1.0);
+				gl_FragColor = vec4(clamp(radiance, -65504.0, 65504.0), 1.0);
 			}
 		"""
 	}

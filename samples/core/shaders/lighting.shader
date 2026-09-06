@@ -47,7 +47,7 @@ bgfx_shaders = {
 
 			vec3 fresnel(float dot, vec3 f0)
 			{
-				float a = clamp(1.0 - dot, 0.0, 1.0);
+				float a = 1.0 - dot;
 				return f0 + (1.0 - f0) * (a*a*a*a*a);
 			}
 
@@ -55,8 +55,9 @@ bgfx_shaders = {
 			{
 				float r = roughness*roughness;
 				float rr = r*r;
-				float d = ((ndoth*ndoth) * (rr - 1.0) + 1.0);
-				return rr / (M_PI * (d*d));
+				float d = 1.0 - ndoth*ndoth + ndoth*ndoth*rr;
+				float a = r/d;
+				return a*a * (1.0/M_PI);
 			}
 
 			float geom_schlick_GGX(float ndotv, float roughness)
@@ -77,8 +78,8 @@ bgfx_shaders = {
 			{
 				float ndotl = max(0.0, dot(n, l));
 				float ndotv = max(0.0, dot(n, v));
-				float ndoth = max(0.0, dot(n, h));
-				float hdotv = max(0.0, dot(h, v));
+				float ndoth = clamp(dot(n, h), 0.0, 1.0);
+				float hdotv = clamp(dot(h, v), 0.0, 1.0);
 
 				vec3 f    = fresnel(hdotv, f0);
 				float ndf = dist_GGX(ndoth, roughness);
@@ -105,7 +106,7 @@ bgfx_shaders = {
 
 			vec3 calc_omni_light(vec3 n, vec3 v, vec3 frag_pos, vec3 color, float intensity, vec3 position, float range, vec3 albedo, float metallic, float roughness, vec3 f0)
 			{
-				vec3 dpos = position - frag_pos;
+				highp vec3 dpos = position - frag_pos;
 				vec3 l = normalize(dpos);  // Direction to light.
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);
@@ -131,7 +132,7 @@ bgfx_shaders = {
 				, vec3 f0
 				)
 			{
-				vec3 dpos = position - frag_pos;
+				highp vec3 dpos = position - frag_pos;
 				vec3 l = normalize(dpos);  // Direction to light.
 				vec3 h = normalize(v + l); // Half-vector betwen v and l.
 				float dd = length_squared(dpos);

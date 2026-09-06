@@ -243,7 +243,7 @@ bgfx_shaders = {
 				CONST(vec3 gray) = vec3(0.18, 0.18, 0.18);
 
 				vec4 source = texture2D(s_color_map, v_texcoord0);
-				vec3 color = source.rgb;
+				highp vec3 color = source.rgb;
 
 				if (grading_enabled != 0.0) {
 					color *= u_color_filter.rgb;
