@@ -10,6 +10,7 @@ Changelog
 
 * Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
 * Runtime: HTML5: fixed a crash when loading large packages.
+* Runtime: HTML5: fixed a crash when launching large games.
 * Runtime: respect fullscreen setting in boot.config.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 
