@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.8 --- DD MMM YYYY <v0.64.8>`
 ---------------------------------------
 
+**Fixes**
+
+* Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
+
 .. _v0.64.7:
 
 :ref:`0.64.7 --- 04 Sep 2026 <v0.64.7>`

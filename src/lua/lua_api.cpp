@@ -3130,7 +3130,7 @@ void load_api(LuaEnvironment &env)
 			stack.get_physics_world(1)->actor_add_impulse_at(stack.get_actor_instance(2), stack.get_vector3(3), stack.get_vector3(4));
 			return 0;
 		});
-	env.add_module_function("PhysicsWorld", "actor_add_actor_torque_impulse", [](lua_State *L) {
+	env.add_module_function("PhysicsWorld", "actor_add_torque_impulse", [](lua_State *L) {
 			LuaStack stack(L);
 			stack.get_physics_world(1)->actor_add_torque_impulse(stack.get_actor_instance(2), stack.get_vector3(3));
 			return 0;
