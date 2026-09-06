@@ -4650,8 +4650,15 @@ namespace bimg
 				{
 					for (uint32_t xx = 0; xx < width; ++xx)
 					{
-						decodeBlockDxt45A(temp, src);
+						decodeBlockDxt45A(temp+2, src);
 						src += 8;
+
+						for (uint32_t ii = 0; ii < 16; ++ii)
+						{
+							temp[ii*4+0] = 0;
+							temp[ii*4+1] = 0;
+							temp[ii*4+3] = 255;
+						}
 
 						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
 						bx::memCopy(&block[0*_dstPitch], &temp[ 0], 16);
@@ -4682,11 +4689,8 @@ namespace bimg
 
 						for (uint32_t ii = 0; ii < 16; ++ii)
 						{
-							float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
-							float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
-							float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
-							temp[ii*4+0] = uint8_t( (nz + 1.0f)*255.0f/2.0f);
-							temp[ii*4+3] = 0;
+							temp[ii*4+0] = 0;
+							temp[ii*4+3] = 255;
 						}
 
 						uint8_t* block = &dst[yy*_dstPitch*4 + xx*16];
@@ -5183,14 +5187,13 @@ namespace bimg
 							{
 								float nx = temp[ii*4+2]*2.0f/255.0f - 1.0f;
 								float ny = temp[ii*4+1]*2.0f/255.0f - 1.0f;
-								float nz = bx::sqrt(1.0f - nx*nx - ny*ny);
 
 								const uint32_t offset = (yy*4 + ii/4)*_width*16 + (xx*4 + ii%4)*16;
 								float* block = (float*)&dst[offset];
 								block[0] = nx;
 								block[1] = ny;
-								block[2] = nz;
-								block[3] = 0.0f;
+								block[2] = 0.0f;
+								block[3] = 1.0f;
 							}
 						}
 					}
