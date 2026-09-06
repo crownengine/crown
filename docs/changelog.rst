@@ -8,6 +8,7 @@ Changelog
 
 **Fixes**
 
+* Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 
 .. _v0.64.7:
