@@ -254,10 +254,10 @@ void ResourceManager::complete_requests()
 
 			if (rr.online_order > pkg_data.online_sequence_num) {
 				// Cannot process this resource yet; we need to wait for all its requirements to be
-				// put online() first. Put the request back into the loaded queue to try again
-				// later.
+				// put online() first. Put the request back into the loaded queue and stop processing
+				// until the next call.
 				_resource_loader->add_loaded(rr);
-				continue;
+				break;
 			}
 
 			++pkg_data.online_sequence_num;

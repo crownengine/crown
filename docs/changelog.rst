@@ -60,6 +60,7 @@ Changelog
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.
+* Runtime: HTML5: fixed a crash when loading large packages.
 * Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
