@@ -62,6 +62,7 @@ Changelog
 * Runtime: fixed the resource loader blocking forever in some cases.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
+* Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 
 .. _v0.64.0:
 
