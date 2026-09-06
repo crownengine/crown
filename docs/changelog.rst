@@ -67,6 +67,7 @@ Changelog
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
+* Lua: fixed an error when type checking SoundWorld instances.
 
 .. _v0.64.0:
 

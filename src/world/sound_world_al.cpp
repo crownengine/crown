@@ -12,6 +12,8 @@
 #include "core/math/matrix4x4.inl"
 #include "core/strings/string_id.inl"
 #include "core/math/vector3.inl"
+#include "core/memory/allocator.h"
+#include "core/memory/memory.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/profiler.h"
 #include "core/profiler.inl"
@@ -32,6 +34,13 @@ LOG_SYSTEM(SOUND, "sound")
 
 namespace crown
 {
+namespace sound_world
+{
+	static ALCdevice *s_al_device;
+	static ALCcontext *s_al_context;
+
+} // namespace sound_world
+
 #if CROWN_DEBUG
 static const char *al_error_to_string(ALenum error)
 {
@@ -428,7 +437,7 @@ struct SoundInstance
 #define INDEX_MASK        0xffff
 #define NEW_OBJECT_ID_ADD 0x10000
 
-struct SoundWorldAL : public SoundWorld
+struct SoundWorldImpl
 {
 	struct Index
 	{
@@ -443,7 +452,6 @@ struct SoundWorldAL : public SoundWorld
 		f32 volume;
 	};
 
-	u32 _marker;
 	Allocator *_allocator;
 	ResourceManager *_resource_manager;
 	u32 _num_objects;
@@ -454,9 +462,8 @@ struct SoundWorldAL : public SoundWorld
 	Matrix4x4 _listener_pose;
 	Array<SoundGroup> _groups;
 
-	SoundWorldAL(Allocator &a, ResourceManager &rm)
-		: _marker(SOUND_WORLD_MARKER)
-		, _allocator(&a)
+	SoundWorldImpl(Allocator &a, ResourceManager &rm)
+		: _allocator(&a)
 		, _resource_manager(&rm)
 		, _groups(a)
 	{
@@ -471,17 +478,15 @@ struct SoundWorldAL : public SoundWorld
 		set_listener_pose(MATRIX4X4_IDENTITY);
 	}
 
-	SoundWorldAL(const SoundWorldAL &) = delete;
-	SoundWorldAL &operator=(const SoundWorldAL &) = delete;
+	SoundWorldImpl(const SoundWorldImpl &) = delete;
+	SoundWorldImpl &operator=(const SoundWorldImpl &) = delete;
 
-	virtual ~SoundWorldAL()
+	~SoundWorldImpl()
 	{
 		for (u32 i = 0; i < _num_objects; ++i) {
 			SoundInstance &inst = lookup(_playing_sounds[i]._id);
 			inst.destroy(_resource_manager);
 		}
-
-		_marker = 0;
 	}
 
 	bool has(SoundInstanceId id)
@@ -742,11 +747,115 @@ struct SoundWorldAL : public SoundWorld
 	}
 };
 
-namespace sound_world_al
+SoundWorld::SoundWorld(Allocator &a, ResourceManager &rm)
+	: _marker(SOUND_WORLD_MARKER)
+	, _allocator(&a)
+	, _impl(NULL)
 {
-	static ALCdevice *s_al_device;
-	static ALCcontext *s_al_context;
+	if (sound_world::s_al_device != NULL)
+		_impl = CE_NEW(*_allocator, SoundWorldImpl)(a, rm);
+}
 
+SoundWorld::~SoundWorld()
+{
+	CE_DELETE(*_allocator, _impl);
+	_marker = 0;
+}
+
+SoundInstanceId SoundWorld::play(StringId64 name
+	, bool loop
+	, f32 volume
+	, f32 range
+	, u32 flags
+	, const Vector3 &pos
+	, StringId32 group
+	)
+{
+	return _impl != NULL
+		? _impl->play(name, loop, volume, range, flags, pos, group)
+		: 0
+		;
+}
+
+void SoundWorld::stop(SoundInstanceId id)
+{
+	if (_impl != NULL)
+		_impl->stop(id);
+}
+
+bool SoundWorld::is_playing(SoundInstanceId id)
+{
+	return _impl != NULL && _impl->is_playing(id);
+}
+
+void SoundWorld::stop_all()
+{
+	if (_impl != NULL)
+		_impl->stop_all();
+}
+
+void SoundWorld::pause_all()
+{
+	if (_impl != NULL)
+		_impl->pause_all();
+}
+
+void SoundWorld::resume_all()
+{
+	if (_impl != NULL)
+		_impl->resume_all();
+}
+
+void SoundWorld::set_sound_positions(u32 num, const SoundInstanceId *ids, const Vector3 *positions)
+{
+	if (_impl != NULL)
+		_impl->set_sound_positions(num, ids, positions);
+}
+
+void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32 *ranges)
+{
+	if (_impl != NULL)
+		_impl->set_sound_ranges(num, ids, ranges);
+}
+
+void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
+{
+	if (_impl != NULL)
+		_impl->set_sound_volumes(num, ids, volumes);
+}
+
+void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
+{
+	if (_impl != NULL)
+		_impl->reload_sounds(old_sr, new_sr);
+}
+
+void SoundWorld::set_listener_pose(const Matrix4x4 &pose)
+{
+	if (_impl != NULL)
+		_impl->set_listener_pose(pose);
+}
+
+void SoundWorld::set_group_volume(StringId32 group, f32 volume)
+{
+	if (_impl != NULL)
+		_impl->set_group_volume(group, volume);
+}
+
+void SoundWorld::update()
+{
+	if (_impl != NULL) {
+		_impl->update();
+	} else {
+		RECORD_FLOAT("audio.playing_sounds", 0.0f);
+		RECORD_FLOAT("audio.paused_sounds", 0.0f);
+		RECORD_FLOAT("audio.sound_buffers", 0.0f);
+		RECORD_FLOAT("audio.streaming_sounds", 0.0f);
+	}
+}
+
+namespace sound_world
+{
 	void init()
 	{
 		s_al_device = alcOpenDevice(NULL);
@@ -774,16 +883,15 @@ namespace sound_world_al
 
 	void shutdown()
 	{
-		alcDestroyContext(s_al_context);
-		alcCloseDevice(s_al_device);
+		if (s_al_context != NULL)
+			alcDestroyContext(s_al_context);
+		if (s_al_device != NULL)
+			alcCloseDevice(s_al_device);
 	}
 
 	SoundWorld *create(Allocator &a, ResourceManager &rm)
 	{
-		return s_al_device != NULL
-			? CE_NEW(a, SoundWorldAL)(a, rm)
-			: NULL
-			;
+		return CE_NEW(a, SoundWorld)(a, rm);
 	}
 
 	void destroy(Allocator &a, SoundWorld &sw)
@@ -791,7 +899,7 @@ namespace sound_world_al
 		CE_DELETE(a, &sw);
 	}
 
-} // namespace sound_world_al
+} // namespace sound_world
 
 } // namespace crown
 
