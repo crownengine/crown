@@ -420,7 +420,7 @@ bgfx_shaders = {
 					vec2 packed_normal = texture2DBc5(u_normal_map, v_texcoord0);
 		#	endif
 					normal.xy = packed_normal * 2.0 - 1.0;
-					normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
+					normal.z = sqrt(max(0.0, 1.0 - dot(normal.xy, normal.xy)));
 				} else {
 					normal = v_normal;
 				}
