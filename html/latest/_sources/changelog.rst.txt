@@ -1,6 +1,24 @@
 Changelog
 =========
 
+.. _v0.64.8:
+
+:ref:`0.64.8 --- 07 Sep 2026 <v0.64.8>`
+---------------------------------------
+
+**Fixes**
+
+* Tools: fixed search bar not resetting when switching to another new level.
+* Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
+* Runtime: HTML5: fixed a crash when loading large packages.
+* Runtime: HTML5: fixed a crash when launching large games.
+* Runtime: HTML5: fixed a number of lighting artifacts.
+* Runtime: respect fullscreen setting in boot.config.
+* Runtime: fixed rendering artifacts when using bloom with high light intensities.
+* Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
+* Lua: fixed an error when type checking SoundWorld instances.
+* Lua: added the documented but missing ``World.destroy_level()`` function.
+
 .. _v0.64.7:
 
 :ref:`0.64.7 --- 04 Sep 2026 <v0.64.7>`
