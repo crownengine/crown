@@ -14,6 +14,7 @@ Changelog
 * Runtime: respect fullscreen setting in boot.config.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
+* Lua: added the documented but missing ``World.destroy_level()`` function.
 
 .. _v0.64.7:
 
