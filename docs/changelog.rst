@@ -13,6 +13,7 @@ Changelog
 * Runtime: HTML5: fixed a crash when launching large games.
 * Runtime: HTML5: fixed a number of lighting artifacts.
 * Runtime: respect fullscreen setting in boot.config.
+* Runtime: fixed rendering artifacts when using bloom with high light intensities.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
 * Lua: added the documented but missing ``World.destroy_level()`` function.
