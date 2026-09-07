@@ -8,6 +8,7 @@ Changelog
 
 **Fixes**
 
+* Tools: fixed search bar not resetting when switching to another new level.
 * Runtime: HTML5: fixed decoding of BC4 and BC5 textures.
 * Runtime: HTML5: fixed a crash when loading large packages.
 * Runtime: HTML5: fixed a crash when launching large games.
