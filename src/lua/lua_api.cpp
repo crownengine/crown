@@ -2198,6 +2198,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_pointer(world->load_level(name, flags, pos, rot));
 			return 1;
 		});
+	env.add_module_function("World", "destroy_level", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_world(1)->destroy_level(*stack.get_level(2));
+			return 0;
+		});
 	env.add_module_function("World", "scene_graph", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_pointer(stack.get_world(1)->_scene_graph);
