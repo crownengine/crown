@@ -65,6 +65,7 @@ Changelog
 * Runtime: HTML5: fixed a crash when launching large games.
 * Runtime: respect fullscreen setting in boot.config.
 * Runtime: HTML5: fixed a number of lighting artifacts.
+* Runtime: fixed rendering artifacts when using bloom with high light intensities.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.

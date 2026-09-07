@@ -152,6 +152,7 @@ struct Pipeline
 	ShaderData _bloom_combine_shader;
 	ShaderData _tonemap_shader;
 	ShaderData _vignette_shader;
+	ShaderData _bloom_copy_shader;
 
 	///
 	Pipeline(ShaderManager &sm);

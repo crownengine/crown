@@ -155,6 +155,7 @@ static void lookup_default_shaders(Pipeline &pl)
 	pl._bloom_combine_shader = pl._shader_manager->shader(STRING_ID_32("bloom_combine", UINT32_C(0x4413efa4)));
 	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
 	pl._vignette_shader = pl._shader_manager->shader(STRING_ID_32("vignette", UINT32_C(0xb77c3567)));
+	pl._bloom_copy_shader = pl._shader_manager->shader(STRING_ID_32("bloom_copy", UINT32_C(0x439d45d5)));
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
@@ -868,11 +869,27 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 
 	// Render bloom.
 	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
+		// Calculate bloom's maximum amplification and use it to avoid FP16 overflow.
+		//
+		// With four mip levels and intensity I, this gives:
+		//     gain = 1 + |I| + |I|^2 + |I|^3
+		//
+		// We then use:
+		//     scale = 0.5f / gain;
+		//
+		// Scaling the input by that amount bounds the theoretical accumulated magnitude to:
+		//     65504 * scale * gain = 32752
+		f32 bloom_gain = 1.0f;
+		for (u32 i = 1; i < countof(_bloom_frame_buffers); ++i)
+			bloom_gain = 1.0f + bx::abs(_bloom.intensity) * bloom_gain;
+		Vector4 bloom_params = { 0.5f / bloom_gain, _bloom.threshold, _bloom.weight, _bloom.intensity };
+
 		// Copy color buffer to first bloom mip.
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), bloom_sampler_flags);
+		bgfx::setUniform(_bloom_params, &bloom_params);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_shader.state);
-		bgfx::submit(View::BLOOM_COPY, _blit_shader.program);
+		bgfx::setState(_bloom_copy_shader.state);
+		bgfx::submit(View::BLOOM_COPY, _bloom_copy_shader.program);
 
 		// Downsample.
 		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
@@ -897,16 +914,17 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
 			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
-			bgfx::setUniform(_bloom_params, &_bloom, sizeof(_bloom)/sizeof(Vector4));
+			bgfx::setUniform(_bloom_params, &bloom_params);
 			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
 			bgfx::setState(_bloom_upsample_shader.state);
 			bgfx::submit(View::BLOOM_UPSAMPLE_0 + i, _bloom_upsample_shader.program);
 		}
 
 		// Combine first bloom mip with main color texture.
+		bloom_params.x = 2.0f * bloom_gain;
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
 		bgfx::setTexture(1, _bloom_map, bgfx::getTexture(_bloom_frame_buffers[0]), samplerFlags);
-		bgfx::setUniform(_bloom_params, &_bloom, sizeof(_bloom)/sizeof(Vector4));
+		bgfx::setUniform(_bloom_params, &bloom_params);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_bloom_combine_shader.state);
 		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
