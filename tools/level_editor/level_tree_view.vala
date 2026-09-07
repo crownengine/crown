@@ -806,6 +806,7 @@ public class LevelTreeView : Gtk.Box
 		_tree_view.model = null;
 		_object_rows.remove_all();
 		_tree_store.clear();
+		_filter_entry.text = _needle = "";
 
 		_tree_store.insert_with_values(out iter
 			, null
