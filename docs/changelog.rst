@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.9 --- DD MMM YYYY <v0.64.9>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: fixed rendering artifacts in objects using the ``mesh`` shader with BC5-encoded normal maps.
+
 .. _v0.64.8:
 
 :ref:`0.64.8 --- 07 Sep 2026 <v0.64.8>`

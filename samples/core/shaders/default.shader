@@ -323,7 +323,7 @@ bgfx_shaders = {
 				vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
 					normal.xy = texture2DBc5(u_normal_map, v_texcoord0) * 2.0 - 1.0;
-					normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+					normal.z  = sqrt(max(0.0, 1.0 - dot(normal.xy, normal.xy)));
 				} else {
 					normal = v_normal;
 				}
