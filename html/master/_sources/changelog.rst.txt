@@ -68,6 +68,7 @@ Changelog
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
+* Lua: added the documented but missing ``World.destroy_level()`` function.
 
 .. _v0.64.0:
 
