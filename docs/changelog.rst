@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Runtime: fixed rendering artifacts in objects using the ``mesh`` shader with BC5-encoded normal maps.
+* Runtime: fixed albedo texture not being affected by ``u_albedo`` color when using the ``mesh`` shader.
 
 .. _v0.64.8:
 

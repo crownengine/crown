@@ -310,7 +310,10 @@ bgfx_shaders = {
 
 			void main()
 			{
-				vec4 albedo = u_use_albedo_map.r == 1.0 ? texture2D(u_albedo_map, v_texcoord0) : vec4(u_albedo.rgb, 1.0);
+				vec4 albedo = u_use_albedo_map.r == 1.0
+					? vec4(u_albedo.rgb, 1.0) * texture2D(u_albedo_map, v_texcoord0)
+					: vec4(u_albedo.rgb, 1.0)
+					;
 		#if defined(MASKED)
 		#	define MASK_ALPHA_CUTOFF 0.5
 				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
