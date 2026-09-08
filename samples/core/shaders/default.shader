@@ -401,7 +401,10 @@ bgfx_shaders = {
 				vec2 uv_y = vec2(proj_position.z, -proj_position.x * axis_sign.y);
 				vec2 uv_z = vec2(-proj_position.x * axis_sign.z, proj_position.y);
 		#endif
-				vec4 albedo = u_use_albedo_map.r == 1.0 ? SAMPLE_MAP(u_albedo_map) : vec4(u_albedo.rgb, 1.0);
+				vec4 albedo = u_use_albedo_map.r == 1.0
+					? vec4(u_albedo.rgb, 1.0) * SAMPLE_MAP(u_albedo_map)
+					: vec4(u_albedo.rgb, 1.0)
+					;
 		#if defined(MASKED)
 		#	define MASK_ALPHA_CUTOFF 0.5
 				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
