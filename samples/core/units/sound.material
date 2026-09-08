@@ -1,6 +1,6 @@
 _guid = "0c4690c9-8e48-405c-ab32-2749df18636d"
 _type = "material"
-shader = "mesh+NO_LIGHT"
+shader = "mesh+NO_LIGHT+NO_FOG"
 uniforms = {
 	u_albedo = {
 		type = "vector3"

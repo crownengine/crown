@@ -1674,6 +1674,7 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, u32 object_id
 	, Pipeline *pipeline
 	, const FogDesc &fog_desc
+	, const Vector3 &sun_color
 	, GlobalLightingDesc &global_lighting_desc
 	, SceneGraph *scene_graph
 	, Matrix4x4 *cascaded_lights
@@ -1686,7 +1687,13 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 		, pipeline->_render_settings.shadow_map_params
 		, countof(pipeline->_render_settings.shadow_map_params)
 		);
-	bgfx::setUniform(pipeline->_fog_data, (char *)&fog_desc, sizeof(fog_desc) / sizeof(Vector4));
+	const Vector4 fog_params[] =
+	{
+		{ fog_desc.color.x, fog_desc.color.y, fog_desc.color.z, fog_desc.density },
+		{ fog_desc.range_min, fog_desc.range_max, fog_desc.sun_blend, fog_desc.enabled },
+		{ sun_color.x, sun_color.y, sun_color.z, 0.0f }
+	};
+	bgfx::setUniform(pipeline->_fog_data, fog_params, countof(fog_params));
 	pipeline->set_local_lights_params_uniform();
 	pipeline->set_global_lighting_params(&global_lighting_desc);
 	bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
@@ -2278,6 +2285,9 @@ void RenderWorld::render(f32 dt
 	_pipeline->_color_grading_desc = _color_grading_desc;
 	_pipeline->_tonemap = _tonemap_desc;
 	_pipeline->_vignette = _vignette_desc;
+	Vector3 sun_color = VECTOR3_ONE;
+	if (array::size(lm._directional_lights) != 0)
+		sun_color = lid.shader[lm._directional_lights[0]].color;
 
 	bgfx::TransientVertexBuffer sprite_vertex_buffer;
 	bgfx::TransientIndexBuffer sprite_index_buffer;
@@ -2324,6 +2334,7 @@ void RenderWorld::render(f32 dt
 				, object_id
 				, _pipeline
 				, _fog_desc
+				, sun_color
 				, _global_lighting_desc
 				, _scene_graph
 				, cascaded_lights
@@ -2359,6 +2370,7 @@ void RenderWorld::render(f32 dt
 				, mesh_i
 				, _pipeline
 				, _fog_desc
+				, sun_color
 				, _global_lighting_desc
 				, _scene_graph
 				, cascaded_lights

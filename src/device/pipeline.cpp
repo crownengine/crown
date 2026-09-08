@@ -283,7 +283,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 		, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT
 		);
 
-	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 2);
+	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 3);
 	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
 
 	_bloom_map = bgfx::createUniform("s_bloom_map", bgfx::UniformType::Sampler);

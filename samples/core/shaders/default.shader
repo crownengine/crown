@@ -191,8 +191,35 @@ bgfx_shaders = {
 		"""
 	}
 
+	fog = {
+		code = """
+			uniform vec4 u_fog_data[3];
+
+		#define fog_color     u_fog_data[0].rgb
+		#define fog_density   u_fog_data[0].w
+		#define fog_range_min u_fog_data[1].x
+		#define fog_range_max u_fog_data[1].y
+		#define fog_sun_blend u_fog_data[1].z
+		#define fog_enabled   u_fog_data[1].w
+		#define fog_sun_color u_fog_data[2].rgb
+
+			vec3 apply_fog(vec3 radiance, float d)
+			{
+				if (fog_enabled == 0.0)
+					return radiance;
+
+				if (d < fog_range_min || d > fog_range_max)
+					return radiance;
+
+				float d2 = d - fog_range_min;
+				float f = exp(-fog_density * d2);
+				return mix(mix(fog_color, fog_sun_color, fog_sun_blend), radiance, f);
+			}
+		"""
+	}
+
 	mesh = {
-		includes = [ "common" "lighting" "skinning" ]
+		includes = [ "common" "lighting" "skinning" "fog" ]
 
 		samplers = {
 			u_albedo_map = { sampler_state = "repeat_anisotropic" }
@@ -442,6 +469,9 @@ bgfx_shaders = {
 				vec3 f0 = mix(vec3_splat(0.04), albedo.rgb, metallic);
 				vec3 radiance = calc_lighting(tbn, n, normalize(v_normal), v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
 		#endif // NO_LIGHT
+		#if !defined(NO_FOG)
+				radiance = apply_fog(radiance, length(v_camera));
+		#endif // NO_FOG
 
 				gl_FragColor = vec4(clamp(radiance, -65504.0, 65504.0), 1.0);
 			}
@@ -650,6 +680,7 @@ static_compile = [
 	{ shader = "mesh" defines = ["DIFFUSE_MAP" "NO_LIGHT"] }
 	{ shader = "mesh" defines = ["SKINNING" "MASKED"] }
 	{ shader = "mesh" defines = ["NO_LIGHT" "MASKED"] }
+	{ shader = "mesh" defines = ["NO_LIGHT" "NO_FOG"] }
 	{ shader = "skydome" defines = [] }
 	{ shader = "blit" defines = [] }
 	{ shader = "blit" defines = ["BLEND_ENABLED"] }
