@@ -415,11 +415,10 @@ bgfx_shaders = {
 				vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
 		#	if defined(TRIPLANAR)
-					vec2 packed_normal = triplanar_sample_bc5(u_normal_map, uv_x, uv_y, uv_z, weights);
+					normal.xy = -1.0 + 2.0 * triplanar_sample_bc5(u_normal_map, uv_x, uv_y, uv_z, weights);
 		#	else
-					vec2 packed_normal = texture2DBc5(u_normal_map, v_texcoord0);
+					normal.xy = -1.0 + 2.0 * texture2DBc5(u_normal_map, v_texcoord0);
 		#	endif
-					normal.xy = packed_normal * 2.0 - 1.0;
 					normal.z = sqrt(max(0.0, 1.0 - dot(normal.xy, normal.xy)));
 				} else {
 					normal = v_normal;
