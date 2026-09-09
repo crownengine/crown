@@ -708,7 +708,7 @@ int Device::main_loop()
 		while (!_resource_manager->can_get(RESOURCE_TYPE_CONFIG, config_name)) {
 			_resource_manager->complete_requests();
 #if CROWN_PLATFORM_EMSCRIPTEN
-			os::sleep(16);
+			os::sleep(1);
 #endif
 		}
 
