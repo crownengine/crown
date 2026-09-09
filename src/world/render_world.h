@@ -90,6 +90,7 @@ struct RenderWorld
 	~RenderWorld();
 
 	/// Creates a new mesh instance.
+	/// The descriptor must be followed by its MaterialDesc entries.
 	MeshId mesh_create(UnitId unit, const MeshRendererDesc &mrd);
 
 	/// Destroys the @a mesh.
@@ -100,16 +101,22 @@ struct RenderWorld
 
 	/// Sets the @a geometry of the @a mesh. @a geometry must be a valid geometry name inside @a
 	/// mesh_resource.
+	/// Keeps matching slot materials, removes absent slots, and initializes new slots with the first material.
 	void mesh_set_geometry(MeshId mesh, StringId64 mesh_resource, StringId32 geometry);
 
 	/// Assigns the @a skeleton and selects the corresponding fixed animation bounds.
 	void mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *skeleton);
 
-	/// Returns the material of the @a mesh.
-	Material *mesh_material(MeshId mesh);
+	/// Returns the material bound to @a slot, or the first slot's material when @a slot is omitted.
+	/// The slot must exist on the mesh instance.
+	Material *mesh_material(MeshId mesh, StringId32 slot = StringId32(0u));
 
-	/// Sets the material @a id of the @a mesh.
-	void mesh_set_material(MeshId mesh, StringId64 id);
+	/// Assigns @a material_resource to the specified @a slot.
+	/// If the mesh has no default slot, assigning the default slot assigns all slots.
+	void mesh_set_material(MeshId mesh, StringId32 slot, StringId64 material_resource);
+
+	/// Returns whether the @a mesh instance has the specified @a slot.
+	bool mesh_has_material(MeshId mesh, StringId32 slot);
 
 	/// Sets whether the @a mesh is @a visible.
 	void mesh_set_visible(MeshId mesh, bool visible);
@@ -461,6 +468,15 @@ struct RenderWorld
 	/// List of meshes to be rendered.
 	struct MeshManager
 	{
+		struct MaterialBinding
+		{
+			Material *material;
+			const MaterialResource *resource;
+			u32 index_offset;
+			u32 num_indices;
+			u32 next; ///< Next binding, or UINT32_MAX.
+		};
+
 		struct MeshData
 		{
 			bgfx::VertexBufferHandle vbh;
@@ -471,13 +487,17 @@ struct RenderWorld
 		{
 			u32 size;
 			u32 capacity;
+			u32 bindings_size; ///< Includes mesh heads and bindings on the free list.
+			u32 bindings_capacity;
+			u32 bindings_free_list;
 			void *buffer;
 
 			UnitId *unit;
 			const MeshResource **resource;
 			const MeshGeometry **geometry;
 			MeshData *mesh;
-			Material **material;
+			MaterialBinding *bindings; ///< bindings[i] is the first binding of mesh i.
+			StringId32 *slots;         ///< Slot name. Zero means a free binding.
 			Matrix4x4 *world;
 			OBB *obb;
 			Sphere *sphere;
@@ -487,9 +507,6 @@ struct RenderWorld
 			u32 *prev_flags;
 			u32 *matrix_cache;
 			StringId32 *geometry_name; ///< Needed for animation bounds in all builds.
-#if CROWN_CAN_RELOAD
-			const MaterialResource **material_resource;
-#endif
 		};
 
 		Allocator *_allocator;
@@ -524,10 +541,11 @@ struct RenderWorld
 			, _dirty(true)
 		{
 			memset(&_data, 0, sizeof(_data));
+			_data.bindings_free_list = UINT32_MAX;
 		}
 
 		///
-		void allocate(u32 num);
+		void allocate(u32 num, u32 num_bindings);
 
 		///
 		void grow();
@@ -538,6 +556,15 @@ struct RenderWorld
 			, const UnitId *unit_lookup
 			, const u32 *unit_index
 			);
+
+		///
+		void set_material(u32 mesh_i, StringId32 slot, StringId64 material_resource);
+
+		/// Returns the additional binding chain starting at binding_i to the free list.
+		void free_materials(u32 binding_i);
+
+		/// Returns the slot's material, or NULL if the instance has no matching binding.
+		Material *material(u32 mesh_i, StringId32 slot);
 
 		///
 		void destroy(MeshId mesh);
@@ -564,7 +591,7 @@ struct RenderWorld
 		u32 index(MeshId mesh);
 
 		///
-		void set_instance_data(u32 ii, SceneGraph &scene_graph);
+		void set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset = 0, u32 num_indices = UINT32_MAX);
 
 		///
 		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);

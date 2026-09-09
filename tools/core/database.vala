@@ -60,6 +60,7 @@ public struct PropertyDefinition
 	public unowned ResourceCallback? resource_callback;
 	public string? resource_type;
 	public StringId64 object_type;
+	public bool fixed_set; ///< Whether objects cannot be added to or removed from the set.
 
 	public bool hidden;
 	public bool not_serialized;
@@ -658,6 +659,33 @@ public class Database
 		}
 	}
 
+	private void convert_mesh_renderer(GLib.HashTable<string, Value?> json)
+	{
+		// Copy the legacy whole-mesh material into the normal material slot set.
+		if (!json.contains("data") || !json["data"].holds(typeof(GLib.HashTable)))
+			return;
+
+		GLib.HashTable<string, Value?> data = (GLib.HashTable<string, Value?>)json["data"];
+		if (!data.contains("material") || !data["material"].holds(typeof(string)))
+			return;
+
+		if (data.contains("materials"))
+			return;
+
+		GLib.GenericArray<Value?> materials = new GLib.GenericArray<Value?>();
+		data["materials"] = materials;
+
+		GLib.HashTable<string, Value?> binding_data = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		binding_data["slot"] = "default";
+		binding_data["material"] = data["material"];
+
+		GLib.HashTable<string, Value?> binding = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		binding["_type"] = OBJECT_TYPE_MESH_MATERIAL;
+		binding["data"] = binding_data;
+
+		materials.add(binding);
+	}
+
 	/// Saves database to path without marking it as not changed.
 	public int dump(string path, Guid id)
 	{
@@ -873,7 +901,7 @@ public class Database
 					)
 					set(0, id, k, decode_value(val));
 				else
-					decode_set(id, key, arr);
+					decode_set(id, k, arr);
 			} else {
 				set(0, id, k, decode_value(val));
 			}
@@ -946,6 +974,8 @@ public class Database
 		assert(type != null);
 		if (type == OBJECT_TYPE_MATERIAL)
 			convert_material(json);
+		else if (type == OBJECT_TYPE_MESH_RENDERER)
+			convert_mesh_renderer(json);
 
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
 		if (properties != null)

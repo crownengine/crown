@@ -7,6 +7,22 @@ namespace Crown
 {
 namespace MeshResource
 {
+	public static void set_material_slot(Database db, Guid component_id, string slot, string material)
+	{
+		Guid?[] bindings = db.get_set(component_id, "data.materials");
+		foreach (Guid? binding_id in bindings) {
+			if (db.get_string(binding_id, "data.slot") == slot) {
+				db.set_resource(binding_id, "data.material", material);
+				return;
+			}
+		}
+		Guid binding_id = Guid.new_guid();
+		db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+		db.set_string(binding_id, "data.slot", slot);
+		db.set_resource(binding_id, "data.material", material);
+		db.add_to_set(component_id, "data.materials", binding_id);
+	}
+
 	public static string texture_filename(ufbx.Texture texture)
 	{
 		if (texture.filename.data.length > 0)
@@ -120,7 +136,7 @@ namespace MeshResource
 			}
 
 			unit.set_component_string(component_id, "data.geometry_name", node_name);
-			unit.set_component_string(component_id, "data.material", material_name);
+			MeshResource.set_material_slot(db, component_id, "default", material_name);
 			unit.set_component_string(component_id, "data.mesh_resource", resource_name);
 			unit.set_component_bool  (component_id, "data.visible", true);
 		}

@@ -47,12 +47,14 @@ class ObjectsSetEditor : Gtk.Box
 		_editor = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
 #if CROWN_GTK3
-		this.pack_start(_add, false, false);
+		if (!_definition.fixed_set)
+			this.pack_start(_add, false, false);
 		this.pack_start(_read_only_note, false, false);
 		this.pack_start(_list, false, true);
 		this.pack_start(_editor, false, true);
 #else
-		this.append(_add);
+		if (!_definition.fixed_set)
+			this.append(_add);
 		this.append(_read_only_note);
 		this.append(_list);
 		this.append(_editor);
@@ -240,19 +242,23 @@ class ObjectsSetEditor : Gtk.Box
 			box.append(label);
 #endif
 
-			Gtk.Button remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
-			remove.sensitive = !read_only;
-			remove.clicked.connect(() => {
-					on_delete_clicked(child_id);
-				});
+			if (!_definition.fixed_set) {
+				Gtk.Button remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
+				remove.sensitive = !read_only;
+				remove.clicked.connect(() => {
+						on_delete_clicked(child_id);
+					});
 #if CROWN_GTK3
-			box.pack_end(remove, false);
+				box.pack_end(remove, false);
+#else
+				box.append(remove);
+#endif
+			}
 
+#if CROWN_GTK3
 			row.add(box);
 			_list.add(row);
 #else
-			box.append(remove);
-
 			row.set_child(box);
 			_list.append(row);
 #endif

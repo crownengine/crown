@@ -6,6 +6,19 @@
 #pragma once
 
 #include "config.h"
+#include "core/strings/string_id.h"
+
+namespace crown
+{
+struct MeshMaterialRange
+{
+	// Compiled geometries contain one contiguous range per material slot.
+	StringId32 slot;
+	u32 index_offset;
+	u32 num_indices;
+};
+
+} // namespace crown
 
 #if CROWN_CAN_COMPILE
 #   include "core/filesystem/types.h"
@@ -53,6 +66,7 @@ struct Geometry
 
 	Array<char> _vertex_buffer;
 	Array<u16> _index_buffer;
+	Array<MeshMaterialRange> _material_ranges;
 
 	///
 	explicit Geometry(Allocator &a);

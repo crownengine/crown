@@ -120,6 +120,32 @@ public struct Unit
 	public void prune_stale_overrides()
 	{
 		string[] unit_keys = _db.get_keys(_id);
+		const string prefix = "modified_components.#";
+		const string suffix = ".data.material";
+		foreach (unowned string key in unit_keys) {
+			if (!key.has_prefix(prefix)
+				|| !key.has_suffix(suffix)
+				|| key.length != prefix.length + 36 + suffix.length
+				)
+				continue;
+
+			Guid component_id = Guid.parse(key.substring(prefix.length, 36));
+			if (component_exists_internal(_db, _id, component_id, true) != ObjectExists.EXISTS
+				|| _db.object_type(component_id) != OBJECT_TYPE_MESH_RENDERER
+				)
+				continue;
+
+			string? material = get_component_resource(component_id, "data.material");
+			string materials_key = prefix + component_id.to_string() + ".data.materials";
+			if (material != null && !_db.has_property(_id, materials_key)) {
+				Guid binding_id = Guid.new_guid();
+				_db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+				_db.set_string(binding_id, "data.slot", "default");
+				_db.set_resource(binding_id, "data.material", material);
+				_db.add_to_set(_id, materials_key, binding_id);
+			}
+		}
+
 		foreach (unowned string key in unit_keys) {
 			if (key.has_prefix("deleted_components.#")
 				&& key.length == "deleted_components.#".length + 36
@@ -449,6 +475,8 @@ public struct Unit
 		Guid component_id = Guid.new_guid();
 		_db.create(component_id, component_type);
 		_db.add_to_set(_id, "components", component_id);
+		if (component_type == OBJECT_TYPE_MESH_RENDERER)
+			MeshResource.set_material_slot(_db, component_id, "default", "core/components/noop");
 		return component_id;
 	}
 
@@ -628,11 +656,11 @@ public struct Unit
 				, component_id
 				, unit.get_component_resource(component_id, "data.mesh_resource")
 				, unit.get_component_string(component_id, "data.geometry_name")
-				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_bool  (component_id, "data.visible")
 				, unit.get_component_bool  (component_id, "data.cast_shadows", true)
 				);
 			sb.append(s);
+			generate_mesh_material_commands(sb, unit_id, component_id, db);
 		} else if (db.object_type(component_id) == OBJECT_TYPE_SPRITE_RENDERER) {
 			string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 				, component_id
@@ -873,6 +901,26 @@ public struct Unit
 		}
 	}
 
+	public static void generate_mesh_material_commands(StringBuilder sb, Guid unit_id, Guid component_id, Database db)
+	{
+		Unit unit = Unit(db, unit_id);
+		GLib.GenericSet<Guid?> bindings = (GLib.GenericSet<Guid?>)unit.get_component_property(component_id, "data.materials", guid_set_new());
+		foreach (Guid? binding_id in bindings) {
+			if (!db.is_alive(binding_id))
+				continue;
+			string slot = db.get_string(binding_id, "data.slot");
+			if (slot == "default")
+				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, "data.material")));
+		}
+		foreach (Guid? binding_id in bindings) {
+			if (!db.is_alive(binding_id))
+				continue;
+			string slot = db.get_string(binding_id, "data.slot");
+			if (slot != "" && slot != "default")
+				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, "data.material")));
+		}
+	}
+
 	public static bool generate_lod_group_subobject_commands(StringBuilder sb, Guid object_id, Database db)
 	{
 		Guid component_id = db.owner(object_id);
@@ -880,6 +928,16 @@ public struct Unit
 			return false;
 
 		generate_add_component_commands(sb, db.owner(component_id), component_id, db);
+		return true;
+	}
+
+	public static bool generate_mesh_material_subobject_commands(StringBuilder sb, Guid object_id, Database db)
+	{
+		Guid component_id = db.owner(object_id);
+		if (component_id == GUID_ZERO || db.object_type(component_id) != OBJECT_TYPE_MESH_RENDERER)
+			return false;
+
+		generate_set_component_commands(sb, db.owner(component_id), component_id, db);
 		return true;
 	}
 
@@ -906,7 +964,8 @@ public struct Unit
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);
 				generate_add_component_commands(sb, unit_id, component_id, db);
-			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)
+				&& !generate_mesh_material_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}
@@ -924,7 +983,8 @@ public struct Unit
 			} else if (is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
 				sb.append(LevelEditorApi.unit_destroy_component_type(db.owner(component_id), db.object_type(component_id)));
-			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)
+				&& !generate_mesh_material_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}
@@ -955,10 +1015,10 @@ public struct Unit
 			sb.append(LevelEditorApi.set_mesh(unit_id
 				, unit.get_component_resource(component_id, "data.mesh_resource")
 				, unit.get_component_string(component_id, "data.geometry_name")
-				, unit.get_component_resource(component_id, "data.material")
 				, unit.get_component_bool  (component_id, "data.visible")
 				, unit.get_component_bool  (component_id, "data.cast_shadows", true)
 				));
+			generate_mesh_material_commands(sb, unit_id, component_id, db);
 		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
 			sb.append(LevelEditorApi.set_sprite(unit_id
 				, unit.get_component_resource(component_id, "data.sprite_resource")
@@ -1094,7 +1154,8 @@ public struct Unit
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);
 				generate_set_component_commands(sb, unit_id, component_id, db);
-			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)) {
+			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)
+				&& !generate_mesh_material_subobject_commands(sb, object_ids[i], db)) {
 				break;
 			}
 		}

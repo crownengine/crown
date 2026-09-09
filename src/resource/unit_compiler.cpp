@@ -20,6 +20,7 @@
 #include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
+#include "resource/mesh.h"
 #include "resource/physics_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/unit_compiler.h"
@@ -173,25 +174,20 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 {
 	CE_UNUSED(compiler);
 
+	// Parse mesh and geometry references.
 	TempAllocator4096 ta;
 	DynamicString mesh_resource(ta);
 	RETURN_IF_ERROR(sjson::parse_string(mesh_resource, flat_json_object::get(obj, "data.mesh_resource")));
+	DynamicString geometry_name(ta);
+	RETURN_IF_ERROR(sjson::parse_string(geometry_name, flat_json_object::get(obj, "data.geometry_name")));
 
 	WARN_IF_MISSING(UNIT_COMPILER, "mesh", mesh_resource.c_str(), opts);
 	opts.add_requirement("mesh", mesh_resource.c_str());
 
-	DynamicString material(ta);
-	RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
-	WARN_IF_MISSING(UNIT_COMPILER, "material"
-		, material.c_str()
-		, opts
-		);
-	opts.add_requirement("material", material.c_str());
-
+	// Write common mesh renderer data.
 	MeshRendererDesc mrd;
 	mrd.mesh_resource     = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.mesh_resource")));
-	mrd.material_resource = RETURN_IF_ERROR(sjson::parse_resource_name(flat_json_object::get(obj, "data.material")));
-	mrd.geometry_name     = RETURN_IF_ERROR(sjson::parse_string_id    (flat_json_object::get(obj, "data.geometry_name")));
+	mrd.geometry_name     = geometry_name.to_string_id();
 	mrd.flags = 0u;
 	{
 		bool visible = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.visible")));
@@ -207,9 +203,163 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(mrd.mesh_resource);
-	bw.write(mrd.material_resource);
 	bw.write(mrd.geometry_name);
 	bw.write(mrd.flags);
+
+	// Select explicit, legacy or fallback materials.
+	const bool has_materials = flat_json_object::has(obj, "data.materials");
+	JsonArray materials(ta);
+	if (has_materials) {
+		RETURN_IF_ERROR(sjson::parse_array(materials, flat_json_object::get(obj, "data.materials")));
+	}
+	const bool use_legacy_material = !has_materials && flat_json_object::has(obj, "data.material");
+	DynamicString material(ta);
+	if (use_legacy_material) {
+		RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
+		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
+		opts.add_requirement("material", material.c_str());
+	} else if (array::empty(materials)) {
+		material = "core/components/noop";
+		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
+		opts.add_requirement("material", material.c_str());
+	}
+
+	// Put the default binding first and write the material header.
+	u32 default_material = UINT32_MAX;
+	for (u32 i = 0; i < array::size(materials); ++i) {
+		JsonObject binding(ta);
+		JsonObject data(ta);
+		RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
+		RETURN_IF_ERROR(sjson::parse_object(data, binding["data"]));
+		DynamicString slot(ta);
+		RETURN_IF_ERROR(sjson::parse_string(slot, data["slot"]));
+		if (slot == "default") {
+			default_material = i;
+			break;
+		}
+	}
+	if (default_material != UINT32_MAX)
+		exchange(materials[0], materials[default_material]);
+	const bool add_default_material = default_material == UINT32_MAX
+		&& (use_legacy_material || array::empty(materials))
+		;
+	mrd.num_materials = array::size(materials) + (add_default_material ? 1 : 0);
+	mrd._pad = 0;
+	bw.write(mrd.num_materials);
+	bw.write(mrd._pad);
+
+	if (add_default_material) {
+		bw.write(StringId64(material.c_str()));
+		bw.write(STRING_ID_32("default", UINT32_C(0x5974b5ec)));
+		bw.write(u32(0));
+	}
+
+	// Validate and write each material binding.
+	Array<StringId32> slots(ta);
+	bool has_default = add_default_material;
+	if (add_default_material)
+		array::push_back(slots, STRING_ID_32("default", UINT32_C(0x5974b5ec)));
+	for (u32 i = 0; i < array::size(materials); ++i) {
+		JsonObject binding(ta);
+		JsonObject data(ta);
+		RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
+		RETURN_IF_ERROR(sjson::parse_object(data, binding["data"]));
+		DynamicString slot(ta);
+		RETURN_IF_ERROR(sjson::parse_string(slot, data["slot"]));
+		RETURN_IF_FALSE(UNIT_COMPILER, !slot.empty(), opts, "Empty mesh material slot");
+		const StringId32 slot_id = slot.to_string_id();
+		has_default |= slot_id == STRING_ID_32("default", UINT32_C(0x5974b5ec));
+		for (u32 j = 0; j < array::size(slots); ++j)
+			RETURN_IF_FALSE(UNIT_COMPILER, slots[j] != slot_id, opts, "Duplicate mesh material slot '%s'", slot.c_str());
+		array::push_back(slots, slot_id);
+		material = "";
+		RETURN_IF_ERROR(sjson::parse_string(material, data["material"]));
+		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
+		opts.add_requirement("material", material.c_str());
+		bw.write(StringId64(material.c_str()));
+		bw.write(slot_id);
+		bw.write(u32(0));
+	}
+
+	// Validate bindings against the mesh geometry slots.
+	if (opts.resource_exists("mesh", mesh_resource.c_str())) {
+		DynamicString mesh_path(ta);
+		mesh_path = mesh_resource;
+		mesh_path += ".mesh";
+		Mesh mesh(default_allocator());
+		s32 err = mesh::parse(mesh, mesh_path.c_str(), opts);
+		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
+
+		// Resolve the selected node and geometry.
+		Node deffault_node(default_allocator());
+		Node &node = hash_map::get(mesh._nodes, geometry_name, deffault_node);
+		if (&node == &deffault_node) {
+			opts.warning(UNIT_COMPILER
+				, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"
+				, geometry_name.c_str()
+				, mesh_resource.c_str()
+				);
+		} else {
+			Geometry deffault_geometry(default_allocator());
+			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
+			if (&geometry == &deffault_geometry) {
+				opts.warning(UNIT_COMPILER
+					, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"
+					, node._geometry.c_str()
+					, mesh_resource.c_str()
+					);
+			} else {
+				// Collect unique slots used by the geometry.
+				Array<StringId32> geometry_slots(ta);
+				if (array::empty(geometry._material_ranges)) {
+					array::push_back(geometry_slots, STRING_ID_32("default", UINT32_C(0x5974b5ec)));
+				} else {
+					for (u32 i = 0; i < array::size(geometry._material_ranges); ++i) {
+						const StringId32 slot = geometry._material_ranges[i].slot;
+						u32 j = 0;
+						for (; j < array::size(geometry_slots) && geometry_slots[j] != slot; ++j)
+						;
+						if (j == array::size(geometry_slots))
+							array::push_back(geometry_slots, slot);
+					}
+				}
+
+				// Warn about geometry slots without a binding.
+				for (u32 i = 0; i < array::size(geometry_slots); ++i) {
+					u32 j = 0;
+					for (; j < array::size(slots) && slots[j] != geometry_slots[i]; ++j)
+					;
+					if (j == array::size(slots) && !has_default) {
+						char slot[STRING_ID32_BUF_LEN];
+						opts.warning(UNIT_COMPILER
+							, "Mesh material slot #ID(%s) has no binding for geometry '%s' in mesh '%s'"
+							, geometry_slots[i].to_string(slot, sizeof(slot))
+							, geometry_name.c_str()
+							, mesh_resource.c_str()
+							);
+					}
+				}
+
+				// Warn about bindings unused by the geometry.
+				for (u32 i = 0; i < array::size(slots); ++i) {
+					if (slots[i] == STRING_ID_32("default", UINT32_C(0x5974b5ec)))
+						continue;
+					u32 j = 0;
+					for (; j < array::size(geometry_slots) && geometry_slots[j] != slots[i]; ++j)
+					;
+					if (j == array::size(geometry_slots)) {
+						char slot[STRING_ID32_BUF_LEN];
+						opts.warning(UNIT_COMPILER
+							, "Mesh material binding #ID(%s) does not exist in geometry '%s' in mesh '%s'"
+							, slots[i].to_string(slot, sizeof(slot))
+							, geometry_name.c_str()
+							, mesh_resource.c_str()
+							);
+					}
+				}
+			}
+		}
+	}
 	return 0;
 }
 
@@ -1010,6 +1160,19 @@ namespace unit_compiler
 				// Patch flattened component's keys.
 				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
+					JsonObject modification(ta);
+					RETURN_IF_ERROR(sjson::parse_object(modification, cur->second));
+					if (json_object::has(modification, "data")) {
+						JsonObject data(ta);
+						RETURN_IF_ERROR(sjson::parse_object(data, modification["data"]));
+						// A legacy-only override replaces an inherited material set in the
+						// temporary flattened component without modifying the source data.
+						if (json_object::has(data, "material") && !json_object::has(data, "materials")) {
+							DynamicString materials_key(default_allocator());
+							materials_key = "data.materials";
+							hash_map::remove(unit->_flattened_components[comp_idx], materials_key);
+						}
+					}
 					DynamicString empty(default_allocator());
 					to_flat(unit->_flattened_components[comp_idx], cur->second, empty);
 				} else {

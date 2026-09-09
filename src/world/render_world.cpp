@@ -666,20 +666,30 @@ void RenderWorld::mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance
 	mesh_update_bounds(*this, mesh_i);
 }
 
-Material *RenderWorld::mesh_material(MeshId mesh)
+Material *RenderWorld::mesh_material(MeshId mesh, StringId32 slot)
 {
 	const u32 mesh_i = _mesh_manager.index(mesh);
-	return _mesh_manager._data.material[mesh_i];
+	Material *material = slot._id != 0
+		? _mesh_manager.material(mesh_i, slot)
+		: _mesh_manager._data.bindings[mesh_i].material
+		;
+	CE_ASSERT(material != NULL, "Mesh material slot not found");
+	return material;
 }
 
-void RenderWorld::mesh_set_material(MeshId mesh, StringId64 id)
+void RenderWorld::mesh_set_material(MeshId mesh, StringId32 slot, StringId64 material_resource)
+{
+	_mesh_manager.set_material(_mesh_manager.index(mesh), slot, material_resource);
+}
+
+bool RenderWorld::mesh_has_material(MeshId mesh, StringId32 slot)
 {
 	const u32 mesh_i = _mesh_manager.index(mesh);
-	const MaterialResource *mat_res = (MaterialResource *)_resource_manager->get(RESOURCE_TYPE_MATERIAL, id);
-	_mesh_manager._data.material[mesh_i] = _material_manager->create_material(mat_res);
-#if CROWN_CAN_RELOAD
-	_mesh_manager._data.material_resource[mesh_i] = mat_res;
-#endif
+	for (u32 i = mesh_i; i != UINT32_MAX; i = _mesh_manager._data.bindings[i].next) {
+		if (_mesh_manager._data.slots[i] == slot)
+			return true;
+	}
+	return false;
 }
 
 void RenderWorld::mesh_set_visible(MeshId mesh, bool visible)
@@ -1680,26 +1690,29 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, Matrix4x4 *cascaded_lights
 	)
 {
-	bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
-	bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
-	bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
-	bgfx::setUniform(pipeline->_u_shadow_map_params
-		, pipeline->_render_settings.shadow_map_params
-		, countof(pipeline->_render_settings.shadow_map_params)
-		);
-	const Vector4 fog_params[] =
-	{
-		{ fog_desc.color.x, fog_desc.color.y, fog_desc.color.z, fog_desc.density },
-		{ fog_desc.range_min, fog_desc.range_max, fog_desc.sun_blend, fog_desc.enabled },
-		{ sun_color.x, sun_color.y, sun_color.z, 0.0f }
-	};
-	bgfx::setUniform(pipeline->_fog_data, fog_params, countof(fog_params));
-	pipeline->set_local_lights_params_uniform();
-	pipeline->set_global_lighting_params(&global_lighting_desc);
-	bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
+	for (u32 i = object_id; i != UINT32_MAX; i = mesh._data.bindings[i].next) {
+		bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
+		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
+		bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
+		bgfx::setUniform(pipeline->_u_shadow_map_params
+			, pipeline->_render_settings.shadow_map_params
+			, countof(pipeline->_render_settings.shadow_map_params)
+			);
+		const Vector4 fog_params[] =
+		{
+			{ fog_desc.color.x, fog_desc.color.y, fog_desc.color.z, fog_desc.density },
+			{ fog_desc.range_min, fog_desc.range_max, fog_desc.sun_blend, fog_desc.enabled },
+			{ sun_color.x, sun_color.y, sun_color.z, 0.0f }
+		};
+		bgfx::setUniform(pipeline->_fog_data, fog_params, countof(fog_params));
+		pipeline->set_local_lights_params_uniform();
+		pipeline->set_global_lighting_params(&global_lighting_desc);
+		bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
 
-	mesh.set_instance_data(object_id, *scene_graph);
-	mesh._data.material[object_id]->bind(View::MESH);
+		const RenderWorld::MeshManager::MaterialBinding &binding = mesh._data.bindings[i];
+		mesh.set_instance_data(object_id, *scene_graph, binding.index_offset, binding.num_indices);
+		binding.material->bind(View::MESH);
+	}
 }
 
 void RenderWorld::render(f32 dt
@@ -2532,10 +2545,11 @@ void RenderWorld::unit_destroyed_callback(UnitId unit)
 void RenderWorld::reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource)
 {
 #if CROWN_CAN_RELOAD
-	for (u32 i = 0; i < _mesh_manager._data.size; ++i) {
-		if (_mesh_manager._data.material_resource[i] == old_resource) {
-			_mesh_manager._data.material[i] = _material_manager->get(new_resource);
-			_mesh_manager._data.material_resource[i] = new_resource;
+	for (u32 i = 0; i < _mesh_manager._data.bindings_size; ++i) {
+		MeshManager::MaterialBinding &binding = _mesh_manager._data.bindings[i];
+		if (_mesh_manager._data.slots[i]._id != 0 && binding.resource == old_resource) {
+			binding.material = _material_manager->get(new_resource);
+			binding.resource = new_resource;
 		}
 	}
 
@@ -2547,7 +2561,7 @@ void RenderWorld::reload_materials(const MaterialResource *old_resource, const M
 	}
 #else
 	CE_UNUSED_2(old_resource, new_resource);
-#endif
+#endif // if CROWN_CAN_RELOAD
 }
 
 void RenderWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)
@@ -2577,16 +2591,16 @@ void RenderWorld::reload_sprites(const SpriteResource *old_resource, const Sprit
 	}
 }
 
-void RenderWorld::MeshManager::allocate(u32 num)
+void RenderWorld::MeshManager::allocate(u32 num, u32 num_bindings)
 {
-	CE_ENSURE(num > _data.size);
+	CE_ENSURE(num >= _data.size);
+	CE_ENSURE(num_bindings >= _data.bindings_size);
 
 	const u32 bytes = 0
 		+ num*sizeof(UnitId) + alignof(UnitId)
 		+ num*sizeof(MeshResource *) + alignof(MeshResource *)
 		+ num*sizeof(MeshGeometry *) + alignof(MeshGeometry *)
 		+ num*sizeof(MeshData) + alignof(MeshData)
-		+ num*sizeof(Material *) + alignof(Material *)
 		+ num*sizeof(Matrix4x4) + alignof(Matrix4x4)
 		+ num*sizeof(OBB) + alignof(OBB)
 		+ num*sizeof(Sphere) + alignof(Sphere)
@@ -2596,23 +2610,24 @@ void RenderWorld::MeshManager::allocate(u32 num)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(u32) + alignof(u32)
 		+ num*sizeof(StringId32) + alignof(StringId32)
-#if CROWN_CAN_RELOAD
-		+ num*sizeof(MaterialResource *) + alignof(MaterialResource *)
-#endif
+		+ num_bindings*sizeof(MaterialBinding) + alignof(MaterialBinding)
+		+ num_bindings*sizeof(StringId32) + alignof(StringId32)
 		+ 0
 		;
 
 	MeshInstanceData new_data;
 	new_data.size = _data.size;
 	new_data.capacity = num;
+	new_data.bindings_size = _data.bindings_size;
+	new_data.bindings_capacity = num_bindings;
+	new_data.bindings_free_list = _data.bindings_free_list;
 	new_data.buffer = _allocator->allocate(bytes);
 
 	new_data.unit          = (UnitId *             )memory::align_top(new_data.buffer,         alignof(UnitId));
 	new_data.resource      = (const MeshResource **)memory::align_top(new_data.unit + num,     alignof(MeshResource *));
 	new_data.geometry      = (const MeshGeometry **)memory::align_top(new_data.resource + num, alignof(MeshGeometry *));
 	new_data.mesh          = (MeshData *           )memory::align_top(new_data.geometry + num, alignof(MeshData));
-	new_data.material      = (Material **          )memory::align_top(new_data.mesh + num,     alignof(Material *));
-	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.material + num, alignof(Matrix4x4));
+	new_data.world         = (Matrix4x4 *          )memory::align_top(new_data.mesh + num,     alignof(Matrix4x4));
 	new_data.obb           = (OBB *                )memory::align_top(new_data.world + num,    alignof(OBB));
 	new_data.sphere        = (Sphere *             )memory::align_top(new_data.obb + num,      alignof(Sphere));
 	new_data.skeleton      = (const AnimationSkeletonInstance **)memory::align_top(new_data.sphere + num, alignof(AnimationSkeletonInstance *));
@@ -2621,15 +2636,13 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
 	new_data.matrix_cache  = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
 	new_data.geometry_name = (StringId32 *         )memory::align_top(new_data.matrix_cache + num, alignof(StringId32));
-#if CROWN_CAN_RELOAD
-	new_data.material_resource = (const MaterialResource **)memory::align_top(new_data.geometry_name + num, alignof(MaterialResource *));
-#endif
+	new_data.bindings      = (MaterialBinding *    )memory::align_top(new_data.geometry_name + num, alignof(MaterialBinding));
+	new_data.slots         = (StringId32 *         )memory::align_top(new_data.bindings + num_bindings, alignof(StringId32));
 
 	memcpy(new_data.unit, _data.unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.resource, _data.resource, _data.size * sizeof(MeshResource *));
 	memcpy(new_data.geometry, _data.geometry, _data.size * sizeof(MeshGeometry *));
 	memcpy(new_data.mesh, _data.mesh, _data.size * sizeof(MeshData));
-	memcpy(new_data.material, _data.material, _data.size * sizeof(Material *));
 	memcpy(new_data.world, _data.world, _data.size * sizeof(Matrix4x4));
 	memcpy(new_data.obb, _data.obb, _data.size * sizeof(OBB));
 	memcpy(new_data.sphere, _data.sphere, _data.size * sizeof(Sphere));
@@ -2639,9 +2652,8 @@ void RenderWorld::MeshManager::allocate(u32 num)
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
 	memcpy(new_data.matrix_cache, _data.matrix_cache, _data.size * sizeof(u32));
 	memcpy(new_data.geometry_name, _data.geometry_name, _data.size * sizeof(StringId32));
-#if CROWN_CAN_RELOAD
-	memcpy(new_data.material_resource, _data.material_resource, _data.size * sizeof(MaterialResource *));
-#endif
+	memcpy(new_data.bindings, _data.bindings, _data.bindings_size * sizeof(MaterialBinding));
+	memcpy(new_data.slots, _data.slots, _data.bindings_size * sizeof(StringId32));
 
 	_allocator->deallocate(_data.buffer);
 	_data = new_data;
@@ -2649,7 +2661,8 @@ void RenderWorld::MeshManager::allocate(u32 num)
 
 void RenderWorld::MeshManager::grow()
 {
-	allocate(_data.capacity * 2 + 1);
+	const u32 num = _data.capacity * 2 + 1;
+	allocate(num, num > _data.bindings_capacity ? num : _data.bindings_capacity);
 }
 
 void RenderWorld::MeshManager::create_instances(const void *components_data
@@ -2658,9 +2671,11 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 	, const u32 *unit_index
 	)
 {
-	const MeshRendererDesc *meshes = (MeshRendererDesc *)components_data;
+	const MeshRendererDesc *meshes = (const MeshRendererDesc *)components_data;
 
 	for (u32 i = 0; i < num; ++i) {
+		CE_ASSERT(meshes->num_materials > 0, "Mesh requires at least one material");
+		const MeshRendererDesc::MaterialDesc *materials = (const MeshRendererDesc::MaterialDesc *)(meshes + 1);
 		UnitId unit = unit_lookup[unit_index[i]];
 		CE_ASSERT(!hash_map::has(_map, unit), "Unit already has a mesh component");
 
@@ -2670,36 +2685,151 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		if (_data.size == _data.capacity)
 			grow();
 
-		const MeshResource *mr = (MeshResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MESH, meshes[i].mesh_resource);
-		const MeshGeometry *mg = mr->geometry(meshes[i].geometry_name);
-		const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, meshes[i].material_resource);
+		const MeshResource *mr = (MeshResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MESH, meshes->mesh_resource);
+		const MeshGeometry *mg = mr->geometry(meshes->geometry_name);
+		const MaterialResource *mat_res = (MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, materials[0].material_resource);
 
-		_render_world->_material_manager->create_material(mat_res);
+		Material *base_material = _render_world->_material_manager->create_material(mat_res);
 
 		const u32 last = _data.size;
+		if (last < _data.bindings_size) {
+			if (_data.slots[last]._id != 0) {
+				if (_data.bindings_size == _data.bindings_capacity)
+					allocate(_data.capacity, _data.bindings_capacity * 2 + 1);
+				const u32 moved_binding = _data.bindings_size++;
+				_data.bindings[moved_binding] = _data.bindings[last];
+				_data.slots[moved_binding] = _data.slots[last];
+
+				u32 previous = UINT32_MAX;
+				for (u32 j = 0; j < moved_binding; ++j) {
+					if (_data.slots[j]._id != 0 && _data.bindings[j].next == last) {
+						previous = j;
+						break;
+					}
+				}
+				CE_ASSERT(previous != UINT32_MAX, "Material binding predecessor not found");
+				_data.bindings[previous].next = moved_binding;
+			} else {
+				u32 previous = UINT32_MAX;
+				u32 binding_i = _data.bindings_free_list;
+				while (binding_i != UINT32_MAX && binding_i != last) {
+					previous = binding_i;
+					binding_i = _data.bindings[binding_i].next;
+				}
+				CE_ASSERT(binding_i == last, "Free material binding not found");
+				if (previous == UINT32_MAX)
+					_data.bindings_free_list = _data.bindings[last].next;
+				else
+					_data.bindings[previous].next = _data.bindings[last].next;
+			}
+		} else {
+			if (_data.bindings_size == _data.bindings_capacity)
+				allocate(_data.capacity, _data.bindings_capacity * 2 + 1);
+			++_data.bindings_size;
+		}
 
 		_data.unit[last]     = unit;
 		_data.resource[last] = mr;
 		_data.geometry[last] = mg;
 		_data.mesh[last].vbh = mg->vertex_buffer;
 		_data.mesh[last].ibh = mg->index_buffer;
-		_data.material[last] = _render_world->_material_manager->get(mat_res);
 		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
 		_data.obb[last]      = mg->obb;
 		_data.sphere[last]   = mg->sphere;
 		_data.skeleton[last] = NULL;
 		_data.lod_group_unit[last] = UNIT_INVALID;
-		_data.flags[last]    = meshes[i].flags | RenderableFlags::DIRTY;
+		_data.flags[last]    = meshes->flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last] = 0;
 		_data.matrix_cache[last] = UINT32_MAX;
-		_data.geometry_name[last] = meshes[i].geometry_name;
-#if CROWN_CAN_RELOAD
-		_data.material_resource[last] = mat_res;
-#endif
+		_data.geometry_name[last] = meshes->geometry_name;
 		_dirty = true;
 
 		hash_map::set(_map, unit, alloc_id(last));
 		++_data.size;
+
+		const MeshMaterialRange &first_range = mg->material_ranges[0];
+		MaterialBinding &first_binding = _data.bindings[last];
+		first_binding.material = base_material;
+		first_binding.resource = mat_res;
+		first_binding.index_offset = first_range.index_offset;
+		first_binding.num_indices = first_range.num_indices;
+		first_binding.next = UINT32_MAX;
+		_data.slots[last] = first_range.slot;
+
+		u32 last_binding = last;
+		for (u32 j = 1; j < mg->num_material_ranges; ++j) {
+			const MeshMaterialRange &range = mg->material_ranges[j];
+			u32 slot_i;
+			if (_data.bindings_free_list != UINT32_MAX) {
+				slot_i = _data.bindings_free_list;
+				_data.bindings_free_list = _data.bindings[slot_i].next;
+			} else {
+				if (_data.bindings_size == _data.bindings_capacity)
+					allocate(_data.capacity, _data.bindings_capacity * 2 + 1);
+				slot_i = _data.bindings_size++;
+			}
+			MaterialBinding &binding = _data.bindings[slot_i];
+			binding.material = base_material;
+			binding.resource = mat_res;
+			binding.index_offset = range.index_offset;
+			binding.num_indices = range.num_indices;
+			binding.next = UINT32_MAX;
+			_data.slots[slot_i] = range.slot;
+			_data.bindings[last_binding].next = slot_i;
+			last_binding = slot_i;
+		}
+
+		for (u32 j = 1; j < meshes->num_materials; ++j) {
+			if (material(last, materials[j].slot) == NULL) {
+				char name[STRING_ID32_BUF_LEN];
+				logw(RENDER_WORLD, "Mesh material slot #ID(%s) not found; ignoring assignment."
+					, materials[j].slot.to_string(name, sizeof(name)));
+				continue;
+			}
+			set_material(last, materials[j].slot, materials[j].material_resource);
+		}
+		meshes = (const MeshRendererDesc *)(materials + meshes->num_materials);
+	}
+}
+
+Material *RenderWorld::MeshManager::material(u32 mesh_i, StringId32 slot)
+{
+	for (u32 i = mesh_i; i != UINT32_MAX; i = _data.bindings[i].next) {
+		if (_data.slots[i] == slot)
+			return _data.bindings[i].material;
+	}
+	return NULL;
+}
+
+void RenderWorld::MeshManager::set_material(u32 mesh_i, StringId32 slot, StringId64 material_resource)
+{
+	u32 binding_i = mesh_i;
+	while (binding_i != UINT32_MAX && _data.slots[binding_i] != slot)
+		binding_i = _data.bindings[binding_i].next;
+	const bool set_all = binding_i == UINT32_MAX && slot == STRING_ID_32("default", UINT32_C(0x5974b5ec));
+	CE_ASSERT(binding_i != UINT32_MAX || set_all, "Mesh material slot not found");
+	if (set_all)
+		binding_i = mesh_i;
+
+	const MaterialResource *resource = (const MaterialResource *)_render_world->_resource_manager->get(RESOURCE_TYPE_MATERIAL, material_resource);
+	Material *material = _render_world->_material_manager->create_material(resource);
+	do {
+		MaterialBinding &binding = _data.bindings[binding_i];
+		binding.material = material;
+		binding.resource = resource;
+		binding_i = set_all ? binding.next : UINT32_MAX;
+	} while (binding_i != UINT32_MAX);
+}
+
+void RenderWorld::MeshManager::free_materials(u32 binding_i)
+{
+	while (binding_i != UINT32_MAX) {
+		MaterialBinding &binding = _data.bindings[binding_i];
+		const u32 next = binding.next;
+		_data.slots[binding_i] = StringId32(0u);
+		binding.next = _data.bindings_free_list;
+		_data.bindings_free_list = binding_i;
+		binding_i = next;
 	}
 }
 
@@ -2718,7 +2848,14 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.geometry[mesh_i] = _data.geometry[last];
 	_data.mesh[mesh_i].vbh = _data.mesh[last].vbh;
 	_data.mesh[mesh_i].ibh = _data.mesh[last].ibh;
-	_data.material[mesh_i] = _data.material[last];
+	free_materials(_data.bindings[mesh_i].next);
+	if (mesh_i != last) {
+		_data.bindings[mesh_i] = _data.bindings[last];
+		_data.slots[mesh_i] = _data.slots[last];
+	}
+	_data.slots[last] = StringId32(0u);
+	_data.bindings[last].next = _data.bindings_free_list;
+	_data.bindings_free_list = last;
 	_data.world[mesh_i]    = _data.world[last];
 	_data.obb[mesh_i]      = _data.obb[last];
 	_data.sphere[mesh_i]   = _data.sphere[last];
@@ -2728,9 +2865,6 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.prev_flags[mesh_i] = _data.prev_flags[last];
 	_data.matrix_cache[mesh_i] = _data.matrix_cache[last];
 	_data.geometry_name[mesh_i] = _data.geometry_name[last];
-#if CROWN_CAN_RELOAD
-	_data.material_resource[mesh_i] = _data.material_resource[last];
-#endif
 
 	if (mesh_i != last) {
 		const MeshId last_id = hash_map::get(_map, _data.unit[mesh_i], MeshId { UINT32_MAX });
@@ -2760,7 +2894,8 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.resource[inst_a], _data.resource[inst_b]);
 	exchange(_data.geometry[inst_a], _data.geometry[inst_b]);
 	exchange(_data.mesh[inst_a],     _data.mesh[inst_b]);
-	exchange(_data.material[inst_a], _data.material[inst_b]);
+	exchange(_data.bindings[inst_a], _data.bindings[inst_b]);
+	exchange(_data.slots[inst_a],    _data.slots[inst_b]);
 	exchange(_data.world[inst_a],    _data.world[inst_b]);
 	exchange(_data.obb[inst_a],      _data.obb[inst_b]);
 	exchange(_data.sphere[inst_a],   _data.sphere[inst_b]);
@@ -2770,9 +2905,6 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
 	exchange(_data.matrix_cache[inst_a], _data.matrix_cache[inst_b]);
 	exchange(_data.geometry_name[inst_a], _data.geometry_name[inst_b]);
-#if CROWN_CAN_RELOAD
-	exchange(_data.material_resource[inst_a], _data.material_resource[inst_b]);
-#endif
 
 	_indices[id_a.i & MESH_INDEX_MASK].index = inst_b;
 	_indices[id_b.i & MESH_INDEX_MASK].index = inst_a;
@@ -2787,12 +2919,90 @@ void RenderWorld::MeshManager::set_geometry(u32 mesh_i, const MeshResource *mr, 
 {
 	const MeshGeometry *mg = mr->geometry(geometry);
 	CE_ENSURE(mg != NULL);
+	const MaterialBinding initializer = _data.bindings[mesh_i];
 
 	_data.resource[mesh_i] = mr;
 	_data.geometry[mesh_i] = mg;
 	_data.mesh[mesh_i].vbh = mg->vertex_buffer;
 	_data.mesh[mesh_i].ibh = mg->index_buffer;
 	_data.geometry_name[mesh_i] = geometry;
+
+	// Rebuild the chain in geometry order, retaining materials for matching slots.
+	const MeshMaterialRange &first_range = mg->material_ranges[0];
+	u32 previous = UINT32_MAX;
+	u32 binding_i = mesh_i;
+	while (binding_i != UINT32_MAX && _data.slots[binding_i] != first_range.slot) {
+		previous = binding_i;
+		binding_i = _data.bindings[binding_i].next;
+	}
+
+	u32 old_head;
+	if (binding_i == mesh_i) {
+		old_head = _data.bindings[mesh_i].next;
+	} else if (binding_i != UINT32_MAX) {
+		const MaterialBinding selected = _data.bindings[binding_i];
+		const StringId32 selected_slot = _data.slots[binding_i];
+		_data.bindings[previous].next = selected.next;
+		_data.bindings[binding_i] = _data.bindings[mesh_i];
+		_data.slots[binding_i] = _data.slots[mesh_i];
+		old_head = binding_i;
+		_data.bindings[mesh_i] = selected;
+		_data.slots[mesh_i] = selected_slot;
+	} else {
+		if (_data.bindings_free_list != UINT32_MAX) {
+			binding_i = _data.bindings_free_list;
+			_data.bindings_free_list = _data.bindings[binding_i].next;
+		} else {
+			if (_data.bindings_size == _data.bindings_capacity)
+				allocate(_data.capacity, _data.bindings_capacity * 2 + 1);
+			binding_i = _data.bindings_size++;
+		}
+		_data.bindings[binding_i] = _data.bindings[mesh_i];
+		_data.slots[binding_i] = _data.slots[mesh_i];
+		old_head = binding_i;
+		_data.bindings[mesh_i] = initializer;
+		_data.slots[mesh_i] = first_range.slot;
+	}
+
+	_data.bindings[mesh_i].index_offset = first_range.index_offset;
+	_data.bindings[mesh_i].num_indices = first_range.num_indices;
+	_data.bindings[mesh_i].next = UINT32_MAX;
+	u32 new_tail = mesh_i;
+
+	for (u32 i = 1; i < mg->num_material_ranges; ++i) {
+		const MeshMaterialRange &range = mg->material_ranges[i];
+		const StringId32 slot = range.slot;
+		u32 prev = UINT32_MAX;
+		binding_i = old_head;
+		while (binding_i != UINT32_MAX && _data.slots[binding_i] != slot) {
+			prev = binding_i;
+			binding_i = _data.bindings[binding_i].next;
+		}
+		if (binding_i != UINT32_MAX) {
+			if (prev == UINT32_MAX)
+				old_head = _data.bindings[binding_i].next;
+			else
+				_data.bindings[prev].next = _data.bindings[binding_i].next;
+		} else if (_data.bindings_free_list != UINT32_MAX) {
+			binding_i = _data.bindings_free_list;
+			_data.bindings_free_list = _data.bindings[binding_i].next;
+			_data.bindings[binding_i] = initializer;
+			_data.slots[binding_i] = slot;
+		} else {
+			if (_data.bindings_size == _data.bindings_capacity)
+				allocate(_data.capacity, _data.bindings_capacity * 2 + 1);
+			binding_i = _data.bindings_size++;
+			_data.bindings[binding_i] = initializer;
+			_data.slots[binding_i] = slot;
+		}
+
+		_data.bindings[binding_i].index_offset = range.index_offset;
+		_data.bindings[binding_i].num_indices = range.num_indices;
+		_data.bindings[binding_i].next = UINT32_MAX;
+		_data.bindings[new_tail].next = binding_i;
+		new_tail = binding_i;
+	}
+	free_materials(old_head);
 	mesh_update_bounds(*_render_world, mesh_i);
 }
 
@@ -2839,7 +3049,7 @@ u32 RenderWorld::MeshManager::index(MeshId mesh)
 	return idx.index;
 }
 
-void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph)
+void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset, u32 num_indices)
 {
 	if (_data.skeleton[ii] != NULL) {
 		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
@@ -2864,7 +3074,7 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 	}
 
 	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
-	bgfx::setIndexBuffer(_data.mesh[ii].ibh);
+	bgfx::setIndexBuffer(_data.mesh[ii].ibh, index_offset, num_indices);
 }
 
 void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph, u32 stencil)

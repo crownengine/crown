@@ -414,10 +414,100 @@ private static void test_database()
 	}
 }
 
+private static void test_mesh_resource()
+{
+	stdout.printf("test_mesh_resource\n");
+
+	// Set mesh material slots.
+	{
+		Project project = new Project();
+		UndoRedo undo_redo = new UndoRedo();
+		Database db = new Database(project, undo_redo);
+		create_object_types(db);
+		Guid unit_id = Guid.new_guid();
+		Guid component_id = Guid.new_guid();
+		db.create(unit_id, OBJECT_TYPE_UNIT);
+		db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
+		db.add_to_set(unit_id, "components", component_id);
+		MeshResource.set_material_slot(db, component_id, "Ma", "materials/Ma");
+		MeshResource.set_material_slot(db, component_id, "Mb", "materials/Mb");
+		Guid?[] bindings = db.get_set(component_id, "data.materials");
+		assert(bindings.length == 2);
+		Guid binding = db.get_string(bindings[0], "data.slot") == "Ma" ? bindings[0] : bindings[1];
+
+		// Reimport updates the existing assignment instead of changing its identity.
+		undo_redo.reset();
+		MeshResource.set_material_slot(db, component_id, "Ma", "materials/Mc");
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { binding });
+		assert(db.get_set(component_id, "data.materials").length == 2);
+		assert(db.get_resource(binding, "data.material") == "materials/Mc");
+		db.undo();
+		assert(db.get_resource(binding, "data.material") == "materials/Ma");
+		db.redo();
+		assert(db.get_resource(binding, "data.material") == "materials/Mc");
+
+		StringBuilder commands = new StringBuilder();
+		Unit.generate_set_component_commands(commands, unit_id, component_id, db);
+		assert(commands.str.index_of(":set_mesh(") < commands.str.index_of(":set_mesh_material("));
+		assert(commands.str.contains("materials/Mc"));
+		assert(commands.str.contains("materials/Mb"));
+
+		// Saving and loading preserves the nested assignments and their resource types.
+		Database loaded = new Database(project);
+		create_object_types(loaded);
+		loaded.create(unit_id, OBJECT_TYPE_UNIT);
+		loaded.decode_object(unit_id, GUID_ZERO, "", db.encode_object(unit_id, db.get_data(unit_id)));
+		assert(loaded.get_set(component_id, "data.materials").length == 2);
+		assert(loaded.get_resource(binding, "data.material") == "materials/Mc");
+
+		undo_redo.reset();
+		db.destroy(binding);
+		db.add_restore_point(ActionType.DESTROY_OBJECTS, { binding });
+		commands.truncate(0);
+		assert(Unit.generate_destroy_commands(commands, { binding }, db) == 1);
+		assert(!commands.str.contains("materials/Mc"));
+		assert(commands.str.contains("materials/Mb"));
+		db.undo();
+		assert(db.get_set(component_id, "data.materials").length == 2);
+		db.redo();
+		assert(db.get_set(component_id, "data.materials").length == 1);
+	}
+
+	// Round-trip mesh material overrides.
+	{
+		Project project = new Project();
+		Database db = new Database(project);
+		create_object_types(db);
+		Guid unit_id = Guid.new_guid();
+		Guid component_id = Guid.new_guid();
+		Guid binding_id = Guid.new_guid();
+		string materials_key = "modified_components.#" + component_id.to_string() + ".data.materials";
+		db.create(unit_id, OBJECT_TYPE_UNIT);
+		db.set_resource(unit_id, "prefab", "units/prefab");
+		db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+		db.set_string(binding_id, "data.slot", "Ma");
+		db.set_resource(binding_id, "data.material", "materials/Ma");
+		db.add_to_set(unit_id, materials_key, binding_id);
+
+		Database loaded = new Database(project);
+		create_object_types(loaded);
+		loaded.create(unit_id, OBJECT_TYPE_UNIT);
+		loaded.decode_object(unit_id, GUID_ZERO, "", db.encode_object(unit_id, db.get_data(unit_id)));
+
+		assert(!loaded.has_property(unit_id, "materials"));
+		assert(loaded.has_property(unit_id, materials_key));
+		Guid?[] bindings = loaded.get_set(unit_id, materials_key);
+		assert(bindings.length == 1);
+		assert(Guid.equal_func(bindings[0], binding_id));
+		assert(loaded.get_resource(binding_id, "data.material") == "materials/Ma");
+	}
+}
+
 public static int main_unit_tests()
 {
 	test_string();
 	test_database();
+	test_mesh_resource();
 	return 0;
 }
 

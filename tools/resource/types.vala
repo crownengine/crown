@@ -58,6 +58,7 @@ const string OBJECT_TYPE_UNIFORM_MATRIX4X4       = "uniform_matrix4x4";
 const string OBJECT_TYPE_UNIFORM_VECTOR4         = "uniform_vector4";
 const string OBJECT_TYPE_UNIT                    = "unit";
 const string OBJECT_TYPE_VIGNETTE                = "vignette";
+const string OBJECT_TYPE_MESH_MATERIAL           = "mesh_material";
 
 // UI order reference table:
 //
@@ -150,6 +151,11 @@ public static void material_enum_callback(InputField property_enum, InputEnum co
 	} catch (JsonSyntaxError e) {
 		loge(e.message);
 	}
+}
+
+public static void mesh_material_name_aspect(out string name, Database database, Guid id)
+{
+	name = database.get_string(id, "data.slot");
 }
 
 public static void create_object_types(Database database)
@@ -315,6 +321,7 @@ public static void create_object_types(Database database)
 			name = "data.material",
 			resource_type = OBJECT_TYPE_MATERIAL,
 			deffault = "core/components/noop",
+			hidden = true,
 			tooltip = _("Material used to render to the geometry."),
 		},
 		PropertyDefinition()
@@ -339,6 +346,14 @@ public static void create_object_types(Database database)
 			hidden = true,
 			not_serialized = true,
 		},
+		PropertyDefinition()
+		{
+			type = PropertyType.OBJECTS_SET,
+			name = "data.materials",
+			label = _("Materials"),
+			object_type = StringId64(OBJECT_TYPE_MESH_MATERIAL),
+			fixed_set = true,
+		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_RENDERER
 		, properties
@@ -347,6 +362,26 @@ public static void create_object_types(Database database)
 		, ObjectTypeFlags.UNIT_COMPONENT
 		, OBJECT_TYPE_TRANSFORM
 		);
+
+	PropertyDefinition[] material_properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "data.slot",
+			deffault = "",
+			hidden = true,
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.RESOURCE,
+			name = "data.material",
+			resource_type = OBJECT_TYPE_MATERIAL,
+			deffault = "core/fallback/fallback",
+		},
+	};
+	StringId64 mesh_material_type = database.create_object_type(OBJECT_TYPE_MESH_MATERIAL, material_properties, 1102);
+	database.set_aspect(mesh_material_type, StringId64("name"), mesh_material_name_aspect);
 
 	properties =
 	{

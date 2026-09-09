@@ -2417,15 +2417,22 @@ void load_api(LuaEnvironment &env)
 			RenderWorld *rw = stack.get_render_world(1);
 			UnitId unit = stack.get_unit(2);
 
-			MeshRendererDesc desc;
-			desc.mesh_resource     = stack.get_resource_name(3);
-			desc.geometry_name     = stack.get_string_id_32(4);
-			desc.material_resource = stack.get_resource_name(5);
-			desc.flags = 0u;
-			desc.flags |= RenderableFlags::SHADOW_CASTER;
-			desc.flags |= stack.get_bool(6) ? RenderableFlags::VISIBLE : 0u;
+			struct
+			{
+				MeshRendererDesc desc;
+				MeshRendererDesc::MaterialDesc material;
+			} data;
+			data.desc.mesh_resource = stack.get_resource_name(3);
+			data.desc.geometry_name = stack.get_string_id_32(4);
+			data.desc.flags = RenderableFlags::SHADOW_CASTER;
+			data.desc.flags |= stack.get_bool(6) ? RenderableFlags::VISIBLE : 0u;
+			data.desc.num_materials = 1;
+			data.desc._pad = 0;
+			data.material.material_resource = stack.get_resource_name(5);
+			data.material.slot = STRING_ID_32("default", UINT32_C(0x5974b5ec));
+			data.material._pad = 0;
 
-			stack.push_id(rw->mesh_create(unit, desc).i);
+			stack.push_id(rw->mesh_create(unit, data.desc).i);
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_destroy", [](lua_State *L) {
@@ -2467,14 +2474,28 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_function("RenderWorld", "mesh_material", [](lua_State *L) {
 			LuaStack stack(L, +1);
-			Material *material = stack.get_render_world(1)->mesh_material(stack.get_mesh_instance(2));
-			stack.push_pointer(material);
+			RenderWorld *rw = stack.get_render_world(1);
+			const MeshId mesh = stack.get_mesh_instance(2);
+			StringId32 slot(0u);
+			if (stack.num_args() > 2 && !stack.is_nil(3))
+				slot = stack.get_string_id_32(3);
+			stack.push_pointer(rw->mesh_material(mesh, slot));
 			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_set_material", [](lua_State *L) {
 			LuaStack stack(L);
-			stack.get_render_world(1)->mesh_set_material(stack.get_mesh_instance(2), stack.get_string_id_64(3));
+			RenderWorld *rw = stack.get_render_world(1);
+			const MeshId mesh = stack.get_mesh_instance(2);
+			if (stack.num_args() == 3)
+				rw->mesh_set_material(mesh, STRING_ID_32("default", UINT32_C(0x5974b5ec)), stack.get_resource_name(3));
+			else
+				rw->mesh_set_material(mesh, stack.get_string_id_32(3), stack.get_resource_name(4));
 			return 0;
+		});
+	env.add_module_function("RenderWorld", "mesh_has_material", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_bool(stack.get_render_world(1)->mesh_has_material(stack.get_mesh_instance(2), stack.get_string_id_32(3)));
+			return 1;
 		});
 	env.add_module_function("RenderWorld", "mesh_set_visible", [](lua_State *L) {
 			LuaStack stack(L);

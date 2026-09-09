@@ -39,6 +39,8 @@ struct MeshGeometry
 	Sphere sphere;
 	VertexData vertices;
 	IndexData indices;
+	u32 num_material_ranges;
+	MeshMaterialRange *material_ranges;
 };
 
 struct MeshNode
