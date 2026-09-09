@@ -11,6 +11,7 @@ Changelog
 * Runtime: fixed rendering artifacts in objects using the ``mesh`` shader with BC5-encoded normal maps.
 * Runtime: fixed albedo texture not being affected by ``u_albedo`` color when using the ``mesh`` shader.
 * Runtime: fixed slow package loading on non-html5 platforms.
+* Runtime: fixed ``PhysicsWorld.actor_add_impulse_at()`` and ``PhysicsWorld.actor_push_at()`` interpreting their world-space positions as offsets from the actor's center of mass.
 
 .. _v0.64.8:
 

@@ -1979,8 +1979,9 @@ struct PhysicsWorldImpl
 
 	void actor_add_impulse_at(ActorId actor, const Vector3 &impulse, const Vector3 &pos)
 	{
-		_actor[actor.i].body->activate();
-		_actor[actor.i].body->applyImpulse(to_btVector3(impulse), to_btVector3(pos));
+		btRigidBody *body = _actor[actor.i].body;
+		body->activate();
+		body->applyImpulse(to_btVector3(impulse), to_btVector3(pos) - body->getCenterOfMassPosition());
 	}
 
 	void actor_add_torque_impulse(ActorId actor, const Vector3 &imp)
@@ -1997,7 +1998,8 @@ struct PhysicsWorldImpl
 	void actor_push_at(ActorId actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 	{
 		const Vector3 f = vel * mass;
-		_actor[actor.i].body->applyForce(to_btVector3(f), to_btVector3(pos));
+		btRigidBody *body = _actor[actor.i].body;
+		body->applyForce(to_btVector3(f), to_btVector3(pos) - body->getCenterOfMassPosition());
 	}
 
 	bool actor_is_sleeping(ActorId actor)
