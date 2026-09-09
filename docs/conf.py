@@ -39,6 +39,7 @@ extensions = [
 	'sphinx_sitemap',
 	'sphinx_last_updated_by_git',
 	'sphinxext.opengraph',
+	'sphinx_tabs.tabs',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

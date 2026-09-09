@@ -521,6 +521,24 @@ update_sphinx_opengraph () {
 	git commit -m "docs: update sphinxext-opengraph"
 }
 
+update_sphinx_tabs () {
+	local REPO=https://github.com/executablebooks/sphinx-tabs
+	local DEST=docs/_extensions/sphinx_tabs
+	local BRANCH=main
+
+	local SPHINX_TABS=$(mktemp -d)
+
+	# Download latest sphinx-tabs.
+	git_clone "${SPHINX_TABS}" "${REPO}" "${BRANCH}"
+
+	rm -rf "${DEST}"
+	mv "${SPHINX_TABS}"/sphinx_tabs "${DEST}"
+
+	# Add changes and commit.
+	git add -f "${DEST}"
+	git commit -m "docs: update sphinx-tabs"
+}
+
 update_gtk_theme () {
 	local REPO=https://gitlab.gnome.org/GNOME/gtk.git
 	local DEST=tools/level_editor/resources/theme/Adwaita
@@ -810,6 +828,10 @@ while true; do
 		;;
 	sphinx_opengraph)
 		update_sphinx_opengraph
+		exit $?
+		;;
+	sphinx_tabs)
+		update_sphinx_tabs
 		exit $?
 		;;
 	tinyexpr)
