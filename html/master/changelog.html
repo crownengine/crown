@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-09T17:57:14+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-09T20:15:42+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -271,6 +271,8 @@
 <li><p>Runtime: fixed rendering artifacts in objects using the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> shader with BC5-encoded normal maps.</p></li>
 <li><p>Runtime: fixed albedo texture not being affected by <code class="docutils literal notranslate"><span class="pre">u_albedo</span></code> color when using the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> shader.</p></li>
 <li><p>Runtime: fixed slow package loading on non-html5 platforms.</p></li>
+<li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_impulse_at()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> interpreting their world-space positions as offsets from the actor’s center of mass.</p></li>
+<li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code>, <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> not waking sleeping actors.</p></li>
 <li><p>Data Compiler: fixed ‘type mismatch’ errors when compiling materials in some cases.</p></li>
 <li><p>Data Compiler: fixed wrong ‘required’ shader generated for some materials.</p></li>
 <li><p>Lua: fixed missing <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code> binding.</p></li>
