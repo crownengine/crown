@@ -1986,19 +1986,23 @@ struct PhysicsWorldImpl
 
 	void actor_add_torque_impulse(ActorId actor, const Vector3 &imp)
 	{
+		_actor[actor.i].body->activate();
 		_actor[actor.i].body->applyTorqueImpulse(to_btVector3(imp));
 	}
 
 	void actor_push(ActorId actor, const Vector3 &vel, f32 mass)
 	{
 		const Vector3 f = vel * mass;
-		_actor[actor.i].body->applyCentralForce(to_btVector3(f));
+		btRigidBody *body = _actor[actor.i].body;
+		body->activate();
+		body->applyCentralForce(to_btVector3(f));
 	}
 
 	void actor_push_at(ActorId actor, const Vector3 &vel, f32 mass, const Vector3 &pos)
 	{
 		const Vector3 f = vel * mass;
 		btRigidBody *body = _actor[actor.i].body;
+		body->activate();
 		body->applyForce(to_btVector3(f), to_btVector3(pos) - body->getCenterOfMassPosition());
 	}
 
