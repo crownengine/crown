@@ -607,16 +607,23 @@ function UnitBox:set_lod_group(level, mode)
 	end
 end
 
-function UnitBox:set_mesh(mesh_resource, geometry, material, visible, cast_shadows)
+function UnitBox:set_mesh(mesh_resource, geometry, visible, cast_shadows)
 	self._mesh_visible = visible
 
 	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
 	if mesh then
 		RenderWorld.mesh_set_geometry(self._rw, mesh, mesh_resource, geometry)
-		RenderWorld.mesh_set_material(self._rw, mesh, material)
+		RenderWorld.mesh_set_material(self._rw, mesh, "default", "core/components/noop")
 		RenderWorld.mesh_set_visible(self._rw, mesh, visible and not self._hidden)
 		RenderWorld.mesh_set_cast_shadows(self._rw, mesh, cast_shadows)
 		self:invalidate_obb()
+	end
+end
+
+function UnitBox:set_mesh_material(slot, material_resource)
+	local mesh = RenderWorld.mesh_instance(self._rw, self._unit_id)
+	if mesh then
+		RenderWorld.mesh_set_material(self._rw, mesh, slot, material_resource)
 	end
 end
 

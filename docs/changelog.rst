@@ -25,6 +25,7 @@ Changelog
 * Tools: added the ability do delete resources in the Project Browser via ``Delete`` keyboard shortcut.
 * Tools: resources and folders can now be revealed while the Project Browser is in search mode.
 * Tools: opening levels now uses the Resource Chooser.
+* Tools: added importing and editing of named material slots for meshes.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.
@@ -32,6 +33,7 @@ Changelog
 * Runtime: added fog support to unlit materials and a new ``+NO_FOG`` option to the ``mesh`` shader.
 * Runtime: HTML5: added fullscreen support.
 * Runtime: Windows: added fullscreen support.
+* Runtime: added support for multiple materials on a single mesh.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Lua: added ``Window.is_fullscreen()``.
 

@@ -17,6 +17,7 @@
 #include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/mesh_obj.h"
+#include <stb_sprintf.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ufbx.h>
@@ -158,10 +159,31 @@ namespace obj
 
 	static s32 parse_geometry(Geometry &g, const ufbx_mesh *mesh)
 	{
+		TempAllocator4096 ta;
+		HashMap<DynamicString, bool> used_slots(ta);
 		size_t num_indices = 0;
 		for (size_t i = 0; i < mesh->material_parts.count; ++i) {
 			const ufbx_mesh_part *mesh_part = &mesh->material_parts.data[i];
-			num_indices += convert_mesh_part(g, mesh, mesh_part);
+			// Name empty parts too so slot disambiguation matches the importer.
+			char suffix[32];
+			stbsp_snprintf(suffix, sizeof(suffix), "_%u", mesh_part->index);
+			DynamicString slot(ta);
+			if (mesh->materials.count == 0) {
+				slot = "default";
+			} else if (mesh->materials.data[mesh_part->index]->name.length != 0) {
+				slot = mesh->materials.data[mesh_part->index]->name.data;
+			} else {
+				slot = "material";
+				slot += suffix;
+			}
+			while (hash_map::has(used_slots, slot))
+				slot += suffix;
+			hash_map::set(used_slots, slot, true);
+
+			const u32 count = (u32)convert_mesh_part(g, mesh, mesh_part);
+			if (count != 0)
+				array::push_back(g._material_ranges, { slot.to_string_id(), (u32)num_indices, count });
+			num_indices += count;
 		}
 
 		array::resize(g._position_indices, (u32)num_indices);

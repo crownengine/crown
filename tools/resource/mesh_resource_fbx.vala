@@ -436,6 +436,71 @@ public class FBXImportDialog : Gtk.Window
 
 public class FBXImporter
 {
+	public static GLib.GenericArray<string> material_resource_names(ufbx.Scene scene)
+	{
+		GLib.GenericArray<string> names = new GLib.GenericArray<string>();
+		GLib.HashTable<string, bool> used = new GLib.HashTable<string, bool>(GLib.str_hash, GLib.str_equal);
+		for (int i = 0; i < scene.materials.data.length; ++i) {
+			string raw = (string)scene.materials.data[i].name.data;
+			if (raw == "")
+				raw = "material_%u".printf(i);
+			string name = raw
+				.replace("/", "_")
+				.replace("\\", "_")
+				.replace(":", "_")
+				.replace("*", "_")
+				.replace("?", "_")
+				.replace("\"", "_")
+				.replace("<", "_")
+				.replace(">", "_")
+				.replace("|", "_")
+				;
+			while (used.contains(name))
+				name += "_%u".printf(i);
+			used[name] = true;
+			names.add(name);
+		}
+		return names;
+	}
+
+	public static void import_material_slots(Database db
+		, Guid component_id
+		, ufbx.Node node
+		, GLib.HashTable<unowned ufbx.Material, string> imported_materials
+		, GLib.HashTable<unowned ufbx.Material, string>? imported_skinned_materials = null
+		, string skinned_fallback_material = "core/fallback/fallback"
+		)
+	{
+		bool skinned = node.mesh.skin_deformers.data.length == 1;
+		GLib.HashTable<string, bool> used_slots = new GLib.HashTable<string, bool>(GLib.str_hash, GLib.str_equal);
+		for (int i = 0; i < node.mesh.material_parts.data.length; ++i) {
+			unowned ufbx.MeshPart part = node.mesh.material_parts.data[i];
+			string suffix = "_%u".printf(part.index);
+			string slot;
+			if (node.mesh.materials.data.length == 0)
+				slot = "default";
+			else if (node.mesh.materials.data[part.index].name.data.length != 0)
+				slot = (string)node.mesh.materials.data[part.index].name.data;
+			else
+				slot = "material" + suffix;
+			while (used_slots.contains(slot))
+				slot += suffix;
+			used_slots[slot] = true;
+
+			if (part.num_triangles == 0)
+				continue;
+			string material_name = skinned ? skinned_fallback_material : "core/fallback/fallback";
+			if (part.index < node.materials.data.length) {
+				unowned ufbx.Material material = node.materials.data[part.index];
+				if (skinned && imported_skinned_materials != null && imported_skinned_materials.contains(material))
+					material_name = imported_skinned_materials[material];
+				else if (imported_materials.contains(material))
+					material_name = imported_materials[material];
+			}
+			MeshResource.set_material_slot(db, component_id, slot, material_name);
+		}
+	}
+
 	private static bool is_valid_animation_basename(string name)
 	{
 		return name != ""
@@ -572,6 +637,8 @@ public class FBXImporter
 		, ufbx.Scene scene
 		, ufbx.Node node
 		, GLib.HashTable<unowned ufbx.Material, string> imported_materials
+		, GLib.HashTable<unowned ufbx.Material, string> imported_skinned_materials
+		, string skinned_fallback_material
 		)
 	{
 		Vector3 pos = vector3(node.local_transform.translation);
@@ -622,18 +689,8 @@ public class FBXImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					string material_name = "core/fallback/fallback";
-					unowned ufbx.Material? mesh_instance_material = null;
-					for (int ii = 0; mesh_instance_material == null && ii < node.mesh.material_parts.data.length; ++ii) {
-						unowned ufbx.MeshPart mesh_part = node.mesh.material_parts.data[ii];
-						if (mesh_part.num_triangles > 0 && mesh_part.index < node.materials.data.length)
-							mesh_instance_material = node.materials.data[mesh_part.index];
-					}
-					if (mesh_instance_material != null && imported_materials.contains(mesh_instance_material))
-						material_name = imported_materials[mesh_instance_material];
-
 					unit.set_component_string(component_id, "data.geometry_name", editor_name);
-					unit.set_component_string(component_id, "data.material", material_name);
+					import_material_slots(db, component_id, node, imported_materials, imported_skinned_materials, skinned_fallback_material);
 					unit.set_component_string(component_id, "data.mesh_resource", resource_name);
 					unit.set_component_bool  (component_id, "data.visible", true);
 				}
@@ -809,6 +866,8 @@ public class FBXImporter
 				, scene
 				, child_node
 				, imported_materials
+				, imported_skinned_materials
+				, skinned_fallback_material
 				);
 		}
 
@@ -986,10 +1045,46 @@ public class FBXImporter
 			if (node.mesh == null || node.mesh.skin_deformers.data.length != 1 || node.materials.data.length == 0)
 				continue;
 
-			if (node.materials.data[0] == material)
-				return true;
+			for (int j = 0; j < node.mesh.material_parts.data.length; ++j) {
+				unowned ufbx.MeshPart part = node.mesh.material_parts.data[j];
+				if (part.num_triangles != 0 && part.index < node.materials.data.length
+					&& node.materials.data[part.index] == material)
+					return true;
+			}
 		}
 
+		return false;
+	}
+
+	private static bool material_uses_static_mesh(ufbx.Scene scene, ufbx.Material material)
+	{
+		for (int i = 0; i < scene.nodes.data.length; ++i) {
+			unowned ufbx.Node node = scene.nodes.data[i];
+			if (node.mesh == null || node.mesh.skin_deformers.data.length == 1)
+				continue;
+			for (int j = 0; j < node.mesh.material_parts.data.length; ++j) {
+				unowned ufbx.MeshPart part = node.mesh.material_parts.data[j];
+				if (part.num_triangles != 0 && part.index < node.materials.data.length
+					&& node.materials.data[part.index] == material)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private static bool needs_skinned_fallback(ufbx.Scene scene, GLib.HashTable<unowned ufbx.Material, string> materials)
+	{
+		for (int i = 0; i < scene.nodes.data.length; ++i) {
+			unowned ufbx.Node node = scene.nodes.data[i];
+			if (node.mesh == null || node.mesh.skin_deformers.data.length != 1)
+				continue;
+			for (int j = 0; j < node.mesh.material_parts.data.length; ++j) {
+				unowned ufbx.MeshPart part = node.mesh.material_parts.data[j];
+				if (part.num_triangles != 0
+					&& (part.index >= node.materials.data.length || !materials.contains(node.materials.data[part.index])))
+					return true;
+			}
+		}
 		return false;
 	}
 
@@ -1041,6 +1136,7 @@ public class FBXImporter
 			Database db = new Database(project);
 			GLib.HashTable<string, string> imported_textures = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
 			GLib.HashTable<unowned ufbx.Material, string> imported_materials = new GLib.HashTable<unowned ufbx.Material, string>(GLib.direct_hash, GLib.direct_equal);
+			GLib.HashTable<unowned ufbx.Material, string> imported_skinned_materials = new GLib.HashTable<unowned ufbx.Material, string>(GLib.direct_hash, GLib.direct_equal);
 
 			// Import animations.
 			StateMachineResource? smr = null;
@@ -1175,11 +1271,17 @@ public class FBXImporter
 					materials_path = materials_file.get_path();
 				}
 
+				GLib.GenericArray<string> material_names = material_resource_names(scene);
+				GLib.HashTable<string, bool> used_material_resources = new GLib.HashTable<string, bool>(GLib.str_hash, GLib.str_equal);
+				for (int i = 0; i < material_names.length; ++i) {
+					string filename = Path.build_filename(materials_path, material_names[i] + ".material");
+					used_material_resources[ResourceId.name(ResourceId.normalize(project.resource_filename(filename)))] = true;
+				}
 				// Extract materials.
 				for (size_t i = 0; i < scene.materials.data.length; ++i) {
 					unowned ufbx.Material material = scene.materials.data[i];
 
-					string material_filename = Path.build_filename(materials_path, (string)material.name.data + ".png");
+					string material_filename = Path.build_filename(materials_path, material_names[(uint)i] + ".png");
 					GLib.File material_file  = GLib.File.new_for_path(material_filename);
 					string material_path     = material_file.get_path();
 
@@ -1387,7 +1489,9 @@ public class FBXImporter
 						}
 					}
 
-					if (smr != null && material_uses_skinning(scene, material))
+					bool uses_skinning = smr != null && material_uses_skinning(scene, material);
+					bool uses_static_mesh = material_uses_static_mesh(scene, material);
+					if (uses_skinning && !uses_static_mesh)
 						shader += "+SKINNING";
 
 					masking = masking && albedo_map != null;
@@ -1413,10 +1517,33 @@ public class FBXImporter
 						return ImportResult.ERROR;
 
 					imported_materials.set(material, material_resource_name);
+					if (uses_skinning && uses_static_mesh) {
+						string skinned_name = material_resource_name + "_skinned";
+						while (used_material_resources.contains(skinned_name))
+							skinned_name += "_skinned";
+						used_material_resources[skinned_name] = true;
+						MaterialResource skinned = MaterialResource.mesh(db, Guid.new_guid()
+							, albedo_map, normal_map, metallic_map, roughness_map, ao_map, emission_map
+							, albedo, metallic, roughness, emission_color, emission_intensity
+							, "mesh+SKINNING", masking);
+						if (skinned.save(project, skinned_name) != 0)
+							return ImportResult.ERROR;
+						imported_skinned_materials[material] = skinned_name;
+					} else if (uses_skinning) {
+						imported_skinned_materials[material] = material_resource_name;
+					}
 				}
 			}
 
 			if (options.import_units) {
+				string skinned_fallback_material = "core/fallback/fallback";
+				if (smr != null && needs_skinned_fallback(scene, imported_skinned_materials)) {
+					skinned_fallback_material = resource_name + "_fbx_skinned_fallback";
+					MaterialResource fallback = MaterialResource.mesh(db, Guid.new_guid());
+					db.set_string(fallback._id, "shader", "mesh+SKINNING");
+					if (fallback.save(project, skinned_fallback_material) != 0)
+						return ImportResult.ERROR;
+				}
 				// Generate or modify existing .unit.
 				create_object_types(db);
 				Guid unit_id;
@@ -1431,6 +1558,8 @@ public class FBXImporter
 					, scene
 					, scene.root_node
 					, imported_materials
+					, imported_skinned_materials
+					, skinned_fallback_material
 					);
 
 				if (options.import_animation && options.new_skeleton && smr != null) {

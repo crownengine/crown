@@ -346,10 +346,18 @@ INSTANCE_ID(StateMachineId)
 /// @ingroup World
 struct MeshRendererDesc
 {
+	struct MaterialDesc
+	{
+		StringId64 material_resource;
+		StringId32 slot; ///< Name of the material slot.
+		u32 _pad;
+	};
+
 	StringId64 mesh_resource;     ///< Name of .mesh resource.
-	StringId64 material_resource; ///< Name of .material resource.
 	StringId32 geometry_name;     ///< Name of geometry inside .mesh resource.
 	u32 flags;                    ///< RenderableFlags::Enum
+	u32 num_materials;           ///< Number of MaterialDesc entries following this header.
+	u32 _pad;
 };
 
 /// Sprite renderer description.

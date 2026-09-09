@@ -392,16 +392,14 @@ namespace LevelEditorApi
 		, Guid component_id
 		, string mesh_resource
 		, string geometry_name
-		, string material_resource
 		, bool visible
 		, bool cast_shadows
 		)
 	{
-		return "LevelEditor:add_mesh_component(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s)".printf(id.to_string()
+		return "LevelEditor:add_mesh_component(\"%s\", \"%s\", \"%s\", \"%s\", %s, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, mesh_resource
 			, geometry_name
-			, material_resource
 			, Lua.bool(visible)
 			, Lua.bool(cast_shadows)
 			);
@@ -733,18 +731,22 @@ namespace LevelEditorApi
 	public string set_mesh(Guid id
 		, string mesh_resource
 		, string geometry
-		, string material
 		, bool visible
 		, bool cast_shadows
 		)
 	{
-		return "LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", \"%s\", \"%s\", %s, %s)".printf(id.to_string()
+		return "LevelEditor._objects[\"%s\"]:set_mesh(\"%s\", \"%s\", %s, %s)".printf(id.to_string()
 			, mesh_resource
 			, geometry
-			, material
 			, Lua.bool(visible)
 			, Lua.bool(cast_shadows)
 			);
+	}
+
+	public string set_mesh_material(Guid id, string slot, string material_resource)
+	{
+		string escaped_slot = escape_json(slot).replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+		return "LevelEditor._objects[\"%s\"]:set_mesh_material(\"%s\", \"%s\")".printf(id.to_string(), escaped_slot, escape_json(material_resource));
 	}
 
 	public string set_sprite(Guid id

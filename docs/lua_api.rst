@@ -1397,11 +1397,17 @@ Mesh
 **mesh_instance** (rw, unit) : Id
 	Returns the ID of the mesh owned by the *unit*, or ``nil``.
 
-**mesh_material** (rw, mesh) : Material
-	Returns the material of the *mesh*.
+**mesh_material** (rw, mesh, [slot]) : Material
+    Returns the material bound to *slot*, or the first slot's material when
+    *slot* is omitted or ``nil``. The slot must exist on the mesh instance.
 
-**mesh_set_material** (rw, mesh, material)
-	Sets the *material* of the *mesh*.
+**mesh_set_material** (rw, mesh, [slot], material_resource)
+    Assigns *material_resource* to the specified *slot*. For backwards
+    compatibility, omitting *slot* assigns the ``default`` slot. If the mesh has
+    no ``default`` slot, assigning it assigns every slot.
+
+**mesh_has_material** (rw, mesh, slot) : bool
+    Returns whether the *mesh* instance has the specified *slot*.
 
 **mesh_set_visible** (rw, mesh, visible)
 	Sets whether the *mesh* is *visible*.

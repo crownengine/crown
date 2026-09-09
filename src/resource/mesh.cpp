@@ -33,6 +33,7 @@
 #   include "resource/mesh_fbx.h"
 #   include "resource/mesh_obj.h"
 #   include "resource/mesh_resource.h"
+#   include <algorithm>
 #   include <bx/error.h>
 #   include <bx/readerwriter.h>
 #   include <mikktspace.h>
@@ -89,6 +90,7 @@ namespace mesh
 
 		array::clear(g._vertex_buffer);
 		array::clear(g._index_buffer);
+		array::clear(g._material_ranges);
 	}
 
 	bool has_normals(const Geometry &g)
@@ -385,6 +387,60 @@ namespace mesh
 		return 0;
 	}
 
+	static void merge_material_ranges(Geometry &g)
+	{
+		bool has_duplicate_slots = false;
+		for (u32 i = 0; i < array::size(g._material_ranges); ++i) {
+			for (u32 j = 0; j < i; ++j) {
+				if (g._material_ranges[i].slot == g._material_ranges[j].slot) {
+					has_duplicate_slots = true;
+					break;
+				}
+			}
+			if (has_duplicate_slots)
+				break;
+		}
+		if (!has_duplicate_slots)
+			return;
+
+		const u32 num_ranges = array::size(g._material_ranges);
+		u32 write = 0;
+		u32 i = 0;
+		while (i < num_ranges) {
+			const StringId32 slot = g._material_ranges[i].slot;
+			const u32 index_offset = g._material_ranges[i].index_offset;
+			u32 num_indices = g._material_ranges[i].num_indices;
+			u32 group_end = i + 1;
+			for (;;) {
+				u32 j = group_end;
+				while (j < num_ranges && g._material_ranges[j].slot != slot)
+					++j;
+				if (j == num_ranges)
+					break;
+
+				const MeshMaterialRange range = g._material_ranges[j];
+				const u32 insertion_offset = g._material_ranges[group_end - 1].index_offset
+					+ g._material_ranges[group_end - 1].num_indices;
+				std::rotate(array::begin(g._index_buffer) + insertion_offset
+					, array::begin(g._index_buffer) + range.index_offset
+					, array::begin(g._index_buffer) + range.index_offset + range.num_indices
+					);
+
+				for (u32 k = j; k > group_end; --k) {
+					g._material_ranges[k] = g._material_ranges[k - 1];
+					g._material_ranges[k].index_offset += range.num_indices;
+				}
+				g._material_ranges[group_end] = range;
+				g._material_ranges[group_end].index_offset = insertion_offset;
+				num_indices += range.num_indices;
+				++group_end;
+			}
+			g._material_ranges[write++] = { slot, index_offset, num_indices };
+			i = group_end;
+		}
+		array::resize(g._material_ranges, write);
+	}
+
 	static void geometry_names(Vector<DynamicString> &names, const Mesh &m, const DynamicString &geometry)
 	{
 		auto cur = hash_map::begin(m._nodes);
@@ -509,6 +565,10 @@ namespace mesh
 			if (calculate_tangents)
 				generate_tangent_space(*geo);
 			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
+			if (array::empty(geo->_material_ranges))
+				array::push_back(geo->_material_ranges, { STRING_ID_32("default", UINT32_C(0x5974b5ec)), 0, array::size(geo->_index_buffer) });
+			else
+				mesh::merge_material_ranges(*geo);
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
 			u32 stride = mesh::vertex_stride(*geo);
@@ -521,6 +581,14 @@ namespace mesh
 			opts.write(array::size(geo->_vertex_buffer) / stride);
 			opts.write(stride);
 			opts.write(array::size(geo->_index_buffer));
+
+			opts.write(array::size(geo->_material_ranges));
+			for (u32 i = 0; i < array::size(geo->_material_ranges); ++i) {
+				const MeshMaterialRange &range = geo->_material_ranges[i];
+				opts.write(range.slot);
+				opts.write(range.index_offset);
+				opts.write(range.num_indices);
+			}
 
 			opts.write(geo->_vertex_buffer);
 			opts.write(array::begin(geo->_index_buffer), array::size(geo->_index_buffer) * sizeof(u16));
@@ -608,6 +676,7 @@ Geometry::Geometry(Allocator &a)
 	, _uv_indices(a)
 	, _vertex_buffer(a)
 	, _index_buffer(a)
+	, _material_ranges(a)
 {
 	mesh::reset(*this);
 }

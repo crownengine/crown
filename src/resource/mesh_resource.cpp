@@ -125,7 +125,10 @@ namespace mesh_resource_internal
 			const u32 vsize = num_verts*stride;
 			const u32 isize = num_inds*sizeof(u16);
 
-			const u32 size = sizeof(MeshGeometry) + vsize + isize;
+			u32 num_material_ranges;
+			br.read(num_material_ranges);
+			const u32 rsize = num_material_ranges * sizeof(MeshMaterialRange);
+			const u32 size = sizeof(MeshGeometry) + rsize + vsize + isize;
 
 			MeshGeometry *mg = (MeshGeometry *)a.allocate(size, alignof(MeshGeometry));
 			mg->obb             = obb;
@@ -135,10 +138,13 @@ namespace mesh_resource_internal
 			mg->index_buffer    = BGFX_INVALID_HANDLE;
 			mg->vertices.num    = num_verts;
 			mg->vertices.stride = stride;
-			mg->vertices.data   = (char *)&mg[1];
+			mg->num_material_ranges = num_material_ranges;
+			mg->material_ranges = (MeshMaterialRange *)&mg[1];
+			mg->vertices.data   = (char *)(mg->material_ranges + num_material_ranges);
 			mg->indices.num     = num_inds;
 			mg->indices.data    = mg->vertices.data + vsize;
 
+			br.read(mg->material_ranges, rsize);
 			br.read(mg->vertices.data, vsize);
 			br.read(mg->indices.data, isize);
 
@@ -309,7 +315,30 @@ namespace mesh
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
 		}
 
-		return parse_indices(g, obj["indices"], opts);
+		RETURN_IF_ERROR(parse_indices(g, obj["indices"], opts));
+		if (json_object::has(obj, "material_ranges")) {
+			JsonArray ranges(ta);
+			RETURN_IF_ERROR(sjson::parse_array(ranges, obj["material_ranges"]));
+			u32 next_index = 0;
+			for (u32 i = 0; i < array::size(ranges); ++i) {
+				JsonObject range(ta);
+				RETURN_IF_ERROR(sjson::parse_object(range, ranges[i]));
+				DynamicString slot(ta);
+				RETURN_IF_ERROR(sjson::parse_string(slot, range["slot"]));
+				const s32 offset = RETURN_IF_ERROR(sjson::parse_int(range["index_offset"]));
+				const s32 count = RETURN_IF_ERROR(sjson::parse_int(range["num_indices"]));
+				RETURN_IF_FALSE(MESH_RESOURCE
+					, !slot.empty() && offset >= 0 && (u32)offset == next_index
+					&& count > 0 && count % 3 == 0
+					&& (u32)count <= array::size(g._position_indices) - next_index
+					, opts, "Material ranges must cover all triangles in index order without gaps or overlaps");
+				array::push_back(g._material_ranges, { slot.to_string_id(), (u32)offset, (u32)count });
+				next_index += (u32)count;
+			}
+			RETURN_IF_FALSE(MESH_RESOURCE, next_index == array::size(g._position_indices)
+				&& !array::empty(ranges), opts, "Material ranges must cover all triangles");
+		}
+		return 0;
 	}
 
 	s32 parse_geometries(Mesh &m, const char *sjson, CompileOptions &opts)

@@ -404,18 +404,8 @@ public class OBJImporter
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
-					string material_name = "core/fallback/fallback";
-					unowned ufbx.Material? mesh_instance_material = null;
-					for (int ii = 0; mesh_instance_material == null && ii < node.mesh.material_parts.data.length; ++ii) {
-						unowned ufbx.MeshPart mesh_part = node.mesh.material_parts.data[ii];
-						if (mesh_part.num_triangles > 0 && mesh_part.index < node.materials.data.length)
-							mesh_instance_material = node.materials.data[mesh_part.index];
-					}
-					if (mesh_instance_material != null && imported_materials.contains(mesh_instance_material))
-						material_name = imported_materials[mesh_instance_material];
-
 					unit.set_component_string(component_id, "data.geometry_name", editor_name);
-					unit.set_component_string(component_id, "data.material", material_name);
+					FBXImporter.import_material_slots(db, component_id, node, imported_materials);
 					unit.set_component_string(component_id, "data.mesh_resource", resource_name);
 					unit.set_component_bool  (component_id, "data.visible", true);
 				}
@@ -698,11 +688,12 @@ public class OBJImporter
 					materials_path = materials_file.get_path();
 				}
 
+				GLib.GenericArray<string> material_names = FBXImporter.material_resource_names(scene);
 				// Extract materials.
 				for (size_t i = 0; i < scene.materials.data.length; ++i) {
 					unowned ufbx.Material material = scene.materials.data[i];
 
-					string material_filename = Path.build_filename(materials_path, (string)material.name.data + ".png");
+					string material_filename = Path.build_filename(materials_path, material_names[(uint)i] + ".png");
 					GLib.File material_file  = GLib.File.new_for_path(material_filename);
 					string material_path     = material_file.get_path();
 
