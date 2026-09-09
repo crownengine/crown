@@ -257,7 +257,11 @@ void ResourceManager::complete_requests()
 				// put online() first. Put the request back into the loaded queue and stop processing
 				// until the next call.
 				_resource_loader->add_loaded(rr);
+#if CROWN_PLATFORM_EMSCRIPTEN
 				break;
+#else
+				continue;
+#endif
 			}
 
 			++pkg_data.online_sequence_num;
