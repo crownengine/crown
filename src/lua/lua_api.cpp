@@ -298,6 +298,13 @@ static int input_device_name(lua_State *L, const InputDevice &dev)
 	return 1;
 }
 
+static int window_is_fullscreen(lua_State *L)
+{
+	LuaStack stack(L, +1);
+	stack.push_bool(device()->_window->is_fullscreen());
+	return 1;
+}
+
 static int input_device_connected(lua_State *L, const InputDevice &dev)
 {
 	LuaStack stack(L, +1);
@@ -4500,6 +4507,7 @@ void load_api(LuaEnvironment &env)
 			device()->_window->show_cursor(stack.get_bool(1));
 			return 0;
 		});
+	env.add_module_function("Window", "is_fullscreen", window_is_fullscreen);
 	env.add_module_function("Window", "set_fullscreen", [](lua_State *L) {
 			LuaStack stack(L);
 			device()->_window->set_fullscreen(stack.get_bool(1));

@@ -970,6 +970,11 @@ struct WindowAndroid : public Window
 		CE_UNUSED(show);
 	}
 
+	bool is_fullscreen() override
+	{
+		return true;
+	}
+
 	void set_fullscreen(bool fullscreen) override
 	{
 		CE_UNUSED(fullscreen);

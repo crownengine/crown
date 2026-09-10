@@ -92,6 +92,9 @@ struct Window
 	/// Sets whether to @a show the cursor.
 	virtual void show_cursor(bool show) = 0;
 
+	/// Returns whether the window is fullscreen.
+	virtual bool is_fullscreen() = 0;
+
 	/// Sets whether the window is @a fullscreen.
 	virtual void set_fullscreen(bool fullscreen) = 0;
 

@@ -466,6 +466,7 @@ static bool push_event(const OsEvent &ev);
 	DL_IMPORT_FUNC(XFreeCursor,                int,         (::Display *, Cursor));                                                                                                                           \
 	DL_IMPORT_FUNC(XFreePixmap,                int,         (::Display *, Pixmap));                                                                                                                           \
 	DL_IMPORT_FUNC(XGetWindowAttributes,       Status,      (::Display *, ::Window, XWindowAttributes *));                                                                                                    \
+	DL_IMPORT_FUNC(XGetWindowProperty,         int,         (::Display *, ::Window, Atom, long, long, Bool, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **));                        \
 	DL_IMPORT_FUNC(XGrabPointer,               int,         (::Display *, ::Window, Bool, unsigned int, int, int, ::Window, Cursor, Time));                                                                   \
 	DL_IMPORT_FUNC(XIconifyWindow,             Status,      (::Display *, ::Window, int));                                                                                                                    \
 	DL_IMPORT_FUNC(XInitThreads,               Status,      (void));                                                                                                                                          \
@@ -545,6 +546,8 @@ XKBCOMMON_IMPORT();
 	DL_IMPORT_FUNC(libdecor_frame_map,                      void,             (libdecor_frame *));                                             \
 	DL_IMPORT_FUNC(libdecor_frame_set_app_id,               void,             (libdecor_frame *, const char *));                               \
 	DL_IMPORT_FUNC(libdecor_frame_set_title,                void,             (libdecor_frame *, const char *));                               \
+	DL_IMPORT_FUNC(libdecor_frame_set_fullscreen,           void,             (libdecor_frame *, wl_output *));                                \
+	DL_IMPORT_FUNC(libdecor_frame_unset_fullscreen,         void,             (libdecor_frame *));                                             \
 	DL_IMPORT_FUNC(libdecor_frame_get_xdg_surface,          xdg_surface *,    (libdecor_frame *));                                             \
 	DL_IMPORT_FUNC(libdecor_frame_get_xdg_toplevel,         xdg_toplevel *,   (libdecor_frame *));                                             \
 	DL_IMPORT_FUNC(libdecor_state_new,                      libdecor_state *, (int, int ));                                                    \
@@ -637,6 +640,7 @@ struct SystemWayland : public System
 	bool pointer_inside_window;
 	bool pointer_inside_content;
 	bool cursor_visible;
+	std::atomic_bool fullscreen;
 	MouseCursor::Enum cursor;
 	CursorMode::Enum cursor_mode;
 	DeviceEventQueue *queue;
@@ -681,6 +685,7 @@ struct SystemWayland : public System
 		, pointer_inside_window(false)
 		, pointer_inside_content(false)
 		, cursor_visible(true)
+		, fullscreen(false)
 		, cursor(MouseCursor::ARROW)
 		, cursor_mode(CursorMode::NORMAL)
 		, queue(&event_queue)
@@ -1369,7 +1374,17 @@ static void xdg_toplevel_handle_configure(void *user_data
 	)
 {
 	SystemWayland *wl = (SystemWayland *)user_data;
-	CE_UNUSED_2(toplevel, states);
+	CE_UNUSED(toplevel);
+
+	wl->fullscreen = false;
+	const uint32_t *state = (const uint32_t *)states->data;
+	const uint32_t num_states = states->size / sizeof(*state);
+	for (uint32_t ii = 0; ii < num_states; ++ii) {
+		if (state[ii] == XDG_TOPLEVEL_STATE_FULLSCREEN) {
+			wl->fullscreen = true;
+			break;
+		}
+	}
 
 	if (width > 0 && height > 0) {
 		wl->queue->push_resolution_event((u16)width, (u16)height);
@@ -1414,6 +1429,7 @@ struct SystemX11 : public System
 	bool xwayland;
 	bool cursor_inside_window;
 	bool motion_received;
+	std::atomic_bool fullscreen;
 	DeviceEventQueue &queue;
 
 	explicit SystemX11(DeviceEventQueue &event_queue)
@@ -1437,6 +1453,7 @@ struct SystemX11 : public System
 		, xwayland(false)
 		, cursor_inside_window(false)
 		, motion_received(false)
+		, fullscreen(false)
 		, queue(event_queue)
 	{
 	}
@@ -1615,6 +1632,46 @@ struct SystemX11 : public System
 					, event.xconfigure.height
 					);
 				break;
+
+			case PropertyNotify: {
+				if (event.xproperty.atom != net_wm_state)
+					break;
+
+				Atom type;
+				int format;
+				unsigned long num_items;
+				unsigned long bytes_after;
+				unsigned char *data = NULL;
+				const int result = XGetWindowProperty(display
+					, window
+					, net_wm_state
+					, 0
+					, 1024
+					, False
+					, XA_ATOM
+					, &type
+					, &format
+					, &num_items
+					, &bytes_after
+					, &data
+					);
+				if (result == Success) {
+					fullscreen = false;
+					if (type == XA_ATOM && format == 32) {
+						const Atom *states = (const Atom *)data;
+						for (unsigned long ii = 0; ii < num_items; ++ii) {
+							if (states[ii] == net_wm_state_fullscreen) {
+								fullscreen = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if (data != NULL)
+					XFree(data);
+				break;
+			}
 
 			case ButtonPress:
 			case ButtonRelease: {
@@ -1877,6 +1934,7 @@ struct WindowX11 : public Window
 		win_attribs.background_pixmap = 0;
 		win_attribs.border_pixel = 0;
 		win_attribs.event_mask = FocusChangeMask
+			| PropertyChangeMask
 			| StructureNotifyMask
 			;
 
@@ -2009,6 +2067,11 @@ struct WindowX11 : public Window
 			);
 	}
 
+	bool is_fullscreen() override
+	{
+		return _x11->fullscreen;
+	}
+
 	void set_fullscreen(bool full) override
 	{
 		XEvent xev;
@@ -2123,8 +2186,6 @@ struct WindowWayland : public Window
 	struct xdg_toplevel *xdg_toplevel;
 	char floating_title[256];
 	bool title_dirty;
-	bool requested_fullscreen;
-	bool fullscreen_dirty;
 
 	WindowWayland()
 		: surface(NULL)
@@ -2139,8 +2200,6 @@ struct WindowWayland : public Window
 		, xdg_surface(NULL)
 		, xdg_toplevel(NULL)
 		, title_dirty(false)
-		, requested_fullscreen(false)
-		, fullscreen_dirty(false)
 	{
 		memset(floating_title, 0, sizeof(floating_title));
 	}
@@ -2284,22 +2343,24 @@ struct WindowWayland : public Window
 		wayland_apply_cursor(_wl);
 	}
 
+	bool is_fullscreen() override
+	{
+		return _wl->fullscreen;
+	}
+
 	void set_fullscreen(bool full) override
 	{
-		requested_fullscreen = full;
-
-		if (xdg_toplevel == NULL)
-			return;
-
 		if (frame != NULL) {
-			fullscreen_dirty = true;
-			return;
+			if (full)
+				libdecor_frame_set_fullscreen(frame, NULL);
+			else
+				libdecor_frame_unset_fullscreen(frame);
+		} else if (xdg_toplevel != NULL) {
+			if (full)
+				xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
+			else
+				xdg_toplevel_unset_fullscreen(xdg_toplevel);
 		}
-
-		if (full)
-			xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
-		else
-			xdg_toplevel_unset_fullscreen(xdg_toplevel);
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
@@ -2414,6 +2475,7 @@ struct WindowWayland : public Window
 			xdg_surface_destroy(xdg_surface);
 		}
 		xdg_surface = NULL;
+		_wl->fullscreen = false;
 	}
 
 	void apply_pending_state()
@@ -2421,14 +2483,6 @@ struct WindowWayland : public Window
 		if (title_dirty) {
 			libdecor_frame_set_title(frame, floating_title[0] == '\0' ? "CrownRuntime" : floating_title);
 			title_dirty = false;
-		}
-
-		if (fullscreen_dirty && xdg_toplevel != NULL) {
-			if (requested_fullscreen)
-				xdg_toplevel_set_fullscreen(xdg_toplevel, NULL);
-			else
-				xdg_toplevel_unset_fullscreen(xdg_toplevel);
-			fullscreen_dirty = false;
 		}
 	}
 };
@@ -2441,6 +2495,9 @@ static void handle_configure(libdecor_frame *frame
 	WindowWayland *window = (WindowWayland *)user_data;
 	DeviceEventQueue &queue = *_wl->queue;
 	int width, height;
+	enum libdecor_window_state window_state;
+	if (libdecor_configuration_get_window_state(configuration, &window_state))
+		_wl->fullscreen = (window_state & LIBDECOR_WINDOW_STATE_FULLSCREEN) != 0;
 
 	if (!libdecor_configuration_get_content_size(configuration, frame, &width, &height)) {
 		width  = window->requested_width;

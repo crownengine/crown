@@ -135,6 +135,8 @@ struct WindowEmscripten : public Window
 		CE_UNUSED(show);
 	}
 
+	bool is_fullscreen() override;
+
 	void set_fullscreen(bool fullscreen) override
 	{
 		CE_UNUSED(fullscreen);
@@ -548,6 +550,7 @@ struct EmscriptenDevice
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	bool _pointer_locked;
+	bool _fullscreen;
 	bool _is_firefox;
 	bool _joypad_polled;
 	Joypad _joypad;
@@ -556,6 +559,7 @@ struct EmscriptenDevice
 		: _events(a)
 		, _queue(push_event)
 		, _pointer_locked(false)
+		, _fullscreen(false)
 		, _is_firefox(crown_js_is_firefox() != 0)
 		, _joypad_polled(false)
 		, _joypad(_queue, *this)
@@ -756,6 +760,18 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
+	static EM_BOOL fullscreenchange_callback(int event_type, const EmscriptenFullscreenChangeEvent *event, void *user_data)
+	{
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+
+		if (event_type == EMSCRIPTEN_EVENT_FULLSCREENCHANGE) {
+			ed->_fullscreen = event->isFullscreen;
+			return EM_EVENT_STOP;
+		}
+
+		return EM_EVENT_PROPAGATE;
+	}
+
 	static EM_BOOL pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
 	{
 		CE_UNUSED_3(event_type, reserved, user_data);
@@ -799,6 +815,7 @@ struct EmscriptenDevice
 
 		emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockchange_callback);
 		emscripten_set_pointerlockerror_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockerror_callback);
+		emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::fullscreenchange_callback);
 
 		emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::resize_callback);
 
@@ -826,6 +843,11 @@ void Joypad::xy_buttons(u8 &x_button, u8 &y_button) const
 }
 
 static EmscriptenDevice *s_emscripten_device;
+
+bool WindowEmscripten::is_fullscreen()
+{
+	return s_emscripten_device->_fullscreen;
+}
 
 static bool push_event(const OsEvent &ev)
 {

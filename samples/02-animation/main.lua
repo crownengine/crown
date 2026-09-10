@@ -11,8 +11,7 @@ Game = Game or {
 	camera = nil,
 	player = nil,
 	players = {},
-	player_i = 1,
-	fullscreen = false
+	player_i = 1
 }
 
 GameBase.game = Game
@@ -38,8 +37,7 @@ function Game.update(dt)
 
 	-- Toggle fullscreen.
 	if Keyboard.released(Keyboard.button_id("0")) then
-		Game.fullscreen = not Game.fullscreen
-		Window.set_fullscreen(Game.fullscreen)
+		Window.set_fullscreen(not Window.is_fullscreen())
 	end
 
 	-- Cycle through characters.

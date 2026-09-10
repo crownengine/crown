@@ -874,6 +874,11 @@ struct WindowWin : public Window
 		SetCursor(s_windows_device->_hcursor);
 	}
 
+	bool is_fullscreen() override
+	{
+		return false;
+	}
+
 	void set_fullscreen(bool fullscreen) override
 	{
 		CE_UNUSED(fullscreen);

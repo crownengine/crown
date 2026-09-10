@@ -31,6 +31,7 @@ Changelog
 * Runtime: animated meshes have now correct pre-computed bounds.
 * Runtime: added fog support to unlit materials and a new ``+NO_FOG`` option to the ``mesh`` shader.
 * Data Compiler: improved performances by compiling resources in parallel.
+* Lua: added ``Window.is_fullscreen()``.
 
 **Fixes**
 
