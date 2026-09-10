@@ -2147,7 +2147,6 @@ public class LevelEditorApplication : Gtk.Application
 			}
 		} else if (msg_type == "sound_spawned") {
 			Guid id = Guid.parse((string)msg["id"]);
-			string name = (string)msg["name"];
 			GLib.GenericArray<Value?> pos = (GLib.GenericArray<Value?>)msg["position"];
 			GLib.GenericArray<Value?> rot = (GLib.GenericArray<Value?>)msg["rotation"];
 			GLib.GenericArray<Value?> scl = (GLib.GenericArray<Value?>)msg["scale"];
@@ -2156,7 +2155,6 @@ public class LevelEditorApplication : Gtk.Application
 			bool loop = (bool)msg["loop"];
 
 			_level.on_sound_spawned(id
-				, name
 				, Vector3.from_array(pos)
 				, Quaternion.from_array(rot)
 				, Vector3.from_array(scl)
