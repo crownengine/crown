@@ -5,3 +5,7 @@
 .toolbar {
 	-gtk-icon-size: 24px;
 }
+
+entry.no-resource-thumbnail image {
+	-gtk-icon-size: 0px;
+}

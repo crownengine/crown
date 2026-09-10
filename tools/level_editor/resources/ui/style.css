@@ -9,6 +9,10 @@ entry {
 	padding-right: 4px;
 }
 
+entry.no-resource-thumbnail image {
+	margin: 0px;
+}
+
 headerbar {
 	min-height: 36px;
 }

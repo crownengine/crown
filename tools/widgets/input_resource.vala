@@ -182,6 +182,18 @@ public class InputResource : InputField
 		if (!_name_unset && thumbnails_enabled)
 			pixbuf = _thumbnail_cache.get(_type, _name.text, 16);
 
+#if CROWN_GTK3
+		if (_name_unset || !thumbnails_enabled)
+			_name.get_style_context().add_class("no-resource-thumbnail");
+		else
+			_name.get_style_context().remove_class("no-resource-thumbnail");
+#else
+		if (_name_unset || !thumbnails_enabled)
+			_name.add_css_class("no-resource-thumbnail");
+		else
+			_name.remove_css_class("no-resource-thumbnail");
+#endif
+
 		if (_name_unset || !thumbnails_enabled) {
 			_name.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, null);
 		} else if (pixbuf != null) {
