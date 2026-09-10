@@ -1198,6 +1198,7 @@ public class LevelEditorApplication : Gtk.Application
 	public Gtk.CssProvider _css_provider;
 	public ProjectBrowser _project_browser;
 	public DependenciesDialog _dependencies_dialog;
+	public SelectResourceDialog _open_level_dialog;
 	public EditorViewport _editor_viewport;
 	public LevelTreeView _level_treeview;
 	public LevelLayersTreeView _level_layers_treeview;
@@ -2892,32 +2893,24 @@ public class LevelEditorApplication : Gtk.Application
 		}
 	}
 
-	public void do_open_level(string path)
+	public void on_open_level_resource_selected(string type, string name)
 	{
-		string resource_filename = _project.resource_filename(path);
-		string resource_path     = ResourceId.normalize(resource_filename);
-		string resource_name     = ResourceId.name(resource_path);
-
-		load_level(resource_name);
+		load_level(name);
+		_open_level_dialog.hide();
 	}
 
 	public void on_open_level_from_menubar(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		OpenResourceDialog dlg = new OpenResourceDialog(_("Open Level...")
-			, this.active_window
-			, OBJECT_TYPE_LEVEL
-			, _project
-			);
-		dlg.safer_response.connect((response_id, path) => {
-				if (response_id == Gtk.ResponseType.ACCEPT && path != null)
-					do_open_level(path);
-				dlg.destroy();
-			});
+		if (_open_level_dialog == null) {
+			_open_level_dialog = new_select_resource_dialog(OBJECT_TYPE_LEVEL);
+			_open_level_dialog.resource_selected.connect(on_open_level_resource_selected);
+		}
 #if CROWN_GTK3
-		dlg.show_all();
+		_open_level_dialog.show_all();
 #else
-		dlg.show();
+		_open_level_dialog.show();
 #endif
+		_open_level_dialog.present();
 	}
 
 	public void on_open_level(GLib.SimpleAction action, GLib.Variant? param)

@@ -24,6 +24,7 @@ Changelog
 * Tools: add 'New Package...' menu entry in the Project Browser.
 * Tools: added the ability do delete resources in the Project Browser via ``Delete`` keyboard shortcut.
 * Tools: resources and folders can now be revealed while the Project Browser is in search mode.
+* Tools: opening levels now uses the Resource Chooser.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.
