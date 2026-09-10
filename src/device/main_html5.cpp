@@ -139,7 +139,10 @@ struct WindowEmscripten : public Window
 
 	void set_fullscreen(bool fullscreen) override
 	{
-		CE_UNUSED(fullscreen);
+		if (fullscreen)
+			emscripten_request_fullscreen("#" CROWN_HTML5_CANVAS_NAME, true);
+		else
+			emscripten_exit_fullscreen();
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
