@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-10T04:42:23+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-10T08:42:09+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -263,6 +263,7 @@
 <li><p>Tools: fixed rare editor lockups.</p></li>
 <li><p>Tools: fixed revealing a resource while the Project Browser was in search mode.</p></li>
 <li><p>Tools: fixed search bar not resetting when switching to another new level.</p></li>
+<li><p>Tools: fixed new sound sources defaulting to a nonexistent sound resource.</p></li>
 <li><p>Runtime: the camera now ignores the scaling component in its transform.</p></li>
 <li><p>Runtime: fixed rendering of outlines on skinned meshes.</p></li>
 <li><p>Runtime: fixed the resource loader blocking forever in some cases.</p></li>
@@ -280,6 +281,7 @@
 <li><p>Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.</p></li>
 <li><p>Data Compiler: fixed ‘type mismatch’ errors when compiling materials in some cases.</p></li>
 <li><p>Data Compiler: fixed wrong ‘required’ shader generated for some materials.</p></li>
+<li><p>Data Compiler: fixed an error when compiling sound sources with no sound resource.</p></li>
 <li><p>Lua: fixed missing <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code> binding.</p></li>
 <li><p>Lua: fixed an error when type checking SoundWorld instances.</p></li>
 <li><p>Lua: added the documented but missing <code class="docutils literal notranslate"><span class="pre">World.destroy_level()</span></code> function.</p></li>
