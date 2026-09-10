@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.10 --- DD MMM YYYY <v0.64.10>`
 -----------------------------------------
 
+**Fixes**
+
+* Tools: fixed new sound sources defaulting to a nonexistent sound resource.
+
 .. _v0.64.9:
 
 :ref:`0.64.9 --- 10 Sep 2026 <v0.64.9>`

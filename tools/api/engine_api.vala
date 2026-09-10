@@ -347,10 +347,10 @@ namespace LevelEditorApi
 		return "LevelEditor:spawn_skydome(\"%s\")".printf(skydome_name);
 	}
 
-	public string spawn_sound(Guid id, string name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
+	public string spawn_sound(Guid id, string? name, Vector3 pos, Quaternion rot, double range, double volume, bool loop)
 	{
-		return "LevelEditor:spawn_sound_at(\"%s\", \"%s\", %s, %s, %.17g, %.17g, %s)".printf(id.to_string()
-			, name
+		return "LevelEditor:spawn_sound_at(\"%s\", %s, %s, %s, %.17g, %.17g, %s)".printf(id.to_string()
+			, name == null ? "nil" : "\"%s\"".printf(name)
 			, Lua.vector3_elements(pos)
 			, Lua.quaternion_elements(rot)
 			, range

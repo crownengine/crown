@@ -16,11 +16,10 @@ public struct Sound
 		_id = id;
 	}
 
-	public void create(string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
+	public void create(Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
 		_db.create(_id, OBJECT_TYPE_SOUND_SOURCE);
 
-		_db.set_resource(_id, "name", name);
 		set_local_position(pos);
 		set_local_rotation(rot);
 		set_local_scale(scl);

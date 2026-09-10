@@ -732,7 +732,7 @@ function PlaceTool:mouse_up(x, y)
 		level_object:send()
 	elseif self._placeable_type == "sound" then
 		local guid = Device.guid()
-		level_object = LevelEditor:spawn_sound(guid, self._placeable_name, self:position(), Quaternion.identity(), 10.0, 1.0, false)
+		level_object = LevelEditor:spawn_sound(guid, nil, self:position(), Quaternion.identity(), 10.0, 1.0, false)
 		level_object:send()
 	end
 
