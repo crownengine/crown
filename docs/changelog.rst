@@ -64,6 +64,7 @@ Changelog
 * Tools: fixed rare editor lockups.
 * Tools: fixed revealing a resource while the Project Browser was in search mode.
 * Tools: fixed search bar not resetting when switching to another new level.
+* Tools: fixed new sound sources defaulting to a nonexistent sound resource.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.

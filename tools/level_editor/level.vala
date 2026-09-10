@@ -177,12 +177,12 @@ public class Level
 		return 0;
 	}
 
-	public void on_sound_spawned(Guid id, string name, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
+	public void on_sound_spawned(Guid id, Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
 		Sound sound = Sound(_db, id);
-		sound.create(name, pos, rot, scl, range, volume, loop);
+		sound.create(pos, rot, scl, range, volume, loop);
 
-		_db.set_name(id, add_object_name(_sound_names, name));
+		_db.set_name(id, add_object_name(_sound_names, "sound"));
 		_db.add_to_set(_id, "sounds", id);
 	}
 
