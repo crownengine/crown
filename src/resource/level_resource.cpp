@@ -42,8 +42,13 @@ namespace level_resource_internal
 				JsonObject sound(ta);
 				RETURN_IF_ERROR(sjson::parse_object(sound, sounds_json[i]));
 
+				const char *sound_name_json = sound["name"];
+				if (sound_name_json != NULL
+					&& sjson::type(sound_name_json) == JsonValueType::NIL)
+					continue;
+
 				DynamicString sound_name(ta);
-				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound["name"]));
+				RETURN_IF_ERROR(sjson::parse_string(sound_name, sound_name_json));
 				WARN_IF_MISSING(LEVEL_RESOURCE, "sound"
 					, sound_name.c_str()
 					, opts
@@ -51,7 +56,7 @@ namespace level_resource_internal
 				opts.add_requirement("sound", sound_name.c_str());
 
 				LevelSound ls;
-				ls.name     = RETURN_IF_ERROR(sjson::parse_resource_name(sound["name"]));
+				ls.name     = RETURN_IF_ERROR(sjson::parse_resource_name(sound_name_json));
 				ls.position = RETURN_IF_ERROR(sjson::parse_vector3      (sound["position"]));
 				ls.volume   = RETURN_IF_ERROR(sjson::parse_float        (sound["volume"]));
 				ls.range    = RETURN_IF_ERROR(sjson::parse_float        (sound["range"]));
