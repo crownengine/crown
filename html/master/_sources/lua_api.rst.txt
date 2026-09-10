@@ -1784,6 +1784,9 @@ Represents the application window.
 **show_cursor** (show)
 	Sets whether to *show* the cursor.
 
+**is_fullscreen** () : bool
+	Returns whether the window is fullscreen.
+
 **set_fullscreen** (fullscreen)
 	Sets whether the window is *fullscreen*.
 

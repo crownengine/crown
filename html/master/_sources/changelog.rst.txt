@@ -24,12 +24,16 @@ Changelog
 * Tools: add 'New Package...' menu entry in the Project Browser.
 * Tools: added the ability do delete resources in the Project Browser via ``Delete`` keyboard shortcut.
 * Tools: resources and folders can now be revealed while the Project Browser is in search mode.
+* Tools: opening levels now uses the Resource Chooser.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.
 * Runtime: animated meshes have now correct pre-computed bounds.
 * Runtime: added fog support to unlit materials and a new ``+NO_FOG`` option to the ``mesh`` shader.
+* Runtime: HTML5: added fullscreen support.
+* Runtime: Windows: added fullscreen support.
 * Data Compiler: improved performances by compiling resources in parallel.
+* Lua: added ``Window.is_fullscreen()``.
 
 **Fixes**
 
@@ -74,6 +78,7 @@ Changelog
 * Runtime: fixed slow package loading on non-html5 platforms.
 * Runtime: fixed ``PhysicsWorld.actor_add_impulse_at()`` and ``PhysicsWorld.actor_push_at()`` interpreting their world-space positions as offsets from the actor's center of mass.
 * Runtime: fixed ``PhysicsWorld.actor_add_torque_impulse()``, ``PhysicsWorld.actor_push()`` and ``PhysicsWorld.actor_push_at()`` not waking sleeping actors.
+* Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
