@@ -905,7 +905,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.RESOURCE,
 			name = "name",
 			resource_type = OBJECT_TYPE_SOUND,
-			deffault = "",
+			deffault = null,
 			tooltip = _("Sound resource to play."),
 		},
 		PropertyDefinition()
