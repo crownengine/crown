@@ -81,6 +81,7 @@ Changelog
 * Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
+* Data Compiler: fixed an error when compiling sound sources with no sound resource.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
 * Lua: added the documented but missing ``World.destroy_level()`` function.
