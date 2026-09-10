@@ -28,9 +28,19 @@ Android
 
 3. Install LuaJIT dependencies:
 
-.. code::
+.. tabs::
 
-	sudo apt-get install libc6-dev-i386
+	.. group-tab:: Ubuntu >= 20.04
+
+		.. code::
+
+			sudo apt-get install libc6-dev-i386
+
+	.. group-tab:: Arch Linux
+
+		.. code::
+
+			sudo pacman -S lib32-glibc
 
 4. :ref:`Build for Android<build_android>`.
 
@@ -49,31 +59,45 @@ HTML5
 
 3. :ref:`Build for HTML5<build_html5>`.
 
-Linux (Ubuntu >= 20.04)
------------------------
+Linux
+-----
 
 1. Install dependencies:
 
-.. code::
+.. tabs::
 
-	sudo apt install build-essential mesa-common-dev libgl1-mesa-dev \
-	libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext
+	.. group-tab:: Ubuntu >= 20.04
 
-	sudo add-apt-repository ppa:vala-team
-	sudo apt install valac
+		.. code::
 
-	# Optionally, to build docs:
-	sudo apt-get install python3-sphinx
+			sudo apt install build-essential mesa-common-dev libgl1-mesa-dev \
+			libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext
 
-.. note::
+			sudo add-apt-repository ppa:vala-team
+			sudo apt install valac
 
-	If you encounter any errors while adding the Vala PPA, please update
-	``ca-certificates`` first:
+			# Optionally, to build docs:
+			sudo apt-get install python3-sphinx
 
-	.. code::
+		.. note::
 
-		sudo apt update
-		sudo apt install ca-certificates
+			If you encounter any errors while adding the Vala PPA, please update
+			``ca-certificates`` first:
+
+			.. code::
+
+				sudo apt update
+				sudo apt install ca-certificates
+
+	.. group-tab:: Arch Linux
+
+		.. code::
+
+			sudo pacman -S base-devel libglvnd libpulse libx11 libxrandr \
+			libdecor lib32-glibc gtk3 gettext vala
+
+			# Optionally, to build docs:
+			sudo pacman -S python-sphinx
 
 2. :ref:`Build for Linux<build_linux>`.
 
@@ -173,6 +197,7 @@ Open MSYS2 MINGW64 shell:
 	export MINGW=/mingw64
 	make tools-mingw-release64 MAKE_JOBS=4
 
+
 .. _build_vs_code:
 
 Windows (VS Code)
@@ -202,4 +227,3 @@ Windows (VS 2022)
 
 	export MINGW=/mingw64
 	make tools-mingw-release64 MAKE_JOBS=4
-

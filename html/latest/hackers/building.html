@@ -5,21 +5,22 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-15T16:26:58+00:00" /><meta property="og:title" content="Building" />
+    <meta property="article:modified_time" content="2026-09-09T11:52:31+00:00" /><meta property="og:title" content="Building" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/hackers/building.html" />
-<meta property="og:site_name" content="Crown 0.64.8 Manual" />
-<meta property="og:description" content="Getting Source: Prerequisites: Android: Install Android NDK (&gt;= r21e LTS):- https://developer.android.com/ndk/downloads., Set NDK path and ABI version:. Install LuaJIT dependencies:. Build for Android.. HTML5: Install emsdk:- https://emscripten.org/docs/getting_started/down..." />
+<meta property="og:site_name" content="Crown 0.64.9 Manual" />
+<meta property="og:description" content="Getting Source: Prerequisites: Android: Install Android NDK (&gt;= r21e LTS):- https://developer.android.com/ndk/downloads., Set NDK path and ABI version:. Install LuaJIT dependencies:. Ubuntu &gt;= 20.04 Arch Linux Build for Android.. HTML5: Install emsdk:- https://emscripten..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.64.8 Manual" />
-<meta name="description" content="Getting Source: Prerequisites: Android: Install Android NDK (&gt;= r21e LTS):- https://developer.android.com/ndk/downloads., Set NDK path and ABI version:. Install LuaJIT dependencies:. Build for Android.. HTML5: Install emsdk:- https://emscripten.org/docs/getting_started/down..." />
+<meta property="og:image:alt" content="Crown 0.64.9 Manual" />
+<meta name="description" content="Getting Source: Prerequisites: Android: Install Android NDK (&gt;= r21e LTS):- https://developer.android.com/ndk/downloads., Set NDK path and ABI version:. Install LuaJIT dependencies:. Ubuntu &gt;= 20.04 Arch Linux Build for Android.. HTML5: Install emsdk:- https://emscripten..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Building &mdash; Crown 0.64.8 Manual</title>
+  <title>Building &mdash; Crown 0.64.9 Manual</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
 
   
@@ -29,6 +30,7 @@
       <script src="../_static/jquery.js"></script>
       <script src="../_static/underscore.js"></script>
       <script src="../_static/doctools.js"></script>
+      <script src="../_static/tabs.js"></script>
       <script src="../_static/js/sidebar_sections.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -142,7 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#android">Android</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#html5">HTML5</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#linux-ubuntu-20-04">Linux (Ubuntu &gt;= 20.04)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linux">Linux</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#windows-msys2">Windows (MSYS2)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#windows-vs-code">Windows (VS Code)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#windows-vs-2022">Windows (VS 2022)</a></li>
@@ -151,7 +153,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#build">Build</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#build-android">Android</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build-html5">HTML5</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#linux">Linux</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-linux">Linux</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build-msys2">Windows (MSYS2)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build-vs-code">Windows (VS Code)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build-vs-2022">Windows (VS 2022)</a></li>
@@ -173,7 +175,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.64.8 Manual</a>
+          <a href="../index.html">Crown 0.64.9 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -220,9 +222,14 @@
 <ol class="arabic simple" start="3">
 <li><p>Install LuaJIT dependencies:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-VWJ1bnR1ID49IDIwLjA0" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-VWJ1bnR1ID49IDIwLjA0" name="VWJ1bnR1ID49IDIwLjA0" role="tab" tabindex="0">Ubuntu &gt;= 20.04</button><button aria-controls="panel-0-QXJjaCBMaW51eA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-QXJjaCBMaW51eA==" name="QXJjaCBMaW51eA==" role="tab" tabindex="-1">Arch Linux</button></div><div aria-labelledby="tab-0-VWJ1bnR1ID49IDIwLjA0" class="sphinx-tabs-panel group-tab" id="panel-0-VWJ1bnR1ID49IDIwLjA0" name="VWJ1bnR1ID49IDIwLjA0" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span>
 </pre></div>
 </div>
+</div><div aria-labelledby="tab-0-QXJjaCBMaW51eA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-QXJjaCBMaW51eA==" name="QXJjaCBMaW51eA==" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">lib32</span><span class="o">-</span><span class="n">glibc</span>
+</pre></div>
+</div>
+</div></div>
 <ol class="arabic simple" start="4">
 <li><p><a class="reference internal" href="#build-android"><span class="std std-ref">Build for Android</span></a>.</p></li>
 </ol>
@@ -244,12 +251,13 @@
 <li><p><a class="reference internal" href="#build-html5"><span class="std std-ref">Build for HTML5</span></a>.</p></li>
 </ol>
 </section>
-<section id="linux-ubuntu-20-04">
-<h3>Linux (Ubuntu &gt;= 20.04)<a class="headerlink" href="#linux-ubuntu-20-04" title="Permalink to this headline">¶</a></h3>
+<section id="linux">
+<h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Install dependencies:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> \
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-VWJ1bnR1ID49IDIwLjA0" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-VWJ1bnR1ID49IDIwLjA0" name="VWJ1bnR1ID49IDIwLjA0" role="tab" tabindex="0">Ubuntu &gt;= 20.04</button><button aria-controls="panel-1-QXJjaCBMaW51eA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-QXJjaCBMaW51eA==" name="QXJjaCBMaW51eA==" role="tab" tabindex="-1">Arch Linux</button></div><div aria-labelledby="tab-1-VWJ1bnR1ID49IDIwLjA0" class="sphinx-tabs-panel group-tab" id="panel-1-VWJ1bnR1ID49IDIwLjA0" name="VWJ1bnR1ID49IDIwLjA0" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">mesa</span><span class="o">-</span><span class="n">common</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">dev</span> \
 <span class="n">libpulse</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxrandr</span><span class="o">-</span><span class="n">dev</span> <span class="n">libdecor</span><span class="o">-</span><span class="mi">0</span><span class="o">-</span><span class="n">dev</span> <span class="n">libc6</span><span class="o">-</span><span class="n">dev</span><span class="o">-</span><span class="n">i386</span> <span class="n">libgtk</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="n">dev</span> <span class="n">gettext</span>
 
 <span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">vala</span><span class="o">-</span><span class="n">team</span>
@@ -268,6 +276,14 @@
 </pre></div>
 </div>
 </div>
+</div><div aria-labelledby="tab-1-QXJjaCBMaW51eA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-QXJjaCBMaW51eA==" name="QXJjaCBMaW51eA==" role="tabpanel" tabindex="0"><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">base</span><span class="o">-</span><span class="n">devel</span> <span class="n">libglvnd</span> <span class="n">libpulse</span> <span class="n">libx11</span> <span class="n">libxrandr</span> \
+<span class="n">libdecor</span> <span class="n">lib32</span><span class="o">-</span><span class="n">glibc</span> <span class="n">gtk3</span> <span class="n">gettext</span> <span class="n">vala</span>
+
+<span class="c1"># Optionally, to build docs:</span>
+<span class="n">sudo</span> <span class="n">pacman</span> <span class="o">-</span><span class="n">S</span> <span class="n">python</span><span class="o">-</span><span class="n">sphinx</span>
+</pre></div>
+</div>
+</div></div>
 <ol class="arabic simple" start="2">
 <li><p><a class="reference internal" href="#build-linux"><span class="std std-ref">Build for Linux</span></a>.</p></li>
 </ol>
@@ -350,14 +366,14 @@
 </pre></div>
 </div>
 </section>
-<section id="linux">
-<span id="build-linux"></span><h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<section id="build-linux">
+<span id="id3"></span><h3>Linux<a class="headerlink" href="#build-linux" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
 </pre></div>
 </div>
 </section>
 <section id="build-msys2">
-<span id="id3"></span><h3>Windows (MSYS2)<a class="headerlink" href="#build-msys2" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Windows (MSYS2)<a class="headerlink" href="#build-msys2" title="Permalink to this headline">¶</a></h3>
 <p>Open MSYS2 MINGW64 shell:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MINGW</span><span class="o">=/</span><span class="n">mingw64</span>
 <span class="n">make</span> <span class="n">tools</span><span class="o">-</span><span class="n">mingw</span><span class="o">-</span><span class="n">release64</span> <span class="n">MAKE_JOBS</span><span class="o">=</span><span class="mi">4</span>
@@ -365,7 +381,7 @@
 </div>
 </section>
 <section id="build-vs-code">
-<span id="id4"></span><h3>Windows (VS Code)<a class="headerlink" href="#build-vs-code" title="Permalink to this headline">¶</a></h3>
+<span id="id5"></span><h3>Windows (VS Code)<a class="headerlink" href="#build-vs-code" title="Permalink to this headline">¶</a></h3>
 <p>Open Visual Studio Code Shell:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:MINGW = &quot;C:\\msys64\\mingw64&quot;
 make tools-mingw-release64 MAKE_JOBS=4
@@ -373,7 +389,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 </div>
 </section>
 <section id="build-vs-2022">
-<span id="id5"></span><h3>Windows (VS 2022)<a class="headerlink" href="#build-vs-2022" title="Permalink to this headline">¶</a></h3>
+<span id="id6"></span><h3>Windows (VS 2022)<a class="headerlink" href="#build-vs-2022" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><p>Open Visual Studio 2022 Command Prompt:</p></li>
 </ol>
@@ -403,7 +419,7 @@ make tools-mingw-release64 MAKE_JOBS=4
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 15, 2026.
+      <span class="lastupdated">Last updated on Sep 09, 2026.
       </span></p>
   </div>
 

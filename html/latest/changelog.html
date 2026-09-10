@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-07T16:51:30+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-10T04:54:37+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
-<meta property="og:site_name" content="Crown 0.64.8 Manual" />
-<meta property="og:description" content="0.64.8 — 07 Sep 2026: Fixes Tools: fixed search bar not resetting when switching to another new level., Runtime: HTML5: fixed decoding of BC4 and BC5 textures., Runtime: HTML5: fixed a crash when loading large packages., Runtime: HTML5: fixed a crash when launching large games..." />
+<meta property="og:site_name" content="Crown 0.64.9 Manual" />
+<meta property="og:description" content="0.64.9 — 10 Sep 2026: Fixes Runtime: fixed rendering artifacts in objects using the mesh shader with BC5-encoded normal maps., Runtime: fixed albedo texture not being affected by u_albedo color when using the mesh shader., Runtime: fixed slow package loading on non-html5 platf..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.64.8 Manual" />
-<meta name="description" content="0.64.8 — 07 Sep 2026: Fixes Tools: fixed search bar not resetting when switching to another new level., Runtime: HTML5: fixed decoding of BC4 and BC5 textures., Runtime: HTML5: fixed a crash when loading large packages., Runtime: HTML5: fixed a crash when launching large games..." />
+<meta property="og:image:alt" content="Crown 0.64.9 Manual" />
+<meta name="description" content="0.64.9 — 10 Sep 2026: Fixes Runtime: fixed rendering artifacts in objects using the mesh shader with BC5-encoded normal maps., Runtime: fixed albedo texture not being affected by u_albedo color when using the mesh shader., Runtime: fixed slow package loading on non-html5 platf..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.64.8 Manual</title>
+  <title>Changelog &mdash; Crown 0.64.9 Manual</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -35,7 +35,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.64.8 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.64.9 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -60,7 +60,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#sep-2026"><span class="xref std std-ref">0.64.8 — 07 Sep 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sep-2026"><span class="xref std std-ref">0.64.9 — 10 Sep 2026</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-64-8"><span class="xref std std-ref">0.64.8 — 07 Sep 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-64-7"><span class="xref std std-ref">0.64.7 — 04 Sep 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2026"><span class="xref std std-ref">0.64.6 — 28 Aug 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-64-5"><span class="xref std std-ref">0.64.5 — 27 Aug 2026</span></a></li>
@@ -76,13 +77,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#oct-2025">0.59.0 — 02 Oct 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2025">0.58.0 — 01 Aug 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2025">0.57.0 — 13 Jun 2025</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">0.56.0 — 04 Jun 2025</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">0.56.0 — 04 Jun 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#apr-2025">0.55.0 — 03 Apr 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2025">0.54.0 — 13 Jan 2025</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2024">0.53.0 — 30 Nov 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">0.52.0 — 11 Nov 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">0.52.0 — 11 Nov 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2024">0.51.0 — 28 Oct 2024</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id10">0.50.0 — 10 Oct 2024</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">0.50.0 — 10 Oct 2024</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nov-2023">0.49.0 — 27 Nov 2023</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jul-2023">0.48.0 — <em>31 Jul 2023</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#feb-2023">0.47.0 — <em>06 Feb 2023</em></a></li>
@@ -92,7 +93,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#apr-2021">0.43.0 — <em>17 Apr 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mar-2021">0.42.0 — <em>05 Mar 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jan-2021">0.41.0 — <em>16 Jan 2021</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id11">0.40.0 — <em>06 Jan 2021</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">0.40.0 — <em>06 Jan 2021</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2020">0.39.0 — <em>24 Oct 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aug-2020">0.38.0 — <em>24 Aug 2020</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jun-2020">0.37.0 — <em>26 Jun 2020</em></a></li>
@@ -190,7 +191,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.64.8 Manual</a>
+          <a href="index.html">Crown 0.64.9 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -211,7 +212,19 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <section id="sep-2026">
-<span id="v0-64-8"></span><h2><a class="reference internal" href="#v0-64-8"><span class="std std-ref">0.64.8 — 07 Sep 2026</span></a><a class="headerlink" href="#sep-2026" title="Permalink to this headline">¶</a></h2>
+<span id="v0-64-9"></span><h2><a class="reference internal" href="#v0-64-9"><span class="std std-ref">0.64.9 — 10 Sep 2026</span></a><a class="headerlink" href="#sep-2026" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li><p>Runtime: fixed rendering artifacts in objects using the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> shader with BC5-encoded normal maps.</p></li>
+<li><p>Runtime: fixed albedo texture not being affected by <code class="docutils literal notranslate"><span class="pre">u_albedo</span></code> color when using the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> shader.</p></li>
+<li><p>Runtime: fixed slow package loading on non-html5 platforms.</p></li>
+<li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_impulse_at()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> interpreting their world-space positions as offsets from the actor’s center of mass.</p></li>
+<li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code>, <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> not waking sleeping actors.</p></li>
+<li><p>Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.</p></li>
+</ul>
+</section>
+<section id="v0-64-8">
+<span id="id1"></span><h2><a class="reference internal" href="#v0-64-8"><span class="std std-ref">0.64.8 — 07 Sep 2026</span></a><a class="headerlink" href="#v0-64-8" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed search bar not resetting when switching to another new level.</p></li>
@@ -227,7 +240,7 @@
 </ul>
 </section>
 <section id="v0-64-7">
-<span id="id1"></span><h2><a class="reference internal" href="#v0-64-7"><span class="std std-ref">0.64.7 — 04 Sep 2026</span></a><a class="headerlink" href="#v0-64-7" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><a class="reference internal" href="#v0-64-7"><span class="std std-ref">0.64.7 — 04 Sep 2026</span></a><a class="headerlink" href="#v0-64-7" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed scale/rotate gizmo rings being activated too far from their visible outline.</p></li>
@@ -247,7 +260,7 @@
 </ul>
 </section>
 <section id="v0-64-5">
-<span id="id2"></span><h2><a class="reference internal" href="#v0-64-5"><span class="std std-ref">0.64.5 — 27 Aug 2026</span></a><a class="headerlink" href="#v0-64-5" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><a class="reference internal" href="#v0-64-5"><span class="std std-ref">0.64.5 — 27 Aug 2026</span></a><a class="headerlink" href="#v0-64-5" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: FBX: mult-clip models will now correctly import all animations.</p></li>
@@ -256,7 +269,7 @@
 </ul>
 </section>
 <section id="v0-64-4">
-<span id="id3"></span><h2><a class="reference internal" href="#v0-64-4"><span class="std std-ref">0.64.4 — 23 Aug 2026</span></a><a class="headerlink" href="#v0-64-4" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2><a class="reference internal" href="#v0-64-4"><span class="std std-ref">0.64.4 — 23 Aug 2026</span></a><a class="headerlink" href="#v0-64-4" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed warnings when deleting sounds in the Level Editor.</p></li>
@@ -265,7 +278,7 @@
 </ul>
 </section>
 <section id="v0-64-3">
-<span id="id4"></span><h2><a class="reference internal" href="#v0-64-3"><span class="std std-ref">0.64.3 — 20 Aug 2026</span></a><a class="headerlink" href="#v0-64-3" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h2><a class="reference internal" href="#v0-64-3"><span class="std std-ref">0.64.3 — 20 Aug 2026</span></a><a class="headerlink" href="#v0-64-3" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed a numeric entries discarding values at the beginning of a drag.</p></li>
@@ -279,7 +292,7 @@
 </ul>
 </section>
 <section id="v0-64-2">
-<span id="id5"></span><h2><a class="reference internal" href="#v0-64-2"><span class="std std-ref">0.64.2 — 15 Aug 2026</span></a><a class="headerlink" href="#v0-64-2" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h2><a class="reference internal" href="#v0-64-2"><span class="std std-ref">0.64.2 — 15 Aug 2026</span></a><a class="headerlink" href="#v0-64-2" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: fixed an issue with numeric entries that generated unwanted undo steps in some cases.</p></li>
@@ -288,7 +301,7 @@
 </ul>
 </section>
 <section id="v0-64-1">
-<span id="id6"></span><h2><a class="reference internal" href="#v0-64-1"><span class="std std-ref">0.64.1 — 12 Aug 2026</span></a><a class="headerlink" href="#v0-64-1" title="Permalink to this headline">¶</a></h2>
+<span id="id7"></span><h2><a class="reference internal" href="#v0-64-1"><span class="std std-ref">0.64.1 — 12 Aug 2026</span></a><a class="headerlink" href="#v0-64-1" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
 <li><p>Tools: the transform component will now allow negative scaling values.</p></li>
@@ -300,7 +313,7 @@
 </ul>
 </section>
 <section id="v0-64-0">
-<span id="id7"></span><h2><a class="reference internal" href="#v0-64-0"><span class="std std-ref">0.64.0 — 10 Aug 2026</span></a><a class="headerlink" href="#v0-64-0" title="Permalink to this headline">¶</a></h2>
+<span id="id8"></span><h2><a class="reference internal" href="#v0-64-0"><span class="std std-ref">0.64.0 — 10 Aug 2026</span></a><a class="headerlink" href="#v0-64-0" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Tools: deploy package creation now runs asynchronously to avoid blocking the editor UI.</p></li>
@@ -692,8 +705,8 @@
 <li><p>Tools: Windows: fixed rendering of selected objects’ outlines.</p></li>
 </ul>
 </section>
-<section id="id8">
-<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<section id="id9">
+<h2>0.56.0 — 04 Jun 2025<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Runtime: added cascaded shadow mapping.</p></li>
@@ -828,8 +841,8 @@
 <li><p>Data Compiler: fixed erratic texture compilation when both legacy properties and the new “output” object were specified in the .texture resource.</p></li>
 </ul>
 </section>
-<section id="id9">
-<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<section id="id10">
+<h2>0.52.0 — 11 Nov 2024<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added the ability to add/remove components from units in the Inspector panel.</p></li>
@@ -867,8 +880,8 @@
 <li><p>Windows: fixed console output and absolute paths when launched under MinGW.</p></li>
 </ul>
 </section>
-<section id="id10">
-<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<section id="id11">
+<h2>0.50.0 — 10 Oct 2024<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <p><strong>Tools</strong></p>
 <ul class="simple">
 <li><p>Added an option to use the debug keystore when deploying APKs for Android.</p></li>
@@ -1128,8 +1141,8 @@
 <li><p>Removed the default “FPSCamera” camera from the core game framework</p></li>
 </ul>
 </section>
-<section id="id11">
-<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<section id="id12">
+<h2>0.40.0 — <em>06 Jan 2021</em><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <p><strong>Data Compiler</strong></p>
 <ul class="simple">
 <li><p>Fixed an issue that caused resources to not be compiled with the proper version in rare circumnstances</p></li>
@@ -1314,7 +1327,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.64.8 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.64.9 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -1322,7 +1335,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 07, 2026.
+      <span class="lastupdated">Last updated on Sep 10, 2026.
       </span></p>
   </div>
 
