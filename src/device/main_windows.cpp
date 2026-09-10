@@ -331,6 +331,7 @@ struct WindowsDevice
 	s16 _mouse_last_x;
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
+	std::atomic_bool _fullscreen;
 	DeviceOptions *_options;
 	void *_xinput_lib;
 
@@ -342,6 +343,7 @@ struct WindowsDevice
 		, _mouse_last_x(INT16_MAX)
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
+		, _fullscreen(false)
 		, _options(&opts)
 		, _xinput_lib(NULL)
 	{
@@ -499,6 +501,13 @@ struct WindowsDevice
 		case WM_CLOSE:
 			s_exit = true;
 			_queue.push_exit_event();
+			return 0;
+
+		case WM_STYLECHANGED:
+			if ((int)wparam == GWL_STYLE && _options->_parent_window == 0) {
+				const STYLESTRUCT *style = (const STYLESTRUCT *)lparam;
+				_fullscreen = (style->styleNew & WS_OVERLAPPEDWINDOW) == 0;
+			}
 			return 0;
 
 		case WM_SIZE: {
@@ -778,6 +787,7 @@ struct WindowWin : public Window
 	u16 _y;
 	u16 _width;
 	u16 _height;
+	WINDOWPLACEMENT _windowed_placement;
 
 	WindowWin()
 		: _x(0)
@@ -785,6 +795,8 @@ struct WindowWin : public Window
 		, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 		, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	{
+		memset(&_windowed_placement, 0, sizeof(_windowed_placement));
+		_windowed_placement.length = sizeof(_windowed_placement);
 	}
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
@@ -876,12 +888,49 @@ struct WindowWin : public Window
 
 	bool is_fullscreen() override
 	{
-		return false;
+		return s_windows_device->_fullscreen;
 	}
 
 	void set_fullscreen(bool fullscreen) override
 	{
-		CE_UNUSED(fullscreen);
+		if (s_windows_device->_options->_parent_window != 0
+			|| fullscreen == s_windows_device->_fullscreen
+			)
+			return;
+
+		HWND hwnd = s_windows_device->_hwnd;
+		LONG style = GetWindowLongA(hwnd, GWL_STYLE);
+
+		if (fullscreen) {
+			MONITORINFO monitor_info;
+			memset(&monitor_info, 0, sizeof(monitor_info));
+			monitor_info.cbSize = sizeof(monitor_info);
+
+			if (GetWindowPlacement(hwnd, &_windowed_placement)
+				&& GetMonitorInfoA(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitor_info)
+				) {
+				SetWindowLongA(hwnd, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+				SetWindowPos(hwnd
+					, HWND_TOP
+					, monitor_info.rcMonitor.left
+					, monitor_info.rcMonitor.top
+					, monitor_info.rcMonitor.right - monitor_info.rcMonitor.left
+					, monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top
+					, SWP_NOOWNERZORDER | SWP_FRAMECHANGED
+					);
+			}
+		} else {
+			SetWindowLongA(hwnd, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
+			SetWindowPlacement(hwnd, &_windowed_placement);
+			SetWindowPos(hwnd
+				, NULL
+				, 0
+				, 0
+				, 0
+				, 0
+				, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED
+				);
+		}
 	}
 
 	void set_cursor(MouseCursor::Enum cursor) override
