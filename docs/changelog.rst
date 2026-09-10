@@ -74,6 +74,7 @@ Changelog
 * Runtime: fixed slow package loading on non-html5 platforms.
 * Runtime: fixed ``PhysicsWorld.actor_add_impulse_at()`` and ``PhysicsWorld.actor_push_at()`` interpreting their world-space positions as offsets from the actor's center of mass.
 * Runtime: fixed ``PhysicsWorld.actor_add_torque_impulse()``, ``PhysicsWorld.actor_push()`` and ``PhysicsWorld.actor_push_at()`` not waking sleeping actors.
+* Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
