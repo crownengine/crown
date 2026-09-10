@@ -262,7 +262,7 @@ static u8 s_button[] =
 	JoypadButton::GUIDE,
 	JoypadButton::THUMB_LEFT,
 	JoypadButton::THUMB_RIGHT,
-	JoypadButton::UP, // FIXME (reported as axis...)
+	JoypadButton::UP,
 	JoypadButton::DOWN,
 	JoypadButton::LEFT,
 	JoypadButton::RIGHT
