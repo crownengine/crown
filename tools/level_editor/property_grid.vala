@@ -633,6 +633,7 @@ public class PropertyGrid : Gtk.Grid
 				break;
 			case PropertyType.RESOURCE:
 				p = new InputResource(def.resource_type, _db);
+				((InputResource)p)._nullable = (string?)def.deffault == null;
 				break;
 			case PropertyType.REFERENCE:
 				p = new InputObject(def.object_type, _db);
