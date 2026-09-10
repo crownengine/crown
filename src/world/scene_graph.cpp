@@ -341,8 +341,9 @@ void SceneGraph::set_world_pose(TransformId transform, const Matrix4x4 &pose)
 void SceneGraph::set_world_pose_and_rescale(TransformId transform, const Matrix4x4 &pose)
 {
 	CE_ASSERT(transform.i < _data.size, "Index out of bounds");
+	const Vector3 world_scale = scale(_data.world[transform.i]);
 	_data.world[transform.i] = pose;
-	set_scale(_data.world[transform.i], _data.local[transform.i].scale);
+	set_scale(_data.world[transform.i], world_scale);
 	_data.changed[transform.i] = true;
 }
 
