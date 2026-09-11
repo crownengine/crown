@@ -145,216 +145,9 @@ namespace OBJImport
 
 } /* namespace OBJImport */
 
-[Compact]
-public class OBJImportOptions
-{
-	public bool import_textures;
-	public bool create_textures_folder;
-	public bool import_materials;
-	public bool create_materials_folder;
-	public bool create_colliders;
-	public bool import_lods;
-	public string tangents;
-
-	public OBJImportOptions()
-	{
-		import_textures = true;
-		create_textures_folder = true;
-		import_materials = true;
-		create_materials_folder = true;
-		create_colliders = false;
-		import_lods = true;
-		tangents = "calculate";
-	}
-
-	public void decode(GLib.HashTable<string, Value?> json)
-	{
-		json.foreach((key, value) => {
-				if (key == "import_textures")
-					import_textures = (bool)value;
-				else if (key == "create_textures_folder")
-					create_textures_folder = (bool)value;
-				else if (key == "import_materials")
-					import_materials = (bool)value;
-				else if (key == "create_materials_folder")
-					create_materials_folder = (bool)value;
-				else if (key == "create_colliders")
-					create_colliders = (bool)value;
-				else if (key == "import_lods")
-					import_lods = (bool)value;
-				else if (key == "tangents")
-					tangents = (string)value;
-				else
-					logw("Unknown option '%s'".printf(key));
-			});
-	}
-
-	public GLib.HashTable<string, Value?> encode()
-	{
-		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-
-		obj.set("import_textures", import_textures);
-		obj.set("create_textures_folder", import_textures ? create_textures_folder : false);
-		obj.set("import_materials", import_materials);
-		obj.set("create_materials_folder", import_materials ? create_materials_folder : false);
-		obj.set("create_colliders", create_colliders ? create_colliders : false);
-		obj.set("import_lods", import_lods);
-		obj.set("tangents", tangents);
-
-		return obj;
-	}
-}
-
-public class OBJImportDialog : Gtk.Window
-{
-	public Project _project;
-	public string _destination_dir;
-	public GLib.GenericArray<string> _filenames;
-	public unowned Import _import_result;
-
-	public string _options_path;
-	public OBJImportOptions _options;
-
-	public InputBool _import_textures;
-	public InputBool _create_textures_folder;
-	public InputBool _import_materials;
-	public InputBool _create_materials_folder;
-	public InputBool _create_colliders;
-	public InputBool _import_lods;
-	public InputEnum _tangents;
-
-	public PropertyGridSet _general_set;
-	public Gtk.Box _box;
-
-	public Gtk.Button _import;
-	public Gtk.Button _cancel;
-	public Gtk.HeaderBar _header_bar;
-
-	public OBJImportDialog(Database database
-		, string destination_dir
-		, GLib.SList<string> filenames
-		, Import import_result
-		, owned OBJImportOptions options
-		, string options_path
-		)
-	{
-		_project = database._project;
-		_destination_dir = destination_dir;
-		_filenames = new GLib.GenericArray<string>();
-		foreach (var f in filenames)
-			_filenames.add(f);
-		_import_result = import_result;
-		_options = (owned)options;
-		_options_path = options_path;
-
-		_general_set = new PropertyGridSet();
-
-		_import_textures = new InputBool();
-		_import_textures.value = _options.import_textures;
-		_create_textures_folder = new InputBool();
-		_create_textures_folder.value = _options.create_textures_folder;
-		_import_materials = new InputBool();
-		_import_materials.value = _options.import_materials;
-		_create_materials_folder = new InputBool();
-		_create_materials_folder.value = _options.create_materials_folder;
-		_create_colliders = new InputBool();
-		_create_colliders.value = _options.create_colliders;
-		_import_lods = new InputBool();
-		_import_lods.value = _options.import_lods;
-		_tangents = new InputEnum(_options.tangents
-			, new string[] { _("Calculate"), _("Import") }
-			, new string[] { "calculate", "import" }
-			);
-
-		PropertyGrid cv;
-		cv = new PropertyGrid();
-		cv.column_homogeneous = true;
-		cv.add_row(_("Import Textures"), _import_textures, _("Import all textures."));
-		cv.add_row(_("Create Textures Folder"), _create_textures_folder, _("Put imported textures in a sub-folder."));
-		cv.add_row(_("Import Materials"), _import_materials, _("Import all materials."));
-		cv.add_row(_("Create Materials Folder"), _create_materials_folder, _("Put imported materials in a sub-folder."));
-		cv.add_row(_("Create Colliders"), _create_colliders, _("Create colliders and actors for each imported unit."));
-		cv.add_row(_("Import LODs"), _import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
-		cv.add_row(_("Tangents"), _tangents, _("Import tangents from source or calculate them with MikkTSpace."));
-		_general_set.add_property_grid(cv, _("Units"));
-
-		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-#if CROWN_GTK3
-		_box.pack_start(_general_set, false, false);
-#else
-		_box.append(_general_set);
-#endif
-
-		_cancel = new Gtk.Button.with_label(_("Cancel"));
-		_cancel.clicked.connect(() => {
-				close();
-			});
-		_import = new Gtk.Button.with_label(_("Import"));
-#if CROWN_GTK3
-		_import.get_style_context().add_class("suggested-action");
-#else
-		_import.add_css_class("suggested-action");
-#endif
-		_import.clicked.connect(import);
-
-		_header_bar = new Gtk.HeaderBar();
-#if CROWN_GTK3
-		_header_bar.title = _("Import OBJ...");
-		_header_bar.show_close_button = true;
-#else
-		_header_bar.set_title_widget(new Gtk.Label(_("Import OBJ...")));
-		_header_bar.show_title_buttons = true;
-#endif
-		_header_bar.pack_start(_cancel);
-		_header_bar.pack_end(_import);
-
-		_import_textures.value_changed.connect(on_import_textures_changed);
-		_import_materials.value_changed.connect(on_import_materials_changed);
-
-		on_import_textures_changed();
-		on_import_materials_changed();
-
-		this.set_titlebar(_header_bar);
-		this.set_default_size(391, 258);
-#if CROWN_GTK3
-		this.add(_box);
-#else
-		this.set_child(_box);
-#endif
-	}
-
-	void import()
-	{
-		read_options();
-		OBJImporter.import_with_options(_import_result, _options, _project, _destination_dir, _filenames, _options_path);
-		close();
-	}
-
-	void read_options()
-	{
-		_options.import_textures = _import_textures.value;
-		_options.create_textures_folder = _import_textures.value ? _create_textures_folder.value : false;
-		_options.import_materials = _import_materials.value;
-		_options.create_materials_folder = _import_materials.value ? _create_materials_folder.value : false;
-		_options.create_colliders = _create_colliders.value;
-		_options.import_lods = _import_lods.value;
-		_options.tangents = _tangents.value;
-	}
-
-	void on_import_textures_changed()
-	{
-		_create_textures_folder.set_sensitive(_import_textures.value);
-	}
-
-	void on_import_materials_changed()
-	{
-		_create_materials_folder.set_sensitive(_import_materials.value);
-	}
-}
-
 public class OBJImporter
 {
-	public static void unit_create_components(OBJImportOptions options
+	public static void unit_create_components(SceneImportOptions options
 		, Database db
 		, Guid parent_unit_id
 		, Guid unit_id
@@ -608,7 +401,7 @@ public class OBJImporter
 		}
 	}
 
-	public static ImportResult do_import(OBJImportOptions options, Project project, string destination_dir, GLib.GenericArray<string> filenames)
+	public static ImportResult do_import(SceneImportOptions options, Project project, string destination_dir, GLib.GenericArray<string> filenames)
 	{
 		for (int fi = 0; fi < filenames.length; ++fi) {
 			string filename_i = filenames[fi];
@@ -932,7 +725,7 @@ public class OBJImporter
 	}
 
 	public static void import_with_options(Import import_result
-		, OBJImportOptions options
+		, SceneImportOptions options
 		, Project project
 		, string destination_dir
 		, GLib.GenericArray<string> filenames
@@ -957,7 +750,7 @@ public class OBJImporter
 		foreach (unowned string filename in filenames)
 			obj_filenames.add(filename);
 
-		OBJImportOptions options = new OBJImportOptions();
+		SceneImportOptions options = new SceneImportOptions(SceneImportFlags.NONE);
 
 		GLib.File file_dst;
 		string resource_path;
@@ -980,7 +773,15 @@ public class OBJImporter
 				, options_path
 				);
 		} else {
-			OBJImportDialog dialog = new OBJImportDialog(database, destination_dir, filenames, import_result, (owned)options, options_path);
+			SceneImportDialog dialog = new SceneImportDialog(database
+				, destination_dir
+				, filenames
+				, import_result
+				, (owned)options
+				, options_path
+				, _("Import OBJ...")
+				, OBJImporter.import_with_options
+				);
 			dialog.set_transient_for(parent_window);
 			dialog.set_modal(true);
 #if CROWN_GTK3
