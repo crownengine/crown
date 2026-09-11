@@ -800,10 +800,8 @@ public struct Unit
 
 		if (db.has_property(unit_id, "children")) {
 			Guid?[] children = db.get_set(unit_id, "children");
-			foreach (unowned Guid? child_id in children) {
-				if (db.is_alive(child_id))
-					collect_unit_tree(unit_ids, child_id, db);
-			}
+			foreach (unowned Guid? child_id in children)
+				collect_unit_tree(unit_ids, child_id, db);
 		}
 	}
 

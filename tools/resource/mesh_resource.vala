@@ -186,7 +186,7 @@ namespace MeshResource
 					Guid child_unit_id = GUID_ZERO;
 
 					foreach (Guid? child_id in old_children) {
-						if (matched_children.contains(child_id) || !db.is_alive(child_id))
+						if (matched_children.contains(child_id))
 							continue;
 						if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
 							child_unit_id = child_id;
@@ -196,7 +196,7 @@ namespace MeshResource
 
 					if (child_unit_id == GUID_ZERO) {
 						foreach (Guid? child_id in old_children) {
-							if (matched_children.contains(child_id) || !db.is_alive(child_id))
+							if (matched_children.contains(child_id))
 								continue;
 
 							Unit child_unit = Unit(db, child_id);
@@ -298,7 +298,7 @@ namespace MeshResource
 							new_unit_id = GUID_ZERO;
 
 							foreach (Guid? child_id in old_children) {
-								if (matched_children.contains(child_id) || !db.is_alive(child_id))
+								if (matched_children.contains(child_id))
 									continue;
 								if (db.get_string(child_id, "editor.import_path", "") == import_path) {
 									new_unit_id = child_id;
@@ -308,7 +308,7 @@ namespace MeshResource
 
 							if (new_unit_id == GUID_ZERO) {
 								foreach (Guid? child_id in old_children) {
-									if (matched_children.contains(child_id) || !db.is_alive(child_id))
+									if (matched_children.contains(child_id))
 										continue;
 
 									Unit child_unit = Unit(db, child_id);

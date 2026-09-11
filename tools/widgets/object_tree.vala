@@ -540,9 +540,6 @@ public class ObjectTree : Gtk.Box
 			if (_database.has_property(id, def.name)) {
 				Guid?[] children = _database.get_set(id, def.name);
 				foreach (unowned Guid? child_id in children) {
-					if (!_database.is_alive(child_id))
-						continue;
-
 					StringId64 child_type = StringId64(_database.object_type(child_id));
 					Aspect? name_aspect = _database.get_aspect(child_type, StringId64("name"));
 					if (name_aspect == null)

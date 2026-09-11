@@ -831,7 +831,7 @@ public class FBXImporter
 			Guid child_unit_id = GUID_ZERO;
 
 			foreach (Guid? child_id in old_children) {
-				if (matched_children.contains(child_id) || !db.is_alive(child_id))
+				if (matched_children.contains(child_id))
 					continue;
 				if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
 					child_unit_id = child_id;
@@ -842,7 +842,6 @@ public class FBXImporter
 			if (child_unit_id == GUID_ZERO) {
 				foreach (Guid? child_id in old_children) {
 					if (matched_children.contains(child_id)
-						|| !db.is_alive(child_id)
 						|| db.name(child_id) != child_editor_name
 						)
 						continue;
