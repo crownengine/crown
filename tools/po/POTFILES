@@ -21,6 +21,7 @@ tools/level_editor/texture_settings_dialog.vala
 tools/resource/font_resource.vala
 tools/resource/mesh_resource_fbx.vala
 tools/resource/mesh_resource_obj.vala
+tools/resource/scene_import.vala
 tools/resource/sprite_resource.vala
 tools/resource/types.vala
 tools/state_machine_editor/state_machine_editor.vala
