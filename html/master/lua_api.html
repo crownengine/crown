@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-10T03:18:32+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-09-09T18:19:19+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -1409,9 +1409,14 @@ non-<code class="docutils literal notranslate"><span class="pre">nil</span></cod
 </dd>
 <dt><strong>mesh_instance</strong> (rw, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the mesh owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</p>
 </dd>
-<dt><strong>mesh_material</strong> (rw, mesh)<span class="classifier">Material</span></dt><dd><p>Returns the material of the <em>mesh</em>.</p>
+<dt><strong>mesh_material</strong> (rw, mesh, [slot])<span class="classifier">Material</span></dt><dd><p>Returns the material bound to <em>slot</em>, or the first slot’s material when
+<em>slot</em> is omitted or <code class="docutils literal notranslate"><span class="pre">nil</span></code>. The slot must exist on the mesh instance.</p>
 </dd>
-<dt><strong>mesh_set_material</strong> (rw, mesh, material)</dt><dd><p>Sets the <em>material</em> of the <em>mesh</em>.</p>
+<dt><strong>mesh_set_material</strong> (rw, mesh, [slot], material_resource)</dt><dd><p>Assigns <em>material_resource</em> to the specified <em>slot</em>. For backwards
+compatibility, omitting <em>slot</em> assigns the <code class="docutils literal notranslate"><span class="pre">default</span></code> slot. If the mesh has
+no <code class="docutils literal notranslate"><span class="pre">default</span></code> slot, assigning it assigns every slot.</p>
+</dd>
+<dt><strong>mesh_has_material</strong> (rw, mesh, slot)<span class="classifier">bool</span></dt><dd><p>Returns whether the <em>mesh</em> instance has the specified <em>slot</em>.</p>
 </dd>
 <dt><strong>mesh_set_visible</strong> (rw, mesh, visible)</dt><dd><p>Sets whether the <em>mesh</em> is <em>visible</em>.</p>
 </dd>
@@ -1867,7 +1872,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 10, 2026.
+      <span class="lastupdated">Last updated on Sep 09, 2026.
       </span></p>
   </div>
 
