@@ -636,7 +636,7 @@ msgstr "Nome State Machine"
 
 #: tools/level_editor/level_editor.vala:4684
 msgid "Package Name"
-msgstr ""
+msgstr "Nome del pacchetto"
 
 #: tools/level_editor/level_editor.vala:4715
 msgid "Skeleton name (optional)"
@@ -842,7 +842,7 @@ msgstr "Deseleziona Tutto"
 
 #: tools/level_editor/menus.vala:246
 msgid "Move to Camera"
-msgstr ""
+msgstr "Sposta sulla Telecamera"
 
 #: tools/level_editor/menus.vala:250
 msgid "Align with Camera View"
@@ -976,7 +976,7 @@ msgstr "_Riavvia Vista Editor"
 
 #: tools/level_editor/menus.vala:484
 msgid "Restart _Thumbnail Server"
-msgstr ""
+msgstr "Riavvia il Server delle _Miniature"
 
 #: tools/level_editor/menus.vala:491
 msgid "Browse Logs..."
@@ -1163,7 +1163,7 @@ msgstr ""
 
 #: tools/level_editor/panel_projects_list.vala:283
 msgid "No matching projects found"
-msgstr ""
+msgstr "Nessun progetto corrispondente trovato"
 
 #: tools/level_editor/panel_projects_list.vala:312
 msgid "Import an existing project."
@@ -1179,7 +1179,7 @@ msgstr "Crea un nuovo progetto."
 
 #: tools/level_editor/panel_projects_list.vala:326
 msgid "Temporary Project"
-msgstr ""
+msgstr "Progetto Temporaneo"
 
 #: tools/level_editor/preferences_dialog.vala:87
 msgid "Color of the grid."
@@ -1347,15 +1347,15 @@ msgstr "Memoria E Limiti"
 
 #: tools/level_editor/preferences_dialog.vala:188
 msgid "Internet Access"
-msgstr ""
+msgstr "Accesso a Internet"
 
 #: tools/level_editor/preferences_dialog.vala:188
 msgid "Allow access to the internet to check for software updates."
-msgstr ""
+msgstr "Consenti l'accesso a Internet per verificare la presenza di aggiornamenti software."
 
 #: tools/level_editor/preferences_dialog.vala:189
 msgid "Network"
-msgstr ""
+msgstr "Rete"
 
 #: tools/level_editor/preferences_dialog.vala:200
 msgid "Lua editor"
@@ -1494,7 +1494,7 @@ msgstr "Nuova Cartella..."
 
 #: tools/level_editor/project_browser.vala:123
 msgid "New Package..."
-msgstr ""
+msgstr "Nuovo Pacchetto..."
 
 #: tools/level_editor/project_browser.vala:134
 msgid "Delete Folder"
@@ -1645,7 +1645,7 @@ msgstr "Apri Prefab"
 
 #: tools/level_editor/properties_view.vala:125
 msgid "Other"
-msgstr ""
+msgstr "Altro"
 
 #: tools/level_editor/properties_view.vala:310
 msgid "Add Component"
@@ -1842,7 +1842,7 @@ msgstr "Importa FBX..."
 
 #: tools/resource/mesh_resource_gltf.vala:1688
 msgid "Import glTF..."
-msgstr ""
+msgstr "Importa glTF..."
 
 #: tools/resource/mesh_resource_obj.vala:782
 msgid "Import OBJ..."
@@ -2188,35 +2188,35 @@ msgstr "Generale"
 
 #: tools/resource/types.vala:215
 msgid "Enable vignette effect."
-msgstr ""
+msgstr "Abilita l'effetto vignettatura."
 
 #: tools/resource/types.vala:225
 msgid "Tint color of the vignette."
-msgstr ""
+msgstr "Colore della tinta per la vignettatura."
 
 #: tools/resource/types.vala:234
 msgid "Overall blend strength of the effect."
-msgstr ""
+msgstr "Intensità complessiva dell'effetto."
 
 #: tools/resource/types.vala:243
 msgid "Normalized distance from the center where darkening begins."
-msgstr ""
+msgstr "Distanza normalizzata dal centro in cui inizia l'oscuramento."
 
 #: tools/resource/types.vala:251
 msgid "Width of the fade between the full scene color and the full tint."
-msgstr ""
+msgstr "Ampiezza della sfumatura tra il colore originale della scena e la tinta piena."
 
 #: tools/resource/types.vala:260
 msgid "Shape exponent: 2.0 is round/elliptical, higher values are squarer."
-msgstr ""
+msgstr "Esponente della forma: 2.0 produce una forma rotonda/ellittica, valori più alti producono forme più quadrate."
 
 #: tools/resource/types.vala:269
 msgid "Horizontal center of the vignette."
-msgstr ""
+msgstr "Centro orizzontale della vignettatura."
 
 #: tools/resource/types.vala:278
 msgid "Vertical center of the vignette."
-msgstr ""
+msgstr "Centro verticale della vignettatura."
 
 #: tools/resource/types.vala:292 tools/resource/types.vala:361
 #: tools/resource/types.vala:452 tools/resource/types.vala:562
@@ -2225,7 +2225,7 @@ msgstr ""
 #: tools/resource/types.vala:2023 tools/resource/types.vala:2083
 #: tools/resource/types.vala:2110
 msgid "Rendering"
-msgstr ""
+msgstr "Rendering"
 
 #: tools/resource/types.vala:302
 msgid "Scene"
@@ -2261,7 +2261,7 @@ msgstr "Abilita il rendering delle ombre della geometria."
 
 #: tools/resource/types.vala:353
 msgid "Materials"
-msgstr ""
+msgstr "Materiali"
 
 #: tools/resource/types.vala:392
 msgid "Sprite"
@@ -2320,23 +2320,23 @@ msgstr "Abilita la proiezione delle ombre."
 
 #: tools/resource/types.vala:524
 msgid "Cookie"
-msgstr ""
+msgstr "Cookie"
 
 #: tools/resource/types.vala:526
 msgid "Light cookie pattern."
-msgstr ""
+msgstr "Pattern del cookie luminoso."
 
 #: tools/resource/types.vala:534
 msgid "Cookie pattern size."
-msgstr ""
+msgstr "Dimensione del pattern del cookie."
 
 #: tools/resource/types.vala:541
 msgid "Cookie offset along X axis."
-msgstr ""
+msgstr "Offset del cookie lungo l'asse X."
 
 #: tools/resource/types.vala:548
 msgid "Cookie offset along Y axis."
-msgstr ""
+msgstr "Offset del cookie lungo l'asse Y."
 
 #: tools/resource/types.vala:575
 msgid "Mesh to render at this LOD level."
@@ -2418,7 +2418,7 @@ msgstr "Altezza capsula."
 #: tools/resource/types.vala:1722 tools/resource/types.vala:1840
 #: tools/resource/types.vala:1919
 msgid "Physics"
-msgstr ""
+msgstr "Fisica"
 
 #: tools/resource/types.vala:817
 msgid "Actor collision filter."
@@ -2458,7 +2458,7 @@ msgstr "Script."
 
 #: tools/resource/types.vala:913
 msgid "Scripting"
-msgstr ""
+msgstr "Scripting"
 
 #: tools/resource/types.vala:923
 msgid "State Machine"
@@ -2987,15 +2987,15 @@ msgstr "Scheletro animazione da usare."
 
 #: tools/resource/types.vala:2691
 msgid "Rate at which the animation is sampled to compute geometry bounds."
-msgstr ""
+msgstr "Frequenza con cui viene campionata l'animazione per calcolare i limiti della geometria."
 
 #: tools/resource/types.vala:2700
 msgid "Extra padding applied to the calculated geometry bounds."
-msgstr ""
+msgstr "Margine aggiuntivo applicato ai limiti calcolati della geometria."
 
 #: tools/resource/types.vala:2729
 msgid "Source Mesh"
-msgstr ""
+msgstr "Mesh sorgente"
 
 #: tools/state_machine_editor/state_machine_editor.vala:99
 #: tools/state_machine_editor/state_machine_editor.vala:103
@@ -3152,7 +3152,7 @@ msgstr "Seleziona un %s"
 #: tools/widgets/select_resource_dialog.vala:83
 #, c-format
 msgid "Search %s..."
-msgstr ""
+msgstr "Cerca %s..."
 
 #, c-format
 #~ msgid "Delete Folder %s?"
