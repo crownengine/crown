@@ -1678,8 +1678,6 @@ public class ProjectBrowser : Gtk.Box
 #endif
 					_filter_entry_folder.search_changed.connect(on_filter_entry_text_changed);
 
-					_toggle_folder_view.halign = Gtk.Align.END;
-					_toggle_folder_view.hexpand = true;
 					_filter_entry_tree.hide();
 				} else { // Switch from folder view to regular tree view.
 					// Save the currently selected resource. This will be used later, after the tree
@@ -1717,8 +1715,6 @@ public class ProjectBrowser : Gtk.Box
 #endif
 					_filter_entry_tree.search_changed.connect(on_filter_entry_text_changed);
 
-					_toggle_folder_view.halign = Gtk.Align.FILL;
-					_toggle_folder_view.hexpand = false;
 					_filter_entry_tree.show();
 				}
 			});
