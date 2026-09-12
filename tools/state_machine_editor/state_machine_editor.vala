@@ -198,6 +198,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_variable_sliders = new GLib.HashTable<string, Gtk.Box>(GLib.str_hash, GLib.str_equal);
 
 		_unit = new InputResource(OBJECT_TYPE_UNIT, _database);
+		_unit.set_size_request(300, -1);
 		_unit.halign = Gtk.Align.START;
 		_unit.valign = Gtk.Align.START;
 		_unit.margin_top = 8;
