@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed new sound sources defaulting to a nonexistent sound resource.
+* Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
 
 .. _v0.64.9:
 
