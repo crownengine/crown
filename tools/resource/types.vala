@@ -537,6 +537,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.DOUBLE,
 			name = "data.cookie_x",
+			label = _("Offset"),
 			deffault = 0.0,
 			tooltip = _("Cookie offset along X axis."),
 		},

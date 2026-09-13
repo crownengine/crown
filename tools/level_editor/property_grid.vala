@@ -741,9 +741,9 @@ public class PropertyGrid : Gtk.Grid
 						if (!axis)
 							label += " " + camel_case(suffix);
 						add_row(label, box, def.tooltip);
-					} else if (!axis) {
+					} else if (!axis || suffix == "x") {
 						Gtk.Box labeled_field = new Gtk.Box(Gtk.Orientation.HORIZONTAL, (int)this.column_spacing);
-						Gtk.Label label = new Gtk.Label(camel_case(suffix));
+						Gtk.Label label = new Gtk.Label(axis ? def.label : camel_case(suffix));
 						label.xalign = 1.0f;
 						label.yalign = 0.5f;
 						label.set_tooltip_text(def.tooltip);
