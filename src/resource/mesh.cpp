@@ -719,6 +719,20 @@ namespace mesh_cache
 		list::add(mesh->_cache_node, cache._meshes);
 	}
 
+	void clear(MeshCache &cache)
+	{
+		ScopedMutex sm(cache._mutex);
+
+		ListNode *cur;
+		ListNode *tmp;
+		list_for_each_safe(cur, tmp, &cache._meshes)
+		{
+			Mesh *mesh = (Mesh *)container_of(cur, Mesh, _cache_node);
+			CE_DELETE(default_allocator(), mesh);
+		}
+		list::init_head(cache._meshes);
+	}
+
 } // namespace mesh_cache
 
 MeshCache::MeshCache()
@@ -728,14 +742,7 @@ MeshCache::MeshCache()
 
 MeshCache::~MeshCache()
 {
-	// Destroy meshes.
-	ListNode *cur;
-	ListNode *tmp;
-	list_for_each_safe(cur, tmp, &_meshes)
-	{
-		Mesh *m = (Mesh *)container_of(cur, Mesh, _cache_node);
-		CE_DELETE(default_allocator(), m);
-	}
+	mesh_cache::clear(*this);
 }
 
 } // namespace crown

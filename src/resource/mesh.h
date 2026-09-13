@@ -131,6 +131,9 @@ namespace mesh_cache
 	///
 	void add(MeshCache &cache, Mesh *mesh);
 
+	///
+	void clear(MeshCache &cache);
+
 } // namespace mesh_cache
 
 } // namespace crown
