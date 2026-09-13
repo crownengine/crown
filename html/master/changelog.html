@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-08-21T23:29:19+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-13T06:41:26+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -282,6 +282,7 @@
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_impulse_at()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> interpreting their world-space positions as offsets from the actor’s center of mass.</p></li>
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code>, <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push()</span></code> and <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_push_at()</span></code> not waking sleeping actors.</p></li>
 <li><p>Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.</p></li>
+<li><p>Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.</p></li>
 <li><p>Data Compiler: fixed ‘type mismatch’ errors when compiling materials in some cases.</p></li>
 <li><p>Data Compiler: fixed wrong ‘required’ shader generated for some materials.</p></li>
 <li><p>Data Compiler: fixed an error when compiling sound sources with no sound resource.</p></li>
@@ -1313,7 +1314,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Aug 21, 2026.
+      <span class="lastupdated">Last updated on Sep 13, 2026.
       </span></p>
   </div>
 
