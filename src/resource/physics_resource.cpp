@@ -195,12 +195,12 @@ namespace physics_resource_internal
 			// Parse mesh resource.
 			RETURN_IF_MISSING(PHYSICS_RESOURCE, "mesh", scene.c_str(), opts);
 			scene += ".mesh";
-			Mesh mesh(default_allocator());
-			s32 err = mesh::parse(mesh, scene.c_str(), opts);
+			const Mesh *mesh = NULL;
+			s32 err = mesh::parse(&mesh, scene.c_str(), opts);
 			ENSURE_OR_RETURN(PHYSICS_RESOURCE, err == 0, opts);
 
 			Node deffault_node(default_allocator());
-			Node &node = hash_map::get(mesh._nodes, name, deffault_node);
+			const Node &node = hash_map::get(mesh->_nodes, name, deffault_node);
 			RETURN_IF_FALSE(PHYSICS_RESOURCE, &node != &deffault_node
 				, opts
 				, "Node '%s' does not exist"
@@ -208,7 +208,7 @@ namespace physics_resource_internal
 				);
 
 			Geometry deffault_geometry(default_allocator());
-			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
+			const Geometry &geometry = hash_map::get(mesh->_geometries, node._geometry, deffault_geometry);
 			RETURN_IF_FALSE(PHYSICS_RESOURCE, &geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"

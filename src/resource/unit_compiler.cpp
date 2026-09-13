@@ -286,13 +286,13 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 		DynamicString mesh_path(ta);
 		mesh_path = mesh_resource;
 		mesh_path += ".mesh";
-		Mesh mesh(default_allocator());
-		s32 err = mesh::parse(mesh, mesh_path.c_str(), opts);
+		const Mesh *mesh = NULL;
+		s32 err = mesh::parse(&mesh, mesh_path.c_str(), opts);
 		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 		// Resolve the selected node and geometry.
 		Node deffault_node(default_allocator());
-		Node &node = hash_map::get(mesh._nodes, geometry_name, deffault_node);
+		const Node &node = hash_map::get(mesh->_nodes, geometry_name, deffault_node);
 		if (&node == &deffault_node) {
 			opts.warning(UNIT_COMPILER
 				, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"
@@ -301,7 +301,7 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 				);
 		} else {
 			Geometry deffault_geometry(default_allocator());
-			Geometry &geometry = hash_map::get(mesh._geometries, node._geometry, deffault_geometry);
+			const Geometry &geometry = hash_map::get(mesh->_geometries, node._geometry, deffault_geometry);
 			if (&geometry == &deffault_geometry) {
 				opts.warning(UNIT_COMPILER
 					, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"

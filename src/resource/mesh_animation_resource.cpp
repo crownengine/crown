@@ -330,8 +330,8 @@ namespace mesh_animation_resource_internal
 		DynamicString mesh_path(ta);
 		mesh_path = skeleton.mesh_resource_name;
 		mesh_path += ".mesh";
-		Mesh mesh(default_allocator());
-		err = mesh::parse(mesh, mesh_path.c_str(), opts);
+		const Mesh *mesh = NULL;
+		err = mesh::parse(&mesh, mesh_path.c_str(), opts);
 		ENSURE_OR_RETURN(MESH_ANIMATION_RESOURCE, err == 0, opts);
 
 		Array<u16> timestamps(default_allocator());
@@ -339,10 +339,10 @@ namespace mesh_animation_resource_internal
 		if (array::size(timestamps) == 0)
 			return 0;
 
-		auto geometry_cur = hash_map::begin(mesh._geometries);
-		auto geometry_end = hash_map::end(mesh._geometries);
+		auto geometry_cur = hash_map::begin(mesh->_geometries);
+		auto geometry_end = hash_map::end(mesh->_geometries);
 		for (; geometry_cur != geometry_end; ++geometry_cur) {
-			HASH_MAP_SKIP_HOLE(mesh._geometries, geometry_cur);
+			HASH_MAP_SKIP_HOLE(mesh->_geometries, geometry_cur);
 			const Geometry &geometry = geometry_cur->second;
 			if (!mesh::has_bones(geometry) || array::size(geometry._position_indices) == 0)
 				continue;
@@ -358,10 +358,10 @@ namespace mesh_animation_resource_internal
 				);
 			ENSURE_OR_RETURN(MESH_ANIMATION_RESOURCE, err == 0, opts);
 
-			auto node_cur = hash_map::begin(mesh._nodes);
-			auto node_end = hash_map::end(mesh._nodes);
+			auto node_cur = hash_map::begin(mesh->_nodes);
+			auto node_end = hash_map::end(mesh->_nodes);
 			for (; node_cur != node_end; ++node_cur) {
-				HASH_MAP_SKIP_HOLE(mesh._nodes, node_cur);
+				HASH_MAP_SKIP_HOLE(mesh->_nodes, node_cur);
 				if (node_cur->second._geometry != geometry_cur->first)
 					continue;
 

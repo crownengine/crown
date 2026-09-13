@@ -628,31 +628,26 @@ namespace mesh
 		}
 	}
 
-	s32 parse(Mesh &m, const char *path, CompileOptions &opts)
+	s32 parse(const Mesh **m, const char *path, CompileOptions &opts)
 	{
 		MeshCache *cache = (MeshCache *)opts._data_compiler.user_data(RESOURCE_TYPE_MESH);
+		CE_ENSURE(cache != NULL);
 
-		if (cache == NULL) {
+		s32 err = 0;
+		StringId64 path_id(path);
+		Mesh *mesh = mesh_cache::get(*cache, path);
+		if (mesh == NULL) {
+			mesh = CE_NEW(default_allocator(), Mesh)(default_allocator());
 			RETURN_IF_FILE_MISSING(MESH, path, opts);
 			Buffer buf = opts.read(path);
-			return parse_internal(m, buf, opts);
-		} else {
-			s32 err = 0;
-			StringId64 path_id(path);
-			Mesh *mesh = mesh_cache::get(*cache, path);
-			if (mesh == NULL) {
-				mesh = CE_NEW(default_allocator(), Mesh)(default_allocator());
-				RETURN_IF_FILE_MISSING(MESH, path, opts);
-				Buffer buf = opts.read(path);
-				err = parse_internal(*mesh, buf, opts);
-				ENSURE_OR_RETURN(MESH, err == 0, opts);
-				mesh->_path = path_id;
-				mesh_cache::add(*cache, mesh);
-			}
-
-			m = *mesh;
-			return err;
+			err = parse_internal(*mesh, buf, opts);
+			ENSURE_OR_RETURN(MESH, err == 0, opts);
+			mesh->_path = path_id;
+			mesh_cache::add(*cache, mesh);
 		}
+
+		*m = mesh;
+		return err;
 	}
 
 	s32 parse(Mesh &m, CompileOptions &opts)
