@@ -587,7 +587,9 @@ public class PropertyGrid : Gtk.Grid
 					continue;
 
 				int other_underscore = other.name.last_index_of_char('_');
-				if (group == other.name.substring(0, other_underscore)) {
+				if (group == other.name
+					|| group == other.name.substring(0, other_underscore)
+					) {
 					group_index = property_groups[ii];
 					break;
 				}
