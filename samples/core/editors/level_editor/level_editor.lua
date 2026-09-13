@@ -1844,13 +1844,16 @@ function LevelEditor:add_sprite_component(id, component_id, sprite_resource, mat
 	unit_box:set_sprite(sprite_resource, material_resource, layer, depth, visible, flip_x, flip_y)
 end
 
-function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, cr, cg, cb)
+function LevelEditor:add_light_component(id, component_id, type, range, intensity, spot_angle, cr, cg, cb, shadow_bias, shadow_bias_normal, cast_shadows, cookie, cookie_scale, cookie_x, cookie_y)
 	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
 	local unit_id = unit_box:unit_id()
-	if RenderWorld.light_instance(self._rw, unit_id) == nil then
+	local light = RenderWorld.light_instance(self._rw, unit_id)
+	if light == nil then
 		RenderWorld.light_create(self._rw, unit_id, type, range, intensity, spot_angle, Vector3(cr, cg, cb))
+		light = RenderWorld.light_instance(self._rw, unit_id)
 	end
+	RenderWorld.light_set_shadow_bias(self._rw, light, shadow_bias, shadow_bias_normal)
 	Device.set_temp_count(nv, nq, nm)
 end
 

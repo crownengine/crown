@@ -221,8 +221,8 @@ struct RenderWorld
 	/// Returns the spot angle of the @a light.
 	f32 light_spot_angle(LightId light);
 
-	/// Returns the shadow bias of the @a light.
-	f32 light_shadow_bias(LightId light);
+	/// Returns the normalized shadow bias of the @a light.
+	f32 light_shadow_bias(f32 &normal_bias, LightId light);
 
 	/// Sets the @a type of the @a light.
 	void light_set_type(LightId light, LightType::Enum type);
@@ -239,8 +239,8 @@ struct RenderWorld
 	/// Sets the spot @a angle of the @a light.
 	void light_set_spot_angle(LightId light, f32 angle);
 
-	/// Sets the shadow @a bias of the @a light.
-	void light_set_shadow_bias(LightId light, f32 bias);
+	/// Sets the normalized shadow @a bias_depth and @a bias_normal of the @a light.
+	void light_set_shadow_bias(LightId light, f32 bias_depth, f32 bias_normal);
 
 	/// Sets the @a cookie texture resource of the @a light. Use StringId64()
 	/// to remove any cookie currently assigned to the light.
@@ -781,23 +781,24 @@ struct RenderWorld
 		// This data is fed to the shader as-is.
 		// Keep it in sync with "core/shaders/lighting.shader"!
 		struct ShaderData
-		{                      // Vec4 offset
-			Vector3 color;     // 0
-			f32 intensity;
-			Vector3 position;  // 1
-			f32 range;
-			Vector3 direction; // 2
-			f32 spot_angle;
-			Matrix4x4 mvp[4];  // 3-18 Model-View-Proj-Crop. Sun uses mvp[0..1] for cascade split planes.
-			Vector4 atlas_u;   // 19   U-coord in shadow map atlas.
-			Vector4 atlas_v;   // 20   V-coord in shadow map atlas.
-			f32 map_size;      // 21   Tile size in shadow map atlas.
-			f32 shadow_bias;
-			f32 cast_shadows;
-			f32 _pad;
-			Vector4 cookie_rect; // 22 (min_u, min_v, max_u, max_v) texel centers of normalized light's cookie tile.
-			Vector4 cookie_up;   // 23 World-space light up.xyz and render-target originBottomLeft in w.
-			Vector4 cookie_transform; // 24 Scale in x, local X/Y offsets in yz.
+		{                             // Offset (Vec4 units)
+			Vector3 color;            // 0
+			f32 intensity;            //
+			Vector3 position;         // 1
+			f32 range;                //
+			Vector3 direction;        // 2
+			f32 spot_angle;           //
+			f32 cast_shadows;         // 3.x
+			f32 has_cookie;           // 3.y
+			f32 shadow_bias;          // 3.z
+			f32 shadow_bias_normal;   // 3.w   Shadow normal-offset bias in texels.
+			Matrix4x4 mvp[4];         // 4-19  Model-View-Proj-Crop. Sun uses mvp[0..1] for cascade split planes.
+			Vector2 atlas_offset;     // 20.xy Shadow tile origin in the atlas.
+			f32 map_size;             // 20.z  Tile size in shadow map atlas. Sign encodes omni atlas Y direction.
+			f32 shadow_texel_scale;   // 20.w  World units per texel per unit perspective depth.
+			Vector4 cookie_transform; // 21    Scale, local X/Y offsets and reciprocal scale.
+			Vector4 cookie_up;        // 22    World-space light up.xyz and render-target originBottomLeft in w.
+			Vector4 cookie_rect;      // 23    Texel centers of normalized light's cookie tile (min_u, min_v, max_u, max_v) .
 		};
 
 		// Resolved cookie texture data, cached so the render loop never has to call

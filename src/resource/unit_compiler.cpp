@@ -452,7 +452,8 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	ld.intensity   = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.intensity")));
 	ld.spot_angle  = RETURN_IF_ERROR(sjson::parse_float  (flat_json_object::get(obj, "data.spot_angle")));
 	ld.color       = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.color")));
-	ld.shadow_bias = RETURN_IF_ERROR(parse_float_or(obj, "data.shadow_bias", 0.0004f));
+	ld.shadow_bias        = RETURN_IF_ERROR(parse_float_or(obj, "data.shadow_bias", 0.0004f));
+	ld.shadow_bias_normal = RETURN_IF_ERROR(parse_float_or(obj, "data.shadow_bias_normal", 1.0f));
 	ld.flags = 0u;
 	if (flat_json_object::has(obj, "data.cast_shadows")) {
 		bool cast_shadows = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.cast_shadows")));
@@ -481,6 +482,7 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	ld.cookie_transform.x = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_scale", 1.0f));
 	ld.cookie_transform.y = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_x", 0.0f));
 	ld.cookie_transform.z = RETURN_IF_ERROR(parse_float_or(obj, "data.cookie_y", 0.0f));
+	ld._pad = 0u;
 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
@@ -491,8 +493,10 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	bw.write(ld.spot_angle);
 	bw.write(ld.color);
 	bw.write(ld.shadow_bias);
+	bw.write(ld.shadow_bias_normal);
 	bw.write(ld.flags);
 	bw.write(ld.cookie_transform);
+	bw.write(ld._pad);
 	return 0;
 }
 

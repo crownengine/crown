@@ -231,20 +231,16 @@ bgfx_shaders = {
 		}
 
 		varying = """
-			vec3 v_normal       : NORMAL    = vec3(0.0, 0.0, 0.0);
-			vec3 v_tangent      : TANGENT   = vec3(0.0, 0.0, 0.0);
-			vec3 v_bitangent    : BITANGENT = vec3(0.0, 0.0, 0.0);
-			vec2 v_texcoord0    : TEXCOORD0 = vec2(0.0, 0.0);
-			vec3 v_position     : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
-			vec3 v_camera       : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
-			vec4 v_shadow0      : TEXCOORD3 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow1      : TEXCOORD4 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow2      : TEXCOORD5 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow3      : TEXCOORD6 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec4 v_shadow_local : TEXCOORD7 = vec4(0.0, 0.0, 0.0, 0.0);
-			vec3 v_camera_pos   : TEXCOORD8 = vec3(0.0, 0.0, 0.0);
-			vec3 v_proj_position : TEXCOORD9 = vec3(0.0, 0.0, 0.0);
-			vec3 v_proj_normal   : TEXCOORD10 = vec3(0.0, 0.0, 0.0);
+			vec3 v_normal        : NORMAL    = vec3(0.0, 0.0, 0.0);
+			vec3 v_tangent       : TANGENT   = vec3(0.0, 0.0, 0.0);
+			vec3 v_bitangent     : BITANGENT = vec3(0.0, 0.0, 0.0);
+			vec2 v_texcoord0     : TEXCOORD0 = vec2(0.0, 0.0);
+			vec3 v_position      : TEXCOORD1 = vec3(0.0, 0.0, 0.0);
+			vec3 v_camera        : TEXCOORD2 = vec3(0.0, 0.0, 0.0);
+			vec3 v_world_pos     : TEXCOORD3 = vec3(0.0, 0.0, 0.0);
+			vec3 v_camera_pos    : TEXCOORD4 = vec3(0.0, 0.0, 0.0);
+			vec3 v_proj_position : TEXCOORD5 = vec3(0.0, 0.0, 0.0);
+			vec3 v_proj_normal   : TEXCOORD6 = vec3(0.0, 0.0, 0.0);
 
 			vec3 a_position  : POSITION;
 			vec3 a_normal    : NORMAL;
@@ -270,9 +266,9 @@ bgfx_shaders = {
 		#	endif
 		#endif
 		#if defined(TRIPLANAR)
-			$output v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$output v_normal, v_tangent, v_bitangent, v_position, v_camera, v_world_pos, v_camera_pos, v_proj_position, v_proj_normal
 		#else
-			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$output v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_world_pos, v_camera_pos
 		#endif
 		"""
 
@@ -293,6 +289,7 @@ bgfx_shaders = {
 				vec3 bitangent = decodeNormalUint(a_bitangent);
 
 				v_position = world_position.xyz;
+				v_world_pos = world_position.xyz;
 				v_normal = normalize(mul(normal_matrix, normal)).xyz;
 		#if defined(TRIPLANAR)
 		#	if defined(TRIPLANAR_LOCAL)
@@ -340,24 +337,14 @@ bgfx_shaders = {
 		#if !defined(TRIPLANAR)
 				v_texcoord0 = (a_texcoord0 - vec2_splat(0.5))*u_uv_scale.xy + vec2_splat(0.5) + u_uv_offset.xy;
 		#endif
-
-		#if !defined(NO_LIGHT)
-				vec3 pos_offset = a_position + normal * 0.01;
-				vec4 world_pos_offset = mul(u_model[0], skin(pos_offset));
-				v_shadow0 = mul(u_cascaded_lights[0], world_pos_offset);
-				v_shadow1 = mul(u_cascaded_lights[1], world_pos_offset);
-				v_shadow2 = mul(u_cascaded_lights[2], world_pos_offset);
-				v_shadow3 = mul(u_cascaded_lights[3], world_pos_offset);
-				v_shadow_local = world_pos_offset;
-		#endif
 			}
 		"""
 
 		fs_input_output = """
 		#if defined(TRIPLANAR)
-			$input v_normal, v_tangent, v_bitangent, v_position, v_camera, v_camera_pos, v_proj_position, v_proj_normal, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$input v_normal, v_tangent, v_bitangent, v_position, v_camera, v_world_pos, v_camera_pos, v_proj_position, v_proj_normal
 		#else
-			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local
+			$input v_normal, v_tangent, v_bitangent, v_texcoord0, v_position, v_camera, v_world_pos, v_camera_pos
 		#endif
 		"""
 
@@ -467,7 +454,7 @@ bgfx_shaders = {
 				vec3 n = normalize(normal); // Fragment normal.
 				vec3 v = normalize(v_camera); // Versor from fragment to camera pos.
 				vec3 f0 = mix(vec3_splat(0.04), albedo.rgb, metallic);
-				vec3 radiance = calc_lighting(tbn, n, normalize(v_normal), v, v_position, v_camera, v_camera_pos, v_shadow0, v_shadow1, v_shadow2, v_shadow3, v_shadow_local, albedo.rgb, metallic, roughness, ao, emission, f0);
+				vec3 radiance = calc_lighting(tbn, n, normalize(v_normal), v, v_position, v_camera, v_camera_pos, v_world_pos, albedo.rgb, metallic, roughness, ao, emission, f0);
 		#endif // NO_LIGHT
 		#if !defined(NO_FOG)
 				radiance = apply_fog(radiance, length(v_camera));

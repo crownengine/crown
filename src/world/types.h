@@ -411,9 +411,11 @@ struct LightDesc
 	f32 intensity;     ///<
 	f32 spot_angle;    ///< In radians.
 	Vector3 color;     ///< Color of the light.
-	f32 shadow_bias;   ///<
+	f32 shadow_bias;   ///< Normalized shadow depth bias.
+	f32 shadow_bias_normal; ///< Normalized shadow normal-offset bias.
 	u32 flags;         ///< RenderableFlags::Enum
 	Vector3 cookie_transform; ///< Scale followed by the local X/Y offsets.
+	u32 _pad;
 };
 
 /// Global lighting description.

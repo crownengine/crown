@@ -44,6 +44,17 @@ namespace crown
 {
 CE_STATIC_ASSERT(sizeof(RenderWorld::LightManager::ShaderData) == LIGHT_SIZE * sizeof(Vector4));
 
+static const struct
+{
+	f32 depth_bias;
+	f32 normal_bias;
+} s_bias_scale[LightType::COUNT] =
+{
+	{ 0.25f,  2.0f },
+	{ 1.0f,  10.0f },
+	{ 0.25f,  5.0f }
+};
+
 // Extract bounding sphere in local space.
 static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
 {
@@ -89,6 +100,7 @@ static Vector3 prepare_light_cookie(Pipeline &pipeline
 			, cookie.height
 			);
 	}
+	shader.has_cookie = shader.cookie_rect.z > 0.0f ? 1.0f : 0.0f;
 
 	return light_up;
 }
@@ -1062,10 +1074,11 @@ f32 RenderWorld::light_spot_angle(LightId light)
 	return _light_manager._data.shader[light.i].spot_angle;
 }
 
-f32 RenderWorld::light_shadow_bias(LightId light)
+f32 RenderWorld::light_shadow_bias(f32 &normal_bias, LightId light)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	return _light_manager._data.shader[light.i].shadow_bias;
+	normal_bias = _light_manager._data.shader[light.i].shadow_bias_normal / s_bias_scale[_light_manager._data.type[light.i]].normal_bias;
+	return _light_manager._data.shader[light.i].shadow_bias / s_bias_scale[_light_manager._data.type[light.i]].depth_bias;
 }
 
 void RenderWorld::light_set_color(LightId light, const Color4 &col)
@@ -1083,6 +1096,9 @@ void RenderWorld::light_set_type(LightId light, LightType::Enum type)
 	if (prev_type == type)
 		return;
 
+	LightManager::ShaderData &shader = _light_manager._data.shader[light.i];
+	shader.shadow_bias *= s_bias_scale[type].depth_bias / s_bias_scale[prev_type].depth_bias;
+	shader.shadow_bias_normal *= s_bias_scale[type].normal_bias / s_bias_scale[prev_type].normal_bias;
 	_light_manager._data.type[light.i] = type;
 	_light_manager._data.flag[light.i] |= RenderableFlags::DIRTY;
 	_light_manager._dirty = true;
@@ -1110,10 +1126,11 @@ void RenderWorld::light_set_spot_angle(LightId light, f32 angle)
 	_light_manager._dirty = true;
 }
 
-void RenderWorld::light_set_shadow_bias(LightId light, f32 bias)
+void RenderWorld::light_set_shadow_bias(LightId light, f32 bias_depth, f32 bias_normal)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.shader[light.i].shadow_bias = bias;
+	_light_manager._data.shader[light.i].shadow_bias = bias_depth * s_bias_scale[_light_manager._data.type[light.i]].depth_bias;
+	_light_manager._data.shader[light.i].shadow_bias_normal = bias_normal * s_bias_scale[_light_manager._data.type[light.i]].normal_bias;
 }
 
 void RenderWorld::light_set_cookie(LightId light, StringId64 cookie)
@@ -1137,7 +1154,12 @@ void RenderWorld::light_set_cookie(LightId light, StringId64 cookie)
 void RenderWorld::light_set_cookie_scale_and_offset(LightId light, const Vector3 &scale_and_offset)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
-	_light_manager._data.shader[light.i].cookie_transform = { scale_and_offset.x, scale_and_offset.y, scale_and_offset.z, 0.0f };
+	_light_manager._data.shader[light.i].cookie_transform = {
+		scale_and_offset.x,
+		scale_and_offset.y,
+		scale_and_offset.z,
+		1.0f / max(scale_and_offset.x, 0.001f)
+	};
 }
 
 void RenderWorld::light_set_cast_shadows(LightId light, bool cast_shadows)
@@ -1746,12 +1768,14 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, GlobalLightingDesc &global_lighting_desc
 	, SceneGraph *scene_graph
 	, Matrix4x4 *cascaded_lights
+	, const Vector4 &cascade_shadow_texel_size
 	)
 {
 	for (u32 i = object_id; i != UINT32_MAX; i = mesh._data.bindings[i].next) {
 		bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
 		bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
+		bgfx::setUniform(pipeline->_u_cascade_shadow_texel_size, &cascade_shadow_texel_size);
 		bgfx::setUniform(pipeline->_u_shadow_map_params
 			, pipeline->_render_settings.shadow_map_params
 			, countof(pipeline->_render_settings.shadow_map_params)
@@ -1903,6 +1927,7 @@ void RenderWorld::render(f32 dt
 	static const char *csm_names[] = { "world.csm_0", "world.csm_1", "world.csm_2", "world.csm_3" };
 	CE_STATIC_ASSERT(countof(csm_names) == MAX_NUM_CASCADES);
 	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
+	Vector4 cascade_shadow_texel_size = VECTOR4_ZERO;
 
 	array::clear(lm._directional_lights);
 	array::clear(lm._local_lights_spot);
@@ -1941,6 +1966,7 @@ void RenderWorld::render(f32 dt
 			;
 
 		lid.shader[L].cookie_rect = VECTOR4_ZERO;
+		lid.shader[L].has_cookie = 0.0f;
 
 		if (i == 0 && lights_cookie_enabled)
 			prepare_light_cookie(*_pipeline, lid.shader[L], lid.cookie_data[L], lid.world[L], cookie_view_id);
@@ -2025,6 +2051,10 @@ void RenderWorld::render(f32 dt
 				//
 				const f32 tile_size_x = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.x;
 				const f32 tile_size_y = 0.5f * _pipeline->_render_settings.sun_shadow_map_size.y;
+				*(&cascade_shadow_texel_size.x + i) = max(
+					(box.max.x - box.min.x) / tile_size_x
+					, (box.max.y - box.min.y) / tile_size_y
+					);
 				Vector4 rects[] =
 				{
 					{           0, tile_size_y, tile_size_x, tile_size_y },
@@ -2034,8 +2064,8 @@ void RenderWorld::render(f32 dt
 				};
 				CE_STATIC_ASSERT(countof(rects) == MAX_NUM_CASCADES);
 
-				lid.shader[L].atlas_u.x = 0.0f;
-				lid.shader[L].atlas_v.x = caps->originBottomLeft
+				lid.shader[L].atlas_offset.x = 0.0f;
+				lid.shader[L].atlas_offset.y = caps->originBottomLeft
 					? 1.0f - ((rects[0].y + rects[0].w) / _pipeline->_render_settings.sun_shadow_map_size.y)
 					: rects[0].y / _pipeline->_render_settings.sun_shadow_map_size.y
 					;
@@ -2186,6 +2216,10 @@ void RenderWorld::render(f32 dt
 						, caps->homogeneousDepth
 						, bx::Handedness::Right
 						);
+					shader.shadow_texel_scale = max(
+						2.0f / (f32(tile_size) * fabs(light_proj.x.x))
+						, 2.0f / (f32(tile_size) * fabs(light_proj.y.y))
+						);
 
 					shader.mvp[0] = light_view * light_proj * crop;
 
@@ -2202,8 +2236,8 @@ void RenderWorld::render(f32 dt
 							f32(tile_size)
 						};
 
-						shader.atlas_u.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
-						shader.atlas_v.x = caps->originBottomLeft
+						shader.atlas_offset.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+						shader.atlas_offset.y = caps->originBottomLeft
 							? 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x)
 							: rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x
 							;
@@ -2261,6 +2295,10 @@ void RenderWorld::render(f32 dt
 						, caps->homogeneousDepth
 						, bx::Handedness::Right
 						);
+					shader.shadow_texel_scale = max(
+						2.0f / (f32(tile_size) * fabs(light_proj[0].x.x))
+						, 2.0f / (0.5f * f32(tile_size) * fabs(light_proj[0].y.y))
+						);
 
 					culling_set::cull_spheres(_cullable_shadow_casters, light_sphere, 0, array::size(_cullable_shadow_casters.id));
 					culling_set::remove_culled(_cullable_shadow_casters);
@@ -2268,6 +2306,9 @@ void RenderWorld::render(f32 dt
 					// Render omni light shadow map as 4 strips, one per
 					// tetrahedron face, using stencil masking. Stencil pattern
 					// is populated in pipeline.cpp.
+					shader.map_size = (caps->originBottomLeft ? -1.0f : 1.0f)
+						* f32(tile_size) / _pipeline->_render_settings.local_lights_shadow_map_size.x
+						;
 					for (u32 side = 0; side < 4; ++side) {
 						const u32 strip = (side & 0x2) >> 1;
 
@@ -2324,12 +2365,13 @@ void RenderWorld::render(f32 dt
 							| BGFX_STENCIL_OP_PASS_Z_KEEP
 						};
 
-						*(&shader.atlas_u.x + side) = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
-						*(&shader.atlas_v.x + side) = caps->originBottomLeft
-							? 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x)
-							: rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x
-							;
-						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+						if (side == 0) {
+							shader.atlas_offset.x = rect.x / _pipeline->_render_settings.local_lights_shadow_map_size.x;
+							shader.atlas_offset.y = caps->originBottomLeft
+								? 1.0f - ((rect.y + rect.w) / _pipeline->_render_settings.local_lights_shadow_map_size.x)
+								: rect.y / _pipeline->_render_settings.local_lights_shadow_map_size.x
+								;
+						}
 
 						bgfx::setViewRect(sm_local_view_id
 							, (u16)rect.x
@@ -2434,6 +2476,7 @@ void RenderWorld::render(f32 dt
 				, _global_lighting_desc
 				, _scene_graph
 				, cascaded_lights
+				, cascade_shadow_texel_size
 				);
 
 			if (selection_enabled
@@ -2470,6 +2513,7 @@ void RenderWorld::render(f32 dt
 				, _global_lighting_desc
 				, _scene_graph
 				, cascaded_lights
+				, cascade_shadow_texel_size
 				);
 
 			if (selection_enabled
@@ -3961,17 +4005,19 @@ void RenderWorld::LightManager::create_instances(const void *components_data
 		_data.shader[last].range       = lights[i].range;
 		_data.shader[last].direction   = dir;
 		_data.shader[last].spot_angle  = lights[i].spot_angle;
-		_data.shader[last].shadow_bias = lights[i].shadow_bias;
-		_data.shader[last].atlas_u     = VECTOR4_ZERO;
-		_data.shader[last].atlas_v     = VECTOR4_ZERO;
+		_data.shader[last].shadow_bias = lights[i].shadow_bias * s_bias_scale[lights[i].type].depth_bias;
+		_data.shader[last].shadow_bias_normal = lights[i].shadow_bias_normal * s_bias_scale[lights[i].type].normal_bias;
+		_data.shader[last].atlas_offset = VECTOR2_ZERO;
 		_data.shader[last].map_size    = 0.0f;
+		_data.shader[last].shadow_texel_scale = 0.0f;
+		_data.shader[last].has_cookie  = 0.0f;
 		_data.shader[last].cookie_rect = VECTOR4_ZERO;
 		_data.shader[last].cookie_up   = VECTOR4_ZERO;
 		_data.shader[last].cookie_transform = {
 			lights[i].cookie_transform.x,
 			lights[i].cookie_transform.y,
 			lights[i].cookie_transform.z,
-			0.0f
+			1.0f / max(lights[i].cookie_transform.x, 0.001f)
 		};
 		_data.shader[last].mvp[0]      = MATRIX4X4_IDENTITY;
 		_data.shader[last].mvp[1]      = MATRIX4X4_IDENTITY;

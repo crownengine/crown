@@ -1514,8 +1514,8 @@ Light
 **light_spot_angle** (rw, light) : float
 	Returns the spot angle of the *light*.
 
-**light_shadow_bias** (rw, light) : float
-	Returns the shadow bias of the *light*.
+**light_shadow_bias** (rw, light) : float, float
+	Returns the normalized shadow bias (depth, normal) of the *light*.
 
 **light_set_type** (rw, light, type)
 	Sets the *type* of the *light*.

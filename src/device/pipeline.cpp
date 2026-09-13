@@ -234,6 +234,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
+	_u_cascade_shadow_texel_size = bgfx::createUniform("u_cascade_shadow_texel_size", bgfx::UniformType::Vec4);
 	_u_shadow_map_params = bgfx::createUniform("u_shadow_map_params", bgfx::UniformType::Vec4, 2);
 
 	// Create cascaded shadow map resources.
@@ -387,6 +388,8 @@ void Pipeline::destroy()
 	// Destroy cascaded shadow map resources.
 	bgfx::destroy(_u_cascaded_lights);
 	_u_cascaded_lights = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_u_cascade_shadow_texel_size);
+	_u_cascade_shadow_texel_size = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_u_shadow_map_params);
 	_u_shadow_map_params = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_u_cascaded_shadow_map);
@@ -1128,7 +1131,6 @@ void Pipeline::set_local_lights_params_uniform()
 	params.x = f32((_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING) != 0);
 	params.y = _render_settings.local_lights_distance_culling_fade;
 	params.z = _render_settings.local_lights_distance_culling_cutoff;
-
 	bgfx::setUniform(_u_local_lights_params, &params, sizeof(params)/sizeof(Vector4));
 }
 

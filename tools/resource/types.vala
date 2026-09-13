@@ -512,6 +512,13 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.DOUBLE,
+			name = "data.shadow_bias_normal",
+			min = 0.0,
+			deffault = 1.0,
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.BOOL,
 			name =  "data.cast_shadows",
 			deffault = true,

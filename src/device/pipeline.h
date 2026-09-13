@@ -14,7 +14,7 @@
 struct stbrp_context;
 struct stbrp_node;
 
-#define LIGHT_SIZE 25     // Size of a light in vec4 units.
+#define LIGHT_SIZE 24     // Size of a light in vec4 units.
 #define MAX_NUM_LIGHTS 32 // Maximum number of lights per frame.
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
@@ -108,6 +108,7 @@ struct Pipeline
 	bgfx::FrameBufferHandle _sun_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_cascaded_shadow_map;
 	bgfx::UniformHandle _u_cascaded_lights;
+	bgfx::UniformHandle _u_cascade_shadow_texel_size;
 	bgfx::UniformHandle _u_shadow_map_params;
 	bgfx::TextureHandle _local_lights_shadow_map_texture;
 	bgfx::FrameBufferHandle _local_lights_shadow_map_frame_buffer;

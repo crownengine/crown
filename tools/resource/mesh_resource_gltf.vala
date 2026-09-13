@@ -944,7 +944,7 @@ public class GLTFImporter
 				unit.set_component_double (component_id, "data.intensity", node.light.intensity);
 				unit.set_component_double (component_id, "data.spot_angle", node.light.spot_outer_cone_angle);
 				unit.set_component_vector3(component_id, "data.color", Vector3(node.light.color[0], node.light.color[1], node.light.color[2]));
-				unit.set_component_double (component_id, "data.shadow_bias", 0.0001);
+				unit.set_component_double (component_id, "data.shadow_bias", 0.0004);
 				unit.set_component_bool   (component_id, "data.cast_shadows", false);
 			}
 		} else if (node.camera != null) {

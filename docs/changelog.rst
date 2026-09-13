@@ -35,6 +35,7 @@ Changelog
 * Runtime: HTML5: added fullscreen support.
 * Runtime: Windows: added fullscreen support.
 * Runtime: added support for multiple materials on a single mesh.
+* Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Lua: added ``Window.is_fullscreen()``.
 

@@ -385,7 +385,7 @@ public class FBXImporter
 				unit.set_component_double (component_id, "data.intensity", (double)node.light.intensity);
 				unit.set_component_double (component_id, "data.spot_angle", 0.5 * MathUtils.rad((double)node.light.outer_angle));
 				unit.set_component_vector3(component_id, "data.color", vector3(node.light.color));
-				unit.set_component_double (component_id, "data.shadow_bias", 0.0001);
+				unit.set_component_double (component_id, "data.shadow_bias", 0.0004);
 				unit.set_component_bool   (component_id, "data.cast_shadows", node.light.cast_shadows);
 			}
 		} else if (node.camera != null) {
