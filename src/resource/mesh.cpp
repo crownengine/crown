@@ -644,7 +644,11 @@ namespace mesh
 			err = parse_internal(*mesh, buf, opts);
 			ENSURE_OR_RETURN(MESH, err == 0, opts);
 			mesh->_path = path_id;
-			mesh_cache::add(*cache, mesh);
+			Mesh *cached_mesh = mesh_cache::add(*cache, mesh);
+			if (cached_mesh != mesh) {
+				CE_DELETE(default_allocator(), mesh);
+				mesh = cached_mesh;
+			}
 		}
 
 		*m = mesh;
@@ -714,10 +718,21 @@ namespace mesh_cache
 		return NULL;
 	}
 
-	void add(MeshCache &cache, Mesh *mesh)
+	Mesh *add(MeshCache &cache, Mesh *mesh)
 	{
 		ScopedMutex sm(cache._mutex);
+
+		ListNode *cur;
+		list_for_each(cur, &cache._meshes)
+		{
+			Mesh *cached_mesh = (Mesh *)container_of(cur, Mesh, _cache_node);
+
+			if (cached_mesh->_path == mesh->_path)
+				return cached_mesh;
+		}
+
 		list::add(mesh->_cache_node, cache._meshes);
+		return mesh;
 	}
 
 	void clear(MeshCache &cache)

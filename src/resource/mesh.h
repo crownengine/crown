@@ -129,7 +129,7 @@ namespace mesh_cache
 	Mesh *get(MeshCache &cache, const char *path);
 
 	///
-	void add(MeshCache &cache, Mesh *mesh);
+	Mesh *add(MeshCache &cache, Mesh *mesh);
 
 	///
 	void clear(MeshCache &cache);
