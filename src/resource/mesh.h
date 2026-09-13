@@ -86,7 +86,7 @@ namespace mesh
 	bool has_uvs(Geometry &g);
 
 	///
-	s32 parse(Mesh &m, const char *path, CompileOptions &opts);
+	s32 parse(const Mesh **m, const char *path, CompileOptions &opts);
 
 	///
 	s32 parse(Mesh &m, CompileOptions &opts);
