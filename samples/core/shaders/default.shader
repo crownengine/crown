@@ -442,7 +442,7 @@ bgfx_shaders = {
 				vec3 radiance = albedo.rgb;
 		#else
 
-				vec3 normal;
+				highp vec3 normal;
 				if (u_use_normal_map.r == 1.0) {
 		#	if defined(TRIPLANAR)
 					normal.xy = -1.0 + 2.0 * triplanar_sample_bc5(u_normal_map, uv_x, uv_y, uv_z, weights);
