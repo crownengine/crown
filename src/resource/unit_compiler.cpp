@@ -20,7 +20,6 @@
 #include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
-#include "resource/mesh.h"
 #include "resource/physics_resource.h"
 #include "resource/resource_id.inl"
 #include "resource/unit_compiler.h"
@@ -256,9 +255,6 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 
 	// Validate and write each material binding.
 	Array<StringId32> slots(ta);
-	bool has_default = add_default_material;
-	if (add_default_material)
-		array::push_back(slots, STRING_ID_32("default", UINT32_C(0x5974b5ec)));
 	for (u32 i = 0; i < array::size(materials); ++i) {
 		JsonObject binding(ta);
 		JsonObject data(ta);
@@ -268,7 +264,6 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 		RETURN_IF_ERROR(sjson::parse_string(slot, data["slot"]));
 		RETURN_IF_FALSE(UNIT_COMPILER, !slot.empty(), opts, "Empty mesh material slot");
 		const StringId32 slot_id = slot.to_string_id();
-		has_default |= slot_id == STRING_ID_32("default", UINT32_C(0x5974b5ec));
 		for (u32 j = 0; j < array::size(slots); ++j)
 			RETURN_IF_FALSE(UNIT_COMPILER, slots[j] != slot_id, opts, "Duplicate mesh material slot '%s'", slot.c_str());
 		array::push_back(slots, slot_id);
@@ -279,86 +274,6 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 		bw.write(StringId64(material.c_str()));
 		bw.write(slot_id);
 		bw.write(u32(0));
-	}
-
-	// Validate bindings against the mesh geometry slots.
-	if (opts.resource_exists("mesh", mesh_resource.c_str())) {
-		DynamicString mesh_path(ta);
-		mesh_path = mesh_resource;
-		mesh_path += ".mesh";
-		const Mesh *mesh = NULL;
-		s32 err = mesh::parse(&mesh, mesh_path.c_str(), opts);
-		ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
-
-		// Resolve the selected node and geometry.
-		Node deffault_node(default_allocator());
-		const Node &node = hash_map::get(mesh->_nodes, geometry_name, deffault_node);
-		if (&node == &deffault_node) {
-			opts.warning(UNIT_COMPILER
-				, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"
-				, geometry_name.c_str()
-				, mesh_resource.c_str()
-				);
-		} else {
-			Geometry deffault_geometry(default_allocator());
-			const Geometry &geometry = hash_map::get(mesh->_geometries, node._geometry, deffault_geometry);
-			if (&geometry == &deffault_geometry) {
-				opts.warning(UNIT_COMPILER
-					, "Geometry '%s' does not exist in mesh '%s'; material slots cannot be validated"
-					, node._geometry.c_str()
-					, mesh_resource.c_str()
-					);
-			} else {
-				// Collect unique slots used by the geometry.
-				Array<StringId32> geometry_slots(ta);
-				if (array::empty(geometry._material_ranges)) {
-					array::push_back(geometry_slots, STRING_ID_32("default", UINT32_C(0x5974b5ec)));
-				} else {
-					for (u32 i = 0; i < array::size(geometry._material_ranges); ++i) {
-						const StringId32 slot = geometry._material_ranges[i].slot;
-						u32 j = 0;
-						for (; j < array::size(geometry_slots) && geometry_slots[j] != slot; ++j)
-						;
-						if (j == array::size(geometry_slots))
-							array::push_back(geometry_slots, slot);
-					}
-				}
-
-				// Warn about geometry slots without a binding.
-				for (u32 i = 0; i < array::size(geometry_slots); ++i) {
-					u32 j = 0;
-					for (; j < array::size(slots) && slots[j] != geometry_slots[i]; ++j)
-					;
-					if (j == array::size(slots) && !has_default) {
-						char slot[STRING_ID32_BUF_LEN];
-						opts.warning(UNIT_COMPILER
-							, "Mesh material slot #ID(%s) has no binding for geometry '%s' in mesh '%s'"
-							, geometry_slots[i].to_string(slot, sizeof(slot))
-							, geometry_name.c_str()
-							, mesh_resource.c_str()
-							);
-					}
-				}
-
-				// Warn about bindings unused by the geometry.
-				for (u32 i = 0; i < array::size(slots); ++i) {
-					if (slots[i] == STRING_ID_32("default", UINT32_C(0x5974b5ec)))
-						continue;
-					u32 j = 0;
-					for (; j < array::size(geometry_slots) && geometry_slots[j] != slots[i]; ++j)
-					;
-					if (j == array::size(geometry_slots)) {
-						char slot[STRING_ID32_BUF_LEN];
-						opts.warning(UNIT_COMPILER
-							, "Mesh material binding #ID(%s) does not exist in geometry '%s' in mesh '%s'"
-							, slots[i].to_string(slot, sizeof(slot))
-							, geometry_name.c_str()
-							, mesh_resource.c_str()
-							);
-					}
-				}
-			}
-		}
 	}
 	return 0;
 }
