@@ -635,6 +635,7 @@ namespace mesh
 
 		s32 err = 0;
 		StringId64 path_id(path);
+		opts.fake_read(path);
 		Mesh *mesh = mesh_cache::get(*cache, path);
 		if (mesh == NULL) {
 			mesh = CE_NEW(default_allocator(), Mesh)(default_allocator());
