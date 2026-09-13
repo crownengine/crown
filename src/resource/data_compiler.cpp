@@ -2922,10 +2922,15 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 {
+	MeshCache *mesh_cache = (MeshCache *)user_data(RESOURCE_TYPE_MESH);
+	CE_ENSURE(mesh_cache != NULL);
+
 	profiler_globals::clear();
+	mesh_cache::clear(*mesh_cache);
 	shader_compiler::clear_metadata_cache();
 	bool success = compile_internal(data_dir, platform_name);
 	shader_compiler::clear_metadata_cache();
+	mesh_cache::clear(*mesh_cache);
 	profiler_globals::flush();
 	return success;
 }

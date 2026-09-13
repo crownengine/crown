@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed new sound sources defaulting to a nonexistent sound resource.
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
+* Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 
 .. _v0.64.9:
 
