@@ -579,16 +579,17 @@ namespace mesh
 		auto end = hash_map::end(m._geometries);
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(m._geometries, cur);
+			const DynamicString &geometry_name = cur->first;
 
 			{
 				u32 num_geo_names = 0;
 
-				auto cur = hash_map::begin(m._nodes);
-				auto end = hash_map::end(m._nodes);
-				for (; cur != end; ++cur) {
-					HASH_MAP_SKIP_HOLE(m._nodes, cur);
+				auto node_cur = hash_map::begin(m._nodes);
+				auto node_end = hash_map::end(m._nodes);
+				for (; node_cur != node_end; ++node_cur) {
+					HASH_MAP_SKIP_HOLE(m._nodes, node_cur);
 
-					if (cur->second._geometry == cur->first)
+					if (node_cur->second._geometry == geometry_name)
 						++num_geo_names;
 				}
 
@@ -596,13 +597,13 @@ namespace mesh
 			}
 
 			{
-				auto cur = hash_map::begin(m._nodes);
-				auto end = hash_map::end(m._nodes);
-				for (; cur != end; ++cur) {
-					HASH_MAP_SKIP_HOLE(m._nodes, cur);
+				auto node_cur = hash_map::begin(m._nodes);
+				auto node_end = hash_map::end(m._nodes);
+				for (; node_cur != node_end; ++node_cur) {
+					HASH_MAP_SKIP_HOLE(m._nodes, node_cur);
 
-					if (cur->second._geometry == cur->first)
-						opts.write(cur->second._geometry.to_string_id()._id);
+					if (node_cur->second._geometry == geometry_name)
+						opts.write(node_cur->first.to_string_id()._id);
 				}
 			}
 
