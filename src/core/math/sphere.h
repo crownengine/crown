@@ -29,6 +29,9 @@ namespace sphere
 	/// Adds @a num @a points to the sphere @a s, expanding its bounds if necessary.
 	void add_points(Sphere &s, u32 num, u32 stride, const void *points);
 
+	/// Adds the @a num points selected by @a indices to the sphere @a s, expanding its bounds if necessary.
+	void add_points(Sphere &s, u32 num, u32 stride, const void *points, const u32 *indices);
+
 	/// Adds @a num @a points to the sphere expanding if necessary.
 	void add_points(Sphere &s, u32 num, const Vector3 *points);
 

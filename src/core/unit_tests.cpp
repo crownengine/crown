@@ -1077,6 +1077,23 @@ static void test_sphere()
 	{
 		const Vector3 points[] =
 		{
+			{ 100.0f, 100.0f, 100.0f },
+			{ -15.0f,  -1.0f,  -1.0f },
+			{ -17.0f,  -1.0f,  -1.0f }
+		};
+		const u32 indices[] = { 1, 2 };
+
+		Sphere a;
+		sphere::reset(a);
+		sphere::add_points(a, countof(indices), sizeof(Vector3), points, indices);
+		ENSURE(fequal(a.c.x, -16.0f, 0.00001f));
+		ENSURE(fequal(a.c.y,  -1.0f, 0.00001f));
+		ENSURE(fequal(a.c.z,  -1.0f, 0.00001f));
+		ENSURE(fequal(a.r, 1.0f + FLOAT_EPSILON * 10.0f, 0.00001f));
+	}
+	{
+		const Vector3 points[] =
+		{
 			{ -1.2f,  3.4f,  5.5f },
 			{  8.2f, -2.4f, -1.5f },
 			{ -5.9f,  9.2f,  6.0f },

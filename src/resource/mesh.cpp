@@ -534,9 +534,7 @@ namespace mesh
 				);
 			Random random((s32)seed);
 
-			Array<f32> positions(default_allocator());
 			Array<u32> indices(default_allocator());
-			array::resize(positions, geometry._positions.count);
 			array::resize(indices, geometry._positions.count / 3);
 
 			for (u32 j = 0; j < array::size(indices); ++j)
@@ -552,17 +550,11 @@ namespace mesh
 					exchange(indices[i], indices[k]);
 				}
 
-				// TODO: just add a sphere::add_points() that supports index buffers.
-				for (u32 i = 0; i < array::size(indices); ++i) {
-					positions[i*3 + 0] = source_positions[indices[i]*3 + 0];
-					positions[i*3 + 1] = source_positions[indices[i]*3 + 1];
-					positions[i*3 + 2] = source_positions[indices[i]*3 + 2];
-				}
-
 				sphere::add_points(s
-					, geometry._positions.count / 3
+					, array::size(indices)
 					, sizeof(g._positions[0]) * 3
-					, array::begin(positions)
+					, source_positions
+					, array::begin(indices)
 					);
 
 				if (sphere::volume(s) < sphere::volume(sphere) || i == 0)

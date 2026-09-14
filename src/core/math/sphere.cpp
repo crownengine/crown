@@ -79,6 +79,30 @@ namespace sphere
 		}
 	}
 
+	void add_points(Sphere &s, u32 num, u32 stride, const void *points, const u32 *indices)
+	{
+		const char *pts = (char *)points;
+
+		if (CE_UNLIKELY(num == 0))
+			return;
+
+		s.c = *(Vector3 *)(pts + indices[0]*stride);
+		s.r = 0.0f;
+
+		for (u32 i = 1; i < num; ++i) {
+			const Vector3 &p = *(Vector3 *)(pts + indices[i]*stride);
+
+			if (!sphere::contains_point(s, p)) {
+				const f32 dist  = distance(p, s.c);
+				const f32 delta = 0.5f * (dist - s.r);
+				const f32 alpha = delta / dist;
+
+				s.c += alpha * (p - s.c);
+				s.r += delta + FLOAT_EPSILON * 10.0f;
+			}
+		}
+	}
+
 } // namespace sphere
 
 } // namespace crown
