@@ -471,13 +471,21 @@ public class FBXImporter
 			? GLib.File.new_for_path(texture_filename).get_basename()
 			: (string)texture.name.data + ".png"
 			;
+		if (texture.content.data.length > 0 && ResourceId.type(texture_basename) == null)
+			texture_basename += ".png";
+
 		string source_image_filename = Path.build_filename(textures_path, texture_basename);
 		GLib.File source_image_file  = GLib.File.new_for_path(source_image_filename);
 		string source_image_path     = source_image_file.get_path();
 
 		string texture_resource_filename = project.resource_filename(source_image_path);
 		string texture_resource_path     = ResourceId.normalize(texture_resource_filename);
-		string texture_source_name       = ResourceId.name(texture_resource_path);
+		string? texture_source_name      = ResourceId.name(texture_resource_path);
+		if (texture_source_name == null) {
+			logw("'%s' references texture with no file extension '%s'".printf(filename, texture_basename));
+			return 0;
+		}
+
 		string texture_resource_name     = texture_source_name + semantic_suffix;
 		string? texture_resource_type    = ResourceId.type(texture_resource_path);
 		string source_image              = texture_source_name + "." + (texture_resource_type != null ? texture_resource_type : "png");
