@@ -944,7 +944,9 @@ public class FBXImporter
 
 						switch (mm) {
 						case ufbx.MaterialPbrMap.BASE_COLOR: {
-							if (map.has_value)
+							if (map.texture_enabled && map.texture != null)
+								albedo = Vector3(1, 1, 1);
+							else if (map.has_value)
 								albedo = vector3(map.value_vec3);
 
 							unowned ufbx.MaterialMap opacity = material.pbr.opacity;
