@@ -619,14 +619,17 @@ public class GLTFImporter
 		string imported_source_type = ResourceId.type(imported_resource_path) ?? "png";
 		string texture_resource_name = channel >= 0 ? imported_source_name : imported_source_name + semantic_suffix;
 		string source_image = imported_source_name + "." + imported_source_type;
+		bool has_alpha = (usage & MeshResource.TextureUsage.COLOR) != 0
+			&& TextureResource.image_has_alpha(imported_path)
+			;
 
 		TextureResource texture_resource;
 		if ((usage & MeshResource.TextureUsage.NORMAL) != 0)
 			texture_resource = TextureResource.normal_map(db, Guid.new_guid(), source_image);
 		else if ((usage & MeshResource.TextureUsage.DATA) != 0)
 			texture_resource = TextureResource.data_map(db, Guid.new_guid(), source_image);
-		else if (preserve_alpha)
-			texture_resource = TextureResource(db, Guid.new_guid(), source_image, TextureFormat.BC3, true, false);
+		else if (preserve_alpha || has_alpha)
+			texture_resource = TextureResource.alpha_map(db, Guid.new_guid(), source_image);
 		else
 			texture_resource = TextureResource.color_map(db, Guid.new_guid(), source_image);
 		if (texture_resource.save(project, texture_resource_name) != 0)

@@ -132,6 +132,7 @@ project "crown-editor"
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/cgltf") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/ufbx") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/stb") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "3rdparty/bimg/3rdparty") .. '"',
 	}
 
 	files {

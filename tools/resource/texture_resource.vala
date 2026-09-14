@@ -5,6 +5,9 @@
 
 namespace Crown
 {
+[CCode (cname = "stbi_info", cheader_filename = "stb/stb_image.h")]
+private extern static int stbi_info(string filename, out int width, out int height, out int channels);
+
 public enum TextureFormat
 {
 	BC1,
@@ -88,6 +91,11 @@ public struct TextureResource
 		this(db, texture_id, source_image, TextureFormat.BC4, true, false, true);
 	}
 
+	public TextureResource.alpha_map(Database db, Guid texture_id, string source_image)
+	{
+		this(db, texture_id, source_image, TextureFormat.BC3, true, false, false);
+	}
+
 	public TextureResource.font_atlas(Database db, Guid texture_id, string source_image)
 	{
 		this(db, texture_id, source_image, TextureFormat.BC3, false, false);
@@ -96,6 +104,16 @@ public struct TextureResource
 	public TextureResource.sprite(Database db, Guid texture_id, string source_image)
 	{
 		this(db, texture_id, source_image, TextureFormat.RGBA8, false, false);
+	}
+
+	public static bool image_has_alpha(string filename)
+	{
+		int width;
+		int height;
+		int channels;
+		return stbi_info(filename, out width, out height, out channels) != 0
+			&& (channels == 2 || channels == 4)
+			;
 	}
 
 	public int save(Project project, string resource_name)
