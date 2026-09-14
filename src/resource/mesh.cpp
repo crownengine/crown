@@ -485,18 +485,6 @@ namespace mesh
 		array::resize(g._material_ranges, write);
 	}
 
-	static void geometry_names(Vector<DynamicString> &names, const Mesh &m, const DynamicString &geometry)
-	{
-		auto cur = hash_map::begin(m._nodes);
-		auto end = hash_map::end(m._nodes);
-		for (; cur != end; ++cur) {
-			HASH_MAP_SKIP_HOLE(m._nodes, cur);
-
-			if (cur->second._geometry == geometry)
-				vector::push_back(names, cur->first);
-		}
-	}
-
 	static OBB obb(const Geometry &g, const GeometryInfo &geometry)
 	{
 		AABB aabb;
@@ -582,6 +570,8 @@ namespace mesh
 			calculate_tangents = tangents == "calculate";
 		}
 
+		Geometry geo(default_allocator());
+
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(hash_map::size(m._geometries));
 
@@ -590,21 +580,41 @@ namespace mesh
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(m._geometries, cur);
 
-			Vector<DynamicString> geo_names(default_allocator());
-			geometry_names(geo_names, m, cur->first);
-			u32 num_geo_names = vector::size(geo_names);
+			{
+				u32 num_geo_names = 0;
 
-			opts.write(num_geo_names);
-			for (u32 i = 0; i < num_geo_names; ++i)
-				opts.write(geo_names[i].to_string_id()._id);
+				auto cur = hash_map::begin(m._nodes);
+				auto end = hash_map::end(m._nodes);
+				for (; cur != end; ++cur) {
+					HASH_MAP_SKIP_HOLE(m._nodes, cur);
 
+					if (cur->second._geometry == cur->first)
+						++num_geo_names;
+				}
+
+				opts.write(num_geo_names);
+			}
+
+			{
+				auto cur = hash_map::begin(m._nodes);
+				auto end = hash_map::end(m._nodes);
+				for (; cur != end; ++cur) {
+					HASH_MAP_SKIP_HOLE(m._nodes, cur);
+
+					if (cur->second._geometry == cur->first)
+						opts.write(cur->second._geometry.to_string_id()._id);
+				}
+			}
+
+			mesh::reset(geo);
 			const GeometryInfo &geometry_info = cur->second;
-			Geometry geo(default_allocator());
 			if (geometry_info._material_ranges.count != 0)
 				array::push(geo._material_ranges, array::begin(m._geometry._material_ranges) + geometry_info._material_ranges.offset, geometry_info._material_ranges.count);
+
 			if (calculate_tangents)
 				generate_tangent_space(m._geometry, geometry_info, geo);
 			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(m._geometry, geometry_info, geo, opts) == 0, opts);
+
 			if (array::empty(geo._material_ranges))
 				array::push_back(geo._material_ranges, { STRING_ID_32("default", UINT32_C(0x5974b5ec)), 0, array::size(geo._index_buffer) });
 			else
