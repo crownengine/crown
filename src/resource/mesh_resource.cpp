@@ -212,9 +212,11 @@ namespace mesh
 		JsonArray floats(ta);
 		RETURN_IF_ERROR(sjson::parse_array(floats, json));
 
-		array::resize(output, array::size(floats));
+		const u32 offset = array::size(output);
+		array::reserve(output, offset + array::size(floats));
+		array::resize(output, offset + array::size(floats));
 		for (u32 i = 0; i < array::size(floats); ++i) {
-			output[i] = RETURN_IF_ERROR(sjson::parse_float(floats[i]));
+			output[offset + i] = RETURN_IF_ERROR(sjson::parse_float(floats[i]));
 		}
 
 		return 0;
@@ -226,9 +228,11 @@ namespace mesh
 		JsonArray indices(ta);
 		RETURN_IF_ERROR(sjson::parse_array(indices, json));
 
-		array::resize(output, array::size(indices));
+		const u32 offset = array::size(output);
+		array::reserve(output, offset + array::size(indices));
+		array::resize(output, offset + array::size(indices));
 		for (u32 i = 0; i < array::size(indices); ++i) {
-			output[i] = RETURN_IF_ERROR(sjson::parse_int(indices[i]));
+			output[offset + i] = RETURN_IF_ERROR(sjson::parse_int(indices[i]));
 		}
 
 		return 0;
@@ -256,7 +260,7 @@ namespace mesh
 		return 0;
 	}
 
-	s32 parse_indices(Geometry &g, const char *json, CompileOptions &opts)
+	s32 parse_indices(Geometry &g, GeometryInfo &geometry, const char *json, CompileOptions &opts)
 	{
 		CE_UNUSED(opts);
 
@@ -267,55 +271,80 @@ namespace mesh
 		JsonArray data_json(ta);
 		RETURN_IF_ERROR(sjson::parse_array(data_json, obj["data"]));
 
+		geometry._position_indices.offset = array::size(g._position_indices);
 		parse_index_array(g._position_indices, data_json[0]);
+		geometry._position_indices.count = array::size(g._position_indices) - geometry._position_indices.offset;
 
 		u32 idx = 1;
 
-		if (has_normals(g))
+		if (has_normals(geometry)) {
+			geometry._normal_indices.offset = array::size(g._normal_indices);
 			parse_index_array(g._normal_indices, data_json[idx++]);
+			geometry._normal_indices.count = array::size(g._normal_indices) - geometry._normal_indices.offset;
+		}
 
-		if (has_uvs(g))
+		if (has_uvs(geometry)) {
+			geometry._uv_indices.offset = array::size(g._uv_indices);
 			parse_index_array(g._uv_indices, data_json[idx++]);
+			geometry._uv_indices.count = array::size(g._uv_indices) - geometry._uv_indices.offset;
+		}
 
-		if (has_tangents(g))
+		if (has_tangents(geometry)) {
+			geometry._tangent_indices.offset = array::size(g._tangent_indices);
 			parse_index_array(g._tangent_indices, data_json[idx++]);
+			geometry._tangent_indices.count = array::size(g._tangent_indices) - geometry._tangent_indices.offset;
+		}
 
-		if (has_bitangents(g))
+		if (has_bitangents(geometry)) {
+			geometry._bitangent_indices.offset = array::size(g._bitangent_indices);
 			parse_index_array(g._bitangent_indices, data_json[idx++]);
+			geometry._bitangent_indices.count = array::size(g._bitangent_indices) - geometry._bitangent_indices.offset;
+		}
 
 		return 0;
 	}
 
-	s32 parse_geometry(Geometry &g, const char *sjson, CompileOptions &opts)
+	s32 parse_geometry(Geometry &g, GeometryInfo &geometry, const char *sjson, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
 		JsonObject obj(ta);
 		RETURN_IF_ERROR(sjson::parse(obj, sjson));
 
+		geometry._positions.offset = array::size(g._positions);
 		s32 err = parse_float_array(g._positions, obj["position"]);
 		ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
+		geometry._positions.count = array::size(g._positions) - geometry._positions.offset;
 
 		if (json_object::has(obj, "normal")) {
+			geometry._normals.offset = array::size(g._normals);
 			err = parse_float_array(g._normals, obj["normal"]);
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
+			geometry._normals.count = array::size(g._normals) - geometry._normals.offset;
 		}
 
 		if (json_object::has(obj, "tangent")) {
+			geometry._tangents.offset = array::size(g._tangents);
 			err = parse_float_array(g._tangents, obj["tangent"]);
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
+			geometry._tangents.count = array::size(g._tangents) - geometry._tangents.offset;
 		}
 
 		if (json_object::has(obj, "bitangent")) {
+			geometry._bitangents.offset = array::size(g._bitangents);
 			err = parse_float_array(g._bitangents, obj["bitangent"]);
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
+			geometry._bitangents.count = array::size(g._bitangents) - geometry._bitangents.offset;
 		}
 
 		if (json_object::has(obj, "texcoord")) {
+			geometry._uvs.offset = array::size(g._uvs);
 			err = parse_float_array(g._uvs, obj["texcoord"]);
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
+			geometry._uvs.count = array::size(g._uvs) - geometry._uvs.offset;
 		}
 
-		RETURN_IF_ERROR(parse_indices(g, obj["indices"], opts));
+		RETURN_IF_ERROR(parse_indices(g, geometry, obj["indices"], opts));
+		geometry._material_ranges.offset = array::size(g._material_ranges);
 		if (json_object::has(obj, "material_ranges")) {
 			JsonArray ranges(ta);
 			RETURN_IF_ERROR(sjson::parse_array(ranges, obj["material_ranges"]));
@@ -330,14 +359,15 @@ namespace mesh
 				RETURN_IF_FALSE(MESH_RESOURCE
 					, !slot.empty() && offset >= 0 && (u32)offset == next_index
 					&& count > 0 && count % 3 == 0
-					&& (u32)count <= array::size(g._position_indices) - next_index
+					&& (u32)count <= geometry._position_indices.count - next_index
 					, opts, "Material ranges must cover all triangles in index order without gaps or overlaps");
 				array::push_back(g._material_ranges, { slot.to_string_id(), (u32)offset, (u32)count });
 				next_index += (u32)count;
 			}
-			RETURN_IF_FALSE(MESH_RESOURCE, next_index == array::size(g._position_indices)
+			RETURN_IF_FALSE(MESH_RESOURCE, next_index == geometry._position_indices.count
 				&& !array::empty(ranges), opts, "Material ranges must cover all triangles");
 		}
+		geometry._material_ranges.count = array::size(g._material_ranges) - geometry._material_ranges.offset;
 		return 0;
 	}
 
@@ -352,8 +382,8 @@ namespace mesh
 		for (; cur != end; ++cur) {
 			JSON_OBJECT_SKIP_HOLE(geometries, cur);
 
-			Geometry geo(default_allocator());
-			s32 err = mesh::parse_geometry(geo, cur->second, opts);
+			GeometryInfo geo = {};
+			s32 err = mesh::parse_geometry(m._geometry, geo, cur->second, opts);
 			ENSURE_OR_RETURN(MESH_RESOURCE, err == 0, opts);
 
 			DynamicString geometry_name(ta);

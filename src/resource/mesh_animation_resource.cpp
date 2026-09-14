@@ -54,6 +54,7 @@ namespace mesh_animation_resource_internal
 		const MeshAnimation &_animation;
 		const AnimationSkeleton &_skeleton;
 		const Geometry &_geometry;
+		const GeometryInfo &_geometry_info;
 		Array<BoneTransform> _pose;
 		Array<Matrix4x4> _world;
 		Array<Matrix4x4> _palette;
@@ -63,10 +64,12 @@ namespace mesh_animation_resource_internal
 			, const MeshAnimation &animation
 			, const AnimationSkeleton &skeleton
 			, const Geometry &geometry
+			, const GeometryInfo &geometry_info
 			)
 			: _animation(animation)
 			, _skeleton(skeleton)
 			, _geometry(geometry)
+			, _geometry_info(geometry_info)
 			, _pose(a)
 			, _world(a)
 			, _palette(a)
@@ -75,7 +78,7 @@ namespace mesh_animation_resource_internal
 			array::resize(_pose, array::size(skeleton.local_transforms));
 			array::resize(_world, array::size(skeleton.local_transforms));
 			array::resize(_palette, array::size(skeleton.local_transforms));
-			array::resize(_points, array::size(geometry._position_indices));
+			array::resize(_points, geometry_info._position_indices.count);
 		}
 	};
 
@@ -111,6 +114,7 @@ namespace mesh_animation_resource_internal
 		const MeshAnimation &animation = ctx._animation;
 		const AnimationSkeleton &skeleton = ctx._skeleton;
 		const Geometry &geometry = ctx._geometry;
+		const GeometryInfo &geometry_info = ctx._geometry_info;
 
 		// A clip may omit tracks, so every independent sample starts from rest pose.
 		for (u32 i = 0; i < array::size(ctx._pose); ++i)
@@ -159,15 +163,21 @@ namespace mesh_animation_resource_internal
 				;
 		}
 
-		for (u32 i = 0; i < array::size(geometry._position_indices); ++i) {
-			const u32 position_index = geometry._position_indices[i] * 3;
+		for (u32 i = 0; i < geometry_info._position_indices.count; ++i) {
+			const u32 position_index = geometry_info._positions.offset
+				+ geometry._position_indices[geometry_info._position_indices.offset + i] * 3
+				;
 			const Vector3 position = {
 				geometry._positions[position_index + 0],
 				geometry._positions[position_index + 1],
 				geometry._positions[position_index + 2]
 			};
-			const u32 bone_index = geometry._bone_indices[i] * Geometry::MAX_BONE_WEIGHTS;
-			const u32 weight_index = geometry._weight_indices[i] * Geometry::MAX_BONE_WEIGHTS;
+			const u32 bone_index = geometry_info._bones.offset
+				+ geometry._bone_indices[geometry_info._bone_indices.offset + i] * Geometry::MAX_BONE_WEIGHTS
+				;
+			const u32 weight_index = geometry_info._weights.offset
+				+ geometry._weight_indices[geometry_info._weight_indices.offset + i] * Geometry::MAX_BONE_WEIGHTS
+				;
 			ctx._points[i] = mesh_animation::skin(position
 				, array::begin(ctx._palette)
 				, array::begin(geometry._bones) + bone_index
@@ -182,35 +192,36 @@ namespace mesh_animation_resource_internal
 	}
 
 	static s32 validate_geometry(const Geometry &geometry
+		, const GeometryInfo &geometry_info
 		, const char *geometry_name
 		, const AnimationSkeleton &skeleton
 		, CompileOptions &opts
 		)
 	{
-		const u32 num_indices = array::size(geometry._position_indices);
+		const u32 num_indices = geometry_info._position_indices.count;
 		RETURN_IF_FALSE(MESH_ANIMATION_RESOURCE
-			, array::size(geometry._bone_indices) == num_indices
-			&& array::size(geometry._weight_indices) == num_indices
+			, geometry_info._bone_indices.count == num_indices
+			&& geometry_info._weight_indices.count == num_indices
 			, opts
 			, "Skinned geometry '%s' has mismatched vertex attribute indices"
 			, geometry_name
 			);
 
 		for (u32 i = 0; i < num_indices; ++i) {
-			const u32 position_index = geometry._position_indices[i] * 3;
-			const u32 bone_index = geometry._bone_indices[i] * Geometry::MAX_BONE_WEIGHTS;
-			const u32 weight_index = geometry._weight_indices[i] * Geometry::MAX_BONE_WEIGHTS;
+			const u32 position_index = geometry._position_indices[geometry_info._position_indices.offset + i] * 3;
+			const u32 bone_index = geometry._bone_indices[geometry_info._bone_indices.offset + i] * Geometry::MAX_BONE_WEIGHTS;
+			const u32 weight_index = geometry._weight_indices[geometry_info._weight_indices.offset + i] * Geometry::MAX_BONE_WEIGHTS;
 			RETURN_IF_FALSE(MESH_ANIMATION_RESOURCE
-				, position_index + 2 < array::size(geometry._positions)
-				&& bone_index + 3 < array::size(geometry._bones)
-				&& weight_index + 3 < array::size(geometry._weights)
+				, position_index + 2 < geometry_info._positions.count
+				&& bone_index + 3 < geometry_info._bones.count
+				&& weight_index + 3 < geometry_info._weights.count
 				, opts
 				, "Skinned geometry '%s' has invalid vertex attribute indices"
 				, geometry_name
 				);
 
 			for (u32 w = 0; w < Geometry::MAX_BONE_WEIGHTS; ++w) {
-				const f32 bone_value = geometry._bones[bone_index + w];
+				const f32 bone_value = geometry._bones[geometry_info._bones.offset + bone_index + w];
 				RETURN_IF_FALSE(MESH_ANIMATION_RESOURCE
 					, bone_value >= 0.0f && bone_value <= f32(UINT16_MAX)
 					, opts
@@ -292,15 +303,16 @@ namespace mesh_animation_resource_internal
 		, const MeshAnimation &animation
 		, const AnimationSkeleton &skeleton
 		, const Geometry &geometry
+		, const GeometryInfo &geometry_info
 		, const char *geometry_name
 		, const Array<u16> &timestamps
 		, CompileOptions &opts
 		)
 	{
-		s32 err = validate_geometry(geometry, geometry_name, skeleton, opts);
+		s32 err = validate_geometry(geometry, geometry_info, geometry_name, skeleton, opts);
 		ENSURE_OR_RETURN(MESH_ANIMATION_RESOURCE, err == 0, opts);
 
-		SampleContext ctx(default_allocator(), animation, skeleton, geometry);
+		SampleContext ctx(default_allocator(), animation, skeleton, geometry, geometry_info);
 		BoundsAccumulator bounds = {};
 		for (u32 i = 0; i < array::size(timestamps); ++i)
 			add_sample(bounds, sample_bounds(ctx, timestamps[i]));
@@ -343,15 +355,16 @@ namespace mesh_animation_resource_internal
 		auto geometry_end = hash_map::end(mesh->_geometries);
 		for (; geometry_cur != geometry_end; ++geometry_cur) {
 			HASH_MAP_SKIP_HOLE(mesh->_geometries, geometry_cur);
-			const Geometry &geometry = geometry_cur->second;
-			if (!mesh::has_bones(geometry) || array::size(geometry._position_indices) == 0)
+			const GeometryInfo &geometry_info = geometry_cur->second;
+			if (!mesh::has_bones(geometry_info) || geometry_info._position_indices.count == 0)
 				continue;
 
 			MeshAnimationBounds geometry_bounds = {};
 			err = generate_geometry_bounds(geometry_bounds
 				, animation
 				, skeleton
-				, geometry
+				, mesh->_geometry
+				, geometry_info
 				, geometry_cur->first.c_str()
 				, timestamps
 				, opts

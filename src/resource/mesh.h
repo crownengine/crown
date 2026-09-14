@@ -72,11 +72,39 @@ struct Geometry
 	explicit Geometry(Allocator &a);
 };
 
+struct DataRange
+{
+	u32 offset;
+	u32 count;
+};
+
+struct GeometryInfo
+{
+	DataRange _positions;
+	DataRange _normals;
+	DataRange _uvs;
+	DataRange _tangents;
+	DataRange _bitangents;
+	DataRange _bones;
+	DataRange _weights;
+
+	DataRange _position_indices;
+	DataRange _normal_indices;
+	DataRange _tangent_indices;
+	DataRange _bitangent_indices;
+	DataRange _bone_indices;
+	DataRange _weight_indices;
+	DataRange _uv_indices;
+
+	DataRange _material_ranges;
+};
+
 struct Mesh
 {
 	ListNode _cache_node;
 	StringId64 _path;
-	HashMap<DynamicString, Geometry> _geometries;
+	Geometry _geometry;
+	HashMap<DynamicString, GeometryInfo> _geometries;
 	HashMap<DynamicString, Node> _nodes;
 
 	///
@@ -86,19 +114,19 @@ struct Mesh
 namespace mesh
 {
 	///
-	bool has_normals(const Geometry &g);
+	bool has_normals(const GeometryInfo &g);
 
 	///
-	bool has_tangents(const Geometry &g);
+	bool has_tangents(const GeometryInfo &g);
 
 	///
-	bool has_bitangents(const Geometry &g);
+	bool has_bitangents(const GeometryInfo &g);
 
 	///
-	bool has_bones(const Geometry &g);
+	bool has_bones(const GeometryInfo &g);
 
 	///
-	bool has_uvs(const Geometry &g);
+	bool has_uvs(const GeometryInfo &g);
 
 	///
 	s32 parse(const Mesh **m, const char *path, CompileOptions &opts);

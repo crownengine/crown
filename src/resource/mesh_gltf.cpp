@@ -490,6 +490,7 @@ namespace gltf
 	}
 
 	static s32 parse_primitive(Geometry &g
+		, u32 position_indices_offset
 		, const GLTFDocument &doc
 		, const cgltf_primitive &primitive
 		, const cgltf_skin *skin
@@ -546,7 +547,7 @@ namespace gltf
 
 			for (u32 corner = 0; corner < 3; ++corner) {
 				const cgltf_size vertex = indices[triangle + corner];
-				const u32 expanded = array::size(g._position_indices);
+				const u32 expanded = array::size(g._position_indices) - position_indices_offset;
 				append_vector3(g._positions, face_positions[corner]);
 				array::push_back(g._position_indices, expanded);
 
@@ -613,6 +614,7 @@ namespace gltf
 	}
 
 	static s32 parse_geometry(Geometry &g
+		, GeometryInfo &geometry
 		, const GLTFDocument &doc
 		, const cgltf_mesh &mesh
 		, const cgltf_skin *skin
@@ -626,6 +628,21 @@ namespace gltf
 		bool import_skin = false;
 		TempAllocator4096 ta;
 		HashMap<DynamicString, bool> used_slots(ta);
+		geometry._positions.offset = array::size(g._positions);
+		geometry._normals.offset = array::size(g._normals);
+		geometry._uvs.offset = array::size(g._uvs);
+		geometry._tangents.offset = array::size(g._tangents);
+		geometry._bitangents.offset = array::size(g._bitangents);
+		geometry._bones.offset = array::size(g._bones);
+		geometry._weights.offset = array::size(g._weights);
+		geometry._position_indices.offset = array::size(g._position_indices);
+		geometry._normal_indices.offset = array::size(g._normal_indices);
+		geometry._tangent_indices.offset = array::size(g._tangent_indices);
+		geometry._bitangent_indices.offset = array::size(g._bitangent_indices);
+		geometry._bone_indices.offset = array::size(g._bone_indices);
+		geometry._weight_indices.offset = array::size(g._weight_indices);
+		geometry._uv_indices.offset = array::size(g._uv_indices);
+		geometry._material_ranges.offset = array::size(g._material_ranges);
 
 		for (cgltf_size i = 0; i < mesh.primitives_count; ++i) {
 			const cgltf_primitive &primitive = mesh.primitives[i];
@@ -674,8 +691,9 @@ namespace gltf
 				slot += suffix;
 			hash_map::set(used_slots, slot, true);
 
-			const u32 index_offset = array::size(g._position_indices);
+			const u32 index_offset = array::size(g._position_indices) - geometry._position_indices.offset;
 			s32 err = parse_primitive(g
+				, geometry._position_indices.offset
 				, doc
 				, primitive
 				, skin
@@ -688,10 +706,28 @@ namespace gltf
 				, opts
 				);
 			ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
-			const u32 num_indices = array::size(g._position_indices) - index_offset;
+			const u32 num_indices = array::size(g._position_indices)
+				- geometry._position_indices.offset
+				- index_offset
+				;
 			if (num_indices != 0)
 				array::push_back(g._material_ranges, { slot.to_string_id(), index_offset, num_indices });
 		}
+		geometry._positions.count = array::size(g._positions) - geometry._positions.offset;
+		geometry._normals.count = array::size(g._normals) - geometry._normals.offset;
+		geometry._uvs.count = array::size(g._uvs) - geometry._uvs.offset;
+		geometry._tangents.count = array::size(g._tangents) - geometry._tangents.offset;
+		geometry._bitangents.count = array::size(g._bitangents) - geometry._bitangents.offset;
+		geometry._bones.count = array::size(g._bones) - geometry._bones.offset;
+		geometry._weights.count = array::size(g._weights) - geometry._weights.offset;
+		geometry._position_indices.count = array::size(g._position_indices) - geometry._position_indices.offset;
+		geometry._normal_indices.count = array::size(g._normal_indices) - geometry._normal_indices.offset;
+		geometry._tangent_indices.count = array::size(g._tangent_indices) - geometry._tangent_indices.offset;
+		geometry._bitangent_indices.count = array::size(g._bitangent_indices) - geometry._bitangent_indices.offset;
+		geometry._bone_indices.count = array::size(g._bone_indices) - geometry._bone_indices.offset;
+		geometry._weight_indices.count = array::size(g._weight_indices) - geometry._weight_indices.offset;
+		geometry._uv_indices.count = array::size(g._uv_indices) - geometry._uv_indices.offset;
+		geometry._material_ranges.count = array::size(g._material_ranges) - geometry._material_ranges.offset;
 		return 0;
 	}
 
@@ -732,14 +768,15 @@ namespace gltf
 					ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
 				}
 
-				Geometry geometry(default_allocator());
+				GeometryInfo geometry = {};
 				const u16 rigid_bone = rigid != NULL ? bone_id(doc, rigid->bone) : UINT16_MAX;
 				RETURN_IF_FALSE(MESH_GLTF, rigid == NULL || rigid_bone != 0, opts
 					, "Rigid glTF mesh '%s' cannot attach to skeleton root '%s'"
 					, node_name(doc, source)
 					, node_name(doc, rigid->bone)
 					);
-				err = parse_geometry(geometry
+				err = parse_geometry(m._geometry
+					, geometry
 					, doc
 					, *source->mesh
 					, source->skin
@@ -748,7 +785,7 @@ namespace gltf
 					, opts
 					);
 				ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
-				if (array::size(geometry._position_indices) != 0) {
+				if (geometry._position_indices.count != 0) {
 					node._geometry = name;
 					hash_map::set(m._geometries, name, geometry);
 				}

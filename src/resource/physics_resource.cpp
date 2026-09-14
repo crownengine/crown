@@ -207,19 +207,20 @@ namespace physics_resource_internal
 				, name.c_str()
 				);
 
-			Geometry deffault_geometry(default_allocator());
-			const Geometry &geometry = hash_map::get(mesh->_geometries, node._geometry, deffault_geometry);
+			GeometryInfo deffault_geometry = {};
+			const GeometryInfo &geometry = hash_map::get(mesh->_geometries, node._geometry, deffault_geometry);
 			RETURN_IF_FALSE(PHYSICS_RESOURCE, &geometry != &deffault_geometry
 				, opts
 				, "Geometry '%s' does not exist"
 				, node._geometry.c_str()
 				);
 
-			for (u32 i = 0; i < array::size(geometry._positions); i += 3) {
+			for (u32 i = 0; i < geometry._positions.count; i += 3) {
+				const u32 offset = geometry._positions.offset + i;
 				Vector3 p;
-				p.x = geometry._positions[i + 0];
-				p.y = geometry._positions[i + 1];
-				p.z = geometry._positions[i + 2];
+				p.x = mesh->_geometry._positions[offset + 0];
+				p.y = mesh->_geometry._positions[offset + 1];
+				p.z = mesh->_geometry._positions[offset + 2];
 				array::push_back(points, p);
 			}
 			RETURN_IF_FALSE(PHYSICS_RESOURCE, array::size(points) > 0
@@ -228,7 +229,10 @@ namespace physics_resource_internal
 				, name.c_str()
 				);
 
-			point_indices = geometry._position_indices;
+			array::push(point_indices
+				, array::begin(mesh->_geometry._position_indices) + geometry._position_indices.offset
+				, geometry._position_indices.count
+				);
 
 			switch (cd.type) {
 			case ColliderType::SPHERE:      compile_sphere(cd, points); break;

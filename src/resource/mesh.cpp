@@ -94,44 +94,44 @@ namespace mesh
 		array::clear(g._material_ranges);
 	}
 
-	bool has_normals(const Geometry &g)
+	bool has_normals(const GeometryInfo &g)
 	{
-		return array::size(g._normals) != 0;
+		return g._normals.count != 0;
 	}
 
-	bool has_tangents(const Geometry &g)
+	bool has_tangents(const GeometryInfo &g)
 	{
-		return array::size(g._tangents) != 0;
+		return g._tangents.count != 0;
 	}
 
-	bool has_bitangents(const Geometry &g)
+	bool has_bitangents(const GeometryInfo &g)
 	{
-		return array::size(g._bitangents) != 0;
+		return g._bitangents.count != 0;
 	}
 
-	bool has_bones(const Geometry &g)
+	bool has_bones(const GeometryInfo &g)
 	{
-		return array::size(g._bones) != 0;
+		return g._bones.count != 0;
 	}
 
-	bool has_uvs(const Geometry &g)
+	bool has_uvs(const GeometryInfo &g)
 	{
-		return array::size(g._uvs) != 0;
+		return g._uvs.count != 0;
 	}
 
-	static u32 vertex_stride(Geometry &g)
+	static u32 vertex_stride(const GeometryInfo &g, const Geometry &output)
 	{
 		u32 stride = 0;
 		stride += 3 * sizeof(f32);
 		stride += has_normals(g) ? sizeof(u32) : 0;
-		stride += has_tangents(g) ? sizeof(u32) : 0;
-		stride += has_bitangents(g) ? sizeof(u32) : 0;
+		stride += has_tangents(g) || !array::empty(output._tangents) ? sizeof(u32) : 0;
+		stride += has_bitangents(g) || !array::empty(output._bitangents) ? sizeof(u32) : 0;
 		stride += has_bones(g) ? 8*sizeof(f32) : 0;
 		stride += has_uvs(g) ? 2*sizeof(f32) : 0;
 		return stride;
 	}
 
-	static bgfx::VertexLayout vertex_layout(Geometry &g)
+	static bgfx::VertexLayout vertex_layout(const GeometryInfo &g, const Geometry &output)
 	{
 		bgfx::VertexLayout layout;
 		memset((void *)&layout, 0, sizeof(layout));
@@ -142,10 +142,10 @@ namespace mesh
 		if (has_normals(g))
 			layout.add(bgfx::Attrib::Normal, 4, bgfx::AttribType::Uint8, true, true);
 
-		if (has_tangents(g))
+		if (has_tangents(g) || !array::empty(output._tangents))
 			layout.add(bgfx::Attrib::Tangent, 4, bgfx::AttribType::Uint8, true, true);
 
-		if (has_bitangents(g))
+		if (has_bitangents(g) || !array::empty(output._bitangents))
 			layout.add(bgfx::Attrib::Bitangent, 4, bgfx::AttribType::Uint8, true, true);
 
 		if (has_bones(g)) {
@@ -199,10 +199,17 @@ namespace mesh
 		}
 	};
 
+	struct MikkUserData
+	{
+		const Geometry &source;
+		const GeometryInfo &geometry;
+		Geometry &output;
+	};
+
 	static int mikk_get_num_faces(const SMikkTSpaceContext *context)
 	{
-		const Geometry &g = *(Geometry *)context->m_pUserData;
-		return int(array::size(g._position_indices) / 3);
+		const MikkUserData &data = *(MikkUserData *)context->m_pUserData;
+		return int(data.geometry._position_indices.count / 3);
 	}
 
 	static int mikk_get_num_vertices_of_face(const SMikkTSpaceContext *, const int)
@@ -212,8 +219,11 @@ namespace mesh
 
 	static void mikk_get_position(const SMikkTSpaceContext *context, float fvPosOut[], const int iFace, const int iVert)
 	{
-		const Geometry &g = *(Geometry *)context->m_pUserData;
-		const f32 *position = &g._positions[g._position_indices[iFace*3 + iVert] * 3];
+		const MikkUserData &data = *(MikkUserData *)context->m_pUserData;
+		const u32 corner = iFace*3 + iVert;
+		const u32 index = data.geometry._position_indices.offset + corner;
+		const u32 position_offset = data.geometry._positions.offset + data.source._position_indices[index] * 3;
+		const f32 *position = &data.source._positions[position_offset];
 		fvPosOut[0] = position[0];
 		fvPosOut[1] = position[1];
 		fvPosOut[2] = position[2];
@@ -221,8 +231,11 @@ namespace mesh
 
 	static void mikk_get_normal(const SMikkTSpaceContext *context, float fvNormOut[], const int iFace, const int iVert)
 	{
-		const Geometry &g = *(Geometry *)context->m_pUserData;
-		const f32 *normal = &g._normals[g._normal_indices[iFace*3 + iVert] * 3];
+		const MikkUserData &data = *(MikkUserData *)context->m_pUserData;
+		const u32 corner = iFace*3 + iVert;
+		const u32 index = data.geometry._normal_indices.offset + corner;
+		const u32 normal_offset = data.geometry._normals.offset + data.source._normal_indices[index] * 3;
+		const f32 *normal = &data.source._normals[normal_offset];
 		fvNormOut[0] = normal[0];
 		fvNormOut[1] = normal[1];
 		fvNormOut[2] = normal[2];
@@ -230,19 +243,24 @@ namespace mesh
 
 	static void mikk_get_texcoord(const SMikkTSpaceContext *context, float fvTexcOut[], const int iFace, const int iVert)
 	{
-		const Geometry &g = *(Geometry *)context->m_pUserData;
-		const f32 *uv = &g._uvs[g._uv_indices[iFace*3 + iVert] * 2];
+		const MikkUserData &data = *(MikkUserData *)context->m_pUserData;
+		const u32 corner = iFace*3 + iVert;
+		const u32 index = data.geometry._uv_indices.offset + corner;
+		const u32 uv_offset = data.geometry._uvs.offset + data.source._uv_indices[index] * 2;
+		const f32 *uv = &data.source._uvs[uv_offset];
 		fvTexcOut[0] = uv[0];
 		fvTexcOut[1] = 1.0f - uv[1];
 	}
 
 	static void mikk_set_tspace_basic(const SMikkTSpaceContext *context, const float fvTangent[], const float fSign, const int iFace, const int iVert)
 	{
-		Geometry &g = *(Geometry *)context->m_pUserData;
+		MikkUserData &data = *(MikkUserData *)context->m_pUserData;
 		const u32 corner = iFace*3 + iVert;
-		const f32 *normal = &g._normals[g._normal_indices[corner] * 3];
-		f32 *tangent = &g._tangents[corner * 3];
-		f32 *bitangent = &g._bitangents[corner * 3];
+		const u32 index = data.geometry._normal_indices.offset + corner;
+		const u32 normal_offset = data.geometry._normals.offset + data.source._normal_indices[index] * 3;
+		const f32 *normal = &data.source._normals[normal_offset];
+		f32 *tangent = &data.output._tangents[corner * 3];
+		f32 *bitangent = &data.output._bitangents[corner * 3];
 
 		tangent[0] = fvTangent[0];
 		tangent[1] = fvTangent[1];
@@ -252,19 +270,14 @@ namespace mesh
 		bitangent[2] = (normal[0]*fvTangent[1] - normal[1]*fvTangent[0]) * fSign;
 	}
 
-	static void generate_tangent_space(Geometry &g)
+	static void generate_tangent_space(const Geometry &source, const GeometryInfo &geometry, Geometry &output)
 	{
-		if (!has_normals(g) || !has_uvs(g))
+		if (!has_normals(geometry) || !has_uvs(geometry))
 			return;
 
-		const u32 num_indices = array::size(g._position_indices);
-		array::resize(g._tangents, num_indices * 3);
-		array::resize(g._bitangents, num_indices * 3);
-		array::resize(g._tangent_indices, num_indices);
-		array::resize(g._bitangent_indices, num_indices);
-
-		for (u32 i = 0; i < num_indices; ++i)
-			g._tangent_indices[i] = g._bitangent_indices[i] = i;
+		const u32 num_indices = geometry._position_indices.count;
+		array::resize(output._tangents, num_indices * 3);
+		array::resize(output._bitangents, num_indices * 3);
 
 		SMikkTSpaceInterface iface =
 		{
@@ -276,87 +289,117 @@ namespace mesh
 			mikk_set_tspace_basic,
 			0
 		};
-		SMikkTSpaceContext context = { &iface, &g };
+		MikkUserData data = { source, geometry, output };
+		SMikkTSpaceContext context = { &iface, &data };
 		genTangSpaceDefault(&context);
 	}
 
-	static s32 generate_vertex_and_index_buffers(Geometry &g, CompileOptions &opts)
+	static s32 generate_vertex_and_index_buffers(const Geometry &source
+		, const GeometryInfo &geometry
+		, Geometry &output
+		, CompileOptions &opts
+		)
 	{
 		TempAllocator512 ta;
 		Buffer vertex(ta);
 		HashMap<VertexKey, u32, VertexKeyHash, VertexKeyEqual> vertex_map(default_allocator());
 
-		const u32 num_indices = array::size(g._position_indices);
-		const u32 stride = vertex_stride(g);
-		array::reserve(g._vertex_buffer, num_indices * stride + 1);
-		array::reserve(g._index_buffer, num_indices);
+		const u32 num_indices = geometry._position_indices.count;
+		const u32 stride = vertex_stride(geometry, output);
+		array::reserve(output._vertex_buffer, num_indices * stride + 1);
+		array::reserve(output._index_buffer, num_indices);
 
 		for (u32 i = 0; i < num_indices; ++i) {
 			array::clear(vertex);
 
-			const u32 idx = g._position_indices[i] * 3;
+			const u32 position_index = geometry._position_indices.offset + i;
+			const u32 idx = geometry._positions.offset + source._position_indices[position_index] * 3;
 			Vector3 v;
-			v.x = g._positions[idx + 0];
-			v.y = g._positions[idx + 1];
-			v.z = g._positions[idx + 2];
+			v.x = source._positions[idx + 0];
+			v.y = source._positions[idx + 1];
+			v.z = source._positions[idx + 2];
 			array::push(vertex, (char *)&v, sizeof(v));
 
-			if (has_normals(g)) {
-				const u32 idx = g._normal_indices[i] * 3;
+			if (has_normals(geometry)) {
+				const u32 index = geometry._normal_indices.offset + i;
+				const u32 idx = geometry._normals.offset + source._normal_indices[index] * 3;
 				Vector3 v;
-				v.x = g._normals[idx + 0];
-				v.y = g._normals[idx + 1];
-				v.z = g._normals[idx + 2];
+				v.x = source._normals[idx + 0];
+				v.y = source._normals[idx + 1];
+				v.z = source._normals[idx + 2];
 				u32 vu = to_uint(v);
 				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
-			if (has_tangents(g)) {
-				const u32 idx = g._tangent_indices[i] * 3;
+			if (!array::empty(output._tangents)) {
+				const u32 idx = i * 3;
 				Vector3 v;
-				CE_ENSURE(idx < array::size(g._tangents));
-				v.x = g._tangents[idx + 0];
-				v.y = g._tangents[idx + 1];
-				v.z = g._tangents[idx + 2];
+				CE_ENSURE(idx < array::size(output._tangents));
+				v.x = output._tangents[idx + 0];
+				v.y = output._tangents[idx + 1];
+				v.z = output._tangents[idx + 2];
+				u32 vu = to_uint(v);
+				array::push(vertex, (char *)&vu, sizeof(vu));
+			} else if (has_tangents(geometry)) {
+				const u32 index = geometry._tangent_indices.offset + i;
+				const u32 idx = geometry._tangents.offset + source._tangent_indices[index] * 3;
+				Vector3 v;
+				CE_ENSURE(idx < geometry._tangents.offset + geometry._tangents.count);
+				v.x = source._tangents[idx + 0];
+				v.y = source._tangents[idx + 1];
+				v.z = source._tangents[idx + 2];
 				u32 vu = to_uint(v);
 				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
-			if (has_bitangents(g)) {
-				const u32 idx = g._bitangent_indices[i] * 3;
-				CE_ENSURE(idx < array::size(g._bitangents));
+			if (!array::empty(output._bitangents)) {
+				const u32 idx = i * 3;
+				CE_ENSURE(idx < array::size(output._bitangents));
 				Vector3 v;
-				v.x = g._bitangents[idx + 0];
-				v.y = g._bitangents[idx + 1];
-				v.z = g._bitangents[idx + 2];
+				v.x = output._bitangents[idx + 0];
+				v.y = output._bitangents[idx + 1];
+				v.z = output._bitangents[idx + 2];
+				u32 vu = to_uint(v);
+				array::push(vertex, (char *)&vu, sizeof(vu));
+			} else if (has_bitangents(geometry)) {
+				const u32 index = geometry._bitangent_indices.offset + i;
+				const u32 idx = geometry._bitangents.offset + source._bitangent_indices[index] * 3;
+				CE_ENSURE(idx < geometry._bitangents.offset + geometry._bitangents.count);
+				Vector3 v;
+				v.x = source._bitangents[idx + 0];
+				v.y = source._bitangents[idx + 1];
+				v.z = source._bitangents[idx + 2];
 				u32 vu = to_uint(v);
 				array::push(vertex, (char *)&vu, sizeof(vu));
 			}
 
-			if (has_bones(g)) {
-				const u32 bidx = g._bone_indices[i] * 4;
+			if (has_bones(geometry)) {
+				const u32 bone_index = geometry._bone_indices.offset + i;
+				const u32 bidx = geometry._bones.offset + source._bone_indices[bone_index] * 4;
 				Vector4 b;
-				b.x = g._bones[bidx + 0];
-				b.y = g._bones[bidx + 1];
-				b.z = g._bones[bidx + 2];
-				b.w = g._bones[bidx + 3];
+				b.x = source._bones[bidx + 0];
+				b.y = source._bones[bidx + 1];
+				b.z = source._bones[bidx + 2];
+				b.w = source._bones[bidx + 3];
 				array::push(vertex, (char *)&b, sizeof(b));
 
-				const u32 widx = g._weight_indices[i] * 4;
+				const u32 weight_index = geometry._weight_indices.offset + i;
+				const u32 widx = geometry._weights.offset + source._weight_indices[weight_index] * 4;
 				Vector4 w;
-				w.x = g._weights[widx + 0];
-				w.y = g._weights[widx + 1];
-				w.z = g._weights[widx + 2];
-				w.w = g._weights[widx + 3];
+				w.x = source._weights[widx + 0];
+				w.y = source._weights[widx + 1];
+				w.z = source._weights[widx + 2];
+				w.w = source._weights[widx + 3];
 				array::push(vertex, (char *)&w, sizeof(w));
 			}
 
-			if (has_uvs(g)) {
-				const u32 idx = g._uv_indices[i] * 2;
-				CE_ENSURE(idx < array::size(g._uvs));
+			if (has_uvs(geometry)) {
+				const u32 index = geometry._uv_indices.offset + i;
+				const u32 idx = geometry._uvs.offset + source._uv_indices[index] * 2;
+				CE_ENSURE(idx < geometry._uvs.offset + geometry._uvs.count);
 				Vector2 v;
-				v.x = g._uvs[idx + 0];
-				v.y = g._uvs[idx + 1];
+				v.x = source._uvs[idx + 0];
+				v.y = source._uvs[idx + 1];
 				array::push(vertex, (char *)&v, sizeof(v));
 			}
 
@@ -368,7 +411,7 @@ namespace mesh
 			u32 index = hash_map::get(vertex_map, key, INVALID_VERTEX_INDEX);
 
 			if (index == INVALID_VERTEX_INDEX) {
-				index = array::size(g._vertex_buffer) / vertex_size;
+				index = array::size(output._vertex_buffer) / vertex_size;
 				RETURN_IF_FALSE(MESH, index <= UINT16_MAX
 					, opts
 					, "Mesh has too many vertices: %u (max %u)"
@@ -376,13 +419,13 @@ namespace mesh
 					, UINT16_MAX + 1u
 					);
 
-				const u32 vertex_offset = array::size(g._vertex_buffer);
-				array::push(g._vertex_buffer, array::begin(vertex), vertex_size);
-				VertexKey stored_key = { array::begin(g._vertex_buffer) + vertex_offset, vertex_size };
+				const u32 vertex_offset = array::size(output._vertex_buffer);
+				array::push(output._vertex_buffer, array::begin(vertex), vertex_size);
+				VertexKey stored_key = { array::begin(output._vertex_buffer) + vertex_offset, vertex_size };
 				hash_map::set(vertex_map, stored_key, index);
 			}
 
-			array::push_back(g._index_buffer, (u16)index);
+			array::push_back(output._index_buffer, (u16)index);
 		}
 
 		return 0;
@@ -454,18 +497,18 @@ namespace mesh
 		}
 	}
 
-	static OBB obb(Geometry &g)
+	static OBB obb(const Geometry &g, const GeometryInfo &geometry)
 	{
 		AABB aabb;
 		OBB obb;
 		aabb::reset(aabb);
 		memset(&obb, 0, sizeof(obb));
 
-		if (array::size(g._positions) != 0) {
+		if (geometry._positions.count != 0) {
 			aabb::from_points(aabb
-				, array::size(g._positions) / 3
+				, geometry._positions.count / 3
 				, sizeof(g._positions[0]) * 3
-				, array::begin(g._positions)
+				, array::begin(g._positions) + geometry._positions.offset
 				);
 		}
 
@@ -477,23 +520,24 @@ namespace mesh
 	// Finds the tightest bounding sphere by calling add_points() multiple times on the same
 	// randomly ordered positions. Uses a seed dependent on initial positions to guarantee stable
 	// results.
-	static Sphere sphere(Geometry &g)
+	static Sphere sphere(const Geometry &g, const GeometryInfo &geometry)
 	{
 		const u32 MAX_TRIES = 256;
 		Sphere sphere;
 		sphere::reset(sphere);
 
-		if (array::size(g._positions) != 0) {
-			const u16 seed = (u16)murmur64(array::begin(g._positions)
-				, array::size(g._positions)*sizeof(g._positions[0])
+		if (geometry._positions.count != 0) {
+			const f32 *source_positions = array::begin(g._positions) + geometry._positions.offset;
+			const u16 seed = (u16)murmur64(source_positions
+				, geometry._positions.count*sizeof(g._positions[0])
 				, 0u
 				);
 			Random random((s32)seed);
 
 			Array<f32> positions(default_allocator());
 			Array<u32> indices(default_allocator());
-			array::resize(positions, array::size(g._positions));
-			array::resize(indices, array::size(g._positions) / 3);
+			array::resize(positions, geometry._positions.count);
+			array::resize(indices, geometry._positions.count / 3);
 
 			for (u32 j = 0; j < array::size(indices); ++j)
 				indices[j] = j;
@@ -510,13 +554,13 @@ namespace mesh
 
 				// TODO: just add a sphere::add_points() that supports index buffers.
 				for (u32 i = 0; i < array::size(indices); ++i) {
-					positions[i*3 + 0] = g._positions[indices[i]*3 + 0];
-					positions[i*3 + 1] = g._positions[indices[i]*3 + 1];
-					positions[i*3 + 2] = g._positions[indices[i]*3 + 2];
+					positions[i*3 + 0] = source_positions[indices[i]*3 + 0];
+					positions[i*3 + 1] = source_positions[indices[i]*3 + 1];
+					positions[i*3 + 2] = source_positions[indices[i]*3 + 2];
 				}
 
 				sphere::add_points(s
-					, array::size(g._positions) / 3
+					, geometry._positions.count / 3
 					, sizeof(g._positions[0]) * 3
 					, array::begin(positions)
 					);
@@ -562,37 +606,40 @@ namespace mesh
 			for (u32 i = 0; i < num_geo_names; ++i)
 				opts.write(geo_names[i].to_string_id()._id);
 
-			Geometry *geo = (Geometry *)&cur->second;
+			const GeometryInfo &geometry_info = cur->second;
+			Geometry geo(default_allocator());
+			if (geometry_info._material_ranges.count != 0)
+				array::push(geo._material_ranges, array::begin(m._geometry._material_ranges) + geometry_info._material_ranges.offset, geometry_info._material_ranges.count);
 			if (calculate_tangents)
-				generate_tangent_space(*geo);
-			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(*geo, opts) == 0, opts);
-			if (array::empty(geo->_material_ranges))
-				array::push_back(geo->_material_ranges, { STRING_ID_32("default", UINT32_C(0x5974b5ec)), 0, array::size(geo->_index_buffer) });
+				generate_tangent_space(m._geometry, geometry_info, geo);
+			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(m._geometry, geometry_info, geo, opts) == 0, opts);
+			if (array::empty(geo._material_ranges))
+				array::push_back(geo._material_ranges, { STRING_ID_32("default", UINT32_C(0x5974b5ec)), 0, array::size(geo._index_buffer) });
 			else
-				mesh::merge_material_ranges(*geo);
+				mesh::merge_material_ranges(geo);
 
-			bgfx::VertexLayout layout = mesh::vertex_layout(*geo);
-			u32 stride = mesh::vertex_stride(*geo);
+			bgfx::VertexLayout layout = mesh::vertex_layout(geometry_info, geo);
+			u32 stride = mesh::vertex_stride(geometry_info, geo);
 
 			BgfxWriter writer(opts._binary_writer);
 			bgfx::write(&writer, layout);
-			opts.write(mesh::obb(*geo));
-			opts.write(mesh::sphere(*geo));
+			opts.write(mesh::obb(m._geometry, geometry_info));
+			opts.write(mesh::sphere(m._geometry, geometry_info));
 
-			opts.write(array::size(geo->_vertex_buffer) / stride);
+			opts.write(array::size(geo._vertex_buffer) / stride);
 			opts.write(stride);
-			opts.write(array::size(geo->_index_buffer));
+			opts.write(array::size(geo._index_buffer));
 
-			opts.write(array::size(geo->_material_ranges));
-			for (u32 i = 0; i < array::size(geo->_material_ranges); ++i) {
-				const MeshMaterialRange &range = geo->_material_ranges[i];
+			opts.write(array::size(geo._material_ranges));
+			for (u32 i = 0; i < array::size(geo._material_ranges); ++i) {
+				const MeshMaterialRange &range = geo._material_ranges[i];
 				opts.write(range.slot);
 				opts.write(range.index_offset);
 				opts.write(range.num_indices);
 			}
 
-			opts.write(geo->_vertex_buffer);
-			opts.write(array::begin(geo->_index_buffer), array::size(geo->_index_buffer) * sizeof(u16));
+			opts.write(geo._vertex_buffer);
+			opts.write(array::begin(geo._index_buffer), array::size(geo._index_buffer) * sizeof(u16));
 		}
 
 		return 0;
@@ -692,7 +739,8 @@ Geometry::Geometry(Allocator &a)
 }
 
 Mesh::Mesh(Allocator &a)
-	: _geometries(a)
+	: _geometry(a)
+	, _geometries(a)
 	, _nodes(a)
 {
 	_cache_node.next = NULL;
