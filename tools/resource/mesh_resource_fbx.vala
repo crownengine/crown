@@ -531,6 +531,9 @@ public class FBXImporter
 			logw("'%s' references non-existing texture '%s'".printf(filename, texture_basename));
 			return 0;
 		}
+		bool has_alpha = (usage & MeshResource.TextureUsage.COLOR) != 0
+			&& TextureResource.image_has_alpha(source_image_path)
+			;
 
 		// Create .texture resource.
 		Guid texture_id = Guid.new_guid();
@@ -539,8 +542,8 @@ public class FBXImporter
 			texture_resource = TextureResource.normal_map(db, texture_id, source_image);
 		else if ((usage & MeshResource.TextureUsage.DATA) != 0)
 			texture_resource = TextureResource.data_map(db, texture_id, source_image);
-		else if (preserve_alpha)
-			texture_resource = TextureResource(db, texture_id, source_image, TextureFormat.BC3, true, false);
+		else if (preserve_alpha || has_alpha)
+			texture_resource = TextureResource.alpha_map(db, texture_id, source_image);
 		else
 			texture_resource = TextureResource.color_map(db, texture_id, source_image);
 
