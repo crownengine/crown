@@ -11,6 +11,7 @@ Changelog
 * Tools: fixed new sound sources defaulting to a nonexistent sound resource.
 * Tools: FBX: fixed importing embedded textures without file extensions.
 * Tools: fixed stale thumbnails being shown for newly added resources.
+* Tools: fixed editor freezes when re-importing large scenes.
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
 * Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 * Data Compiler: fixed missing mesh dependencies for physics colliders.
