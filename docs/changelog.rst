@@ -92,6 +92,7 @@ Changelog
 * Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 * Data Compiler: fixed missing mesh dependencies for physics colliders.
 * Data Compiler: fixed duplicate mesh cache entries during parallel compilation.
+* Data Compiler: fixed warnings when moving or deleting resources.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
 * Lua: added the documented but missing ``World.destroy_level()`` function.

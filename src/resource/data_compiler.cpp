@@ -1397,14 +1397,6 @@ static void rename_source_path(Vector<DynamicString> &moved
 		return;
 	}
 
-	if (from_is_directory) {
-		dc.remove_tree(from.c_str());
-		dc.add_tree(to.c_str());
-	} else {
-		dc.remove_file(from.c_str());
-		dc.add_file(to.c_str());
-	}
-
 	vector::push_back(moved, from);
 }
 
@@ -1443,10 +1435,6 @@ static void delete_source_path(Vector<DynamicString> &deleted
 		return;
 	}
 
-	if (is_directory)
-		dc.remove_tree(path.c_str());
-	else
-		dc.remove_file(path.c_str());
 	vector::push_back(deleted, path);
 }
 
