@@ -18,7 +18,6 @@
 #include "resource/compile_options.inl"
 #include "resource/mesh_obj.h"
 #include <stb_sprintf.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ufbx.h>
 
@@ -82,86 +81,112 @@ namespace obj
 		return 0;
 	}
 
-	static void generate_indices(Array<u32> &triangle_indices
-		, u32 triangle_offset
-		, u32 triangle_count
-		, Array<f32> &vertex_data
-		, u32 vertex_offset
-		, u32 vertex_count
-		, size_t vertex_size
+	/// See: https://ufbx.github.io/elements/meshes/#example
+	static size_t convert_mesh_part(Geometry &g
+		, const ufbx_mesh *mesh
+		, const ufbx_mesh_part *part
+		, u32 *triangle_indices
+		, size_t num_triangle_indices
 		)
 	{
-		ufbx_vertex_stream streams[1] =
-		{
-			{ array::begin(vertex_data) + vertex_offset, vertex_count, vertex_size },
-		};
-
-		ufbx_generate_indices(streams
-			, 1
-			, array::begin(triangle_indices) + triangle_offset
-			, triangle_count
-			, NULL
-			, NULL
-			);
-	}
-
-	/// See: https://ufbx.github.io/elements/meshes/#example
-	static size_t convert_mesh_part(Geometry &g, const ufbx_mesh *mesh, const ufbx_mesh_part *part)
-	{
 		size_t num_triangles = part->num_triangles;
-
-		// Reserve space for the maximum triangle indices.
-		size_t num_tri_indices = mesh->max_face_triangles * 3;
-		uint32_t *tri_indices = (uint32_t *)calloc(num_tri_indices, sizeof(uint32_t));
 
 		// Iterate over each face using the specific material.
 		for (size_t face_ix = 0; face_ix < part->num_faces; face_ix++) {
 			ufbx_face face = mesh->faces.data[part->face_indices.data[face_ix]];
 
-			// Triangulate the face into `tri_indices[]`.
-			uint32_t num_tris = ufbx_triangulate_face(tri_indices, num_tri_indices, mesh, face);
+			// Triangulate the face into `triangle_indices[]`.
+			uint32_t num_tris = ufbx_triangulate_face(triangle_indices, num_triangle_indices, mesh, face);
 
 			// Iterate over each triangle corner contiguously.
 			for (size_t i = 0; i < num_tris * 3; i++) {
-				uint32_t index = tri_indices[i];
+				uint32_t index = triangle_indices[i];
+				array::push_back(g._position_indices, mesh->vertex_position.indices.data[index]);
 
-				ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_position, index);
-				array::push_back(g._positions, (f32)v.x);
-				array::push_back(g._positions, (f32)v.y);
-				array::push_back(g._positions, (f32)v.z);
+				if (mesh->vertex_normal.exists)
+					array::push_back(g._normal_indices, mesh->vertex_normal.indices.data[index]);
 
-				if (mesh->vertex_normal.exists) {
-					ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_normal, index);
-					array::push_back(g._normals, (f32)v.x);
-					array::push_back(g._normals, (f32)v.y);
-					array::push_back(g._normals, (f32)v.z);
-				}
+				if (mesh->vertex_tangent.exists)
+					array::push_back(g._tangent_indices, mesh->vertex_tangent.indices.data[index]);
 
-				if (mesh->vertex_tangent.exists) {
-					ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_tangent, index);
-					array::push_back(g._tangents, (f32)v.x);
-					array::push_back(g._tangents, (f32)v.y);
-					array::push_back(g._tangents, (f32)v.z);
-				}
+				if (mesh->vertex_bitangent.exists)
+					array::push_back(g._bitangent_indices, mesh->vertex_bitangent.indices.data[index]);
 
-				if (mesh->vertex_bitangent.exists) {
-					ufbx_vec3 v = ufbx_get_vertex_vec3(&mesh->vertex_bitangent, index);
-					array::push_back(g._bitangents, (f32)v.x);
-					array::push_back(g._bitangents, (f32)v.y);
-					array::push_back(g._bitangents, (f32)v.z);
-				}
-
-				if (mesh->vertex_uv.exists) {
-					ufbx_vec2 v = ufbx_get_vertex_vec2(&mesh->vertex_uv, index);
-					array::push_back(g._uvs,        (f32)v.x);
-					array::push_back(g._uvs, 1.0f - (f32)v.y);
-				}
+				if (mesh->vertex_uv.exists)
+					array::push_back(g._uv_indices, mesh->vertex_uv.indices.data[index]);
 			}
 		}
 
-		free(tri_indices);
-
 		return num_triangles * 3;
+	}
+
+	static void copy_vertex_vec3(Array<f32> &values
+		, u32 values_offset
+		, Array<u32> &indices
+		, u32 indices_offset
+		, const ufbx_vertex_vec3 &attribute
+		)
+	{
+		TempAllocator4096 ta;
+		Array<u32> remap(ta);
+		array::resize(remap, (u32)attribute.values.count);
+		for (u32 i = 0; i < array::size(remap); ++i)
+			remap[i] = UINT32_MAX;
+
+		u32 num_values = 0;
+		for (u32 i = indices_offset; i < array::size(indices); ++i) {
+			const u32 source_index = indices[i];
+			CE_ENSURE(source_index < array::size(remap));
+			if (remap[source_index] == UINT32_MAX)
+				remap[source_index] = num_values++;
+			indices[i] = remap[source_index];
+		}
+
+		array::reserve(values, values_offset + num_values * 3);
+		array::resize(values, values_offset + num_values * 3);
+		for (u32 i = 0; i < array::size(remap); ++i) {
+			if (remap[i] == UINT32_MAX)
+				continue;
+			const ufbx_vec3 v = attribute.values.data[i];
+			const u32 offset = values_offset + remap[i] * 3;
+			values[offset + 0] = (f32)v.x;
+			values[offset + 1] = (f32)v.y;
+			values[offset + 2] = (f32)v.z;
+		}
+	}
+
+	static void copy_vertex_uv(Array<f32> &values
+		, u32 values_offset
+		, Array<u32> &indices
+		, u32 indices_offset
+		, const ufbx_vertex_vec2 &attribute
+		)
+	{
+		TempAllocator4096 ta;
+		Array<u32> remap(ta);
+		array::resize(remap, (u32)attribute.values.count);
+		for (u32 i = 0; i < array::size(remap); ++i)
+			remap[i] = UINT32_MAX;
+
+		u32 num_values = 0;
+		for (u32 i = indices_offset; i < array::size(indices); ++i) {
+			const u32 source_index = indices[i];
+			CE_ENSURE(source_index < array::size(remap));
+			if (remap[source_index] == UINT32_MAX)
+				remap[source_index] = num_values++;
+			indices[i] = remap[source_index];
+		}
+
+		array::reserve(values, values_offset + num_values * 2);
+		array::resize(values, values_offset + num_values * 2);
+		for (u32 i = 0; i < array::size(remap); ++i) {
+			if (remap[i] == UINT32_MAX)
+				continue;
+			const ufbx_vec2 v = attribute.values.data[i];
+			const u32 offset = values_offset + remap[i] * 2;
+			values[offset + 0] =        (f32)v.x;
+			values[offset + 1] = 1.0f - (f32)v.y;
+		}
 	}
 
 	static s32 parse_geometry(Geometry &g, GeometryInfo &geometry, const ufbx_mesh *mesh)
@@ -173,7 +198,26 @@ namespace obj
 		geometry._uvs.offset = array::size(g._uvs);
 		geometry._tangents.offset = array::size(g._tangents);
 		geometry._bitangents.offset = array::size(g._bitangents);
+		geometry._position_indices.offset = array::size(g._position_indices);
+		geometry._normal_indices.offset = array::size(g._normal_indices);
+		geometry._tangent_indices.offset = array::size(g._tangent_indices);
+		geometry._bitangent_indices.offset = array::size(g._bitangent_indices);
+		geometry._uv_indices.offset = array::size(g._uv_indices);
 		geometry._material_ranges.offset = array::size(g._material_ranges);
+
+		const u32 expected_num_indices = (u32)mesh->num_triangles * 3;
+		array::reserve(g._position_indices, geometry._position_indices.offset + expected_num_indices);
+		if (mesh->vertex_normal.exists)
+			array::reserve(g._normal_indices, geometry._normal_indices.offset + expected_num_indices);
+		if (mesh->vertex_tangent.exists)
+			array::reserve(g._tangent_indices, geometry._tangent_indices.offset + expected_num_indices);
+		if (mesh->vertex_bitangent.exists)
+			array::reserve(g._bitangent_indices, geometry._bitangent_indices.offset + expected_num_indices);
+		if (mesh->vertex_uv.exists)
+			array::reserve(g._uv_indices, geometry._uv_indices.offset + expected_num_indices);
+
+		Array<u32> triangle_indices(ta);
+		array::resize(triangle_indices, (u32)mesh->max_face_triangles * 3);
 		size_t num_indices = 0;
 		for (size_t i = 0; i < mesh->material_parts.count; ++i) {
 			const ufbx_mesh_part *mesh_part = &mesh->material_parts.data[i];
@@ -193,61 +237,63 @@ namespace obj
 				slot += suffix;
 			hash_map::set(used_slots, slot, true);
 
-			const u32 count = (u32)convert_mesh_part(g, mesh, mesh_part);
+			const u32 count = (u32)convert_mesh_part(g
+				, mesh
+				, mesh_part
+				, array::begin(triangle_indices)
+				, array::size(triangle_indices)
+				);
 			if (count != 0)
 				array::push_back(g._material_ranges, { slot.to_string_id(), (u32)num_indices, count });
 			num_indices += count;
 		}
+
+		copy_vertex_vec3(g._positions
+			, geometry._positions.offset
+			, g._position_indices
+			, geometry._position_indices.offset
+			, mesh->vertex_position
+			);
+		if (mesh->vertex_normal.exists)
+			copy_vertex_vec3(g._normals
+				, geometry._normals.offset
+				, g._normal_indices
+				, geometry._normal_indices.offset
+				, mesh->vertex_normal
+				);
+		if (mesh->vertex_tangent.exists)
+			copy_vertex_vec3(g._tangents
+				, geometry._tangents.offset
+				, g._tangent_indices
+				, geometry._tangent_indices.offset
+				, mesh->vertex_tangent
+				);
+		if (mesh->vertex_bitangent.exists)
+			copy_vertex_vec3(g._bitangents
+				, geometry._bitangents.offset
+				, g._bitangent_indices
+				, geometry._bitangent_indices.offset
+				, mesh->vertex_bitangent
+				);
+		if (mesh->vertex_uv.exists)
+			copy_vertex_uv(g._uvs
+				, geometry._uvs.offset
+				, g._uv_indices
+				, geometry._uv_indices.offset
+				, mesh->vertex_uv
+				);
 
 		geometry._positions.count = array::size(g._positions) - geometry._positions.offset;
 		geometry._normals.count = array::size(g._normals) - geometry._normals.offset;
 		geometry._uvs.count = array::size(g._uvs) - geometry._uvs.offset;
 		geometry._tangents.count = array::size(g._tangents) - geometry._tangents.offset;
 		geometry._bitangents.count = array::size(g._bitangents) - geometry._bitangents.offset;
+		geometry._position_indices.count = array::size(g._position_indices) - geometry._position_indices.offset;
+		geometry._normal_indices.count = array::size(g._normal_indices) - geometry._normal_indices.offset;
+		geometry._tangent_indices.count = array::size(g._tangent_indices) - geometry._tangent_indices.offset;
+		geometry._bitangent_indices.count = array::size(g._bitangent_indices) - geometry._bitangent_indices.offset;
+		geometry._uv_indices.count = array::size(g._uv_indices) - geometry._uv_indices.offset;
 		geometry._material_ranges.count = array::size(g._material_ranges) - geometry._material_ranges.offset;
-
-		geometry._position_indices.offset = array::size(g._position_indices);
-		geometry._position_indices.count = (u32)num_indices;
-		array::reserve(g._position_indices, geometry._position_indices.offset + geometry._position_indices.count);
-		array::resize(g._position_indices, geometry._position_indices.offset + geometry._position_indices.count);
-		generate_indices(g._position_indices, geometry._position_indices.offset, geometry._position_indices.count
-			, g._positions, geometry._positions.offset, geometry._positions.count, sizeof(f32)*3);
-
-		if (mesh::has_normals(geometry)) {
-			geometry._normal_indices.offset = array::size(g._normal_indices);
-			geometry._normal_indices.count = (u32)num_indices;
-			array::reserve(g._normal_indices, geometry._normal_indices.offset + geometry._normal_indices.count);
-			array::resize(g._normal_indices, geometry._normal_indices.offset + geometry._normal_indices.count);
-			generate_indices(g._normal_indices, geometry._normal_indices.offset, geometry._normal_indices.count
-				, g._normals, geometry._normals.offset, geometry._normals.count, sizeof(f32)*3);
-		}
-
-		if (mesh::has_tangents(geometry)) {
-			geometry._tangent_indices.offset = array::size(g._tangent_indices);
-			geometry._tangent_indices.count = (u32)num_indices;
-			array::reserve(g._tangent_indices, geometry._tangent_indices.offset + geometry._tangent_indices.count);
-			array::resize(g._tangent_indices, geometry._tangent_indices.offset + geometry._tangent_indices.count);
-			generate_indices(g._tangent_indices, geometry._tangent_indices.offset, geometry._tangent_indices.count
-				, g._tangents, geometry._tangents.offset, geometry._tangents.count, sizeof(f32)*3);
-		}
-
-		if (mesh::has_bitangents(geometry)) {
-			geometry._bitangent_indices.offset = array::size(g._bitangent_indices);
-			geometry._bitangent_indices.count = (u32)num_indices;
-			array::reserve(g._bitangent_indices, geometry._bitangent_indices.offset + geometry._bitangent_indices.count);
-			array::resize(g._bitangent_indices, geometry._bitangent_indices.offset + geometry._bitangent_indices.count);
-			generate_indices(g._bitangent_indices, geometry._bitangent_indices.offset, geometry._bitangent_indices.count
-				, g._bitangents, geometry._bitangents.offset, geometry._bitangents.count, sizeof(f32)*3);
-		}
-
-		if (mesh::has_uvs(geometry)) {
-			geometry._uv_indices.offset = array::size(g._uv_indices);
-			geometry._uv_indices.count = (u32)num_indices;
-			array::reserve(g._uv_indices, geometry._uv_indices.offset + geometry._uv_indices.count);
-			array::resize(g._uv_indices, geometry._uv_indices.offset + geometry._uv_indices.count);
-			generate_indices(g._uv_indices, geometry._uv_indices.offset, geometry._uv_indices.count
-				, g._uvs, geometry._uvs.offset, geometry._uvs.count, sizeof(f32)*2);
-		}
 
 		return 0;
 	}

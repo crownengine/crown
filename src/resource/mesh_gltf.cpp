@@ -318,13 +318,18 @@ namespace gltf
 	}
 
 	static s32 append_triangle_indices(Array<cgltf_size> &indices
+		, Array<cgltf_size> &source
 		, const cgltf_primitive &primitive
 		, cgltf_size num_vertices
 		, CompileOptions &opts
 		)
 	{
-		Array<cgltf_size> source(default_allocator());
+		array::clear(indices);
 		const cgltf_size count = primitive.indices != NULL ? primitive.indices->count : num_vertices;
+		RETURN_IF_FALSE(MESH_GLTF, count <= UINT32_MAX, opts
+			, "glTF primitive has too many indices: %zu", count
+			);
+		array::reserve(source, (u32)count);
 		array::resize(source, (u32)count);
 		for (cgltf_size i = 0; i < count; ++i) {
 			source[(u32)i] = primitive.indices != NULL
@@ -336,6 +341,14 @@ namespace gltf
 				);
 		}
 
+		const cgltf_size num_triangle_indices = primitive.type == cgltf_primitive_type_triangles
+			? count
+			: (count > 2 ? (count - 2) * 3 : 0)
+			;
+		RETURN_IF_FALSE(MESH_GLTF, num_triangle_indices <= UINT32_MAX, opts
+			, "glTF primitive has too many triangle indices: %zu", num_triangle_indices
+			);
+		array::reserve(indices, (u32)num_triangle_indices);
 		switch (primitive.type) {
 		case cgltf_primitive_type_triangles:
 			RETURN_IF_FALSE(MESH_GLTF, count % 3 == 0, opts
@@ -490,7 +503,7 @@ namespace gltf
 	}
 
 	static s32 parse_primitive(Geometry &g
-		, u32 position_indices_offset
+		, const GeometryInfo &geometry
 		, const GLTFDocument &doc
 		, const cgltf_primitive &primitive
 		, const cgltf_skin *skin
@@ -500,6 +513,10 @@ namespace gltf
 		, bool import_uvs
 		, bool import_skin
 		, u16 rigid_bone
+		, Array<cgltf_size> &source_indices
+		, Array<cgltf_size> &triangle_indices
+		, Array<u32> &vertex_remap
+		, Array<f32> &tangent_signs
 		, CompileOptions &opts
 		)
 	{
@@ -525,87 +542,150 @@ namespace gltf
 			, opts
 			, "All primitives in a skinned glTF mesh must provide JOINTS_0 and WEIGHTS_0"
 			);
-		Array<cgltf_size> indices(default_allocator());
-		s32 err = append_triangle_indices(indices, primitive, positions->count, opts);
+		RETURN_IF_FALSE(MESH_GLTF, positions->count <= UINT32_MAX, opts
+			, "glTF primitive has too many vertices: %zu", positions->count
+			);
+		s32 err = append_triangle_indices(triangle_indices
+			, source_indices
+			, primitive
+			, positions->count
+			, opts
+			);
 		ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
 
-		for (u32 triangle = 0; triangle < array::size(indices); triangle += 3) {
-			Vector3 face_positions[3];
-			for (u32 corner = 0; corner < 3; ++corner) {
-				f32 value[4] = {};
-				RETURN_IF_FALSE(MESH_GLTF, read_float(positions, indices[triangle + corner], value, 3), opts
-					, "Failed to read glTF positions"
+		array::reserve(vertex_remap, (u32)positions->count);
+		array::resize(vertex_remap, (u32)positions->count);
+		for (u32 i = 0; i < array::size(vertex_remap); ++i)
+			vertex_remap[i] = UINT32_MAX;
+		array::clear(tangent_signs);
+
+		const u32 position_base = (array::size(g._positions) - geometry._positions.offset) / 3;
+		const u32 normal_base = (array::size(g._normals) - geometry._normals.offset) / 3;
+		const u32 tangent_base = (array::size(g._tangents) - geometry._tangents.offset) / 3;
+		const u32 bitangent_base = (array::size(g._bitangents) - geometry._bitangents.offset) / 3;
+		const u32 bone_base = (array::size(g._bones) - geometry._bones.offset) / Geometry::MAX_BONE_WEIGHTS;
+		const u32 weight_base = (array::size(g._weights) - geometry._weights.offset) / Geometry::MAX_BONE_WEIGHTS;
+		const u32 uv_base = (array::size(g._uvs) - geometry._uvs.offset) / 2;
+
+		u32 num_vertices = 0;
+		for (u32 i = 0; i < array::size(triangle_indices); ++i) {
+			const u32 vertex = (u32)triangle_indices[i];
+			if (vertex_remap[vertex] != UINT32_MAX)
+				continue;
+			vertex_remap[vertex] = num_vertices++;
+
+			f32 value[4] = {};
+			RETURN_IF_FALSE(MESH_GLTF, read_float(positions, vertex, value, 3), opts
+				, "Failed to read glTF positions"
+				);
+			append_vector3(g._positions, vector3(value) * geometry_transform);
+
+			Vector3 normal;
+			if (normals != NULL) {
+				RETURN_IF_FALSE(MESH_GLTF, read_float(normals, vertex, value, 3), opts
+					, "Failed to read glTF normals"
 					);
-				face_positions[corner] = vector3(value) * geometry_transform;
+				const Vector3 source_normal = vector3(value);
+				Vector4 transformed = { source_normal.x, source_normal.y, source_normal.z, 0.0f };
+				transformed = transformed * normal_transform;
+				normal = { transformed.x, transformed.y, transformed.z };
+				if (length_squared(normal) > FLOAT_EPSILON)
+					normalize(normal);
+				append_vector3(g._normals, normal);
 			}
 
-			Vector3 face_normal = cross(face_positions[1] - face_positions[0], face_positions[2] - face_positions[0]);
-			if (length_squared(face_normal) > FLOAT_EPSILON)
-				normalize(face_normal);
-			else
-				face_normal = { 0.0f, 0.0f, 1.0f };
+			if (import_tangents) {
+				RETURN_IF_FALSE(MESH_GLTF, read_float(tangents, vertex, value, 4), opts
+					, "Failed to read glTF tangents"
+					);
+				const Vector3 source_tangent = vector3(value);
+				Vector4 transformed = { source_tangent.x, source_tangent.y, source_tangent.z, 0.0f };
+				transformed = transformed * geometry_transform;
+				Vector3 tangent = { transformed.x, transformed.y, transformed.z };
+				if (length_squared(tangent) > FLOAT_EPSILON)
+					normalize(tangent);
+				append_vector3(g._tangents, tangent);
+				if (normals != NULL)
+					append_vector3(g._bitangents, cross(normal, tangent) * value[3]);
+				else
+					array::push_back(tangent_signs, value[3]);
+			}
+
+			if (import_uvs && uvs != NULL) {
+				RETURN_IF_FALSE(MESH_GLTF, read_float(uvs, vertex, value, 2), opts
+					, "Failed to read glTF texture coordinates"
+					);
+				array::push_back(g._uvs, value[0]);
+				// Texture coordinates already use the upper-left origin.
+				array::push_back(g._uvs, value[1]);
+			}
+
+			if (import_skin) {
+				if (rigid_bone != UINT16_MAX) {
+					append_rigid_skin(g, rigid_bone);
+				} else {
+					err = append_skin(g, doc, *skin, joints, weights, vertex, opts);
+					ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
+				}
+			}
+		}
+
+		if (import_uvs && uvs == NULL && num_vertices != 0) {
+			array::push_back(g._uvs, 0.0f);
+			array::push_back(g._uvs, 0.0f);
+		}
+
+		for (u32 triangle = 0; triangle < array::size(triangle_indices); triangle += 3) {
+			Vector3 face_normal;
+			if (normals == NULL) {
+				Vector3 face_positions[3];
+				for (u32 corner = 0; corner < 3; ++corner) {
+					const u32 vertex = (u32)triangle_indices[triangle + corner];
+					const u32 index = position_base + vertex_remap[vertex];
+					const u32 offset = geometry._positions.offset + index * 3;
+					face_positions[corner] = { g._positions[offset + 0], g._positions[offset + 1], g._positions[offset + 2] };
+				}
+
+				face_normal = cross(face_positions[1] - face_positions[0], face_positions[2] - face_positions[0]);
+				if (length_squared(face_normal) > FLOAT_EPSILON)
+					normalize(face_normal);
+				else
+					face_normal = { 0.0f, 0.0f, 1.0f };
+				append_vector3(g._normals, face_normal);
+			}
 
 			for (u32 corner = 0; corner < 3; ++corner) {
-				const cgltf_size vertex = indices[triangle + corner];
-				const u32 expanded = array::size(g._position_indices) - position_indices_offset;
-				append_vector3(g._positions, face_positions[corner]);
-				array::push_back(g._position_indices, expanded);
-
-				Vector3 normal = face_normal;
-				f32 value[4] = {};
-				if (normals != NULL) {
-					RETURN_IF_FALSE(MESH_GLTF, read_float(normals, vertex, value, 3), opts
-						, "Failed to read glTF normals"
-						);
-					const Vector3 source_normal = vector3(value);
-					Vector4 transformed = { source_normal.x, source_normal.y, source_normal.z, 0.0f };
-					transformed = transformed * normal_transform;
-					normal = { transformed.x, transformed.y, transformed.z };
-					if (length_squared(normal) > FLOAT_EPSILON)
-						normalize(normal);
-				}
-				append_vector3(g._normals, normal);
-				array::push_back(g._normal_indices, expanded);
+				const u32 vertex = (u32)triangle_indices[triangle + corner];
+				const u32 remapped = vertex_remap[vertex];
+				array::push_back(g._position_indices, position_base + remapped);
+				array::push_back(g._normal_indices, normals != NULL
+					? normal_base + remapped
+					: normal_base + triangle / 3
+					);
 
 				if (import_tangents) {
-					RETURN_IF_FALSE(MESH_GLTF, read_float(tangents, vertex, value, 4), opts
-						, "Failed to read glTF tangents"
-						);
-					const Vector3 source_tangent = vector3(value);
-					Vector4 transformed = { source_tangent.x, source_tangent.y, source_tangent.z, 0.0f };
-					transformed = transformed * geometry_transform;
-					Vector3 tangent = { transformed.x, transformed.y, transformed.z };
-					if (length_squared(tangent) > FLOAT_EPSILON)
-						normalize(tangent);
-					Vector3 bitangent = cross(normal, tangent) * value[3];
-					append_vector3(g._tangents, tangent);
-					append_vector3(g._bitangents, bitangent);
-					array::push_back(g._tangent_indices, expanded);
-					array::push_back(g._bitangent_indices, expanded);
+					array::push_back(g._tangent_indices, tangent_base + remapped);
+					if (normals != NULL) {
+						array::push_back(g._bitangent_indices, bitangent_base + remapped);
+					} else {
+						const u32 tangent_offset = geometry._tangents.offset + (tangent_base + remapped) * 3;
+						const Vector3 tangent = {
+							g._tangents[tangent_offset + 0],
+							g._tangents[tangent_offset + 1],
+							g._tangents[tangent_offset + 2]
+						};
+						const u32 bitangent = (array::size(g._bitangents) - geometry._bitangents.offset) / 3;
+						append_vector3(g._bitangents, cross(face_normal, tangent) * tangent_signs[remapped]);
+						array::push_back(g._bitangent_indices, bitangent);
+					}
 				}
 
-				if (import_uvs) {
-					value[0] = value[1] = 0.0f;
-					if (uvs != NULL) {
-						RETURN_IF_FALSE(MESH_GLTF, read_float(uvs, vertex, value, 2), opts
-							, "Failed to read glTF texture coordinates"
-							);
-					}
-					array::push_back(g._uvs, value[0]);
-					// Texture coordinates already use the upper-left origin.
-					array::push_back(g._uvs, value[1]);
-					array::push_back(g._uv_indices, expanded);
-				}
+				if (import_uvs)
+					array::push_back(g._uv_indices, uvs != NULL ? uv_base + remapped : uv_base);
 
 				if (import_skin) {
-					if (rigid_bone != UINT16_MAX) {
-						append_rigid_skin(g, rigid_bone);
-					} else {
-						err = append_skin(g, doc, *skin, joints, weights, vertex, opts);
-						ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
-					}
-					array::push_back(g._bone_indices, expanded);
-					array::push_back(g._weight_indices, expanded);
+					array::push_back(g._bone_indices, bone_base + remapped);
+					array::push_back(g._weight_indices, weight_base + remapped);
 				}
 			}
 		}
@@ -678,6 +758,10 @@ namespace gltf
 		invert(normal_transform);
 		transpose(normal_transform);
 
+		Array<cgltf_size> source_indices(default_allocator());
+		Array<cgltf_size> triangle_indices(default_allocator());
+		Array<u32> vertex_remap(default_allocator());
+		Array<f32> tangent_signs(default_allocator());
 		for (cgltf_size i = 0; i < mesh.primitives_count; ++i) {
 			const cgltf_primitive &primitive = mesh.primitives[i];
 			char suffix[32];
@@ -693,7 +777,7 @@ namespace gltf
 
 			const u32 index_offset = array::size(g._position_indices) - geometry._position_indices.offset;
 			s32 err = parse_primitive(g
-				, geometry._position_indices.offset
+				, geometry
 				, doc
 				, primitive
 				, skin
@@ -703,6 +787,10 @@ namespace gltf
 				, import_uvs
 				, import_skin
 				, rigid_bone
+				, source_indices
+				, triangle_indices
+				, vertex_remap
+				, tangent_signs
 				, opts
 				);
 			ENSURE_OR_RETURN(MESH_GLTF, err == 0, opts);
