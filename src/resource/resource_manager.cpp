@@ -96,6 +96,8 @@ ResourceManager::ResourceManager(ResourceLoader &rl)
 	, _types(default_allocator())
 	, _resources(default_allocator())
 	, _autoload(false)
+	, _scoped_autoloaded(default_allocator())
+	, _scoped_autoload_markers(default_allocator())
 {
 }
 
@@ -199,7 +201,7 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 bool ResourceManager::can_get(StringId64 type, StringId64 name, u32 flags)
 {
 	const ResourcePair id = { type, name };
-	return _autoload && (flags &CanGetFlags::STRICT) == 0
+	return (_autoload || !array::empty(_scoped_autoload_markers)) && (flags &CanGetFlags::STRICT) == 0
 		? true
 		: hash_map::has(_resources, id)
 		;
@@ -211,7 +213,10 @@ const void *ResourceManager::get(StringId64 type, StringId64 name)
 
 	const ResourcePair id = { type, name };
 
-	if (_autoload && !hash_map::has(_resources, id)) {
+	if ((_autoload || !array::empty(_scoped_autoload_markers)) && !hash_map::has(_resources, id)) {
+		if (!array::empty(_scoped_autoload_markers))
+			array::push_back(_scoped_autoloaded, id);
+
 		load(NULL, type, name, 0);
 
 		while (!hash_map::has(_resources, id)) {
@@ -239,6 +244,25 @@ void ResourceManager::enable_autoload(bool enable)
 	_autoload = enable;
 }
 
+void ResourceManager::scoped_autoload_begin()
+{
+	array::push_back(_scoped_autoload_markers, array::size(_scoped_autoloaded));
+}
+
+void ResourceManager::scoped_autoload_end()
+{
+	CE_ASSERT(!array::empty(_scoped_autoload_markers), "No scoped autoload to end");
+
+	const u32 marker = array::back(_scoped_autoload_markers);
+	for (u32 i = marker; i < array::size(_scoped_autoloaded); ++i) {
+		const ResourcePair &id = _scoped_autoloaded[i];
+		unload(id.type, id.name);
+	}
+
+	array::resize(_scoped_autoloaded, marker);
+	array::pop_back(_scoped_autoload_markers);
+}
+
 void ResourceManager::complete_requests()
 {
 	ResourceRequest rr;
@@ -248,6 +272,7 @@ void ResourceManager::complete_requests()
 			&& rr.type != RESOURCE_TYPE_PACKAGE
 			&& rr.type != RESOURCE_TYPE_CONFIG
 			&& !_autoload
+			&& array::empty(_scoped_autoload_markers)
 			;
 
 		if (has_online_order) {

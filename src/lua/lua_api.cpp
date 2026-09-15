@@ -4032,6 +4032,16 @@ void load_api(LuaEnvironment &env)
 			device()->_resource_manager->enable_autoload(stack.get_bool(1));
 			return 0;
 		});
+	env.add_module_function("Device", "scoped_autoload_begin", [](lua_State *L) {
+			CE_UNUSED(L);
+			device()->_resource_manager->scoped_autoload_begin();
+			return 0;
+		});
+	env.add_module_function("Device", "scoped_autoload_end", [](lua_State *L) {
+			CE_UNUSED(L);
+			device()->_resource_manager->scoped_autoload_end();
+			return 0;
+		});
 	env.add_module_function("Device", "temp_count", [](lua_State *L) {
 			LuaStack stack(L, +3);
 			u32 nv;

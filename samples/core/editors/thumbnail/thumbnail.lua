@@ -124,6 +124,7 @@ function Thumbnail:update(dt)
 		return
 	end
 
+	Device.scoped_autoload_begin()
 	if req.type == "unit" then
 		self._object = UnitPreview(self._world, req.name)
 	elseif req.type == "sound" then
@@ -133,6 +134,7 @@ function Thumbnail:update(dt)
 	elseif req.type == "material" then
 		self._object = MaterialPreview(self._world, req.name)
 	else
+		Device.scoped_autoload_end()
 		return
 	end
 
@@ -144,6 +146,7 @@ function Thumbnail:update(dt)
 	Device.render(self._world, self._camera:unit())
 	table.insert(self._pending, req)
 	Device.screenshot(req.path)
+	Device.scoped_autoload_end()
 end
 
 function Thumbnail:render(dt)

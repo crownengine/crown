@@ -38,6 +38,7 @@ Changelog
 * Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Lua: added ``Window.is_fullscreen()``.
+* Lua: added ``Device.scoped_autoload_begin()`` and ``Device.scoped_autoload_end()``.
 
 **Fixes**
 

@@ -67,6 +67,8 @@ struct ResourceManager
 	HashMap<StringId64, ResourceTypeData> _types;
 	HashMap<ResourcePair, ResourceData> _resources;
 	bool _autoload;
+	Array<ResourcePair> _scoped_autoloaded;
+	Array<u32> _scoped_autoload_markers;
 
 	void on_online(StringId64 type, StringId64 name);
 	void on_offline(StringId64 type, StringId64 name);
@@ -91,7 +93,8 @@ struct ResourceManager
 	void *reload(StringId64 type, StringId64 name);
 
 	/// Returns whether the manager has the resource (@a type, @a name).
-	/// @note Returns true if autoload is enabled unless CanGetFlags::STRICT is specified.
+	/// @note Returns true if autoload is enabled or a scoped autoload is active unless
+	/// CanGetFlags::STRICT is specified.
 	bool can_get(StringId64 type, StringId64 name, u32 flags = 0);
 
 	/// Returns the data of the resource (@a type, @a name).
@@ -105,6 +108,12 @@ struct ResourceManager
 
 	/// Sets whether resources should be automatically loaded when accessed.
 	void enable_autoload(bool enable);
+
+	/// Begins a scope in which resources are automatically loaded when accessed.
+	void scoped_autoload_begin();
+
+	/// Ends the current autoload scope and unloads resources automatically loaded within it.
+	void scoped_autoload_end();
 
 	/// Completes all load requests which have been loaded by ResourceLoader.
 	void complete_requests();
