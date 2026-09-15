@@ -22,6 +22,14 @@ namespace crown
 /// @ingroup Resource
 struct ResourceManager
 {
+	struct CanGetFlags
+	{
+		enum Enum : u32
+		{
+			STRICT = u32(1) << 0
+		};
+	};
+
 	typedef void * (*LoadFunction)(File &file, Allocator &a);
 	typedef void (*OnlineFunction)(StringId64 name, ResourceManager &rm);
 	typedef void (*OfflineFunction)(StringId64 name, ResourceManager &rm);
@@ -83,8 +91,8 @@ struct ResourceManager
 	void *reload(StringId64 type, StringId64 name);
 
 	/// Returns whether the manager has the resource (@a type, @a name).
-	/// @note Always returns true if autoload is enabled.
-	bool can_get(StringId64 type, StringId64 name);
+	/// @note Returns true if autoload is enabled unless CanGetFlags::STRICT is specified.
+	bool can_get(StringId64 type, StringId64 name, u32 flags = 0);
 
 	/// Returns the data of the resource (@a type, @a name).
 	const void *get(StringId64 type, StringId64 name);
