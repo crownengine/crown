@@ -196,10 +196,13 @@ void *ResourceManager::reload(StringId64 type, StringId64 name)
 	return new_rd.data;
 }
 
-bool ResourceManager::can_get(StringId64 type, StringId64 name)
+bool ResourceManager::can_get(StringId64 type, StringId64 name, u32 flags)
 {
 	const ResourcePair id = { type, name };
-	return _autoload ? true : hash_map::has(_resources, id);
+	return _autoload && (flags &CanGetFlags::STRICT) == 0
+		? true
+		: hash_map::has(_resources, id)
+		;
 }
 
 const void *ResourceManager::get(StringId64 type, StringId64 name)

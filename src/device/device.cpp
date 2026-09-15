@@ -1049,7 +1049,9 @@ void Device::refresh(const char *json)
 			|| resource_type == RESOURCE_TYPE_STAT_CONFIG
 			;
 
-		if (is_type_reloadable && _resource_manager->can_get(resource_type, resource_name)) {
+		if (is_type_reloadable
+			&& _resource_manager->can_get(resource_type, resource_name, ResourceManager::CanGetFlags::STRICT)
+			) {
 			const void *old_resource = _resource_manager->get(resource_type, resource_name);
 			const void *new_resource = _resource_manager->reload(resource_type, resource_name);
 

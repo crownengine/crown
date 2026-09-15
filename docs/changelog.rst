@@ -13,6 +13,7 @@ Changelog
 * Tools: fixed stale thumbnails being shown for newly added resources.
 * Tools: fixed editor freezes when re-importing large scenes.
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
+* Runtime: fixed reloading of resources being triggered unconditionally in runtimes with autoload enabled.
 * Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 * Data Compiler: fixed missing mesh dependencies for physics colliders.
 * Data Compiler: fixed warnings when moving or deleting resources.
