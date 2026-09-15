@@ -457,6 +457,27 @@ public class FBXImporter
 		// existing child to at most one imported node.
 		GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 		Guid?[] old_children = db.get_set(unit_id, "children");
+		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_import_path = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
+		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_name = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
+		foreach (Guid? child_id in old_children) {
+			string old_import_path = db.get_string(child_id, "editor.import_path", "");
+			if (old_import_path != "") {
+				unowned GLib.Queue<Guid?>? children = old_children_by_import_path[old_import_path];
+				if (children == null) {
+					old_children_by_import_path[old_import_path] = new GLib.Queue<Guid?>();
+					children = old_children_by_import_path[old_import_path];
+				}
+				children.push_tail(child_id);
+			}
+
+			string old_name = db.name(child_id);
+			unowned GLib.Queue<Guid?>? children = old_children_by_name[old_name];
+			if (children == null) {
+				old_children_by_name[old_name] = new GLib.Queue<Guid?>();
+				children = old_children_by_name[old_name];
+			}
+			children.push_tail(child_id);
+		}
 		GLib.GenericArray<Guid?> child_unit_ids = new GLib.GenericArray<Guid?>();
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
@@ -470,24 +491,23 @@ public class FBXImporter
 				;
 			Guid child_unit_id = GUID_ZERO;
 
-			foreach (Guid? child_id in old_children) {
-				if (matched_children.contains(child_id))
-					continue;
-				if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
-					child_unit_id = child_id;
+			unowned GLib.Queue<Guid?>? children = old_children_by_import_path[child_import_path];
+			while (children != null && !children.is_empty()) {
+				Guid? child_id = children.pop_head();
+				if (!matched_children.contains(child_id)) {
+					child_unit_id = (!)child_id;
 					break;
 				}
 			}
 
 			if (child_unit_id == GUID_ZERO) {
-				foreach (Guid? child_id in old_children) {
-					if (matched_children.contains(child_id)
-						|| db.name(child_id) != child_editor_name
-						)
-						continue;
-
-					child_unit_id = child_id;
-					break;
+				children = old_children_by_name[child_editor_name];
+				while (children != null && !children.is_empty()) {
+					Guid? child_id = children.pop_head();
+					if (!matched_children.contains(child_id)) {
+						child_unit_id = (!)child_id;
+						break;
+					}
 				}
 			}
 

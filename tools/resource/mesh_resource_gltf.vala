@@ -1006,6 +1006,27 @@ public class GLTFImporter
 
 		GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 		Guid?[] old_children = db.get_set(unit_id, "children");
+		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_import_path = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
+		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_name = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
+		foreach (Guid? child_id in old_children) {
+			string old_import_path = db.get_string(child_id, "editor.import_path", "");
+			if (old_import_path != "") {
+				unowned GLib.Queue<Guid?>? children = old_children_by_import_path[old_import_path];
+				if (children == null) {
+					old_children_by_import_path[old_import_path] = new GLib.Queue<Guid?>();
+					children = old_children_by_import_path[old_import_path];
+				}
+				children.push_tail(child_id);
+			}
+
+			string old_name = db.name(child_id);
+			unowned GLib.Queue<Guid?>? children = old_children_by_name[old_name];
+			if (children == null) {
+				old_children_by_name[old_name] = new GLib.Queue<Guid?>();
+				children = old_children_by_name[old_name];
+			}
+			children.push_tail(child_id);
+		}
 		GLib.GenericArray<Guid?> child_unit_ids = new GLib.GenericArray<Guid?>();
 		int[] child_indices = new int[(int)node.children.length];
 		int num_child_indices = 0;
@@ -1014,21 +1035,24 @@ public class GLTFImporter
 			string child_name = names.node(data, child);
 			string child_path = import_path + "/" + ((uint)i).to_string() + ":" + child_name;
 			Guid child_id = GUID_ZERO;
-			foreach (Guid? old_id in old_children) {
-				if (!matched_children.contains(old_id)
-					&& db.is_alive(old_id)
-					&& db.get_string(old_id, "editor.import_path", "") == child_path
-					) {
-					child_id = old_id;
+			unowned GLib.Queue<Guid?>? children = old_children_by_import_path[child_path];
+			while (children != null && !children.is_empty()) {
+				unowned Guid? old_id = children.peek_head();
+				if (!matched_children.contains(old_id) && db.is_alive(old_id)) {
+					child_id = (!) old_id;
 					break;
 				}
+				children.pop_head();
 			}
 			if (child_id == GUID_ZERO) {
-				foreach (Guid? old_id in old_children) {
-					if (!matched_children.contains(old_id) && db.is_alive(old_id) && db.name(old_id) == child_name) {
-						child_id = old_id;
+				children = old_children_by_name[child_name];
+				while (children != null && !children.is_empty()) {
+					unowned Guid? old_id = children.peek_head();
+					if (!matched_children.contains(old_id) && db.is_alive(old_id)) {
+						child_id = (!) old_id;
 						break;
 					}
+					children.pop_head();
 				}
 			}
 			if (child_id == GUID_ZERO)
@@ -1574,18 +1598,33 @@ public class GLTFImporter
 					db.set_name(unit_id, resource_basename);
 					db.set_string(unit_id, "editor.import_path", "root");
 					Guid?[] old_children = db.get_set(unit_id, "children");
+					GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_import_path = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
+					foreach (Guid? child_id in old_children) {
+						string old_import_path = db.get_string(child_id, "editor.import_path", "");
+						if (old_import_path == "")
+							continue;
+
+						unowned GLib.Queue<Guid?>? children = old_children_by_import_path[old_import_path];
+						if (children == null) {
+							old_children_by_import_path[old_import_path] = new GLib.Queue<Guid?>();
+							children = old_children_by_import_path[old_import_path];
+						}
+						children.push_tail(child_id);
+					}
 					GLib.GenericSet<Guid?> matched = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
 					for (size_t i = 0; i < active_scene.nodes.length; ++i) {
 						cgltf.Node* node = active_scene.nodes[i];
 						string node_name = names.node(data, node);
 						string node_path = "root/" + ((uint)i).to_string() + ":" + node_name;
 						Guid child_id = GUID_ZERO;
-						foreach (Guid? old_id in old_children) {
-							if (!matched.contains(old_id) && db.is_alive(old_id)
-								&& db.get_string(old_id, "editor.import_path", "") == node_path) {
-								child_id = old_id;
+						unowned GLib.Queue<Guid?>? children = old_children_by_import_path[node_path];
+						while (children != null && !children.is_empty()) {
+							unowned Guid? old_id = children.peek_head();
+							if (!matched.contains(old_id) && db.is_alive(old_id)) {
+								child_id = (!) old_id;
 								break;
 							}
+							children.pop_head();
 						}
 						if (child_id == GUID_ZERO)
 							child_id = Guid.new_guid();
