@@ -89,6 +89,7 @@ Changelog
 * Runtime: fixed ``PhysicsWorld.actor_add_torque_impulse()``, ``PhysicsWorld.actor_push()`` and ``PhysicsWorld.actor_push_at()`` not waking sleeping actors.
 * Runtime: fixed physics actors in scaled unit hierarchies not preserving their world scale.
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
+* Runtime: fixed reloading of resources being triggered unconditionally in runtimes with autoload enabled.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Data Compiler: fixed an error when compiling sound sources with no sound resource.
