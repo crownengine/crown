@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-13T17:03:25+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-09-15T21:26:15+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -380,6 +380,10 @@ Values can be either <code class="docutils literal notranslate"><span class="pre
 When resource autoload is enabled it always returns true.</p>
 </dd>
 <dt><strong>enable_resource_autoload</strong> (enable)</dt><dd><p>Sets whether resources should be automatically loaded when accessed.</p>
+</dd>
+<dt><strong>scoped_autoload_begin</strong> ()</dt><dd><p>Begins a scope in which resources are automatically loaded when accessed.</p>
+</dd>
+<dt><strong>scoped_autoload_end</strong> ()</dt><dd><p>Ends the current autoload scope and unloads resources automatically loaded within it.</p>
 </dd>
 <dt><strong>temp_count</strong> ()<span class="classifier">int, int, int</span></dt><dd><p>Returns the number of temporary objects used by Lua.</p>
 </dd>
@@ -1872,7 +1876,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 13, 2026.
+      <span class="lastupdated">Last updated on Sep 15, 2026.
       </span></p>
   </div>
 

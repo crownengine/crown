@@ -139,6 +139,12 @@ Interface to access global application-level functionalities.
 **enable_resource_autoload** (enable)
 	Sets whether resources should be automatically loaded when accessed.
 
+**scoped_autoload_begin** ()
+	Begins a scope in which resources are automatically loaded when accessed.
+
+**scoped_autoload_end** ()
+	Ends the current autoload scope and unloads resources automatically loaded within it.
+
 **temp_count** () : int, int, int
 	Returns the number of temporary objects used by Lua.
 
