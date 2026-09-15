@@ -14,6 +14,7 @@ Changelog
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
 * Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 * Data Compiler: fixed missing mesh dependencies for physics colliders.
+* Data Compiler: fixed warnings when moving or deleting resources.
 
 .. _v0.64.9:
 
