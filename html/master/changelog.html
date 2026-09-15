@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-15T01:27:30+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-15T12:25:56+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -234,6 +234,7 @@
 <li><p>Runtime: HTML5: added fullscreen support.</p></li>
 <li><p>Runtime: Windows: added fullscreen support.</p></li>
 <li><p>Runtime: added support for multiple materials on a single mesh.</p></li>
+<li><p>Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.</p></li>
 <li><p>Data Compiler: improved performances by compiling resources in parallel.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Window.is_fullscreen()</span></code>.</p></li>
 </ul>
@@ -269,6 +270,7 @@
 <li><p>Tools: fixed new sound sources defaulting to a nonexistent sound resource.</p></li>
 <li><p>Tools: FBX: fixed importing embedded textures without file extensions.</p></li>
 <li><p>Tools: fixed stale thumbnails being shown for newly added resources.</p></li>
+<li><p>Tools: fixed slow thumbnail generation with units containing many mesh renderers.</p></li>
 <li><p>Runtime: the camera now ignores the scaling component in its transform.</p></li>
 <li><p>Runtime: fixed rendering of outlines on skinned meshes.</p></li>
 <li><p>Runtime: fixed the resource loader blocking forever in some cases.</p></li>
