@@ -69,6 +69,7 @@ Changelog
 * Tools: fixed search bar not resetting when switching to another new level.
 * Tools: fixed new sound sources defaulting to a nonexistent sound resource.
 * Tools: FBX: fixed importing embedded textures without file extensions.
+* Tools: fixed stale thumbnails being shown for newly added resources.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.
@@ -91,6 +92,7 @@ Changelog
 * Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.
 * Data Compiler: fixed missing mesh dependencies for physics colliders.
 * Data Compiler: fixed duplicate mesh cache entries during parallel compilation.
+* Data Compiler: fixed warnings when moving or deleting resources.
 * Lua: fixed missing ``PhysicsWorld.actor_add_torque_impulse()`` binding.
 * Lua: fixed an error when type checking SoundWorld instances.
 * Lua: added the documented but missing ``World.destroy_level()`` function.

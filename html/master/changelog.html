@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-14T13:04:04+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-15T01:27:30+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -268,6 +268,7 @@
 <li><p>Tools: fixed search bar not resetting when switching to another new level.</p></li>
 <li><p>Tools: fixed new sound sources defaulting to a nonexistent sound resource.</p></li>
 <li><p>Tools: FBX: fixed importing embedded textures without file extensions.</p></li>
+<li><p>Tools: fixed stale thumbnails being shown for newly added resources.</p></li>
 <li><p>Runtime: the camera now ignores the scaling component in its transform.</p></li>
 <li><p>Runtime: fixed rendering of outlines on skinned meshes.</p></li>
 <li><p>Runtime: fixed the resource loader blocking forever in some cases.</p></li>
@@ -290,6 +291,7 @@
 <li><p>Data Compiler: fixed excessive memory usage when compiling units with large meshes and stale meshes being reused across compilation runs.</p></li>
 <li><p>Data Compiler: fixed missing mesh dependencies for physics colliders.</p></li>
 <li><p>Data Compiler: fixed duplicate mesh cache entries during parallel compilation.</p></li>
+<li><p>Data Compiler: fixed warnings when moving or deleting resources.</p></li>
 <li><p>Lua: fixed missing <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_add_torque_impulse()</span></code> binding.</p></li>
 <li><p>Lua: fixed an error when type checking SoundWorld instances.</p></li>
 <li><p>Lua: added the documented but missing <code class="docutils literal notranslate"><span class="pre">World.destroy_level()</span></code> function.</p></li>
@@ -1318,7 +1320,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 14, 2026.
+      <span class="lastupdated">Last updated on Sep 15, 2026.
       </span></p>
   </div>
 
