@@ -263,7 +263,8 @@ public class ThumbnailCache
 			_map.set(resource_id, entry);
 		}
 
-		if (!entry.pending && (entry.mtime == 0 || entry.mtime <= _project.mtime(type, name))) {
+		uint64 resource_mtime = _project.mtime(type, name);
+		if (!entry.pending && (entry.mtime == 0 || entry.mtime <= resource_mtime)) {
 			// On-disk thumbnail not found or outdated.
 			// Ask the server to generate a fresh one if the data is ready.
 			if (_project._data_compiled && _request_generation_enabled) {
@@ -284,7 +285,7 @@ public class ThumbnailCache
 			}
 		}
 
-		return entry.mtime != 0 ? thumbnail_subpixbuf(entry.id, thumb_size) : null;
+		return entry.mtime > resource_mtime? thumbnail_subpixbuf(entry.id, thumb_size) : null;
 	}
 
 	public void show_debug_window(Gtk.Window? parent_window)

@@ -604,6 +604,7 @@ public class Project
 		_files.add_to_set(GUID_ZERO, "data", id);
 
 		_map[path] = id;
+		_data_compiled = false;
 
 		file_added(type, name, size, mtime);
 	}
