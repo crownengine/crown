@@ -71,6 +71,7 @@ Changelog
 * Tools: fixed new sound sources defaulting to a nonexistent sound resource.
 * Tools: FBX: fixed importing embedded textures without file extensions.
 * Tools: fixed stale thumbnails being shown for newly added resources.
+* Tools: fixed slow thumbnail generation with units containing many mesh renderers.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.
