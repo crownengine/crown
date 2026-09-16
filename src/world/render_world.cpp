@@ -2160,15 +2160,41 @@ void RenderWorld::render(f32 dt
 			});
 
 		const bool local_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0;
-		const u32 tile_size = _pipeline->_local_lights_tile_size;
-		const u32 tile_cols = _pipeline->_local_lights_tile_cols;
+		const u32 num_local_lights = min(array::size(_cullable_lights.render), MAX_NUM_LIGHTS - num_lights);
+
+		// Compute number of visible shadow casters.
+		u32 num_shadow_casters = 0;
+		if (local_shadows) {
+			for (u32 i = 0
+				; i < num_local_lights && num_shadow_casters < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+				; ++i
+				) {
+				const u32 cull_index = _cullable_lights.render[i];
+				const u32 light_id = _cullable_lights.id[cull_index];
+				const Sphere &light_sphere = _cullable_lights.sphere_w[cull_index];
+				const f32 shadow_radius = shadow_distance + light_sphere.r;
+				const bool within_shadow_distance = shadow_range_valid
+					&& distance_squared(camera_pos, light_sphere.c) <= shadow_radius*shadow_radius
+					;
+				const bool cast_shadows = (lid.flag[light_id] & RenderableFlags::SHADOW_CASTER) != 0;
+
+				if (cast_shadows && within_shadow_distance)
+					++num_shadow_casters;
+			}
+		}
+
+		const u32 tile_cols = bx::nextPow2((u32)fceil(fsqrt(f32(max(num_shadow_casters, 1u)))));
+		const u32 tile_size = u32(_pipeline->_render_settings.local_lights_shadow_map_size.x) / tile_cols;
+		if (local_shadows)
+			_pipeline->draw_local_lights_stencil((u16)tile_size, (u16)tile_cols);
+
 		u32 num_tiles = 0;
 		u32 cur_tile;
 		u32 sm_local_view_id = View::SM_LOCAL_0;
 
 		// Render local lights. Shadow maps are generated only for the first
 		// LOCAL_LIGHTS_MAX_SHADOW_CASTERS lights that can cast shadows.
-		for (u32 i = 0; i < array::size(_cullable_lights.render) && num_lights < MAX_NUM_LIGHTS; ++i) {
+		for (u32 i = 0; i < num_local_lights; ++i) {
 			const u32 cull_index = _cullable_lights.render[i];
 			const u32 light_id = _cullable_lights.id[cull_index];
 			LightManager::ShaderData &shader = lid.shader[light_id];

@@ -114,8 +114,6 @@ struct Pipeline
 	bgfx::FrameBufferHandle _local_lights_shadow_map_frame_buffer;
 	bgfx::UniformHandle _u_local_lights_shadow_map;
 	bgfx::UniformHandle _u_local_lights_params;
-	u16 _local_lights_tile_size;
-	u16 _local_lights_tile_cols;
 
 	// Lighting.
 	bgfx::UniformHandle _lights_num;
@@ -186,6 +184,9 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+
+	///
+	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);
 
 	///
 	void begin_light_cookie_atlas();

@@ -36,6 +36,7 @@ Changelog
 * Runtime: Windows: added fullscreen support.
 * Runtime: added support for multiple materials on a single mesh.
 * Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.
+* Runtime: improved local lights shadow resolution by better allocating atlas tiles.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Lua: added ``Window.is_fullscreen()``.
 * Lua: added ``Device.scoped_autoload_begin()`` and ``Device.scoped_autoload_end()``.
