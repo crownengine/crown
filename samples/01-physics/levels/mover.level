@@ -1146,6 +1146,8 @@ units = [
 			#45e54fbe-018c-4ee2-917d-398c13bd3e7e = {
 				data = {
 					intensity = 1
+					shadow_bias = 0.0001
+					shadow_bias_normal = 2
 					type = "directional"
 				}
 			}
