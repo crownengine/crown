@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-12 09:12+0200\n"
-"PO-Revision-Date: 2026-09-17 11:57\n"
+"PO-Revision-Date: 2026-09-17 14:17\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -122,7 +122,7 @@ msgstr "Ressource Manquante"
 #: tools/level_editor/dependencies_dialog.vala:245
 #: tools/level_editor/dependencies_dialog.vala:248
 msgid "Resource Dependencies"
-msgstr ""
+msgstr "Dépendances de la Ressource"
 
 #: tools/level_editor/dependencies_dialog.vala:255
 msgid "Close"
@@ -560,7 +560,7 @@ msgstr "Nouveau Nom"
 
 #: tools/level_editor/level_editor.vala:4119
 msgid "Cannot show dependencies"
-msgstr ""
+msgstr "Impossible d'afficher les dépendances"
 
 #: tools/level_editor/level_editor.vala:4157
 #: tools/level_editor/level_editor.vala:4210
