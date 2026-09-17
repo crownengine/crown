@@ -77,6 +77,13 @@ const MeshGeometry *MeshResource::geometry(StringId32 name) const
 	return NULL;
 }
 
+static bool shares_geometry_storage(const MeshGeometry &a, const MeshGeometry &b)
+{
+	return a.vertices.data == b.vertices.data
+		&& a.indices.data == b.indices.data
+		;
+}
+
 namespace mesh_resource_internal
 {
 	void *load(File &file, Allocator &a)
@@ -122,8 +129,12 @@ namespace mesh_resource_internal
 			u32 num_inds;
 			br.read(num_inds);
 
-			const u32 vsize = num_verts*stride;
-			const u32 isize = num_inds*sizeof(u16);
+			const bool is_reference = num_verts == UINT32_MAX;
+			if (is_reference)
+				CE_ASSERT(num_inds == 0 && stride < i, "Invalid shared mesh buffer reference");
+
+			const u32 vsize = is_reference ? 0 : num_verts*stride;
+			const u32 isize = is_reference ? 0 : num_inds*sizeof(u16);
 
 			u32 num_material_ranges;
 			br.read(num_material_ranges);
@@ -133,20 +144,27 @@ namespace mesh_resource_internal
 			MeshGeometry *mg = (MeshGeometry *)a.allocate(size, alignof(MeshGeometry));
 			mg->obb             = obb;
 			mg->sphere          = sphere;
-			mg->layout          = layout;
 			mg->vertex_buffer   = BGFX_INVALID_HANDLE;
 			mg->index_buffer    = BGFX_INVALID_HANDLE;
-			mg->vertices.num    = num_verts;
-			mg->vertices.stride = stride;
 			mg->num_material_ranges = num_material_ranges;
 			mg->material_ranges = (MeshMaterialRange *)&mg[1];
-			mg->vertices.data   = (char *)(mg->material_ranges + num_material_ranges);
-			mg->indices.num     = num_inds;
-			mg->indices.data    = mg->vertices.data + vsize;
 
 			br.read(mg->material_ranges, rsize);
-			br.read(mg->vertices.data, vsize);
-			br.read(mg->indices.data, isize);
+			if (is_reference) {
+				const MeshGeometry &owner = *mr->geometries[stride];
+				mg->layout = owner.layout;
+				mg->vertices = owner.vertices;
+				mg->indices = owner.indices;
+			} else {
+				mg->layout          = layout;
+				mg->vertices.num    = num_verts;
+				mg->vertices.stride = stride;
+				mg->vertices.data   = (char *)(mg->material_ranges + num_material_ranges);
+				mg->indices.num     = num_inds;
+				mg->indices.data    = mg->vertices.data + vsize;
+				br.read(mg->vertices.data, vsize);
+				br.read(mg->indices.data, isize);
+			}
 
 			array::push_back(mr->geometries, mg);
 		}
@@ -160,6 +178,18 @@ namespace mesh_resource_internal
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			MeshGeometry &mg = *mr->geometries[i];
+
+			u32 owner_geometry_index = 0;
+			for (; owner_geometry_index < i; ++owner_geometry_index)
+				if (shares_geometry_storage(mg, *mr->geometries[owner_geometry_index]))
+					break;
+
+			if (owner_geometry_index != i) {
+				const MeshGeometry &owner = *mr->geometries[owner_geometry_index];
+				mg.vertex_buffer = owner.vertex_buffer;
+				mg.index_buffer = owner.index_buffer;
+				continue;
+			}
 
 			const u32 vsize = mg.vertices.num * mg.vertices.stride;
 			const u32 isize = mg.indices.num * sizeof(u16);
@@ -183,6 +213,14 @@ namespace mesh_resource_internal
 
 		for (u32 i = 0; i < array::size(mr->geometries); ++i) {
 			const MeshGeometry &mg = *mr->geometries[i];
+
+			u32 j = 0;
+			for (; j < i; ++j)
+				if (shares_geometry_storage(mg, *mr->geometries[j]))
+					break;
+			if (j != i)
+				continue;
+
 			bgfx::destroy(mg.vertex_buffer);
 			bgfx::destroy(mg.index_buffer);
 		}

@@ -553,6 +553,32 @@ namespace mesh
 		return sphere;
 	}
 
+	struct GeometryBufferFingerprint
+	{
+		u64 hash;
+		u32 vertex_size;
+		u32 index_count;
+	};
+
+	struct GeometryBufferFingerprintHash
+	{
+		u32 operator()(const GeometryBufferFingerprint &key) const
+		{
+			return u32(key.hash) ^ u32(key.hash >> 32) ^ key.vertex_size ^ key.index_count;
+		}
+	};
+
+	struct GeometryBufferFingerprintEqual
+	{
+		bool operator()(const GeometryBufferFingerprint &a, const GeometryBufferFingerprint &b) const
+		{
+			return a.hash == b.hash
+				&& a.vertex_size == b.vertex_size
+				&& a.index_count == b.index_count
+				;
+		}
+	};
+
 	s32 write(Mesh &m, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
@@ -571,10 +597,13 @@ namespace mesh
 		}
 
 		Geometry geo(default_allocator());
+		HashMap<GeometryBufferFingerprint, u32, GeometryBufferFingerprintHash, GeometryBufferFingerprintEqual> buffer_owners(ta);
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
 		opts.write(hash_map::size(m._geometries));
 
+		u32 geometry_index = 0;
+		u32 num_unique_buffers = 0;
 		auto cur = hash_map::begin(m._geometries);
 		auto end = hash_map::end(m._geometries);
 		for (; cur != end; ++cur) {
@@ -622,16 +651,50 @@ namespace mesh
 				mesh::merge_material_ranges(geo);
 
 			bgfx::VertexLayout layout = mesh::vertex_layout(geometry_info, geo);
-			u32 stride = mesh::vertex_stride(geometry_info, geo);
+			const u32 stride = mesh::vertex_stride(geometry_info, geo);
+
+			u32 layout_signature = 0;
+			layout_signature |= has_normals(geometry_info) ? UINT32_C(1) << 0 : 0;
+			layout_signature |= (has_tangents(geometry_info) || !array::empty(geo._tangents)) ? UINT32_C(1) << 1 : 0;
+			layout_signature |= (has_bitangents(geometry_info) || !array::empty(geo._bitangents)) ? UINT32_C(1) << 2 : 0;
+			layout_signature |= has_bones(geometry_info) ? UINT32_C(1) << 3 : 0;
+			layout_signature |= has_uvs(geometry_info) ? UINT32_C(1) << 4 : 0;
+
+			const u32 vertex_size = array::size(geo._vertex_buffer);
+			const u32 index_count = array::size(geo._index_buffer);
+			const u32 index_size = index_count * sizeof(u16);
+
+			u64 hash = murmur64(&layout_signature, sizeof(layout_signature), 0u);
+			hash = murmur64(&stride, sizeof(stride), hash);
+			hash = murmur64(&vertex_size, sizeof(vertex_size), hash);
+			hash = murmur64(&index_count, sizeof(index_count), hash);
+			if (vertex_size != 0)
+				hash = murmur64(array::begin(geo._vertex_buffer), vertex_size, hash);
+			if (index_size != 0)
+				hash = murmur64(array::begin(geo._index_buffer), index_size, hash);
+
+			const GeometryBufferFingerprint fingerprint = { hash, vertex_size, index_count };
+			const u32 owner_geometry_index = hash_map::get(buffer_owners, fingerprint, UINT32_MAX);
+			const bool is_unique = owner_geometry_index == UINT32_MAX;
+			if (is_unique) {
+				hash_map::set(buffer_owners, fingerprint, geometry_index);
+				++num_unique_buffers;
+			}
 
 			BgfxWriter writer(opts._binary_writer);
 			bgfx::write(&writer, layout);
 			opts.write(mesh::obb(m._geometry, geometry_info));
 			opts.write(mesh::sphere(m._geometry, geometry_info));
 
-			opts.write(array::size(geo._vertex_buffer) / stride);
-			opts.write(stride);
-			opts.write(array::size(geo._index_buffer));
+			if (is_unique) {
+				opts.write(array::size(geo._vertex_buffer) / stride);
+				opts.write(stride);
+				opts.write(array::size(geo._index_buffer));
+			} else {
+				opts.write(UINT32_MAX);
+				opts.write(owner_geometry_index);
+				opts.write(UINT32_C(0));
+			}
 
 			opts.write(array::size(geo._material_ranges));
 			for (u32 i = 0; i < array::size(geo._material_ranges); ++i) {
@@ -641,8 +704,12 @@ namespace mesh
 				opts.write(range.num_indices);
 			}
 
-			opts.write(geo._vertex_buffer);
-			opts.write(array::begin(geo._index_buffer), array::size(geo._index_buffer) * sizeof(u16));
+			if (is_unique) {
+				opts.write(geo._vertex_buffer);
+				opts.write(array::begin(geo._index_buffer), array::size(geo._index_buffer) * sizeof(u16));
+			}
+
+			++geometry_index;
 		}
 
 		return 0;
