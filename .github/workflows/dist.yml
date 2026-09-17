@@ -76,6 +76,9 @@ jobs:
       IS_TAG: ${{ needs.detect.outputs.is_tag }}
       VERSION: ${{ needs.detect.outputs.version }}
       BRANCH: ${{ needs.detect.outputs.branch }}
+      GCC16_ROOT: /opt/gcc-16.2.0
+      GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
+      GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
     steps:
       - name: prepare
         uses: actions/checkout@v6
@@ -113,6 +116,39 @@ jobs:
               sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext python3-sphinx valac libxml2-utils
               ;;
           esac
+      - name: install-gcc16
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          GCC16_ARCHIVE="gcc-16.2.0-ubuntu22.04-amd64.tar.xz"
+          GCC16_SHA256="${GCC16_ARCHIVE}.sha256"
+
+          cd "${RUNNER_TEMP}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GCC16_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GCC16_ARCHIVE}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GCC16_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GCC16_SHA256}"
+          sha256sum -c "${GCC16_SHA256}"
+
+          sudo tar -xJf "${GCC16_ARCHIVE}" -C /
+
+          test -x "${GCC16_ROOT}/bin/gcc"
+          test -x "${GCC16_ROOT}/bin/g++"
+
+          test -x /usr/bin/gcc-11
+          test -x /usr/bin/g++-11
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 110
+          sudo update-alternatives --install /usr/bin/gcc gcc "${GCC16_ROOT}/bin/gcc" 160
+          sudo update-alternatives --install /usr/bin/g++ g++ "${GCC16_ROOT}/bin/g++" 160
+          sudo update-alternatives --set gcc "${GCC16_ROOT}/bin/gcc"
+          sudo update-alternatives --set g++ "${GCC16_ROOT}/bin/g++"
+
+          test "$(readlink -f /usr/bin/gcc)" = "${GCC16_ROOT}/bin/gcc"
+          test "$(readlink -f /usr/bin/g++)" = "${GCC16_ROOT}/bin/g++"
       - name: package
         shell: bash
         run: |
