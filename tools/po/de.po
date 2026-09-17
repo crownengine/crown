@@ -1,21 +1,21 @@
-# German translations for PACKAGE package.
-# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# NicoSit <nicosit@sit.home>, 2026.
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-12 09:12+0200\n"
-"PO-Revision-Date: 2026-06-16 16:39+0100\n"
-"Last-Translator: Futuray\n"
-"Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
-"Language: de\n"
+"PO-Revision-Date: 2026-09-17 10:49\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: crown-engine\n"
+"X-Crowdin-Project-ID: 930555\n"
+"X-Crowdin-Language: de\n"
+"X-Crowdin-File: /master/tools/po/crown-editor.pot\n"
+"X-Crowdin-File-ID: 8\n"
 
 #: tools/deploy/options.vala:34
 msgid "Release"
@@ -94,10 +94,8 @@ msgid "Shared"
 msgstr ""
 
 #: tools/level_editor/delete_dialog.vala:170
-msgid ""
-"Selected resources and associated files to delete.\n"
-"Resources that become unused and shared dependencies are unchecked by "
-"default."
+msgid "Selected resources and associated files to delete.\n"
+"Resources that become unused and shared dependencies are unchecked by default."
 msgstr ""
 
 #: tools/level_editor/delete_dialog.vala:196
@@ -106,16 +104,14 @@ msgid "Will Reference Missing Resources"
 msgstr ""
 
 #: tools/level_editor/delete_dialog.vala:197
-msgid ""
-"Resources outside the delete set that will still point to deleted paths."
+msgid "Resources outside the delete set that will still point to deleted paths."
 msgstr ""
 
 #: tools/level_editor/delete_dialog.vala:424
 #: tools/level_editor/dependencies_dialog.vala:192
 #: tools/level_editor/move_dialog.vala:405
-#, fuzzy
 msgid "Resource"
-msgstr "Ressourcenname"
+msgstr ""
 
 #: tools/level_editor/delete_dialog.vala:435
 msgid "Missing Resource"
@@ -124,9 +120,8 @@ msgstr ""
 #: tools/level_editor/dependencies_dialog.vala:239
 #: tools/level_editor/dependencies_dialog.vala:245
 #: tools/level_editor/dependencies_dialog.vala:248
-#, fuzzy
 msgid "Resource Dependencies"
-msgstr "Ressourcenname."
+msgstr ""
 
 #: tools/level_editor/dependencies_dialog.vala:255
 msgid "Close"
@@ -145,9 +140,8 @@ msgid "Depends On"
 msgstr ""
 
 #: tools/level_editor/dependencies_dialog.vala:331
-#, fuzzy
 msgid "References"
-msgstr "Einstellungen"
+msgstr ""
 
 #: tools/level_editor/dependencies_dialog.vala:334
 #: tools/level_editor/dependencies_dialog.vala:337
@@ -308,7 +302,7 @@ msgstr ""
 
 #: tools/level_editor/deploy_dialog.vala:590
 msgid "Alias"
-msgstr "Alias"
+msgstr ""
 
 #: tools/level_editor/deploy_dialog.vala:591
 msgid "Key password"
@@ -326,7 +320,7 @@ msgstr "Wähle einen stichhaltigen Titel"
 
 #: tools/level_editor/deploy_dialog.vala:725
 msgid "Index"
-msgstr "Index"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:199
 msgid "Perspective"
@@ -362,19 +356,19 @@ msgstr "Unbekantes Ansicht"
 
 #: tools/level_editor/level_editor.vala:247
 msgid "Android"
-msgstr "Android"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:249
 msgid "HTML5"
-msgstr "HTML5"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:251
 msgid "Linux"
-msgstr "Linux"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:253
 msgid "Windows"
-msgstr "Windows"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:255
 #: tools/level_editor/level_tree_view.vala:60
@@ -426,7 +420,7 @@ msgstr "Projekt"
 
 #: tools/level_editor/level_editor.vala:1656
 msgid "Level (*.level)"
-msgstr "Level (*.level)"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:1674
 #, c-format
@@ -493,16 +487,10 @@ msgstr "Der Ordner „%s“ sieht nicht wie ein gültiges Crown projekt aus."
 
 #: tools/level_editor/level_editor.vala:3114
 #, c-format
-msgid ""
-"Remove \"%s\" from the list?\n"
-"\n"
-"This action removes the project from the list only, files on disk will not "
-"be deleted."
-msgstr ""
-"„%s“ von der Liste löschen?\n"
-"\n"
-"Diese aktion löscht das Projekt nuch von der Liste, keine Datei wird von der "
-"Festplattegelöscht sein."
+msgid "Remove \"%s\" from the list?\n\n"
+"This action removes the project from the list only, files on disk will not be deleted."
+msgstr "„%s“ von der Liste löschen?\n\n"
+"Diese aktion löscht das Projekt nuch von der Liste, keine Datei wird von der Festplattegelöscht sein."
 
 #: tools/level_editor/level_editor.vala:3116
 #: tools/level_editor/level_editor.vala:3365 tools/widgets/messages.vala:129
@@ -516,7 +504,7 @@ msgstr "_Löschen"
 #: tools/level_editor/level_editor.vala:3323
 #: tools/level_editor/preferences_dialog.vala:128
 msgid "Level"
-msgstr "Level"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:3328 tools/level_editor/menus.vala:27
 msgid "Open Project..."
@@ -530,15 +518,10 @@ msgid "Open"
 msgstr "Öffnen"
 
 #: tools/level_editor/level_editor.vala:3356
-msgid ""
-"Save the project before closing?\n"
-"\n"
+msgid "Save the project before closing?\n\n"
 "This is a *temporary* project and will be gone if not saved now."
-msgstr ""
-"Projekt vor dem Schließen speichern?\n"
-"\n"
-"Das ist ein *vorübergehendes* Projekt und es wird gelöscht wenn nicht jetzt "
-"gespeichert wird."
+msgstr "Projekt vor dem Schließen speichern?\n\n"
+"Das ist ein *vorübergehendes* Projekt und es wird gelöscht wenn nicht jetzt gespeichert wird."
 
 #: tools/level_editor/level_editor.vala:3359 tools/widgets/messages.vala:123
 msgid "Close _without Saving"
@@ -575,11 +558,8 @@ msgid "New Name"
 msgstr "Neue Name"
 
 #: tools/level_editor/level_editor.vala:4119
-#, fuzzy
 msgid "Cannot show dependencies"
 msgstr ""
-"%s kann nicht gelöscht werden wegen der folgende Abhängigkeit:\n"
-"\n"
 
 #: tools/level_editor/level_editor.vala:4157
 #: tools/level_editor/level_editor.vala:4210
@@ -652,11 +632,9 @@ msgstr "Ordnername"
 #: tools/level_editor/level_editor.vala:4921
 #: tools/widgets/save_resource_dialog.vala:127
 #, c-format
-msgid ""
-"A file named `%s` already exists.\n"
+msgid "A file named `%s` already exists.\n"
 "Overwrite?"
-msgstr ""
-"Das Datei „%s“ exsistiert schon.\n"
+msgstr "Das Datei „%s“ exsistiert schon.\n"
 "Überschreiben?"
 
 #: tools/level_editor/level_editor.vala:4926
@@ -713,19 +691,19 @@ msgstr "Gesperrt"
 #: tools/resource/font_resource.vala:273
 #: tools/resource/sprite_resource.vala:431
 msgid "Name"
-msgstr "Name"
+msgstr ""
 
 #: tools/level_editor/level_tree_view.vala:52
 #: tools/level_editor/project_browser.vala:1257
 #: tools/widgets/object_tree.vala:47
 msgid "Name A-Z"
-msgstr "Name A-Z"
+msgstr ""
 
 #: tools/level_editor/level_tree_view.vala:54
 #: tools/level_editor/project_browser.vala:1259
 #: tools/widgets/object_tree.vala:49
 msgid "Name Z-A"
-msgstr "Name Z-A"
+msgstr ""
 
 #: tools/level_editor/level_tree_view.vala:56
 #: tools/level_editor/project_browser.vala:1261
@@ -1154,9 +1132,7 @@ msgid "No projects found"
 msgstr "Keine Projekte wind gefunden"
 
 #: tools/level_editor/panel_projects_list.vala:271
-msgid ""
-"Use the buttons above to create a new project or import an already existing "
-"one."
+msgid "Use the buttons above to create a new project or import an already existing one."
 msgstr "Die Knöpfe dadrüben benutzen, um Projekt herzustellen oder zu öffnen."
 
 #: tools/level_editor/panel_projects_list.vala:283
@@ -1232,10 +1208,9 @@ msgid "Dark"
 msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:103
-#, fuzzy
 msgctxt "Theme variant"
 msgid "Light"
-msgstr "Licht"
+msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:113
 #: tools/level_editor/project_browser.vala:525
@@ -1255,7 +1230,7 @@ msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:118
 msgid "Theme"
-msgstr "Theme"
+msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:118
 msgid "Theme variant."
@@ -1407,7 +1382,7 @@ msgstr "Ansicht"
 
 #: tools/level_editor/preferences_dialog.vala:211
 msgid "System"
-msgstr "System"
+msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:212
 msgid "External Tools"
@@ -1543,11 +1518,11 @@ msgstr "Ordner"
 
 #: tools/level_editor/project_browser.vala:1135
 msgid "bytes"
-msgstr "bytes"
+msgstr ""
 
 #: tools/level_editor/project_browser.vala:1135
 msgid "byte"
-msgstr "byte"
+msgstr ""
 
 #: tools/level_editor/project_browser.vala:1265
 msgid "Size min-Max"
@@ -1672,12 +1647,8 @@ msgstr ""
 
 #: tools/level_editor/property_grid.vala:345
 #, c-format
-msgid ""
-"Cannot remove %s due to the following dependencies:\n"
-"\n"
-msgstr ""
-"%s kann nicht gelöscht werden wegen der folgende Abhängigkeit:\n"
-"\n"
+msgid "Cannot remove %s due to the following dependencies:\n\n"
+msgstr "%s kann nicht gelöscht werden wegen der folgende Abhängigkeit:\n\n"
 
 #: tools/level_editor/property_grid.vala:385
 msgid "Remove Component"
@@ -1714,7 +1685,7 @@ msgstr "Eingabe"
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Output format."
@@ -1926,7 +1897,6 @@ msgstr "Akteure"
 msgid "Import nodes as units, materials and textures."
 msgstr ""
 
-# Knote als Akteure, Material oder ??? importieren
 #: tools/resource/scene_import.vala:264
 msgid "New Skeleton"
 msgstr "Neue Skelett"
@@ -1962,7 +1932,7 @@ msgstr ""
 #: tools/resource/scene_import.vala:268 tools/resource/types.vala:940
 #: tools/resource/types.vala:2367
 msgid "Animation"
-msgstr "Animation"
+msgstr ""
 
 #: tools/resource/scene_import.vala:268
 msgid "Import animations and skeleton."
@@ -2057,9 +2027,7 @@ msgid "Depth"
 msgstr "Tiefe"
 
 #: tools/resource/sprite_resource.vala:448 tools/resource/types.vala:419
-msgid ""
-"Higher values make the sprite apper in front of other sprites in the same "
-"layer."
+msgid "Higher values make the sprite apper in front of other sprites in the same layer."
 msgstr ""
 
 #: tools/resource/sprite_resource.vala:449
@@ -2079,7 +2047,7 @@ msgstr "Quadrat"
 #: tools/resource/sprite_resource.vala:462
 #: tools/resource/sprite_resource.vala:467
 msgid "Radius"
-msgstr "Radius"
+msgstr ""
 
 #: tools/resource/sprite_resource.vala:463
 msgid "Circle"
@@ -2240,9 +2208,7 @@ msgid "Material used to render to the geometry."
 msgstr ""
 
 #: tools/resource/types.vala:332
-msgid ""
-"Enable geometry rendering. If disabled it skips any rendering, for example "
-"shadow casting."
+msgid "Enable geometry rendering. If disabled it skips any rendering, for example shadow casting."
 msgstr ""
 
 #: tools/resource/types.vala:339
@@ -2298,8 +2264,7 @@ msgid "Light color."
 msgstr "Lichtsfarbe."
 
 #: tools/resource/types.vala:511
-msgid ""
-"Too low values increase shadow acne. Too high values cause peter-panning."
+msgid "Too low values increase shadow acne. Too high values cause peter-panning."
 msgstr ""
 
 #: tools/resource/types.vala:518
@@ -2331,9 +2296,7 @@ msgid "Mesh to render at this LOD level."
 msgstr ""
 
 #: tools/resource/types.vala:584
-msgid ""
-"Activate this LOD level when the group height covers this screen percentage "
-"or less."
+msgid "Activate this LOD level when the group height covers this screen percentage or less."
 msgstr ""
 
 #: tools/resource/types.vala:600
@@ -2545,9 +2508,7 @@ msgstr "Andere Akteur"
 #: tools/resource/types.vala:1267 tools/resource/types.vala:1304
 #: tools/resource/types.vala:1353 tools/resource/types.vala:1609
 #: tools/resource/types.vala:1736 tools/resource/types.vala:1854
-msgid ""
-"Other unit to attach the joint to. Leave empty to attach the joint to the "
-"world."
+msgid "Other unit to attach the joint to. Leave empty to attach the joint to the world."
 msgstr ""
 
 #: tools/resource/types.vala:1276 tools/resource/types.vala:1325
@@ -2559,9 +2520,7 @@ msgstr ""
 #: tools/resource/types.vala:1310 tools/resource/types.vala:1359
 #: tools/resource/types.vala:1615 tools/resource/types.vala:1742
 #: tools/resource/types.vala:1860
-msgid ""
-"Other position in Other Unit's local space, or world space if Other Unit is "
-"unset."
+msgid "Other position in Other Unit's local space, or world space if Other Unit is unset."
 msgstr ""
 
 #: tools/resource/types.vala:1316 tools/resource/types.vala:1372
@@ -2572,9 +2531,7 @@ msgstr "Stellen im lokale Raum."
 
 #: tools/resource/types.vala:1366 tools/resource/types.vala:1622
 #: tools/resource/types.vala:1749 tools/resource/types.vala:1867
-msgid ""
-"Other rotation in Other Unit's local space, or world space if Other Unit is "
-"unset."
+msgid "Other rotation in Other Unit's local space, or world space if Other Unit is unset."
 msgstr ""
 
 #: tools/resource/types.vala:1379 tools/resource/types.vala:1635
@@ -2607,15 +2564,11 @@ msgid "How motion along the joint Z axis is constrained."
 msgstr ""
 
 #: tools/resource/types.vala:1416
-msgid ""
-"Per-axis linear lower limits, used when the corresponding linear motion is "
-"Limited."
+msgid "Per-axis linear lower limits, used when the corresponding linear motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1423
-msgid ""
-"Per-axis linear upper limits, used when the corresponding linear motion is "
-"Limited."
+msgid "Per-axis linear upper limits, used when the corresponding linear motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1429
@@ -2643,15 +2596,11 @@ msgid "How rotation around the joint Z axis is constrained."
 msgstr ""
 
 #: tools/resource/types.vala:1461
-msgid ""
-"Per-axis angular lower limits, used when the corresponding angular motion is "
-"Limited."
+msgid "Per-axis angular lower limits, used when the corresponding angular motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1469
-msgid ""
-"Per-axis angular upper limits, used when the corresponding angular motion is "
-"Limited."
+msgid "Per-axis angular upper limits, used when the corresponding angular motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1475
@@ -2679,15 +2628,11 @@ msgid "Motor mode for motion along the joint Z axis."
 msgstr ""
 
 #: tools/resource/types.vala:1506
-msgid ""
-"Linear motor target velocity, used by axes whose linear motor mode is "
-"Velocity."
+msgid "Linear motor target velocity, used by axes whose linear motor mode is Velocity."
 msgstr ""
 
 #: tools/resource/types.vala:1513
-msgid ""
-"Linear motor target position, used by axes whose linear motor mode is "
-"Position."
+msgid "Linear motor target position, used by axes whose linear motor mode is Position."
 msgstr ""
 
 #: tools/resource/types.vala:1520
@@ -2719,15 +2664,11 @@ msgid "Motor mode for rotation around the joint Z axis."
 msgstr ""
 
 #: tools/resource/types.vala:1557
-msgid ""
-"Angular motor target velocity, used by axes whose angular motor mode is "
-"Velocity."
+msgid "Angular motor target velocity, used by axes whose angular motor mode is Velocity."
 msgstr ""
 
 #: tools/resource/types.vala:1565
-msgid ""
-"Angular motor target position, used by axes whose angular motor mode is "
-"Position."
+msgid "Angular motor target position, used by axes whose angular motor mode is Position."
 msgstr ""
 
 #: tools/resource/types.vala:1572
@@ -2767,15 +2708,11 @@ msgid "Upper twist limit, used when Twist Motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1690
-msgid ""
-"Symmetric swing limit around the joint Y axis, used when Swing Y Motion is "
-"Limited."
+msgid "Symmetric swing limit around the joint Y axis, used when Swing Y Motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1699
-msgid ""
-"Symmetric swing limit around the joint Z axis, used when Swing Z Motion is "
-"Limited."
+msgid "Symmetric swing limit around the joint Z axis, used when Swing Z Motion is Limited."
 msgstr ""
 
 #: tools/resource/types.vala:1762
@@ -2999,7 +2936,7 @@ msgstr "Blau"
 
 #: tools/widgets/input_color3.vala:436 tools/widgets/input_color3.vala:444
 msgid "Alpha"
-msgstr "Alpha"
+msgstr ""
 
 #: tools/widgets/input_color3.vala:441
 msgid "Hue"
@@ -3052,8 +2989,7 @@ msgid "Connecting to Data Compiler..."
 msgstr ""
 
 #: tools/widgets/messages.vala:60
-msgid ""
-"Fix errors and <a href=\"restart\">restart the compiler</a> to continue."
+msgid "Fix errors and <a href=\"restart\">restart the compiler</a> to continue."
 msgstr ""
 
 #: tools/widgets/messages.vala:71
@@ -3105,9 +3041,3 @@ msgstr "Ein %s anwählen."
 msgid "Search %s..."
 msgstr ""
 
-#, c-format
-#~ msgid "Delete Folder %s?"
-#~ msgstr "Ordner „%s“ löschen?"
-
-#~ msgid "_Delete"
-#~ msgstr "_Löschen"
