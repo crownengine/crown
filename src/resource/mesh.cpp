@@ -603,7 +603,6 @@ namespace mesh
 		opts.write(hash_map::size(m._geometries));
 
 		u32 geometry_index = 0;
-		u32 num_unique_buffers = 0;
 		auto cur = hash_map::begin(m._geometries);
 		auto end = hash_map::end(m._geometries);
 		for (; cur != end; ++cur) {
@@ -676,10 +675,8 @@ namespace mesh
 			const GeometryBufferFingerprint fingerprint = { hash, vertex_size, index_count };
 			const u32 owner_geometry_index = hash_map::get(buffer_owners, fingerprint, UINT32_MAX);
 			const bool is_unique = owner_geometry_index == UINT32_MAX;
-			if (is_unique) {
+			if (is_unique)
 				hash_map::set(buffer_owners, fingerprint, geometry_index);
-				++num_unique_buffers;
-			}
 
 			BgfxWriter writer(opts._binary_writer);
 			bgfx::write(&writer, layout);
