@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-12 09:12+0200\n"
-"PO-Revision-Date: 2026-09-17 10:49\n"
+"PO-Revision-Date: 2026-09-17 11:57\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -112,7 +112,7 @@ msgstr "Ressources en dehors de l'ensemble de suppression qui pointeront toujour
 #: tools/level_editor/dependencies_dialog.vala:192
 #: tools/level_editor/move_dialog.vala:405
 msgid "Resource"
-msgstr ""
+msgstr "Ressource"
 
 #: tools/level_editor/delete_dialog.vala:435
 msgid "Missing Resource"
@@ -1211,7 +1211,7 @@ msgstr "Noir"
 #: tools/level_editor/preferences_dialog.vala:103
 msgctxt "Theme variant"
 msgid "Light"
-msgstr ""
+msgstr "Lumière"
 
 #: tools/level_editor/preferences_dialog.vala:113
 #: tools/level_editor/project_browser.vala:525
