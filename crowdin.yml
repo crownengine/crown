@@ -1,3 +1,7 @@
+pull_request_title: "tools: i18n: update translations"
+commit_message: "tools: i18n: update %language% translation"
+append_commit_message: false
+
 files:
   - source: /tools/po/crown-editor.pot
     translation: /tools/po/%two_letters_code%.po
