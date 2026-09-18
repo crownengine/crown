@@ -2008,16 +2008,26 @@ public class LevelEditorApplication : Gtk.Application
 		_project.data_compiled();
 	}
 
+	public void sync_editor_view()
+	{
+		// Ensure PLACE tool is never selected since it performs an expensive raycast over the scene
+		// that will slow down syncing large levels.
+		activate_action("tool", new GLib.Variant.int32(ToolType.MOVE));
+
+		// Update editor view with current editor state.
+		if (_editor.is_connected()) {
+			send_state();
+			_level.send_level();
+			send_editor_selection();
+			_preferences_dialog.apply();
+			_editor.send(DeviceApi.frame());
+		}
+	}
+
 	public void on_editor_connected(RuntimeInstance ri, string address, int port)
 	{
 		on_runtime_connected(ri, address, port);
-
-		// Update editor view with current editor state.
-		_level.send_level();
-		send_state();
-		send_editor_selection();
-		_preferences_dialog.apply();
-		_editor.send(DeviceApi.frame());
+		sync_editor_view();
 	}
 
 	public void on_editor_disconnected_unexpected(RuntimeInstance ri)
@@ -2735,12 +2745,7 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 		_level_treeview.set_level(_level);
 
-		if (_editor.is_connected()) {
-			_level.send_level();
-			send_state();
-			send_editor_selection();
-			_editor_viewport.frame();
-		}
+		sync_editor_view();
 	}
 
 	public bool do_save(string path)
@@ -2864,12 +2869,7 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 		_level_treeview.set_level(_level);
 
-		if (_editor.is_connected()) {
-			_level.send_level();
-			send_state();
-			send_editor_selection();
-			_editor_viewport.frame();
-		}
+		sync_editor_view();
 	}
 
 	public void on_new_level(GLib.SimpleAction action, GLib.Variant? param)

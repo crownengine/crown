@@ -1524,7 +1524,7 @@ function LevelEditor:init()
 	self.move_tool = MoveTool()
 	self.rotate_tool = RotateTool()
 	self.scale_tool = ScaleTool()
-	self.tool = self.place_tool
+	self.tool = self.move_tool
 	self.debug = false
 
 	-- Adjust camera position and orientation.
