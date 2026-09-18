@@ -12,6 +12,12 @@ private enum ObjectExists
 	EXISTS
 }
 
+public enum UnitFlags
+{
+	NONE         = 0,
+	CHECK_PREFAB = 1 << 0,
+}
+
 public struct Unit
 {
 	public static GLib.HashTable<string, Value?> _component_registry;
@@ -180,10 +186,10 @@ public struct Unit
 		_db.create(_id, OBJECT_TYPE_UNIT);
 	}
 
-	public int create(string? prefab)
+	public int create(string? prefab, uint32 flags = UnitFlags.NONE)
 	{
 		create_empty();
-		return prefab == null ? 0 : set_prefab(prefab);
+		return prefab == null ? 0 : set_prefab(prefab, flags);
 	}
 
 	public Value? get_component_property(Guid component_id, string key, Value? deffault = null)
@@ -559,13 +565,15 @@ public struct Unit
 		}
 	}
 
-	public int set_prefab(string? prefab_name)
+	public int set_prefab(string? prefab_name, uint32 flags = UnitFlags.NONE)
 	{
 		if (prefab() == prefab_name)
 			return -1;
 
-		if (can_set_prefab(prefab_name) != 0)
-			return -1;
+		if ((flags& UnitFlags.CHECK_PREFAB) != 0) {
+			if (can_set_prefab(prefab_name) != 0)
+				return -1;
+		}
 
 		Guid transform_id;
 		bool has_transform = has_component(out transform_id, OBJECT_TYPE_TRANSFORM);
