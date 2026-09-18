@@ -27,6 +27,7 @@ Changelog
 * Tools: opening levels now uses the Resource Chooser.
 * Tools: added importing and editing of named material slots for meshes.
 * Tools: added importing of glTF 2.0 scenes in ``.gltf`` and ``.glb`` formats.
+* Tools: files can now be imported from the Project Browser by right-clicking on them and choosing ``Import...``.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.
