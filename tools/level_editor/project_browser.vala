@@ -75,7 +75,7 @@ public GLib.Menu? project_entry_menu_common(ProjectStore.RowKind kind, string ty
 }
 
 // Menu to open when clicking on project's files and folders.
-public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKind kind, string type, string name)
+public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKind kind, string type, string name, Project project)
 {
 	GLib.Menu menu = new GLib.Menu();
 	GLib.MenuItem mi;
@@ -138,6 +138,12 @@ public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKin
 
 		menu.append_section(null, destroy_menu);
 	} else { // If file
+		if (project.is_type_importable(type)) {
+			mi = new GLib.MenuItem(_("Import..."), null);
+			mi.set_action_and_target_value("app.import", new GLib.Variant.tuple({ResourceId.parent_folder(name), new string[] { project.absolute_path(ResourceId.path(type, name)) }}));
+			menu.append_item(mi);
+		}
+
 		if (type != "lua") {
 			mi = new GLib.MenuItem(_("Duplicate..."), null);
 			mi.set_action_and_target_value("app.duplicate-resource", new GLib.Variant.string(project_path(kind, type, name)));
@@ -808,7 +814,7 @@ public class ProjectFolderView : Gtk.Box
 
 			GLib.Menu? menu_model;
 			if (_showing_project_folder)
-				menu_model = project_entry_menu_create(_browse_mode, kind, type, name);
+				menu_model = project_entry_menu_create(_browse_mode, kind, type, name, _project_store._project);
 			else
 				menu_model = favorites_entry_menu_create(kind, type, name);
 
@@ -2431,7 +2437,7 @@ public class ProjectBrowser : Gtk.Box
 			Gtk.TreePath? store_path = _tree_filter.convert_path_to_child_path(search_path);
 			GLib.Menu? menu_model;
 			if (store_path.is_descendant(_project_store.project_root_path()) || store_path.compare(_project_store.project_root_path()) == 0)
-				menu_model = project_entry_menu_create(_browse_mode, (ProjectStore.RowKind)kind, (string)type, (string)name);
+				menu_model = project_entry_menu_create(_browse_mode, (ProjectStore.RowKind)kind, (string)type, (string)name, _project_store._project);
 			else if (store_path.is_descendant(_project_store.favorites_root_path()))
 				menu_model = favorites_entry_menu_create((ProjectStore.RowKind)kind, (string)type, (string)name);
 			else
