@@ -93,7 +93,7 @@ public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKin
 		GLib.Menu import_menu = new GLib.Menu();
 
 		mi = new GLib.MenuItem(_("Import..."), null);
-		mi.set_action_and_target_value("app.import", new GLib.Variant.tuple({(string)name, new string[] {}}));
+		mi.set_action_and_target_value("app.import", new GLib.Variant.tuple({name, new string[] {}}));
 		import_menu.append_item(mi);
 
 		menu.append_section(null, import_menu);
@@ -101,27 +101,27 @@ public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKin
 		GLib.Menu create_menu = new GLib.Menu();
 
 		mi = new GLib.MenuItem(_("New Script..."), null);
-		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", true}));
+		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({name, "", true}));
 		create_menu.append_item(mi);
 
 		mi = new GLib.MenuItem(_("New Script (Unit)..."), null);
-		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({(string)name, "", false}));
+		mi.set_action_and_target_value("app.create-script", new GLib.Variant.tuple({name, "", false}));
 		create_menu.append_item(mi);
 
 		mi = new GLib.MenuItem(_("New Unit..."), null);
-		mi.set_action_and_target_value("app.create-unit", new GLib.Variant.tuple({(string)name, ""}));
+		mi.set_action_and_target_value("app.create-unit", new GLib.Variant.tuple({name, ""}));
 		create_menu.append_item(mi);
 
 		mi = new GLib.MenuItem(_("New Material..."), null);
-		mi.set_action_and_target_value("app.create-material", new GLib.Variant.tuple({(string)name, ""}));
+		mi.set_action_and_target_value("app.create-material", new GLib.Variant.tuple({name, ""}));
 		create_menu.append_item(mi);
 
 		mi = new GLib.MenuItem(_("New Folder..."), null);
-		mi.set_action_and_target_value("app.create-directory", new GLib.Variant.tuple({(string)name, ""}));
+		mi.set_action_and_target_value("app.create-directory", new GLib.Variant.tuple({name, ""}));
 		create_menu.append_item(mi);
 
 		mi = new GLib.MenuItem(_("New Package..."), null);
-		mi.set_action_and_target_value("app.create-package", new GLib.Variant.tuple({(string)name, ""}));
+		mi.set_action_and_target_value("app.create-package", new GLib.Variant.tuple({name, ""}));
 		create_menu.append_item(mi);
 
 		menu.append_section(null, create_menu);
@@ -130,9 +130,9 @@ public GLib.Menu? project_entry_menu_create(BrowseMode mode, ProjectStore.RowKin
 
 		menu.append_section(null, project_entry_menu_common(kind, type, name));
 
-		if ((string)name != ProjectStore.ROOT_FOLDER) {
+		if (name != ProjectStore.ROOT_FOLDER) {
 			mi = new GLib.MenuItem(_("Delete Folder"), null);
-			mi.set_action_and_target_value("app.delete-directory", new GLib.Variant.string((string)name));
+			mi.set_action_and_target_value("app.delete-directory", new GLib.Variant.string(name));
 			destroy_menu.append_item(mi);
 		}
 
