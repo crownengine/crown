@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.11 --- DD MMM YYYY <v0.64.11>`
 -----------------------------------------
 
+**Fixes**
+
+* Tools: fixed slow loading of large levels/units while the place tool is selected.
+
 .. _v0.64.10:
 
 :ref:`0.64.10 --- 16 Sep 2026 <v0.64.10>`
