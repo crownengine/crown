@@ -380,7 +380,7 @@ function Camera:frame_obb(obb_tm, obb_he)
 	local obb_radius = Vector3.distance(obb_position, obb_position + obb_he)
 
 	local camera_pose = self:local_pose()
-	local camera_target_distance = obb_radius*3
+	local camera_target_distance = math.min(self:far_clip_distance()*0.5, obb_radius*3)
 	local camera_forward  = Matrix4x4.y(camera_pose)
 	Matrix4x4.set_translation(camera_pose, obb_position - camera_forward*camera_target_distance)
 
