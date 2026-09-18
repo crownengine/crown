@@ -821,6 +821,75 @@ public class GLTFImporter
 		unit.set_component_string    (component_id, "data.name", name);
 	}
 
+	private struct ImportedChild
+	{
+		public cgltf.Node* node;
+		public Guid unit_id;
+
+		public ImportedChild(cgltf.Node* node, Guid unit_id)
+		{
+			this.node = node;
+			this.unit_id = unit_id;
+		}
+	}
+
+	private static void import_named_lods(Database db
+		, Unit unit
+		, Guid unit_id
+		, cgltf.Data data
+		, GLTFNames names
+		, GLib.GenericArray<ImportedChild?> imported_children
+		)
+	{
+		for (int i = 0; i < imported_children.length; ++i) {
+			ImportedChild child = imported_children[i];
+			string child_name = names.node(data, child.node);
+
+			string base_name;
+			int first_lod;
+			if (!Mesh.parse_lod_name(out base_name, out first_lod, child_name))
+				continue;
+
+			GLib.HashTable<int, Guid?> lod_units = new GLib.HashTable<int, Guid?>(GLib.direct_hash, GLib.direct_equal);
+			for (int ci = 0; ci < imported_children.length; ++ci) {
+				ImportedChild candidate = imported_children[ci];
+				string candidate_name = names.node(data, candidate.node);
+				string candidate_base;
+				int candidate_lod;
+				if (Mesh.parse_lod_name(out candidate_base, out candidate_lod, candidate_name)
+					&& candidate_base.down() == base_name.down()
+					) {
+					if (!lod_units.contains(candidate_lod))
+						lod_units[candidate_lod] = candidate.unit_id;
+					first_lod = int.min(first_lod, candidate_lod);
+				}
+			}
+
+			Guid component_id;
+			if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+				component_id = Guid.new_guid();
+				db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+				db.add_to_set(unit_id, "components", component_id);
+			}
+			unit.set_component_string(component_id, "data.fade_mode", "none");
+			unit.set_component_double(component_id, "data.level", -1.0);
+			db.create_empty_set(component_id, "data.lod_levels");
+
+			double screen_size = 1.0;
+			for (int lod = first_lod; lod_units.contains(lod); ++lod) {
+				Guid level_id = Guid.new_guid();
+				db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+				db.set_reference(level_id, "data.mesh_renderer", lod_units[lod]);
+				db.set_double(level_id, "data.screen_size", screen_size);
+				db.add_to_set(component_id, "data.lod_levels", level_id);
+				screen_size *= 0.5;
+				if (lod == int.MAX)
+					break;
+			}
+			break;
+		}
+	}
+
 	public static bool unit_create_components(SceneImportOptions options
 		, Database db
 		, Guid parent_unit_id
@@ -1027,9 +1096,7 @@ public class GLTFImporter
 			}
 			children.push_tail(child_id);
 		}
-		GLib.GenericArray<Guid?> child_unit_ids = new GLib.GenericArray<Guid?>();
-		int[] child_indices = new int[(int)node.children.length];
-		int num_child_indices = 0;
+		GLib.GenericArray<ImportedChild?> imported_children = new GLib.GenericArray<ImportedChild?>();
 		for (size_t i = 0; i < node.children.length; ++i) {
 			cgltf.Node* child = node.children[i];
 			string child_name = names.node(data, child);
@@ -1062,54 +1129,12 @@ public class GLTFImporter
 				, imported_materials, imported_skinned_materials, skinned_fallback_material
 				, rigid_attachments, attach_state_machine, state_machines)) {
 				matched_children.add(child_id);
-				child_unit_ids.add(child_id);
-				child_indices[num_child_indices++] = (int)i;
+				imported_children.add(ImportedChild(child, child_id));
 			}
 		}
 
 		if (options.import_lods) {
-			for (int i = 0; i < num_child_indices; ++i) {
-				cgltf.Node* child = node.children[child_indices[i]];
-				string base_name;
-				int first_lod;
-				string name = names.node(data, child);
-				if (!Mesh.parse_lod_name(out base_name, out first_lod, name))
-					continue;
-				GLib.HashTable<int, Guid?> lod_units = new GLib.HashTable<int, Guid?>(GLib.direct_hash, GLib.direct_equal);
-				for (int ci = 0; ci < num_child_indices; ++ci) {
-					cgltf.Node* candidate = node.children[child_indices[ci]];
-					string candidate_base;
-					int candidate_lod;
-					if (Mesh.parse_lod_name(out candidate_base, out candidate_lod, names.node(data, candidate))
-						&& candidate_base.down() == base_name.down()
-						) {
-						lod_units[candidate_lod] = child_unit_ids[ci];
-						first_lod = int.min(first_lod, candidate_lod);
-					}
-				}
-
-				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
-					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_LOD_GROUP);
-					db.add_to_set(unit_id, "components", component_id);
-				}
-				unit.set_component_string(component_id, "data.fade_mode", "none");
-				unit.set_component_double(component_id, "data.level", -1.0);
-				db.create_empty_set(component_id, "data.lod_levels");
-				double screen_size = 1.0;
-				for (int lod = first_lod; lod_units.contains(lod); ++lod) {
-					Guid level_id = Guid.new_guid();
-					db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
-					db.set_reference(level_id, "data.mesh_renderer", lod_units[lod]);
-					db.set_double(level_id, "data.screen_size", screen_size);
-					db.add_to_set(component_id, "data.lod_levels", level_id);
-					screen_size *= 0.5;
-					if (lod == int.MAX)
-						break;
-				}
-				break;
-			}
+			import_named_lods(db, unit, unit_id, data, names, imported_children);
 		} else {
 			remove_owned_component(db, unit, unit_id, OBJECT_TYPE_LOD_GROUP);
 		}
@@ -1612,6 +1637,7 @@ public class GLTFImporter
 						children.push_tail(child_id);
 					}
 					GLib.GenericSet<Guid?> matched = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
+					GLib.GenericArray<ImportedChild?> imported_children = new GLib.GenericArray<ImportedChild?>();
 					for (size_t i = 0; i < active_scene.nodes.length; ++i) {
 						cgltf.Node* node = active_scene.nodes[i];
 						string node_name = names.node(data, node);
@@ -1630,9 +1656,15 @@ public class GLTFImporter
 							child_id = Guid.new_guid();
 						if (unit_create_components(options, db, unit_id, child_id, resource_name, node_path, data, names, node
 							, imported_materials, imported_skinned_materials, skinned_fallback_material
-							, rigid_attachments, attach_state_machine, node_state_machines))
+							, rigid_attachments, attach_state_machine, node_state_machines)) {
 							matched.add(child_id);
+							imported_children.add(ImportedChild(node, child_id));
+						}
 					}
+					if (options.import_lods)
+						import_named_lods(db, root, unit_id, data, names, imported_children);
+					else
+						remove_owned_component(db, root, unit_id, OBJECT_TYPE_LOD_GROUP);
 				}
 
 				Unit unit = Unit(db, unit_id);
