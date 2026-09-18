@@ -115,6 +115,7 @@ function Thumbnail:update(dt)
 	if #self._requests > 0 and self._object ~= nil then
 		self._object:destroy()
 		self._object = nil
+		Device.scoped_autoload_end()
 	end
 
 	World.update(self._world, dt)
@@ -146,7 +147,6 @@ function Thumbnail:update(dt)
 	Device.render(self._world, self._camera:unit())
 	table.insert(self._pending, req)
 	Device.screenshot(req.path)
-	Device.scoped_autoload_end()
 end
 
 function Thumbnail:render(dt)
