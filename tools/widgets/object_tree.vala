@@ -598,10 +598,13 @@ public class ObjectTree : Gtk.Box
 	public void set_object(Guid id)
 	{
 		Gtk.TreeStore? old_tree_store = null;
-		if (_tree_store.iter_n_children(null) > 0) {
-			// Save the current state into Column.SAVE_STATE.
-			_tree_store.foreach(save_tree_state);
-			old_tree_store = _tree_store;
+
+		if (id != GUID_ZERO) {
+			if (_tree_store.iter_n_children(null) > 0) {
+				// Save the current state into Column.SAVE_STATE.
+				_tree_store.foreach(save_tree_state);
+				old_tree_store = _tree_store;
+			}
 		}
 
 		int sort_column_id = Column.OBJECT_NAME;
