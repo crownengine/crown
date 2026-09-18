@@ -5314,22 +5314,20 @@ public static void log(string system, string severity, string message)
 	int now_us = now.get_microsecond();
 	string now_str = now.format("%H:%M:%S");
 
-	string plain_text_line = "%s.%06d  %.4s %s: %s\n".printf(now_str
-		, now_us
-		, severity.ascii_up()
-		, system
-		, message
-		);
-
 	if (_log_stream != null) {
+		string plain_text_line = "%s.%06d  %.4s %s: %s\n".printf(now_str
+			, now_us
+			, severity.ascii_up()
+			, system
+			, message
+			);
 		_log_stream.puts(plain_text_line);
 		_log_stream.flush();
 	}
 
 	if (_console_view_valid) {
-		string line = "%s: %s\n".printf(system, message);
 		string time = "%s.%06d  ".printf(now_str, now_us);
-		_console_view.log(time, severity, line);
+		_console_view.log(time, system, severity, message);
 	}
 }
 

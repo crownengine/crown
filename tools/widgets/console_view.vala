@@ -932,7 +932,7 @@ public class ConsoleView : Gtk.Box
 		}
 	}
 
-	public void do_log(string time, string severity, string message)
+	public void do_log(string time, string system, string severity, string message)
 	{
 		Gtk.TextBuffer buffer = _text_view.buffer;
 
@@ -1015,6 +1015,18 @@ public class ConsoleView : Gtk.Box
 			, buffer.tag_table.lookup("time")
 			, null
 			);
+		buffer.insert_with_tags(ref end_iter
+			, system
+			, system.length
+			, buffer.tag_table.lookup(severity)
+			, null
+			);
+		buffer.insert_with_tags(ref end_iter
+			, ": "
+			, 2
+			, buffer.tag_table.lookup(severity)
+			, null
+			);
 
 		// Replace all IDs with corresponding human-readable names.
 		int id_index = 0;
@@ -1027,7 +1039,7 @@ public class ConsoleView : Gtk.Box
 				buffer.insert_with_tags(ref end_iter
 					, line_chunk
 					, line_chunk.length
-					, buffer.tag_table.lookup(severity)
+					, buffer.tag_table.lookup("info")
 					, null
 					);
 
@@ -1038,7 +1050,7 @@ public class ConsoleView : Gtk.Box
 					buffer.insert_with_tags(ref end_iter
 						, message.substring(id_index)
 						, -1
-						, buffer.tag_table.lookup(severity)
+						, buffer.tag_table.lookup("info")
 						, null
 						);
 					break;
@@ -1057,7 +1069,7 @@ public class ConsoleView : Gtk.Box
 				buffer.insert_with_tags(ref end_iter
 					, resource_name
 					, -1
-					, buffer.tag_table.lookup(severity)
+					, buffer.tag_table.lookup("info")
 					, link
 					, null
 					);
@@ -1069,7 +1081,7 @@ public class ConsoleView : Gtk.Box
 				buffer.insert_with_tags(ref end_iter
 					, line_chunk
 					, line_chunk.length
-					, buffer.tag_table.lookup(severity)
+					, buffer.tag_table.lookup("info")
 					, null
 					);
 
@@ -1080,7 +1092,7 @@ public class ConsoleView : Gtk.Box
 					buffer.insert_with_tags(ref end_iter
 						, message.substring(id_index)
 						, -1
-						, buffer.tag_table.lookup(severity)
+						, buffer.tag_table.lookup("info")
 						, null
 						);
 					break;
@@ -1096,7 +1108,7 @@ public class ConsoleView : Gtk.Box
 				buffer.insert_with_tags(ref end_iter
 					, file_path
 					, -1
-					, buffer.tag_table.lookup(severity)
+					, buffer.tag_table.lookup("info")
 					, link
 					, null
 					);
@@ -1106,23 +1118,24 @@ public class ConsoleView : Gtk.Box
 				buffer.insert_with_tags(ref end_iter
 					, message.substring(id_index_orig)
 					, -1
-					, buffer.tag_table.lookup(severity)
+					, buffer.tag_table.lookup("info")
 					, null
 					);
 			}
 		} while (id_index++ >= 0);
 
+		buffer.insert_with_tags(ref end_iter, "\n", 1, buffer.tag_table.lookup("info"), null);
 		scroll_to_bottom();
 	}
 
-	public void log(string time, string severity, string message)
+	public void log(string time, string system, string severity, string message)
 	{
 		GLib.Idle.add(() => {
 				if (!_console_view_valid)
 					return GLib.Source.REMOVE;
 
 				_mutex.lock();
-				do_log(time, severity, message);
+				do_log(time, system, severity, message);
 				_mutex.unlock();
 
 				return GLib.Source.REMOVE;
