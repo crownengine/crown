@@ -120,6 +120,7 @@ public class ConsoleView : Gtk.Box
 {
 	public struct LastMsg
 	{
+		string system;
 		string text;
 		int num_repetitions;
 		Gtk.TextChildAnchor anchor;
@@ -652,6 +653,7 @@ public class ConsoleView : Gtk.Box
 
 		_last_message = LastMsg()
 		{
+			system = "",
 			text = "",
 			num_repetitions = 0,
 			anchor = null
@@ -953,7 +955,7 @@ public class ConsoleView : Gtk.Box
 		// at the end of each line occurring twice or more.
 		bool repeated_message;
 #if CROWN_GTK3
-		repeated_message = _last_message.text == message;
+		repeated_message = _last_message.system == system && _last_message.text == message;
 #else
 		repeated_message = false; // FIXME
 #endif
@@ -1004,6 +1006,7 @@ public class ConsoleView : Gtk.Box
 
 			return;
 		} else {
+			_last_message.system = system;
 			_last_message.text = message;
 			_last_message.num_repetitions = 0;
 		}
