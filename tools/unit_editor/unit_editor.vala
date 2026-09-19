@@ -427,10 +427,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 			}
 		}
 
-		Guid last_changed = object_ids[object_ids.length - 1];
-
 		_objects_tree.set_object(_unit_id); // Force update the tree.
-		_database_editor.selection_set({ last_changed });
+		_properties_view.read_selection(_database_editor._selection.data);
 		update_window_title();
 	}
 

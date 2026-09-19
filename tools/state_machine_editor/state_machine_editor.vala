@@ -380,10 +380,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
 	{
-		Guid last_changed = object_ids[object_ids.length - 1];
-
 		_objects_tree.set_object(_state_machine_id); // Force update the tree.
-		_database_editor.selection_set({ last_changed });
+		_objects_properties.read_selection(_database_editor._selection.data);
 		create_event_buttons();
 		create_variable_sliders();
 		update_window_title();
