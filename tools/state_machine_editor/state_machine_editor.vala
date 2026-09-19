@@ -60,6 +60,10 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_database.objects_changed.connect(on_objects_changed);
 
 		_objects_tree = new ObjectTree(_database_editor);
+		_database.objects_created.connect(_objects_tree.on_objects_created);
+		_database.objects_destroyed.connect(_objects_tree.on_objects_destroyed);
+		_database.objects_changed.connect(_objects_tree.on_objects_changed);
+
 		_objects_properties = new ObjectProperties(_database_editor);
 
 		_database_editor.load_types();

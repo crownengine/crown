@@ -19,12 +19,37 @@ public class ObjectTree : Gtk.Box
 		OBJECTS_SET
 	}
 
+	public struct SetRowKey
+	{
+		public Guid id;
+		public int set_index;
+
+		public SetRowKey(Guid id, int set_index)
+		{
+			this.id = id;
+			this.set_index = set_index;
+		}
+
+		public static uint hash_func(SetRowKey? key)
+		{
+			SetRowKey k = (SetRowKey)key;
+			return Guid.hash_func(k.id) ^ ((uint)k.set_index * 0x9e3779b9u);
+		}
+
+		public static bool equal_func(SetRowKey? a, SetRowKey? b)
+		{
+			SetRowKey ka = (SetRowKey)a;
+			SetRowKey kb = (SetRowKey)b;
+			return Guid.equal_func(ka.id, kb.id) && ka.set_index == kb.set_index;
+		}
+	}
+
 	public enum Column
 	{
 		ITEM_TYPE,   ///< enum ItemType.
 		OBJECT_ID,   ///< Object ID that owns the property.
 		OBJECT_NAME, ///< Object name for displaying.
-		SET_NAME,    ///< Name of the set property.
+		SET_INDEX,   ///< Index of the set property.
 		VISIBLE,
 		SAVE_STATE,
 
@@ -57,12 +82,11 @@ public class ObjectTree : Gtk.Box
 		}
 	}
 
-	// Data
 	public DatabaseEditor _database_editor;
 	public Database _database;
 	public Guid _object_id;
-
-	// Widgets
+	public GLib.HashTable<Guid?, Gtk.TreeIter?> _object_rows; // Gtk.TreeStore guarantees persistent iters while their rows exist.
+	public GLib.HashTable<SetRowKey?, Gtk.TreeIter?> _set_rows;
 	public string _needle;
 	public EntrySearch _filter_entry;
 	public Gtk.TreeStore _tree_store;
@@ -70,10 +94,12 @@ public class ObjectTree : Gtk.Box
 	public Gtk.TreeModelSort _tree_sort;
 	public Gtk.TreeView _tree_view;
 	public Gtk.TreeSelection _tree_selection;
+	public ulong _database_selection_changed_id;
 	public ulong _selection_changed_id;
 	public GLib.List<Gtk.TreePath>? _saved_paths;
 	public bool _drag_started;
 	public bool _selection_changed_blocked;
+	public bool _search_selection_changed;
 	public Gtk.TreePath? _drag_path;
 	public double _press_x;
 	public double _press_y;
@@ -91,54 +117,28 @@ public class ObjectTree : Gtk.Box
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		_database_editor = database_editor;
-		_database_editor.selection_changed.connect(on_database_selection_changed);
+		_database_selection_changed_id = _database_editor.selection_changed.connect(on_database_selection_changed);
 		_database = database_editor._database;
 		_object_id = GUID_ZERO;
+		_object_rows = new GLib.HashTable<Guid?, Gtk.TreeIter?>(Guid.hash_func, Guid.equal_func);
+		_set_rows = new GLib.HashTable<SetRowKey?, Gtk.TreeIter?>(SetRowKey.hash_func, SetRowKey.equal_func);
 
-		// Widgets
 		_needle = "";
 		_filter_entry = new EntrySearch();
 		_filter_entry.set_placeholder_text(_("Search..."));
 		_filter_entry.search_changed.connect(on_filter_entry_text_changed);
 		_filter_entry._entry.stop_search.connect(on_stop_search);
 
-		_tree_store = new Gtk.TreeStore(Column.COUNT
-			, typeof(ItemType) // Column.ITEM_TYPE
-			, typeof(Guid)     // Column.OBJECT_ID
-			, typeof(string)   // Column.OBJECT_NAME
-			, typeof(string)   // Column.SET_NAME
-			, typeof(bool)     // Column.VISIBLE
-			, typeof(uint32)   // Column.SAVED_STATE
-			);
-
-		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
-		_tree_filter.set_visible_column(Column.VISIBLE);
-
-		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
-		_tree_sort.set_sort_column_id(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
+		_tree_store = new_tree_store();
+		create_models(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
 
 		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn();
 		Gtk.CellRendererPixbuf cell_pixbuf = new Gtk.CellRendererPixbuf();
 		Gtk.CellRendererText cell_text = new Gtk.CellRendererText();
 		column.pack_start(cell_pixbuf, false);
 		column.pack_start(cell_text, true);
-		column.set_cell_data_func(cell_pixbuf, (cell_layout, cell, model, iter) => {
-				Value type;
-				model.get_value(iter, Column.ITEM_TYPE, out type);
-
-				if ((ItemType)type == ItemType.OBJECTS_SET)
-					cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
-				else if ((ItemType)type == ItemType.OBJECT)
-					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNIT);
-				else
-					cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNKNOWN);
-			});
-		column.set_cell_data_func(cell_text, (cell_layout, cell, model, iter) => {
-				Value name;
-				model.get_value(iter, Column.OBJECT_NAME, out name);
-
-				cell.set_property("text", (string)name);
-			});
+		column.set_cell_data_func(cell_pixbuf, render_item_icon);
+		column.add_attribute(cell_text, "text", Column.OBJECT_NAME);
 		_tree_view = new Gtk.TreeView();
 		_tree_view.append_column(column);
 #if 0
@@ -178,9 +178,10 @@ public class ObjectTree : Gtk.Box
 		_gesture_click.set_button(0);
 
 		_tree_selection = _tree_view.get_selection();
-		_tree_selection.set_mode(Gtk.SelectionMode.SINGLE);
+		_tree_selection.set_mode(Gtk.SelectionMode.MULTIPLE);
 		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
 		_selection_changed_blocked = false;
+		_search_selection_changed = false;
 
 #if CROWN_GTK3
 		_scrolled_window = new Gtk.ScrolledWindow(null, null);
@@ -248,6 +249,56 @@ public class ObjectTree : Gtk.Box
 #endif
 	}
 
+	public Gtk.TreeStore new_tree_store()
+	{
+		return new Gtk.TreeStore(Column.COUNT
+			, typeof(ItemType) // Column.ITEM_TYPE
+			, typeof(Guid)     // Column.OBJECT_ID
+			, typeof(string)   // Column.OBJECT_NAME
+			, typeof(int)      // Column.SET_INDEX
+			, typeof(bool)     // Column.VISIBLE
+			, typeof(uint32)   // Column.SAVE_STATE
+			);
+	}
+
+	public void create_models(int sort_column_id, Gtk.SortType sort_order)
+	{
+		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
+		_tree_filter.set_visible_column(Column.VISIBLE);
+		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
+		_tree_sort.set_sort_column_id(sort_column_id, sort_order);
+	}
+
+	public void render_item_icon(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
+	{
+		Value val;
+		model.get_value(iter, Column.ITEM_TYPE, out val);
+
+		if ((ItemType)val == ItemType.OBJECTS_SET)
+			cell.set_property("icon-name", IconTheme.BROWSER_FOLDER);
+		else if ((ItemType)val == ItemType.OBJECT)
+			cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNIT);
+		else
+			cell.set_property("icon-name", IconTheme.LEVEL_OBJECT_UNKNOWN);
+	}
+
+	public bool block_tree_selection_changed()
+	{
+		if (_selection_changed_blocked)
+			return false;
+
+		GLib.SignalHandler.block(_tree_selection, _selection_changed_id);
+		_selection_changed_blocked = true;
+		return true;
+	}
+
+	public void unblock_tree_selection_changed()
+	{
+		assert(_selection_changed_blocked);
+		GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
+		_selection_changed_blocked = false;
+	}
+
 	public void on_button_pressed(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
@@ -257,19 +308,15 @@ public class ObjectTree : Gtk.Box
 			_press_x = x;
 			_press_y = y;
 			_drag_started = false;
-			if (!_selection_changed_blocked) {
-				GLib.SignalHandler.block(_tree_selection, _selection_changed_id);
-				_selection_changed_blocked = true;
-			}
+			block_tree_selection_changed();
 		}
 
 		if (button == Gdk.BUTTON_SECONDARY) {
 			int bx;
 			int by;
 			Gtk.TreePath path;
-			Gtk.TreeViewColumn column;
 			_tree_view.convert_widget_to_bin_window_coords((int)x, (int)y, out bx, out by);
-			if (!_tree_view.get_path_at_pos(bx, by, out path, out column, null, null))
+			if (!_tree_view.get_path_at_pos(bx, by, out path, null, null, null))
 				return; // Clicked on empty space.
 
 			if (!_tree_selection.path_is_selected(path)) {
@@ -277,44 +324,56 @@ public class ObjectTree : Gtk.Box
 				_tree_selection.select_path(path);
 			}
 
-			// Create menu.
 			GLib.Menu menu_model = new GLib.Menu();
-			GLib.MenuItem mi;
+			GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
+			uint selected_count = selected_paths.length();
+			bool can_modify_objects = selected_count > 0;
+			Guid set_owner_id = GUID_ZERO;
+			int set_index = -1;
 
-			if (_tree_selection.count_selected_rows() == 1) {
-				GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
-
+			foreach (Gtk.TreePath selected_path in selected_paths) {
 				Gtk.TreeIter iter;
-				if (_tree_view.model.get_iter(out iter, selected_paths.nth(0).data)) {
-					Value val;
-					_tree_view.model.get_value(iter, Column.ITEM_TYPE, out val);
+				if (!_tree_view.model.get_iter(out iter, selected_path)) {
+					can_modify_objects = false;
+					continue;
+				}
 
-					if ((ItemType)val == ItemType.OBJECT) {
+				Value val;
+				_tree_view.model.get_value(iter, Column.ITEM_TYPE, out val);
+				if ((ItemType)val == ItemType.OBJECT) {
+					_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
+					if (Guid.equal_func((Guid)val, _object_id))
+						can_modify_objects = false;
+				} else {
+					can_modify_objects = false;
+					if (selected_count == 1 && (ItemType)val == ItemType.OBJECTS_SET) {
 						_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
-						Guid object_id = (Guid)val;
-
-						if (object_id != _object_id) {
-							mi = new GLib.MenuItem(_("Duplicate"), null);
-							mi.set_action_and_target_value("database.duplicate", null);
-							menu_model.append_item(mi);
-
-							mi = new GLib.MenuItem(_("Delete"), null);
-							mi.set_action_and_target_value("database.delete", null);
-							menu_model.append_item(mi);
-						}
-					} else if ((ItemType)val == ItemType.OBJECTS_SET) {
-						_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
-						Guid object_id = (Guid)val;
-						_tree_view.model.get_value(iter, Column.SET_NAME, out val);
-						string set_name = (string)val;
-
-						mi = new GLib.MenuItem(_("Add"), null);
-						mi.set_action_and_target_value("database.add"
-							, new GLib.Variant.tuple({ object_id.to_string(), set_name })
-							);
-						menu_model.append_item(mi);
+						set_owner_id = (Guid)val;
+						_tree_view.model.get_value(iter, Column.SET_INDEX, out val);
+						set_index = (int)val;
 					}
 				}
+			}
+
+			if (can_modify_objects) {
+				GLib.MenuItem mi = new GLib.MenuItem(_("Duplicate"), null);
+				mi.set_action_and_target_value("database.duplicate", null);
+				menu_model.append_item(mi);
+
+				mi = new GLib.MenuItem(_("Delete"), null);
+				mi.set_action_and_target_value("database.delete", null);
+				menu_model.append_item(mi);
+			} else if (set_index >= 0) {
+				StringId64 object_type = StringId64(_database.object_type(set_owner_id));
+				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
+				assert(set_index < object_definition.length);
+				assert(object_definition[set_index].type == PropertyType.OBJECTS_SET);
+
+				GLib.MenuItem mi = new GLib.MenuItem(_("Add"), null);
+				mi.set_action_and_target_value("database.add"
+					, new GLib.Variant.tuple({ set_owner_id.to_string(), object_definition[set_index].name })
+					);
+				menu_model.append_item(mi);
 			}
 
 #if CROWN_GTK3
@@ -327,7 +386,6 @@ public class ObjectTree : Gtk.Box
 			menu.set_pointing_to({ (int)x, (int)y, 1, 1 });
 			menu.set_position(Gtk.PositionType.BOTTOM);
 			menu.popup();
-
 			_gesture_click.set_state(Gtk.EventSequenceState.CLAIMED);
 		}
 	}
@@ -335,10 +393,9 @@ public class ObjectTree : Gtk.Box
 	public void on_button_released(int n_press, double x, double y)
 	{
 		if (!_drag_started) {
-			if (_selection_changed_blocked) {
-				GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
-				_selection_changed_blocked = false;
-			}
+			_saved_paths = null;
+			if (_selection_changed_blocked)
+				unblock_tree_selection_changed();
 			_tree_selection.changed();
 		}
 	}
@@ -347,7 +404,6 @@ public class ObjectTree : Gtk.Box
 	{
 		_drag_started = true;
 
-		// Record the actual row under the cursor.
 		int bx;
 		int by;
 		Gtk.TreePath? path;
@@ -356,19 +412,23 @@ public class ObjectTree : Gtk.Box
 			path = null;
 		_drag_path = path;
 
-		// Defer selection restore so it doesn't interfere with drag setup.
-		GLib.Idle.add(() => {
-				_tree_selection.unselect_all();
-				if (_saved_paths != null) {
-					foreach (var saved_path in _saved_paths)
-						_tree_selection.select_path(saved_path);
-				}
-				if (_selection_changed_blocked) {
-					GLib.SignalHandler.unblock(_tree_selection, _selection_changed_id);
-					_selection_changed_blocked = false;
-				}
-				return GLib.Source.REMOVE;
-			});
+		// Defer selection restore so it does not interfere with drag setup.
+		GLib.Idle.add(restore_drag_selection);
+	}
+
+	public bool restore_drag_selection()
+	{
+		_tree_selection.unselect_all();
+		if (_saved_paths != null) {
+			foreach (Gtk.TreePath saved_path in _saved_paths)
+				_tree_selection.select_path(saved_path);
+		}
+		_saved_paths = null;
+
+		if (_selection_changed_blocked)
+			unblock_tree_selection_changed();
+
+		return GLib.Source.REMOVE;
 	}
 
 	public Guid? drag_guid()
@@ -429,27 +489,28 @@ public class ObjectTree : Gtk.Box
 
 	public void on_tree_selection_changed()
 	{
-		_database_editor.selection_changed.disconnect(on_tree_selection_changed);
-
-		ItemType item_type = ItemType.OBJECT;
+		if (_needle != "")
+			_search_selection_changed = true;
 
 		GLib.GenericArray<Guid?> ids = new GLib.GenericArray<Guid?>();
-		_tree_selection.selected_foreach((model, path, iter) => {
-				Value val;
+		GLib.List<Gtk.TreePath> selected_paths = _tree_selection.get_selected_rows(null);
+		foreach (Gtk.TreePath path in selected_paths) {
+			Gtk.TreeIter iter;
+			if (!_tree_view.model.get_iter(out iter, path))
+				continue;
 
-				model.get_value(iter, Column.ITEM_TYPE, out val);
-				item_type = (ItemType)val;
+			Value val;
+			_tree_view.model.get_value(iter, Column.ITEM_TYPE, out val);
+			if ((ItemType)val != ItemType.OBJECT)
+				continue;
 
-				if (item_type == ItemType.OBJECT) {
-					model.get_value(iter, Column.OBJECT_ID, out val);
-					ids.add((Guid)val);
-				}
-			});
+			_tree_view.model.get_value(iter, Column.OBJECT_ID, out val);
+			ids.add((Guid)val);
+		}
 
-		if (ids.length > 0)
-			_database_editor.selection_set(ids.data);
-
-		_database_editor.selection_changed.connect(on_tree_selection_changed);
+		GLib.SignalHandler.block(_database_editor, _database_selection_changed_id);
+		_database_editor.selection_set(ids.data);
+		GLib.SignalHandler.unblock(_database_editor, _database_selection_changed_id);
 	}
 
 #if CROWN_GTK3
@@ -464,19 +525,24 @@ public class ObjectTree : Gtk.Box
 		var button = new Gtk.CheckButton.with_label(mode.to_label());
 		button.set_group(group);
 #endif
-		button.toggled.connect(() => {
-				if (mode == SortMode.NAME_AZ)
-					_tree_sort.set_sort_column_id(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
-				else if (mode == SortMode.NAME_ZA)
-					_tree_sort.set_sort_column_id(Column.OBJECT_NAME, Gtk.SortType.DESCENDING);
-				else if (mode == SortMode.TYPE_AZ)
-					_tree_sort.set_sort_column_id(Column.ITEM_TYPE, Gtk.SortType.ASCENDING);
-				else if (mode == SortMode.TYPE_ZA)
-					_tree_sort.set_sort_column_id(Column.ITEM_TYPE, Gtk.SortType.DESCENDING);
+		switch (mode) {
+		case SortMode.NAME_AZ:
+			button.toggled.connect(on_sort_name_az_toggled);
+			break;
+		case SortMode.NAME_ZA:
+			button.toggled.connect(on_sort_name_za_toggled);
+			break;
+		case SortMode.TYPE_AZ:
+			button.toggled.connect(on_sort_type_az_toggled);
+			break;
+		case SortMode.TYPE_ZA:
+			button.toggled.connect(on_sort_type_za_toggled);
+			break;
+			default:
+			assert(false);
+			break;
+		}
 
-				_tree_filter.refilter();
-				_sort_items_popover.popdown();
-			});
 #if CROWN_GTK3
 		_sort_items_box.pack_start(button, false, false);
 #else
@@ -485,398 +551,467 @@ public class ObjectTree : Gtk.Box
 		return button;
 	}
 
-	public void add_object_set(Gtk.TreeIter parent_iter, Guid id, Gtk.TreeStore? old_tree_store = null)
+	public void set_sort(int column, Gtk.SortType order)
+	{
+		_tree_sort.set_sort_column_id(column, order);
+		_sort_items_popover.popdown();
+	}
+
+	public void on_sort_name_az_toggled()
+	{
+		set_sort(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
+	}
+
+	public void on_sort_name_za_toggled()
+	{
+		set_sort(Column.OBJECT_NAME, Gtk.SortType.DESCENDING);
+	}
+
+	public void on_sort_type_az_toggled()
+	{
+		set_sort(Column.ITEM_TYPE, Gtk.SortType.ASCENDING);
+	}
+
+	public void on_sort_type_za_toggled()
+	{
+		set_sort(Column.ITEM_TYPE, Gtk.SortType.DESCENDING);
+	}
+
+	public string object_display_name(Guid id)
+	{
+		StringId64 object_type = StringId64(_database.object_type(id));
+		Aspect? name_aspect = _database.get_aspect(object_type, StringId64("name"));
+		if (name_aspect == null)
+			name_aspect = default_name_aspect;
+
+		string object_name;
+		name_aspect(out object_name, _database, id);
+		return object_name;
+	}
+
+	public void unregister_subtree(Gtk.TreeIter iter)
+	{
+		Gtk.TreeIter child;
+		if (_tree_store.iter_children(out child, iter)) {
+			do {
+				unregister_subtree(child);
+			} while (_tree_store.iter_next(ref child));
+		}
+
+		Value val;
+		_tree_store.get_value(iter, Column.ITEM_TYPE, out val);
+		ItemType item_type = (ItemType)val;
+
+		_tree_store.get_value(iter, Column.OBJECT_ID, out val);
+		Guid id = (Guid)val;
+
+		if (item_type == ItemType.OBJECT) {
+			_object_rows.remove(id);
+		} else if (item_type == ItemType.OBJECTS_SET) {
+			_tree_store.get_value(iter, Column.SET_INDEX, out val);
+			_set_rows.remove(SetRowKey(id, (int)val));
+		}
+	}
+
+	public void insert_object_child(Gtk.TreeIter set_iter, Guid child_id)
+	{
+		if (_object_rows.lookup(child_id) != null)
+			return;
+
+		Gtk.TreeIter child_iter;
+		_tree_store.insert_with_values(out child_iter
+			, set_iter
+			, 0 // GtkTreeStore append is quadratic for many siblings. Prepend instead.
+			, Column.ITEM_TYPE
+			, ItemType.OBJECT
+			, Column.OBJECT_ID
+			, child_id
+			, Column.OBJECT_NAME
+			, object_display_name(child_id)
+			, Column.VISIBLE
+			, true
+			, -1
+			);
+		_object_rows[child_id] = child_iter;
+		add_object_set(child_iter, child_id);
+	}
+
+	// Synchronize one object's parent without scanning the displayed tree.
+	public void sync_object_placement(Guid id)
+	{
+		if (id == _object_id)
+			return;
+
+		SetRowKey desired = SetRowKey(GUID_ZERO, -1);
+		bool has_desired = false;
+		Guid owner_id = _database.owner(id);
+		if (owner_id != GUID_ZERO && _object_rows.lookup(owner_id) != null) {
+			StringId64 owner_type = StringId64(_database.object_type(owner_id));
+			unowned PropertyDefinition[] object_definition = _database.object_definition(owner_type);
+			for (int set_index = 0; set_index < object_definition.length && !has_desired; ++set_index) {
+				var def = object_definition[set_index];
+				if (def.type != PropertyType.OBJECTS_SET || !_database.has_property(owner_id, def.name))
+					continue;
+
+				Guid?[] children = _database.get_set(owner_id, def.name);
+				foreach (unowned Guid? child_id in children) {
+					if (!Guid.equal_func(child_id, id))
+						continue;
+
+					desired = SetRowKey(owner_id, set_index);
+					has_desired = true;
+					break;
+				}
+			}
+		}
+
+		unowned Gtk.TreeIter? iter_ptr = _object_rows.lookup(id);
+		if (iter_ptr != null) {
+			Gtk.TreeIter set_iter;
+			bool has_parent = _tree_store.iter_parent(out set_iter, (Gtk.TreeIter)iter_ptr);
+			assert(has_parent); // The only parentless object row is _object_id.
+
+			Value val;
+			_tree_store.get_value(set_iter, Column.OBJECT_ID, out val);
+			Guid current_owner = (Guid)val;
+			_tree_store.get_value(set_iter, Column.SET_INDEX, out val);
+			SetRowKey current = SetRowKey(current_owner, (int)val);
+
+			if (has_desired && SetRowKey.equal_func(current, desired))
+				return;
+
+			Gtk.TreeIter iter = (Gtk.TreeIter)iter_ptr;
+			unregister_subtree(iter);
+			_tree_store.remove(ref iter);
+		}
+
+		if (!has_desired)
+			return;
+
+		unowned Gtk.TreeIter? set_iter_ptr = _set_rows.lookup(desired);
+		if (set_iter_ptr != null)
+			insert_object_child((Gtk.TreeIter)set_iter_ptr, id);
+	}
+
+	public void on_objects_changed(Guid?[] object_ids, uint32 flags = 0)
+	{
+		if (_object_id == GUID_ZERO)
+			return;
+
+		bool selection_blocked = block_tree_selection_changed();
+
+		foreach (unowned Guid? id in object_ids) {
+			sync_object_placement(id);
+
+			unowned Gtk.TreeIter? object_iter_ptr = _object_rows.lookup(id);
+			if (object_iter_ptr == null)
+				continue;
+
+			StringId64 object_type = StringId64(_database.object_type(id));
+			unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
+			for (int set_index = 0; set_index < object_definition.length; ++set_index) {
+				var def = object_definition[set_index];
+				if (def.type != PropertyType.OBJECTS_SET)
+					continue;
+
+				unowned Gtk.TreeIter? set_iter_ptr = _set_rows.lookup(SetRowKey(id, set_index));
+				assert(set_iter_ptr != null);
+				Gtk.TreeIter set_iter = (Gtk.TreeIter)set_iter_ptr;
+
+				Guid?[] children = {};
+				var desired = new GLib.HashTable<Guid?, bool?>(Guid.hash_func, Guid.equal_func);
+				if (_database.has_property(id, def.name)) {
+					children = _database.get_set(id, def.name);
+					foreach (unowned Guid? child_id in children)
+						desired.insert(child_id, true);
+				}
+
+				Gtk.TreeIter child_iter;
+				bool child_valid = _tree_store.iter_children(out child_iter, set_iter);
+				while (child_valid) {
+					Value val;
+					_tree_store.get_value(child_iter, Column.OBJECT_ID, out val);
+					if (desired.lookup((Guid)val) == null) {
+						unregister_subtree(child_iter);
+						child_valid = _tree_store.remove(ref child_iter);
+					} else {
+						child_valid = _tree_store.iter_next(ref child_iter);
+					}
+				}
+
+				foreach (unowned Guid? child_id in children)
+					insert_object_child(set_iter, child_id);
+			}
+
+			if (id != _object_id) {
+				Gtk.TreeIter object_iter = (Gtk.TreeIter)object_iter_ptr;
+				Value val;
+				_tree_store.get_value(object_iter, Column.OBJECT_NAME, out val);
+				string name = object_display_name(id);
+				if ((string)val != name)
+					_tree_store.set(object_iter, Column.OBJECT_NAME, name, -1);
+			}
+		}
+
+		if (_needle != "")
+			filter();
+
+		select_database_rows(false);
+		if (selection_blocked)
+			unblock_tree_selection_changed();
+	}
+
+	public void on_objects_created(Guid?[] object_ids, uint32 flags = 0)
+	{
+		if (_object_id == GUID_ZERO)
+			return;
+
+		bool selection_blocked = block_tree_selection_changed();
+		foreach (unowned Guid? id in object_ids)
+			sync_object_placement(id);
+
+		if (_needle != "")
+			filter();
+
+		select_database_rows(false);
+		if (selection_blocked)
+			unblock_tree_selection_changed();
+	}
+
+	public void on_objects_destroyed(Guid?[] object_ids, uint32 flags = 0)
+	{
+		if (_object_id == GUID_ZERO)
+			return;
+
+		foreach (unowned Guid? id in object_ids) {
+			if (id == _object_id) {
+				set_object(GUID_ZERO);
+				return;
+			}
+		}
+
+		bool selection_blocked = block_tree_selection_changed();
+		foreach (unowned Guid? id in object_ids) {
+			unowned Gtk.TreeIter? iter_ptr = _object_rows.lookup(id);
+			if (iter_ptr == null)
+				continue;
+
+			Gtk.TreeIter iter = (Gtk.TreeIter)iter_ptr;
+			unregister_subtree(iter);
+			_tree_store.remove(ref iter);
+		}
+
+		if (_needle != "")
+			filter();
+
+		if (selection_blocked)
+			unblock_tree_selection_changed();
+	}
+
+	public void add_object_set(Gtk.TreeIter parent_iter, Guid id)
 	{
 		StringId64 object_type = StringId64(_database.object_type(id));
 		unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 
-		foreach (var def in object_definition) {
+		for (int set_index = 0; set_index < object_definition.length; ++set_index) {
+			var def = object_definition[set_index];
 			if (def.type != PropertyType.OBJECTS_SET)
 				continue;
 
-			uint32 set_saved_state = 0u;
-			if (old_tree_store != null) {
-				old_tree_store.foreach((model, path, it) => {
-						Value val;
-						model.get_value(it, Column.ITEM_TYPE, out val);
-						if ((ItemType)val != ItemType.OBJECTS_SET)
-							return false;
-
-						model.get_value(it, Column.OBJECT_ID, out val);
-						if (!Guid.equal_func((Guid)val, id))
-							return false;
-
-						model.get_value(it, Column.SET_NAME, out val);
-						if ((string)val != def.name)
-							return false;
-
-						model.get_value(it, Column.SAVE_STATE, out val);
-						set_saved_state = (uint32)val;
-						return true; // Stop iterating.
-					});
-			}
-
-			// Insert set itself.
-			Gtk.TreeIter iter;
-			_tree_store.insert_with_values(out iter
+			Gtk.TreeIter set_iter;
+			_tree_store.insert_with_values(out set_iter
 				, parent_iter
-				, -1
+				, 0
 				, Column.ITEM_TYPE
 				, ItemType.OBJECTS_SET
 				, Column.OBJECT_ID
 				, id
 				, Column.OBJECT_NAME
 				, camel_case(def.label)
-				, Column.SET_NAME
-				, def.name
+				, Column.SET_INDEX
+				, set_index
 				, Column.VISIBLE
 				, true
-				, Column.SAVE_STATE
-				, set_saved_state
 				, -1
 				);
+			_set_rows[SetRowKey(id, set_index)] = set_iter;
 
-			// Insert the set's content.
-			if (_database.has_property(id, def.name)) {
-				Guid?[] children = _database.get_set(id, def.name);
-				foreach (unowned Guid? child_id in children) {
-					StringId64 child_type = StringId64(_database.object_type(child_id));
-					Aspect? name_aspect = _database.get_aspect(child_type, StringId64("name"));
-					if (name_aspect == null)
-						name_aspect = default_name_aspect;
+			if (!_database.has_property(id, def.name))
+				continue;
 
-					string object_name;
-					name_aspect(out object_name, _database, child_id);
-
-					uint32 child_saved_state = 0u;
-					if (old_tree_store != null) {
-						old_tree_store.foreach((model, path, it) => {
-								Value val;
-								model.get_value(it, Column.ITEM_TYPE, out val);
-								if ((ItemType)val != ItemType.OBJECT)
-									return false;
-
-								model.get_value(it, Column.OBJECT_ID, out val);
-								if (!Guid.equal_func((Guid)val, child_id))
-									return false;
-
-								model.get_value(it, Column.SET_NAME, out val);
-								if ((string)val != def.name)
-									return false;
-
-								model.get_value(it, Column.SAVE_STATE, out val);
-								child_saved_state = (uint32)val;
-								return true; // Stop iterating.
-							});
-					}
-
-					Gtk.TreeIter child_iter;
-					_tree_store.insert_with_values(out child_iter
-						, iter
-						, -1
-						, Column.ITEM_TYPE
-						, ItemType.OBJECT
-						, Column.OBJECT_ID
-						, child_id
-						, Column.OBJECT_NAME
-						, object_name
-						, Column.SET_NAME
-						, def.name
-						, Column.VISIBLE
-						, true
-						, Column.SAVE_STATE
-						, child_saved_state
-						, -1
-						);
-					add_object_set(child_iter, child_id, old_tree_store);
-				}
-			}
+			Guid?[] children = _database.get_set(id, def.name);
+			foreach (unowned Guid? child_id in children)
+				insert_object_child(set_iter, child_id);
 		}
 	}
 
 	/// Setting @a id to GUID_ZERO resets the tree.
 	public void set_object(Guid id)
 	{
-		Gtk.TreeStore? old_tree_store = null;
-
-		if (id != GUID_ZERO) {
-			if (_tree_store.iter_n_children(null) > 0) {
-				// Save the current state into Column.SAVE_STATE.
-				_tree_store.foreach(save_tree_state);
-				old_tree_store = _tree_store;
-			}
-		}
+		if (id != GUID_ZERO && id == _object_id && _object_rows.lookup(id) != null)
+			return;
 
 		int sort_column_id = Column.OBJECT_NAME;
 		Gtk.SortType sort_order = Gtk.SortType.ASCENDING;
 		_tree_sort.get_sort_column_id(out sort_column_id, out sort_order);
 
-		_tree_store = new Gtk.TreeStore(Column.COUNT
-			, typeof(ItemType) // Column.ITEM_TYPE
-			, typeof(Guid)     // Column.OBJECT_ID
-			, typeof(string)   // Column.OBJECT_NAME
-			, typeof(string)   // Column.SET_NAME
-			, typeof(bool)     // Column.VISIBLE
-			, typeof(uint32)   // Column.SAVED_STATE
-			);
-		_tree_filter = new Gtk.TreeModelFilter(_tree_store, null);
-		_tree_filter.set_visible_column(Column.VISIBLE);
-		_tree_sort = new Gtk.TreeModelSort.with_model(_tree_filter);
-		_tree_sort.set_sort_column_id(sort_column_id, sort_order);
-		_tree_view.model = _tree_sort;
-
-		if (id == GUID_ZERO) {
-			_object_id = GUID_ZERO;
-			return;
-		}
-
-		uint32 root_saved_state = 0u;
-		bool can_restore_state = false;
-		if (old_tree_store != null) {
-			old_tree_store.foreach((model, path, iter) => {
-					Value val;
-					model.get_value(iter, Column.ITEM_TYPE, out val);
-					if ((ItemType)val != ItemType.OBJECT)
-						return false;
-
-					model.get_value(iter, Column.OBJECT_ID, out val);
-					if (!Guid.equal_func((Guid)val, id))
-						return false;
-
-					model.get_value(iter, Column.SET_NAME, out val);
-					if ((string)val != "")
-						return false;
-
-					model.get_value(iter, Column.SAVE_STATE, out val);
-					root_saved_state = (uint32)val;
-					can_restore_state = true;
-					return true; // Stop iterating.
-				});
-		}
-
+		// Populate a bare TreeStore.
+		_tree_view.model = null;
+		_object_rows.remove_all();
+		_set_rows.remove_all();
+		_tree_store = new_tree_store();
 		_object_id = id;
 
-		ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(id)));
+		if (id != GUID_ZERO) {
+			ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(id)));
 
-		Gtk.TreeIter object_iter;
-		_tree_store.insert_with_values(out object_iter
-			, null
-			, -1
-			, Column.ITEM_TYPE
-			, ItemType.OBJECT
-			, Column.OBJECT_ID
-			, id
-			, Column.OBJECT_NAME
-			, info.ui_name
-			, Column.SET_NAME
-			, ""
-			, Column.VISIBLE
-			, true
-			, Column.SAVE_STATE
-			, root_saved_state
-			, -1
-			);
-		add_object_set(object_iter, id, old_tree_store);
-
-		if (!can_restore_state) {
-			Gtk.TreePath root_child_path = _tree_store.get_path(object_iter);
-			Gtk.TreePath root_filter_path = _tree_filter.convert_child_path_to_path(root_child_path);
-			Gtk.TreePath root_sort_path = _tree_sort.convert_child_path_to_path(root_filter_path);
-			_tree_view.expand_to_path(root_sort_path);
-			return;
+			Gtk.TreeIter object_iter;
+			_tree_store.insert_with_values(out object_iter
+				, null
+				, 0
+				, Column.ITEM_TYPE
+				, ItemType.OBJECT
+				, Column.OBJECT_ID
+				, id
+				, Column.OBJECT_NAME
+				, info.ui_name
+				, Column.VISIBLE
+				, true
+				, -1
+				);
+			_object_rows[id] = object_iter;
+			add_object_set(object_iter, id);
 		}
 
-		_tree_store.foreach(restore_tree_state);
+		create_models(sort_column_id, sort_order);
+		_tree_view.model = _tree_sort;
+
+		if (id != GUID_ZERO) {
+			unowned Gtk.TreeIter? object_iter_ptr = _object_rows.lookup(id);
+			assert(object_iter_ptr != null);
+			Gtk.TreePath child_path = _tree_store.get_path((Gtk.TreeIter)object_iter_ptr);
+			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(child_path);
+			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+			_tree_view.expand_to_path(sort_path);
+		}
+	}
+
+	public void select_database_rows(bool scroll_to_selection = true)
+	{
+		GLib.GenericArray<Guid?> selection = _database_editor._selection;
+		Gtk.TreePath? last_selected = null;
+
+		for (int i = 0; i < selection.length; ++i) {
+			Guid? id = selection[i];
+			unowned Gtk.TreeIter? iter_ptr = _object_rows.lookup(id);
+			if (iter_ptr == null)
+				continue;
+
+			Gtk.TreeIter iter = (Gtk.TreeIter)iter_ptr;
+			Gtk.TreePath child_path = _tree_store.get_path(iter);
+			Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(child_path);
+			if (filter_path == null)
+				continue;
+
+			Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
+			if (sort_path == null)
+				continue;
+
+			_tree_selection.select_path(sort_path);
+			last_selected = sort_path;
+		}
+
+		if (scroll_to_selection && last_selected != null)
+			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
 	}
 
 	public void on_database_selection_changed()
 	{
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
+		if (_needle != "")
+			_search_selection_changed = true;
+
+		bool selection_blocked = block_tree_selection_changed();
 		_tree_selection.unselect_all();
-
-		GLib.GenericArray<Guid?> selection = _database_editor._selection;
-		Gtk.TreePath? last_selected = null;
-
-		_tree_sort.foreach ((model, path, iter) => {
-				Value type;
-				model.get_value(iter, Column.ITEM_TYPE, out type);
-				if ((ItemType)type != ItemType.OBJECT)
-					return false;
-
-				Value id;
-				model.get_value(iter, Column.OBJECT_ID, out id);
-
-				for (int i = 0; i < selection.length; ++i) {
-					Guid? guid = selection[i];
-					if ((Guid)id == guid) {
-						_tree_selection.select_iter(iter);
-						last_selected = path;
-						return false;
-					}
-				}
-
-				return false;
-			});
-
-		if (last_selected != null)
-			_tree_view.scroll_to_cell(last_selected, null, false, 0.0f, 0.0f);
-
-		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
-		_selection_changed_blocked = false;
+		select_database_rows();
+		if (selection_blocked)
+			unblock_tree_selection_changed();
 	}
 
 	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
 		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
-		if (filter_path == null) {
-			// Either the path is not valid or points to a non-visible row in the model.
+		if (filter_path == null)
 			return false;
-		}
 
 		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
-		if (sort_path == null) {
-			// The path is not valid.
-			assert(false);
+		if (sort_path == null)
 			return false;
-		}
 
-		bool expanded = _tree_view.is_row_expanded(sort_path);
-		bool selected = _tree_view.get_selection().path_is_selected(sort_path);
-
-		uint32 user_data = 0;
-		user_data |= (uint32)expanded << 0;
-		user_data |= (uint32)selected << 1;
-		_tree_store.set(iter, Column.SAVE_STATE, user_data, -1);
-
-		return false; // Continue iterating.
+		uint32 state = 0u;
+		if (_tree_view.is_row_expanded(sort_path))
+			state |= 0x1;
+		if (_tree_selection.path_is_selected(sort_path))
+			state |= 0x2;
+		_tree_store.set(iter, Column.SAVE_STATE, state, -1);
+		return false;
 	}
 
 	public bool restore_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
-		uint32 user_data;
 		Value val;
 		_tree_store.get_value(iter, Column.SAVE_STATE, out val);
-		user_data = (uint32)val;
-
-		bool expanded = (bool)((user_data & 0x1) >> 0);
-		bool selected = (bool)((user_data & 0x2) >> 1);
+		uint32 state = (uint32)val;
+		if (state == 0u)
+			return false;
 
 		Gtk.TreePath filter_path = _tree_filter.convert_child_path_to_path(path);
-		if (filter_path == null) {
-			// Either the path is not valid or points to a non-visible row in the model.
+		if (filter_path == null)
 			return false;
-		}
 
 		Gtk.TreePath sort_path = _tree_sort.convert_child_path_to_path(filter_path);
-		if (sort_path == null) {
-			// The path is not valid.
+		if (sort_path == null)
 			return false;
-		}
 
-		if (expanded)
+		if ((state & 0x1) != 0)
 			_tree_view.expand_to_path(sort_path);
-		else
-			_tree_view.collapse_row(sort_path);
-
-		if (selected)
-			_tree_view.get_selection().select_path(sort_path);
-
-		return false; // Continue iterating.
+		if ((state & 0x2) != 0)
+			_tree_selection.select_path(sort_path);
+		return false;
 	}
 
-	public void make_visible(bool visible)
+	public bool hide_tree_row(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
-		_tree_store.foreach((model, path, iter) => {
-				_tree_store.set(iter, Column.VISIBLE, visible, -1);
-				return false; // Continue iterating.
-			});
+		_tree_store.set(iter, Column.VISIBLE, false, -1);
+		return false;
 	}
 
-	public void filter(string needle)
+	public bool show_tree_row(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
 	{
-		make_visible(false);
+		_tree_store.set(iter, Column.VISIBLE, true, -1);
+		return false;
+	}
+
+	public bool filter_tree_row(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
+	{
+		Value val;
+		model.get_value(iter, Column.OBJECT_NAME, out val);
+		if (((string)val).down().index_of(_needle) < 0)
+			return false;
+
+		Gtk.TreeIter visible_iter = iter;
+		_tree_store.set(visible_iter, Column.VISIBLE, true, -1);
+		while (_tree_store.iter_parent(out visible_iter, visible_iter))
+			_tree_store.set(visible_iter, Column.VISIBLE, true, -1);
+		return false;
+	}
+
+	public void filter()
+	{
+		assert(_needle != "");
+		_tree_store.foreach(hide_tree_row);
+		_tree_store.foreach(filter_tree_row);
 		_tree_filter.refilter();
-
-		_tree_store.foreach((model, path, iter) => {
-				ItemType type;
-				string name;
-
-				Value val;
-				model.get_value(iter, Column.ITEM_TYPE, out val);
-				type = (ItemType)val;
-
-				bool visible = false;
-
-				// Always show the roots.
-				model.get_value(iter, Column.OBJECT_NAME, out val);
-				name = (string)val;
-				visible = needle == "" || name.down().index_of(needle) > -1;
-
-				if (visible) {
-					// Make this iter and all its ancestors visible.
-					Gtk.TreeIter it = iter;
-					_tree_store.set(it, Column.VISIBLE, true, -1);
-					while (_tree_store.iter_parent(out it, it))
-						_tree_store.set(it, Column.VISIBLE, true, -1);
-				}
-
-				return false; // Continue iterating.
-			});
-
 		_tree_view.expand_all();
-	}
-
-	public void on_search_started()
-	{
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		// Save the current tree state (expanded branches + selection)
-		// to restore it later when the search is done.
-		_tree_store.foreach(save_tree_state);
-		filter(_needle);
-		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
-		_selection_changed_blocked = false;
-	}
-
-	public void on_search_changed()
-	{
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		filter(_needle);
-		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
-		_selection_changed_blocked = false;
-	}
-
-	public void on_search_stopped()
-	{
-		// Only restore the old selection if it has not been
-		// modified while searching (i.e. nothing is selected
-		// because entering search clears it).
-		Gtk.TreeModel selected_model;
-		GLib.List<Gtk.TreePath> selected_rows = _tree_view.get_selection().get_selected_rows(out selected_model);
-		Gtk.TreeRowReference[] selected_refs = {};
-		for (uint i = 0, n = selected_rows.length(); i < n; ++i)
-			selected_refs += new Gtk.TreeRowReference(selected_model, selected_rows.nth(i).data);
-
-		_tree_selection.changed.disconnect(on_tree_selection_changed);
-		make_visible(true);
-		_tree_filter.refilter();
-		// Restore the previous tree state (old expanded branches + old selection).
-		_tree_view.get_selection().unselect_all();
-		_tree_store.foreach(restore_tree_state);
-		_selection_changed_id = _tree_selection.changed.connect(on_tree_selection_changed);
-		_selection_changed_blocked = false;
-
-		// If the selection changed while searching, restore it as well.
-		for (int i = 0; i < selected_refs.length; ++i) {
-			Gtk.TreePath path = selected_refs[i].get_path();
-			_tree_view.expand_to_path(path);
-			_tree_view.get_selection().select_path(path);
-			_tree_view.scroll_to_cell(path, null, false, 0.0f, 0.0f);
-		}
-	}
-
-	public void on_stop_search()
-	{
-		_filter_entry._entry.set_text("");
 	}
 
 	public void on_filter_entry_text_changed()
@@ -885,12 +1020,44 @@ public class ObjectTree : Gtk.Box
 		_needle = _filter_entry.text.strip().down();
 
 		if (old_needle == "" && _needle != "") {
-			on_search_started();
-		} else if (old_needle != "" && _needle == "") {
-			on_search_stopped();
-		} else if (_needle != "") {
-			on_search_changed();
+			_search_selection_changed = false;
+			bool selection_blocked = block_tree_selection_changed();
+			_tree_store.foreach(save_tree_state);
+			filter();
+			if (selection_blocked)
+				unblock_tree_selection_changed();
+			return;
 		}
+
+		if (old_needle != "" && _needle == "") {
+			bool selection_blocked = block_tree_selection_changed();
+			_tree_store.foreach(show_tree_row);
+			_tree_filter.refilter();
+			_tree_selection.unselect_all();
+			_tree_store.foreach(restore_tree_state);
+
+			if (_search_selection_changed) {
+				_tree_selection.unselect_all();
+				select_database_rows();
+			}
+			_search_selection_changed = false;
+
+			if (selection_blocked)
+				unblock_tree_selection_changed();
+			return;
+		}
+
+		if (_needle != "") {
+			bool selection_blocked = block_tree_selection_changed();
+			filter();
+			if (selection_blocked)
+				unblock_tree_selection_changed();
+		}
+	}
+
+	public void on_stop_search()
+	{
+		_filter_entry._entry.set_text("");
 	}
 }
 
