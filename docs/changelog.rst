@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed slow loading of large levels/units while the place tool is selected.
+* Tools: fixed resource editors retaining stale state when switching projects.
 
 .. _v0.64.10:
 

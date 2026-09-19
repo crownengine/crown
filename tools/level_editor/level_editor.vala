@@ -2687,10 +2687,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void do_new_project()
 	{
-		reset_project();
-
-		stop_backend.begin((obj, res) => {
-				stop_backend.end(res);
+		stop_project.begin((obj, res) => {
+				stop_project.end(res);
 				show_panel(PANEL_NEW_PROJECT);
 			});
 	}
@@ -2924,11 +2922,45 @@ public class LevelEditorApplication : Gtk.Application
 		_placeable_type = OBJECT_TYPE_UNIT;
 		_placeable_name = "core/units/primitives/cube";
 
+		if (_unit_editor_dialog != null)
+			_unit_editor_dialog.close_and_unload();
+		if (_state_machine_editor != null)
+			_state_machine_editor.close_and_unload();
+		if (_object_editor != null)
+			_object_editor.close_and_unload();
+
 		_database_editor.clear_selection();
 		_level.reset();
 		_project.reset();
 
 		this.active_window.title = CROWN_EDITOR_NAME;
+	}
+
+	public async void destroy_editors()
+	{
+		if (_unit_editor_dialog != null) {
+			yield _unit_editor_dialog._editor_viewport.stop_runtime();
+			_runtimes.remove(_unit_editor_dialog._runtime);
+			_unit_editor_dialog.destroy();
+			_unit_editor_dialog = null;
+		}
+		if (_state_machine_editor != null) {
+			yield _state_machine_editor._editor_viewport.stop_runtime();
+			_runtimes.remove(_state_machine_editor._runtime);
+			_state_machine_editor.destroy();
+			_state_machine_editor = null;
+		}
+		if (_object_editor != null) {
+			_object_editor.destroy();
+			_object_editor = null;
+		}
+	}
+
+	public async void stop_project()
+	{
+		reset_project();
+		yield destroy_editors();
+		yield stop_backend();
 	}
 
 	public Gtk.Dialog new_save_project_dialog(Gtk.Window? parent)
@@ -2962,10 +2994,8 @@ public class LevelEditorApplication : Gtk.Application
 
 	public void do_close_project(bool quit)
 	{
-		reset_project();
-
-		stop_backend.begin((obj, res) => {
-				stop_backend.end(res);
+		stop_project.begin((obj, res) => {
+				stop_project.end(res);
 				if (quit)
 					this.quit();
 				else
