@@ -19,7 +19,7 @@ format_tools_vala () {
 	find tools/ -iname '*.vala' -o -iname '*.vapi' \
 		| grep -v 'deploy_dialog.vala'             \
 		| grep -v 'level_editor.vala'              \
-		| grep -v 'level_tree_view.vala'           \
+		| grep -v 'object_tree.vala'               \
 		| grep -v 'project_browser.vala'           \
 		| grep -v 'user.vala'                      \
 		| grep -v 'mesh_resource_fbx.vala'         \

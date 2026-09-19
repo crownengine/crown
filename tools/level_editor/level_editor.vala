@@ -1135,6 +1135,12 @@ public class LevelEditorApplication : Gtk.Application
 
 	const int GAME_STOP_SPINNER_TIMEOUT_MS = 1500;
 
+	const int LEVEL_TREE_KIND_CAMERA = 1;
+	const int LEVEL_TREE_KIND_LIGHT = 2;
+	const int LEVEL_TREE_KIND_SOUND = 3;
+	const int LEVEL_TREE_KIND_UNIT = 4;
+	const int LEVEL_TREE_KIND_UNKNOWN = 5;
+
 	// Command line options
 	public uint _launcher_watch_id;
 	public CommandLineOptions _command_line_options;
@@ -1200,7 +1206,7 @@ public class LevelEditorApplication : Gtk.Application
 	public DependenciesDialog _dependencies_dialog;
 	public SelectResourceDialog _open_level_dialog;
 	public EditorViewport _editor_viewport;
-	public LevelTreeView _level_treeview;
+	public ObjectTree _level_treeview;
 	public LevelLayersTreeView _level_layers_treeview;
 	public PropertiesView _properties_view;
 	public PreferencesDialog _preferences_dialog;
@@ -1509,7 +1515,16 @@ public class LevelEditorApplication : Gtk.Application
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
 
-		_level_treeview = new LevelTreeView(_database, _level);
+		_level_treeview = new ObjectTree(_database_editor);
+		_level_treeview.show_root = false;
+		_level_treeview.expand_all_on_load = true;
+		_level_treeview.set_object_visibility_func(level_tree_object_visible, level_tree_set_object_visible);
+		_level_treeview.set_selection_lock_func(level_tree_selection_locked, level_tree_set_selection_locked);
+		_level_treeview.set_object_aspect_func(level_tree_object_aspect);
+		_level_treeview.set_context_menu_func(level_tree_context_menu);
+		_level_treeview.flatten_objects_set(StringId64(OBJECT_TYPE_UNIT), "children");
+		_level_treeview.object_activated.connect(on_level_treeview_object_activated);
+		_level_treeview.objects_edited.connect(on_level_treeview_objects_edited);
 		_level_treeview.selection_changed.connect(on_level_treeview_selection_changed);
 		this.ui_read_selection.connect(_level_treeview.read_selection);
 		this.ui_read_selection.connect(_properties_view.set_objects);
@@ -2743,7 +2758,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		update_active_window_title();
-		_level_treeview.set_level(_level);
+		_level_treeview.set_object(_level._id);
 
 		sync_editor_view();
 	}
@@ -2867,7 +2882,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		update_active_window_title();
-		_level_treeview.set_level(_level);
+		_level_treeview.set_object(_level._id);
 
 		sync_editor_view();
 	}
@@ -5246,6 +5261,90 @@ public class LevelEditorApplication : Gtk.Application
 	public SelectObjectDialog new_select_object_dialog(StringId64 object_type, Database database)
 	{
 		return new SelectObjectDialog(object_type, database, this.active_window);
+	}
+
+	public bool level_tree_object_visible(Guid id)
+	{
+		return !_level.object_hidden(id);
+	}
+
+	public void level_tree_set_object_visible(Guid id, bool visible)
+	{
+		_level.set_object_hidden(id, !visible);
+		_database.objects_changed(new Guid?[] { id }, 0u);
+	}
+
+	public bool level_tree_selection_locked(Guid id)
+	{
+		return _level.object_locked(id);
+	}
+
+	public void level_tree_set_selection_locked(Guid id, bool locked)
+	{
+		_level.set_object_locked(id, locked);
+		_database.objects_changed(new Guid?[] { id }, 0u);
+	}
+
+	public void level_tree_object_aspect(Guid id, out int kind, out string icon_name)
+	{
+		kind = LEVEL_TREE_KIND_UNKNOWN;
+		icon_name = IconTheme.LEVEL_OBJECT_UNKNOWN;
+
+		string object_type = _database.object_type(id);
+		if (object_type == OBJECT_TYPE_SOUND_SOURCE) {
+			kind = LEVEL_TREE_KIND_SOUND;
+			icon_name = IconTheme.LEVEL_OBJECT_SOUND;
+			return;
+		}
+
+		if (object_type != OBJECT_TYPE_UNIT)
+			return;
+
+		Unit unit = Unit(_database, id);
+		if (unit.is_light()) {
+			kind = LEVEL_TREE_KIND_LIGHT;
+			icon_name = IconTheme.LEVEL_OBJECT_LIGHT;
+		} else if (unit.is_camera()) {
+			kind = LEVEL_TREE_KIND_CAMERA;
+			icon_name = IconTheme.LEVEL_OBJECT_CAMERA;
+		} else {
+			kind = LEVEL_TREE_KIND_UNIT;
+			icon_name = IconTheme.LEVEL_OBJECT_UNIT;
+		}
+	}
+
+
+	public void level_tree_context_menu(GLib.Menu menu, Guid?[] selection)
+	{
+		if (selection.length != 1)
+			return;
+
+		Guid object_id = (Guid)selection[0];
+		GLib.MenuItem mi = new GLib.MenuItem(_("Rename..."), null);
+		mi.set_action_and_target_value("app.rename", new GLib.Variant.tuple({ object_id.to_string(), "" }));
+		menu.append_item(mi);
+
+		if (_database.object_type(object_id) == OBJECT_TYPE_UNIT) {
+			mi = new GLib.MenuItem(_("Save as Prefab..."), null);
+			mi.set_action_and_target_value("app.unit-save-as-prefab"
+				, new GLib.Variant.tuple({ object_id.to_string(), _database.name(object_id) })
+				);
+			menu.append_item(mi);
+		}
+	}
+
+	public void on_level_treeview_object_activated(Guid object_id)
+	{
+		widget_activate_action(_level_treeview._tree_view, "viewport.camera-frame-selected");
+	}
+
+	public void on_level_treeview_objects_edited(Guid?[] object_ids)
+	{
+		if (object_ids.length > 0)
+			_database.add_restore_point((int)ActionType.CHANGE_OBJECTS
+				, object_ids
+				, ActionTypeFlags.FROM_SERVER
+				);
 	}
 
 	public void on_level_treeview_selection_changed(Guid?[] selection)
