@@ -89,7 +89,7 @@ public class ObjectProperties : Gtk.Box
 
 		PropertyGrid grid = custom_grid != null
 			? custom_grid
-			: new PropertyGrid.from_object_type(object_type, _database)
+			: new PropertyGrid.from_object_type(object_type, _database, _database_editor)
 			;
 
 		_object_view.add_property_grid(grid, camel_case(_database.type_name(object_type)));
@@ -139,7 +139,7 @@ public class ObjectProperties : Gtk.Box
 		StringId64 object_type = StringId64(_database.object_type(id));
 		PropertyGrid? direct_grid = _grids[object_type];
 		if (direct_grid == null) {
-			direct_grid = new PropertyGrid.from_object_type(object_type, _database);
+			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor);
 			_object_view.add_property_grid(direct_grid, _("General"));
 			_grids[object_type] = direct_grid;
 		}
