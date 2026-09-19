@@ -58,6 +58,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.object_type_added.connect(on_object_type_added);
 
 		_objects_tree = new ObjectTree(_database_editor);
+		_database.objects_created.connect(_objects_tree.on_objects_created);
+		_database.objects_destroyed.connect(_objects_tree.on_objects_destroyed);
+		_database.objects_changed.connect(_objects_tree.on_objects_changed);
+
 		_properties_view = new PropertiesView(_database_editor);
 		_database_editor.load_types();
 		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
