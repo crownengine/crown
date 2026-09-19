@@ -15,7 +15,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public EditorViewport _editor_viewport;
 	public RuntimeInstance _runtime;
 	public ObjectTree _objects_tree;
-	public PropertiesView _properties_view;
+	public ObjectProperties _properties_view;
 	public Level _level;
 	public Statusbar _statusbar;
 	public PreferencesDialog _preferences;
@@ -62,9 +62,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.objects_destroyed.connect(_objects_tree.on_objects_destroyed);
 		_database.objects_changed.connect(_objects_tree.on_objects_changed);
 
-		_properties_view = new PropertiesView(_database_editor);
+		_properties_view = new ObjectProperties(_database_editor);
+		_properties_view.set_component_func(Unit.has_component_static);
+
 		_database_editor.load_types();
-		_properties_view.register_object_type(OBJECT_TYPE_UNIT, new UnitView(_database));
+		_properties_view.register_object_type(StringId64(OBJECT_TYPE_UNIT), new UnitView(_database));
 
 		_editor_viewport = new EditorViewport("unit_editor"
 			, data_compiler
@@ -262,7 +264,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		reset();
 		_database_editor.selection_read({});
 		_objects_tree.set_object(GUID_ZERO);
-		_properties_view.set_objects({});
+		_properties_view.set_object(GUID_ZERO);
 		update_window_title();
 	}
 
@@ -344,9 +346,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
-			_properties_view.register_object_type(info.name, null);
+			_properties_view.register_object_type(StringId64(info.name), null);
 		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
-			_properties_view.register_object_type(info.name, null);
+			_properties_view.register_object_type(StringId64(info.name), null);
 		}
 	}
 
@@ -367,10 +369,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
 			_database_editor.selection_set({ last }); // Select the objects just created.
-			_properties_view.set_objects({ last });
+			_properties_view.set_object(last);
 		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			_database_editor.selection_set({ _database.owner(last) });
-			_properties_view.set_objects({ _database.owner(last) });
+			_properties_view.set_object(_database.owner(last));
 		}
 
 		update_window_title();
@@ -385,17 +387,17 @@ public class UnitEditor : Gtk.ApplicationWindow
 		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
 			// Select the root object which must always exits.
 			_database_editor.selection_set({ _unit_id });
-			_properties_view.set_objects({ _unit_id });
+			_properties_view.set_object(_unit_id);
 		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Guid owner_id = _database.owner(last);
 
 			if (_database.is_alive(owner_id)) {
 				_database_editor.selection_set({ owner_id });
-				_properties_view.set_objects({ owner_id });
+				_properties_view.set_object(owner_id);
 			} else {
 				// Select the root object which must always exits.
 				_database_editor.selection_set({ _unit_id });
-				_properties_view.set_objects({ _unit_id });
+				_properties_view.set_object(_unit_id);
 			}
 		}
 

@@ -362,7 +362,7 @@ public struct Unit
 	}
 
 	/// Returns whether the @a unit_id has a component of type @a component_type.
-	public static bool has_component_static(out Guid component_id, string component_type, Database db, Guid unit_id)
+	public static bool has_component_static(out Guid component_id, StringId64 component_type, Database db, Guid unit_id)
 	{
 		Value? val;
 		component_id = GUID_ZERO;
@@ -373,7 +373,7 @@ public struct Unit
 		val = db.get_property(unit_id, "components");
 		if (val != null) {
 			foreach (Guid? id in (GLib.GenericSet<Guid?>)val) {
-				if ((string)db.object_type(id) == component_type) {
+				if (StringId64(db.object_type(id)) == component_type) {
 					component_id = id;
 					return true;
 				}
@@ -405,7 +405,7 @@ public struct Unit
 	/// Returns whether the unit has the component_type.
 	public bool has_component(out Guid component_id, string component_type)
 	{
-		return Unit.has_component_static(out component_id, component_type, _db, _id);
+		return Unit.has_component_static(out component_id, StringId64(component_type), _db, _id);
 	}
 
 	public Vector3 local_position()
@@ -604,7 +604,7 @@ public struct Unit
 			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
 				foreach (unowned Guid? component_id in _db.get_set(_id, "components")) {
 					Guid prefab_component_id;
-					if (!Unit.has_component_static(out prefab_component_id, _db.object_type(component_id), _db, prefab_id))
+					if (!Unit.has_component_static(out prefab_component_id, StringId64(_db.object_type(component_id)), _db, prefab_id))
 						continue;
 
 					_db.remove_from_set(_id, "components", component_id);
