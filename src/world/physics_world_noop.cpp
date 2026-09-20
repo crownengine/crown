@@ -41,11 +41,6 @@ struct PhysicsWorldImpl
 	{
 	}
 
-	ColliderId collider_create(UnitId /*unit*/, const ColliderDesc * /*sd*/, const Vector3 & /*scl*/)
-	{
-		return make_collider_instance(UINT32_MAX);
-	}
-
 	void collider_destroy(ColliderId /*collider*/)
 	{
 	}
@@ -60,9 +55,31 @@ struct PhysicsWorldImpl
 		return make_collider_instance(UINT32_MAX);
 	}
 
-	ActorId actor_create(UnitId /*unit*/, const ActorResource * /*ar*/, const Matrix4x4 & /*tm*/)
+	ActorId actor_create_sphere(UnitId /*unit*/, f32 /*radius*/, const Matrix4x4 & /*local_tm*/)
 	{
 		return make_actor_instance(UINT32_MAX);
+	}
+
+	ActorId actor_create_capsule(UnitId /*unit*/, f32 /*radius*/, f32 /*height*/, const Matrix4x4 & /*local_tm*/)
+	{
+		return make_actor_instance(UINT32_MAX);
+	}
+
+	ActorId actor_create_box(UnitId /*unit*/, const Vector3 & /*half_size*/, const Matrix4x4 & /*local_tm*/)
+	{
+		return make_actor_instance(UINT32_MAX);
+	}
+
+	void actor_set_collider_params(ActorId /*actor*/
+		, ColliderType::Enum /*shape*/
+		, const Vector3 & /*half_extents*/
+		, f32 /*radius*/
+		, f32 /*height*/
+		, StringId64 /*mesh_resource*/
+		, StringId32 /*geometry*/
+		, const Matrix4x4 & /*local_tm*/
+		)
+	{
 	}
 
 	void actor_destroy(ActorId /*actor*/)
@@ -569,6 +586,10 @@ struct PhysicsWorldImpl
 	{
 	}
 
+	void reload_meshes(const MeshResource * /*old_resource*/, const MeshResource * /*new_resource*/)
+	{
+	}
+
 	EventStream &events()
 	{
 		return _events;
@@ -617,11 +638,6 @@ PhysicsWorld::~PhysicsWorld()
 	_marker = 0;
 }
 
-ColliderId PhysicsWorld::collider_create(UnitId unit, const ColliderDesc *sd, const Vector3 &scl)
-{
-	return _impl->collider_create(unit, sd, scl);
-}
-
 void PhysicsWorld::collider_destroy(ColliderId i)
 {
 	_impl->collider_destroy(i);
@@ -637,9 +653,32 @@ ColliderId PhysicsWorld::collider_next(ColliderId i)
 	return _impl->collider_next(i);
 }
 
-ActorId PhysicsWorld::actor_create(UnitId unit, const ActorResource *ar, const Matrix4x4 &tm)
+ActorId PhysicsWorld::actor_create_sphere(UnitId unit, f32 radius, const Matrix4x4 &local_tm)
 {
-	return _impl->actor_create(unit, ar, tm);
+	return _impl->actor_create_sphere(unit, radius, local_tm);
+}
+
+ActorId PhysicsWorld::actor_create_capsule(UnitId unit, f32 radius, f32 height, const Matrix4x4 &local_tm)
+{
+	return _impl->actor_create_capsule(unit, radius, height, local_tm);
+}
+
+ActorId PhysicsWorld::actor_create_box(UnitId unit, const Vector3 &half_size, const Matrix4x4 &local_tm)
+{
+	return _impl->actor_create_box(unit, half_size, local_tm);
+}
+
+void PhysicsWorld::actor_set_collider_params(ActorId actor
+	, ColliderType::Enum shape
+	, const Vector3 &half_extents
+	, f32 radius
+	, f32 height
+	, StringId64 mesh_resource
+	, StringId32 geometry
+	, const Matrix4x4 &local_tm
+	)
+{
+	_impl->actor_set_collider_params(actor, shape, half_extents, radius, height, mesh_resource, geometry, local_tm);
 }
 
 void PhysicsWorld::actor_destroy(ActorId actor)
@@ -1120,6 +1159,11 @@ void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *e
 void PhysicsWorld::update(f32 dt)
 {
 	_impl->update(dt);
+}
+
+void PhysicsWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)
+{
+	_impl->reload_meshes(old_resource, new_resource);
 }
 
 EventStream &PhysicsWorld::events()

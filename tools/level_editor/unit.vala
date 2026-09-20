@@ -712,6 +712,27 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.max_slope_angle")
 				, unit.get_component_string(component_id, "data.collision_filter")
 				));
+		} else if (db.object_type(component_id) == OBJECT_TYPE_COLLIDER) {
+			Guid actor_id;
+			if (unit.has_component(out actor_id, OBJECT_TYPE_ACTOR)) {
+				string shape = unit.get_component_string(component_id, "data.shape", "box");
+				bool is_mesh = shape == "convex_hull" || shape == "mesh";
+				sb.append(LevelEditorApi.add_actor_component(unit_id
+					, actor_id
+					, shape
+					, unit.get_component_vector3   (component_id, "data.collider_data.position")
+					, unit.get_component_quaternion(component_id, "data.collider_data.rotation")
+					, unit.get_component_vector3   (component_id, "data.collider_data.half_extents", Vector3(0.5, 0.5, 0.5))
+					, unit.get_component_double    (component_id, "data.collider_data.radius", 0.5)
+					, unit.get_component_double    (component_id, "data.collider_data.height", 1.0)
+					, is_mesh ? unit.get_component_resource(component_id, "data.scene") : ""
+					, is_mesh ? unit.get_component_string(component_id, "data.name") : ""
+					));
+			}
+		} else if (db.object_type(component_id) == OBJECT_TYPE_ACTOR) {
+			Guid collider_id;
+			if (unit.has_component(out collider_id, OBJECT_TYPE_COLLIDER))
+				generate_add_component_commands(sb, unit_id, collider_id, db);
 		} else if (db.object_type(component_id) == OBJECT_TYPE_FIXED_JOINT
 			|| db.object_type(component_id) == OBJECT_TYPE_HINGE_JOINT
 			|| db.object_type(component_id) == OBJECT_TYPE_SPHERICAL_JOINT
@@ -1059,6 +1080,8 @@ public struct Unit
 			sb.append(LevelEditorApi.set_animation_state_machine(unit_id
 				, unit.get_component_resource(component_id, "data.state_machine_resource")
 				));
+		} else if (component_type == OBJECT_TYPE_COLLIDER) {
+			generate_add_component_commands(sb, unit_id, component_id, db);
 		} else if (component_type == OBJECT_TYPE_FOG) {
 			sb.append(LevelEditorApi.set_fog(unit_id
 				, unit.get_component_vector3(component_id, "data.color")
@@ -1106,8 +1129,6 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.center_y")
 				));
 		} else if (component_type == OBJECT_TYPE_SCRIPT) {
-			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_COLLIDER) {
 			/* No sync. */
 		} else if (component_type == OBJECT_TYPE_ACTOR) {
 			/* No sync. */

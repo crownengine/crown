@@ -49,6 +49,7 @@
 #include "world/animation_state_machine.h"
 #include "world/material_manager.h"
 #include "world/physics.h"
+#include "world/physics_world.h"
 #include "world/render_world.h"
 #include "world/shader_manager.h"
 #include "world/sound_world.h"
@@ -1084,6 +1085,7 @@ void Device::refresh(const char *json)
 				{
 					World *w = (World *)container_of(cur, World, _node);
 					w->_render_world->reload_meshes((MeshResource *)old_resource, (MeshResource *)new_resource);
+					w->_physics_world->reload_meshes((MeshResource *)old_resource, (MeshResource *)new_resource);
 				}
 			} else if (resource_type == RESOURCE_TYPE_MESH_ANIMATION) {
 				ListNode *cur;

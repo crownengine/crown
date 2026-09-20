@@ -1512,6 +1512,7 @@ function LevelEditor:init()
 	self._rotation_snap = 15.0 * math.pi / 180.0
 	self._objects = {}
 	self._selection = Selection()
+	self._actor_debug_drawing_enabled = false
 	self._show_grid = true
 	self._snap_to_grid = false
 	self._snap_mode = "relative"
@@ -1693,6 +1694,10 @@ function LevelEditor:enable_debug_physics_world(enabled)
 	PhysicsWorld.enable_debug_drawing(self._pw, enabled)
 end
 
+function LevelEditor:enable_actor_debug_drawing(enabled)
+	self._actor_debug_drawing_enabled = enabled
+end
+
 function LevelEditor:set_snap_mode(mode)
 	assert(mode == "absolute" or mode == "relative")
 	self._snap_mode = mode
@@ -1871,6 +1876,49 @@ function LevelEditor:add_mover_component(id, component_id, height, radius, max_s
 	local unit_id = unit_box:unit_id()
 	if PhysicsWorld.mover_instance(self._pw, unit_id, height, radius, max_slope_angle, filter) ~= nil then return end
 	PhysicsWorld.mover_create(self._pw, unit_id, height, radius, max_slope_angle, filter)
+end
+
+function LevelEditor:add_actor_component(id, component_id, shape
+	, px, py, pz
+	, rx, ry, rz, rw
+	, hx, hy, hz
+	, radius, height
+	, mesh_resource, geometry
+	)
+	local unit_id = self._objects[id]:unit_id()
+	local actor = PhysicsWorld.actor_instance(self._pw, unit_id)
+	local nv, nq, nm = Device.temp_count()
+	local position = Vector3(px, py, pz)
+	local rotation = Quaternion.from_elements(rx, ry, rz, rw)
+	local half_extents = Vector3(hx, hy, hz)
+	if actor then
+		PhysicsWorld.actor_set_collider_params(self._pw, actor, {
+			shape = shape,
+			position = position,
+			rotation = rotation,
+			half_extents = half_extents,
+			radius = radius,
+			height = height,
+			mesh_resource = mesh_resource,
+			geometry = geometry
+		})
+	elseif shape == "sphere" then
+		PhysicsWorld.actor_create_sphere(self._pw, unit_id, radius, position, rotation)
+	elseif shape == "capsule" then
+		PhysicsWorld.actor_create_capsule(self._pw, unit_id, radius, height, position, rotation)
+	elseif shape == "box" then
+		PhysicsWorld.actor_create_box(self._pw, unit_id, half_extents, position, rotation)
+	elseif shape == "convex_hull" or shape == "mesh" then
+		actor = PhysicsWorld.actor_create_box(self._pw, unit_id, Vector3(0.5, 0.5, 0.5), position, rotation)
+		PhysicsWorld.actor_set_collider_params(self._pw, actor, {
+			shape = shape,
+			position = position,
+			rotation = rotation,
+			mesh_resource = mesh_resource,
+			geometry = geometry
+		})
+	end
+	Device.set_temp_count(nv, nq, nm)
 end
 
 function LevelEditor:add_joint_component(id
@@ -2062,9 +2110,11 @@ function LevelEditor:unit_destroy_component_type(id, component_type)
 	elseif component_type == "script" then
 		-- Nothing to do.
 	elseif component_type == "collider" then
-		-- Nothing to do.
+		local actor = PhysicsWorld.actor_instance(self._pw, unit_id)
+		if actor then PhysicsWorld.actor_destroy(self._pw, actor) end
 	elseif component_type == "actor" then
-		-- Nothing to do.
+		local actor = PhysicsWorld.actor_instance(self._pw, unit_id)
+		if actor then PhysicsWorld.actor_destroy(self._pw, actor) end
 	elseif component_type == "mover" then
 		local inst = PhysicsWorld.mover_instance(self._pw, unit_id)
 		if inst then PhysicsWorld.mover_destroy(self._pw, inst) end

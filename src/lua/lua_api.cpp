@@ -3270,6 +3270,87 @@ void load_api(LuaEnvironment &env)
 				);
 			return 0;
 		});
+	env.add_module_function("PhysicsWorld", "actor_create_sphere", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const Matrix4x4 local_tm = from_quaternion_translation(stack.get_quaternion(5), stack.get_vector3(4));
+			stack.push_id(stack.get_physics_world(1)->actor_create_sphere(stack.get_unit(2), stack.get_float(3), local_tm).i);
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "actor_create_capsule", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const Matrix4x4 local_tm = from_quaternion_translation(stack.get_quaternion(6), stack.get_vector3(5));
+			stack.push_id(stack.get_physics_world(1)->actor_create_capsule(stack.get_unit(2), stack.get_float(3), stack.get_float(4), local_tm).i);
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "actor_create_box", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const Matrix4x4 local_tm = from_quaternion_translation(stack.get_quaternion(5), stack.get_vector3(4));
+			stack.push_id(stack.get_physics_world(1)->actor_create_box(stack.get_unit(2), stack.get_vector3(3), local_tm).i);
+			return 1;
+		});
+	env.add_module_function("PhysicsWorld", "actor_set_collider_params", [](lua_State *L) {
+			LuaStack stack(L);
+			PhysicsWorld *pw = stack.get_physics_world(1);
+			const ActorId actor = stack.get_actor_instance(2);
+			LUA_ASSERT(stack.is_table(3), stack, "Expected table, got %s", lua_typename(L, stack.value_type(3)));
+
+			lua_getfield(L, 3, "shape");
+			const char *shape = stack.get_string(-1);
+			lua_getfield(L, 3, "position");
+			const Vector3 position = stack.get_vector3(-1);
+			lua_getfield(L, 3, "rotation");
+			const Quaternion rotation = stack.get_quaternion(-1);
+			const Matrix4x4 local_tm = from_quaternion_translation(rotation, position);
+			ColliderType::Enum shape_type = ColliderType::COUNT;
+			Vector3 half_extents = VECTOR3_ZERO;
+			f32 radius = 0.0f;
+			f32 height = 0.0f;
+			StringId64 mesh_resource;
+			StringId32 geometry;
+
+			if (strcmp(shape, "sphere") == 0) {
+				shape_type = ColliderType::SPHERE;
+				lua_getfield(L, 3, "radius");
+				radius = stack.get_float(-1);
+				stack.pop(1);
+			} else if (strcmp(shape, "capsule") == 0) {
+				shape_type = ColliderType::CAPSULE;
+				lua_getfield(L, 3, "radius");
+				radius = stack.get_float(-1);
+				lua_getfield(L, 3, "height");
+				height = stack.get_float(-1);
+				stack.pop(2);
+			} else if (strcmp(shape, "box") == 0) {
+				shape_type = ColliderType::BOX;
+				lua_getfield(L, 3, "half_extents");
+				half_extents = stack.get_vector3(-1);
+				stack.pop(1);
+			} else if (strcmp(shape, "convex_hull") == 0 || strcmp(shape, "mesh") == 0) {
+				shape_type = strcmp(shape, "convex_hull") == 0
+					? ColliderType::CONVEX_HULL
+					: ColliderType::MESH
+					;
+				lua_getfield(L, 3, "mesh_resource");
+				mesh_resource = stack.get_resource_name(-1);
+				lua_getfield(L, 3, "geometry");
+				geometry = stack.get_string_id_32(-1);
+				stack.pop(2);
+			} else {
+				luaL_error(L, "Unknown collider shape: '%s'", shape);
+			}
+
+			pw->actor_set_collider_params(actor
+				, shape_type
+				, half_extents
+				, radius
+				, height
+				, mesh_resource
+				, geometry
+				, local_tm
+				);
+			stack.pop(3);
+			return 0;
+		});
 	env.add_module_function("PhysicsWorld", "mover_instance", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			MoverId inst = stack.get_physics_world(1)->mover(stack.get_unit(2));

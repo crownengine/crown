@@ -55,6 +55,26 @@ struct PhysicsWorld
 		, const u32 *unit_index
 		);
 
+	/// Creates a new actor with a sphere collider for the @a unit.
+	ActorId actor_create_sphere(UnitId unit, f32 radius, const Matrix4x4 &local_tm);
+
+	/// Creates a new actor with a capsule collider for the @a unit.
+	ActorId actor_create_capsule(UnitId unit, f32 radius, f32 height, const Matrix4x4 &local_tm);
+
+	/// Creates a new actor with a box collider for the @a unit.
+	ActorId actor_create_box(UnitId unit, const Vector3 &half_size, const Matrix4x4 &local_tm);
+
+	/// Sets the @a actor's collider parameters.
+	void actor_set_collider_params(ActorId actor
+		, ColliderType::Enum shape
+		, const Vector3 &half_extents
+		, f32 radius
+		, f32 height
+		, StringId64 mesh_resource
+		, StringId32 geometry
+		, const Matrix4x4 &local_tm
+		);
+
 	/// Destroys the @a actor.
 	void actor_destroy(ActorId actor);
 
@@ -388,6 +408,9 @@ struct PhysicsWorld
 
 	/// Updates the physics simulation.
 	void update(f32 dt);
+
+	/// Rebuilds colliders that reference the reloaded mesh.
+	void reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource);
 
 	///
 	EventStream &events();

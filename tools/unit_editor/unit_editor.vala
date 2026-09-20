@@ -215,6 +215,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_level.send_level();
 
+		sb.append(LevelEditorApi.enable_actor_debug_drawing(true));
 		Unit.generate_spawn_unit_commands(sb, { _unit_id, }, _database);
 		sb.append(LevelEditorApi.selection_set(runtime_selection(_database_editor._selection.data)));
 

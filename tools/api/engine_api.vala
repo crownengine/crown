@@ -319,6 +319,11 @@ namespace LevelEditorApi
 		return "LevelEditor:enable_debug_physics_world(%s)".printf(Lua.bool(enabled));
 	}
 
+	public string enable_actor_debug_drawing(bool enabled)
+	{
+		return "LevelEditor:enable_actor_debug_drawing(%s)".printf(Lua.bool(enabled));
+	}
+
 	public string set_grid_size(double size)
 	{
 		return "LevelEditor:set_grid_size(%.17g)".printf(size);
@@ -486,6 +491,31 @@ namespace LevelEditorApi
 			, radius
 			, max_slope_angle
 			, collision_filter
+			);
+	}
+
+	public string add_actor_component(Guid id
+		, Guid component_id
+		, string shape
+		, Vector3 position
+		, Quaternion rotation
+		, Vector3 half_extents
+		, double radius
+		, double height
+		, string mesh_resource
+		, string geometry
+		)
+	{
+		return "LevelEditor:add_actor_component(\"%s\", \"%s\", \"%s\", %s, %s, %s, %.17g, %.17g, \"%s\", \"%s\")".printf(id.to_string()
+			, component_id.to_string()
+			, shape
+			, Lua.vector3_elements(position)
+			, Lua.quaternion_elements(rotation)
+			, Lua.vector3_elements(half_extents)
+			, radius
+			, height
+			, mesh_resource
+			, geometry
 			);
 	}
 
