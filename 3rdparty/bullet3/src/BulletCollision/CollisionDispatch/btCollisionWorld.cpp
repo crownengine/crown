@@ -187,9 +187,6 @@ void btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
 		{
 			reportMe = false;
 			m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
-			m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
-			m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
-			m_debugDrawer->reportErrorWarning("Thanks.\n");
 		}
 	}
 }
