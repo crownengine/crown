@@ -5,7 +5,6 @@ tools/level_editor/dependencies_dialog.vala
 tools/level_editor/deploy_dialog.vala
 tools/level_editor/level_editor.vala
 tools/level_editor/level_layers_tree_view.vala
-tools/level_editor/level_tree_view.vala
 tools/level_editor/menus.vala
 tools/level_editor/move_dialog.vala
 tools/level_editor/object_chooser.vala
@@ -13,11 +12,11 @@ tools/level_editor/object_editor.vala
 tools/level_editor/panel_new_project.vala
 tools/level_editor/panel_projects_list.vala
 tools/level_editor/preferences_dialog.vala
-tools/level_editor/project.vala
 tools/level_editor/project_browser.vala
-tools/level_editor/properties_view.vala
+tools/level_editor/project.vala
 tools/level_editor/property_grid.vala
 tools/level_editor/texture_settings_dialog.vala
+tools/level_editor/upgrade_button.vala
 tools/resource/font_resource.vala
 tools/resource/mesh_resource_fbx.vala
 tools/resource/mesh_resource_gltf.vala
