@@ -140,8 +140,11 @@ public class ObjectProperties : Gtk.Box
 		PropertyGrid? direct_grid = _grids[object_type];
 		if (direct_grid == null) {
 			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor);
-			_object_view.add_property_grid(direct_grid, _("General"));
+			Expander expander = _object_view.add_property_grid(direct_grid, _("General"));
 			_grids[object_type] = direct_grid;
+#if CROWN_GTK3
+			expander.get_parent().show();
+#endif
 		}
 
 		_stack.set_visible_child_name(PROPERTIES);
@@ -173,9 +176,6 @@ public class ObjectProperties : Gtk.Box
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
-#if CROWN_GTK3
-		_object_view.show_all();
-#endif
 	}
 
 	public void read_selection(Guid?[] selection)
