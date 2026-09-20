@@ -1,5 +1,5 @@
 pull_request_title: "tools: i18n: update translations"
-commit_message: "tools: i18n: update %language% translation"
+commit_message: "tools: i18n: update %language% translation [ci skip]"
 append_commit_message: false
 
 files:
