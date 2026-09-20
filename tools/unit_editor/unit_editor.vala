@@ -50,6 +50,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database_editor = new DatabaseEditor((uint32)preferences._undo_redo_max_size.value * 1024 * 1024, _database);
 		_database_editor.undo.connect(on_undo);
 		_database_editor.redo.connect(on_redo);
+		_database_editor.selection_changed.connect(on_selection_changed);
 		this.insert_action_group("database", _database_editor._action_group);
 
 		_database.objects_created.connect(on_objects_created);
@@ -215,6 +216,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_level.send_level();
 
 		Unit.generate_spawn_unit_commands(sb, { _unit_id, }, _database);
+		sb.append(LevelEditorApi.selection_set(runtime_selection(_database_editor._selection.data)));
 
 		if (sb.len > 0)
 			_runtime.send_script(sb.str);
@@ -243,12 +245,40 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 	public void on_message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json)
 	{
-		_application.on_message_received(ri, client, json);
+		try {
+			GLib.HashTable<string, Value?> msg = (GLib.HashTable<string, Value?>)JSON.decode(json);
+			handle_message(ri, client, (string)msg["type"], msg);
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+		}
+	}
+
+	public void handle_message(RuntimeInstance ri, ConsoleClient client, string msg_type, GLib.HashTable<string, Value?> msg)
+	{
+		if (msg_type == "selection") {
+			GLib.HashTable<string, Value?> objects = (GLib.HashTable<string, Value?>)msg["objects"];
+			GLib.List<unowned string> keys = objects.get_keys();
+			keys.sort(GLib.strcmp);
+
+			Guid?[] ids = new Guid?[(int)keys.length()];
+			int i = 0;
+			foreach (unowned string key in keys) {
+				ids[i] = Guid.parse((string)objects[key]);
+				++i;
+			}
+
+			_database_editor.selection_read(ids);
+			_objects_tree.read_selection(ids);
+			_properties_view.read_selection(ids);
+		} else {
+			_application.handle_message(ri, client, msg_type, msg);
+		}
 	}
 
 	public void reset()
 	{
 		_level.reset();
+		_database_editor.selection_read({});
 		_unit_name = "";
 		_unit_path = null;
 		_unit_id = GUID_ZERO;
@@ -262,7 +292,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 		}
 
 		reset();
-		_database_editor.selection_read({});
 		_objects_tree.set_object(GUID_ZERO);
 		_properties_view.set_object(GUID_ZERO);
 		update_window_title();
@@ -422,7 +451,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			if (sb.len > 0) {
 				_runtime.send_script(sb.str);
 				if (respawn_objects)
-					_runtime.send_script(LevelEditorApi.selection_set(_database_editor._selection.data));
+					send_editor_selection();
 				_editor_viewport.frame();
 			}
 		}
@@ -461,9 +490,9 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.restore_undo(undo_redo);
 
 		_objects_tree.set_object(_unit_id);
-		_database_editor.selection_set({ _unit_id });
 		update_window_title();
 		send();
+		_database_editor.selection_set({ _unit_id });
 	}
 
 	public void set_unit(string unit_name)
@@ -501,6 +530,51 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public void on_redo(int action_id)
 	{
 		_statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[action_id])));
+	}
+
+	public Guid?[] runtime_selection(Guid?[] selection)
+	{
+		GLib.GenericArray<Guid?> unit_ids = new GLib.GenericArray<Guid?>();
+		GLib.GenericSet<Guid?> selected = guid_set_new();
+
+		foreach (Guid? id in selection) {
+			if (!_database.has_object(id) || !_database.is_alive(id))
+				continue;
+
+			Guid unit_id = id;
+			if (_database.object_type(id) != OBJECT_TYPE_UNIT) {
+				if (!Unit.is_component(id, _database))
+					continue;
+				unit_id = _database.owner(id);
+			}
+
+			if (unit_id == GUID_ZERO
+				|| !_database.has_object(unit_id)
+				|| !_database.is_alive(unit_id)
+				|| _database.object_type(unit_id) != OBJECT_TYPE_UNIT)
+				continue;
+
+			if (!selected.contains(unit_id)) {
+				selected.add(unit_id);
+				unit_ids.add(unit_id);
+			}
+		}
+
+		return unit_ids.steal();
+	}
+
+	public void send_editor_selection()
+	{
+		if (!_runtime.is_connected())
+			return;
+
+		_runtime.send_script(LevelEditorApi.selection_set(runtime_selection(_database_editor._selection.data)));
+	}
+
+	public void on_selection_changed()
+	{
+		send_editor_selection();
+		_editor_viewport.frame();
 	}
 
 	public void close_and_unload()
