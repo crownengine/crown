@@ -51,6 +51,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_name.set_margin_bottom(8);
 		_name.set_markup("<b>%s</b>".printf(name));
 		_name.set_xalign(0.0f);
+		_name.ellipsize = Pango.EllipsizeMode.END;
 #if CROWN_GTK3
 		_vbox.pack_start(_name);
 #else
@@ -63,6 +64,7 @@ public class ProjectRow : Gtk.ListBoxRow
 		_source_dir.set_margin_bottom(8);
 		_source_dir.set_markup("<small>%s</small>".printf(source_dir));
 		_source_dir.set_xalign(0.0f);
+		_source_dir.ellipsize = Pango.EllipsizeMode.END;
 #if CROWN_GTK3
 		_vbox.pack_start(_source_dir);
 #else
@@ -262,6 +264,9 @@ public class ProjectsList : Gtk.Box
 		_project_list_empty.margin_bottom = 12;
 		var label = new Gtk.Label(null);
 		label.set_markup("<span font_size=\"large\"><b>%s</b></span>".printf(_("No projects found")));
+		label.justify = Gtk.Justification.CENTER;
+		label.wrap = true;
+		label.wrap_mode = Pango.WrapMode.WORD_CHAR;
 #if CROWN_GTK3
 		_project_list_empty.pack_start(label, false, false);
 #else
@@ -269,6 +274,9 @@ public class ProjectsList : Gtk.Box
 #endif
 		label = new Gtk.Label(null);
 		label.set_markup(_("Use the buttons above to create a new project or import an already existing one."));
+		label.justify = Gtk.Justification.CENTER;
+		label.wrap = true;
+		label.wrap_mode = Pango.WrapMode.WORD_CHAR;
 #if CROWN_GTK3
 		_project_list_empty.pack_start(label, false, false);
 		_project_list_empty.show_all();
@@ -281,6 +289,9 @@ public class ProjectsList : Gtk.Box
 		project_filter_empty.margin_bottom = 12;
 		project_filter_empty.valign = Gtk.Align.START;
 		project_filter_empty.set_markup("<span font_size=\"large\"><b>%s</b></span>".printf(_("No matching projects found")));
+		project_filter_empty.justify = Gtk.Justification.CENTER;
+		project_filter_empty.wrap = true;
+		project_filter_empty.wrap_mode = Pango.WrapMode.WORD_CHAR;
 
 		_list_projects = new Gtk.ListBox();
 		_list_projects.valign = Gtk.Align.START;

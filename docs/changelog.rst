@@ -80,6 +80,7 @@ Changelog
 * Tools: fixed slow loading of large levels/units while the place tool is selected.
 * Tools: fixed slow opening and closing of the Unit Editor with large units.
 * Tools: fixed resource editors retaining stale state when switching projects.
+* Tools: fixed Projects List's viewport turning black when displaying long strings of text.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.
