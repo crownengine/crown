@@ -26,6 +26,7 @@
 #include "core/strings/string_id.inl"
 #include "device/console_server.h"
 #include "device/log.h"
+#include "resource/mesh_resource.h"
 #include "resource/physics_resource.inl"
 #include "resource/resource_manager.h"
 #include "world/debug_line.h"
@@ -1328,6 +1329,9 @@ struct PhysicsWorldImpl
 		u64 key;
 		u32 num_references;
 		Allocator *allocator;
+		const MeshResource *mesh_resource;
+		StringId32 geometry;
+		ColliderType::Enum type;
 		btTriangleIndexVertexArray *vertex_array;
 		btCollisionShape *shape;
 		btCollisionShape *child_shape;
@@ -1365,6 +1369,7 @@ struct PhysicsWorldImpl
 
 	ProxyAllocator _proxy_allocator;
 	Allocator *_allocator;
+	ResourceManager *_resource_manager;
 	UnitManager *_unit_manager;
 
 	HashMap<UnitId, u32> _collider_map;
@@ -1403,6 +1408,7 @@ struct PhysicsWorldImpl
 	PhysicsWorldImpl(Allocator &a, ResourceManager &rm, UnitManager &um, SceneGraph &sg, DebugLine &dl)
 		: _proxy_allocator(a, "physics")
 		, _allocator(&_proxy_allocator)
+		, _resource_manager(&rm)
 		, _unit_manager(&um)
 		, _collider_map(*_allocator)
 		, _actor_map(*_allocator)
@@ -1492,6 +1498,61 @@ struct PhysicsWorldImpl
 
 	PhysicsWorldImpl &operator=(const PhysicsWorldImpl &) = delete;
 
+	void collider_shape_init(ColliderShapeData &csd, u64 key)
+	{
+		csd.key = key;
+		csd.num_references = 1;
+		csd.allocator = &_shapes_pool;
+		csd.mesh_resource = NULL;
+		csd.geometry = StringId32();
+		csd.type = ColliderType::COUNT;
+		csd.vertex_array = NULL;
+		csd.shape = NULL;
+		csd.child_shape = NULL;
+	}
+
+	void create_convex_hull_shape(ColliderShapeData &csd, const void *vertices, u32 num_vertices, u32 stride)
+	{
+		csd.allocator = _allocator;
+		csd.child_shape = CE_NEW(*csd.allocator, btConvexHullShape)((const btScalar *)vertices, (int)num_vertices, stride);
+	}
+
+	void create_mesh_shape(ColliderShapeData &csd
+		, const void *vertices
+		, u32 num_vertices
+		, u32 vertex_stride
+		, const u16 *indices
+		, u32 num_indices
+		)
+	{
+		btIndexedMesh part;
+		part.m_vertexBase          = (const unsigned char *)vertices;
+		part.m_vertexStride        = vertex_stride;
+		part.m_numVertices         = num_vertices;
+		part.m_triangleIndexBase   = (const unsigned char *)indices;
+		part.m_triangleIndexStride = sizeof(u16)*3;
+		part.m_numTriangles        = num_indices/3;
+		part.m_indexType           = PHY_SHORT;
+
+		csd.allocator = _allocator;
+		csd.vertex_array = CE_NEW(*csd.allocator, btTriangleIndexVertexArray)();
+		csd.vertex_array->addIndexedMesh(part, PHY_SHORT);
+
+		const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
+		const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
+		csd.child_shape = CE_NEW(*csd.allocator, btBvhTriangleMeshShape)(csd.vertex_array, false, aabb_min, aabb_max);
+	}
+
+	btCollisionShape *store_collider_shape(ColliderShapeData &csd, const Vector3 &sc)
+	{
+		csd.shape->setLocalScaling(to_btVector3(sc));
+
+		const u32 new_shape_i = array::size(_collider_shape);
+		array::push_back(_collider_shape, csd);
+		hash_map::set(_collider_shape_map, csd.key, new_shape_i);
+		return csd.shape;
+	}
+
 	btCollisionShape *collider_shape(u64 key, const ColliderDesc *cd, const Vector3 &sc)
 	{
 		const u32 default_shape_i = UINT32_MAX;
@@ -1502,12 +1563,7 @@ struct PhysicsWorldImpl
 		}
 
 		ColliderShapeData csd;
-		csd.key = key;
-		csd.num_references = 1;
-		csd.allocator = &_shapes_pool;
-		csd.vertex_array = NULL;
-		csd.shape = NULL;
-		csd.child_shape = NULL;
+		collider_shape_init(csd, key);
 
 		switch (cd->type) {
 		case ColliderType::SPHERE:
@@ -1525,10 +1581,9 @@ struct PhysicsWorldImpl
 		case ColliderType::CONVEX_HULL: {
 			const u8 *data         = (u8 *)&cd[1];
 			const u32 num          = *(u32 *)data;
-			const btScalar *points = (btScalar *)(data + sizeof(u32));
+			const void *points = data + sizeof(u32);
 
-			csd.allocator = _allocator;
-			csd.child_shape = CE_NEW(*csd.allocator, btConvexHullShape)(points, (int)num, sizeof(Vector3));
+			create_convex_hull_shape(csd, points, num, sizeof(Vector3));
 			break;
 		}
 
@@ -1539,22 +1594,7 @@ struct PhysicsWorldImpl
 			const u32 num_indices = *(u32 *)(points + num_points*sizeof(Vector3));
 			const char *indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
 
-			btIndexedMesh part;
-			part.m_vertexBase          = (const unsigned char *)points;
-			part.m_vertexStride        = sizeof(Vector3);
-			part.m_numVertices         = num_points;
-			part.m_triangleIndexBase   = (const unsigned char *)indices;
-			part.m_triangleIndexStride = sizeof(u16)*3;
-			part.m_numTriangles        = num_indices/3;
-			part.m_indexType           = PHY_SHORT;
-
-			csd.allocator = _allocator;
-			csd.vertex_array = CE_NEW(*csd.allocator, btTriangleIndexVertexArray)();
-			csd.vertex_array->addIndexedMesh(part, PHY_SHORT);
-
-			const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
-			const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
-			csd.child_shape = CE_NEW(*csd.allocator, btBvhTriangleMeshShape)(csd.vertex_array, false, aabb_min, aabb_max);
+			create_mesh_shape(csd, points, num_points, sizeof(Vector3), (const u16 *)indices, num_indices);
 			break;
 		}
 
@@ -1574,12 +1614,51 @@ struct PhysicsWorldImpl
 			csd.shape = compound_shape;
 		}
 
-		csd.shape->setLocalScaling(to_btVector3(sc));
+		return store_collider_shape(csd, sc);
+	}
 
-		const u32 new_shape_i = array::size(_collider_shape);
-		array::push_back(_collider_shape, csd);
-		hash_map::set(_collider_shape_map, key, new_shape_i);
-		return csd.shape;
+	btCollisionShape *collider_shape(u64 key
+		, ColliderType::Enum type
+		, const MeshResource *mesh_resource
+		, StringId32 geometry
+		, const MeshGeometry *mg
+		, const Matrix4x4 &local_tm
+		, const Vector3 &sc
+		)
+	{
+		const u32 default_shape_i = UINT32_MAX;
+		const u32 shape_i = hash_map::get(_collider_shape_map, key, default_shape_i);
+		if (shape_i != UINT32_MAX) {
+			++_collider_shape[shape_i].num_references;
+			return _collider_shape[shape_i].shape;
+		}
+
+		ColliderShapeData csd;
+		collider_shape_init(csd, key);
+		csd.mesh_resource = mesh_resource;
+		csd.geometry = geometry;
+		csd.type = type;
+
+		if (type == ColliderType::CONVEX_HULL) {
+			create_convex_hull_shape(csd, mg->vertices.data, mg->vertices.num, mg->vertices.stride);
+		} else {
+			CE_ASSERT(type == ColliderType::MESH, "Invalid collider type");
+			create_mesh_shape(csd
+				, mg->vertices.data
+				, mg->vertices.num
+				, mg->vertices.stride
+				, (const u16 *)mg->indices.data
+				, mg->indices.num
+				);
+		}
+
+		csd.shape = csd.child_shape;
+		if (local_tm != MATRIX4X4_IDENTITY) {
+			btCompoundShape *compound_shape = CE_NEW(*csd.allocator, btCompoundShape)(true, 1);
+			compound_shape->addChildShape(to_btTransform(local_tm), csd.child_shape);
+			csd.shape = compound_shape;
+		}
+		return store_collider_shape(csd, sc);
 	}
 
 	void collider_release_shape(u64 key)
@@ -1662,13 +1741,196 @@ struct PhysicsWorldImpl
 		return make_collider_instance(hash_map::get(_collider_map, unit, UINT32_MAX));
 	}
 
+	ActorId actor_create(UnitId unit, const ActorResource *actor_resource)
+	{
+		u32 unit_index = 0;
+		actor_create_instances(actor_resource, 1, &unit, &unit_index);
+		return actor(unit);
+	}
+
+	ActorId actor_create(UnitId unit, const ColliderDesc *cd)
+	{
+		static const ActorResource actor_resource = {
+			STRING_ID_32("static", UINT32_C(0x777b4e95)),
+			0.0f,
+			0,
+			STRING_ID_32("no_collision", UINT32_C(0xc075ac81)),
+			STRING_ID_32("default", UINT32_C(0x5974b5ec))
+		};
+
+		struct SingleColliderResource
+		{
+			ColliderResource resource;
+			u32 index;
+			ColliderResourceEntry entry;
+			ColliderDesc collider;
+		};
+
+		SingleColliderResource cr = {};
+		cr.resource.num_colliders = 1;
+		cr.resource.indices_offset = (u32)((char *)&cr.index - (char *)&cr);
+		cr.resource.entries_offset = (u32)((char *)&cr.entry - (char *)&cr);
+		cr.resource.colliders_offset = (u32)((char *)&cr.collider - (char *)&cr);
+		cr.entry.hash = murmur64(cd, sizeof(*cd) + cd->size, 0);
+		cr.collider = *cd;
+
+		u32 unit_index = 0;
+		collider_create_instances(&cr, 1, &unit, &unit_index);
+
+		return actor_create(unit, &actor_resource);
+	}
+
+	ActorId actor_create_sphere(UnitId unit, f32 radius, const Matrix4x4 &local_tm)
+	{
+		ColliderDesc cd = {};
+		cd.type = ColliderType::SPHERE;
+		cd.local_tm = local_tm;
+		cd.sphere.radius = radius;
+		return actor_create(unit, &cd);
+	}
+
+	ActorId actor_create_capsule(UnitId unit, f32 radius, f32 height, const Matrix4x4 &local_tm)
+	{
+		ColliderDesc cd = {};
+		cd.type = ColliderType::CAPSULE;
+		cd.local_tm = local_tm;
+		cd.capsule.radius = radius;
+		cd.capsule.height = height;
+		return actor_create(unit, &cd);
+	}
+
+	ActorId actor_create_box(UnitId unit, const Vector3 &half_size, const Matrix4x4 &local_tm)
+	{
+		ColliderDesc cd = {};
+		cd.type = ColliderType::BOX;
+		cd.local_tm = local_tm;
+		cd.box.half_size = half_size;
+		return actor_create(unit, &cd);
+	}
+
+	void actor_set_shape(ActorId actor, u64 shape_key, btCollisionShape *shape)
+	{
+		CE_ASSERT(actor.i < array::size(_actor), "Index out of bounds");
+		ColliderId collider = collider_instance(_actor[actor.i].unit);
+		CE_ASSERT(is_valid(collider), "Unit has no collider component");
+
+		ColliderInstanceData &cid = _collider[collider.i];
+		const u64 old_shape_key = cid.shape_key;
+		btRigidBody *body = _actor[actor.i].body;
+		body->setCollisionShape(shape);
+		cid.shape_key = shape_key;
+		cid.shape = shape;
+		_dynamics_world->updateSingleAabb(body);
+		collider_release_shape(old_shape_key);
+	}
+
+	void actor_set_shape(ActorId actor, const ColliderDesc *cd)
+	{
+		CE_ASSERT(actor.i < array::size(_actor), "Index out of bounds");
+		const TransformId ti = _scene_graph->instance(_actor[actor.i].unit);
+		const Vector3 sc = scale(_scene_graph->world_pose(ti));
+		const u64 hash = murmur64(cd, sizeof(*cd) + cd->size, 0);
+		const u64 shape_key = hash ^ murmur64(to_float_ptr(sc), sizeof(sc), 0);
+		actor_set_shape(actor, shape_key, collider_shape(shape_key, cd, sc));
+	}
+
+	void actor_set_mesh(ActorId actor
+		, ColliderType::Enum shape
+		, const MeshResource *mesh_resource
+		, StringId32 geometry
+		, const Matrix4x4 &local_tm
+		)
+	{
+		CE_ASSERT(actor.i < array::size(_actor), "Index out of bounds");
+		const MeshGeometry *mg = mesh_resource->geometry(geometry);
+		CE_ASSERT(mg != NULL && mg->vertices.num > 0, "Mesh geometry is empty");
+		CE_ASSERT(shape != ColliderType::MESH || mg->indices.num > 0, "Mesh geometry has no indices");
+
+		struct MeshColliderShapeKey
+		{
+			const MeshResource *mesh_resource;
+			u32 geometry;
+			u32 shape;
+			Matrix4x4 local_tm;
+			Vector3 scale;
+		};
+
+		const TransformId ti = _scene_graph->instance(_actor[actor.i].unit);
+		const Vector3 sc = scale(_scene_graph->world_pose(ti));
+		MeshColliderShapeKey key = {};
+		key.mesh_resource = mesh_resource;
+		key.geometry = geometry._id;
+		key.shape = shape;
+		key.local_tm = local_tm;
+		key.scale = sc;
+		const u64 shape_key = murmur64(&key, sizeof(key), 0);
+		actor_set_shape(actor, shape_key, collider_shape(shape_key, shape, mesh_resource, geometry, mg, local_tm, sc));
+	}
+
+	void actor_set_mesh(ActorId actor
+		, ColliderType::Enum shape
+		, StringId64 mesh_resource
+		, StringId32 geometry
+		, const Matrix4x4 &local_tm
+		)
+	{
+		actor_set_mesh(actor
+			, shape
+			, (const MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, mesh_resource)
+			, geometry
+			, local_tm
+			);
+	}
+
+	void actor_set_collider_params(ActorId actor
+		, ColliderType::Enum shape
+		, const Vector3 &half_extents
+		, f32 radius
+		, f32 height
+		, StringId64 mesh_resource
+		, StringId32 geometry
+		, const Matrix4x4 &local_tm
+		)
+	{
+		ColliderDesc cd = {};
+		cd.type = shape;
+		cd.local_tm = local_tm;
+
+		switch (shape) {
+		case ColliderType::SPHERE:
+			cd.sphere.radius = radius;
+			actor_set_shape(actor, &cd);
+			break;
+
+		case ColliderType::CAPSULE:
+			cd.capsule.radius = radius;
+			cd.capsule.height = height;
+			actor_set_shape(actor, &cd);
+			break;
+
+		case ColliderType::BOX:
+			cd.box.half_size = half_extents;
+			actor_set_shape(actor, &cd);
+			break;
+
+		case ColliderType::CONVEX_HULL:
+		case ColliderType::MESH:
+			actor_set_mesh(actor, shape, mesh_resource, geometry, local_tm);
+			break;
+
+		default:
+			CE_FATAL("Unknown shape type");
+			break;
+		}
+	}
+
 	void actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 	{
 		const PhysicsActor *actor_classes = physics_config_resource::actors_array(_config_resource);
 		const PhysicsMaterial *materials = physics_config_resource::materials_array(_config_resource);
 		const PhysicsCollisionFilter *filters = physics_config_resource::filters_array(_config_resource);
 
-		const ActorResource *actors = (ActorResource *)components_data;
+		const ActorResource *actors = (const ActorResource *)components_data;
 
 		for (u32 i = 0; i < num; ++i) {
 			UnitId unit = unit_lookup[unit_index[i]];
@@ -1775,6 +2037,10 @@ struct PhysicsWorldImpl
 		array::pop_back(_actor);
 
 		hash_map::remove(_actor_map, u);
+
+		ColliderId collider = collider_instance(u);
+		if (is_valid(collider))
+			collider_destroy(collider);
 	}
 
 	ActorId actor(UnitId unit)
@@ -3216,6 +3482,73 @@ struct PhysicsWorldImpl
 		RECORD_FLOAT("physics.sleeping_actors", f32(sleeping_actors));
 	}
 
+	void reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)
+	{
+#if CROWN_CAN_RELOAD
+		for (u32 i = 0; i < array::size(_collider_shape); ++i) {
+			ColliderShapeData &old_shape = _collider_shape[i];
+			if (old_shape.mesh_resource != old_resource)
+				continue;
+
+			const MeshGeometry *mg = new_resource->geometry(old_shape.geometry);
+			CE_ASSERT(mg != NULL && mg->vertices.num > 0, "Mesh geometry is empty");
+			CE_ASSERT(old_shape.type != ColliderType::MESH || mg->indices.num > 0, "Mesh geometry has no indices");
+			const btVector3 local_scaling = old_shape.shape->getLocalScaling();
+			const bool has_local_transform = old_shape.shape != old_shape.child_shape;
+			btTransform local_transform;
+			if (has_local_transform)
+				local_transform = ((btCompoundShape *)old_shape.shape)->getChildTransform(0);
+
+			ColliderShapeData new_shape;
+			collider_shape_init(new_shape, old_shape.key);
+			new_shape.num_references = old_shape.num_references;
+			new_shape.mesh_resource = new_resource;
+			new_shape.geometry = old_shape.geometry;
+			new_shape.type = old_shape.type;
+
+			if (new_shape.type == ColliderType::CONVEX_HULL) {
+				create_convex_hull_shape(new_shape, mg->vertices.data, mg->vertices.num, mg->vertices.stride);
+			} else {
+				CE_ASSERT(new_shape.type == ColliderType::MESH, "Invalid collider type");
+				create_mesh_shape(new_shape
+					, mg->vertices.data
+					, mg->vertices.num
+					, mg->vertices.stride
+					, (const u16 *)mg->indices.data
+					, mg->indices.num
+					);
+			}
+
+			new_shape.shape = new_shape.child_shape;
+			if (has_local_transform) {
+				btCompoundShape *compound_shape = CE_NEW(*new_shape.allocator, btCompoundShape)(true, 1);
+				compound_shape->addChildShape(local_transform, new_shape.child_shape);
+				new_shape.shape = compound_shape;
+			}
+			new_shape.shape->setLocalScaling(local_scaling);
+
+			for (u32 j = 0; j < array::size(_collider); ++j) {
+				ColliderInstanceData &cid = _collider[j];
+				if (cid.shape_key != old_shape.key)
+					continue;
+
+				cid.shape = new_shape.shape;
+				const ActorId actor = this->actor(cid.unit);
+				if (is_valid(actor)) {
+					btRigidBody *body = _actor[actor.i].body;
+					body->setCollisionShape(new_shape.shape);
+					_dynamics_world->updateSingleAabb(body);
+				}
+			}
+
+			collider_destroy_shape(old_shape);
+			old_shape = new_shape;
+		}
+#else
+		CE_UNUSED_2(old_resource, new_resource);
+#endif // if CROWN_CAN_RELOAD
+	}
+
 	EventStream &events()
 	{
 		return _events;
@@ -3501,6 +3834,34 @@ ColliderId PhysicsWorld::collider_instance(UnitId unit)
 void PhysicsWorld::actor_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)
 {
 	_impl->actor_create_instances(components_data, num, unit_lookup, unit_index);
+}
+
+ActorId PhysicsWorld::actor_create_sphere(UnitId unit, f32 radius, const Matrix4x4 &local_tm)
+{
+	return _impl->actor_create_sphere(unit, radius, local_tm);
+}
+
+ActorId PhysicsWorld::actor_create_capsule(UnitId unit, f32 radius, f32 height, const Matrix4x4 &local_tm)
+{
+	return _impl->actor_create_capsule(unit, radius, height, local_tm);
+}
+
+ActorId PhysicsWorld::actor_create_box(UnitId unit, const Vector3 &half_size, const Matrix4x4 &local_tm)
+{
+	return _impl->actor_create_box(unit, half_size, local_tm);
+}
+
+void PhysicsWorld::actor_set_collider_params(ActorId actor
+	, ColliderType::Enum shape
+	, const Vector3 &half_extents
+	, f32 radius
+	, f32 height
+	, StringId64 mesh_resource
+	, StringId32 geometry
+	, const Matrix4x4 &local_tm
+	)
+{
+	_impl->actor_set_collider_params(actor, shape, half_extents, radius, height, mesh_resource, geometry, local_tm);
 }
 
 void PhysicsWorld::actor_destroy(ActorId actor)
@@ -4026,6 +4387,11 @@ void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *e
 void PhysicsWorld::update(f32 dt)
 {
 	_impl->update(dt);
+}
+
+void PhysicsWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)
+{
+	_impl->reload_meshes(old_resource, new_resource);
 }
 
 EventStream &PhysicsWorld::events()
