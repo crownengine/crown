@@ -1245,36 +1245,24 @@ public class ProjectBrowser : Gtk.Box
 #endif
 	public enum SortMode
 	{
-		NAME_AZ,
-		NAME_ZA,
-		TYPE_AZ,
-		TYPE_ZA,
-		SIZE_MIN_MAX,
-		SIZE_MAX_MIN,
-		LAST_MTIME,
-		FIRST_MTIME,
+		NAME,
+		TYPE,
+		SIZE,
+		MODIFIED,
 
 		COUNT;
 
 		public string to_label()
 		{
 			switch (this) {
-			case NAME_AZ:
-				return _("Name A-Z");
-			case NAME_ZA:
-				return _("Name Z-A");
-			case TYPE_AZ:
-				return _("Type A-Z");
-			case TYPE_ZA:
-				return _("Type Z-A");
-			case SIZE_MIN_MAX:
-				return _("Size min-Max");
-			case SIZE_MAX_MIN:
-				return _("Size Max-min");
-			case LAST_MTIME:
-				return _("Last Modified");
-			case FIRST_MTIME:
-				return _("First Modified");
+			case NAME:
+				return _("Name");
+			case TYPE:
+				return _("Type");
+			case SIZE:
+				return _("Size");
+			case MODIFIED:
+				return _("Modified");
 			default:
 				return _("Unknown");
 			}
@@ -1315,6 +1303,7 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
+	public Gtk.CheckButton _reverse_sort;
 	public Gtk.Box _empty_favorites_box;
 	public Gtk.Stack _folder_stack;
 	public Gtk.Box _folder_view_content;
@@ -1878,20 +1867,23 @@ public class ProjectBrowser : Gtk.Box
 #else
 		Gtk.CheckButton? button = null;
 #endif
-		for (int i = 0; i < SortMode.COUNT; ++i) {
+		for (int i = 0; i < SortMode.COUNT; ++i)
 			button = add_sort_item(button, (SortMode)i);
-#if !CROWN_GTK3
-			if (i == SortMode.NAME_AZ)
-				button.set_active(true);
-#endif
-		}
+
+		_reverse_sort = new Gtk.CheckButton.with_label(_("Reverse"));
+		_reverse_sort.set_active(false);
+		_reverse_sort.toggled.connect(on_reverse_sort_toggled);
 
 #if CROWN_GTK3
+		_sort_items_box.pack_start(_reverse_sort, false, false);
+		_sort_items_box.pack_start(new Gtk.Separator(Gtk.Orientation.HORIZONTAL), false, false);
 		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
 		_sort_items_box.pack_start(_show_all_files, false, false);
 		_sort_items_box.pack_start(_show_files_extension, false, false);
 		_sort_items_box.show_all();
 #else
+		_sort_items_box.append(new Gtk.Separator(Gtk.Orientation.HORIZONTAL));
+		_sort_items_box.append(_reverse_sort);
 		_sort_items_box.append(_show_mapped_dirs);
 		_sort_items_box.append(_show_all_files);
 		_sort_items_box.append(_show_files_extension);
@@ -2049,38 +2041,34 @@ public class ProjectBrowser : Gtk.Box
 				}
 
 				switch (_sort_mode) {
-				case SortMode.NAME_AZ:
-				case SortMode.NAME_ZA: {
+				case SortMode.NAME: {
 					int cmp = strcmp((string)name_a, (string)name_b);
-					return _sort_mode == SortMode.NAME_AZ ? cmp : -cmp;
+					return _reverse_sort.get_active() ? -cmp : cmp;
 				}
 
-				case SortMode.TYPE_AZ:
-				case SortMode.TYPE_ZA: {
+				case SortMode.TYPE: {
 					int cmp = strcmp((string)type_a, (string)type_b);
-					return _sort_mode == SortMode.TYPE_AZ ? cmp : -cmp;
+					return _reverse_sort.get_active() ? -cmp : cmp;
 				}
 
-				case SortMode.SIZE_MIN_MAX:
-				case SortMode.SIZE_MAX_MIN: {
+				case SortMode.SIZE: {
 					Value size_a;
 					Value size_b;
 					model.get_value(iter_a, ProjectStore.Column.SIZE, out size_a);
 					model.get_value(iter_b, ProjectStore.Column.SIZE, out size_b);
 
 					int cmp = (uint64)size_a <= (uint64)size_b ? -1 : 1;
-					return _sort_mode == SortMode.SIZE_MIN_MAX ? cmp : -cmp;
+					return _reverse_sort.get_active() ? -cmp : cmp;
 				}
 
-				case SortMode.LAST_MTIME:
-				case SortMode.FIRST_MTIME: {
+				case SortMode.MODIFIED: {
 					Value mtime_a;
 					Value mtime_b;
 					model.get_value(iter_a, ProjectStore.Column.MTIME, out mtime_a);
 					model.get_value(iter_b, ProjectStore.Column.MTIME, out mtime_b);
 
 					int cmp = (uint64)mtime_a >= (uint64)mtime_b ? -1 : 1;
-					return _sort_mode == SortMode.LAST_MTIME ? cmp : -cmp;
+					return _reverse_sort.get_active() ? -cmp : cmp;
 				}
 
 				default:
@@ -2810,11 +2798,15 @@ public class ProjectBrowser : Gtk.Box
 #else
 		var button = new Gtk.CheckButton.with_label(mode.to_label());
 		button.set_group(group);
+		if (mode == SortMode.NAME)
+			button.set_active(true);
 #endif
 		button.toggled.connect(() => {
+				if (!button.get_active())
+					return;
+
 				_sort_mode = mode;
 				update_folder_view();
-				_sort_items_popover.popdown();
 			});
 #if CROWN_GTK3
 		_sort_items_box.pack_start(button, false, false);
@@ -2822,6 +2814,11 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_box.append(button);
 #endif
 		return button;
+	}
+
+	void on_reverse_sort_toggled()
+	{
+		update_folder_view();
 	}
 
 	public bool save_tree_state(Gtk.TreeModel model, Gtk.TreePath path, Gtk.TreeIter iter)
