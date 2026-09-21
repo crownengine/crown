@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-21 10:57+0200\n"
-"PO-Revision-Date: 2026-09-21 09:08\n"
+"POT-Creation-Date: 2026-09-21 15:50+0200\n"
+"PO-Revision-Date: 2026-09-21 14:10\n"
 "Last-Translator: \n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
@@ -329,8 +329,8 @@ msgstr ""
 #: tools/level_editor/level_layers_tree_view.vala:39
 #: tools/level_editor/object_chooser.vala:51
 #: tools/level_editor/panel_projects_list.vala:254
-#: tools/level_editor/project_browser.vala:1478
-#: tools/level_editor/project_browser.vala:1485
+#: tools/level_editor/project_browser.vala:1492
+#: tools/level_editor/project_browser.vala:1499
 #: tools/widgets/object_tree.vala:189
 msgid "Search..."
 msgstr ""
@@ -1486,77 +1486,94 @@ msgstr ""
 msgid "byte"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1612
 #: tools/level_editor/project_browser.vala:1626
+#: tools/level_editor/project_browser.vala:1640
 msgid "Tree view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1626
+#: tools/level_editor/project_browser.vala:1640
 msgid "Folder view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1742
+#: tools/level_editor/project_browser.vala:1756
 msgid "Go Back"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1758
+#: tools/level_editor/project_browser.vala:1772
 msgid "Go Forward"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1789
+#: tools/level_editor/project_browser.vala:1803
 #, c-format
 msgid "Project browser: folder not found: %s"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1827
-msgid "Show all files"
+#: tools/level_editor/project_browser.vala:1841
+msgid "All files"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1828
+#: tools/level_editor/project_browser.vala:1842
 msgid "Show all files, not just resource files."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1832
-msgid "Show files extension"
+#: tools/level_editor/project_browser.vala:1846
+msgid "File extensions"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1833
+#: tools/level_editor/project_browser.vala:1847
 msgid "Do not hide files extension."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1837
-msgid "Show mapped dirs"
+#: tools/level_editor/project_browser.vala:1851
+msgid "Mapped dirs"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1838
+#: tools/level_editor/project_browser.vala:1852
 msgid "Show external mapped directories."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1851
-msgid "Sort and filter items."
+#: tools/level_editor/project_browser.vala:1857
+msgid "Filter items."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1873
+#: tools/level_editor/project_browser.vala:1872
+msgid "Folders"
+msgstr ""
+
+#: tools/level_editor/project_browser.vala:1919
+msgid "All types"
+msgstr ""
+
+#: tools/level_editor/project_browser.vala:1956
+msgid "Choose resource types and display options."
+msgstr ""
+
+#: tools/level_editor/project_browser.vala:1987
+#: tools/widgets/object_tree.vala:292
+msgid "Sort items."
+msgstr ""
+
+#: tools/level_editor/project_browser.vala:2009
 msgid "Reverse"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1899
-#: tools/level_editor/project_browser.vala:1941
+#: tools/level_editor/project_browser.vala:2028
+#: tools/level_editor/project_browser.vala:2070
 #: tools/widgets/select_resource_dialog.vala:231
 #: tools/widgets/select_resource_dialog.vala:693
 msgid "List view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1941
+#: tools/level_editor/project_browser.vala:2070
 #: tools/widgets/select_resource_dialog.vala:684
 msgid "Icon view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1963
+#: tools/level_editor/project_browser.vala:2094
 msgid "Favorites is empty"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2784
+#: tools/level_editor/project_browser.vala:2932
 msgid "Favorites"
 msgstr ""
 
@@ -2983,10 +3000,6 @@ msgstr ""
 
 #: tools/widgets/object_tree.vala:101
 msgid "Type Z-A"
-msgstr ""
-
-#: tools/widgets/object_tree.vala:292
-msgid "Sort items."
 msgstr ""
 
 #: tools/widgets/object_tree.vala:570
