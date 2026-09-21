@@ -467,6 +467,7 @@ public enum ObjectTypeFlags
 {
 	NONE           = 0,
 	UNIT_COMPONENT = 1 << 0,
+	RESOURCE       = 1 << 1,
 }
 
 public struct PropertiesSlice

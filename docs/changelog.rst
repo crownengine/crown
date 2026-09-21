@@ -29,6 +29,7 @@ Changelog
 * Tools: added importing of glTF 2.0 scenes in ``.gltf`` and ``.glb`` formats.
 * Tools: files can now be imported from the Project Browser by right-clicking on them and choosing ``Import...``.
 * Tools: added actor's collider visualization to the Unit Editor.
+* Tools: added the ability to filter resources by type in the Project Browser.
 * Runtime: added support for MP3 sound files.
 * Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
 * Runtime: added a new Vignette post-processing effect.

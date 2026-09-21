@@ -1300,6 +1300,8 @@ public class ProjectBrowser : Gtk.Box
 	public Gtk.CheckButton _show_all_files;
 	public Gtk.CheckButton _show_files_extension;
 	public Gtk.CheckButton _show_mapped_dirs;
+	public Gtk.ToggleButton _filter_types_enabled;
+	public GLib.HashTable<StringId64?, Gtk.CheckButton> _filter_types;
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
@@ -1329,15 +1331,17 @@ public class ProjectBrowser : Gtk.Box
 					_tree_view.expand_row(_project_store.project_root_path(), false);
 
 				Value type;
+				Value type_id;
 				Value name;
 				Value kind;
 				model.get_value(iter, ProjectStore.Column.TYPE, out type);
+				model.get_value(iter, ProjectStore.Column.TYPE_ID, out type_id);
 				model.get_value(iter, ProjectStore.Column.NAME, out name);
 				model.get_value(iter, ProjectStore.Column.KIND, out kind);
 
 				bool should_show = (string)type != null
 					&& (string)name != null
-					&& !row_should_be_hidden((ProjectStore.RowKind)kind, (string)type, (string)name)
+					&& !row_should_be_hidden((ProjectStore.RowKind)kind, (string)type, (StringId64)type_id, (string)name)
 					;
 
 				if (_show_folder_view) {
@@ -1442,7 +1446,17 @@ public class ProjectBrowser : Gtk.Box
 	}
 #endif
 
-	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache)
+	void add_resource_type_checkbox(Gtk.Grid grid, string type, int index, int num_items)
+	{
+		Gtk.CheckButton checkbox = new Gtk.CheckButton.with_label(camel_case(type));
+		checkbox.set_active(type == OBJECT_TYPE_UNIT);
+		checkbox.toggled.connect(update_folder_view);
+		_filter_types.insert(StringId64(type), checkbox);
+		int num_rows = (num_items + 1) / 2;
+		grid.attach(checkbox, index / num_rows, index % num_rows, 1, 1);
+	}
+
+	public ProjectBrowser(ProjectStore project_store, ThumbnailCache thumbnail_cache, Database database)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL);
 
@@ -1823,22 +1837,144 @@ public class ProjectBrowser : Gtk.Box
 		_tree_view_content.append(_scrolled_window);
 #endif
 
-		// Setup sort menu button popover.
-		_show_all_files = new Gtk.CheckButton.with_label(_("Show all files"));
+		// Setup filter controls.
+		_show_all_files = new Gtk.CheckButton.with_label(_("All files"));
 		_show_all_files.set_tooltip_text(_("Show all files, not just resource files."));
 		_show_all_files.set_active(false);
 		_show_all_files.toggled.connect(on_show_all_files_toggled);
 
-		_show_files_extension = new Gtk.CheckButton.with_label(_("Show files extension"));
+		_show_files_extension = new Gtk.CheckButton.with_label(_("File extensions"));
 		_show_files_extension.set_tooltip_text(_("Do not hide files extension."));
 		_show_files_extension.set_active(false);
 		_show_files_extension.toggled.connect(on_show_files_extension_toggled);
 
-		_show_mapped_dirs = new Gtk.CheckButton.with_label(_("Show mapped dirs"));
+		_show_mapped_dirs = new Gtk.CheckButton.with_label(_("Mapped dirs"));
 		_show_mapped_dirs.set_tooltip_text(_("Show external mapped directories."));
 		_show_mapped_dirs.set_active(false);
 		_show_mapped_dirs.toggled.connect(on_show_mapped_dirs_toggled);
 
+		_filter_types_enabled = new Gtk.ToggleButton();
+		_filter_types_enabled.set_tooltip_text(_("Filter items."));
+		_filter_types_enabled.toggled.connect(update_folder_view);
+#if CROWN_GTK3
+		_filter_types_enabled.add(new Gtk.Image.from_icon_name(IconTheme.LIST_FILTER, Gtk.IconSize.SMALL_TOOLBAR));
+		_filter_types_enabled.get_style_context().add_class("flat");
+		_filter_types_enabled.get_style_context().add_class("image-button");
+		_filter_types_enabled.can_focus = false;
+#else
+		_filter_types_enabled.set_child(new Gtk.Image.from_icon_name(IconTheme.LIST_FILTER));
+		_filter_types_enabled.add_css_class("flat");
+		_filter_types_enabled.add_css_class("image-button");
+		_filter_types_enabled.focusable = false;
+#endif
+
+		_filter_types = new GLib.HashTable<StringId64?, Gtk.CheckButton>(StringId64.hash_func, StringId64.equal_func);
+		Gtk.CheckButton filter_folders = new Gtk.CheckButton.with_label(_("Folders"));
+		filter_folders.set_active(true);
+		filter_folders.toggled.connect(update_folder_view);
+		_filter_types.insert(ProjectStore.TYPE_NONE, filter_folders);
+
+		Gtk.Grid common_types_grid = new Gtk.Grid();
+		common_types_grid.column_spacing = 12;
+		common_types_grid.row_spacing = 2;
+		common_types_grid.attach(filter_folders, 0, 0, 1, 1);
+		string[] common_resource_types = {
+			OBJECT_TYPE_UNIT,
+			OBJECT_TYPE_MATERIAL,
+			OBJECT_TYPE_SOUND,
+			"lua",
+			OBJECT_TYPE_LEVEL,
+			OBJECT_TYPE_TEXTURE,
+			"package",
+		};
+		for (int i = 0; i < common_resource_types.length; ++i)
+			add_resource_type_checkbox(common_types_grid, common_resource_types[i], i + 1, common_resource_types.length + 1);
+
+		GLib.GenericArray<string> resource_types = new GLib.GenericArray<string>();
+		GLib.HashTableIter<StringId64?, ObjectTypeInfo?> type_iter = GLib.HashTableIter<StringId64?, ObjectTypeInfo?>(database._object_definitions);
+		unowned StringId64? type_id;
+		unowned ObjectTypeInfo? type_info;
+		while (type_iter.next(out type_id, out type_info)) {
+			if ((type_info.flags & ObjectTypeFlags.RESOURCE) != 0 && !_filter_types.contains(type_id))
+				resource_types.add(type_info.name);
+		}
+
+		string[] unregistered_resource_types = {
+			"shader",
+			"config",
+			"physics_config",
+			"render_config",
+		};
+		foreach (string type in unregistered_resource_types) {
+			if (!database.has_type(StringId64(type)))
+				resource_types.add(type);
+		}
+		resource_types.sort(GLib.strcmp);
+
+		Gtk.Grid all_types_grid = new Gtk.Grid();
+		all_types_grid.column_spacing = 12;
+		all_types_grid.row_spacing = 2;
+		for (uint i = 0; i < resource_types.length; ++i)
+			add_resource_type_checkbox(all_types_grid, resource_types[i], (int)i, (int)resource_types.length);
+		Gtk.Label all_types_label = new Gtk.Label(_("All types"));
+		all_types_label.xalign = 0.0f;
+		Expander all_types_expander = new Expander();
+		all_types_expander.custom_header = all_types_label;
+		all_types_expander.add(all_types_grid);
+
+		Gtk.Box filter_types_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
+		filter_types_box.margin = 8;
+		_filter_types_enabled.bind_property("active", filter_types_box, "sensitive", GLib.BindingFlags.SYNC_CREATE);
+#if CROWN_GTK3
+		filter_types_box.pack_start(common_types_grid, false, false);
+		filter_types_box.pack_start(all_types_expander, false, false);
+#else
+		filter_types_box.append(common_types_grid);
+		filter_types_box.append(all_types_expander);
+#endif
+
+		var filter_popover_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+#if CROWN_GTK3
+		filter_popover_box.pack_start(filter_types_box, false, false);
+		filter_popover_box.pack_start(new Gtk.Separator(Gtk.Orientation.HORIZONTAL), false, false);
+		filter_popover_box.pack_start(_show_mapped_dirs, false, false);
+		filter_popover_box.pack_start(_show_all_files, false, false);
+		filter_popover_box.pack_start(_show_files_extension, false, false);
+		var filter_popover = new Gtk.Popover(null);
+		filter_popover.add(filter_popover_box);
+		filter_popover_box.show_all();
+#else
+		filter_popover_box.append(filter_types_box);
+		filter_popover_box.append(new Gtk.Separator(Gtk.Orientation.HORIZONTAL));
+		filter_popover_box.append(_show_mapped_dirs);
+		filter_popover_box.append(_show_all_files);
+		filter_popover_box.append(_show_files_extension);
+		var filter_popover = new Gtk.Popover();
+		filter_popover.set_child(filter_popover_box);
+#endif
+		Gtk.MenuButton filter_types_menu = new Gtk.MenuButton();
+		filter_types_menu.set_tooltip_text(_("Choose resource types and display options."));
+		filter_types_menu.set_popover(filter_popover);
+#if CROWN_GTK3
+		filter_types_menu.get_style_context().add_class("flat");
+		filter_types_menu.can_focus = false;
+#else
+		filter_types_menu.add_css_class("flat");
+		filter_types_menu.focusable = false;
+#endif
+
+		var filter_controls = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+#if CROWN_GTK3
+		filter_controls.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
+		filter_controls.pack_start(_filter_types_enabled, false, false);
+		filter_controls.pack_start(filter_types_menu, false, false);
+#else
+		filter_controls.add_css_class("linked");
+		filter_controls.append(_filter_types_enabled);
+		filter_controls.append(filter_types_menu);
+#endif
+
+		// Setup sort menu button popover.
 		_sort_items_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 #if CROWN_GTK3
 		_sort_items_popover = new Gtk.Popover(null);
@@ -1848,7 +1984,7 @@ public class ProjectBrowser : Gtk.Box
 		_sort_items_popover.set_child(_sort_items_box);
 #endif
 		_sort_items = new Gtk.MenuButton();
-		_sort_items.set_tooltip_text(_("Sort and filter items."));
+		_sort_items.set_tooltip_text(_("Sort items."));
 #if CROWN_GTK3
 		_sort_items.add(new Gtk.Image.from_icon_name(IconTheme.LIST_SORT, Gtk.IconSize.SMALL_TOOLBAR));
 		_sort_items.get_style_context().add_class("flat");
@@ -1876,17 +2012,10 @@ public class ProjectBrowser : Gtk.Box
 
 #if CROWN_GTK3
 		_sort_items_box.pack_start(_reverse_sort, false, false);
-		_sort_items_box.pack_start(new Gtk.Separator(Gtk.Orientation.HORIZONTAL), false, false);
-		_sort_items_box.pack_start(_show_mapped_dirs, false, false);
-		_sort_items_box.pack_start(_show_all_files, false, false);
-		_sort_items_box.pack_start(_show_files_extension, false, false);
 		_sort_items_box.show_all();
 #else
 		_sort_items_box.append(new Gtk.Separator(Gtk.Orientation.HORIZONTAL));
 		_sort_items_box.append(_reverse_sort);
-		_sort_items_box.append(_show_mapped_dirs);
-		_sort_items_box.append(_show_all_files);
-		_sort_items_box.append(_show_files_extension);
 #endif
 
 		bool _show_icon_view = true;
@@ -1945,11 +2074,13 @@ public class ProjectBrowser : Gtk.Box
 #if CROWN_GTK3
 		_folder_view_control.pack_start(_filter_entry_folder, true, true);
 		_folder_view_control.pack_end(_toggle_icon_view, false, false);
+		_folder_view_control.pack_end(filter_controls, false, false);
 		_folder_view_control.pack_end(_sort_items, false, false);
 #else
 		_filter_entry_folder.hexpand = true;
 		_folder_view_control.append(_filter_entry_folder);
 		_folder_view_control.append(_sort_items);
+		_folder_view_control.append(filter_controls);
 		_folder_view_control.append(_toggle_icon_view);
 #endif
 
@@ -2205,7 +2336,7 @@ public class ProjectBrowser : Gtk.Box
 #endif
 
 	// Returns true if the row should be hidden.
-	public bool row_should_be_hidden(ProjectStore.RowKind kind, string type, string name)
+	public bool row_should_be_hidden(ProjectStore.RowKind kind, string type, StringId64 type_id, string name)
 	{
 		if (_hide_core_resources) {
 			if (kind == ProjectStore.RowKind.FOLDER) {
@@ -2215,6 +2346,12 @@ public class ProjectBrowser : Gtk.Box
 				if (name.has_prefix("core/"))
 					return true;
 			}
+		}
+
+		if (_filter_types_enabled.get_active() && kind != ProjectStore.RowKind.FAVORITES) {
+			Gtk.CheckButton? checkbox = _filter_types.lookup(type_id);
+			if (checkbox == null || !checkbox.get_active())
+				return true;
 		}
 
 		if (_show_all_files.get_active())
@@ -2524,16 +2661,19 @@ public class ProjectBrowser : Gtk.Box
 				// Fill the intermediate icon view list with paths matching the selected node's name.
 				_project_store._list_store.foreach((model, path, iter) => {
 						string type;
+						StringId64 type_id;
 						string name;
 						ProjectStore.RowKind kind;
 						model.get_value(iter, ProjectStore.Column.TYPE, out val);
 						type = (string)val;
+						model.get_value(iter, ProjectStore.Column.TYPE_ID, out val);
+						type_id = (StringId64)val;
 						model.get_value(iter, ProjectStore.Column.NAME, out val);
 						name = (string)val;
 						model.get_value(iter, ProjectStore.Column.KIND, out val);
 						kind = (ProjectStore.RowKind)val;
 
-						if (row_should_be_hidden(kind, type, name))
+						if (row_should_be_hidden(kind, type, type_id, name))
 							return false;
 
 						// Skip paths without common ancestor.
@@ -2596,16 +2736,21 @@ public class ProjectBrowser : Gtk.Box
 				// Fill the icon view list with paths whose ancestor is the favorites root.
 				_project_store._tree_store.foreach((model, path, iter) => {
 						string type;
+						StringId64 type_id;
 						string name;
 						ProjectStore.RowKind kind;
 						model.get_value(iter, ProjectStore.Column.TYPE, out val);
 						type = (string)val;
+						model.get_value(iter, ProjectStore.Column.TYPE_ID, out val);
+						type_id = (StringId64)val;
 						model.get_value(iter, ProjectStore.Column.NAME, out val);
 						name = (string)val;
 						model.get_value(iter, ProjectStore.Column.KIND, out val);
 						kind = (ProjectStore.RowKind)val;
 
 						if (!path.is_descendant(_project_store.favorites_root_path()))
+							return false;
+						if (row_should_be_hidden(kind, type, type_id, name))
 							return false;
 
 						uint64 size;
@@ -2652,10 +2797,13 @@ public class ProjectBrowser : Gtk.Box
 						return false;
 
 					string type;
+					StringId64 type_id;
 					string name;
 					ProjectStore.RowKind kind;
 					model.get_value(iter, ProjectStore.Column.TYPE, out val);
 					type = (string)val;
+					model.get_value(iter, ProjectStore.Column.TYPE_ID, out val);
+					type_id = (StringId64)val;
 					model.get_value(iter, ProjectStore.Column.NAME, out val);
 					name = (string)val;
 					model.get_value(iter, ProjectStore.Column.KIND, out val);
@@ -2664,7 +2812,7 @@ public class ProjectBrowser : Gtk.Box
 					if (kind == ProjectStore.RowKind.FOLDER)
 						return false;
 
-					if (row_should_be_hidden(kind, type, name))
+					if (row_should_be_hidden(kind, type, type_id, name))
 						return false;
 
 					uint64 size;

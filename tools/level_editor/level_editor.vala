@@ -1866,7 +1866,7 @@ public class LevelEditorApplication : Gtk.Application
 		_combo.set_size_request(50, -1);
 
 		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
-		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache);
+		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache, _database);
 
 		_level_treeview = new ObjectTree(_database_editor);
 		_level_treeview.show_root = false;

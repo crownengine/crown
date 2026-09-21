@@ -8,6 +8,7 @@ namespace Crown
 public class ProjectStore
 {
 	public const string ROOT_FOLDER = "";
+	public const StringId64 TYPE_NONE = { 0u };
 
 	public enum Column
 	{
@@ -16,6 +17,7 @@ public class ProjectStore
 		SIZE,
 		MTIME,
 		KIND,
+		TYPE_ID,
 		VISIBLE,
 		USER_DATA,
 
@@ -59,6 +61,7 @@ public class ProjectStore
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
 			, typeof(RowKind) // row kind
+			, typeof(StringId64) // resource type ID
 			, typeof(bool)   // visible
 			, typeof(uint32) // user data
 			);
@@ -68,6 +71,7 @@ public class ProjectStore
 			, typeof(uint64) // resource size
 			, typeof(uint64) // resource mtime
 			, typeof(RowKind) // row kind
+			, typeof(StringId64) // resource type ID
 			, typeof(bool)   // visible
 			, typeof(uint32) // user data
 			);
@@ -100,6 +104,8 @@ public class ProjectStore
 			, 0u
 			, Column.KIND
 			, RowKind.FAVORITES
+			, Column.TYPE_ID
+			, TYPE_NONE
 			, Column.VISIBLE
 			, true
 			, -1
@@ -119,6 +125,8 @@ public class ProjectStore
 			, 0u
 			, Column.KIND
 			, RowKind.FOLDER
+			, Column.TYPE_ID
+			, TYPE_NONE
 			, Column.VISIBLE
 			, true
 			, -1
@@ -243,6 +251,8 @@ public class ProjectStore
 			, mtime
 			, Column.KIND
 			, kind
+			, Column.TYPE_ID
+			, StringId64(type)
 			, Column.VISIBLE
 			, true
 			, -1
@@ -299,6 +309,8 @@ public class ProjectStore
 				, 0u
 				, Column.KIND
 				, RowKind.FOLDER
+				, Column.TYPE_ID
+				, TYPE_NONE
 				, Column.VISIBLE
 				, true
 				, -1
@@ -326,6 +338,8 @@ public class ProjectStore
 					, 0u
 					, Column.KIND
 					, RowKind.FOLDER
+					, Column.TYPE_ID
+					, TYPE_NONE
 					, Column.VISIBLE
 					, true
 					, -1
@@ -352,6 +366,7 @@ public class ProjectStore
 
 	public void on_project_file_added(string type, string name, uint64 size, uint64 mtime)
 	{
+		StringId64 type_id = StringId64(type);
 		string parent_folder = ResourceId.parent_folder(name);
 
 		Gtk.TreeIter parent = find_or_make_tree(parent_folder);
@@ -366,6 +381,8 @@ public class ProjectStore
 			, size
 			, Column.MTIME
 			, mtime
+			, Column.TYPE_ID
+			, type_id
 			, Column.VISIBLE
 			, true
 			, -1
@@ -381,6 +398,8 @@ public class ProjectStore
 			, size
 			, Column.MTIME
 			, mtime
+			, Column.TYPE_ID
+			, type_id
 			, Column.VISIBLE
 			, true
 			, -1
@@ -575,6 +594,8 @@ public class ProjectStore
 			, 0u
 			, Column.KIND
 			, RowKind.FOLDER
+			, Column.TYPE_ID
+			, TYPE_NONE
 			, Column.VISIBLE
 			, true
 			, -1

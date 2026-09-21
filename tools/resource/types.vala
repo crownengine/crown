@@ -957,7 +957,7 @@ public static void create_object_types(Database database)
 			name = "source",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SOUND, properties);
+	database.create_object_type(OBJECT_TYPE_SOUND, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -1069,7 +1069,7 @@ public static void create_object_types(Database database)
 			tooltip = _("Speed at which the animation will be played."),
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SPRITE_ANIMATION, properties);
+	database.create_object_type(OBJECT_TYPE_SPRITE_ANIMATION, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -1118,7 +1118,7 @@ public static void create_object_types(Database database)
 			min = 0.0
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_SPRITE, properties);
+	database.create_object_type(OBJECT_TYPE_SPRITE, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2184,7 +2184,7 @@ public static void create_object_types(Database database)
 		},
 #endif /* if false */
 	};
-	StringId64 unit_type = database.create_object_type(OBJECT_TYPE_UNIT, properties);
+	StringId64 unit_type = database.create_object_type(OBJECT_TYPE_UNIT, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2206,7 +2206,7 @@ public static void create_object_types(Database database)
 			name = "uniforms",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MATERIAL, properties);
+	database.create_object_type(OBJECT_TYPE_MATERIAL, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2346,7 +2346,7 @@ public static void create_object_types(Database database)
 			object_type = stat_panel_type,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_STAT_CONFIG, properties);
+	database.create_object_type(OBJECT_TYPE_STAT_CONFIG, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2364,7 +2364,7 @@ public static void create_object_types(Database database)
 			hidden = true,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MESH, properties);
+	database.create_object_type(OBJECT_TYPE_MESH, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2531,7 +2531,7 @@ public static void create_object_types(Database database)
 			tooltip = _("Animation skeleton to use."),
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties);
+	database.create_object_type(OBJECT_TYPE_STATE_MACHINE, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2585,7 +2585,7 @@ public static void create_object_types(Database database)
 			deffault = "core/units/skydome/skydome",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_LEVEL, properties);
+	database.create_object_type(OBJECT_TYPE_LEVEL, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2661,7 +2661,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_FONT, properties);
+	database.create_object_type(OBJECT_TYPE_FONT, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2710,7 +2710,7 @@ public static void create_object_types(Database database)
 			min = 0.0,
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MESH_ANIMATION, properties);
+	database.create_object_type(OBJECT_TYPE_MESH_ANIMATION, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2749,7 +2749,7 @@ public static void create_object_types(Database database)
 			object_type = StringId64(OBJECT_TYPE_MESH_BONE),
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_MESH_SKELETON, properties);
+	database.create_object_type(OBJECT_TYPE_MESH_SKELETON, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
@@ -2908,7 +2908,7 @@ public static void create_object_types(Database database)
 			name = "output.windows.premultiply_alpha",
 		},
 	};
-	database.create_object_type(OBJECT_TYPE_TEXTURE, properties);
+	database.create_object_type(OBJECT_TYPE_TEXTURE, properties, 0.0, null, ObjectTypeFlags.RESOURCE);
 
 	properties =
 	{
