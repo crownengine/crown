@@ -1,6 +1,16 @@
 Changelog
 =========
 
+.. _v0.64.11:
+
+:ref:`0.64.11 --- 21 Sep 2026 <v0.64.11>`
+-----------------------------------------
+
+**Fixes**
+
+* Tools: fixed slow loading of large levels/units while the place tool is selected.
+* Tools: fixed resource editors retaining stale state when switching projects.
+
 .. _v0.64.10:
 
 :ref:`0.64.10 --- 16 Sep 2026 <v0.64.10>`
