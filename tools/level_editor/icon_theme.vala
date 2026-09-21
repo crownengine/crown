@@ -26,6 +26,7 @@ namespace IconTheme
 	public const string LEVEL_OBJECT_UNIT    = "crown-level-object-unit";
 	public const string LEVEL_OBJECT_UNKNOWN = "crown-level-object-unknown";
 	public const string LEVEL_TREE           = "crown-level-tree";
+	public const string LIST_FILTER          = "crown-list-filter";
 	public const string LIST_SORT            = "crown-list-sort";
 	public const string OBJECT_ANIMATION     = "crown-object-animation";
 	public const string OBJECT_CONFIG        = "crown-object-config";
