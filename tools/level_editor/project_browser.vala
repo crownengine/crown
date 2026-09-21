@@ -1923,7 +1923,10 @@ public class ProjectBrowser : Gtk.Box
 		all_types_expander.add(all_types_grid);
 
 		Gtk.Box filter_types_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 6);
-		filter_types_box.margin = 8;
+		filter_types_box.margin_start = 8;
+		filter_types_box.margin_end = 8;
+		filter_types_box.margin_top = 8;
+		filter_types_box.margin_bottom = 8;
 		_filter_types_enabled.bind_property("active", filter_types_box, "sensitive", GLib.BindingFlags.SYNC_CREATE);
 #if CROWN_GTK3
 		filter_types_box.pack_start(common_types_grid, false, false);
