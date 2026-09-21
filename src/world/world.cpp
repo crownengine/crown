@@ -487,8 +487,6 @@ void World::update_scene(f32 dt)
 
 	_sound_world->update();
 
-	_gui_buffer.reset();
-
 	// Process collision events.
 	{
 		EventStream &events = _physics_world->events();
