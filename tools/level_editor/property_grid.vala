@@ -13,50 +13,112 @@ class ObjectsSetEditor : Gtk.Box
 	public PropertyGrid? _editor_grid;
 	public bool _refreshing;
 	public Gtk.Button _add;
-	public Gtk.Label _read_only_note;
+	public Gtk.Button _remove;
 	public Gtk.ListBox _list;
+	public Gtk.ScrolledWindow _scrolled_window;
+	public Gtk.Widget _resize_handle;
+	public Gtk.GestureDrag _resize_drag;
+	public int _resize_start_height;
+	public double _resize_start_y;
+	public bool _resizing;
+#if CROWN_GTK3
+	public Gtk.EventControllerMotion _resize_motion;
+	public bool _resize_pointer_inside;
+#endif
 	public Gtk.Box _editor;
 
 	public ObjectsSetEditor(PropertyGrid grid, PropertyDefinition definition)
 	{
-		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 6);
+		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		_grid = grid;
 		_definition = definition;
 		_object_id = GUID_ZERO;
 		_editor_grid = null;
 		_refreshing = false;
+		_resize_start_height = 0;
+		_resize_start_y = 0.0;
+		_resizing = false;
+#if CROWN_GTK3
+		_resize_pointer_inside = false;
+#endif
 
 		_add = new Gtk.Button.from_icon_name("list-add-symbolic");
+		_add.sensitive = !_definition.fixed_set;
+		_add.set_tooltip_text(_("Add"));
 		_add.clicked.connect(on_add_clicked);
-
-		_read_only_note = new Gtk.Label(_("Inherited sub-objects are read-only here. Edit the unit in Unit Editor."));
-		_read_only_note.wrap = true;
-		_read_only_note.xalign = 0.0f;
-		_read_only_note.visible = false;
-#if CROWN_GTK3
-		_read_only_note.get_style_context().add_class("dim-label");
-#else
-		_read_only_note.add_css_class("dim-label");
-#endif
+		_remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
+		_remove.sensitive = false;
+		_remove.set_tooltip_text(_("Remove"));
+		_remove.clicked.connect(on_remove_clicked);
 
 		_list = new Gtk.ListBox();
 		_list.selection_mode = Gtk.SelectionMode.SINGLE;
 		_list.row_selected.connect(on_row_selected);
 
+		Gtk.Box buttons = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		Gtk.Box list = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+#if CROWN_GTK3
+		buttons.get_style_context().add_class(Gtk.STYLE_CLASS_LINKED);
+		_scrolled_window = new Gtk.ScrolledWindow(null, null);
+#else
+		buttons.add_css_class("linked");
+		_scrolled_window = new Gtk.ScrolledWindow();
+#endif
+		_scrolled_window.hscrollbar_policy = Gtk.PolicyType.NEVER;
+		_scrolled_window.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
+		_scrolled_window.set_size_request(-1, 80);
+		_scrolled_window.hexpand = true;
+
+		Gtk.Separator resize_separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
+#if CROWN_GTK3
+		Gtk.EventBox resize_handle = new Gtk.EventBox();
+		resize_handle.above_child = true;
+		resize_handle.visible_window = false;
+		resize_handle.add(resize_separator);
+		_resize_handle = resize_handle;
+		_resize_motion = new Gtk.EventControllerMotion(_resize_handle);
+		_resize_motion.enter.connect(on_resize_handle_enter);
+		_resize_motion.leave.connect(on_resize_handle_leave);
+#else
+		Gtk.Box resize_handle = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		resize_handle.append(resize_separator);
+		resize_handle.can_target = true;
+		resize_handle.set_cursor_from_name("row-resize");
+		_resize_handle = resize_handle;
+#endif
+		_resize_handle.set_size_request(-1, 8);
+
+#if CROWN_GTK3
+		_resize_drag = new Gtk.GestureDrag(_resize_handle);
+#else
+		_resize_drag = new Gtk.GestureDrag();
+		_resize_handle.add_controller(_resize_drag);
+#endif
+		_resize_drag.set_button(Gdk.BUTTON_PRIMARY);
+		_resize_drag.drag_begin.connect(on_resize_drag_begin);
+		_resize_drag.drag_update.connect(on_resize_drag_update);
+		_resize_drag.drag_end.connect(on_resize_drag_end);
+
 		_editor = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
 #if CROWN_GTK3
-		if (!_definition.fixed_set)
-			this.pack_start(_add, false, false);
-		this.pack_start(_read_only_note, false, false);
-		this.pack_start(_list, false, true);
+		_scrolled_window.add(_list);
+		list.pack_start(_scrolled_window, true, true);
+		buttons.pack_start(_add, false, false);
+		buttons.pack_start(_remove, false, false);
+		list.pack_start(buttons, false, false);
+		this.pack_start(list, false, true);
+		this.pack_start(_resize_handle, false, true);
 		this.pack_start(_editor, false, true);
 #else
-		if (!_definition.fixed_set)
-			this.append(_add);
-		this.append(_read_only_note);
-		this.append(_list);
+		_scrolled_window.set_child(_list);
+		list.append(_scrolled_window);
+		buttons.append(_add);
+		buttons.append(_remove);
+		list.append(buttons);
+		this.append(list);
+		this.append(_resize_handle);
 		this.append(_editor);
 #endif
 
@@ -64,6 +126,87 @@ class ObjectsSetEditor : Gtk.Box
 		_grid._db.objects_destroyed.connect((object_ids, flags) => { read(); });
 		_grid._db.objects_changed.connect((object_ids, flags) => { read(); });
 	}
+
+	public void on_resize_drag_begin(double start_x, double start_y)
+	{
+		_resize_start_height = _scrolled_window.get_allocated_height();
+		if (!resize_pointer_y(out _resize_start_y)) {
+			_resize_drag.set_state(Gtk.EventSequenceState.DENIED);
+			return;
+		}
+
+		_resizing = true;
+		_resize_drag.set_state(Gtk.EventSequenceState.CLAIMED);
+	}
+
+	public void on_resize_drag_update(double offset_x, double offset_y)
+	{
+		if (!_resizing)
+			return;
+
+		double pointer_y;
+		if (!resize_pointer_y(out pointer_y))
+			return;
+
+		int height = _resize_start_height + (int)(pointer_y - _resize_start_y);
+		if (height < 80)
+			height = 80;
+
+		_scrolled_window.set_size_request(-1, height);
+	}
+
+	public void on_resize_drag_end(double offset_x, double offset_y)
+	{
+		if (!_resizing)
+			_resize_drag.set_state(Gtk.EventSequenceState.DENIED);
+		_resizing = false;
+#if CROWN_GTK3
+		if (_resize_pointer_inside)
+			_resize_handle.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "row-resize"));
+		else
+			_resize_handle.get_window().set_cursor(null);
+#endif
+	}
+
+	public bool resize_pointer_y(out double y)
+	{
+		double x;
+#if CROWN_GTK3
+		Gdk.Event? event = Gtk.get_current_event();
+#else
+		unowned Gdk.Event? event = _resize_drag.get_current_event();
+#endif
+		if (event == null) {
+			y = 0.0;
+			return false;
+		}
+
+#if CROWN_GTK3
+		return event.get_root_coords(out x, out y);
+#else
+		return event.get_position(out x, out y);
+#endif
+	}
+
+#if CROWN_GTK3
+	public void on_resize_handle_enter()
+	{
+		_resize_pointer_inside = true;
+		if (_resizing)
+			return;
+
+		_resize_handle.get_window().set_cursor(new Gdk.Cursor.from_name(Gdk.Display.get_default(), "row-resize"));
+	}
+
+	public void on_resize_handle_leave()
+	{
+		_resize_pointer_inside = false;
+		if (_resizing)
+			return;
+
+		_resize_handle.get_window().set_cursor(null);
+	}
+#endif
 
 	public bool is_read_only()
 	{
@@ -87,7 +230,7 @@ class ObjectsSetEditor : Gtk.Box
 
 	public void on_add_clicked()
 	{
-		if (is_read_only())
+		if (_definition.fixed_set || is_read_only())
 			return;
 
 		string object_type = _grid._db.type_name(_definition.object_type);
@@ -97,16 +240,16 @@ class ObjectsSetEditor : Gtk.Box
 
 		_grid._db.create(object_id, object_type);
 		_grid._db.add_to_set(owner_id, _definition.name, object_id);
-		_grid._db.add_restore_point((int)ActionType.CREATE_OBJECTS, { object_id });
+		_grid._db.add_restore_point((int)ActionType.CREATE_OBJECTS, { object_id }, ActionTypeFlags.FROM_OBJECTS_SET_EDITOR);
 	}
 
-	public void on_delete_clicked(Guid object_id)
+	public void on_remove_clicked()
 	{
-		if (is_read_only())
+		if (_definition.fixed_set || _object_id == GUID_ZERO || is_read_only())
 			return;
 
-		if (Guid.equal_func(_object_id, object_id))
-			_object_id = GUID_ZERO;
+		Guid object_id = _object_id;
+		_object_id = GUID_ZERO;
 
 		_grid._db.destroy(object_id);
 		_grid._db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
@@ -116,6 +259,8 @@ class ObjectsSetEditor : Gtk.Box
 	{
 		if (_refreshing)
 			return;
+
+		_remove.sensitive = !_definition.fixed_set && row != null && !is_read_only();
 
 		if (row == null) {
 			_object_id = GUID_ZERO;
@@ -182,6 +327,8 @@ class ObjectsSetEditor : Gtk.Box
 	public void read()
 	{
 		_refreshing = true;
+		_remove.sensitive = false;
+		_list.set_tooltip_text(null);
 #if CROWN_GTK3
 		_list.foreach((widget) => {
 				widget.destroy();
@@ -204,8 +351,9 @@ class ObjectsSetEditor : Gtk.Box
 		}
 
 		bool read_only = is_read_only();
-		_add.sensitive = !read_only;
-		_read_only_note.visible = read_only;
+		_add.sensitive = !_definition.fixed_set && !read_only;
+		if (read_only)
+			_list.set_tooltip_text(_("Inherited sub-objects are read-only."));
 
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
 		Guid?[] children;
@@ -232,34 +380,14 @@ class ObjectsSetEditor : Gtk.Box
 			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
 			row.set_data("id", child_id.to_string());
 
-			Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
 			Gtk.Label label = new Gtk.Label(object_name(child_id));
 			label.hexpand = true;
 			label.xalign = 0.0f;
 #if CROWN_GTK3
-			box.pack_start(label, true, true);
-#else
-			box.append(label);
-#endif
-
-			if (!_definition.fixed_set) {
-				Gtk.Button remove = new Gtk.Button.from_icon_name("list-remove-symbolic");
-				remove.sensitive = !read_only;
-				remove.clicked.connect(() => {
-						on_delete_clicked(child_id);
-					});
-#if CROWN_GTK3
-				box.pack_end(remove, false);
-#else
-				box.append(remove);
-#endif
-			}
-
-#if CROWN_GTK3
-			row.add(box);
+			row.add(label);
 			_list.add(row);
 #else
-			row.set_child(box);
+			row.set_child(label);
 			_list.append(row);
 #endif
 

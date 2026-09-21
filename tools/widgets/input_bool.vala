@@ -43,6 +43,7 @@ public class InputBool : InputField
 
 	public InputBool()
 	{
+		this.set_size_request(-1, 24);
 		_check = new Gtk.CheckButton();
 		_check.toggled.connect(on_value_changed);
 

@@ -397,12 +397,16 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_objects_tree.set_object(_unit_id); // Force update the tree.
 
-		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
-			_database_editor.selection_set({ last }); // Select the objects just created.
-			_properties_view.set_object(last);
-		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
-			_database_editor.selection_set({ _database.owner(last) });
-			_properties_view.set_object(_database.owner(last));
+		if ((flags& ActionTypeFlags.FROM_OBJECTS_SET_EDITOR) != 0) {
+			_properties_view.read_selection(_database_editor._selection.data);
+		} else {
+			if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
+				_database_editor.selection_set({ last }); // Select the objects just created.
+				_properties_view.set_object(last);
+			} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+				_database_editor.selection_set({ _database.owner(last) });
+				_properties_view.set_object(_database.owner(last));
+			}
 		}
 
 		update_window_title();

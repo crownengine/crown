@@ -248,10 +248,13 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 	public void on_objects_created(Guid?[] object_ids, uint32 flags)
 	{
-		Guid last_created = object_ids[object_ids.length - 1];
-
 		_objects_tree.set_object(_object_id); // Force update the tree.
-		_database_editor.selection_set({ last_created }); // Select the objects just created.
+		if ((flags& ActionTypeFlags.FROM_OBJECTS_SET_EDITOR) != 0) {
+			_objects_properties.read_selection(_database_editor._selection.data);
+		} else {
+			Guid last_created = object_ids[object_ids.length - 1];
+			_database_editor.selection_set({ last_created }); // Select the objects just created.
+		}
 		update_window_title();
 	}
 
