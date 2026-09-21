@@ -29,24 +29,43 @@ crown_docs_append_changelog_version () {
 	mv docs/changelog.rst.next docs/changelog.rst
 }
 
-if [ $# -ne 3 ]; then
-	echo "Specify next version number."
+# The new version to be bumped
+if [ $# -eq 1 ]; then
+	VERSION_NEXT_MAJOR=$(crown_version_major)
+	VERSION_NEXT_MINOR=$(crown_version_minor)
+	VERSION_NEXT_PATCH=$(crown_version_patch)
+
+	case "$1" in
+		major)
+			VERSION_NEXT_MAJOR=$((VERSION_NEXT_MAJOR + 1))
+			VERSION_NEXT_MINOR=0
+			VERSION_NEXT_PATCH=0
+			;;
+		minor)
+			VERSION_NEXT_MINOR=$((VERSION_NEXT_MINOR + 1))
+			VERSION_NEXT_PATCH=0
+			;;
+		patch)
+			VERSION_NEXT_PATCH=$((VERSION_NEXT_PATCH + 1))
+			;;
+		*)
+			echo "Unknown version component: $1"
+			exit 1
+			;;
+	esac
+elif [ $# -eq 3 ]; then
+	VERSION_NEXT_MAJOR=$1
+	VERSION_NEXT_MINOR=$2
+	VERSION_NEXT_PATCH=$3
+else
+	echo "Specify version component or next version number."
 	echo ""
-	echo "Usage: $0 <major> <minor> <patch>"
-	exit;
+	echo "Usage: $0 <major|minor|patch>"
+	echo "       $0 <major> <minor> <patch>"
+	exit 1
 fi
 
-# The new version to be bumped
-VERSION_NEXT_MAJOR=$1
-VERSION_NEXT_MINOR=$2
-VERSION_NEXT_PATCH=$3
 VERSION_NEXT=$(crown_version_string ${VERSION_NEXT_MAJOR} ${VERSION_NEXT_MINOR} ${VERSION_NEXT_PATCH})
-
-crown_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
-crown_docs_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
-crown_docs_append_changelog_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
-sed -i 's/#define CROWN_MANUAL_VERSION .*/#define CROWN_MANUAL_VERSION "master"/g' src/config.h
-sed -i 's/const string CROWN_MANUAL_VERSION = ".*/const string CROWN_MANUAL_VERSION = "master";/g' tools/config.vala
 
 echo "Crown v${VERSION_NEXT} will be bumped"
 echo "Continue? [y/N]"
@@ -55,6 +74,12 @@ if [ "${answer}" != "y" ] && [ "${answer}" != "Y" ]; then
 	echo "Bye"
 	exit;
 fi
+
+crown_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
+crown_docs_set_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
+crown_docs_append_changelog_version $VERSION_NEXT_MAJOR $VERSION_NEXT_MINOR $VERSION_NEXT_PATCH
+sed -i 's/#define CROWN_MANUAL_VERSION .*/#define CROWN_MANUAL_VERSION "master"/g' src/config.h
+sed -i 's/const string CROWN_MANUAL_VERSION = ".*/const string CROWN_MANUAL_VERSION = "master";/g' tools/config.vala
 
 # Commit changes
 git add src/config.h
