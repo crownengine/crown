@@ -252,8 +252,6 @@ namespace stat_globals
 		if (_enabled_panels == 0 || _config == NULL)
 			return;
 
-		_gui_buffer->reset();
-
 		char row[512];
 		const f32 title_margin_bottom = 4.0f;
 		const Color4 row_colors[] = {

@@ -6,6 +6,10 @@ Changelog
 :ref:`0.64.12 --- DD MMM YYYY <v0.64.12>`
 -----------------------------------------
 
+**Fixes**
+
+* Runtime: fixed drawing with Gui immediately after creating a world.
+
 .. _v0.64.11:
 
 :ref:`0.64.11 --- 21 Sep 2026 <v0.64.11>`

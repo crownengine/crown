@@ -20,8 +20,6 @@ namespace crown
 struct GuiBuffer
 {
 	ShaderManager *_shader_manager;
-	u32 _num_vertices;
-	u32 _num_indices;
 	bgfx::VertexLayout _pos_tex_col;
 	bgfx::TransientVertexBuffer _vertex_buffer;
 	bgfx::TransientIndexBuffer _index_buffer;
@@ -30,16 +28,16 @@ struct GuiBuffer
 	explicit GuiBuffer(ShaderManager &sm);
 
 	///
-	void *vertex_buffer_end();
+	void *vertex_buffer();
 
 	///
-	void *index_buffer_end();
+	void *index_buffer();
 
 	///
 	void create();
 
 	///
-	void reset();
+	bool allocate(u32 num_vertices, u32 num_indices);
 
 	///
 	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth);

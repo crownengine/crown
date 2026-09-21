@@ -30,21 +30,19 @@ static inline u32 depth_u32(f32 depth)
 
 GuiBuffer::GuiBuffer(ShaderManager &sm)
 	: _shader_manager(&sm)
-	, _num_vertices(0)
-	, _num_indices(0)
 	, _vertex_buffer()
 	, _index_buffer()
 {
 }
 
-void *GuiBuffer::vertex_buffer_end()
+void *GuiBuffer::vertex_buffer()
 {
-	return _vertex_buffer.data + _num_vertices*24;
+	return _vertex_buffer.data;
 }
 
-void *GuiBuffer::index_buffer_end()
+void *GuiBuffer::index_buffer()
 {
-	return _index_buffer.data + _num_indices*2;
+	return _index_buffer.data;
 }
 
 void GuiBuffer::create()
@@ -56,38 +54,33 @@ void GuiBuffer::create()
 	_pos_tex_col.end();
 }
 
-void GuiBuffer::reset()
+bool GuiBuffer::allocate(u32 num_vertices, u32 num_indices)
 {
-	_num_vertices = 0;
-	_num_indices = 0;
-
-	bgfx::allocTransientVertexBuffer(&_vertex_buffer, 4096, _pos_tex_col);
-	bgfx::allocTransientIndexBuffer(&_index_buffer, 6144);
+	return bgfx::allocTransientBuffers(&_vertex_buffer
+		, _pos_tex_col
+		, num_vertices
+		, &_index_buffer
+		, num_indices
+		);
 }
 
 void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth)
 {
-	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
-	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
+	bgfx::setVertexBuffer(0, &_vertex_buffer, 0, num_vertices);
+	bgfx::setIndexBuffer(&_index_buffer, 0, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
 	bgfx::setState(shader.state);
 	bgfx::submit(view, shader.program, depth);
-
-	_num_vertices += num_vertices;
-	_num_indices += num_indices;
 }
 
 void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material)
 {
-	bgfx::setVertexBuffer(0, &_vertex_buffer, _num_vertices, num_vertices);
-	bgfx::setIndexBuffer(&_index_buffer, _num_indices, num_indices);
+	bgfx::setVertexBuffer(0, &_vertex_buffer, 0, num_vertices);
+	bgfx::setIndexBuffer(&_index_buffer, 0, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
 
 	material->bind(view, depth);
-
-	_num_vertices += num_vertices;
-	_num_indices += num_indices;
 }
 
 Gui::Gui(GuiBuffer &gb
@@ -122,7 +115,9 @@ void Gui::move(const Vector2 &pos)
 
 void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vector3 &b, const Vector3 &c, const Color4 &color, f32 depth)
 {
-	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
+	if (!_buffer->allocate(3, 3))
+		return;
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer();
 	vd[0].pos.x = a.x;
 	vd[0].pos.y = a.y;
 	vd[0].pos.z = a.z;
@@ -144,7 +139,7 @@ void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vecto
 	vd[2].uv.y  = 1.0f;
 	vd[2].col   = to_abgr(color);
 
-	u16 *inds = (u16 *)_buffer->index_buffer_end();
+	u16 *inds = (u16 *)_buffer->index_buffer();
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -165,7 +160,9 @@ void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const C
 
 void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2 &size, const Color4 &color, f32 depth)
 {
-	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
+	if (!_buffer->allocate(4, 6))
+		return;
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer();
 	vd[0].pos.x = pos.x;
 	vd[0].pos.y = pos.y;
 	vd[0].pos.z = pos.z;
@@ -194,7 +191,7 @@ void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2
 	vd[3].uv.y  = 0.0f;
 	vd[3].col   = to_abgr(color);
 
-	u16 *inds = (u16 *)_buffer->index_buffer_end();
+	u16 *inds = (u16 *)_buffer->index_buffer();
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -217,7 +214,9 @@ void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
 
 void Gui::image_3d_uv(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2 &size, const Vector2 &uv0, const Vector2 &uv1, StringId64 material, const Color4 &color, f32 depth)
 {
-	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
+	if (!_buffer->allocate(4, 6))
+		return;
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer();
 	vd[0].pos.x = pos.x;
 	vd[0].pos.y = pos.y;
 	vd[0].pos.z = pos.z;
@@ -246,7 +245,7 @@ void Gui::image_3d_uv(const Matrix4x4 &local_pose, const Vector3 &pos, const Vec
 	vd[3].uv.y  = uv0.y;
 	vd[3].col   = to_abgr(color);
 
-	u16 *inds = (u16 *)_buffer->index_buffer_end();
+	u16 *inds = (u16 *)_buffer->index_buffer();
 	inds[0] = 0;
 	inds[1] = 1;
 	inds[2] = 2;
@@ -310,14 +309,23 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
 
-	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
-	u16 *id = (u16 *)_buffer->index_buffer_end();
+	u32 cp;
+	u32 state = 0;
+	u32 num_glyphs = 0;
+	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
+		if (utf8::decode(&state, &cp, *ch) == UTF8_ACCEPT && cp != '\n' && cp != '\t')
+			++num_glyphs;
+	}
+	if (num_glyphs == 0 || num_glyphs > (UINT16_MAX + 1u)/4u || !_buffer->allocate(num_glyphs*4, num_glyphs*6))
+		return;
+
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer();
+	u16 *id = (u16 *)_buffer->index_buffer();
 
 	u32 num_vertices = 0;
 	u32 num_indices = 0;
 
-	u32 cp;
-	u32 state = 0;
+	state = 0;
 	f32 pen_x = 0.0f;
 	f32 pen_y = 0.0f;
 	const GlyphData deffault_glyph = {};
@@ -415,14 +423,23 @@ void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 fo
 	const FontResource *fr = (FontResource *)_resource_manager->get(RESOURCE_TYPE_FONT, font);
 	const f32 scale = (f32)font_size / (f32)fr->font_size;
 
-	VertexData *vd = (VertexData *)_buffer->vertex_buffer_end();
-	u16 *id = (u16 *)_buffer->index_buffer_end();
+	u32 cp;
+	u32 state = 0;
+	u32 num_glyphs = 0;
+	for (const u8 *ch = (u8 *)str; *ch; ++ch) {
+		if (utf8::decode(&state, &cp, *ch) == UTF8_ACCEPT && cp != '\n' && cp != '\t')
+			++num_glyphs;
+	}
+	if (num_glyphs == 0 || num_glyphs > (UINT16_MAX + 1u)/4u || !_buffer->allocate(num_glyphs*4, num_glyphs*6))
+		return;
+
+	VertexData *vd = (VertexData *)_buffer->vertex_buffer();
+	u16 *id = (u16 *)_buffer->index_buffer();
 
 	u32 num_vertices = 0;
 	u32 num_indices = 0;
 
-	u32 cp;
-	u32 state = 0;
+	state = 0;
 	f32 pen_x = 0.0f;
 	f32 pen_y = 0.0f;
 	const GlyphData deffault_glyph = {};
