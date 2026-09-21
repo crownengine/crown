@@ -2,18 +2,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-21 15:50+0200\n"
-"PO-Revision-Date: 2026-09-21 14:10\n"
+"POT-Creation-Date: 2026-09-21 17:56+0200\n"
+"PO-Revision-Date: 2026-09-21 17:44\n"
 "Last-Translator: \n"
-"Language-Team: Portuguese, Brazilian\n"
-"Language: pt_BR\n"
+"Language-Team: Portuguese\n"
+"Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: crown-engine\n"
 "X-Crowdin-Project-ID: 930555\n"
-"X-Crowdin-Language: pt-BR\n"
+"X-Crowdin-Language: pt-PT\n"
 "X-Crowdin-File: /master/tools/po/crown-editor.pot\n"
 "X-Crowdin-File-ID: 8\n"
 
@@ -1094,6 +1094,7 @@ msgid "Open in File Manager"
 msgstr ""
 
 #: tools/level_editor/panel_projects_list.vala:137
+#: tools/level_editor/property_grid.vala:52
 msgid "Remove"
 msgstr ""
 
@@ -1544,36 +1545,36 @@ msgstr ""
 msgid "All types"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1956
+#: tools/level_editor/project_browser.vala:1959
 msgid "Choose resource types and display options."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1987
+#: tools/level_editor/project_browser.vala:1990
 #: tools/widgets/object_tree.vala:292
 msgid "Sort items."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2009
+#: tools/level_editor/project_browser.vala:2012
 msgid "Reverse"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2028
-#: tools/level_editor/project_browser.vala:2070
+#: tools/level_editor/project_browser.vala:2031
+#: tools/level_editor/project_browser.vala:2073
 #: tools/widgets/select_resource_dialog.vala:231
 #: tools/widgets/select_resource_dialog.vala:693
 msgid "List view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2070
+#: tools/level_editor/project_browser.vala:2073
 #: tools/widgets/select_resource_dialog.vala:684
 msgid "Icon view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2094
+#: tools/level_editor/project_browser.vala:2097
 msgid "Favorites is empty"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2932
+#: tools/level_editor/project_browser.vala:2935
 msgid "Favorites"
 msgstr ""
 
@@ -1597,20 +1598,24 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:33
-msgid "Inherited sub-objects are read-only here. Edit the unit in Unit Editor."
+#: tools/level_editor/property_grid.vala:48 tools/widgets/object_tree.vala:708
+msgid "Add"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:345
+#: tools/level_editor/property_grid.vala:356
+msgid "Inherited sub-objects are read-only."
+msgstr ""
+
+#: tools/level_editor/property_grid.vala:473
 #, c-format
 msgid "Cannot remove %s due to the following dependencies:\n\n"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:385
+#: tools/level_editor/property_grid.vala:513
 msgid "Remove Component"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:688
+#: tools/level_editor/property_grid.vala:816
 msgid "Reset to default"
 msgstr ""
 
@@ -3008,10 +3013,6 @@ msgstr ""
 
 #: tools/widgets/object_tree.vala:572
 msgid "Toggle selection lock."
-msgstr ""
-
-#: tools/widgets/object_tree.vala:708
-msgid "Add"
 msgstr ""
 
 #: tools/widgets/open_resource_dialog.vala:91
