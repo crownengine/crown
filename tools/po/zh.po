@@ -2,18 +2,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-20 09:08+0200\n"
-"PO-Revision-Date: 2026-09-20 07:20\n"
+"POT-Creation-Date: 2026-09-21 10:57+0200\n"
+"PO-Revision-Date: 2026-09-21 09:08\n"
 "Last-Translator: \n"
-"Language-Team: Chinese Traditional\n"
-"Language: zh_TW\n"
+"Language-Team: Chinese Simplified\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Crowdin-Project: crown-engine\n"
 "X-Crowdin-Project-ID: 930555\n"
-"X-Crowdin-Language: zh-TW\n"
+"X-Crowdin-Language: zh-CN\n"
 "X-Crowdin-File: /master/tools/po/crown-editor.pot\n"
 "X-Crowdin-File-ID: 8\n"
 
@@ -329,8 +329,8 @@ msgstr ""
 #: tools/level_editor/level_layers_tree_view.vala:39
 #: tools/level_editor/object_chooser.vala:51
 #: tools/level_editor/panel_projects_list.vala:254
-#: tools/level_editor/project_browser.vala:1489
-#: tools/level_editor/project_browser.vala:1496
+#: tools/level_editor/project_browser.vala:1478
+#: tools/level_editor/project_browser.vala:1485
 #: tools/widgets/object_tree.vala:189
 msgid "Search..."
 msgstr ""
@@ -401,7 +401,7 @@ msgid "Windows"
 msgstr ""
 
 #: tools/level_editor/level_editor.vala:607
-#: tools/level_editor/project_browser.vala:1279
+#: tools/level_editor/project_browser.vala:1267
 #: tools/widgets/object_tree.vala:103
 msgid "Unknown"
 msgstr ""
@@ -409,7 +409,7 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:1789
 #: tools/level_editor/object_editor.vala:333
 #: tools/state_machine_editor/state_machine_editor.vala:449
-#: tools/unit_editor/unit_editor.vala:498
+#: tools/unit_editor/unit_editor.vala:528
 #, c-format
 msgid "Undo: %s"
 msgstr ""
@@ -417,7 +417,7 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:1790
 #: tools/level_editor/object_editor.vala:338
 #: tools/state_machine_editor/state_machine_editor.vala:454
-#: tools/unit_editor/unit_editor.vala:503
+#: tools/unit_editor/unit_editor.vala:533
 #, c-format
 msgid "Redo: %s"
 msgstr ""
@@ -493,7 +493,7 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:5414
 #: tools/level_editor/object_editor.vala:193
 #: tools/state_machine_editor/state_machine_editor.vala:305
-#: tools/unit_editor/unit_editor.vala:289
+#: tools/unit_editor/unit_editor.vala:319
 msgid "_Ok"
 msgstr ""
 
@@ -505,7 +505,7 @@ msgstr ""
 #: tools/level_editor/level_editor.vala:3162 tools/level_editor/menus.vala:35
 #: tools/level_editor/object_editor.vala:221
 #: tools/state_machine_editor/state_machine_editor.vala:333
-#: tools/unit_editor/unit_editor.vala:317
+#: tools/unit_editor/unit_editor.vala:347
 msgid "Save As..."
 msgstr ""
 
@@ -712,6 +712,7 @@ msgstr ""
 #: tools/level_editor/object_chooser.vala:95
 #: tools/level_editor/panel_new_project.vala:42
 #: tools/level_editor/project_browser.vala:545
+#: tools/level_editor/project_browser.vala:1259
 #: tools/level_editor/texture_settings_dialog.vala:88
 #: tools/resource/font_resource.vala:273
 #: tools/resource/sprite_resource.vala:431
@@ -856,7 +857,7 @@ msgstr ""
 #: tools/level_editor/menus.vala:338 tools/level_editor/menus.vala:551
 #: tools/level_editor/preferences_dialog.vala:150
 #: tools/state_machine_editor/state_machine_editor.vala:158
-#: tools/unit_editor/unit_editor.vala:160
+#: tools/unit_editor/unit_editor.vala:161
 msgid "Camera"
 msgstr ""
 
@@ -967,7 +968,7 @@ msgstr ""
 
 #: tools/level_editor/menus.vala:543 tools/level_editor/object_editor.vala:111
 #: tools/state_machine_editor/state_machine_editor.vala:154
-#: tools/unit_editor/unit_editor.vala:156
+#: tools/unit_editor/unit_editor.vala:157
 msgid "Edit"
 msgstr ""
 
@@ -1006,7 +1007,7 @@ msgstr ""
 #: tools/level_editor/object_editor.vala:60
 #: tools/level_editor/texture_settings_dialog.vala:175
 #: tools/state_machine_editor/state_machine_editor.vala:90
-#: tools/unit_editor/unit_editor.vala:91
+#: tools/unit_editor/unit_editor.vala:92
 msgid "Save & Reload"
 msgstr ""
 
@@ -1193,6 +1194,7 @@ msgstr ""
 #: tools/level_editor/preferences_dialog.vala:113
 #: tools/level_editor/project_browser.vala:531
 #: tools/level_editor/project_browser.vala:1107
+#: tools/level_editor/project_browser.vala:1263
 #: tools/resource/font_resource.vala:275
 #: tools/resource/sprite_resource.vala:457
 msgid "Size"
@@ -1452,12 +1454,14 @@ msgstr ""
 
 #: tools/level_editor/project_browser.vala:524
 #: tools/level_editor/project_browser.vala:1105
+#: tools/level_editor/project_browser.vala:1261
 #: tools/widgets/input_resource.vala:235
 msgid "Type"
 msgstr ""
 
 #: tools/level_editor/project_browser.vala:538
 #: tools/level_editor/project_browser.vala:1109
+#: tools/level_editor/project_browser.vala:1265
 msgid "Modified"
 msgstr ""
 
@@ -1482,109 +1486,77 @@ msgstr ""
 msgid "byte"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1263
-#: tools/widgets/object_tree.vala:95
-msgid "Name A-Z"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1265
-#: tools/widgets/object_tree.vala:97
-msgid "Name Z-A"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1267
-#: tools/widgets/object_tree.vala:99
-msgid "Type A-Z"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1269
-#: tools/widgets/object_tree.vala:101
-msgid "Type Z-A"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1271
-msgid "Size min-Max"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1273
-msgid "Size Max-min"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1275
-msgid "Last Modified"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1277
-msgid "First Modified"
-msgstr ""
-
-#: tools/level_editor/project_browser.vala:1623
-#: tools/level_editor/project_browser.vala:1637
+#: tools/level_editor/project_browser.vala:1612
+#: tools/level_editor/project_browser.vala:1626
 msgid "Tree view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1637
+#: tools/level_editor/project_browser.vala:1626
 msgid "Folder view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1753
+#: tools/level_editor/project_browser.vala:1742
 msgid "Go Back"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1769
+#: tools/level_editor/project_browser.vala:1758
 msgid "Go Forward"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1800
+#: tools/level_editor/project_browser.vala:1789
 #, c-format
 msgid "Project browser: folder not found: %s"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1838
+#: tools/level_editor/project_browser.vala:1827
 msgid "Show all files"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1839
+#: tools/level_editor/project_browser.vala:1828
 msgid "Show all files, not just resource files."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1843
+#: tools/level_editor/project_browser.vala:1832
 msgid "Show files extension"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1844
+#: tools/level_editor/project_browser.vala:1833
 msgid "Do not hide files extension."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1848
+#: tools/level_editor/project_browser.vala:1837
 msgid "Show mapped dirs"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1849
+#: tools/level_editor/project_browser.vala:1838
 msgid "Show external mapped directories."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1862
+#: tools/level_editor/project_browser.vala:1851
 msgid "Sort and filter items."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1907
-#: tools/level_editor/project_browser.vala:1949
+#: tools/level_editor/project_browser.vala:1873
+msgid "Reverse"
+msgstr ""
+
+#: tools/level_editor/project_browser.vala:1899
+#: tools/level_editor/project_browser.vala:1941
 #: tools/widgets/select_resource_dialog.vala:231
 #: tools/widgets/select_resource_dialog.vala:693
 msgid "List view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1949
+#: tools/level_editor/project_browser.vala:1941
 #: tools/widgets/select_resource_dialog.vala:684
 msgid "Icon view."
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:1971
+#: tools/level_editor/project_browser.vala:1963
 msgid "Favorites is empty"
 msgstr ""
 
-#: tools/level_editor/project_browser.vala:2796
+#: tools/level_editor/project_browser.vala:2784
 msgid "Favorites"
 msgstr ""
 
@@ -2868,12 +2840,12 @@ msgstr ""
 msgid "Unable to save state machine '%s'"
 msgstr ""
 
-#: tools/unit_editor/unit_editor.vala:104
-#: tools/unit_editor/unit_editor.vala:110
+#: tools/unit_editor/unit_editor.vala:105
+#: tools/unit_editor/unit_editor.vala:111
 msgid "Unit Editor"
 msgstr ""
 
-#: tools/unit_editor/unit_editor.vala:287
+#: tools/unit_editor/unit_editor.vala:317
 #, c-format
 msgid "Unable to save unit '%s'"
 msgstr ""
@@ -2995,6 +2967,22 @@ msgstr ""
 
 #: tools/widgets/object_properties.vala:66
 msgid "Select an object to start editing"
+msgstr ""
+
+#: tools/widgets/object_tree.vala:95
+msgid "Name A-Z"
+msgstr ""
+
+#: tools/widgets/object_tree.vala:97
+msgid "Name Z-A"
+msgstr ""
+
+#: tools/widgets/object_tree.vala:99
+msgid "Type A-Z"
+msgstr ""
+
+#: tools/widgets/object_tree.vala:101
+msgid "Type Z-A"
 msgstr ""
 
 #: tools/widgets/object_tree.vala:292
