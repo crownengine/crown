@@ -84,6 +84,7 @@ Changelog
 * Tools: fixed resource editors retaining stale state when switching projects.
 * Tools: fixed Projects List's viewport turning black when displaying long strings of text.
 * Tools: fixed selection synchronization between the Unit Editor's Object Tree and viewport.
+* Tools: fixed accidental deletion of the root object in the Object Tree.
 * Runtime: the camera now ignores the scaling component in its transform.
 * Runtime: fixed rendering of outlines on skinned meshes.
 * Runtime: fixed the resource loader blocking forever in some cases.
