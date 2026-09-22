@@ -97,6 +97,15 @@ namespace guid
 		return buf;
 	}
 
+	const char *to_debug_string(char *buf, u32 len, const Guid &guid)
+	{
+		stbsp_snprintf(buf, len, "%.3x..%.3x"
+			, (u32)(guid.data1 >> 52)
+			, (u32)(guid.data2 & 0xfffu)
+			);
+		return buf;
+	}
+
 } // namespace guid
 
 } // namespace crown

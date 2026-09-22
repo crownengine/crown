@@ -1388,6 +1388,8 @@ static void test_guid()
 	{
 		Guid guid;
 		ENSURE(guid::try_parse(guid, "961f8005-6a7e-4371-9272-8454dd786884"));
+		char debug[GUID_DEBUG_BUF_LEN];
+		ENSURE(strcmp(guid::to_debug_string(debug, sizeof(debug), guid), "961..884") == 0);
 		ENSURE(!guid::try_parse(guid, "961f80056a7e-4371-9272-8454dd786884"));
 	}
 	{

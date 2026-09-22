@@ -8,6 +8,7 @@
 #include "core/types.h"
 
 #define GUID_BUF_LEN 37
+#define GUID_DEBUG_BUF_LEN 9
 
 namespace crown
 {
@@ -49,6 +50,11 @@ namespace guid
 	/// @a buf size must be greater than or equal to GUID_BUF_LEN or the
 	/// returned string will be truncated.
 	const char *to_string(char *buf, u32 len, const Guid &guid);
+
+	/// Returns @a guid in short debug form (xxx..xxx).
+	/// @a buf size must be greater than or equal to GUID_DEBUG_BUF_LEN or the
+	/// returned string will be truncated.
+	const char *to_debug_string(char *buf, u32 len, const Guid &guid);
 
 } // namespace guid
 
