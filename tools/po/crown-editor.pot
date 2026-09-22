@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 08:32+0200\n"
+"POT-Creation-Date: 2026-09-22 17:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr ""
 #: tools/level_editor/delete_dialog.vala:112
 #: tools/level_editor/delete_dialog.vala:147
 #: tools/level_editor/delete_dialog.vala:169 tools/level_editor/menus.vala:224
-#: tools/widgets/object_tree.vala:699
+#: tools/widgets/object_tree.vala:696
 msgid "Delete"
 msgstr ""
 
@@ -334,7 +334,7 @@ msgstr ""
 #: tools/level_editor/panel_projects_list.vala:254
 #: tools/level_editor/project_browser.vala:1492
 #: tools/level_editor/project_browser.vala:1499
-#: tools/widgets/object_tree.vala:189
+#: tools/widgets/object_tree.vala:184
 msgid "Search..."
 msgstr ""
 
@@ -405,7 +405,7 @@ msgstr ""
 
 #: tools/level_editor/level_editor.vala:607
 #: tools/level_editor/project_browser.vala:1267
-#: tools/widgets/object_tree.vala:103
+#: tools/widgets/object_tree.vala:97
 msgid "Unknown"
 msgstr ""
 
@@ -724,7 +724,7 @@ msgstr ""
 #: tools/level_editor/project_browser.vala:1259
 #: tools/level_editor/texture_settings_dialog.vala:88
 #: tools/resource/font_resource.vala:273
-#: tools/resource/sprite_resource.vala:431
+#: tools/resource/sprite_resource.vala:431 tools/widgets/object_tree.vala:93
 msgid "Name"
 msgstr ""
 
@@ -801,7 +801,7 @@ msgstr ""
 msgid "Redo"
 msgstr ""
 
-#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:695
+#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:692
 msgid "Duplicate"
 msgstr ""
 
@@ -1467,7 +1467,7 @@ msgstr ""
 #: tools/level_editor/project_browser.vala:524
 #: tools/level_editor/project_browser.vala:1105
 #: tools/level_editor/project_browser.vala:1261
-#: tools/widgets/input_resource.vala:235
+#: tools/widgets/input_resource.vala:235 tools/widgets/object_tree.vala:95
 msgid "Type"
 msgstr ""
 
@@ -1557,15 +1557,16 @@ msgid "All types"
 msgstr ""
 
 #: tools/level_editor/project_browser.vala:1959
-msgid "Choose resource types and display options."
+msgid "Filter settings."
 msgstr ""
 
 #: tools/level_editor/project_browser.vala:1990
-#: tools/widgets/object_tree.vala:292
+#: tools/widgets/object_tree.vala:287
 msgid "Sort items."
 msgstr ""
 
 #: tools/level_editor/project_browser.vala:2012
+#: tools/widgets/object_tree.vala:309
 msgid "Reverse"
 msgstr ""
 
@@ -1609,7 +1610,7 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:48 tools/widgets/object_tree.vala:708
+#: tools/level_editor/property_grid.vala:48 tools/widgets/object_tree.vala:705
 msgid "Add"
 msgstr ""
 
@@ -3034,27 +3035,11 @@ msgstr ""
 msgid "Select an object to start editing"
 msgstr ""
 
-#: tools/widgets/object_tree.vala:95
-msgid "Name A-Z"
-msgstr ""
-
-#: tools/widgets/object_tree.vala:97
-msgid "Name Z-A"
-msgstr ""
-
-#: tools/widgets/object_tree.vala:99
-msgid "Type A-Z"
-msgstr ""
-
-#: tools/widgets/object_tree.vala:101
-msgid "Type Z-A"
-msgstr ""
-
-#: tools/widgets/object_tree.vala:570
+#: tools/widgets/object_tree.vala:567
 msgid "Toggle visibility."
 msgstr ""
 
-#: tools/widgets/object_tree.vala:572
+#: tools/widgets/object_tree.vala:569
 msgid "Toggle selection lock."
 msgstr ""
 
