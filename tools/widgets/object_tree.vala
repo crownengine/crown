@@ -81,24 +81,18 @@ public class ObjectTree : Gtk.Box
 
 	public enum SortMode
 	{
-		NAME_AZ,
-		NAME_ZA,
-		TYPE_AZ,
-		TYPE_ZA,
+		NAME,
+		TYPE,
 
 		COUNT;
 
 		public string to_label()
 		{
 			switch (this) {
-			case NAME_AZ:
-				return _("Name A-Z");
-			case NAME_ZA:
-				return _("Name Z-A");
-			case TYPE_AZ:
-				return _("Type A-Z");
-			case TYPE_ZA:
-				return _("Type Z-A");
+			case NAME:
+				return _("Name");
+			case TYPE:
+				return _("Type");
 			default:
 				return _("Unknown");
 			}
@@ -148,6 +142,7 @@ public class ObjectTree : Gtk.Box
 	public Gtk.Box _sort_items_box;
 	public Gtk.Popover _sort_items_popover;
 	public Gtk.MenuButton _sort_items;
+	public Gtk.CheckButton _reverse_sort;
 	public Gtk.GestureSingle _gesture_click;
 #if !CROWN_GTK3
 	public Gtk.DragSource _drag_source;
@@ -308,16 +303,18 @@ public class ObjectTree : Gtk.Box
 #else
 		Gtk.CheckButton? button = null;
 #endif
-		for (int i = 0; i < SortMode.COUNT; ++i) {
+		for (int i = 0; i < SortMode.COUNT; ++i)
 			button = add_sort_item(button, (SortMode)i);
-#if !CROWN_GTK3
-			if (i == SortMode.NAME_AZ)
-				button.set_active(true);
-#endif
-		}
+
+		_reverse_sort = new Gtk.CheckButton.with_label(_("Reverse"));
+		_reverse_sort.set_active(false);
+		_reverse_sort.toggled.connect(on_reverse_sort_toggled);
 
 #if CROWN_GTK3
+		_sort_items_box.pack_start(_reverse_sort, false, false);
 		_sort_items_box.show_all();
+#else
+		_sort_items_box.append(_reverse_sort);
 #endif
 
 		var tree_control = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
@@ -987,24 +984,15 @@ public class ObjectTree : Gtk.Box
 #else
 		var button = new Gtk.CheckButton.with_label(mode.to_label());
 		button.set_group(group);
+		if (mode == SortMode.NAME)
+			button.set_active(true);
 #endif
-		switch (mode) {
-		case SortMode.NAME_AZ:
-			button.toggled.connect(on_sort_name_az_toggled);
-			break;
-		case SortMode.NAME_ZA:
-			button.toggled.connect(on_sort_name_za_toggled);
-			break;
-		case SortMode.TYPE_AZ:
-			button.toggled.connect(on_sort_type_az_toggled);
-			break;
-		case SortMode.TYPE_ZA:
-			button.toggled.connect(on_sort_type_za_toggled);
-			break;
-		default:
-			assert(false);
-			break;
-		}
+		button.toggled.connect(() => {
+			if (!button.get_active())
+				return;
+
+			set_sort(mode);
+		});
 
 #if CROWN_GTK3
 		_sort_items_box.pack_start(button, false, false);
@@ -1014,30 +1002,19 @@ public class ObjectTree : Gtk.Box
 		return button;
 	}
 
-	public void set_sort(int column, Gtk.SortType order)
+	public void set_sort(SortMode mode)
 	{
+		int column = mode == SortMode.NAME ? Column.OBJECT_NAME : Column.OBJECT_KIND;
+		Gtk.SortType order = _reverse_sort.get_active() ? Gtk.SortType.DESCENDING : Gtk.SortType.ASCENDING;
 		_tree_sort.set_sort_column_id(column, order);
-		_sort_items_popover.popdown();
 	}
 
-	public void on_sort_name_az_toggled()
+	public void on_reverse_sort_toggled()
 	{
-		set_sort(Column.OBJECT_NAME, Gtk.SortType.ASCENDING);
-	}
-
-	public void on_sort_name_za_toggled()
-	{
-		set_sort(Column.OBJECT_NAME, Gtk.SortType.DESCENDING);
-	}
-
-	public void on_sort_type_az_toggled()
-	{
-		set_sort(Column.OBJECT_KIND, Gtk.SortType.ASCENDING);
-	}
-
-	public void on_sort_type_za_toggled()
-	{
-		set_sort(Column.OBJECT_KIND, Gtk.SortType.DESCENDING);
+		int column;
+		Gtk.SortType order;
+		_tree_sort.get_sort_column_id(out column, out order);
+		_tree_sort.set_sort_column_id(column, order == Gtk.SortType.ASCENDING ? Gtk.SortType.DESCENDING : Gtk.SortType.ASCENDING);
 	}
 
 	public string object_display_name(Guid id)
