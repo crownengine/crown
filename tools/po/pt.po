@@ -2,18 +2,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-21 17:56+0200\n"
-"PO-Revision-Date: 2026-09-21 17:44\n"
+"POT-Creation-Date: 2026-09-22 08:32+0200\n"
+"PO-Revision-Date: 2026-09-22 15:36\n"
 "Last-Translator: \n"
-"Language-Team: Portuguese, Brazilian\n"
-"Language: pt_BR\n"
+"Language-Team: Portuguese\n"
+"Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: crown-engine\n"
 "X-Crowdin-Project-ID: 930555\n"
-"X-Crowdin-Language: pt-BR\n"
+"X-Crowdin-Language: pt-PT\n"
 "X-Crowdin-File: /master/tools/po/crown-editor.pot\n"
 "X-Crowdin-File-ID: 8\n"
 
@@ -407,17 +407,17 @@ msgid "Unknown"
 msgstr ""
 
 #: tools/level_editor/level_editor.vala:1789
-#: tools/level_editor/object_editor.vala:333
-#: tools/state_machine_editor/state_machine_editor.vala:449
-#: tools/unit_editor/unit_editor.vala:528
+#: tools/level_editor/object_editor.vala:336
+#: tools/state_machine_editor/state_machine_editor.vala:452
+#: tools/unit_editor/unit_editor.vala:532
 #, c-format
 msgid "Undo: %s"
 msgstr ""
 
 #: tools/level_editor/level_editor.vala:1790
-#: tools/level_editor/object_editor.vala:338
-#: tools/state_machine_editor/state_machine_editor.vala:454
-#: tools/unit_editor/unit_editor.vala:533
+#: tools/level_editor/object_editor.vala:341
+#: tools/state_machine_editor/state_machine_editor.vala:457
+#: tools/unit_editor/unit_editor.vala:537
 #, c-format
 msgid "Redo: %s"
 msgstr ""
@@ -1602,20 +1602,16 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:356
-msgid "Inherited sub-objects are read-only."
-msgstr ""
-
-#: tools/level_editor/property_grid.vala:473
+#: tools/level_editor/property_grid.vala:491
 #, c-format
 msgid "Cannot remove %s due to the following dependencies:\n\n"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:513
+#: tools/level_editor/property_grid.vala:531
 msgid "Remove Component"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:816
+#: tools/level_editor/property_grid.vala:837
 msgid "Reset to default"
 msgstr ""
 
