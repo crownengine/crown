@@ -1956,7 +1956,7 @@ public class ProjectBrowser : Gtk.Box
 		filter_popover.set_child(filter_popover_box);
 #endif
 		Gtk.MenuButton filter_types_menu = new Gtk.MenuButton();
-		filter_types_menu.set_tooltip_text(_("Choose resource types and display options."));
+		filter_types_menu.set_tooltip_text(_("Filter settings."));
 		filter_types_menu.set_popover(filter_popover);
 #if CROWN_GTK3
 		filter_types_menu.get_style_context().add_class("flat");
