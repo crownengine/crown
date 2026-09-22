@@ -144,9 +144,22 @@ public struct Unit
 			string? material = get_component_resource(component_id, "data.material");
 			string materials_key = prefix + component_id.to_string() + ".data.materials";
 			if (material != null && !_db.has_property(_id, materials_key)) {
+				Guid prefab_id = GUID_ZERO;
+				GLib.GenericSet<Guid?> materials = (GLib.GenericSet<Guid?>)get_component_property(component_id, "data.materials", guid_set_new());
+				foreach (unowned Guid? id in materials) {
+					if (_db.is_alive(id) && _db.get_string(id, "data.slot") == "default") {
+						prefab_id = id;
+						break;
+					}
+				}
+
 				Guid binding_id = Guid.new_guid();
-				_db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
-				_db.set_string(binding_id, "data.slot", "default");
+				if (prefab_id != GUID_ZERO) {
+					_db.create_from_prefab(binding_id, prefab_id);
+				} else {
+					_db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+					_db.set_string(binding_id, "data.slot", "default");
+				}
 				_db.set_resource(binding_id, "data.material", material);
 				_db.add_to_set(_id, materials_key, binding_id);
 			}
@@ -207,7 +220,7 @@ public struct Unit
 
 		// Search in modified_components
 		val = _db.get_property(_id, "modified_components.#" + component_id.to_string() + "." + key);
-		if (val != null)
+		if (val != null && !val.holds(typeof(GLib.GenericSet)))
 			return val;
 
 		// Search in prefab
@@ -218,10 +231,10 @@ public struct Unit
 			Unit.load_unit(out prefab_id, _db, prefab);
 
 			Unit unit = Unit(_db, prefab_id);
-			return unit.get_component_property(component_id, key, deffault);
+			return _db.inherit_value(val, unit.get_component_property(component_id, key, deffault));
 		}
 
-		return deffault;
+		return val != null ? val : deffault;
 	}
 
 	public bool get_component_bool(Guid component_id, string key, bool deffault = false)
@@ -752,7 +765,13 @@ public struct Unit
 				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
 				));
 		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
-			Guid?[] lod_levels = db.get_set(component_id, "data.lod_levels");
+			GLib.GenericSet<Guid?> levels = (GLib.GenericSet<Guid?>)unit.get_component_property(component_id, "data.lod_levels", guid_set_new());
+			GLib.GenericArray<Guid?> live_levels = new GLib.GenericArray<Guid?>();
+			foreach (unowned Guid? level_id in levels) {
+				if (db.is_alive(level_id))
+					live_levels.add(level_id);
+			}
+			Guid?[] lod_levels = live_levels.steal();
 			GLib.qsort_with_data<Guid?>(lod_levels, sizeof(Guid?), (a, b) => {
 					double screen_size_a = db.get_double(a, "data.screen_size");
 					double screen_size_b = db.get_double(b, "data.screen_size");

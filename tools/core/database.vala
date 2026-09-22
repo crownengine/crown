@@ -660,7 +660,14 @@ public class Database
 		}
 	}
 
-	private void convert_mesh_renderer(GLib.HashTable<string, Value?> json)
+	private Guid legacy_mesh_material_guid(Guid component_id)
+	{
+		Guid id = component_id;
+		id.data1 ^= 0x8000000000000000u;
+		return id;
+	}
+
+	private void convert_mesh_renderer(Guid id, GLib.HashTable<string, Value?> json)
 	{
 		// Copy the legacy whole-mesh material into the normal material slot set.
 		if (!json.contains("data") || !json["data"].holds(typeof(GLib.HashTable)))
@@ -681,6 +688,7 @@ public class Database
 		binding_data["material"] = data["material"];
 
 		GLib.HashTable<string, Value?> binding = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		binding["_guid"] = legacy_mesh_material_guid(id).to_string();
 		binding["_type"] = OBJECT_TYPE_MESH_MATERIAL;
 		binding["data"] = binding_data;
 
@@ -755,7 +763,7 @@ public class Database
 				set_owner(object_id, GUID_ZERO);
 				set_alive(object_id, true);
 
-				if (has_type(type_hash))
+				if (has_type(type_hash) && !json.contains("_prefab"))
 					_init_object(object_id, object_definition(type_hash));
 
 				decode_object(object_id, GUID_ZERO, "", json);
@@ -966,17 +974,19 @@ public class Database
 			set_type(id, type);
 
 			StringId64 type_hash = StringId64(type);
-			if (has_type(type_hash))
+			if (has_type(type_hash) && !json.contains("_prefab"))
 				_init_object(id, object_definition(type_hash));
 		} else {
 			type = object_type(id);
 		}
 
 		assert(type != null);
+		if (db_key == "" && json.contains("_prefab"))
+			set(0, id, "_prefab", Guid.parse((string)json["_prefab"]));
 		if (type == OBJECT_TYPE_MATERIAL)
 			convert_material(json);
 		else if (type == OBJECT_TYPE_MESH_RENDERER)
-			convert_mesh_renderer(json);
+			convert_mesh_renderer(id, json);
 
 		PropertyDefinition[]? properties = object_definition(StringId64(type));
 		if (properties != null)
@@ -1094,6 +1104,8 @@ public class Database
 		if (id != GUID_ZERO) {
 			obj["_guid"] = id.to_string();
 			obj["_type"] = type;
+			if (db["_prefab"] != null)
+				obj["_prefab"] = ((Guid)db["_prefab"]).to_string();
 		}
 
 		foreach (PropertyDefinition def in properties) {
@@ -1327,7 +1339,7 @@ public class Database
 		}
 	}
 
-	public void create(Guid id, string type)
+	private void create_empty(Guid id, string type)
 	{
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
@@ -1345,10 +1357,23 @@ public class Database
 		set_type(id, type);
 		set_owner(id, GUID_ZERO);
 		set_alive(id, true);
+	}
+
+	public void create(Guid id, string type)
+	{
+		create_empty(id, type);
 
 		StringId64 type_hash = StringId64(type);
 		if (has_type(type_hash))
 			_init_object(id, object_definition(type_hash));
+	}
+
+	public void create_from_prefab(Guid id, Guid prefab_id)
+	{
+		assert(is_alive(prefab_id));
+		// Instances store only their own properties; missing values come from _prefab.
+		create_empty(id, object_type(prefab_id));
+		set_reference(id, "_prefab", prefab_id);
 	}
 
 	public void destroy(Guid id)
@@ -1622,13 +1647,134 @@ public class Database
 		return get_property(id, key) != null;
 	}
 
+	private bool has_local_property(Guid id, string key)
+	{
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		return ob.contains(key) && ob[key] != null;
+	}
+
+	private Guid legacy_mesh_material_source(GLib.GenericSet<Guid?> objects)
+	{
+		foreach (unowned Guid? id in objects) {
+			if (!is_alive(id) || object_type(id) != OBJECT_TYPE_MESH_MATERIAL)
+				continue;
+			Guid component_id = owner(id);
+			if (component_id != GUID_ZERO
+				&& is_alive(component_id)
+				&& object_type(component_id) == OBJECT_TYPE_MESH_RENDERER
+				&& Guid.equal_func(id, legacy_mesh_material_guid(component_id))
+				)
+				return id;
+		}
+
+		return GUID_ZERO;
+	}
+
+	private bool mesh_material_overrides_inherited_slot(Guid local_id, GLib.GenericSet<Guid?> objects)
+	{
+		if (object_type(local_id) != OBJECT_TYPE_MESH_MATERIAL
+			|| !has_local_property(local_id, "data.slot")
+			)
+			return false;
+
+		string slot = (string)get_data(local_id)["data.slot"];
+		if (slot == "")
+			return false;
+
+		foreach (unowned Guid? id in objects) {
+			if (is_alive(id)
+				&& object_type(id) == OBJECT_TYPE_MESH_MATERIAL
+				&& get_string(id, "data.slot") == slot
+				)
+				return true;
+		}
+
+		return false;
+	}
+
+	public Value? inherit_value(Value? local, Value? inherited)
+	{
+		if (local == null)
+			return inherited;
+		if (!local.holds(typeof(GLib.GenericSet)))
+			return local;
+		if (inherited != null && !inherited.holds(typeof(GLib.GenericSet)))
+			return local;
+
+		GLib.GenericSet<Guid?> merged = guid_set_new();
+		if (inherited != null) {
+			foreach (unowned Guid? id in (GLib.GenericSet<Guid?>)inherited) {
+				if (is_alive(id))
+					merged.add(id);
+			}
+		}
+		foreach (unowned Guid? id in (GLib.GenericSet<Guid?>)local) {
+			if (!is_alive(id))
+				continue;
+			Guid prefab_id = get_reference(id, "_prefab");
+			// Ignore unsupported full material overrides produced before inherited
+			// object-set instances had a serialized _prefab link.
+			if (prefab_id == GUID_ZERO
+				&& inherited != null
+				&& mesh_material_overrides_inherited_slot(id, (GLib.GenericSet<Guid?>)inherited)
+				)
+				continue;
+			if (prefab_id != GUID_ZERO) {
+				// A local instance replaces its source only while the source is in the set.
+				if (!merged.contains(prefab_id)) {
+					Guid legacy_source = object_type(id) == OBJECT_TYPE_MESH_MATERIAL
+					&& !is_alive(prefab_id)
+					&& inherited != null
+						? legacy_mesh_material_source((GLib.GenericSet<Guid?>)inherited)
+						: GUID_ZERO
+						;
+					if (legacy_source == GUID_ZERO)
+						continue;
+					prefab_id = legacy_source;
+					set(0, id, "_prefab", prefab_id);
+					if (!merged.contains(prefab_id))
+						continue;
+				}
+				merged.remove(prefab_id);
+			}
+			merged.add(id);
+		}
+
+		return merged;
+	}
+
+	private Value? get_inherited_property(Guid id, string key, GLib.GenericSet<Guid?> visited)
+	{
+		if (!visited.add(id))
+			return null;
+
+		GLib.HashTable<string, Value?> ob = get_data(id);
+		Value? local = ob.contains(key) ? ob[key] : null;
+		if (key.has_prefix("_") || ob["_prefab"] == null
+			|| (local != null && !local.holds(typeof(GLib.GenericSet)))
+			)
+			return local;
+
+		Guid prefab_id = (Guid)ob["_prefab"];
+		if (prefab_id == GUID_ZERO || !is_alive(prefab_id) || object_type(prefab_id) != object_type(id))
+			return local;
+
+		Value? inherited = get_inherited_property(prefab_id, key, visited);
+		return inherit_value(local, inherited);
+	}
+
 	public Value? get_property(Guid id, string key, Value? val = null)
 	{
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
 		GLib.HashTable<string, Value?> ob = get_data(id);
-		Value? value = (ob.contains(key) ? ob[key] : val);
+		Value? value = ob["_prefab"] != null && !key.has_prefix("_")
+			? get_inherited_property(id, key, new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func))
+			: (ob.contains(key) ? ob[key] : null)
+			;
+		if (value == null)
+			value = val;
 
 		if (_debug_getters)
 			logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
@@ -1679,10 +1825,10 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 
-		GLib.HashTable<string, Value?> ob = get_data(id);
 		GLib.GenericArray<Guid?> value = new GLib.GenericArray<Guid?>();
-		if (ob.contains(key)) {
-			GLib.GenericSet<Guid?> objects = (GLib.GenericSet<Guid?>)ob[key];
+		Value? property = get_property(id, key);
+		if (property != null) {
+			GLib.GenericSet<Guid?> objects = (GLib.GenericSet<Guid?>)property;
 			foreach (unowned Guid? obj in objects) {
 				if (is_alive(obj))
 					value.add(obj);
@@ -1751,7 +1897,10 @@ public class Database
 
 			duplicates[ids[i]] = new_ids[i];
 			objects.add(ids[i]);
-			dest.create(new_ids[i], object_type(ids[i]));
+			if (get_data(ids[i]).contains("_prefab"))
+				dest.create_empty(new_ids[i], object_type(ids[i]));
+			else
+				dest.create(new_ids[i], object_type(ids[i]));
 		}
 
 		for (uint i = 0; i < objects.length; ++i) {
@@ -1771,7 +1920,10 @@ public class Database
 					Guid x = Guid.new_guid();
 					duplicates[j] = x;
 					objects.add(j);
-					dest.create(x, object_type(j));
+					if (get_data(j).contains("_prefab"))
+						dest.create_empty(x, object_type(j));
+					else
+						dest.create(x, object_type(j));
 				}
 			}
 		}
@@ -2009,7 +2161,7 @@ public class Database
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
 
-				if (has_property(id, key)) {
+				if (has_local_property(id, key)) {
 					if (get_data(id)[key].holds(typeof(bool)))
 						redo.write_set_bool_action(Action.SET_BOOL, id, key, get_bool(id, key));
 					if (get_data(id)[key].holds(typeof(double)))
@@ -2033,7 +2185,7 @@ public class Database
 				string key = undo.read_string();
 				bool val = undo.read_bool();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_bool_action(Action.SET_BOOL, id, key, get_bool(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2043,7 +2195,7 @@ public class Database
 				string key = undo.read_string();
 				double val = undo.read_double();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_double_action(Action.SET_DOUBLE, id, key, get_double(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2053,7 +2205,7 @@ public class Database
 				string key = undo.read_string();
 				string val = undo.read_string();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_string_action(Action.SET_STRING, id, key, get_string(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2063,7 +2215,7 @@ public class Database
 				string key = undo.read_string();
 				Vector3 val = undo.read_vector3();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2073,7 +2225,7 @@ public class Database
 				string key = undo.read_string();
 				Quaternion val = undo.read_quaternion();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2083,7 +2235,7 @@ public class Database
 				string key = undo.read_string();
 				Resource val = undo.read_resource();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_resource_action(Action.SET_RESOURCE, id, key, { get_resource(id, key) });
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
@@ -2093,7 +2245,7 @@ public class Database
 				string key = undo.read_string();
 				Guid val = undo.read_guid();
 
-				if (has_property(id, key))
+				if (has_local_property(id, key))
 					redo.write_set_reference_action(Action.SET_REFERENCE, id, key, get_reference(id, key));
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);

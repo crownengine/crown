@@ -245,7 +245,8 @@ class ObjectsSetEditor : Gtk.Box
 
 	public void on_remove_clicked()
 	{
-		if (_definition.fixed_set || _object_id == GUID_ZERO || is_read_only())
+		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
+		if (_definition.fixed_set || _object_id == GUID_ZERO || is_read_only() || _grid._db.owner(_object_id) != owner_id)
 			return;
 
 		Guid object_id = _object_id;
@@ -260,7 +261,9 @@ class ObjectsSetEditor : Gtk.Box
 		if (_refreshing)
 			return;
 
-		_remove.sensitive = !_definition.fixed_set && row != null && !is_read_only();
+		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
+		_remove.sensitive = !_definition.fixed_set && row != null && !is_read_only()
+			&& _grid._db.owner(Guid.parse(row.get_data<string>("id"))) == owner_id;
 
 		if (row == null) {
 			_object_id = GUID_ZERO;
@@ -287,17 +290,30 @@ class ObjectsSetEditor : Gtk.Box
 
 			Guid selection_anchor_id = _grid._selection_anchor_id != GUID_ZERO ? _grid._selection_anchor_id : _grid._id;
 			_editor_grid = new PropertyGrid.from_object(_object_id, _grid._db, _grid._database_editor, selection_anchor_id);
+			Guid instance_owner_id = is_read_only() ? _grid._id : owner_id;
+			if (is_read_only() || _grid._db.owner(_object_id) != instance_owner_id) {
+				_editor_grid._instance_owner_id = instance_owner_id;
+				_editor_grid._instance_set_key = is_read_only()
+					? "modified_components.#" + _grid._component_id.to_string() + "." + _definition.name
+					: _definition.name;
+				_editor_grid.instance_created.connect(on_instance_created);
+			}
 #if CROWN_GTK3
 			_editor.pack_start(_editor_grid, false, true);
 #else
 			_editor.append(_editor_grid);
 #endif
 		}
-		_editor_grid.sensitive = !is_read_only();
+		_editor_grid.sensitive = true;
 		_editor_grid.read_properties();
 #if CROWN_GTK3
 		_editor.show_all();
 #endif
+	}
+
+	public void on_instance_created(Guid id)
+	{
+		_object_id = id;
 	}
 
 #if !CROWN_GTK3
@@ -352,8 +368,6 @@ class ObjectsSetEditor : Gtk.Box
 
 		bool read_only = is_read_only();
 		_add.sensitive = !_definition.fixed_set && !read_only;
-		if (read_only)
-			_list.set_tooltip_text(_("Inherited sub-objects are read-only."));
 
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
 		Guid?[] children;
@@ -440,6 +454,10 @@ public class PropertyGrid : Gtk.Grid
 	public int _expander_input_row;
 	public DatabaseEditor? _database_editor;
 	public Guid _selection_anchor_id;
+	public Guid _instance_owner_id;
+	public string? _instance_set_key;
+	public bool _instance_pending_restore;
+	public signal void instance_created(Guid id);
 
 	public GLib.HashTable<string, Gtk.GestureSingle> _gestures;
 	public GLib.HashTable<string, InputField> _widgets;
@@ -550,6 +568,9 @@ public class PropertyGrid : Gtk.Grid
 		_expander_input_label = null;
 		_expander_input_row = -1;
 		_selection_anchor_id = selection_anchor_id;
+		_instance_owner_id = GUID_ZERO;
+		_instance_set_key = null;
+		_instance_pending_restore = false;
 
 		_gestures = new GLib.HashTable<string, Gtk.GestureSingle>(GLib.str_hash, GLib.str_equal);
 		_widgets = new GLib.HashTable<string, InputField>(GLib.str_hash, GLib.str_equal);
@@ -1026,11 +1047,28 @@ public class PropertyGrid : Gtk.Grid
 		return changed;
 	}
 
+	public void ensure_local_object()
+	{
+		if (_instance_owner_id == GUID_ZERO || _db.owner(_id) == _instance_owner_id)
+			return;
+		assert(_instance_set_key != null);
+
+		Guid prefab_id = _id;
+		Guid id = Guid.new_guid();
+		_db.create_from_prefab(id, prefab_id);
+		_db.add_to_set(_instance_owner_id, _instance_set_key, id);
+		_id = id;
+		_instance_pending_restore = true;
+		instance_created(id);
+	}
+
 	public void on_property_value_changed(InputField p, int undo_redo)
 	{
 		if (p.is_inconsistent())
 			return;
 		if (_id == GUID_ZERO)
+			return;
+		if (undo_redo == -1 && _instance_owner_id != GUID_ZERO && _db.owner(_id) != _instance_owner_id)
 			return;
 
 		PropertyDefinition def = _definitions[p];
@@ -1040,6 +1078,7 @@ public class PropertyGrid : Gtk.Grid
 
 		save_dynamic_properties_values(ref dynamic_properties, ref dynamic_values);
 		read_dynamic_properties_ranges_except({ def });
+		ensure_local_object();
 
 		UndoRedo? ur = null;
 		if (undo_redo == 0 || undo_redo == -1)
@@ -1048,8 +1087,15 @@ public class PropertyGrid : Gtk.Grid
 		changed = restore_dynamic_properties_values_except(dynamic_properties, dynamic_values, { def }) || changed;
 		changed = write_property_if_changed(def, p.union_value()) || changed;
 
-		if (changed && undo_redo != -1)
-			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { _id });
+		if ((changed || _instance_pending_restore) && undo_redo != -1) {
+			Guid changed_id = _instance_owner_id != GUID_ZERO
+				&& _db.object_type(_instance_owner_id) == OBJECT_TYPE_UNIT
+				? _instance_owner_id
+				: _id;
+			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { changed_id });
+			if (undo_redo != 0)
+				_instance_pending_restore = false;
+		}
 
 		if (undo_redo == 0 || undo_redo == -1)
 			_db.restore_undo(ur);

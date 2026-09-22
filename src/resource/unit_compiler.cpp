@@ -8,10 +8,8 @@
 #if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
-#include "core/containers/vector.inl"
 #include "core/filesystem/file_buffer.inl"
 #include "core/guid.inl"
-#include "core/json/json.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/math.h"
@@ -113,7 +111,13 @@ static LodFadeMode::Enum lod_fade_mode_name_to_enum(const char *name)
 	return LodFadeMode::COUNT;
 }
 
-static s32 compile_transform(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+namespace unit_compiler
+{
+	static CompilerObjectSet *object_set(CompilerObject &obj, const char *key);
+
+} // namespace unit_compiler
+
+static s32 compile_transform(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED_2(compiler, opts);
 
@@ -134,7 +138,7 @@ static s32 compile_transform(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 	return 0;
 }
 
-static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_camera(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -169,7 +173,7 @@ static s32 compile_camera(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	return 0;
 }
 
-static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -207,17 +211,18 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 
 	// Select explicit, legacy or fallback materials.
 	const bool has_materials = flat_json_object::has(obj, "data.materials");
-	JsonArray materials(ta);
-	if (has_materials) {
-		RETURN_IF_ERROR(sjson::parse_array(materials, flat_json_object::get(obj, "data.materials")));
-	}
+	CompilerObjectSet *materials = has_materials
+		? unit_compiler::object_set(obj, "data.materials")
+		: NULL
+		;
+	const u32 num_materials = materials == NULL ? 0 : array::size(materials->_objects);
 	const bool use_legacy_material = !has_materials && flat_json_object::has(obj, "data.material");
 	DynamicString material(ta);
 	if (use_legacy_material) {
 		RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(obj, "data.material")));
 		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
 		opts.add_requirement("material", material.c_str());
-	} else if (array::empty(materials)) {
+	} else if (num_materials == 0) {
 		material = "core/components/noop";
 		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
 		opts.add_requirement("material", material.c_str());
@@ -225,24 +230,21 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 
 	// Put the default binding first and write the material header.
 	u32 default_material = UINT32_MAX;
-	for (u32 i = 0; i < array::size(materials); ++i) {
-		JsonObject binding(ta);
-		JsonObject data(ta);
-		RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
-		RETURN_IF_ERROR(sjson::parse_object(data, binding["data"]));
+	for (u32 i = 0; i < num_materials; ++i) {
+		CompilerObject &binding = *materials->_objects[i];
 		DynamicString slot(ta);
-		RETURN_IF_ERROR(sjson::parse_string(slot, data["slot"]));
+		RETURN_IF_ERROR(sjson::parse_string(slot, flat_json_object::get(binding, "data.slot")));
 		if (slot == "default") {
 			default_material = i;
 			break;
 		}
 	}
 	if (default_material != UINT32_MAX)
-		exchange(materials[0], materials[default_material]);
+		exchange(materials->_objects[0], materials->_objects[default_material]);
 	const bool add_default_material = default_material == UINT32_MAX
-		&& (use_legacy_material || array::empty(materials))
+		&& (use_legacy_material || num_materials == 0)
 		;
-	mrd.num_materials = array::size(materials) + (add_default_material ? 1 : 0);
+	mrd.num_materials = num_materials + (add_default_material ? 1 : 0);
 	mrd._pad = 0;
 	bw.write(mrd.num_materials);
 	bw.write(mrd._pad);
@@ -255,20 +257,17 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 
 	// Validate and write each material binding.
 	Array<StringId32> slots(ta);
-	for (u32 i = 0; i < array::size(materials); ++i) {
-		JsonObject binding(ta);
-		JsonObject data(ta);
-		RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
-		RETURN_IF_ERROR(sjson::parse_object(data, binding["data"]));
+	for (u32 i = 0; i < num_materials; ++i) {
+		CompilerObject &binding = *materials->_objects[i];
 		DynamicString slot(ta);
-		RETURN_IF_ERROR(sjson::parse_string(slot, data["slot"]));
+		RETURN_IF_ERROR(sjson::parse_string(slot, flat_json_object::get(binding, "data.slot")));
 		RETURN_IF_FALSE(UNIT_COMPILER, !slot.empty(), opts, "Empty mesh material slot");
 		const StringId32 slot_id = slot.to_string_id();
 		for (u32 j = 0; j < array::size(slots); ++j)
 			RETURN_IF_FALSE(UNIT_COMPILER, slots[j] != slot_id, opts, "Duplicate mesh material slot '%s'", slot.c_str());
 		array::push_back(slots, slot_id);
 		material = "";
-		RETURN_IF_ERROR(sjson::parse_string(material, data["material"]));
+		RETURN_IF_ERROR(sjson::parse_string(material, flat_json_object::get(binding, "data.material")));
 		WARN_IF_MISSING(UNIT_COMPILER, "material", material.c_str(), opts);
 		opts.add_requirement("material", material.c_str());
 		bw.write(StringId64(material.c_str()));
@@ -278,7 +277,7 @@ static s32 compile_mesh_renderer(Buffer &output, UnitCompiler &compiler, FlatJso
 	return 0;
 }
 
-static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -331,11 +330,11 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, FlatJ
 	return 0;
 }
 
-static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	TempAllocator4096 ta;
-	JsonArray lod_levels(ta);
-	RETURN_IF_ERROR(sjson::parse_array(lod_levels, flat_json_object::get(obj, "data.lod_levels")));
+	CompilerObjectSet *lod_levels = unit_compiler::object_set(obj, "data.lod_levels");
+	const u32 num_lod_levels = lod_levels == NULL ? 0 : array::size(lod_levels->_objects);
 
 	DynamicString fade_mode_name(ta);
 	RETURN_IF_ERROR(sjson::parse_string(fade_mode_name, flat_json_object::get(obj, "data.fade_mode")));
@@ -350,23 +349,18 @@ static s32 compile_lod_group(Buffer &output, UnitCompiler &compiler, FlatJsonObj
 
 	Array<LodDesc> levels(default_allocator());
 
-	if (array::size(lod_levels) == 0) {
+	if (num_lod_levels == 0) {
 		opts.warning(UNIT_COMPILER, "LOD Group has no levels: inserting an empty LOD level");
 		array::push_back(levels, { UINT32_MAX, 1.0f });
 	}
 
-	for (u32 i = 0; i < array::size(lod_levels); ++i) {
-		JsonObject level(ta);
-		RETURN_IF_ERROR(sjson::parse_object(level, lod_levels[i]));
-
-		JsonObject level_data(ta);
-		RETURN_IF_ERROR(sjson::parse_object(level_data, level["data"]));
-
-		const Guid mesh_renderer_unit_id = RETURN_IF_ERROR(sjson::parse_guid(level_data["mesh_renderer"]));
+	for (u32 i = 0; i < num_lod_levels; ++i) {
+		CompilerObject &level = *lod_levels->_objects[i];
+		const Guid mesh_renderer_unit_id = RETURN_IF_ERROR(sjson::parse_guid(flat_json_object::get(level, "data.mesh_renderer")));
 
 		LodDesc desc;
 		desc.unit_index   = UINT32_MAX;
-		desc.screen_size  = RETURN_IF_ERROR(sjson::parse_float(level_data["screen_size"]));
+		desc.screen_size  = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(level, "data.screen_size")));
 
 		if (mesh_renderer_unit_id != GUID_ZERO) {
 			const u32 root_unit_index = compiler._unit_roots[compiler._current_unit_index];
@@ -431,7 +425,7 @@ static f32 parse_float_or(FlatJsonObject &obj, const char *key, f32 fallback)
 	return value != NULL ? sjson::parse_float(value) : fallback;
 }
 
-static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_light(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -500,7 +494,7 @@ static s32 compile_light(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	return 0;
 }
 
-static s32 compile_script(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_script(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -524,7 +518,7 @@ static s32 compile_script(Buffer &output, UnitCompiler &compiler, FlatJsonObject
 	return 0;
 }
 
-static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -546,7 +540,7 @@ static s32 compile_animation_state_machine(Buffer &output, UnitCompiler &compile
 	return 0;
 }
 
-static s32 compile_fog(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_fog(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED_2(compiler, opts);
 
@@ -571,7 +565,7 @@ static s32 compile_fog(Buffer &output, UnitCompiler &compiler, FlatJsonObject &o
 	return 0;
 }
 
-static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -605,7 +599,7 @@ static s32 compile_global_lighting(Buffer &output, UnitCompiler &compiler, FlatJ
 	return 0;
 }
 
-static s32 compile_bloom(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_bloom(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED_2(compiler, opts);
 
@@ -628,7 +622,7 @@ static s32 compile_bloom(Buffer &output, UnitCompiler &compiler, FlatJsonObject 
 	return 0;
 }
 
-static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED(compiler);
 
@@ -656,7 +650,7 @@ static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, FlatJsonObjec
 	return 0;
 }
 
-static s32 compile_color_grading(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_color_grading(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED_2(compiler, opts);
 
@@ -679,7 +673,7 @@ static s32 compile_color_grading(Buffer &output, UnitCompiler &compiler, FlatJso
 	return 0;
 }
 
-static s32 compile_vignette(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+static s32 compile_vignette(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 {
 	CE_UNUSED_2(compiler, opts);
 
@@ -791,24 +785,19 @@ namespace unit_compiler
 		return NULL;
 	}
 
-	u32 object_index(const JsonArray &objects, const Guid &object_id, CompileOptions &opts)
+	u32 object_index(const Array<CompilerObject *> &objects, const Guid &object_id, CompileOptions &opts)
 	{
 		CE_UNUSED(opts);
 
 		for (u32 i = 0; i < array::size(objects); ++i) {
-			TempAllocator512 ta;
-			JsonObject obj(ta);
-			RETURN_IF_ERROR(sjson::parse(obj, objects[i]));
-
-			if (json_object::has(obj, "id")) {
-				Guid id = RETURN_IF_ERROR(sjson::parse_guid(obj["id"]));
-				if (id == object_id)
-					return i;
-			} else {
-				Guid id = RETURN_IF_ERROR(sjson::parse_guid(obj["_guid"]));
-				if (id == object_id)
-					return i;
-			}
+			CompilerObject &obj = *objects[i];
+			const char *id_json = flat_json_object::has(obj, "id")
+				? flat_json_object::get(obj, "id")
+				: flat_json_object::get(obj, "_guid")
+				;
+			Guid id = RETURN_IF_ERROR(sjson::parse_guid(id_json));
+			if (id == object_id)
+				return i;
 		}
 
 		return UINT32_MAX;
@@ -973,17 +962,13 @@ namespace unit_compiler
 		CE_ENSURE(unit != NULL);
 		has_type = false;
 
-		for (u32 i = 0; i < array::size(unit->_merged_components); ++i) {
-			TempAllocator512 ta;
-			JsonObject component(ta);
-			RETURN_IF_ERROR(sjson::parse(component, unit->_merged_components[i]));
-
-			StringId32 component_type;
-			if (json_object::has(component, "_type")) {
-				component_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]));
-			} else {
-				component_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]));
-			}
+		for (u32 i = 0; i < array::size(unit->_components); ++i) {
+			CompilerObject &component = *unit->_components[i];
+			const char *type_json = flat_json_object::has(component, "_type")
+				? flat_json_object::get(component, "_type")
+				: flat_json_object::get(component, "type")
+				;
+			StringId32 component_type = RETURN_IF_ERROR(sjson::parse_string_id(type_json));
 
 			if (component_type == type) {
 				has_type = true;
@@ -1007,31 +992,317 @@ namespace unit_compiler
 		CE_DELETE(default_allocator(), unit);
 	}
 
-	void to_flat(FlatJsonObject &obj, const char *json_object, DynamicString &prefix)
+	static CompilerObjectSet *object_set(CompilerObject &obj, const char *key)
+	{
+		TempAllocator512 ta;
+		DynamicString k(ta);
+		k = key;
+		return hash_map::get(obj._sets, k, (CompilerObjectSet *)NULL);
+	}
+
+	static void set_object_set(CompilerObject &obj, const char *key, CompilerObjectSet *set)
+	{
+		DynamicString k(default_allocator());
+		k = key;
+		hash_map::set(obj._sets, k, set);
+	}
+
+	static void remove_object_set(CompilerObject &obj, const char *key)
+	{
+		TempAllocator512 ta;
+		DynamicString k(ta);
+		k = key;
+		CompilerObjectSet *set = hash_map::get(obj._sets, k, (CompilerObjectSet *)NULL);
+		if (set != NULL) {
+			CE_DELETE(default_allocator(), set);
+			hash_map::remove(obj._sets, k);
+		}
+	}
+
+	static void remove_property(CompilerObject &obj, const char *key)
+	{
+		TempAllocator512 ta;
+		DynamicString k(ta);
+		k = key;
+		hash_map::remove(obj, k);
+	}
+
+	static s32 merge_object(CompilerObject &obj, const JsonObject &local, DynamicString &prefix);
+
+	static s32 create_object(CompilerObject *&obj, const char *json)
 	{
 		TempAllocator4096 ta;
-		JsonObject jo(ta);
-		sjson::parse_object(jo, json_object);
+		JsonObject local(ta);
+		RETURN_IF_ERROR(sjson::parse_object(local, json));
+		obj = CE_NEW(default_allocator(), CompilerObject)(default_allocator());
+		DynamicString prefix(default_allocator());
+		const s32 err = merge_object(*obj, local, prefix);
+		if (err != 0) {
+			CE_DELETE(default_allocator(), obj);
+			obj = NULL;
+		}
+		return err;
+	}
 
-		auto cur = json_object::begin(jo);
-		auto end = json_object::end(jo);
+	static s32 mesh_material_slot(DynamicString &slot, const JsonObject &obj)
+	{
+		const char *type_json = obj["_type"];
+		const char *data_json = obj["data"];
+		if (type_json == NULL || data_json == NULL || sjson::type(data_json) != JsonValueType::OBJECT)
+			return 1;
+
+		TempAllocator512 ta;
+		DynamicString type(ta);
+		RETURN_IF_ERROR(sjson::parse_string(type, type_json));
+		if (type != "mesh_material")
+			return 1;
+
+		JsonObject data(ta);
+		RETURN_IF_ERROR(sjson::parse_object(data, data_json));
+		const char *slot_json = data["slot"];
+		if (slot_json == NULL)
+			return 1;
+		RETURN_IF_ERROR(sjson::parse_string(slot, slot_json));
+		return slot.empty() ? 1 : 0;
+	}
+
+	static s32 mesh_material_slot(DynamicString &slot, CompilerObject &obj)
+	{
+		const char *type_json = flat_json_object::get(obj, "_type");
+		const char *slot_json = flat_json_object::get(obj, "data.slot");
+		if (type_json == NULL || slot_json == NULL)
+			return 1;
+
+		TempAllocator512 ta;
+		DynamicString type(ta);
+		RETURN_IF_ERROR(sjson::parse_string(type, type_json));
+		if (type != "mesh_material")
+			return 1;
+
+		RETURN_IF_ERROR(sjson::parse_string(slot, slot_json));
+		return slot.empty() ? 1 : 0;
+	}
+
+	static s32 warn_unsupported_material(const JsonObject &obj, const DynamicString &slot)
+	{
+		Guid id = RETURN_IF_ERROR(sjson::parse_guid(obj["_guid"]));
+		char guid_buf[GUID_DEBUG_BUF_LEN];
+		logw(UNIT_COMPILER
+			, "Ignoring unsupported mesh material override %s for slot '%s' without '_prefab'"
+			, guid::to_debug_string(guid_buf, sizeof(guid_buf), id)
+			, slot.c_str()
+			);
+		return 0;
+	}
+
+	static s32 find_mesh_material_slot(u32 &index, CompilerObjectSet &objects, const DynamicString &slot)
+	{
+		index = UINT32_MAX;
+		TempAllocator512 ta;
+		for (u32 i = 0; i < array::size(objects._objects); ++i) {
+			DynamicString object_slot(ta);
+			const s32 slot_result = mesh_material_slot(object_slot, *objects._objects[i]);
+			if (slot_result < 0)
+				return -1;
+			if (slot_result == 0 && object_slot == slot) {
+				index = i;
+				break;
+			}
+		}
+		return 0;
+	}
+
+	static s32 merge_object_set(CompilerObject &obj, const char *key, const JsonArray &local)
+	{
+		CompilerObjectSet *set = object_set(obj, key);
+		if (set == NULL) {
+			set = CE_NEW(default_allocator(), CompilerObjectSet)(default_allocator());
+			set_object_set(obj, key, set);
+		}
+
+		TempAllocator4096 ta;
+		Array<u8> used(ta);
+		array::resize(used, array::size(local));
+		HashMap<Guid, u32> replacements(ta);
+		for (u32 i = 0; i < array::size(local); ++i) {
+			used[i] = 0;
+			TempAllocator512 ta;
+			JsonObject overr(ta);
+			RETURN_IF_ERROR(sjson::parse_object(overr, local[i]));
+			const char *prefab = overr["_prefab"];
+			const char *id = prefab != NULL ? prefab : overr["_guid"];
+			Guid target_id = RETURN_IF_ERROR(sjson::parse_guid(id));
+			hash_map::set(replacements, target_id, i);
+		}
+
+		for (u32 i = 0; i < array::size(set->_objects); ++i) {
+			CompilerObject &source = *set->_objects[i];
+			Guid source_id = RETURN_IF_ERROR(sjson::parse_guid(flat_json_object::get(source, "_guid")));
+			const u32 replacement = hash_map::get(replacements, source_id, UINT32_MAX);
+			if (replacement == UINT32_MAX)
+				continue;
+
+			used[replacement] = 1;
+			TempAllocator512 ta;
+			JsonObject overr(ta);
+			RETURN_IF_ERROR(sjson::parse_object(overr, local[replacement]));
+			DynamicString prefix(default_allocator());
+			if (merge_object(source, overr, prefix) != 0)
+				return -1;
+		}
+
+		for (u32 i = 0; i < array::size(local); ++i) {
+			if (used[i])
+				continue;
+			TempAllocator512 ta;
+			JsonObject local_object(ta);
+			RETURN_IF_ERROR(sjson::parse_object(local_object, local[i]));
+			if (json_object::has(local_object, "_prefab"))
+				continue;
+
+			DynamicString slot(ta);
+			const s32 slot_result = mesh_material_slot(slot, local_object);
+			if (slot_result < 0)
+				return -1;
+			if (slot_result == 0) {
+				u32 inherited_slot;
+				if (find_mesh_material_slot(inherited_slot, *set, slot) != 0)
+					return -1;
+				if (inherited_slot != UINT32_MAX) {
+					if (warn_unsupported_material(local_object, slot) != 0)
+						return -1;
+					continue;
+				}
+			}
+
+			CompilerObject *local_instance = NULL;
+			if (create_object(local_instance, local[i]) != 0)
+				return -1;
+			array::push_back(set->_objects, local_instance);
+		}
+
+		return 0;
+	}
+
+	static s32 merge_object(CompilerObject &obj, const JsonObject &local, DynamicString &prefix)
+	{
+		auto cur = json_object::begin(local);
+		auto end = json_object::end(local);
 		for (; cur != end; ++cur) {
-			JSON_OBJECT_SKIP_HOLE(jo, cur);
+			JSON_OBJECT_SKIP_HOLE(local, cur);
 
 			DynamicString key(default_allocator());
 			key = prefix;
-			if (key.length() != 0)
+			if (!key.empty())
 				key += ".";
 			key += cur->first;
+			hash_map::set(obj, key, cur->second);
 
-			if (json::type(cur->second) == JsonValueType::OBJECT) {
-				hash_map::set(obj, key, cur->second);
-				DynamicString new_prefix(default_allocator());
-				to_flat(obj, cur->second, key);
+			if (sjson::type(cur->second) == JsonValueType::OBJECT) {
+				TempAllocator4096 ta;
+				JsonObject child(ta);
+				RETURN_IF_ERROR(sjson::parse_object(child, cur->second));
+				if (merge_object(obj, child, key) != 0)
+					return -1;
+			} else if (sjson::type(cur->second) == JsonValueType::ARRAY) {
+				TempAllocator4096 ta;
+				JsonArray array(ta);
+				RETURN_IF_ERROR(sjson::parse_array(array, cur->second));
+				const bool objects = object_set(obj, key.c_str()) != NULL
+					|| (!array::empty(array) && sjson::type(array[0]) == JsonValueType::OBJECT)
+					;
+				if (objects) {
+					if (merge_object_set(obj, key.c_str(), array) != 0)
+						return -1;
+				} else {
+					remove_object_set(obj, key.c_str());
+				}
 			} else {
-				hash_map::set(obj, key, cur->second);
+				remove_object_set(obj, key.c_str());
 			}
 		}
+
+		return 0;
+	}
+
+	static s32 merge_component(CompilerObject &component, const char *local_json)
+	{
+		TempAllocator4096 ta;
+		JsonObject local(ta);
+		RETURN_IF_ERROR(sjson::parse_object(local, local_json));
+
+		const char *data_json = local["data"];
+		if (data_json == NULL || sjson::type(data_json) != JsonValueType::OBJECT) {
+			DynamicString prefix(default_allocator());
+			return merge_object(component, local, prefix);
+		}
+
+		JsonObject data(ta);
+		RETURN_IF_ERROR(sjson::parse_object(data, data_json));
+		if (json_object::has(data, "materials")) {
+			if (flat_json_object::has(component, "data.material")
+				&& !flat_json_object::has(component, "data.materials")) {
+				JsonArray materials(ta);
+				RETURN_IF_ERROR(sjson::parse_array(materials, data["materials"]));
+				const char *prefab = NULL;
+				for (u32 i = 0; i < array::size(materials); ++i) {
+					JsonObject binding(ta);
+					RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
+					if (json_object::has(binding, "_prefab")) {
+						prefab = binding["_prefab"];
+						break;
+					}
+				}
+
+				if (prefab != NULL) {
+					CompilerObjectSet *set = CE_NEW(default_allocator(), CompilerObjectSet)(default_allocator());
+					CompilerObject *binding = CE_NEW(default_allocator(), CompilerObject)(default_allocator());
+					DynamicString key(default_allocator());
+					key = "_guid";
+					hash_map::set(*binding, key, prefab);
+					key = "_type";
+					hash_map::set(*binding, key, (const char *)"\"mesh_material\"");
+					key = "data.slot";
+					hash_map::set(*binding, key, (const char *)"\"default\"");
+					key = "data.material";
+					hash_map::set(*binding, key, flat_json_object::get(component, "data.material"));
+					array::push_back(set->_objects, binding);
+					set_object_set(component, "data.materials", set);
+				} else {
+					DynamicString slot(ta);
+					slot = "default";
+					for (u32 i = 0; i < array::size(materials); ++i) {
+						JsonObject binding(ta);
+						RETURN_IF_ERROR(sjson::parse_object(binding, materials[i]));
+						DynamicString object_slot(ta);
+						const s32 result = mesh_material_slot(object_slot, binding);
+						if (result < 0)
+							return -1;
+						if (result == 0 && object_slot == slot) {
+							if (warn_unsupported_material(binding, slot) != 0)
+								return -1;
+							hash_map::remove(data._map, StringView("materials"));
+							break;
+						}
+					}
+				}
+			}
+			if (json_object::has(data, "materials"))
+				remove_property(component, "data.material");
+		} else if (json_object::has(data, "material")) {
+			remove_object_set(component, "data.materials");
+			remove_property(component, "data.materials");
+		}
+
+		hash_map::remove(local._map, StringView("data"));
+		DynamicString prefix(default_allocator());
+		if (merge_object(component, local, prefix) != 0)
+			return -1;
+		DynamicString data_key(default_allocator());
+		data_key = "data";
+		hash_map::set(component, data_key, data_json);
+		prefix = "data";
+		return merge_object(component, data, prefix);
 	}
 
 	s32 modify_unit_components(Unit *unit, const char *unit_json, CompileOptions &opts)
@@ -1046,12 +1317,10 @@ namespace unit_compiler
 
 			// Add components.
 			for (u32 cc = 0; cc < array::size(components); ++cc) {
-				FlatJsonObject flat_comp(default_allocator());
-				DynamicString empty(default_allocator());
-				to_flat(flat_comp, components[cc], empty);
-
-				array::push_back(unit->_merged_components, components[cc]);
-				vector::push_back(unit->_flattened_components, flat_comp);
+				CompilerObject *component = NULL;
+				if (create_object(component, components[cc]) != 0)
+					return -1;
+				array::push_back(unit->_components, component);
 			}
 		}
 
@@ -1072,15 +1341,13 @@ namespace unit_compiler
 				s32 err = parse_component_override_guid(component_id, key, opts);
 				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
-				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
+				u32 comp_idx = object_index(unit->_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
-					u32 comp_last = array::size(unit->_merged_components) - 1;
-					if (comp_idx != comp_last) {
-						unit->_merged_components[comp_idx] = unit->_merged_components[comp_last];
-						unit->_flattened_components[comp_idx] = unit->_flattened_components[comp_last];
-					}
-					array::pop_back(unit->_merged_components);
-					vector::pop_back(unit->_flattened_components);
+					CE_DELETE(default_allocator(), unit->_components[comp_idx]);
+					u32 comp_last = array::size(unit->_components) - 1;
+					if (comp_idx != comp_last)
+						unit->_components[comp_idx] = unit->_components[comp_last];
+					array::pop_back(unit->_components);
 				} else {
 					continue;
 				}
@@ -1102,24 +1369,11 @@ namespace unit_compiler
 				s32 err = parse_component_override_guid(component_id, cur->first, opts);
 				ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
-				// Patch flattened component's keys.
-				u32 comp_idx = object_index(unit->_merged_components, component_id, opts);
+				// Merge the component so later prefab overrides see its resolved data.
+				u32 comp_idx = object_index(unit->_components, component_id, opts);
 				if (comp_idx != UINT32_MAX) {
-					JsonObject modification(ta);
-					RETURN_IF_ERROR(sjson::parse_object(modification, cur->second));
-					if (json_object::has(modification, "data")) {
-						JsonObject data(ta);
-						RETURN_IF_ERROR(sjson::parse_object(data, modification["data"]));
-						// A legacy-only override replaces an inherited material set in the
-						// temporary flattened component without modifying the source data.
-						if (json_object::has(data, "material") && !json_object::has(data, "materials")) {
-							DynamicString materials_key(default_allocator());
-							materials_key = "data.materials";
-							hash_map::remove(unit->_flattened_components[comp_idx], materials_key);
-						}
-					}
-					DynamicString empty(default_allocator());
-					to_flat(unit->_flattened_components[comp_idx], cur->second, empty);
+					if (merge_component(*unit->_components[comp_idx], cur->second) != 0)
+						return -1;
 				} else {
 					continue;
 				}
@@ -1263,24 +1517,19 @@ namespace unit_compiler
 		array::push_back(c._unit_names, unit->_editor_name);
 		++c._num_units;
 
-		for (u32 cc = 0; cc < array::size(unit->_merged_components); ++cc) {
-			TempAllocator512 ta;
-			JsonObject component(ta);
-			RETURN_IF_ERROR(sjson::parse(component, unit->_merged_components[cc]));
+		for (u32 cc = 0; cc < array::size(unit->_components); ++cc) {
+			CompilerObject &component = *unit->_components[cc];
+			const char *id_json = flat_json_object::has(component, "id")
+				? flat_json_object::get(component, "id")
+				: flat_json_object::get(component, "_guid")
+				;
+			Guid component_id = RETURN_IF_ERROR(sjson::parse_guid(id_json));
 
-			Guid component_id;
-			if (json_object::has(component, "id")) {
-				component_id = RETURN_IF_ERROR(sjson::parse_guid(component["id"]));
-			} else {
-				component_id = RETURN_IF_ERROR(sjson::parse_guid(component["_guid"]));
-			}
-
-			StringId32 comp_type;
-			if (!json_object::has(component, "_type")) {
-				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]));
-			} else {
-				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]));
-			}
+			const char *type_json = flat_json_object::has(component, "_type")
+				? flat_json_object::get(component, "_type")
+				: flat_json_object::get(component, "type")
+				;
+			StringId32 comp_type = RETURN_IF_ERROR(sjson::parse_string_id(type_json));
 
 			const ComponentKey key = { component_id, root_unit_index };
 			hash_map::set(c._component_unit_index, key, unit_index);
@@ -1348,19 +1597,14 @@ namespace unit_compiler
 
 		// Compile component data for each component type found
 		// in the tree of units.
-		for (u32 cc = 0; cc < array::size(unit->_merged_components); ++cc) {
-			const char *component_json = unit->_merged_components[cc];
-
-			TempAllocator512 ta;
-			JsonObject component(ta);
-			RETURN_IF_ERROR(sjson::parse(component, component_json));
-
+		for (u32 cc = 0; cc < array::size(unit->_components); ++cc) {
+			CompilerObject &component = *unit->_components[cc];
 			StringId32 comp_type;
-			if (!json_object::has(component, "_type")) {
-				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["type"]));
+			if (!flat_json_object::has(component, "_type")) {
+				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(component, "type")));
 				logw(UNIT_COMPILER, "'type' property is deprecated: replace with equivalent '_type'");
 			} else {
-				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(component["_type"]));
+				comp_type = RETURN_IF_ERROR(sjson::parse_string_id(flat_json_object::get(component, "_type")));
 			}
 
 			if (comp_type == STRING_ID_32("transform", UINT32_C(0xad9b5315)))
@@ -1374,7 +1618,7 @@ namespace unit_compiler
 			// Compile component.
 			Buffer comp_data(default_allocator());
 			c._current_unit_index = unit_index;
-			s32 err = ctd._compiler(comp_data, c, unit->_flattened_components[cc], opts);
+			s32 err = ctd._compiler(comp_data, c, component, opts);
 			ENSURE_OR_RETURN(UNIT_COMPILER, err == 0, opts);
 
 			// One component per unit max.
@@ -1521,13 +1765,45 @@ namespace unit_compiler
 
 } // namespace unit_compiler
 
+CompilerObjectSet::CompilerObjectSet(Allocator &a)
+	: _objects(a)
+{
+}
+
+CompilerObjectSet::~CompilerObjectSet()
+{
+	for (u32 i = 0; i < array::size(_objects); ++i)
+		CE_DELETE(default_allocator(), _objects[i]);
+}
+
+CompilerObject::CompilerObject(Allocator &a)
+	: FlatJsonObject(a)
+	, _sets(a)
+{
+}
+
+CompilerObject::~CompilerObject()
+{
+	auto cur = hash_map::begin(_sets);
+	auto end = hash_map::end(_sets);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(_sets, cur);
+		CE_DELETE(default_allocator(), cur->second);
+	}
+}
+
 Unit::Unit(Allocator &a)
 	: _index(UINT32_MAX)
-	, _merged_components(a)
-	, _flattened_components(a)
+	, _components(a)
 	, _children(a)
 	, _parent(NULL)
 {
+}
+
+Unit::~Unit()
+{
+	for (u32 i = 0; i < array::size(_components); ++i)
+		CE_DELETE(default_allocator(), _components[i]);
 }
 
 UnitCompiler::UnitCompiler(Allocator &a)

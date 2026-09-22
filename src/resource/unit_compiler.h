@@ -17,8 +17,31 @@
 namespace crown
 {
 struct UnitCompiler;
+struct CompilerObject;
 
-typedef s32 (*CompileFunction)(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts);
+struct CompilerObjectSet
+{
+	Array<CompilerObject *> _objects;
+
+	///
+	explicit CompilerObjectSet(Allocator &a);
+
+	///
+	~CompilerObjectSet();
+};
+
+struct CompilerObject : public FlatJsonObject
+{
+	HashMap<DynamicString, CompilerObjectSet *> _sets;
+
+	///
+	explicit CompilerObject(Allocator &a);
+
+	///
+	~CompilerObject();
+};
+
+typedef s32 (*CompileFunction)(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts);
 typedef s32 (*FinalizeFunction)(Buffer &data, u32 num, CompileOptions &opts);
 
 struct ComponentKey
@@ -74,13 +97,15 @@ struct Unit
 
 	StringId32 _editor_name;
 	u32 _index;
-	JsonArray _merged_components;
-	Vector<FlatJsonObject> _flattened_components;
+	Array<CompilerObject *> _components;
 	HashMap<Guid, Unit *> _children;
 	Unit *_parent;
 
 	///
 	explicit Unit(Allocator &a);
+
+	///
+	~Unit();
 };
 
 struct UnitCompiler

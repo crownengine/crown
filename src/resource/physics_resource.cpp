@@ -155,7 +155,7 @@ namespace physics_resource_internal
 		sd.box.half_size = (aabb.max - aabb.min) * 0.5f;
 	}
 
-	s32 compile_collider(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_collider(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		CE_UNUSED(compiler);
 
@@ -388,7 +388,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_actor(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_actor(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		CE_UNUSED_2(compiler, opts);
 
@@ -435,7 +435,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_mover(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_mover(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		CE_UNUSED_2(compiler, opts);
 
@@ -466,7 +466,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 joint_common_parse(JointDesc &jd, JointType::Enum jt, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 joint_common_parse(JointDesc &jd, JointType::Enum jt, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		const Guid other_unit_id = RETURN_IF_ERROR(sjson::parse_guid(flat_json_object::get(obj, "data.other_actor")));
 
@@ -524,7 +524,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_fixed_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_fixed_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::FIXED, compiler, obj, opts);
@@ -534,7 +534,7 @@ namespace physics_resource_internal
 		return joint_common_write(fb, jd);
 	}
 
-	s32 compile_hinge_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_hinge_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		HingeJoint hinge = {};
 		hinge.axis = VECTOR3_ZAXIS;
@@ -571,7 +571,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_spherical_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_spherical_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		JointDesc jd;
 		s32 err = joint_common_parse(jd, JointType::SPHERICAL, compiler, obj, opts);
@@ -581,7 +581,7 @@ namespace physics_resource_internal
 		return joint_common_write(fb, jd);
 	}
 
-	s32 compile_limb_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_limb_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		LimbJoint limb = {};
 		JointDesc jd;
@@ -622,7 +622,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_spring_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_spring_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		SpringJoint spring = {};
 		JointDesc jd;
@@ -642,7 +642,7 @@ namespace physics_resource_internal
 		return 0;
 	}
 
-	s32 compile_d6_joint(Buffer &output, UnitCompiler &compiler, FlatJsonObject &obj, CompileOptions &opts)
+	s32 compile_d6_joint(Buffer &output, UnitCompiler &compiler, CompilerObject &obj, CompileOptions &opts)
 	{
 		D6Joint d6 = {};
 		JointDesc jd;
