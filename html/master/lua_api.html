@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-15T21:26:15+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-09-23T07:42:37+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -1119,6 +1119,21 @@ in [0..1] and the <em>unit</em> and the <em>actor</em> that was hit.</p>
 <section id="actor">
 <h3>Actor<a class="headerlink" href="#actor" title="Permalink to this headline">¶</a></h3>
 <dl>
+<dt><strong>actor_create_sphere</strong> (pw, unit, radius, position, rotation)<span class="classifier">Id</span></dt><dd><p>Creates a static actor with a sphere collider for the <em>unit</em> and returns its ID.
+<em>position</em> and <em>rotation</em> describe the collider pose in the unit’s local space.</p>
+</dd>
+<dt><strong>actor_create_capsule</strong> (pw, unit, radius, height, position, rotation)<span class="classifier">Id</span></dt><dd><p>Creates a static actor with a capsule collider for the <em>unit</em> and returns its ID.
+<em>position</em> and <em>rotation</em> describe the collider pose in the unit’s local space.</p>
+</dd>
+<dt><strong>actor_create_box</strong> (pw, unit, half_extents, position, rotation)<span class="classifier">Id</span></dt><dd><p>Creates a static actor with a box collider for the <em>unit</em> and returns its ID.
+<em>position</em> and <em>rotation</em> describe the collider pose in the unit’s local space.</p>
+</dd>
+<dt><strong>actor_set_collider_params</strong> (pw, actor, params)</dt><dd><p>Sets the collider parameters of the <em>actor</em>. <em>params</em> is a table containing
+<code class="docutils literal notranslate"><span class="pre">shape</span></code>, <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">rotation</span></code> fields. <code class="docutils literal notranslate"><span class="pre">shape</span></code> can be <code class="docutils literal notranslate"><span class="pre">sphere</span></code>,
+<code class="docutils literal notranslate"><span class="pre">capsule</span></code>, <code class="docutils literal notranslate"><span class="pre">box</span></code>, <code class="docutils literal notranslate"><span class="pre">convex_hull</span></code> or <code class="docutils literal notranslate"><span class="pre">mesh</span></code>. Spheres require a <code class="docutils literal notranslate"><span class="pre">radius</span></code>;
+capsules require a <code class="docutils literal notranslate"><span class="pre">radius</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>; boxes require <code class="docutils literal notranslate"><span class="pre">half_extents</span></code>;
+convex hulls and meshes require <code class="docutils literal notranslate"><span class="pre">mesh_resource</span></code> and <code class="docutils literal notranslate"><span class="pre">geometry</span></code>.</p>
+</dd>
 <dt><strong>actor_destroy</strong> (pw, actor)</dt><dd><p>Destroys the <em>actor</em> instance.</p>
 </dd>
 <dt><strong>actor_instance</strong> (pw, unit)<span class="classifier">Id</span></dt><dd><p>Returns the ID of the actor owned by the <em>unit</em>, or <code class="docutils literal notranslate"><span class="pre">nil</span></code>.</p>
@@ -1515,7 +1530,12 @@ It can be either <code class="docutils literal notranslate"><span class="pre">di
 </dd>
 <dt><strong>light_set_spot_angle</strong> (rw, light, angle)</dt><dd><p>Sets the spot <em>angle</em> of the <em>light</em>.</p>
 </dd>
-<dt><strong>light_set_shadow_bias</strong> (rw, light, bias)</dt><dd><p>Sets the shadow <em>bias</em> of the <em>light</em>.</p>
+<dt><strong>light_set_shadow_bias</strong> (rw, light, depth_bias, normal_bias)</dt><dd><p>Sets the normalized depth and normal shadow biases of the <em>light</em>.</p>
+</dd>
+<dt><strong>light_set_cookie</strong> (rw, light, texture_resource)</dt><dd><p>Sets the cookie texture resource of the <em>light</em>. Pass <code class="docutils literal notranslate"><span class="pre">nil</span></code> to remove the
+current cookie.</p>
+</dd>
+<dt><strong>light_set_cookie_scale_and_offset</strong> (rw, light, scale, offset)</dt><dd><p>Sets the cookie <em>scale</em> and local X/Y <em>offset</em>. <em>offset</em> is a Vector2.</p>
 </dd>
 <dt><strong>light_set_cast_shadows</strong> (rw, light, cast_shadows)</dt><dd><p>Sets whether the <em>light</em> casts shadows.</p>
 </dd>
@@ -1876,7 +1896,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 15, 2026.
+      <span class="lastupdated">Last updated on Sep 23, 2026.
       </span></p>
   </div>
 

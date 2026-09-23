@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-09-22T05:06:59+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-09-23T07:42:37+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.65.0 Manual" />
@@ -230,7 +230,7 @@
 <li><p>Tools: added actor’s collider visualization to the Unit Editor.</p></li>
 <li><p>Tools: added the ability to filter resources by type in the Project Browser.</p></li>
 <li><p>Runtime: added support for MP3 sound files.</p></li>
-<li><p>Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).</p></li>
+<li><p>Runtime: added triplanar mapping support to the mesh shader (<code class="docutils literal notranslate"><span class="pre">+TRIPLANAR</span></code> and <code class="docutils literal notranslate"><span class="pre">+TRIPLANAR_LOCAL</span></code>).</p></li>
 <li><p>Runtime: added a new Vignette post-processing effect.</p></li>
 <li><p>Runtime: animated meshes have now correct pre-computed bounds.</p></li>
 <li><p>Runtime: added fog support to unlit materials and a new <code class="docutils literal notranslate"><span class="pre">+NO_FOG</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> shader.</p></li>
@@ -239,10 +239,15 @@
 <li><p>Runtime: added support for multiple materials on a single mesh.</p></li>
 <li><p>Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.</p></li>
 <li><p>Runtime: improved local lights shadow resolution by better allocating atlas tiles.</p></li>
+<li><p>Runtime: added support for light cookies.</p></li>
 <li><p>Data Compiler: improved performances by compiling resources in parallel.</p></li>
 <li><p>Data Compiler: identical geometries inside meshes are now automatically deduplicated.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Window.is_fullscreen()</span></code>.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Device.scoped_autoload_begin()</span></code> and <code class="docutils literal notranslate"><span class="pre">Device.scoped_autoload_end()</span></code>.</p></li>
+<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">PhysicsWorld.actor_create_sphere()</span></code>, <code class="docutils literal notranslate"><span class="pre">actor_create_capsule()</span></code>, <code class="docutils literal notranslate"><span class="pre">actor_create_box()</span></code> and <code class="docutils literal notranslate"><span class="pre">actor_set_collider_params()</span></code>.</p></li>
+<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">RenderWorld.mesh_has_material()</span></code> and a new <code class="docutils literal notranslate"><span class="pre">slot</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">mesh_set_material()</span></code>.</p></li>
+<li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">RenderWorld.light_set_cookie()</span></code> and <code class="docutils literal notranslate"><span class="pre">light_set_cookie_scale_and_offset()</span></code>.</p></li>
+<li><p>Lua: added a new <code class="docutils literal notranslate"><span class="pre">normal_bias</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">RenderWorld.light_set_shadow_bias()</span></code> and a corresponding return value to <code class="docutils literal notranslate"><span class="pre">light_shadow_bias()</span></code>.</p></li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
@@ -1337,7 +1342,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Sep 22, 2026.
+      <span class="lastupdated">Last updated on Sep 23, 2026.
       </span></p>
   </div>
 
