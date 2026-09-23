@@ -1027,9 +1027,7 @@ LightId RenderWorld::light_create(UnitId unit, const LightDesc &ld)
 {
 	u32 unit_index = 0;
 	_light_manager.create_instances(&ld, 1, &unit, &unit_index);
-	LightId light = light_instance(unit);
-	light_set_cookie(light, ld.cookie);
-	return light;
+	return light_instance(unit);
 }
 
 void RenderWorld::light_destroy(LightId light)
@@ -1137,28 +1135,31 @@ void RenderWorld::light_set_cookie(LightId light, StringId64 cookie)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 
-	if (cookie != StringId64()) {
-		const TextureResource *texture = (const TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, cookie);
-		_light_manager._data.cookie_data[light.i] = { texture->handle, texture->width, texture->height };
+	const TextureResource *texture = (const TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, cookie);
+	_light_manager._data.cookie_data[light.i] = { texture->handle, texture->width, texture->height };
 #if CROWN_CAN_RELOAD
-		_light_manager._data.cookie_resource[light.i] = texture;
+	_light_manager._data.cookie_resource[light.i] = texture;
 #endif
-	} else {
-		_light_manager._data.cookie_data[light.i] = { BGFX_INVALID_HANDLE, 0, 0 };
-#if CROWN_CAN_RELOAD
-		_light_manager._data.cookie_resource[light.i] = NULL;
-#endif
-	}
 }
 
-void RenderWorld::light_set_cookie_scale_and_offset(LightId light, const Vector3 &scale_and_offset)
+void RenderWorld::light_remove_cookie(LightId light)
+{
+	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
+
+	_light_manager._data.cookie_data[light.i] = { BGFX_INVALID_HANDLE, 0, 0 };
+#if CROWN_CAN_RELOAD
+	_light_manager._data.cookie_resource[light.i] = NULL;
+#endif
+}
+
+void RenderWorld::light_set_cookie_scale_and_offset(LightId light, f32 scale, const Vector2 &offset)
 {
 	CE_ASSERT(light.i < _light_manager._data.size, "Index out of bounds");
 	_light_manager._data.shader[light.i].cookie_transform = {
-		scale_and_offset.x,
-		scale_and_offset.y,
-		scale_and_offset.z,
-		1.0f / max(scale_and_offset.x, 0.001f)
+		scale,
+		offset.x,
+		offset.y,
+		1.0f / max(scale, 0.001f)
 	};
 }
 

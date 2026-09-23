@@ -242,12 +242,14 @@ struct RenderWorld
 	/// Sets the normalized shadow @a bias_depth and @a bias_normal of the @a light.
 	void light_set_shadow_bias(LightId light, f32 bias_depth, f32 bias_normal);
 
-	/// Sets the @a cookie texture resource of the @a light. Use StringId64()
-	/// to remove any cookie currently assigned to the light.
+	/// Sets the @a cookie texture resource of the @a light.
 	void light_set_cookie(LightId light, StringId64 cookie);
 
-	/// Sets the cookie @a scale, followed by its local X/Y offsets.
-	void light_set_cookie_scale_and_offset(LightId light, const Vector3 &scale_and_offset);
+	/// Removes the cookie texture resource of the @a light.
+	void light_remove_cookie(LightId light);
+
+	/// Sets the cookie @a scale and local X/Y @a offset.
+	void light_set_cookie_scale_and_offset(LightId light, f32 scale, const Vector2 &offset);
 
 	/// Sets whether the @a light casts shadows.
 	void light_set_cast_shadows(LightId light, bool cast_shadows);

@@ -513,7 +513,7 @@ function UnitBox:set_light(type, range, intensity, angle, cr, cg, cb, bias, bias
 		RenderWorld.light_set_shadow_bias(self._rw, light, bias, bias_normal)
 		RenderWorld.light_set_cast_shadows(self._rw, light, cast_shadows)
 		RenderWorld.light_set_cookie(self._rw, light, cookie)
-		RenderWorld.light_set_cookie_scale_and_offset(self._rw, light, Vector3(cookie_scale, cookie_x, cookie_y))
+		RenderWorld.light_set_cookie_scale_and_offset(self._rw, light, cookie_scale, Vector2(cookie_x, cookie_y))
 	end
 	Device.set_temp_count(nv, nq, nm)
 end
