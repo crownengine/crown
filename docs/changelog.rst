@@ -31,7 +31,7 @@ Changelog
 * Tools: added actor's collider visualization to the Unit Editor.
 * Tools: added the ability to filter resources by type in the Project Browser.
 * Runtime: added support for MP3 sound files.
-* Runtime: added triplanar mapping support to the mesh shader (+TRIPLANAR and +TRIPLANAR_LOCAL).
+* Runtime: added triplanar mapping support to the mesh shader (``+TRIPLANAR`` and ``+TRIPLANAR_LOCAL``).
 * Runtime: added a new Vignette post-processing effect.
 * Runtime: animated meshes have now correct pre-computed bounds.
 * Runtime: added fog support to unlit materials and a new ``+NO_FOG`` option to the ``mesh`` shader.
@@ -40,10 +40,15 @@ Changelog
 * Runtime: added support for multiple materials on a single mesh.
 * Runtime: reduced shadow-mapping imperfections with a new configurable normal-offset bias.
 * Runtime: improved local lights shadow resolution by better allocating atlas tiles.
+* Runtime: added support for light cookies.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Data Compiler: identical geometries inside meshes are now automatically deduplicated.
 * Lua: added ``Window.is_fullscreen()``.
 * Lua: added ``Device.scoped_autoload_begin()`` and ``Device.scoped_autoload_end()``.
+* Lua: added ``PhysicsWorld.actor_create_sphere()``, ``actor_create_capsule()``, ``actor_create_box()`` and ``actor_set_collider_params()``.
+* Lua: added ``RenderWorld.mesh_has_material()`` and a new ``slot`` parameter to ``mesh_set_material()``.
+* Lua: added ``RenderWorld.light_set_cookie()`` and ``light_set_cookie_scale_and_offset()``.
+* Lua: added a new ``normal_bias`` parameter to ``RenderWorld.light_set_shadow_bias()`` and a corresponding return value to ``light_shadow_bias()``.
 
 **Fixes**
 

@@ -1027,6 +1027,25 @@ RaycastHit is a lua table with 5 fields:
 Actor
 -----
 
+**actor_create_sphere** (pw, unit, radius, position, rotation) : Id
+	Creates a static actor with a sphere collider for the *unit* and returns its ID.
+	*position* and *rotation* describe the collider pose in the unit's local space.
+
+**actor_create_capsule** (pw, unit, radius, height, position, rotation) : Id
+	Creates a static actor with a capsule collider for the *unit* and returns its ID.
+	*position* and *rotation* describe the collider pose in the unit's local space.
+
+**actor_create_box** (pw, unit, half_extents, position, rotation) : Id
+	Creates a static actor with a box collider for the *unit* and returns its ID.
+	*position* and *rotation* describe the collider pose in the unit's local space.
+
+**actor_set_collider_params** (pw, actor, params)
+	Sets the collider parameters of the *actor*. *params* is a table containing
+	``shape``, ``position`` and ``rotation`` fields. ``shape`` can be ``sphere``,
+	``capsule``, ``box``, ``convex_hull`` or ``mesh``. Spheres require a ``radius``;
+	capsules require a ``radius`` and ``height``; boxes require ``half_extents``;
+	convex hulls and meshes require ``mesh_resource`` and ``geometry``.
+
 **actor_destroy** (pw, actor)
 	Destroys the *actor* instance.
 
@@ -1538,8 +1557,15 @@ Light
 **light_set_spot_angle** (rw, light, angle)
 	Sets the spot *angle* of the *light*.
 
-**light_set_shadow_bias** (rw, light, bias)
-	Sets the shadow *bias* of the *light*.
+**light_set_shadow_bias** (rw, light, depth_bias, normal_bias)
+	Sets the normalized depth and normal shadow biases of the *light*.
+
+**light_set_cookie** (rw, light, texture_resource)
+	Sets the cookie texture resource of the *light*. Pass ``nil`` to remove the
+	current cookie.
+
+**light_set_cookie_scale_and_offset** (rw, light, scale, offset)
+	Sets the cookie *scale* and local X/Y *offset*. *offset* is a Vector2.
 
 **light_set_cast_shadows** (rw, light, cast_shadows)
 	Sets whether the *light* casts shadows.
