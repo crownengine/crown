@@ -264,9 +264,16 @@ class ObjectsSetEditor : Gtk.Box
 			foreach (Guid? child_id in _grid._db.get_set(owner_id, _definition.name))
 				children.add(child_id);
 
-			foreach (Guid? object_id in object_ids) {
-				if (children.contains(object_id))
-					_object_id = object_id;
+			for (int ii = object_ids.length - 1; ii >= 0; --ii) {
+				if (!children.contains(object_ids[ii]))
+					continue;
+
+				_object_id = object_ids[ii];
+				read();
+				Gtk.ListBoxRow? row = _list.get_selected_row();
+				if (row != null)
+					row.grab_focus();
+				return;
 			}
 		}
 
