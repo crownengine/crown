@@ -67,6 +67,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_properties_view.set_component_func(Unit.has_component_static);
 
 		_database_editor.load_types();
+		_objects_tree.flatten_objects_set(StringId64(OBJECT_TYPE_UNIT), "children");
 		_properties_view.register_object_type(StringId64(OBJECT_TYPE_UNIT), new UnitView(_database));
 
 		_editor_viewport = new EditorViewport("unit_editor"
