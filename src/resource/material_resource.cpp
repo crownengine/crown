@@ -553,6 +553,16 @@ namespace material_resource_internal
 				err = parse_uniforms(data, obj["uniforms"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
+		for (u32 i = 0; i < array::size(data.textures); ++i) {
+			for (u32 j = 0; j < array::size(data.uniforms); ++j) {
+				RETURN_IF_FALSE(MATERIAL_RESOURCE
+					, data.textures[i].name != data.uniforms[j].name
+					, opts
+					, "Texture and uniform have the same name: '%s'"
+					, (char *)array::begin(data.names) + data.textures[i].sampler_name_offset
+					);
+			}
+		}
 
 		data.alloc_blob();
 
