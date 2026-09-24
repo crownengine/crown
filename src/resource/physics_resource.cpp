@@ -248,22 +248,36 @@ namespace physics_resource_internal
 				break;
 			}
 		} else {
-			RETURN_IF_FALSE(PHYSICS_RESOURCE, flat_json_object::has(obj, "data.collider_data")
-				, opts
-				, "No collider_data found"
-				);
-			Quaternion rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.collider_data.rotation")));
-			Vector3 position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.position")));
+			Quaternion rotation = QUATERNION_IDENTITY;
+			if (flat_json_object::has(obj, "data.collider_data.rotation")) {
+				rotation = RETURN_IF_ERROR(sjson::parse_quaternion(flat_json_object::get(obj, "data.collider_data.rotation")));
+			}
+			Vector3 position = VECTOR3_ZERO;
+			if (flat_json_object::has(obj, "data.collider_data.position")) {
+				position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.position")));
+			}
 			Matrix4x4 matrix_local = from_quaternion_translation(rotation, position);
 			cd.local_tm = matrix_local;
 
 			if (cd.type == ColliderType::SPHERE) {
-				cd.sphere.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")));
+				cd.sphere.radius = 0.5f;
+				if (flat_json_object::has(obj, "data.collider_data.radius")) {
+					cd.sphere.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")));
+				}
 			} else if (cd.type == ColliderType::BOX) {
-				cd.box.half_size = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.half_extents")));
+				cd.box.half_size = { 0.5f, 0.5f, 0.5f };
+				if (flat_json_object::has(obj, "data.collider_data.half_extents")) {
+					cd.box.half_size = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.collider_data.half_extents")));
+				}
 			} else if (cd.type == ColliderType::CAPSULE) {
-				cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")));
-				cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.height")));
+				cd.capsule.radius = 0.5f;
+				if (flat_json_object::has(obj, "data.collider_data.radius")) {
+					cd.capsule.radius = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.radius")));
+				}
+				cd.capsule.height = 1.0f;
+				if (flat_json_object::has(obj, "data.collider_data.height")) {
+					cd.capsule.height = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.collider_data.height")));
+				}
 			} else {
 				RETURN_IF_FALSE(PHYSICS_RESOURCE, false, opts, "Invalid collider type");
 			}
