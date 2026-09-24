@@ -122,7 +122,7 @@ class ObjectsSetEditor : Gtk.Box
 		this.append(_editor);
 #endif
 
-		_grid._db.objects_created.connect((object_ids, flags) => { read(); });
+		_grid._db.objects_created.connect(on_objects_created);
 		_grid._db.objects_destroyed.connect((object_ids, flags) => { read(); });
 		_grid._db.objects_changed.connect((object_ids, flags) => { read(); });
 	}
@@ -253,7 +253,24 @@ class ObjectsSetEditor : Gtk.Box
 		_object_id = GUID_ZERO;
 
 		_grid._db.destroy(object_id);
-		_grid._db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id });
+		_grid._db.add_restore_point((int)ActionType.DESTROY_OBJECTS, { object_id }, ActionTypeFlags.FROM_OBJECTS_SET_EDITOR);
+	}
+
+	public void on_objects_created(Guid?[] object_ids, uint32 flags)
+	{
+		if ((flags& ActionTypeFlags.FROM_OBJECTS_SET_EDITOR) != 0) {
+			Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
+			GLib.GenericSet<Guid?> children = guid_set_new();
+			foreach (Guid? child_id in _grid._db.get_set(owner_id, _definition.name))
+				children.add(child_id);
+
+			foreach (Guid? object_id in object_ids) {
+				if (children.contains(object_id))
+					_object_id = object_id;
+			}
+		}
+
+		read();
 	}
 
 	public void on_row_selected(Gtk.ListBoxRow? row)
