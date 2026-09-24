@@ -1090,7 +1090,7 @@ public class PropertyGrid : Gtk.Grid
 	{
 		if (p.is_inconsistent())
 			return;
-		if (_id == GUID_ZERO)
+		if (_id == GUID_ZERO || !_db.is_alive(_id))
 			return;
 		if (undo_redo == -1 && _instance_owner_id != GUID_ZERO && _db.owner(_id) != _instance_owner_id)
 			return;
