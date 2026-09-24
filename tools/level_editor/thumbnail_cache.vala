@@ -155,6 +155,17 @@ public class ThumbnailCache
 		changed();
 	}
 
+	public void clear_pending()
+	{
+		foreach (StringId64? resource_id in _list) {
+			CacheEntry? entry = _map.get(resource_id);
+			if (entry.pending) {
+				entry.pending = false;
+				_map.set(resource_id, entry);
+			}
+		}
+	}
+
 	// Generates mips for @a thumb_id. The main thumbnail for @a thumb_id
 	// is assumed to be already loaded into the atlas.
 	public void generate_mips(int thumb_id)

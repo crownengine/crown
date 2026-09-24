@@ -2988,6 +2988,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		yield _thumbnail.stop();
 		yield start_thumbnail();
+		_thumbnail_cache.clear_pending();
 	}
 
 	public void on_tool(GLib.SimpleAction action, GLib.Variant? param)
