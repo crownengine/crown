@@ -641,6 +641,7 @@ MeshId RenderWorld::mesh_create(UnitId unit, const MeshRendererDesc &mrd)
 
 void RenderWorld::mesh_destroy(MeshId mesh)
 {
+	_lod_group_manager.detach_mesh(mesh);
 	_mesh_manager.destroy(mesh);
 }
 
@@ -3734,6 +3735,47 @@ void RenderWorld::LodGroupManager::update_bounds(u32 lod_group)
 		_data.obb[lod_group] = bounds;
 		_data.sphere[lod_group] = bounds_sphere;
 	}
+}
+
+void RenderWorld::LodGroupManager::detach_mesh(MeshId mesh)
+{
+	const u32 mesh_i = _render_world->_mesh_manager.index(mesh);
+	const UnitId lod_group_unit = _render_world->_mesh_manager._data.lod_group_unit[mesh_i];
+	if (lod_group_unit == UNIT_INVALID)
+		return;
+
+	const LodGroupId lod_group = this->lod_group(lod_group_unit);
+	CE_ENSURE(is_valid(lod_group));
+
+	u32 entry_idx = _data.first_entry[lod_group.i];
+	while (entry_idx != UINT32_MAX) {
+		LodGroupEntry &entry = _entries[entry_idx];
+
+		for (u32 i = 0; i < entry.count; ++i) {
+			if (entry.levels[i].mesh.i != mesh.i)
+				continue;
+
+			entry.levels[i].mesh = { UINT32_MAX };
+			_render_world->_mesh_manager._data.lod_group_unit[mesh_i] = UNIT_INVALID;
+			if (_data.selected_mesh[lod_group.i].i == mesh.i) {
+				_data.current_level[lod_group.i] = UINT32_MAX;
+				_data.selected_mesh[lod_group.i] = { UINT32_MAX };
+			}
+			if (_data.previous_mesh[lod_group.i].i == mesh.i) {
+				_data.previous_level[lod_group.i] = UINT32_MAX;
+				_data.previous_mesh[lod_group.i] = { UINT32_MAX };
+				_data.fade_time[lod_group.i] = 0.0f;
+			}
+			update_bounds(lod_group.i);
+			_data.flags[lod_group.i] |= RenderableFlags::DIRTY;
+			_dirty = true;
+			return;
+		}
+
+		entry_idx = entry.next;
+	}
+
+	CE_FATAL("LOD group mesh not found");
 }
 
 void RenderWorld::LodGroupManager::destroy(LodGroupId lod_group)

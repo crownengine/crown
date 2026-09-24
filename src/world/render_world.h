@@ -751,6 +751,9 @@ struct RenderWorld
 		void update_bounds(u32 lod_group);
 
 		///
+		void detach_mesh(MeshId mesh);
+
+		///
 		void destroy(LodGroupId lod_group);
 
 		///

@@ -108,6 +108,7 @@ Changelog
 * Runtime: HTML5: fixed low precision issues when sampling normal maps on Chromium browser.
 * Runtime: fixed reloading of resources being triggered unconditionally in runtimes with autoload enabled.
 * Runtime: fixed drawing with Gui immediately after creating a world.
+* Runtime: fixed a crash when deleting a mesh that was attached to a LODGroup.
 * Data Compiler: fixed 'type mismatch' errors when compiling materials in some cases.
 * Data Compiler: fixed wrong 'required' shader generated for some materials.
 * Data Compiler: fixed an error when compiling sound sources with no sound resource.
