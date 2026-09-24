@@ -43,6 +43,7 @@ Changelog
 * Runtime: added support for light cookies.
 * Data Compiler: improved performances by compiling resources in parallel.
 * Data Compiler: identical geometries inside meshes are now automatically deduplicated.
+* Data Compiler: fixed compiling colliders when unit's prefab misses some properties.
 * Lua: added ``Window.is_fullscreen()``.
 * Lua: added ``Device.scoped_autoload_begin()`` and ``Device.scoped_autoload_end()``.
 * Lua: added ``PhysicsWorld.actor_create_sphere()``, ``actor_create_capsule()``, ``actor_create_box()`` and ``actor_set_collider_params()``.
