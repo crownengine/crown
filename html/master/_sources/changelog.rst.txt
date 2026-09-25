@@ -157,6 +157,7 @@ Changelog
 * Runtime: added configurable shadow maps quality to the render settings.
 * Runtime: added configurable sun shadow split weight and overlap to the render settings.
 * Runtime: sun shadow cascades now blend smoothly across their overlap regions.
+* Runtime: fixed units with animated meshes setting other units' transforms to identity.
 * Data Compiler/Runtime: identical physics colliders are deduplicated in unit/level resources and shared at runtime to reduce resource size and improve performance.
 * Data Compiler: stale unit component overrides are now ignored instead of generating a compile error.
 * Lua: added ``Device.open_uri()`` to open URIs with the default program.
