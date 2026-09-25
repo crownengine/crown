@@ -2660,8 +2660,8 @@ struct PhysicsWorldImpl
 			const UnitId other_actor_unit = jd.other_actor_unit_index != UINT32_MAX ? unit_lookup[jd.other_actor_unit_index] : UNIT_INVALID;
 			const ActorId actor = unit != UNIT_INVALID ? this->actor(unit) : make_actor_instance(UINT32_MAX);
 			const ActorId other_actor = other_actor_unit != UNIT_INVALID ? this->actor(other_actor_unit) : make_actor_instance(UINT32_MAX);
-			const btTransform frame = to_btTransform(jd.pose);
-			const btTransform other_frame = to_btTransform(jd.other_pose);
+			btTransform frame = to_btTransform(jd.pose);
+			btTransform other_frame = to_btTransform(jd.other_pose);
 			const bool has_actor = is_valid(actor);
 			const bool has_other_actor = is_valid(other_actor);
 			const UnitId owner_unit = unit != UNIT_INVALID ? unit : other_actor_unit;
@@ -2672,6 +2672,20 @@ struct PhysicsWorldImpl
 			CE_ASSERT(!has_other_actor || other_actor.i < array::size(_actor), "Index out of bounds");
 			CE_ASSERT(owner_unit != UNIT_INVALID, "Joint must have an owner unit");
 			CE_ASSERT(!hash_map::has(_joint_map, owner_unit), "Unit already has a joint component");
+
+			// Bullet bodies omit scale, so apply it to actor-local joint pivots.
+			if (has_actor) {
+				const Vector3 sc = scale(_scene_graph->world_pose(_scene_graph->instance(unit)));
+				frame.m_origin.x *= sc.x;
+				frame.m_origin.y *= sc.y;
+				frame.m_origin.z *= sc.z;
+			}
+			if (has_other_actor) {
+				const Vector3 sc = scale(_scene_graph->world_pose(_scene_graph->instance(other_actor_unit)));
+				other_frame.m_origin.x *= sc.x;
+				other_frame.m_origin.y *= sc.y;
+				other_frame.m_origin.z *= sc.z;
+			}
 
 			btRigidBody *body = has_actor ? _actor[actor.i].body : NULL;
 			btRigidBody *other_body = has_other_actor ? _actor[other_actor.i].body : NULL;
