@@ -936,10 +936,13 @@ public class ObjectTree : Gtk.Box
 	}
 #endif
 
-	private void update_delete_action()
+	private void update_object_actions()
 	{
-		GLib.SimpleAction action = (GLib.SimpleAction)_database_editor._action_group.lookup_action("delete");
-		action.set_enabled(!_database_editor._selection.find_with_equal_func(_object_id, Guid.equal_func));
+		bool enabled = !_database_editor._selection.find_with_equal_func(_object_id, Guid.equal_func);
+		GLib.SimpleAction delete_action = (GLib.SimpleAction)_database_editor._action_group.lookup_action("delete");
+		GLib.SimpleAction duplicate_action = (GLib.SimpleAction)_database_editor._action_group.lookup_action("duplicate");
+		delete_action.set_enabled(enabled);
+		duplicate_action.set_enabled(enabled);
 	}
 
 	public void on_tree_selection_changed()
@@ -970,7 +973,7 @@ public class ObjectTree : Gtk.Box
 		_database_editor.selection_set(ids.data);
 		GLib.SignalHandler.unblock(_database_editor, _database_selection_changed_id);
 		_setting_database_selection = false;
-		update_delete_action();
+		update_object_actions();
 	}
 
 #if CROWN_GTK3
@@ -1402,7 +1405,7 @@ public class ObjectTree : Gtk.Box
 		_set_rows.remove_all();
 		_tree_store = new_tree_store();
 		_object_id = id;
-		update_delete_action();
+		update_object_actions();
 
 		if (id != GUID_ZERO) {
 			if (show_root) {
@@ -1492,7 +1495,7 @@ public class ObjectTree : Gtk.Box
 		select_rows(selection, scroll_to_selection);
 		if (selection_blocked)
 			unblock_tree_selection_changed();
-		update_delete_action();
+		update_object_actions();
 	}
 
 	public void read_selection(Guid?[] selection)
