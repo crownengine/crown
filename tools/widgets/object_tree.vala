@@ -709,6 +709,41 @@ public class ObjectTree : Gtk.Box
 				menu_model.append_item(mi);
 			}
 
+			if (selected_count == 1 && selected_object_ids.length == 1) {
+				Guid owner_id = (Guid)selected_object_ids[0];
+				StringId64 object_type = StringId64(_database.object_type(owner_id));
+				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
+				int flattened_set_count = 0;
+				int flattened_set_index = -1;
+				for (int i = 0; i < object_definition.length; ++i) {
+					if (object_definition[i].type == PropertyType.OBJECTS_SET && objects_set_flattened(object_type, i)) {
+						++flattened_set_count;
+						flattened_set_index = i;
+					}
+				}
+
+				if (flattened_set_count == 1) {
+					GLib.MenuItem mi = new GLib.MenuItem(_("Add"), null);
+					mi.set_action_and_target_value("database.add"
+						, new GLib.Variant.tuple({ owner_id.to_string(), object_definition[flattened_set_index].name })
+						);
+					menu_model.append_item(mi);
+				} else if (flattened_set_count > 1) {
+					GLib.Menu add_menu = new GLib.Menu();
+					for (int i = 0; i < object_definition.length; ++i) {
+						if (object_definition[i].type != PropertyType.OBJECTS_SET || !objects_set_flattened(object_type, i))
+							continue;
+
+						GLib.MenuItem mi = new GLib.MenuItem(camel_case(object_definition[i].label), null);
+						mi.set_action_and_target_value("database.add"
+							, new GLib.Variant.tuple({ owner_id.to_string(), object_definition[i].name })
+							);
+						add_menu.append_item(mi);
+					}
+					menu_model.append_submenu(_("Add"), add_menu);
+				}
+			}
+
 			if (_context_menu_func != null)
 				_context_menu_func(menu_model, selected_object_ids.data);
 
