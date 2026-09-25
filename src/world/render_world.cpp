@@ -697,6 +697,17 @@ static void mesh_update_bounds(RenderWorld &render_world, u32 mesh_i)
 void RenderWorld::mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance *skeleton)
 {
 	const u32 mesh_i = _mesh_manager.index(mesh);
+	if (skeleton != NULL) {
+		const MeshResource *mesh_resource = (const MeshResource *)_resource_manager->get(RESOURCE_TYPE_MESH, skeleton->mesh_resource);
+		const MeshGeometry *geometry = _mesh_manager._data.geometry[mesh_i];
+		if (_mesh_manager._data.resource[mesh_i] != mesh_resource
+			|| !geometry->layout.has(bgfx::Attrib::Indices)
+			)
+			return;
+	} else if (_mesh_manager._data.skeleton[mesh_i] == NULL) {
+		return;
+	}
+
 	_mesh_manager._data.skeleton[mesh_i] = skeleton;
 
 	if (skeleton != NULL) {
