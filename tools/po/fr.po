@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: crown-engine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-22 17:25+0200\n"
-"PO-Revision-Date: 2026-09-22 15:51\n"
+"PO-Revision-Date: 2026-09-26 17:05\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -233,7 +233,7 @@ msgstr "Mon Application"
 #: tools/level_editor/deploy_dialog.vala:776
 #: tools/level_editor/deploy_dialog.vala:834
 msgid "Destination"
-msgstr "Destination"
+msgstr ""
 
 #: tools/level_editor/deploy_dialog.vala:558
 #: tools/level_editor/deploy_dialog.vala:710
@@ -286,7 +286,7 @@ msgstr "Manifeste"
 #: tools/level_editor/deploy_dialog.vala:784
 #: tools/level_editor/deploy_dialog.vala:842
 msgid "Application"
-msgstr "Application"
+msgstr ""
 
 #: tools/level_editor/deploy_dialog.vala:587
 msgid "Use debug keystore"
@@ -302,7 +302,7 @@ msgstr "Mot de passe du Magasin de clé"
 
 #: tools/level_editor/deploy_dialog.vala:590
 msgid "Alias"
-msgstr "Alias"
+msgstr ""
 
 #: tools/level_editor/deploy_dialog.vala:591
 msgid "Key password"
@@ -320,7 +320,7 @@ msgstr "Entrer un Titre valide"
 
 #: tools/level_editor/deploy_dialog.vala:725
 msgid "Index"
-msgstr "Index"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:107
 msgid "Open Prefab"
@@ -355,7 +355,7 @@ msgstr "Composants"
 
 #: tools/level_editor/level_editor.vala:551
 msgid "Perspective"
-msgstr "Perspective"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:553
 msgid "View Front"
@@ -387,19 +387,19 @@ msgstr "Vue Inconnue"
 
 #: tools/level_editor/level_editor.vala:599
 msgid "Android"
-msgstr "Android"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:601
 msgid "HTML5"
-msgstr "HTML5"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:603
 msgid "Linux"
-msgstr "Linux"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:605
 msgid "Windows"
-msgstr "Windows"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:607
 #: tools/level_editor/project_browser.vala:1267
@@ -442,7 +442,7 @@ msgstr "Propriétés"
 
 #: tools/level_editor/level_editor.vala:1965
 msgid "Console"
-msgstr "Console"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:1969
 msgid "Project"
@@ -476,7 +476,7 @@ msgstr "Taille de la grille"
 #: tools/level_editor/level_editor.vala:5096
 #: tools/level_editor/level_editor.vala:5158
 msgid "Ok"
-msgstr "Ok"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:3093
 #: tools/state_machine_editor/state_machine_editor.vala:226
@@ -496,7 +496,7 @@ msgstr "Incapable de sauvegarder le niveau '%s'"
 #: tools/state_machine_editor/state_machine_editor.vala:305
 #: tools/unit_editor/unit_editor.vala:319
 msgid "_Ok"
-msgstr "_Ok"
+msgstr ""
 
 #: tools/level_editor/level_editor.vala:3143
 #, c-format
@@ -706,7 +706,7 @@ msgstr "Défaut"
 
 #: tools/level_editor/level_layers_tree_view.vala:60
 msgid "Visible"
-msgstr "Visible"
+msgstr ""
 
 #: tools/level_editor/level_layers_tree_view.vala:61
 msgid "Locked"
@@ -770,7 +770,7 @@ msgstr "Personnalisé"
 
 #: tools/level_editor/menus.vala:181
 msgid "Cube"
-msgstr "Cube"
+msgstr ""
 
 #: tools/level_editor/menus.vala:185
 msgid "Sphere"
@@ -814,7 +814,7 @@ msgstr "Aligner avec la Vue de la Caméra"
 
 #: tools/level_editor/menus.vala:257
 msgid "Place"
-msgstr "Place"
+msgstr ""
 
 #: tools/level_editor/menus.vala:267
 msgid "Rotate"
@@ -856,7 +856,7 @@ msgstr "Rotation Aimantée"
 
 #: tools/level_editor/menus.vala:331
 msgid "Primitives"
-msgstr "Primitives"
+msgstr ""
 
 #: tools/level_editor/menus.vala:338 tools/level_editor/menus.vala:551
 #: tools/level_editor/preferences_dialog.vala:150
@@ -1109,7 +1109,7 @@ msgstr "Projets"
 #: tools/level_editor/panel_projects_list.vala:257
 #: tools/level_editor/panel_projects_list.vala:260
 msgid "Local"
-msgstr "Local"
+msgstr ""
 
 #: tools/level_editor/panel_projects_list.vala:266
 msgid "No projects found"
@@ -1185,7 +1185,7 @@ msgstr "Couleur de tous les axes quand ils sont sélectionnés."
 
 #: tools/level_editor/preferences_dialog.vala:97
 msgid "Axes"
-msgstr "Axes"
+msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:103
 msgid "Dark"
@@ -1359,7 +1359,7 @@ msgstr "Éditeurs Externes"
 
 #: tools/level_editor/preferences_dialog.vala:209
 msgid "Document"
-msgstr "Document"
+msgstr ""
 
 #: tools/level_editor/preferences_dialog.vala:210
 msgid "Viewport"
@@ -1462,7 +1462,7 @@ msgstr "Nom de base"
 #: tools/level_editor/project_browser.vala:1261
 #: tools/widgets/input_resource.vala:235 tools/widgets/object_tree.vala:95
 msgid "Type"
-msgstr "Type"
+msgstr ""
 
 #: tools/level_editor/project_browser.vala:538
 #: tools/level_editor/project_browser.vala:1109
@@ -1476,7 +1476,7 @@ msgstr "Modifié"
 #: tools/level_editor/project_browser.vala:1108
 #: tools/level_editor/project_browser.vala:1110
 msgid "n/a"
-msgstr "n/a"
+msgstr ""
 
 #: tools/level_editor/project_browser.vala:1120
 #: tools/widgets/input_file.vala:136
@@ -1635,7 +1635,7 @@ msgstr "Textures"
 #: tools/level_editor/texture_settings_dialog.vala:93
 #: tools/resource/font_resource.vala:269
 msgid "Source"
-msgstr "Source"
+msgstr ""
 
 #: tools/level_editor/texture_settings_dialog.vala:93
 msgid "Source image."
@@ -1647,7 +1647,7 @@ msgstr "Entrée"
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: tools/level_editor/texture_settings_dialog.vala:128
 msgid "Output format."
@@ -1898,7 +1898,7 @@ msgstr "Placer les animations importées dans un sous-dossier."
 #: tools/resource/scene_import.vala:268 tools/resource/types.vala:948
 #: tools/resource/types.vala:2375
 msgid "Animation"
-msgstr "Animation"
+msgstr ""
 
 #: tools/resource/scene_import.vala:268
 msgid "Import animations and skeleton."
@@ -1978,7 +1978,7 @@ msgstr "Activer la détection de collision."
 
 #: tools/resource/sprite_resource.vala:443
 msgid "Image"
-msgstr "Image"
+msgstr ""
 
 #: tools/resource/sprite_resource.vala:447
 msgid "Layer"
@@ -2025,7 +2025,7 @@ msgstr "Largeur"
 
 #: tools/resource/sprite_resource.vala:469
 msgid "Capsule"
-msgstr "Capsule"
+msgstr ""
 
 #: tools/resource/sprite_resource.vala:476
 msgid "Shape Type"
@@ -2187,7 +2187,7 @@ msgstr "Matériaux"
 
 #: tools/resource/types.vala:392
 msgid "Sprite"
-msgstr "Sprite"
+msgstr ""
 
 #: tools/resource/types.vala:395
 msgid "Sprite resource containing frames."
@@ -2239,7 +2239,7 @@ msgstr "Activer le casting d'ombre."
 
 #: tools/resource/types.vala:531
 msgid "Cookie"
-msgstr "Cookie"
+msgstr ""
 
 #: tools/resource/types.vala:533
 msgid "Light cookie pattern."
@@ -2275,7 +2275,7 @@ msgstr "Type de projection de caméra."
 
 #: tools/resource/types.vala:656
 msgid "FOV"
-msgstr "FOV"
+msgstr ""
 
 #: tools/resource/types.vala:661
 msgid "Vertical Field of View."
@@ -2363,11 +2363,11 @@ msgstr "Empêcher l'acteur de tourner autour de l'Axe Y."
 
 #: tools/resource/types.vala:904
 msgid "Script"
-msgstr "Script"
+msgstr ""
 
 #: tools/resource/types.vala:907
 msgid "Script."
-msgstr "Script."
+msgstr ""
 
 #: tools/resource/types.vala:921
 msgid "Scripting"
@@ -2911,7 +2911,7 @@ msgstr "Teinte"
 
 #: tools/widgets/input_color3.vala:442
 msgid "Saturation"
-msgstr "Saturation"
+msgstr ""
 
 #: tools/widgets/input_color3.vala:443
 msgid "Value"
