@@ -2169,7 +2169,11 @@ function LevelEditor:set_placeable(placeable_type, name)
 end
 
 function LevelEditor:destroy(id)
-	self._objects[id]:destroy()
+	local object = self._objects[id]
+	assert(object ~= nil)
+	if UnitManager.alive(object:unit_id()) then
+		object:destroy()
+	end
 	self._objects[id] = nil
 	self._selection:remove(id)
 	self._selection:send()

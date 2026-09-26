@@ -278,6 +278,18 @@ public class Level
 			n += Sound.generate_destroy_commands(sb, object_ids[i:object_ids.length], _db);
 			i += n == 0 ? 1 : n;
 		}
+
+		// FIXME: Replace this full-database scan when undo uses full object snapshots.
+		// Undoing creation currently removes child-set links before notifying us of destruction.
+		GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>> iter = GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>>(_db._data);
+		unowned Guid? id;
+		while (iter.next(out id, null)) {
+			if (_db.is_alive(id))
+				continue;
+			string type = _db.object_type(id);
+			if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND_SOURCE)
+				sb.append(LevelEditorApi.destroy(id));
+		}
 	}
 
 	public void generate_change_objects(StringBuilder sb, Guid?[] object_ids, bool respawn_units = false)
