@@ -2145,6 +2145,9 @@ struct PhysicsWorldImpl
 	{
 		btRigidBody *body = _actor[actor.i].body;
 		if (kinematic) {
+			if (!body->m_optionalMotionState)
+				body->setMotionState(CE_NEW(_motion_states_pool, btDefaultMotionState)(body->getCenterOfMassTransform()));
+
 			body->setMassProps(0.0f, btVector3(0.0f, 0.0f, 0.0f));
 			body->updateInertiaTensor();
 			body->m_collisionFlags = (body->m_collisionFlags | btCollisionObject::CF_KINEMATIC_OBJECT);

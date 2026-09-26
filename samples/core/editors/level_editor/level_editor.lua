@@ -1918,6 +1918,7 @@ function LevelEditor:add_actor_component(id, component_id, shape
 			geometry = geometry
 		})
 	end
+	self._objects[id]:freeze()
 	Device.set_temp_count(nv, nq, nm)
 end
 
