@@ -1978,6 +1978,10 @@ public class Database
 			if (owner_id == GUID_ZERO)
 				continue;
 
+			// Already attached to its duplicated owner by duplicate().
+			if (owner(new_id) != owner_id)
+				continue;
+
 			PropertyDefinition[]? properties = object_definition(StringId64(object_type(owner_id)));
 			bool added = false;
 
