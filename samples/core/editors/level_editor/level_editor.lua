@@ -2171,7 +2171,7 @@ end
 
 function LevelEditor:destroy(id)
 	local object = self._objects[id]
-	assert(object ~= nil)
+	if object == nil then return end
 	if UnitManager.alive(object:unit_id()) then
 		object:destroy()
 	end
