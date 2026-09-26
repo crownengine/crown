@@ -493,6 +493,56 @@ private static void test_database()
 		assert(contains_guid(ids, cb));
 	}
 
+	// Keep overlapping selections in the duplicated hierarchy, in either order.
+	for (int depth = 1; depth <= 2; ++depth) {
+		for (int reverse = 0; reverse < 2; ++reverse) {
+			Database db = new Database(p);
+			db.create_object_type("object", props);
+			Guid root = Guid.new_guid();
+			db.create(root, "object");
+			Guid a = Guid.new_guid();
+			db.create(a, "object");
+			db.add_to_set(root, "set", a);
+			Guid parent = a;
+			if (depth == 2) {
+				parent = Guid.new_guid();
+				db.create(parent, "object");
+				db.add_to_set(a, "set", parent);
+			}
+			Guid b = Guid.new_guid();
+			db.create(b, "object");
+			db.add_to_set(parent, "set", b);
+			Guid ca = Guid.new_guid();
+			Guid cb = Guid.new_guid();
+
+			if (reverse == 0)
+				db.duplicate_and_add_to_set({ a, b }, { ca, cb });
+			else
+				db.duplicate_and_add_to_set({ b, a }, { cb, ca });
+
+			assert(db.get_set(root, "set").length == 2);
+			assert(contains_guid(db.get_set(root, "set"), a));
+			assert(contains_guid(db.get_set(root, "set"), ca));
+			assert(db.get_set(parent, "set").length == 1);
+			assert(contains_guid(db.get_set(parent, "set"), b));
+			assert(Guid.equal_func(db.owner(b), parent));
+			assert(db.get_set(ca, "set").length == 1);
+			Guid copied_parent = ca;
+			if (depth == 2) {
+				assert(db.get_set(a, "set").length == 1);
+				assert(contains_guid(db.get_set(a, "set"), parent));
+				copied_parent = db.get_set(ca, "set")[0];
+				assert(!Guid.equal_func(copied_parent, parent));
+				assert(Guid.equal_func(db.owner(copied_parent), ca));
+			}
+			assert(db.get_set(copied_parent, "set").length == 1);
+			assert(contains_guid(db.get_set(copied_parent, "set"), cb));
+			assert(Guid.equal_func(db.owner(cb), copied_parent));
+			assert(Guid.equal_func(db.owner(ca), root));
+			assert(db._data.size() == 2 + 2 * (depth + 1));
+		}
+	}
+
 	// Copy property values when duplicating.
 	// Copy a bool property when duplicating.
 	{
