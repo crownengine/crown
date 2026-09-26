@@ -242,12 +242,28 @@ public class Level
 
 	public void generate_spawn_objects(StringBuilder sb, Guid?[] object_ids)
 	{
+		GLib.GenericSet<Guid?> units = guid_set_new();
+		foreach (Guid id in object_ids) {
+			if (_db.object_type(id) == OBJECT_TYPE_UNIT && _db.is_alive(id))
+				units.add(id);
+		}
+
+		// A unit spawn already includes its descendants and components.
+		GLib.GenericArray<Guid?> roots = new GLib.GenericArray<Guid?>();
+		foreach (Guid id in object_ids) {
+			Guid owner_id = _db.owner(id);
+			while (owner_id != GUID_ZERO && !units.contains(owner_id))
+				owner_id = _db.owner(owner_id);
+			if (owner_id == GUID_ZERO)
+				roots.add(id);
+		}
+
 		int n;
 		int i = 0;
-		while (i < object_ids.length) {
+		while (i < roots.length) {
 			n = 0;
-			n += Unit.generate_spawn_unit_commands(sb, object_ids[i:object_ids.length], _db);
-			n += Sound.generate_spawn_sound_commands(sb, object_ids[i:object_ids.length], _db);
+			n += Unit.generate_spawn_unit_commands(sb, roots.data[i:roots.length], _db);
+			n += Sound.generate_spawn_sound_commands(sb, roots.data[i:roots.length], _db);
 			i += n == 0 ? 1 : n;
 		}
 	}

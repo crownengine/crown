@@ -953,6 +953,76 @@ private static GLib.HashTable<string, Value?> legacy_mesh_renderer_unit_json(Gui
 	return unit;
 }
 
+private static void test_duplicate_unit_tree()
+{
+	stdout.printf("test_duplicate_unit_tree\n");
+
+	for (int reverse = 0; reverse < 2; ++reverse) {
+		Database db = new Database(new Project());
+		Level level = new Level(db, new RuntimeInstance("test", null));
+		create_object_types(db);
+		DatabaseEditor editor = new DatabaseEditor(1024 * 1024, db);
+		Guid a = Guid.new_guid();
+		db.create(a, OBJECT_TYPE_UNIT);
+		Guid middle = Guid.new_guid();
+		db.create(middle, OBJECT_TYPE_UNIT);
+		db.add_to_set(a, "children", middle);
+		Guid b = Guid.new_guid();
+		db.create(b, OBJECT_TYPE_UNIT);
+		db.add_to_set(middle, "children", b);
+		Guid sound = Guid.new_guid();
+		db.create(sound, OBJECT_TYPE_SOUND_SOURCE);
+		db.add_restore_point((int)ActionType.CREATE_OBJECTS, { a, sound });
+
+		StringBuilder commands = new StringBuilder();
+		Guid?[] created = {};
+		db.objects_created.connect((ids, flags) => {
+				created = ids;
+				level.generate_spawn_objects(commands, ids);
+			});
+		if (reverse == 0)
+			editor.selection_set({ a, sound, b });
+		else
+			editor.selection_set({ b, sound, a });
+		editor._action_group.activate_action("duplicate", null);
+
+		Guid ca = editor._selection[reverse == 0 ? 0 : 2];
+		Guid cb = editor._selection[reverse == 0 ? 2 : 0];
+		Guid cs = editor._selection[1];
+		Guid cm = db.get_set(ca, "children")[0];
+		assert(editor._selection.length == 3);
+		assert(created.length == 3);
+		assert(contains_guid(created, ca));
+		assert(contains_guid(created, cb));
+		assert(contains_guid(created, cs));
+		foreach (Guid id in new Guid[] { ca, cm, cb }) {
+			string spawn = LevelEditorApi.spawn_empty_unit(id);
+			assert(commands.str.split(spawn).length == 2);
+		}
+		assert(commands.str.index_of(LevelEditorApi.spawn_empty_unit(ca))
+			< commands.str.index_of(LevelEditorApi.spawn_empty_unit(cb)));
+
+		commands.truncate(0);
+		level.generate_spawn_objects(commands, { cb });
+		assert(commands.str.split(LevelEditorApi.spawn_empty_unit(cb)).length == 2);
+		assert(!commands.str.contains(LevelEditorApi.spawn_empty_unit(ca)));
+
+		assert(db.undo() == (int)ActionType.CREATE_OBJECTS);
+		assert(!db.is_alive(ca) && !db.is_alive(cm) && !db.is_alive(cb));
+		assert(db.is_alive(a) && db.is_alive(middle) && db.is_alive(b));
+		commands.truncate(0);
+		created = {};
+		assert(db.redo() == (int)ActionType.CREATE_OBJECTS);
+		assert(created.length == 3);
+		assert(contains_guid(created, ca));
+		assert(contains_guid(created, cb));
+		assert(contains_guid(created, cs));
+		assert(db.is_alive(ca) && db.is_alive(cm) && db.is_alive(cb));
+		foreach (Guid id in new Guid[] { ca, cm, cb })
+			assert(commands.str.split(LevelEditorApi.spawn_empty_unit(id)).length == 2);
+	}
+}
+
 private static void test_mesh_resource()
 {
 	stdout.printf("test_mesh_resource\n");
@@ -1536,6 +1606,7 @@ public static int main_unit_tests()
 {
 	test_string();
 	test_database();
+	test_duplicate_unit_tree();
 	test_mesh_resource();
 	test_inherited_lod_levels();
 	return 0;
