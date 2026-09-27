@@ -114,6 +114,7 @@ public class ObjectTree : Gtk.Box
 	private FlattenedSetKey[] _flattened_sets;
 	public bool show_root;
 	public bool expand_all_on_load;
+	public bool allow_add;
 	public string _needle;
 	public EntrySearch _filter_entry;
 	public Gtk.TreeStore _tree_store;
@@ -172,6 +173,7 @@ public class ObjectTree : Gtk.Box
 		_flattened_sets = {};
 		show_root = true;
 		expand_all_on_load = false;
+		allow_add = true;
 		_toggle_drag_column = null;
 		_toggle_drag_state = false;
 		_toggle_drag_changed = new GLib.GenericArray<Guid?>();
@@ -696,7 +698,7 @@ public class ObjectTree : Gtk.Box
 				mi = new GLib.MenuItem(_("Delete"), null);
 				mi.set_action_and_target_value("database.delete", null);
 				menu_model.append_item(mi);
-			} else if (set_index >= 0) {
+			} else if (allow_add && set_index >= 0) {
 				StringId64 object_type = StringId64(_database.object_type(set_owner_id));
 				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 				assert(set_index < object_definition.length);
@@ -709,7 +711,7 @@ public class ObjectTree : Gtk.Box
 				menu_model.append_item(mi);
 			}
 
-			if (selected_count == 1 && selected_object_ids.length == 1) {
+			if (allow_add && selected_count == 1 && selected_object_ids.length == 1) {
 				Guid owner_id = (Guid)selected_object_ids[0];
 				StringId64 object_type = StringId64(_database.object_type(owner_id));
 				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);

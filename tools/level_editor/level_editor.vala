@@ -1871,6 +1871,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level_treeview = new ObjectTree(_database_editor);
 		_level_treeview.show_root = false;
 		_level_treeview.expand_all_on_load = true;
+		_level_treeview.allow_add = false;
 		_level_treeview.set_object_visibility_func(level_tree_object_visible, level_tree_set_object_visible);
 		_level_treeview.set_selection_lock_func(level_tree_selection_locked, level_tree_set_selection_locked);
 		_level_treeview.set_object_aspect_func(level_tree_object_aspect);
