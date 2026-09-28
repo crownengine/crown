@@ -23,8 +23,9 @@ Material::Material(Allocator &a)
 	CE_UNUSED(a);
 }
 
-void Material::bind(u8 view, u32 depth) const
+void Material::bind(u16 view, u32 depth) const
 {
+	if (view == UINT16_MAX) { bgfx::discard(); return; }
 	using namespace material_resource;
 
 	const TextureData *td = texture_data_array(_resource);

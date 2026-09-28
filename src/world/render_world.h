@@ -475,7 +475,7 @@ struct RenderWorld
 	void reload_light_cookies(const TextureResource *old_resource, const TextureResource *new_resource);
 
 	/// Callback to customize drawing of objects.
-	typedef void (*DrawOverride)(u8 view_id, UnitId unit_id, RenderWorld *rw);
+	typedef void (*DrawOverride)(u16 view_id, UnitId unit_id, RenderWorld *rw);
 
 	/// List of meshes to be rendered.
 	struct MeshManager
@@ -606,7 +606,7 @@ struct RenderWorld
 		void set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset = 0, u32 num_indices = UINT32_MAX);
 
 		///
-		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
+		void draw_shadow_casters(u16 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
 
 		///
 	};

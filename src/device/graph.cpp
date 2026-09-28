@@ -333,7 +333,7 @@ struct Graph
 		}
 	}
 
-	void draw(DebugLine &dl, u16 window_width, u16 window_height)
+	void draw(DebugLine &dl, u16 window_width, u16 window_height, u16 view_id)
 	{
 		if (!_visible)
 			return;
@@ -460,7 +460,7 @@ struct Graph
 		stbsp_snprintf(buf, sizeof(buf), "%g", _range_max);
 		draw_string(dl, buf, str_x, y_max - TEXT_PADDING - 32.0f);
 
-		dl.submit(View::GRAPH);
+		dl.submit(view_id);
 	}
 };
 
@@ -750,11 +750,13 @@ namespace graph_globals
 {
 	Allocator *_allocator = NULL;
 	DebugLine *_lines = NULL;
+	Pipeline *_pipeline = NULL;
 
 	void init(Allocator &a, Pipeline &pl, ConsoleServer &cs)
 	{
 #if CROWN_DEBUG
 		_allocator = &a;
+		_pipeline = &pl;
 		_lines = debug_line::create(a, pl, false);
 
 		cs.register_command_name("graph", "Plot selected profiler data.", graph_internal::handle_command, NULL);
@@ -793,7 +795,7 @@ namespace graph_globals
 		list_for_each(cur, &_graphs)
 		{
 			Graph *graph = (Graph *)container_of(cur, Graph, _node);
-			graph->draw(*_lines, window_width, window_height);
+			graph->draw(*_lines, window_width, window_height, _pipeline->graph_view());
 		}
 #else
 		CE_UNUSED_2(window_width, window_height);

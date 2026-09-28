@@ -955,6 +955,7 @@ Gui *World::create_screen_gui()
 		, *_shader_manager
 		, *_material_manager
 		, &_pipeline->_gui_shader
+		, *_pipeline
 		);
 
 	list::add(gui->_node, _guis);
@@ -969,6 +970,7 @@ Gui *World::create_world_gui()
 		, *_shader_manager
 		, *_material_manager
 		, &_pipeline->_gui_3d_shader
+		, *_pipeline
 		);
 
 	list::add(gui->_node, _guis);

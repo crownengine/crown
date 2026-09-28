@@ -4,6 +4,13 @@
  */
 
 #include "config.h"
+#include "core/containers/array.inl"
+#include "core/memory/temp_allocator.inl"
+#include "core/memory/globals.h"
+#include "core/strings/dynamic_string.inl"
+#include "core/strings/string_view.inl"
+#include <cmath>
+#include <string.h>
 #include "core/containers/hash_map.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -258,6 +265,8 @@ namespace render_config_resource_internal
 		return 0;
 	}
 
+	#include "resource/render_config_pipeline.inl"
+
 	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
@@ -318,6 +327,32 @@ namespace render_config_resource_internal
 			ENSURE_OR_RETURN(RENDER_CONFIG_RESOURCE, err == 0, opts);
 		}
 
+		PipelineCompiler pipeline(default_allocator(), opts);
+		const bool has_layout = json_object::has(obj, "global_resources") || json_object::has(obj, "layers") || json_object::has(obj, "resource_generators");
+		if (has_layout) {
+			RETURN_IF_FALSE(RENDER_CONFIG_RESOURCE, !json_object::has(obj, "pipeline"), opts, "Use either an inline pipeline or an external pipeline, not both");
+			if (pipeline.parse(obj) != 0) return -1;
+		} else {
+			// Settings-only configs keep working. The fallback is DATA, not a
+			// second hard-coded rendering path. read() registers the dependency.
+			DynamicString source(ta);
+			source = "core/renderer/default";
+			if (json_object::has(obj, "pipeline")) {
+				RETURN_IF_ERROR(sjson::parse_string(source, obj["pipeline"]));
+			}
+			source += ".render_config";
+			RETURN_IF_FILE_MISSING(RENDER_CONFIG_RESOURCE, source.c_str(), opts);
+			Buffer layout = opts.read(source.c_str());
+			JsonObject layout_obj(ta);
+			RETURN_IF_ERROR(sjson::parse(layout_obj, layout));
+			if (pipeline.parse(layout_obj) != 0) return -1;
+			if (json_object::has(layout_obj, "shaders")) {
+				s32 err = parse_shaders(layout_obj["shaders"], opts);
+				ENSURE_OR_RETURN(RENDER_CONFIG_RESOURCE, err == 0, opts);
+			}
+		}
+		pipeline.layout(rcr);
+
 		// Write.
 		opts.write(rcr.version);
 		opts.write(rcr.render_settings.flags);
@@ -335,6 +370,7 @@ namespace render_config_resource_internal
 		opts.write(rcr.render_settings.lod_fade_duration);
 		opts.write(rcr.render_settings.msaa_quality);
 		opts.write(rcr.render_settings.lights_cookie_atlas_size);
+		pipeline.write(rcr);
 
 		return 0;
 	}

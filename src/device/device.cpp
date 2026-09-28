@@ -859,7 +859,7 @@ int Device::main_loop()
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
-	_pipeline->create(_width, _height, merged_render_settings(this));
+	_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
 
 	stat_globals::init(_allocator
 		, *_resource_manager
@@ -1099,7 +1099,7 @@ void Device::refresh(const char *json)
 				if (_render_config_resource == old_resource) {
 					_render_config_resource = (RenderConfigResource *)new_resource;
 					_pipeline->destroy();
-					_pipeline->create(_width, _height, merged_render_settings(this));
+					_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
 				}
 			} else if (resource_type == RESOURCE_TYPE_SPRITE) {
 				ListNode *cur;
