@@ -32,6 +32,7 @@ namespace crown
 {
 struct BgfxAllocator;
 struct BgfxCallback;
+struct RenderConfigShaders;
 
 /// This is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
@@ -63,6 +64,7 @@ struct Device
 	TimestepPolicy::Enum _timestep_policy;
 	DeltaTimeFilter _delta_time_filter;
 	const RenderConfigResource *_render_config_resource;
+	RenderConfigShaders *_render_config_shaders = NULL;
 
 	u16 _width;
 	u16 _height;

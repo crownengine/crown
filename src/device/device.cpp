@@ -39,6 +39,7 @@
 #include "device/input_manager.h"
 #include "device/log.h"
 #include "device/pipeline.h"
+#include "device/render_config_shaders.h"
 #include "device/save_game.h"
 #include "device/stat.h"
 #include "lua/lua_environment.h"
@@ -726,6 +727,9 @@ int Device::main_loop()
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}
 
+	if (_options._render_config != NULL)
+		_boot_config.render_config_name = StringId64(_options._render_config);
+
 	_renderer_type = _options._renderer_type.has_changed()
 		? _options._renderer_type.value()
 		: _boot_config.renderer_type
@@ -854,6 +858,22 @@ int Device::main_loop()
 	render_config_package->flush();
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
+	_render_config_shaders = CE_NEW(_allocator, RenderConfigShaders)(default_allocator(), *_resource_manager);
+	_render_config_shaders->acquire(*_render_config_resource);
+	// Transfer the loose package's references to explicit config/library owners.
+	// A bundled package must stay alive: resources borrow its backing memory.
+	_resource_manager->load(NULL, RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name, 0);
+	_resource_manager->complete_requests();
+	if (!_resource_loader->_is_bundle) {
+		render_config_package->unload();
+		destroy_resource_package(*render_config_package);
+		render_config_package = NULL;
+	}
+	logi(DEVICE, "Render config %016llx: %u layers, %u resources"
+		, (unsigned long long)_boot_config.render_config_name._id
+		, _render_config_resource->num_layers
+		, _render_config_resource->num_resources
+		);
 
 	ResourcePackage *stat_config_package = create_resource_package(_boot_config.stat_config_name);
 	stat_config_package->load();
@@ -868,7 +888,7 @@ int Device::main_loop()
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
-	_pipeline->create(_width, _height, merged_render_settings(this));
+	_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
 
 	stat_globals::init(_allocator
 		, *_resource_manager
@@ -902,9 +922,6 @@ int Device::main_loop()
 	stat_config_package->unload();
 	destroy_resource_package(*stat_config_package);
 
-	render_config_package->unload();
-	destroy_resource_package(*render_config_package);
-
 	boot_package->unload();
 	destroy_resource_package(*boot_package);
 
@@ -915,6 +932,13 @@ int Device::main_loop()
 	_pipeline->destroy();
 	bgfx::frame(); // Wait for pending uploads to finish.
 	CE_DELETE(_allocator, _pipeline);
+	CE_DELETE(_allocator, _render_config_shaders);
+	_render_config_shaders = NULL;
+	_resource_manager->unload(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
+	if (render_config_package != NULL) {
+		render_config_package->unload();
+		destroy_resource_package(*render_config_package);
+	}
 	CE_DELETE(_allocator, _lua_environment);
 	save_game_globals::shutdown();
 	CE_DELETE(_allocator, _unit_manager);
@@ -992,7 +1016,7 @@ void Device::render(World &world, UnitId camera_unit)
 	const Vector4 viewport = { 0.0f, 0.0f, (f32)_width, (f32)_height };
 
 	world.render(view, cull_proj, persp, viewport);
-	_pipeline->render(_width, _height, view, proj);
+	_pipeline->render(_width, _height, view, proj, &world._render_world->_render_frame);
 }
 
 World *Device::create_world()
@@ -1110,8 +1134,20 @@ void Device::refresh(const char *json)
 			} else if (resource_type == RESOURCE_TYPE_RENDER_CONFIG) {
 				if (_render_config_resource == old_resource) {
 					_render_config_resource = (RenderConfigResource *)new_resource;
+					// Load new libraries before resolving programs for the new layout.
+					_render_config_shaders->acquire(*_render_config_resource);
 					_pipeline->destroy();
-					_pipeline->create(_width, _height, merged_render_settings(this));
+					_render_config_shaders->release_unused(*_render_config_resource);
+					_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
+					// Previously missing programs may now exist; removed programs may
+					// have been destroyed unless another owner still references them.
+					_material_manager->reload_shaders(NULL, NULL);
+					logi(DEVICE, "Reloaded render config %016llx: %u layers, %u resources"
+						, (unsigned long long)_boot_config.render_config_name._id
+						, _render_config_resource->num_layers
+						, _render_config_resource->num_resources
+						);
+					++_needs_draw;
 				}
 			} else if (resource_type == RESOURCE_TYPE_SPRITE) {
 				ListNode *cur;

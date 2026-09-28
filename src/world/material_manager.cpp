@@ -189,7 +189,9 @@ void MaterialManager::reload_shaders(const ShaderResource *old_resource, const S
 		HASH_MAP_SKIP_HOLE(_materials, cur);
 
 		Material *m = cur->second;
-		if (m->_shader.resource == old_resource) {
+		// NULL refreshes every cached program after the active layout changes
+		// its owned library set, including materials currently using fallback.
+		if (old_resource == NULL || m->_shader.resource == old_resource) {
 			m->_shader = _shader_manager->shader(m->_resource->shader);
 		}
 	}

@@ -1,0 +1,5 @@
+shaders = []
+layers = [
+    { name = "red" clear = { color = true rgba = "ff0000ff" } touch = true }
+    { name = "blue" clear = { color = true rgba = "0000ffff" } touch = true }
+]

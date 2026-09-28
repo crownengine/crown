@@ -225,6 +225,7 @@ namespace stat_globals
 			, sm
 			, mm
 			, &pl._gui_shader
+			, pl
 			);
 
 		cs.register_command_name("stat", "Show statistics HUD.", stat_internal::handle_command, NULL);

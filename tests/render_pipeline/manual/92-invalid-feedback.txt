@@ -1,0 +1,9 @@
+shaders = [ "ddrp_tests/probe" ]
+global_resources = [ { name = "image" format = "RGBA8" } ]
+layers = [ { name = "bad" resource_generator = "bad" } ]
+resource_generators = [
+    { name = "bad" modifiers = [
+        { type = "fullscreen_pass" shader = "ddrp_test_copy" render_targets = [ "image" ]
+          inputs = [ { texture = "image" sampler = "s_color_map" stage = 0 } ] }
+    ] }
+]

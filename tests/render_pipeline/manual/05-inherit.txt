@@ -1,0 +1,2 @@
+pipeline = "core/renderer/default"
+render_settings = { bloom = false }

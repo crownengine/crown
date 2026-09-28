@@ -35,6 +35,7 @@ struct DebugLine
 	u32 _marker;
 	Array<Line> _lines;
 	ShaderData *_shader;
+	Pipeline *_pipeline; // Set by debug_line::create(); used to resolve the default view lazily in submit().
 
 	/// Whether to enable @a depth_test
 	DebugLine(Allocator &a, ShaderData *shader);
@@ -76,8 +77,11 @@ struct DebugLine
 	/// Resets all the lines.
 	void reset();
 
-	/// Submits the lines to renderer for drawing.
-	void submit(u8 view_id = View::DEBUG);
+	/// Submits to the logical debug layer, resolved after hot reload.
+	void submit();
+
+	/// Submits to an explicit view. UINT16_MAX discards the draw.
+	void submit(u16 view_id);
 };
 
 namespace debug_line

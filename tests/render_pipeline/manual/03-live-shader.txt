@@ -1,0 +1,15 @@
+shaders = [ "ddrp_tests/probe" ]
+layers = [ { name = "probe" resource_generator = "probe" } ]
+resource_generators = [
+    {
+        name = "probe"
+        modifiers = [
+            {
+                type = "fullscreen_pass"
+                shader = "ddrp_test_pattern"
+                pixel_size_uniform = "u_ddrp_pixel_size"
+                uniforms = [ { name = "u_ddrp_test_color" value = [ 0 1 0 1 ] } ]
+            }
+        ]
+    }
+]

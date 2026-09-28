@@ -1,0 +1,1 @@
+layers = [ { name = "bad" render_targets = [ "missing_resource" ] } ]

@@ -21,6 +21,7 @@
 #include "core/profiler.inl"
 #include "device/log.h"
 #include "device/pipeline.h"
+#include "device/render_frame.h"
 #include "resource/mesh_resource.h"
 #include "resource/mesh_animation_resource.inl"
 #include "resource/mesh_skeleton_resource.h"
@@ -78,10 +79,11 @@ static Sphere local_sphere(const RenderWorld::LightManager &lm, u32 i)
 }
 
 static Vector3 prepare_light_cookie(Pipeline &pipeline
+	, RenderFrame &frame
 	, RenderWorld::LightManager::ShaderData &shader
 	, const RenderWorld::LightManager::CookieData &cookie
 	, const Matrix4x4 &world
-	, u16 &view
+	, u32 &view
 	)
 {
 	Vector3 light_up = y(world);
@@ -96,7 +98,7 @@ static Vector3 prepare_light_cookie(Pipeline &pipeline
 
 	shader.cookie_rect = VECTOR4_ZERO;
 	if (bgfx::isValid(cookie.handle)) {
-		shader.cookie_rect = pipeline.add_light_cookie(view
+		shader.cookie_rect = pipeline.add_light_cookie(frame, view
 			, cookie.handle
 			, cookie.width
 			, cookie.height
@@ -290,7 +292,7 @@ namespace culling_set
 
 	static void sync_dirty(CullingSet &set, const RenderWorld &rw)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::sync_dirty");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const RenderWorld::MeshManager::MeshInstanceData &mid = rw._mesh_manager._data;
 		const RenderWorld::SpriteManager::SpriteInstanceData &sid = rw._sprite_manager._data;
@@ -338,7 +340,7 @@ namespace culling_set
 
 	static void cull_spheres(CullingSet &set, const Plane3 *planes, u32 num_planes, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::cull_spheres (planes)");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -370,7 +372,7 @@ namespace culling_set
 
 	static void cull_spheres(CullingSet &set, const Sphere &sphere, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::cull_spheres (sphere)");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -386,7 +388,7 @@ namespace culling_set
 
 	static void cull_obbs(CullingSet &set, const Plane3 *planes, u32 num_planes, const u32 *indices, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::cull_obbs (planes)");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -420,7 +422,7 @@ namespace culling_set
 
 	static void cull_obbs(CullingSet &set, const Matrix4x4 &view_proj, const u32 *indices, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::cull_obbs (view_proj)");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -472,7 +474,7 @@ namespace culling_set
 		, u32 count
 		)
 	{
-		ENTER_PROFILE_SCOPE("culling_set::cull_contributions");
+		ENTER_PROFILE_SCOPE(__func__);
 
 		const f32 viewport_max_x = viewport.x + viewport.z;
 		const f32 viewport_max_y = viewport.y + viewport.w;
@@ -580,6 +582,7 @@ RenderWorld::RenderWorld(Allocator &a
 	, _cullable_objects(a)
 	, _cullable_shadow_casters(a)
 	, _cullable_lights(a)
+	, _render_frame(a)
 	, _fog_unit(UNIT_INVALID)
 	, _global_lighting_unit(UNIT_INVALID)
 	, _bloom_unit(UNIT_INVALID)
@@ -1664,7 +1667,7 @@ static void mtxYawPitchRoll(f32 *_result
 
 void RenderWorld::sync_cullable_sets()
 {
-	ENTER_PROFILE_SCOPE("RenderWorld::sync_cullable_sets");
+	ENTER_PROFILE_SCOPE(__func__);
 
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
 	SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
@@ -1777,48 +1780,69 @@ void RenderWorld::sync_cullable_sets()
 	LEAVE_PROFILE_SCOPE();
 }
 
-static void draw_mesh(RenderWorld::MeshManager &mesh
+static void gather_mesh(RenderWorld::MeshManager &mesh
 	, u32 object_id
-	, Pipeline *pipeline
-	, const FogDesc &fog_desc
-	, const Vector3 &sun_color
-	, GlobalLightingDesc &global_lighting_desc
-	, SceneGraph *scene_graph
-	, Matrix4x4 *cascaded_lights
-	, const Vector4 &cascade_shadow_texel_size
+	, UnitId owner
+	, u32 flags
+	, SceneGraph &scene_graph
+	, RenderFrame &frame
+	, u32 frame_view
+	, const Matrix4x4 &view
+	, u32 stencil = UINT32_MAX
 	)
 {
+	// The geometry cache (including skinning) is populated at most once per
+	// object during this preparation. Drawing another layer only consumes it.
+	const u32 transform = mesh.set_instance_data(object_id, scene_graph);
+	RenderBatch batch;
+	batch.type = RenderDrawTypes::MESH;
+	batch.vertex_buffer = mesh._data.mesh[object_id].vbh;
+	batch.index_buffer = mesh._data.mesh[object_id].ibh;
+	batch.transform = transform;
+	batch.skinned = mesh._data.skeleton[object_id] != NULL;
+	batch.num_transforms = 1; // The palette is sampled from a texture, not u_model[].
+	if (batch.skinned) {
+		const Pipeline &pipeline = *mesh._render_world->_pipeline;
+		const Vector4 palette = { 1.0f / pipeline._bones_texture_height,
+			f32(mesh._data.draw_cache[object_id]), 0.0f, 0.0f };
+		batch.first_uniform = array::size(frame.uniforms);
+		batch.num_uniforms = 1;
+		frame.add_uniform(StringId32(), pipeline._bones_data_size, &palette, sizeof(palette));
+		batch.first_texture = array::size(frame.textures);
+		batch.num_textures = 1;
+		const RenderBatchTexture texture = { pipeline._bones_data_sampler,
+			pipeline._bones_texture, BONES_DATA_SLOT, UINT32_MAX };
+		array::push_back(frame.textures, texture);
+	}
+	batch.object_id = owner._idx;
+	if (flags & RenderableFlags::SELECTED) batch.flags |= RenderBatchFlags::SELECTED;
+	if (flags & RenderableFlags::SHADOW_CASTER) batch.flags |= RenderBatchFlags::SHADOW_CASTER;
+	batch.override_stencil = stencil != UINT32_MAX;
+	batch.stencil_front = batch.override_stencil ? stencil : 0;
+	const Vector3 position = translation(mesh._data.world[object_id]) * view;
+	const f32 distance = max(0.0f, -position.z);
+	memcpy(&batch.depth, &distance, sizeof(batch.depth));
 	for (u32 i = object_id; i != UINT32_MAX; i = mesh._data.bindings[i].next) {
-		bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
-		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
-		bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
-		bgfx::setUniform(pipeline->_u_cascade_shadow_texel_size, &cascade_shadow_texel_size);
-		bgfx::setUniform(pipeline->_u_shadow_map_params
-			, pipeline->_render_settings.shadow_map_params
-			, countof(pipeline->_render_settings.shadow_map_params)
-			);
-		const Vector4 fog_params[] =
-		{
-			{ fog_desc.color.x, fog_desc.color.y, fog_desc.color.z, fog_desc.density },
-			{ fog_desc.range_min, fog_desc.range_max, fog_desc.sun_blend, fog_desc.enabled },
-			{ sun_color.x, sun_color.y, sun_color.z, 0.0f }
-		};
-		bgfx::setUniform(pipeline->_fog_data, fog_params, countof(fog_params));
-		pipeline->set_local_lights_params_uniform();
-		pipeline->set_global_lighting_params(&global_lighting_desc);
-		bgfx::setTexture(LOCAL_LIGHTS_SHADOW_MAP_SLOT, pipeline->_u_local_lights_shadow_map, pipeline->_local_lights_shadow_map_texture);
-		bgfx::setTexture(LOCAL_LIGHTS_COOKIE_ATLAS_SLOT
-			, pipeline->_u_lights_cookie_atlas
-			, pipeline->_lights_cookie_atlas_texture
-			, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
-			);
 		const RenderWorld::MeshManager::MaterialBinding &binding = mesh._data.bindings[i];
-		mesh.set_instance_data(object_id, *scene_graph, binding.index_offset, binding.num_indices);
-		binding.material->bind(View::MESH);
+		batch.material = binding.material;
+		batch.first_index = binding.index_offset;
+		batch.num_indices = binding.num_indices;
+		frame.add_batch(frame_view, batch);
+	}
+	bgfx::discard();
+}
+
+void RenderWorld::gather_shadow_casters(const RenderBatchView &source, u32 stencil)
+{
+	const u32 frame_view = _render_frame.add_view(source);
+	for (u32 i = 0; i < array::size(_cullable_shadow_casters.render); ++i) {
+		const u32 mesh = _cullable_shadow_casters.id[_cullable_shadow_casters.render[i]];
+		gather_mesh(_mesh_manager, mesh, _mesh_manager._data.unit[mesh]
+			, _mesh_manager._data.flags[mesh], *_scene_graph, _render_frame, frame_view, source.view, stencil);
 	}
 }
 
-void RenderWorld::render(f32 dt
+void RenderWorld::prepare(f32 dt
 	, const Matrix4x4 &view
 	, const Matrix4x4 &cull_proj
 	, const Matrix4x4 &persp
@@ -1827,12 +1851,26 @@ void RenderWorld::render(f32 dt
 	, DebugLine &dl
 	)
 {
-	ScopedProfileScope scope("RenderWorld::render");
+	ScopedProfileScope scope("RenderWorld::prepare");
+
+	_render_frame.clear();
+	const char *sources[] = { "main_camera", "sun_shadows", "local_shadows", "light_cookies", "local_shadow_stencil" };
+	for (u32 i = 0; i < countof(sources); ++i)
+		_render_frame.add_source(StringId32(sources[i]));
+
+	_pipeline->_bloom = _bloom_desc;
+	_pipeline->_color_grading_desc = _color_grading_desc;
+	_pipeline->_tonemap = _tonemap_desc;
+	_pipeline->_vignette = _vignette_desc;
+	_pipeline->update_conditions();
+	_pipeline->update_source_resources();
+	if (_pipeline->_render_pipeline.empty())
+		return;
 
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
 
-	// Reset the cached transform indices and bone texture rows.
+	// Reset cached transform indices and bone texture rows for this preparation.
 	memset(_mesh_manager._data.draw_cache, UINT32_MAX, sizeof(u32)*_mesh_manager._data.size);
 
 	const bgfx::Caps *caps = bgfx::getCaps();
@@ -1946,11 +1984,14 @@ void RenderWorld::render(f32 dt
 	static const char *csm_names[] = { "world.csm_0", "world.csm_1", "world.csm_2", "world.csm_3" };
 	CE_STATIC_ASSERT(countof(csm_names) == MAX_NUM_CASCADES);
 	Matrix4x4 cascaded_lights[MAX_NUM_CASCADES];
+	for (u32 i = 0; i < MAX_NUM_CASCADES; ++i)
+		cascaded_lights[i] = MATRIX4X4_IDENTITY;
 	Vector4 cascade_shadow_texel_size = VECTOR4_ZERO;
 
 	array::clear(lm._directional_lights);
 	array::clear(lm._local_lights_spot);
 	array::clear(lm._local_lights_omni);
+	array::clear(lm._lights_data);
 	u32 num_lights = 0; // Total lights to render this frame.
 
 	// Collect indices to all directional lights.
@@ -1966,9 +2007,9 @@ void RenderWorld::render(f32 dt
 			return lm._data.shader[in_a].intensity > lm._data.shader[in_b].intensity;
 		});
 
-	const bool lights_cookie_enabled = (_pipeline->_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0;
+	const bool lights_cookie_enabled = _pipeline->light_cookies_enabled();
 
-	u16 cookie_view_id = View::LOCAL_LIGHTS_COOKIE_ATLAS_0;
+	u32 cookie_view_id = 0; // Prepared source index, not a backend view ID.
 	if (lights_cookie_enabled)
 		_pipeline->begin_light_cookie_atlas();
 
@@ -1976,7 +2017,7 @@ void RenderWorld::render(f32 dt
 	for (u32 i = 0; i < array::size(lm._directional_lights) && num_lights < MAX_NUM_LIGHTS; ++i) {
 		const u32 L = lm._directional_lights[i];
 		const bool cast_shadows = (lid.flag[L] & RenderableFlags::SHADOW_CASTER) != 0;
-		const bool sun_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0;
+		const bool sun_shadows = _pipeline->sun_shadows_enabled();
 		const bool render_shadow = i == 0
 			&& cast_shadows
 			&& sun_shadows
@@ -1987,7 +2028,7 @@ void RenderWorld::render(f32 dt
 		lid.shader[L].has_cookie = 0.0f;
 
 		if (i == 0 && lights_cookie_enabled)
-			prepare_light_cookie(*_pipeline, lid.shader[L], lid.cookie_data[L], lid.world[L], cookie_view_id);
+			prepare_light_cookie(*_pipeline, _render_frame, lid.shader[L], lid.cookie_data[L], lid.world[L], cookie_view_id);
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
 		if (render_shadow) {
@@ -2089,13 +2130,11 @@ void RenderWorld::render(f32 dt
 					;
 				lid.shader[L].map_size = 0.5f;
 
-				bgfx::setViewRect(View::CASCADE_0 + i
-					, (u16)rects[i].x
-					, (u16)rects[i].y
-					, (u16)rects[i].z
-					, (u16)rects[i].w
-					);
-				bgfx::setViewTransform(View::CASCADE_0 + i, to_float_ptr(light_view), to_float_ptr(light_proj));
+				RenderBatchView source(StringId32("sun_shadows"), i);
+				source.camera = source.viewport = true;
+				source.view = light_view;
+				source.projection = light_proj;
+				source.rect = rects[i];
 
 				ConvexPolyhedron shadow_region;
 				calculate_shadow_region(shadow_region
@@ -2150,13 +2189,13 @@ void RenderWorld::render(f32 dt
 
 				RECORD_FLOAT(csm_names[i], (f32)nv);
 
-				_mesh_manager.draw_shadow_casters(View::CASCADE_0 + i, *_scene_graph);
+				gather_shadow_casters(source);
 			}
 		}
 
 		lid.shader[L].cast_shadows = f32(render_shadow);
 
-		_pipeline->add_lights_data((const Vector4 *)&lid.shader[L], LIGHT_SIZE);
+		array::push_back(lm._lights_data, lid.shader[L]);
 		++num_lights;
 	}
 
@@ -2177,7 +2216,7 @@ void RenderWorld::render(f32 dt
 				return dist_a < dist_b;
 			});
 
-		const bool local_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0;
+		const bool local_shadows = _pipeline->local_shadows_enabled();
 		const u32 num_local_lights = min(array::size(_cullable_lights.render), MAX_NUM_LIGHTS - num_lights);
 
 		// Compute number of visible shadow casters.
@@ -2204,11 +2243,12 @@ void RenderWorld::render(f32 dt
 		const u32 tile_cols = bx::nextPow2((u32)fceil(fsqrt(f32(max(num_shadow_casters, 1u)))));
 		const u32 tile_size = u32(_pipeline->_render_settings.local_lights_shadow_map_size.x) / tile_cols;
 		if (local_shadows)
-			_pipeline->draw_local_lights_stencil((u16)tile_size, (u16)tile_cols);
+			_pipeline->prepare_local_lights_stencil(_render_frame, (u16)tile_size, (u16)tile_cols);
 
 		u32 num_tiles = 0;
 		u32 cur_tile;
-		u32 sm_local_view_id = View::SM_LOCAL_0;
+		u32 sm_local_view_id = 0;
+		const u32 sm_local_view_end = _pipeline->_render_pipeline.source_view_count(StringId32("local_shadows"));
 
 		// Render local lights. Shadow maps are generated only for the first
 		// LOCAL_LIGHTS_MAX_SHADOW_CASTERS lights that can cast shadows.
@@ -2224,6 +2264,7 @@ void RenderWorld::render(f32 dt
 				;
 
 			const Vector3 light_up = prepare_light_cookie(*_pipeline
+				, _render_frame
 				, shader
 				, lid.cookie_data[light_id]
 				, lid.world[light_id]
@@ -2236,6 +2277,8 @@ void RenderWorld::render(f32 dt
 					&& local_shadows
 					&& within_shadow_distance
 					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+					&& tile_size > 0
+					&& sm_local_view_id < sm_local_view_end
 					;
 
 				shader.cast_shadows = f32(render_shadow);
@@ -2287,15 +2330,12 @@ void RenderWorld::render(f32 dt
 							;
 						shader.map_size = rect.w / _pipeline->_render_settings.local_lights_shadow_map_size.x;
 
-						bgfx::setViewRect(sm_local_view_id
-							, (u16)rect.x
-							, (u16)rect.y
-							, (u16)rect.z
-							, (u16)rect.w
-							);
-						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj));
-						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph);
-						++sm_local_view_id;
+						RenderBatchView source(StringId32("local_shadows"), sm_local_view_id++);
+						source.camera = source.viewport = true;
+						source.view = light_view;
+						source.projection = light_proj;
+						source.rect = rect;
+						gather_shadow_casters(source);
 					}
 				}
 
@@ -2306,6 +2346,8 @@ void RenderWorld::render(f32 dt
 					&& local_shadows
 					&& within_shadow_distance
 					&& num_tiles < LOCAL_LIGHTS_MAX_SHADOW_CASTERS
+					&& tile_size >= 2
+					&& sm_local_view_id + 4 <= sm_local_view_end
 					;
 
 				shader.cast_shadows = f32(render_shadow);
@@ -2417,15 +2459,12 @@ void RenderWorld::render(f32 dt
 								;
 						}
 
-						bgfx::setViewRect(sm_local_view_id
-							, (u16)rect.x
-							, (u16)rect.y
-							, (u16)rect.z
-							, (u16)rect.w
-							);
-						bgfx::setViewTransform(sm_local_view_id, to_float_ptr(light_view), to_float_ptr(light_proj[strip]));
-						_mesh_manager.draw_shadow_casters(sm_local_view_id, *_scene_graph, stencil[strip]);
-						++sm_local_view_id;
+						RenderBatchView source(StringId32("local_shadows"), sm_local_view_id++);
+						source.camera = source.viewport = true;
+						source.view = light_view;
+						source.projection = light_proj[strip];
+						source.rect = rect;
+						gather_shadow_casters(source, stencil[strip]);
 					}
 				}
 
@@ -2438,28 +2477,48 @@ void RenderWorld::render(f32 dt
 		}
 
 		for (u32 i = 0; i < array::size(lm._local_lights_omni); ++i)
-			_pipeline->add_lights_data((const Vector4 *)&lid.shader[lm._local_lights_omni[i]], LIGHT_SIZE);
+			array::push_back(lm._lights_data, lid.shader[lm._local_lights_omni[i]]);
 		for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
-			_pipeline->add_lights_data((const Vector4 *)&lid.shader[lm._local_lights_spot[i]], LIGHT_SIZE);
+			array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
 	}
 	RECORD_FLOAT("world.visible_lights", f32(num_lights));
 
-	// Send lights data to GPU.
-	Vector4 h;
-	h.x = (f32)array::size(lm._directional_lights);
-	h.y = (f32)array::size(lm._local_lights_omni);
-	h.z = (f32)array::size(lm._local_lights_spot);
-	h.w = 0.0f;
-	bgfx::setUniform(_pipeline->_lights_num, &h);
-	bgfx::touch(View::LIGHTS);
+	// CPU data is owned by the prepared frame. An explicit upload operation
+	// chooses its destination; resource uploads are not view-sorted GPU draws.
+	const bool upload_lights = bgfx::isValid(_pipeline->_lights_data_texture);
+	Vector4 h = VECTOR4_ZERO;
+	if (upload_lights) {
+		h.x = (f32)min(array::size(lm._directional_lights), u32(MAX_NUM_LIGHTS));
+		h.y = (f32)array::size(lm._local_lights_omni);
+		h.z = (f32)array::size(lm._local_lights_spot);
+	}
+	_render_frame.add_upload(StringId32("lights"), RenderResourceFormat::RGBA32F
+		, LIGHT_SIZE * array::size(lm._lights_data), 1
+		, array::begin(lm._lights_data), array::size(lm._lights_data) * sizeof(LightManager::ShaderData));
 
-	_pipeline->_bloom = _bloom_desc;
-	_pipeline->_color_grading_desc = _color_grading_desc;
-	_pipeline->_tonemap = _tonemap_desc;
-	_pipeline->_vignette = _vignette_desc;
 	Vector3 sun_color = VECTOR3_ONE;
 	if (array::size(lm._directional_lights) != 0)
 		sun_color = lid.shader[lm._directional_lights[0]].color;
+	const Vector4 fog[] = {
+		{ _fog_desc.color.x, _fog_desc.color.y, _fog_desc.color.z, _fog_desc.density },
+		{ _fog_desc.range_min, _fog_desc.range_max, _fog_desc.sun_blend, _fog_desc.enabled },
+		{ sun_color.x, sun_color.y, sun_color.z, 0.0f }
+	};
+	const Vector4 local_lights = {
+		f32((_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_DISTANCE_CULLING) != 0),
+		_pipeline->_render_settings.local_lights_distance_culling_fade,
+		_pipeline->_render_settings.local_lights_distance_culling_cutoff, 0.0f
+	};
+	const Vector4 lighting = { _global_lighting_desc.ambient_color.x, _global_lighting_desc.ambient_color.y,
+		_global_lighting_desc.ambient_color.z, _global_lighting_desc.shadow_distance };
+	const StringId32 parameters("forward_lighting");
+	_render_frame.add_uniform(parameters, _pipeline->_lights_num, &h, sizeof(h));
+	_render_frame.add_uniform(parameters, _pipeline->_u_cascaded_lights, cascaded_lights, sizeof(cascaded_lights), MAX_NUM_CASCADES);
+	_render_frame.add_uniform(parameters, _pipeline->_u_cascade_shadow_texel_size, &cascade_shadow_texel_size, sizeof(cascade_shadow_texel_size));
+	_render_frame.add_uniform(parameters, _pipeline->_u_shadow_map_params, _pipeline->_render_settings.shadow_map_params, sizeof(_pipeline->_render_settings.shadow_map_params), 2);
+	_render_frame.add_uniform(parameters, _pipeline->_fog_data, fog, sizeof(fog), countof(fog));
+	_render_frame.add_uniform(parameters, _pipeline->_u_local_lights_params, &local_lights, sizeof(local_lights));
+	_render_frame.add_uniform(parameters, _pipeline->_lighting_params, &lighting, sizeof(lighting));
 
 	bgfx::TransientVertexBuffer sprite_vertex_buffer;
 	bgfx::TransientIndexBuffer sprite_index_buffer;
@@ -2487,117 +2546,55 @@ void RenderWorld::render(f32 dt
 		}
 	}
 
-	union
-	{
-		u32 u;
-		f32 f;
-	} u2f;
-
-	// Render objects and outlines.
-	const bool selection_enabled = _pipeline->selection_enabled();
+	// All camera layers consume this same geometry and LOD selection. Selection
+	// identity belongs to the LOD group, not necessarily the selected mesh unit.
+	const u32 camera_view = _render_frame.add_view(RenderBatchView(StringId32("main_camera"), 0));
 	u32 sprite_slot = 0;
 	for (u32 ii = 0; ii < visible_objects; ++ii) {
 		const u32 ci = _cullable_objects.render[ii];
 		const u32 object_id = _cullable_objects.id[ci];
-
 		switch (_cullable_objects.type[ci]) {
 		case CullableType::MESH:
-			draw_mesh(_mesh_manager
-				, object_id
-				, _pipeline
-				, _fog_desc
-				, sun_color
-				, _global_lighting_desc
-				, _scene_graph
-				, cascaded_lights
-				, cascade_shadow_texel_size
-				);
-
-			if (selection_enabled
-				&& (_mesh_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
-				const UnitId unit = _mesh_manager._data.unit[object_id];
-				u2f.u = unit._idx;
-				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-				bgfx::setUniform(_pipeline->_unit_id, &data);
-
-				_mesh_manager.set_instance_data(object_id, *_scene_graph);
-				const ShaderData &selection_shader = _mesh_manager._data.skeleton[object_id] != NULL
-					? _pipeline->_selection_skinning_shader
-					: _pipeline->_selection_shader
-					;
-				bgfx::setState(selection_shader.state);
-				bgfx::submit(View::SELECTION, selection_shader.program);
-			}
+			gather_mesh(_mesh_manager, object_id, _mesh_manager._data.unit[object_id]
+				, _mesh_manager._data.flags[object_id], *_scene_graph, _render_frame, camera_view, view);
 			break;
-
 		case CullableType::LOD_GROUP: {
-			const MeshId mesh_to_draw = _lod_group_manager._data.selected_mesh[object_id];
-			if (!is_valid(mesh_to_draw))
+			const MeshId mesh = _lod_group_manager._data.selected_mesh[object_id];
+			if (!is_valid(mesh))
 				break;
-
-			const u32 mesh_i = _mesh_manager.index(mesh_to_draw);
+			const u32 mesh_i = _mesh_manager.index(mesh);
 			if ((_mesh_manager._data.flags[mesh_i] & RenderableFlags::VISIBLE) == 0)
 				break;
-
-			draw_mesh(_mesh_manager
-				, mesh_i
-				, _pipeline
-				, _fog_desc
-				, sun_color
-				, _global_lighting_desc
-				, _scene_graph
-				, cascaded_lights
-				, cascade_shadow_texel_size
-				);
-
-			if (selection_enabled
-				&& (_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
-				const UnitId unit = _lod_group_manager._data.unit[object_id];
-				u2f.u = unit._idx;
-				const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-				bgfx::setUniform(_pipeline->_unit_id, &data);
-
-				_mesh_manager.set_instance_data(mesh_i, *_scene_graph);
-				const ShaderData &selection_shader = _mesh_manager._data.skeleton[mesh_i] != NULL
-					? _pipeline->_selection_skinning_shader
-					: _pipeline->_selection_shader
-					;
-				bgfx::setState(selection_shader.state);
-				bgfx::submit(View::SELECTION, selection_shader.program);
-			}
+			const u32 flags = (_mesh_manager._data.flags[mesh_i] & ~RenderableFlags::SELECTED)
+				| (_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED);
+			gather_mesh(_mesh_manager, mesh_i, _lod_group_manager._data.unit[object_id]
+				, flags, *_scene_graph, _render_frame, camera_view, view);
 			break;
 		}
-
 		case CullableType::SPRITE:
 			if (sprite_buffer_allocated) {
-				_sprite_manager.set_instance_data(&sprite_vertex_data
-					, &sprite_index_data
-					, sprite_vertex_buffer
-					, sprite_index_buffer
-					, object_id
-					, sprite_slot
-					);
-				_sprite_manager._data.material[object_id]->bind(_sprite_manager._data.layer[object_id] + View::SPRITE_0
-					, _sprite_manager._data.depth[object_id]
-					);
-
-				if (selection_enabled
-					&& (_sprite_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
-					bgfx::setTransform(to_float_ptr(_sprite_manager._data.world[object_id]));
-					bgfx::setVertexBuffer(0, &sprite_vertex_buffer);
-					bgfx::setIndexBuffer(&sprite_index_buffer, sprite_slot*6, 6);
-
-					const UnitId unit = _sprite_manager._data.unit[object_id];
-					u2f.u = unit._idx;
-					const Vector4 data = { u2f.f, 0.0f, 0.0f, 0.0f };
-					bgfx::setUniform(_pipeline->_unit_id, &data);
-					bgfx::setState(_pipeline->_selection_shader.state);
-					bgfx::submit(View::SELECTION, _pipeline->_selection_shader.program);
-				}
+				_sprite_manager.set_instance_data(&sprite_vertex_data, &sprite_index_data
+					, sprite_vertex_buffer, sprite_index_buffer, object_id, sprite_slot);
+				RenderBatch batch;
+				batch.material = _sprite_manager._data.material[object_id];
+				batch.type = RenderDrawTypes::SPRITE;
+				batch.transient = true;
+				batch.transient_vertices = sprite_vertex_buffer;
+				batch.transient_indices = sprite_index_buffer;
+				batch.num_vertices = num_visible_sprites * 4;
+				batch.first_index = sprite_slot * 6;
+				batch.num_indices = 6;
+				batch.transform = bgfx::setTransform(to_float_ptr(_sprite_manager._data.world[object_id]));
+				batch.group = _sprite_manager._data.layer[object_id];
+				batch.depth = _sprite_manager._data.depth[object_id];
+				batch.object_id = _sprite_manager._data.unit[object_id]._idx;
+				if (_sprite_manager._data.flags[object_id] & RenderableFlags::SELECTED)
+					batch.flags |= RenderBatchFlags::SELECTED;
+				_render_frame.add_batch(camera_view, batch);
+				bgfx::discard();
 			}
 			++sprite_slot;
 			break;
-
 		case CullableType::LIGHT:
 			break;
 		}
@@ -2809,7 +2806,7 @@ void RenderWorld::MeshManager::allocate(u32 num, u32 num_bindings)
 	new_data.lod_group_unit = (UnitId *             )memory::align_top(new_data.skeleton + num, alignof(UnitId));
 	new_data.flags         = (u32 *                )memory::align_top(new_data.lod_group_unit + num, alignof(u32));
 	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
-	new_data.draw_cache    = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
+	new_data.draw_cache  = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
 	new_data.geometry_name = (StringId32 *         )memory::align_top(new_data.draw_cache + num, alignof(StringId32));
 	new_data.bindings      = (MaterialBinding *    )memory::align_top(new_data.geometry_name + num, alignof(MaterialBinding));
 	new_data.slots         = (StringId32 *         )memory::align_top(new_data.bindings + num_bindings, alignof(StringId32));
@@ -3224,52 +3221,34 @@ u32 RenderWorld::MeshManager::index(MeshId mesh)
 	return idx.index;
 }
 
-void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset, u32 num_indices)
+u32 RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset, u32 num_indices)
 {
+	u32 transform;
 	if (_data.skeleton[ii] != NULL) {
 		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
-		TransformId ti = scene_graph.instance(_data.unit[ii]);
-		Matrix4x4 world_pose = scene_graph.world_pose(ti);
+		const TransformId ti = scene_graph.instance(_data.unit[ii]);
+		const Matrix4x4 world_pose = scene_graph.world_pose(ti);
 		if (_data.draw_cache[ii] == UINT32_MAX) {
 			for (u32 b = 0; b < skeleton->num_bones; ++b) {
 				TransformId bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
 				skeleton->bones[b] = mesh_animation::skinning_transform(skeleton->offsets[b]
-					, scene_graph.world_pose(bone_ti)
-					);
+					, scene_graph.world_pose(bone_ti));
 			}
 			skeleton->bones[0] = world_pose;
 			_render_world->_pipeline->add_bones_data(_data.draw_cache[ii], skeleton->bones, skeleton->num_bones);
 		}
 		_render_world->_pipeline->bind_bones_data(_data.draw_cache[ii]);
-		bgfx::setTransform(to_float_ptr(world_pose));
+		transform = bgfx::setTransform(to_float_ptr(world_pose));
 	} else {
 		if (_data.draw_cache[ii] == UINT32_MAX)
 			_data.draw_cache[ii] = bgfx::setTransform(to_float_ptr(_data.world[ii]));
 		else
 			bgfx::setTransform(_data.draw_cache[ii]);
+		transform = _data.draw_cache[ii];
 	}
-
 	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
 	bgfx::setIndexBuffer(_data.mesh[ii].ibh, index_offset, num_indices);
-}
-
-void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene_graph, u32 stencil)
-{
-	u32 num = array::size(_render_world->_cullable_shadow_casters.render);
-
-	for (u32 ii = 0; ii < num; ++ii) {
-		u32 mesh_id = _render_world->_cullable_shadow_casters.id[_render_world->_cullable_shadow_casters.render[ii]];
-
-		set_instance_data(mesh_id, scene_graph);
-
-		ShaderData sd = _data.skeleton[mesh_id] != NULL
-			? _render_world->_pipeline->_shadow_skinning_shader
-			: _render_world->_pipeline->_shadow_shader
-			;
-		bgfx::setStencil(stencil);
-		bgfx::setState(sd.state);
-		bgfx::submit(view_id, sd.program);
-	}
+	return transform;
 }
 
 void RenderWorld::SpriteManager::allocate(u32 num)
