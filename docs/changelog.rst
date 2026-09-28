@@ -3,7 +3,7 @@ Changelog
 
 .. _v0.65.0:
 
-:ref:`0.65.0 --- DD MMM YYYY <v0.65.0>`
+:ref:`0.65.0 --- 28 Sep 2026 <v0.65.0>`
 ---------------------------------------
 
 **New Features and Improvements**
