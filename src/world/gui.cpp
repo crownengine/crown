@@ -68,8 +68,9 @@ bool GuiBuffer::allocate(u32 num_vertices, u32 num_indices)
 		);
 }
 
-void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth)
+void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u16 view, u32 depth)
 {
+	if (view == UINT16_MAX) { bgfx::discard(); return; }
 	bgfx::setVertexBuffer(0, &_vertex_buffer, 0, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, 0, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
@@ -78,8 +79,9 @@ void GuiBuffer::submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world
 	bgfx::submit(view, shader.program, depth);
 }
 
-void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material)
+void GuiBuffer::submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u16 view, u32 depth, Material *material)
 {
+	if (view == UINT16_MAX) { bgfx::discard(); return; }
 	bgfx::setVertexBuffer(0, &_vertex_buffer, 0, num_vertices);
 	bgfx::setIndexBuffer(&_index_buffer, 0, num_indices);
 	bgfx::setTransform(to_float_ptr(world));
@@ -92,7 +94,7 @@ Gui::Gui(GuiBuffer &gb
 	, ShaderManager &sm
 	, MaterialManager &mm
 	, ShaderData *shader
-	, u8 view
+	, u16 view
 	)
 	: _marker(DEBUG_GUI_MARKER)
 	, _buffer(&gb)
@@ -102,9 +104,16 @@ Gui::Gui(GuiBuffer &gb
 	, _world(MATRIX4X4_IDENTITY)
 	, _gui_shader(shader)
 	, _view(view)
+	, _pipeline(NULL)
+	, _layer()
 {
 	_node.next = NULL;
 	_node.prev = NULL;
+}
+
+u16 Gui::view_id() const
+{
+	return _pipeline ? _pipeline->_render_pipeline.external_view(_layer) : _view;
 }
 
 Gui::~Gui()
@@ -148,7 +157,7 @@ void Gui::triangle_3d(const Matrix4x4 &local_pose, const Vector3 &a, const Vecto
 	inds[1] = 1;
 	inds[2] = 2;
 
-	_buffer->submit(3, 3, local_pose*_world, *_gui_shader, _view, depth_u32(depth));
+	_buffer->submit(3, 3, local_pose*_world, *_gui_shader, view_id(), depth_u32(depth));
 }
 
 void Gui::triangle(const Vector2 &a, const Vector2 &b, const Vector2 &c, const Color4 &color, f32 depth)
@@ -203,7 +212,7 @@ void Gui::rect_3d(const Matrix4x4 &local_pose, const Vector3 &pos, const Vector2
 	inds[4] = 2;
 	inds[5] = 3;
 
-	_buffer->submit(4, 6, local_pose*_world, *_gui_shader, _view, depth_u32(depth));
+	_buffer->submit(4, 6, local_pose*_world, *_gui_shader, view_id(), depth_u32(depth));
 }
 
 void Gui::rect(const Vector3 &pos, const Vector2 &size, const Color4 &color)
@@ -262,7 +271,7 @@ void Gui::image_3d_uv(const Matrix4x4 &local_pose, const Vector3 &pos, const Vec
 	_buffer->submit_with_material(4
 		, 6
 		, local_pose*_world
-		, _view
+		, view_id()
 		, depth_u32(depth)
 		, _material_manager->get(mr)
 		);
@@ -413,7 +422,7 @@ void Gui::text_3d(const Matrix4x4 &local_pose, const Vector3 &pos, u32 font_size
 	_buffer->submit_with_material(num_vertices
 		, num_indices
 		, local_pose*_world
-		, _view
+		, view_id()
 		, depth_u32(depth)
 		, _material_manager->get(mr)
 		);
@@ -527,7 +536,7 @@ void Gui::text(const Vector3 &pos, u32 font_size, const char *str, StringId64 fo
 	_buffer->submit_with_material(num_vertices
 		, num_indices
 		, _world
-		, _view
+		, view_id()
 		, depth_u32(pos.z)
 		, _material_manager->get(mr)
 		);
@@ -598,6 +607,7 @@ namespace gui
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
 		, ShaderData *shader
+		, Pipeline &pipeline
 		)
 	{
 		Gui *gui = CE_NEW(allocator, Gui)(buffer
@@ -605,8 +615,10 @@ namespace gui
 			, shader_manager
 			, material_manager
 			, shader
-			, View::SCREEN_GUI
+			, UINT16_MAX
 			);
+		gui->_pipeline = &pipeline;
+		gui->_layer = StringId32("screen_gui");
 		return gui;
 	}
 
@@ -616,6 +628,7 @@ namespace gui
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
 		, ShaderData *shader
+		, Pipeline &pipeline
 		)
 	{
 		Gui *gui = CE_NEW(allocator, Gui)(buffer
@@ -623,8 +636,10 @@ namespace gui
 			, shader_manager
 			, material_manager
 			, shader
-			, View::WORLD_GUI
+			, UINT16_MAX
 			);
+		gui->_pipeline = &pipeline;
+		gui->_layer = StringId32("world_gui");
 		return gui;
 	}
 

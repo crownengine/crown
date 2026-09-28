@@ -8,98 +8,24 @@
 #include "core/memory/globals.h"
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
+#include "core/error/error.h"
 #include "core/types.h"
 #include "device/pipeline.h"
+#include "device/render_frame.h"
 #include "world/shader_manager.h"
+#include "resource/render_config_resource.inl"
+#include <cmath>
 #include "core/math/matrix4x4.inl"
 #include <bx/math.h>
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 
+// Device/configuration validation must also run in release builds.
+#define PIPELINE_ENSURE(condition, ...) \
+	do { if (!(condition)) crown::error::abort(__VA_ARGS__); } while (0)
+
 namespace crown
 {
-/*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
- */
-struct PosTexCoord0Vertex
-{
-	float m_x;
-	float m_y;
-	float m_z;
-	float m_u;
-	float m_v;
-
-	static void init()
-	{
-		ms_layout.begin();
-		ms_layout.add(bgfx::Attrib::Position,  3, bgfx::AttribType::Float);
-		ms_layout.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float);
-		ms_layout.end();
-	}
-
-	static bgfx::VertexLayout ms_layout;
-};
-
-bgfx::VertexLayout PosTexCoord0Vertex::ms_layout;
-
-/*
- * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
- */
-void screenSpaceQuad(float _textureWidth, float _textureHeight, float _texelHalf, bool _originBottomLeft, float _width = 1.0f, float _height = 1.0f)
-{
-	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosTexCoord0Vertex::ms_layout)) {
-		bgfx::TransientVertexBuffer tvb;
-		bgfx::allocTransientVertexBuffer(&tvb, 3, PosTexCoord0Vertex::ms_layout);
-		PosTexCoord0Vertex *vertex = (PosTexCoord0Vertex *)tvb.data;
-
-		const float minx = -_width;
-		const float maxx =  _width;
-		const float miny =  _height;
-		const float maxy = -_height;
-
-		const float texelHalfW = _texelHalf/_textureWidth;
-		const float texelHalfH = _texelHalf/_textureHeight;
-		const float minu = -1.0f + texelHalfW;
-		const float maxu =  1.0f + texelHalfH;
-
-		const float zz = 0.0f;
-
-		float minv = texelHalfH;
-		float maxv = 2.0f + texelHalfH;
-
-		if (_originBottomLeft) {
-			float temp = minv;
-			minv = maxv;
-			maxv = temp;
-
-			minv -= 1.0f;
-			maxv -= 1.0f;
-		}
-
-		vertex[0].m_x = maxx;
-		vertex[0].m_y = maxy;
-		vertex[0].m_z = zz;
-		vertex[0].m_u = maxu;
-		vertex[0].m_v = maxv;
-
-		vertex[1].m_x = maxx;
-		vertex[1].m_y = miny;
-		vertex[1].m_z = zz;
-		vertex[1].m_u = maxu;
-		vertex[1].m_v = minv;
-
-		vertex[2].m_x = minx;
-		vertex[2].m_y = miny;
-		vertex[2].m_z = zz;
-		vertex[2].m_u = minu;
-		vertex[2].m_v = minv;
-
-		bgfx::setVertexBuffer(0, &tvb);
-	}
-}
-
 struct PosVertex
 {
 	float x;
@@ -118,31 +44,64 @@ struct PosVertex
 
 bgfx::VertexLayout PosVertex::pos_layout;
 
+static ShaderData native_shader(Pipeline &pipeline, const char *name, bool needed)
+{
+	ShaderData shader = {};
+	shader.program = BGFX_INVALID_HANDLE;
+	return needed ? pipeline._shader_manager->shader(StringId32(name)) : shader;
+}
+
+static bool has_external_source(const Pipeline &pipeline, const char *source)
+{
+	const RenderConfigResource *resource = pipeline._render_pipeline._resource;
+	if (resource == NULL)
+		return false;
+	const RenderLayerData *layers = render_config_resource::layers(resource);
+	for (u32 i = 0; i < resource->num_layers; ++i) {
+		if (layers[i].draw.type == StringId32("external")
+			&& layers[i].draw.source == StringId32(source) && layers[i].count != 0)
+			return true;
+	}
+	return false;
+}
+
 static void lookup_default_shaders(Pipeline &pl)
 {
-	pl._blit_shader = pl._shader_manager->shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
-	pl._gui_shader = pl._shader_manager->shader(STRING_ID_32("gui", UINT32_C(0x66dbf9a2)));
-	pl._gui_3d_shader = pl._shader_manager->shader(STRING_ID_32("gui+DEPTH_ENABLED", UINT32_C(0xd594a1a5)));
-	pl._debug_line_depth_enabled_shader = pl._shader_manager->shader(STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848)));
-	pl._debug_line_shader = pl._shader_manager->shader(STRING_ID_32("debug_line", UINT32_C(0xbc06e973)));
-	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
-	pl._outline_msaa_shader = pl._shader_manager->shader(STRING_ID_32("outline+MSAA_DEPTH", UINT32_C(0xeb4b24a0)));
-	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
-	pl._selection_skinning_shader = pl._shader_manager->shader(STRING_ID_32("selection+SKINNING", UINT32_C(0x69b27030)));
-	pl._blit_blend_shader = pl._shader_manager->shader(STRING_ID_32("blit+BLEND_ENABLED", UINT32_C(0xb4fe5db5)));
-	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
-	pl._shadow_skinning_shader = pl._shader_manager->shader(STRING_ID_32("shadow+SKINNING", UINT32_C(0x34005875)));
-	pl._skydome_shader = pl._shader_manager->shader(STRING_ID_32("skydome", UINT32_C(0x524dca1c)));
-	pl._bloom_downsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_downsample", UINT32_C(0x2399e6ad)));
-	pl._bloom_upsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_upsample", UINT32_C(0x26773c9c)));
-	pl._bloom_combine_shader = pl._shader_manager->shader(STRING_ID_32("bloom_combine", UINT32_C(0x4413efa4)));
-	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
-	pl._vignette_shader = pl._shader_manager->shader(STRING_ID_32("vignette", UINT32_C(0xb77c3567)));
-	pl._bloom_copy_shader = pl._shader_manager->shader(STRING_ID_32("bloom_copy", UINT32_C(0x439d45d5)));
+	// Scene/shadow programs are resolved by each configured draw context.
+	// Only the legacy immediate overlay APIs still keep native shader caches.
+	const bool debug = has_external_source(pl, "debug") || has_external_source(pl, "graph");
+	pl._gui_shader = native_shader(pl, "gui", has_external_source(pl, "screen_gui"));
+	pl._gui_3d_shader = native_shader(pl, "gui+DEPTH_ENABLED", has_external_source(pl, "world_gui"));
+	pl._debug_line_depth_enabled_shader = native_shader(pl, "debug_line+DEPTH_ENABLED", debug);
+	pl._debug_line_shader = native_shader(pl, "debug_line", debug);
+}
+
+static RenderResourceRef source_output(const RenderPipeline &runtime, const char *source, bool depth)
+{
+	RenderResourceRef result = { RENDER_CONFIG_INVALID, 0 };
+	const RenderLayerData *layers = render_config_resource::layers(runtime._resource);
+	for (u32 i = 0; i < runtime._resource->num_layers; ++i) {
+		if (layers[i].draw.type != StringId32("draw_visible") || layers[i].draw.source != StringId32(source)
+			|| runtime.layer_view(i) == UINT16_MAX)
+			continue;
+		const RenderTargetData &target = layers[i].target;
+		const RenderResourceRef output = depth ? target.depth
+			: target.num_colors ? target.colors[0] : RenderResourceRef{ RENDER_CONFIG_INVALID, 0 };
+		PIPELINE_ENSURE(output.resource != RENDER_CONFIG_INVALID, "Native atlas source '%s' needs an output attachment", source);
+		PIPELINE_ENSURE(result.resource == RENDER_CONFIG_INVALID
+			|| (result.resource == output.resource && result.index == output.index)
+			, "All views of native atlas source '%s' must share its output attachment", source);
+		result = output;
+	}
+	return result;
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
+	, _render_settings()
+	, _requested_render_settings()
+	, _render_pipeline(default_allocator(), sm)
+	, _render_config_resource(NULL)
 	, _color_sdr(BGFX_INVALID_HANDLE)
 	, _depth_texture(BGFX_INVALID_HANDLE)
 	, _color_map(BGFX_INVALID_HANDLE)
@@ -162,9 +121,6 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
-	, _lights_data_buffer {Array<Vector4>(default_allocator()), Array<Vector4>(default_allocator())}
-	, _lights_cpu(&_lights_data_buffer[0])
-	, _lights_gpu(&_lights_data_buffer[1])
 	, _bones_data_sampler(BGFX_INVALID_HANDLE)
 	, _bones_data_size(BGFX_INVALID_HANDLE)
 	, _bones_texture(BGFX_INVALID_HANDLE)
@@ -181,8 +137,11 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _bloom_map(BGFX_INVALID_HANDLE)
 	, _map_pixel_size(BGFX_INVALID_HANDLE)
 	, _bloom_params(BGFX_INVALID_HANDLE)
+	, _bloom()
 	, _color_grading_desc_uniform(BGFX_INVALID_HANDLE)
+	, _color_grading_desc()
 	, _tonemap_type(BGFX_INVALID_HANDLE)
+	, _tonemap()
 	, _vignette_desc_uniform(BGFX_INVALID_HANDLE)
 	, _vignette()
 {
@@ -191,28 +150,158 @@ Pipeline::Pipeline(ShaderManager &sm)
 
 	for (u32 i = 0; i < countof(_colors); ++i)
 		_colors[i] = BGFX_INVALID_HANDLE;
-
-	// Bloom.
-	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i)
-		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
-
-	lookup_default_shaders(*this);
 }
 
 bool Pipeline::selection_enabled() const
 {
-	return (CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS)
-		&& (_render_settings.flags & RenderSettingsFlags::SELECTION) != 0
-		;
+	const RenderConfigResource *resource = _render_pipeline._resource;
+	if (resource == NULL)
+		return false;
+	const RenderLayerData *layers = render_config_resource::layers(resource);
+	for (u32 i = 0; i < resource->num_layers; ++i) {
+		if (layers[i].draw.filter == RenderDrawFilter::SELECTED && _render_pipeline.layer_view(i) != UINT16_MAX)
+			return true;
+	}
+	return false;
 }
 
-void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings)
+bool Pipeline::sun_shadows_enabled() const
 {
-	_render_settings = render_settings;
+	return (_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0
+		&& bgfx::isValid(_sun_shadow_map_texture)
+		&& _render_pipeline.source_view_count(StringId32("sun_shadows")) >= MAX_NUM_CASCADES;
+}
+
+bool Pipeline::local_shadows_enabled() const
+{
+	return (_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0
+		&& bgfx::isValid(_local_lights_shadow_map_texture)
+		&& _render_pipeline.source_view_count(StringId32("local_shadows")) != 0;
+}
+
+bool Pipeline::light_cookies_enabled() const
+{
+	return (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0
+		&& _lights_cookie_atlas_packer != NULL
+		&& _render_pipeline.source_view_count(StringId32("light_cookies")) != 0;
+}
+
+bool Pipeline::bind_lighting(const ShaderData &shader) const
+{
+	static const StringId32 names[] = {
+		StringId32("u_cascaded_shadow_map"), StringId32("u_local_lights_shadow_map"),
+		StringId32("u_lights_data"), StringId32("u_lights_cookie_atlas")
+	};
+	const bgfx::TextureHandle textures[] = {
+		_sun_shadow_map_texture, _local_lights_shadow_map_texture,
+		_lights_data_texture, _lights_cookie_atlas_texture
+	};
+	const bgfx::UniformHandle samplers[] = {
+		_u_cascaded_shadow_map, _u_local_lights_shadow_map,
+		_lights_data, _u_lights_cookie_atlas
+	};
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 1 == LOCAL_LIGHTS_SHADOW_MAP_SLOT);
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 2 == LIGHTS_DATA_SLOT);
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 3 == LOCAL_LIGHTS_COOKIE_ATLAS_SLOT);
+	// The authored sampler-state table usually contains only material textures.
+	// Native lighting inputs must be discovered from the compiled shader instead.
+	for (u32 i = 0; i < shader.num_sampler_uniforms; ++i) {
+		u32 index = 0;
+		for (; index < countof(names); ++index) {
+			if (shader.sampler_uniforms[i] == names[index]._id)
+				break;
+		}
+		if (index == countof(names))
+			continue;
+		const u32 stage = CASCADED_SHADOW_MAP_SLOT + index;
+		if (!bgfx::isValid(textures[index])) {
+			bgfx::discard();
+			return false;
+		}
+		const u32 flags = stage == LOCAL_LIGHTS_COOKIE_ATLAS_SLOT
+			? BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+			: UINT32_MAX;
+		bgfx::setTexture((u8)stage, samplers[index], textures[index], flags);
+	}
+	return true;
+}
+
+namespace
+{
+	// These callbacks are Crown's current rendering techniques, not part of
+	// RenderPipeline. They do not allocate resources or choose destinations.
+	void bloom_draw(RenderPipeline &runtime, const RenderModifierData &m, u16 view, Pipeline &p, bool combine)
+	{
+		PIPELINE_ENSURE(m.resource < runtime._resource->num_resources, "Bloom needs a resource-array context");
+		const u32 levels = render_config_resource::resources(runtime._resource)[m.resource].count;
+		f32 gain = 1.0f;
+		for (u32 i = 1; i < levels; ++i) gain = 1.0f + bx::abs(p._bloom.intensity) * gain;
+		Vector4 parameters = { combine ? 2.0f * gain : 0.5f / gain, p._bloom.threshold, p._bloom.weight, p._bloom.intensity };
+		bgfx::setUniform(p._bloom_params, &parameters);
+		runtime.draw_fullscreen(m, view);
+	}
+
+	void bloom_modifier(RenderPipeline &r, const RenderModifierData &m, u16 view, void *user)
+	{
+		bloom_draw(r, m, view, *(Pipeline *)user, false);
+	}
+
+	void bloom_combine_modifier(RenderPipeline &r, const RenderModifierData &m, u16 view, void *user)
+	{
+		bloom_draw(r, m, view, *(Pipeline *)user, true);
+	}
+
+	void vignette_modifier(RenderPipeline &r, const RenderModifierData &m, u16 view, void *user)
+	{
+		Pipeline &p = *(Pipeline *)user;
+		bgfx::setUniform(p._vignette_desc_uniform, &p._vignette, sizeof(p._vignette)/sizeof(Vector4));
+		r.draw_fullscreen(m, view);
+	}
+
+	void tonemap_modifier(RenderPipeline &r, const RenderModifierData &m, u16 view, void *user)
+	{
+		Pipeline &p = *(Pipeline *)user;
+		bgfx::setUniform(p._color_grading_desc_uniform, &p._color_grading_desc, sizeof(p._color_grading_desc)/sizeof(Vector4));
+		bgfx::setUniform(p._tonemap_type, &p._tonemap, sizeof(p._tonemap)/sizeof(Vector4));
+		r.draw_fullscreen(m, view);
+	}
+
+	void outline_modifier(RenderPipeline &r, const RenderModifierData &m, u16 view, void *user)
+	{
+		Pipeline &p = *(Pipeline *)user;
+		const Vector4 samples = { f32(1u << p._render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
+		bgfx::setUniform(p._outline_msaa_samples, &samples);
+		r.draw_fullscreen(m, view);
+	}
+
+	const RenderModifierType modifiers[] = {
+		{ StringId32("bloom"), bloom_modifier },
+		{ StringId32("bloom_combine"), bloom_combine_modifier },
+		{ StringId32("vignette"), vignette_modifier },
+		{ StringId32("tonemap"), tonemap_modifier },
+		{ StringId32("outline"), outline_modifier }
+	};
+
+	RenderResourceSize external_size(const char *name, Vector2 size)
+	{
+		PIPELINE_ENSURE(std::isfinite(size.x) && std::isfinite(size.y) && size.x >= 1 && size.y >= 1 && size.x <= UINT16_MAX && size.y <= UINT16_MAX
+			, "Invalid render setting size '%s'", name);
+		return { StringId32(name), (u16)size.x, (u16)size.y };
+	}
+}
+
+void Pipeline::create(u16 width, u16 height, const RenderSettings &settings, const RenderConfigResource *resource)
+{
+	PIPELINE_ENSURE(!(settings.flags & RenderSettingsFlags::MSAA) || (settings.msaa_quality >= 1 && settings.msaa_quality <= 4), "MSAA quality must be in the 1..4 range");
+	_render_settings = settings;
+	_requested_render_settings = settings;
+	_render_config_resource = resource;
+	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE)
+		&& !bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT))
+		_render_settings.flags &= ~RenderSettingsFlags::LIGHTS_COOKIE;
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
-
-	if (selection_enabled()) {
+	{ // Callback uniforms also exist when the selection geometry layer is absent.
 		_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
 		_selection_map = bgfx::createUniform("s_selection_map", bgfx::UniformType::Sampler);
 		_selection_depth_map = bgfx::createUniform("s_selection_depth_map", bgfx::UniformType::Sampler);
@@ -221,305 +310,104 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 		_unit_id = bgfx::createUniform("u_unit_id", bgfx::UniformType::Vec4);
 		_outline_msaa_samples = bgfx::createUniform("u_outline_msaa_samples", bgfx::UniformType::Vec4);
 	}
-
 	_u_cascaded_shadow_map = bgfx::createUniform("u_cascaded_shadow_map", bgfx::UniformType::Sampler);
 	_u_cascaded_lights = bgfx::createUniform("u_cascaded_lights", bgfx::UniformType::Mat4, MAX_NUM_CASCADES);
 	_u_cascade_shadow_texel_size = bgfx::createUniform("u_cascade_shadow_texel_size", bgfx::UniformType::Vec4);
 	_u_shadow_map_params = bgfx::createUniform("u_shadow_map_params", bgfx::UniformType::Vec4, 2);
-
-	// Create cascaded shadow map resources.
-	if (bgfx::isValid(_sun_shadow_map_texture))
-		bgfx::destroy(_sun_shadow_map_texture);
-	_sun_shadow_map_texture = bgfx::createTexture2D((u16)_render_settings.sun_shadow_map_size.x
-		, (u16)_render_settings.sun_shadow_map_size.y
-		, false
-		, 1
-		, bgfx::TextureFormat::D32F
-		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
-		);
-	const bgfx::TextureHandle fbtextures[] =
-	{
-		_sun_shadow_map_texture
-	};
-	if (bgfx::isValid(_sun_shadow_map_frame_buffer))
-		bgfx::destroy(_sun_shadow_map_frame_buffer);
-	_sun_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(fbtextures), fbtextures);
-
-	// Create local-lights shadow map resources.
-	if (bgfx::isValid(_local_lights_shadow_map_texture))
-		bgfx::destroy(_local_lights_shadow_map_texture);
-	_local_lights_shadow_map_texture = bgfx::createTexture2D((u16)_render_settings.local_lights_shadow_map_size.x
-		, (u16)_render_settings.local_lights_shadow_map_size.y
-		, false
-		, 1
-		, bgfx::TextureFormat::D24S8
-		, BGFX_TEXTURE_RT | BGFX_SAMPLER_COMPARE_LEQUAL
-		);
-	const bgfx::TextureHandle llfbtextures[] =
-	{
-		_local_lights_shadow_map_texture
-	};
-	if (bgfx::isValid(_local_lights_shadow_map_frame_buffer))
-		bgfx::destroy(_local_lights_shadow_map_frame_buffer);
-	_local_lights_shadow_map_frame_buffer = bgfx::createFrameBuffer(countof(llfbtextures), llfbtextures);
-
 	_u_local_lights_shadow_map = bgfx::createUniform("u_local_lights_shadow_map", bgfx::UniformType::Sampler);
 	_u_local_lights_params = bgfx::createUniform("u_local_lights_params", bgfx::UniformType::Vec4);
-
-	_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
+	_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4);
 	_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Sampler);
-	_lights_data_texture = bgfx::createTexture2D(MAX_NUM_LIGHTS * LIGHT_SIZE
-		, 1
-		, false
-		, 1
-		, bgfx::TextureFormat::RGBA32F
-		, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT
-		);
-
 	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 3);
 	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
-	// Skinning.
 	_bones_data_sampler = bgfx::createUniform("u_bones_data", bgfx::UniformType::Sampler);
 	_bones_data_size = bgfx::createUniform("u_bones_data_size", bgfx::UniformType::Vec4);
 	_bones_texture_height = min(u32(16384), u32(bgfx::getCaps()->limits.maxTextureSize));
-	CE_ASSERT(bgfx::getCaps()->limits.maxTextureSize >= 64, "Bone texture requires a minimum width of 64 texels");
-
 	_u_lights_cookie_atlas = bgfx::createUniform("u_lights_cookie_atlas", bgfx::UniformType::Sampler);
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0
-		&& !bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT)
-		) {
-		// Renderer does not support RGBA8 render targets; fall back to no cookies.
-		_render_settings.flags &= ~RenderSettingsFlags::LIGHTS_COOKIE;
-	}
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0) {
-		const u16 atlas_w = (u16)_render_settings.lights_cookie_atlas_size.x;
-		const u16 atlas_h = (u16)_render_settings.lights_cookie_atlas_size.y;
-		_lights_cookie_atlas_texture = bgfx::createTexture2D(atlas_w
-			, atlas_h
-			, false
-			, 1
-			, bgfx::TextureFormat::RGBA8
-			, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
-			);
-		_lights_cookie_atlas_frame_buffer = bgfx::createFrameBuffer(1, &_lights_cookie_atlas_texture);
-		_lights_cookie_atlas_packer = (stbrp_context *)default_allocator().allocate(sizeof(stbrp_context));
-		_lights_cookie_atlas_packer_nodes = (stbrp_node *)default_allocator().allocate(sizeof(stbrp_node) * atlas_w);
-	} else {
-		// Keep the sampler valid when light cookies are disabled or unsupported.
-		const u32 pixel = 0x00000000;
-		_lights_cookie_atlas_texture = bgfx::createTexture2D(1
-			, 1
-			, false
-			, 1
-			, bgfx::TextureFormat::RGBA8
-			, BGFX_TEXTURE_NONE
-			, bgfx::copy(&pixel, sizeof(pixel))
-			);
-	}
-
 	_bloom_map = bgfx::createUniform("s_bloom_map", bgfx::UniformType::Sampler);
 	_map_pixel_size = bgfx::createUniform("u_map_pixel_size", bgfx::UniformType::Vec4);
 	_bloom_params = bgfx::createUniform("u_bloom_params", bgfx::UniformType::Vec4);
-
 	_color_grading_desc_uniform = bgfx::createUniform("u_color_grading_desc", bgfx::UniformType::Vec4, 2);
 	_tonemap_type = bgfx::createUniform("u_tonemap_type", bgfx::UniformType::Vec4);
 	_vignette_desc_uniform = bgfx::createUniform("u_vignette_desc", bgfx::UniformType::Vec4, 2);
-
-	PosTexCoord0Vertex::init();
 	PosVertex::init();
-
 	reset(width, height);
 }
 
 void Pipeline::destroy()
 {
-	// Unbind all views that may still point to our framebuffers.
-	for (u32 id = 0; id < View::COUNT; ++id)
-		bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
-
 	if (bgfx::isValid(_bones_texture))
 		bgfx::destroy(_bones_texture);
 	_bones_texture = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_bones_data_size);
+	if (bgfx::isValid(_bones_data_size))
+		bgfx::destroy(_bones_data_size);
 	_bones_data_size = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_bones_data_sampler);
+	if (bgfx::isValid(_bones_data_sampler))
+		bgfx::destroy(_bones_data_sampler);
 	_bones_data_sampler = BGFX_INVALID_HANDLE;
+	_bones_row = 0;
+	// Do not clear either CPU buffer here: bgfx may still reference its data.
+	_render_pipeline.destroy();
+	// Aliases are never destroyed here: framebuffer attachments may be shared.
+	_color_sdr = _selection_frame_buffer = _outline_frame_buffer = BGFX_INVALID_HANDLE;
+	_sun_shadow_map_frame_buffer = _local_lights_shadow_map_frame_buffer = _lights_cookie_atlas_frame_buffer = BGFX_INVALID_HANDLE;
+	for (u32 i = 0; i < countof(_colors); ++i) _colors[i] = BGFX_INVALID_HANDLE;
+	for (u32 i = 0; i < countof(_color_textures); ++i) _color_textures[i] = BGFX_INVALID_HANDLE;
+	_depth_texture = _selection_texture = _selection_depth_texture = _outline_color_texture = BGFX_INVALID_HANDLE;
+	_sun_shadow_map_texture = _local_lights_shadow_map_texture = _lights_data_texture = _lights_cookie_atlas_texture = BGFX_INVALID_HANDLE;
 
-	bgfx::destroy(_lighting_params);
-	_lighting_params = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_fog_data);
-	_fog_data = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_lights_data_texture);
-	_lights_data_texture = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_lights_data);
-	_lights_data = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_lights_num);
-	_lights_num = BGFX_INVALID_HANDLE;
-
-	// Destroy light cookie resources.
-	bgfx::destroy(_u_lights_cookie_atlas);
-	_u_lights_cookie_atlas = BGFX_INVALID_HANDLE;
-	if (bgfx::isValid(_lights_cookie_atlas_frame_buffer))
-		bgfx::destroy(_lights_cookie_atlas_frame_buffer);
-	_lights_cookie_atlas_frame_buffer = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_lights_cookie_atlas_texture);
-	_lights_cookie_atlas_texture = BGFX_INVALID_HANDLE;
-	if (_lights_cookie_atlas_packer != NULL) {
+	bgfx::UniformHandle *uniforms[] = {
+		&_color_map, &_depth_map, &_selection_map, &_selection_depth_map, &_outline_color_map,
+		&_outline_color, &_unit_id, &_outline_msaa_samples, &_u_cascaded_shadow_map,
+		&_u_cascaded_lights, &_u_cascade_shadow_texel_size, &_u_shadow_map_params,
+		&_u_local_lights_shadow_map, &_u_local_lights_params, &_lights_num, &_lights_data,
+		&_fog_data, &_lighting_params, &_u_lights_cookie_atlas, &_bloom_map, &_map_pixel_size,
+		&_bloom_params, &_color_grading_desc_uniform, &_tonemap_type, &_vignette_desc_uniform
+	};
+	for (u32 i = 0; i < countof(uniforms); ++i) {
+		if (bgfx::isValid(*uniforms[i])) bgfx::destroy(*uniforms[i]);
+		*uniforms[i] = BGFX_INVALID_HANDLE;
+	}
+	if (_lights_cookie_atlas_packer) {
 		default_allocator().deallocate(_lights_cookie_atlas_packer);
 		default_allocator().deallocate(_lights_cookie_atlas_packer_nodes);
 		_lights_cookie_atlas_packer = NULL;
 		_lights_cookie_atlas_packer_nodes = NULL;
 	}
-
-	// Destroy local-lights shadow map resources.
-	bgfx::destroy(_u_local_lights_params);
-	_u_local_lights_params = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_u_local_lights_shadow_map);
-	_u_local_lights_shadow_map = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_local_lights_shadow_map_frame_buffer);
-	_local_lights_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_local_lights_shadow_map_texture);
-	_local_lights_shadow_map_texture = BGFX_INVALID_HANDLE;
-
-	// Destroy cascaded shadow map resources.
-	bgfx::destroy(_u_cascaded_lights);
-	_u_cascaded_lights = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_u_cascade_shadow_texel_size);
-	_u_cascade_shadow_texel_size = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_u_shadow_map_params);
-	_u_shadow_map_params = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_u_cascaded_shadow_map);
-	_u_cascaded_shadow_map = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_sun_shadow_map_frame_buffer);
-	_sun_shadow_map_frame_buffer = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_sun_shadow_map_texture);
-	_sun_shadow_map_texture = BGFX_INVALID_HANDLE;
-
-	// Destroy vignette resources
-	bgfx::destroy(_vignette_desc_uniform);
-	_vignette_desc_uniform = BGFX_INVALID_HANDLE;
-
-	// Destroy color-grading and tonemap resources.
-	bgfx::destroy(_tonemap_type);
-	_tonemap_type = BGFX_INVALID_HANDLE;
-	bgfx::destroy(_color_grading_desc_uniform);
-	_color_grading_desc_uniform = BGFX_INVALID_HANDLE;
-
-	// Destroy bloom resources.
-	bgfx::destroy(_bloom_params);
-	_bloom_params = BGFX_INVALID_HANDLE;
-
-	bgfx::destroy(_map_pixel_size);
-	_map_pixel_size = BGFX_INVALID_HANDLE;
-
-	bgfx::destroy(_bloom_map);
-	_bloom_map = BGFX_INVALID_HANDLE;
-
-	for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
-		if (bgfx::isValid(_bloom_frame_buffers[i]))
-			bgfx::destroy(_bloom_frame_buffers[i]);
-		_bloom_frame_buffers[i] = BGFX_INVALID_HANDLE;
-	}
-
-	if (selection_enabled()) {
-		bgfx::destroy(_unit_id);
-		_unit_id = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_outline_msaa_samples);
-		_outline_msaa_samples = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_outline_color);
-		_outline_color = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_outline_color_map);
-		_outline_color_map = BGFX_INVALID_HANDLE;
-
-		bgfx::destroy(_outline_frame_buffer);
-		_outline_frame_buffer = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_outline_color_texture);
-		_outline_color_texture = BGFX_INVALID_HANDLE;
-
-		bgfx::destroy(_selection_depth_map);
-		_selection_depth_map = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_selection_map);
-		_selection_map = BGFX_INVALID_HANDLE;
-
-		bgfx::destroy(_depth_map);
-		_depth_map = BGFX_INVALID_HANDLE;
-
-		bgfx::destroy(_selection_frame_buffer);
-		_selection_frame_buffer = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_selection_depth_texture);
-		_selection_depth_texture = BGFX_INVALID_HANDLE;
-		bgfx::destroy(_selection_texture);
-		_selection_texture = BGFX_INVALID_HANDLE;
-	}
-
-	bgfx::destroy(_color_map);
-	_color_map = BGFX_INVALID_HANDLE;
-
-	for (u32 i = 0; i < countof(_colors); ++i) {
-		bgfx::destroy(_colors[i]);
-		_colors[i] = BGFX_INVALID_HANDLE;
-	}
-
-	bgfx::destroy(_color_sdr);
-	_color_sdr = BGFX_INVALID_HANDLE;
-
-	bgfx::destroy(_depth_texture);
-	_depth_texture = BGFX_INVALID_HANDLE; // Destroyed by bgfx.
-
-	for (u32 i = 0; i < countof(_color_textures); ++i) {
-		bgfx::destroy(_color_textures[i]);
-		_color_textures[i] = BGFX_INVALID_HANDLE;
-	}
 }
 
 void Pipeline::begin_frame()
 {
-	array::clear(*_lights_cpu);
 	_bones_row = 0;
 	array::clear(*_bones_cpu);
 }
 
 void Pipeline::end_frame()
 {
-	if (array::size(*_lights_cpu) != 0) {
-		exchange(_lights_cpu, _lights_gpu);
-		bgfx::updateTexture2D(_lights_data_texture
-			, 0
-			, 0
-			, 0
-			, 0
-			, (u16)array::size(*_lights_gpu)
-			, 1
-			, bgfx::makeRef(array::begin(*_lights_gpu), array::size(*_lights_gpu) * sizeof(Vector4))
-			);
-	}
+	// Light uploads remain explicit render-frame operations. add_upload()
+	// owns their bytes and upload() hands bgfx a copy, not a borrowed pointer.
+	if (_bones_row == 0)
+		return;
 
-	if (_bones_row != 0) {
-		exchange(_bones_cpu, _bones_gpu);
-		bgfx::updateTexture2D(_bones_texture
-			, 0
-			, 0
-			, 0
-			, 0
-			, 64
-			, (u16)_bones_row
-			, bgfx::makeRef(array::begin(*_bones_gpu), array::size(*_bones_gpu) * sizeof(Matrix4x4))
-			);
-	}
-}
-
-void Pipeline::add_lights_data(const Vector4 *data, u32 num)
-{
-	CE_ASSERT(num > 0, "Light data must not be empty");
-	CE_ASSERT(array::size(*_lights_cpu) + num <= MAX_NUM_LIGHTS * LIGHT_SIZE, "Lights data texture capacity exceeded");
-	array::push(*_lights_cpu, data, num);
+	exchange(_bones_cpu, _bones_gpu);
+	bgfx::updateTexture2D(_bones_texture
+		, 0
+		, 0
+		, 0
+		, 0
+		, 64
+		, (u16)_bones_row
+		, bgfx::makeRef(array::begin(*_bones_gpu), array::size(*_bones_gpu) * sizeof(Matrix4x4))
+		);
 }
 
 void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)
 {
-	CE_ASSERT(num_bones > 0, "Skeleton must contain bones");
-	const u32 num_rows = (num_bones + 15)/16; // Each row stores 16 matrices of four RGBA texels each.
-	CE_ASSERT(_bones_row + num_rows <= _bones_texture_height, "Bone texture capacity exceeded");
+	PIPELINE_ENSURE(bones != NULL && num_bones > 0, "Skeleton must contain bones");
+	PIPELINE_ENSURE(bgfx::getCaps()->limits.maxTextureSize >= 64, "Bone texture requires a minimum width of 64 texels");
+	const u32 num_rows = num_bones / 16 + (num_bones % 16 != 0);
+	PIPELINE_ENSURE(_bones_row <= _bones_texture_height
+		&& num_rows <= _bones_texture_height - _bones_row, "Bone texture capacity exceeded");
 
 	if (!bgfx::isValid(_bones_texture)) {
 		_bones_texture = bgfx::createTexture2D(64
@@ -533,6 +421,7 @@ void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)
 			| BGFX_SAMPLER_U_CLAMP
 			| BGFX_SAMPLER_V_CLAMP
 			);
+		PIPELINE_ENSURE(bgfx::isValid(_bones_texture), "Could not create bone texture");
 	}
 
 	row = _bones_row;
@@ -540,7 +429,10 @@ void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)
 	const u32 num_matrices = _bones_row * 16;
 	array::reserve(*_bones_cpu, num_matrices);
 	array::resize(*_bones_cpu, num_matrices);
-	memcpy(array::begin(*_bones_cpu) + row * 16, bones, num_bones * sizeof(bones[0]));
+	Matrix4x4 *destination = array::begin(*_bones_cpu) + row * 16;
+	// Crown arrays do not value-initialize padding in the last atlas row.
+	memset(destination, 0, num_rows * 16 * sizeof(Matrix4x4));
+	memcpy(destination, bones, num_bones * sizeof(bones[0]));
 }
 
 void Pipeline::bind_bones_data(u32 row)
@@ -552,337 +444,95 @@ void Pipeline::bind_bones_data(u32 row)
 
 void Pipeline::reset(u16 width, u16 height)
 {
-	u64 depth_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
-	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
-	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
-		u64 msaa_flags = u64(1 + _render_settings.msaa_quality) << BGFX_TEXTURE_RT_MSAA_SHIFT;
-		if (CROWN_PLATFORM_LINUX /* || CROWN_PLATFORM_WINDOWS */)
-			depth_texture_flags |= msaa_flags | BGFX_TEXTURE_MSAA_SAMPLE;
-		else
-			depth_texture_flags |= msaa_flags | BGFX_TEXTURE_RT_WRITE_ONLY;
-		color_texture_flags |= msaa_flags;
-	} else {
-		depth_texture_flags |= BGFX_TEXTURE_RT;
-		color_texture_flags |= BGFX_TEXTURE_RT;
-	}
-
-	// Create main frame buffers.
-	_depth_texture = bgfx::createTexture2D(width
-		, height
-		, false
-		, 1
-		, bgfx::TextureFormat::D24S8
-		, depth_texture_flags
-		);
-
-	for (u32 i = 0; i < countof(_color_textures); ++i) {
-		if (bgfx::isValid(_color_textures[i]))
-			bgfx::destroy(_color_textures[i]);
-		_color_textures[i] = bgfx::createTexture2D(width
-			, height
-			, false
-			, 1
-			, bgfx::TextureFormat::RGBA16F
-			, color_texture_flags
-			);
-		const bgfx::TextureHandle _main_frame_buffer_attachments[] =
-		{
-			_color_textures[i],
-			_depth_texture
-		};
-		if (bgfx::isValid(_colors[i]))
-			bgfx::destroy(_colors[i]);
-		_colors[i] = bgfx::createFrameBuffer(countof(_main_frame_buffer_attachments), _main_frame_buffer_attachments);
-	}
-
-	// Create SDR frame buffer.
-	const bgfx::TextureHandle sdr_attach[] =
-	{
-		bgfx::createTexture2D(width
-			, height
-			, false
-			, 1
-			, bgfx::TextureFormat::RGBA8
-			, color_texture_flags
-			),
-		_depth_texture
+	_render_pipeline.destroy();
+	u32 conditions = 0;
+	const RenderConfigResource *r = _render_config_resource;
+	if ((CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS) && (_render_settings.flags & RenderSettingsFlags::SELECTION))
+		conditions |= render_config_resource::condition_mask(r, StringId32("selection"));
+	if (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) conditions |= render_config_resource::condition_mask(r, StringId32("cookies"));
+	if (_render_settings.flags & RenderSettingsFlags::BLOOM) conditions |= render_config_resource::condition_mask(r, StringId32("bloom_allocated"));
+	if (_render_settings.flags & RenderSettingsFlags::MSAA) conditions |= render_config_resource::condition_mask(r, StringId32("msaa"));
+	const RenderResourceSize sizes[] = {
+		external_size("sun_shadow_map_size", _requested_render_settings.sun_shadow_map_size),
+		external_size("local_lights_shadow_map_size", _requested_render_settings.local_lights_shadow_map_size),
+		external_size("lights_cookie_atlas_size", _requested_render_settings.lights_cookie_atlas_size)
 	};
-	if (bgfx::isValid(_color_sdr))
-		bgfx::destroy(_color_sdr);
-	_color_sdr = bgfx::createFrameBuffer(countof(sdr_attach), sdr_attach, true);
+	const u32 quality = (_render_settings.flags & RenderSettingsFlags::MSAA) ? _render_settings.msaa_quality : 0;
+	_render_pipeline.create(r, width, height, quality, conditions, sizes, countof(sizes), modifiers, countof(modifiers), this);
 
-	if (selection_enabled()) {
-		// Create selection frame buffer.
-		if (bgfx::isValid(_selection_texture))
-			bgfx::destroy(_selection_texture);
-		_selection_texture = bgfx::createTexture2D(width
-			, height
-			, false
-			, 1
-			, bgfx::TextureFormat::R32U
-			, BGFX_TEXTURE_RT
-			);
-		if (bgfx::isValid(_selection_depth_texture))
-			bgfx::destroy(_selection_depth_texture);
-		_selection_depth_texture = bgfx::createTexture2D(width
-			, height
-			, false
-			, 1
-			, bgfx::TextureFormat::D24
-			, BGFX_TEXTURE_RT
-			);
-		const bgfx::TextureHandle _selection_frame_buffer_attachments[] =
-		{
-			_selection_texture,
-			_selection_depth_texture
-		};
-		if (bgfx::isValid(_selection_frame_buffer))
-			bgfx::destroy(_selection_frame_buffer);
-		_selection_frame_buffer = bgfx::createFrameBuffer(countof(_selection_frame_buffer_attachments), _selection_frame_buffer_attachments);
+	// Native destinations are optional. Their absence suppresses their producers;
+	// the executor never reconstructs any part of the default layer list.
 
-		// Create outline frame buffer.
-		if (bgfx::isValid(_outline_color_texture))
-			bgfx::destroy(_outline_color_texture);
-		_outline_color_texture = bgfx::createTexture2D(width
-			, height
-			, false
-			, 1
-			, bgfx::TextureFormat::BGRA8
-			, BGFX_TEXTURE_RT
-			);
+	_color_textures[0] = _render_pipeline.texture(StringId32("color0"));
+	_color_textures[1] = _render_pipeline.texture(StringId32("color1"));
+	_depth_texture = _render_pipeline.texture(StringId32("depth"));
+	_colors[0] = _render_pipeline.frame_buffer(StringId32("color0_clear"));
+	_colors[1] = _render_pipeline.frame_buffer(StringId32("color1_clear"));
+	_color_sdr = _render_pipeline.frame_buffer(StringId32("sprite"));
+	_selection_texture = _render_pipeline.texture(StringId32("selection_color"));
+	_selection_depth_texture = _render_pipeline.texture(StringId32("selection_depth"));
+	_selection_frame_buffer = _render_pipeline.frame_buffer(StringId32("selection"));
+	_outline_color_texture = _render_pipeline.texture(StringId32("outline_color"));
+	_outline_frame_buffer = _render_pipeline.frame_buffer(StringId32("outline"));
+	update_source_resources();
+	lookup_default_shaders(*this);
+}
 
-		const bgfx::TextureHandle _outline_frame_buffer_attachments[] =
-		{
-			_outline_color_texture
-		};
-		if (bgfx::isValid(_outline_frame_buffer))
-			bgfx::destroy(_outline_frame_buffer);
-		_outline_frame_buffer = bgfx::createFrameBuffer(countof(_outline_frame_buffer_attachments), _outline_frame_buffer_attachments);
+void Pipeline::update_source_resources()
+{
+	const RenderConfigResource *resource = _render_pipeline._resource;
+	if (resource == NULL)
+		return;
+	const char *sources[] = { "sun_shadows", "local_shadows" };
+	bgfx::TextureHandle *handles[] = { &_sun_shadow_map_texture, &_local_lights_shadow_map_texture };
+	Vector2 *sizes[] = { &_render_settings.sun_shadow_map_size, &_render_settings.local_lights_shadow_map_size };
+	for (u32 i = 0; i < countof(sources); ++i) {
+		*handles[i] = BGFX_INVALID_HANDLE;
+		const RenderResourceRef output = source_output(_render_pipeline, sources[i], true);
+		if (output.resource == RENDER_CONFIG_INVALID)
+			continue;
+		const RenderTextureState &texture = _render_pipeline.texture_state(output);
+		PIPELINE_ENSURE(texture.width == texture.height && texture.width >= 2, "Native shadow atlases must be square and at least 2x2");
+		*handles[i] = texture.handle;
+		*sizes[i] = { f32(texture.width), f32(texture.height) };
+	}
+	const Vector2 sun = _render_settings.sun_shadow_map_size;
+	const Vector2 local = _render_settings.local_lights_shadow_map_size;
+	_render_settings.shadow_map_params[0] = { 1.0f/sun.x, 1.0f/sun.y, 1.0f/local.x, 1.0f/local.y };
+
+	_lights_data_texture = BGFX_INVALID_HANDLE;
+	const u32 lights = _render_pipeline.draw_layer(StringId32("upload"), StringId32("lights"));
+	if (lights != RENDER_CONFIG_INVALID) {
+		const RenderResourceRef ref = render_config_resource::layers(resource)[lights].draw.resource;
+		const RenderTextureState &texture = _render_pipeline.texture_state(ref);
+		PIPELINE_ENSURE(texture.width == MAX_NUM_LIGHTS * LIGHT_SIZE && texture.height == 1
+			&& render_config_resource::resources(resource)[ref.resource].format == RenderResourceFormat::RGBA32F
+			, "The native lights source requires a 768x1 RGBA32F destination");
+		_lights_data_texture = texture.handle;
 	}
 
-	// Bloom.
-	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
-		for (u32 i = 0; i < countof(_bloom_frame_buffers); ++i) {
-			if (bgfx::isValid(_bloom_frame_buffers[i]))
-				bgfx::destroy(_bloom_frame_buffers[i]);
-
-			_bloom_frame_buffers[i] = bgfx::createFrameBuffer(width >> i
-				, height >> i
-				, bgfx::TextureFormat::RGBA16F
-				, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
-				);
+	const RenderResourceRef cookie = source_output(_render_pipeline, "light_cookies", false);
+	_lights_cookie_atlas_texture = BGFX_INVALID_HANDLE;
+	if (cookie.resource != RENDER_CONFIG_INVALID && (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE)) {
+		const RenderTextureState &atlas = _render_pipeline.texture_state(cookie);
+		PIPELINE_ENSURE(bgfx::isValid(atlas.handle) && render_config_resource::resources(resource)[cookie.resource].format == RenderResourceFormat::RGBA8, "The native cookie source needs allocated RGBA8 storage");
+		if (_lights_cookie_atlas_packer == NULL || _render_settings.lights_cookie_atlas_size.x != atlas.width) {
+			if (_lights_cookie_atlas_packer != NULL) {
+				default_allocator().deallocate(_lights_cookie_atlas_packer);
+				default_allocator().deallocate(_lights_cookie_atlas_packer_nodes);
+			}
+			_lights_cookie_atlas_packer = (stbrp_context *)default_allocator().allocate(sizeof(stbrp_context));
+			_lights_cookie_atlas_packer_nodes = (stbrp_node *)default_allocator().allocate(sizeof(stbrp_node) * atlas.width);
 		}
-	}
-
-	const bgfx::Caps *caps = bgfx::getCaps();
-
-	f32 ortho[16];
-	bx::mtxOrtho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f, 0.0f, caps->homogeneousDepth, bx::Handedness::Right);
-
-	Matrix4x4 sm_local_clear_proj;
-	bx::mtxOrtho(to_float_ptr(sm_local_clear_proj)
-		, 0.0f
-		, 1.0f
-		, 1.0f
-		, 0.0f
-		, 0.0f
-		, 100.0f
-		, 0.0f
-		, caps->homogeneousDepth
-		);
-
-	f32 screen_gui_ortho[16];
-	bx::mtxOrtho(screen_gui_ortho
-		, 0
-		, width
-		, 0
-		, height
-		, 0.0f
-		, 1.0f
-		, 0.0f
-		, caps->homogeneousDepth
-		, bx::Handedness::Right
-		);
-	Matrix4x4 screen_gui_proj = from_array(screen_gui_ortho);
-
-	f32 graph_ortho[16];
-	bx::mtxOrtho(graph_ortho
-		, -width / 2.0f
-		,  width / 2.0f
-		, -height / 2.0f
-		,  height / 2.0f
-		, 0.0f
-		, 1.0f
-		, 0.0f
-		, caps->homogeneousDepth
-		, bx::Handedness::Right
-		);
-	Matrix4x4 graph_proj = from_array(graph_ortho);
-
-	for (u32 id = 0; id < View::COUNT; ++id) {
-		const char *view_name;
-
-		if (id == View::COLOR_0) {
-			view_name = "color0";
-			bgfx::setViewFrameBuffer(id, _colors[0]);
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id == View::COLOR_1) {
-			view_name = "color1";
-			bgfx::setViewFrameBuffer(id, _colors[1]);
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
-			view_name = "sprite";
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-		} else if (id == View::CASCADE_CLEAR) {
-			view_name = "sm_cascade_clear";
-			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.sun_shadow_map_size.x, (u16)_render_settings.sun_shadow_map_size.y);
-			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH, 0xffffffff, 1.0f, 0);
-		} else if (id >= View::CASCADE_0 && id < View::CASCADE_LAST) {
-			view_name = "sm_cascade";
-			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
-		} else if (id == View::SM_LOCAL_CLEAR) {
-			view_name = "sm_local_lights_clear";
-			bgfx::setViewClear(id, BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL, 0, 1.0f, 0);
-			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
-			bgfx::setViewRect(id, 0, 0, (u16)_render_settings.local_lights_shadow_map_size.x, (u16)_render_settings.local_lights_shadow_map_size.y);
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(sm_local_clear_proj));
-		} else if (id >= View::SM_LOCAL_0 && id < View::SM_LOCAL_LAST) {
-			view_name = "sm_local_lights";
-			bgfx::setViewFrameBuffer(id, _local_lights_shadow_map_frame_buffer);
-		} else if (id == View::LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR) {
-			view_name = "lights_cookie_atlas_clear";
-			if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0) {
-				bgfx::setViewFrameBuffer(id, _lights_cookie_atlas_frame_buffer);
-				bgfx::setViewRect(id
-					, 0
-					, 0
-					, (u16)_render_settings.lights_cookie_atlas_size.x
-					, (u16)_render_settings.lights_cookie_atlas_size.y
-					);
-				bgfx::setViewClear(id, BGFX_CLEAR_COLOR, 0x00000000, 1.0f, 0);
-			}
-		} else if (id >= View::LOCAL_LIGHTS_COOKIE_ATLAS_0 && id < View::LOCAL_LIGHTS_COOKIE_ATLAS_LAST) {
-			view_name = "lights_cookie_atlas";
-			if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0) {
-				bgfx::setViewFrameBuffer(id, _lights_cookie_atlas_frame_buffer);
-				bgfx::setViewTransform(id, NULL, ortho);
-			}
-		} else if (id == View::LIGHTS) {
-			view_name = "lights_data";
-		} else if (id == View::MESH) {
-			view_name = "mesh";
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _colors[0]);
-		} else if (id == View::BLOOM_COPY) {
-			view_name = "bloom_copy";
-			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
-				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[0]);
-				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width, height);
-			}
-		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
-			view_name = "bloom_downsample";
-			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
-				const u16 shift = u16(id - View::BLOOM_DOWNSAMPLE_0 + 1);
-				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
-				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
-			}
-		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
-			view_name = "bloom_upsample";
-			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
-				const u16 shift = u16(countof(_bloom_frame_buffers) - 2 - (id - View::BLOOM_UPSAMPLE_0));
-				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
-				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
-			}
-		} else if (id == View::BLOOM_COMBINE) {
-			view_name = "bloom_combine";
-			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
-				bgfx::setViewFrameBuffer(id, _colors[1]);
-				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width, height);
-			}
-		} else if (id == View::DUMMY_BLIT) {
-			view_name = "dummy_blit";
-			bgfx::setViewFrameBuffer(id, _colors[1]);
-			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id == View::VIGNETTE) {
-			view_name = "vignette";
-			bgfx::setViewFrameBuffer(id, _colors[0]);
-			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id == View::TONEMAP) {
-			view_name = "tonemap";
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id == View::WORLD_GUI) {
-			view_name = "world_gui";
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-		} else if (id == View::SELECTION) {
-			view_name = "selection";
-			if (selection_enabled()) {
-				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, UNIT_INVALID._idx, 1.0f, 0);
-				bgfx::setViewRect(id, 0, 0, width, height);
-				bgfx::setViewFrameBuffer(id, _selection_frame_buffer);
-			}
-		} else if (id == View::OUTLINE) {
-			view_name = "outline";
-			if (selection_enabled()) {
-				bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xffffffff);
-				bgfx::setViewFrameBuffer(id, _outline_frame_buffer);
-				bgfx::setViewRect(id, 0, 0, width, height);
-				bgfx::setViewTransform(id, NULL, ortho);
-			}
-		} else if (id == View::OUTLINE_BLIT) {
-			view_name = "outline_blit";
-			if (selection_enabled()) {
-				bgfx::setViewFrameBuffer(id, _color_sdr);
-				bgfx::setViewRect(id, 0, 0, width, height);
-				bgfx::setViewTransform(id, NULL, ortho);
-			}
-		} else if (id == View::DEBUG) {
-			view_name = "debug";
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-		} else if (id == View::SCREEN_GUI) {
-			view_name = "screen_gui";
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(screen_gui_proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-		} else if (id == View::GRAPH) {
-			view_name = "graph";
-			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(graph_proj));
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
-		} else if (id == View::BLIT) {
-			view_name = "blit";
-			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
-			bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
-			bgfx::setViewRect(id, 0, 0, width, height);
-			bgfx::setViewTransform(id, NULL, ortho);
-		} else if (id == View::IMGUI) {
-			view_name = "imgui";
-		} else {
-			view_name = "unknown";
-		}
-
-		bgfx::setViewName(id, view_name);
+		_lights_cookie_atlas_texture = atlas.handle;
+		_render_settings.lights_cookie_atlas_size = { f32(atlas.width), f32(atlas.height) };
 	}
 }
 
-void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
+void Pipeline::prepare_local_lights_stencil(RenderFrame &frame, u16 tile_size, u16 tile_cols)
 {
+	if (_render_pipeline.source_view_count(StringId32("local_shadow_stencil")) == 0 || !local_shadows_enabled() || tile_size == 0 || tile_cols == 0)
+		return;
 	CE_ENSURE(tile_size > 0);
 	CE_ENSURE(tile_cols > 0);
 
@@ -935,218 +585,49 @@ void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
 			}
 		}
 
-		bgfx::setState(0);
-		bgfx::setStencil(BGFX_STENCIL_TEST_ALWAYS
+		RenderBatch batch;
+		batch.transient = true;
+		batch.transient_vertices = vb;
+		batch.transient_indices = ib;
+		batch.num_vertices = num_vertices;
+		batch.num_indices = num_indices;
+		batch.override_state = true;
+		batch.state = 0;
+		batch.override_stencil = true;
+		batch.stencil_front = BGFX_STENCIL_TEST_ALWAYS
 			| BGFX_STENCIL_FUNC_REF(1)
 			| BGFX_STENCIL_FUNC_RMASK(0xff)
 			| BGFX_STENCIL_OP_FAIL_S_REPLACE
 			| BGFX_STENCIL_OP_FAIL_Z_REPLACE
-			| BGFX_STENCIL_OP_PASS_Z_REPLACE
-			);
-		bgfx::setVertexBuffer(0, &vb);
-		bgfx::setIndexBuffer(&ib);
-		bgfx::submit(View::SM_LOCAL_CLEAR, _shadow_shader.program);
+			| BGFX_STENCIL_OP_PASS_Z_REPLACE;
+		const u32 view = frame.add_view(RenderBatchView(StringId32("local_shadow_stencil"), 0));
+		frame.add_batch(view, batch);
 	}
 }
 
-void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
+void Pipeline::update_conditions()
+{
+	_render_pipeline.set_condition(StringId32("bloom"), (_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled);
+	_render_pipeline.set_condition(StringId32("vignette"), _vignette.enabled);
+}
+
+void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj, RenderFrame *frame)
 {
 	ScopedProfileScope scope("Pipeline::render");
 
-	const bgfx::Caps *caps = bgfx::getCaps();
-
-	const u32 samplerFlags = 0
-		| BGFX_SAMPLER_MIN_POINT
-		| BGFX_SAMPLER_MAG_POINT
-		| BGFX_SAMPLER_MIP_POINT
-		| BGFX_SAMPLER_U_CLAMP
-		| BGFX_SAMPLER_V_CLAMP
-		;
-
-	const u32 bloom_sampler_flags = 0
-		| BGFX_SAMPLER_MIN_ANISOTROPIC
-		| BGFX_SAMPLER_MAG_ANISOTROPIC
-		| BGFX_SAMPLER_MIP_POINT
-		| BGFX_SAMPLER_U_CLAMP
-		| BGFX_SAMPLER_V_CLAMP
-		;
-
-	for (u32 id = 0; id < View::COUNT; ++id) {
-		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
-			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::touch(id);
-		} else if (id == View::CASCADE_CLEAR) {
-			bgfx::touch(id);
-		} else if (id == View::MESH) {
-			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::touch(id);
-		} else if (id == View::BLOOM_COPY) {
-			bgfx::touch(id);
-		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
-			bgfx::touch(id);
-		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
-			bgfx::touch(id);
-		} else if (id == View::BLOOM_COMBINE) {
-			bgfx::touch(id);
-		} else if (id == View::VIGNETTE) {
-			bgfx::touch(id);
-		} else if (id == View::TONEMAP) {
-			bgfx::touch(id);
-		} else if (id == View::WORLD_GUI) {
-			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::touch(id);
-		} else if (id == View::SELECTION) {
-			if (selection_enabled()) {
-				bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-				bgfx::touch(id);
-			}
-		} else if (id == View::OUTLINE) {
-			if (selection_enabled())
-				bgfx::touch(id);
-		} else if (id == View::OUTLINE_BLIT) {
-			if (selection_enabled())
-				bgfx::touch(id);
-		} else if (id == View::DEBUG) {
-			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
-			bgfx::touch(id);
-		} else if (id == View::SCREEN_GUI) {
-			bgfx::touch(id);
-		} else if (id == View::GRAPH) {
-			bgfx::touch(id);
-		} else if (id == View::BLIT) {
-			bgfx::touch(id);
-		}
-	}
-
-	// Clear main color frame buffers.
-	bgfx::touch(View::COLOR_0);
-	bgfx::touch(View::COLOR_1);
-
-	// Render bloom.
-	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
-		// Calculate bloom's maximum amplification and use it to avoid FP16 overflow.
-		//
-		// With four mip levels and intensity I, this gives:
-		//     gain = 1 + |I| + |I|^2 + |I|^3
-		//
-		// We then use:
-		//     scale = 0.5f / gain;
-		//
-		// Scaling the input by that amount bounds the theoretical accumulated magnitude to:
-		//     65504 * scale * gain = 32752
-		f32 bloom_gain = 1.0f;
-		for (u32 i = 1; i < countof(_bloom_frame_buffers); ++i)
-			bloom_gain = 1.0f + bx::abs(_bloom.intensity) * bloom_gain;
-		Vector4 bloom_params = { 0.5f / bloom_gain, _bloom.threshold, _bloom.weight, _bloom.intensity };
-
-		// Copy color buffer to first bloom mip.
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), bloom_sampler_flags);
-		bgfx::setUniform(_bloom_params, &bloom_params);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_bloom_copy_shader.state);
-		bgfx::submit(View::BLOOM_COPY, _bloom_copy_shader.program);
-
-		// Downsample.
-		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
-			const u16 shift = i + 1;
-			const u16 w = width >> shift;
-			const u16 h = height >> shift;
-			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
-
-			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[i]), bloom_sampler_flags);
-			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
-			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
-			bgfx::setState(_bloom_downsample_shader.state);
-			bgfx::submit(View::BLOOM_DOWNSAMPLE_0 + i, _bloom_downsample_shader.program);
-		}
-
-		// Upsample.
-		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
-			const u16 shift = u16(countof(_bloom_frame_buffers) - 2 - i);
-			const u16 w = width >> shift;
-			const u16 h = height >> shift;
-			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
-
-			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
-			bgfx::setUniform(_map_pixel_size, &pixel_size, sizeof(pixel_size)/sizeof(Vector4));
-			bgfx::setUniform(_bloom_params, &bloom_params);
-			screenSpaceQuad(w, h, 0.0f, caps->originBottomLeft);
-			bgfx::setState(_bloom_upsample_shader.state);
-			bgfx::submit(View::BLOOM_UPSAMPLE_0 + i, _bloom_upsample_shader.program);
-		}
-
-		// Combine first bloom mip with main color texture.
-		bloom_params.x = 2.0f * bloom_gain;
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
-		bgfx::setTexture(1, _bloom_map, bgfx::getTexture(_bloom_frame_buffers[0]), samplerFlags);
-		bgfx::setUniform(_bloom_params, &bloom_params);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_bloom_combine_shader.state);
-		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
+	CE_UNUSED_2(width, height);
+	update_conditions();
+	if (frame != NULL) {
+		const RenderFrameContext context = render_frame::context(*frame);
+		_render_pipeline.render(view, proj, &context);
 	} else {
-		// Do a dummy copy to color1.
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_shader.state);
-		bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
+		_render_pipeline.render(view, proj);
 	}
-
-	if (_vignette.enabled) {
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
-		bgfx::setUniform(_vignette_desc_uniform, &_vignette, sizeof(_vignette)/sizeof(Vector4));
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_vignette_shader.state);
-		bgfx::submit(View::VIGNETTE, _vignette_shader.program);
-	} else {
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_shader.state);
-		bgfx::submit(View::VIGNETTE, _blit_shader.program);
-	}
-
-	// Color grading and tonemapping.
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
-	bgfx::setUniform(_color_grading_desc_uniform
-		, &_color_grading_desc
-		, sizeof(_color_grading_desc)/sizeof(Vector4)
-		);
-	bgfx::setUniform(_tonemap_type, &_tonemap, sizeof(_tonemap)/sizeof(Vector4));
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	bgfx::setState(_tonemap_shader.state);
-	bgfx::submit(View::TONEMAP, _tonemap_shader.program);
-
-	if (selection_enabled()) {
-		bgfx::setTexture(0, _selection_map, _selection_texture, samplerFlags);
-		bgfx::setTexture(1, _selection_depth_map, _selection_depth_texture, samplerFlags);
-		const bool msaa = (_render_settings.flags & RenderSettingsFlags::MSAA) != 0;
-		bgfx::setTexture(2, _depth_map, _depth_texture, samplerFlags);
-		if (msaa) {
-			const Vector4 outline_msaa_samples = { f32(1u << _render_settings.msaa_quality), 0.0f, 0.0f, 0.0f };
-			bgfx::setUniform(_outline_msaa_samples, &outline_msaa_samples);
-		}
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		const f32 outline_color[] = { 1.0f, 0.37f, 0.05f, 1.0f };
-		bgfx::setUniform(_outline_color, outline_color);
-		const ShaderData &outline_shader = msaa ? _outline_msaa_shader : _outline_shader;
-		bgfx::setState(outline_shader.state);
-		bgfx::submit(View::OUTLINE, outline_shader.program);
-
-		bgfx::setTexture(0, _outline_color_map, _outline_color_texture, samplerFlags);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_blend_shader.state);
-		bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
-	}
-
-	// Blit to backbuffer.
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	bgfx::setState(_blit_shader.state);
-	bgfx::submit(View::BLIT, _blit_shader.program);
 }
 
 void Pipeline::begin_light_cookie_atlas()
 {
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) == 0)
+	if (!light_cookies_enabled())
 		return;
 
 	const u16 width = (u16)_render_settings.lights_cookie_atlas_size.x;
@@ -1157,12 +638,13 @@ void Pipeline::begin_light_cookie_atlas()
 		, _lights_cookie_atlas_packer_nodes
 		, width
 		);
-	bgfx::touch(View::LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR);
+	// Clearing is an explicit layer operation, not a side effect of packing.
 }
 
-Vector4 Pipeline::add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 width, u16 height)
+Vector4 Pipeline::add_light_cookie(RenderFrame &frame, u32 &index, bgfx::TextureHandle texture, u16 width, u16 height)
 {
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) == 0)
+	const u32 count = _render_pipeline.source_view_count(StringId32("light_cookies"));
+	if (!light_cookies_enabled() || index >= count)
 		return VECTOR4_ZERO;
 
 	stbrp_rect packed = { 0, width, height, 0, 0, 0 };
@@ -1170,13 +652,23 @@ Vector4 Pipeline::add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 w
 	if (!packed.was_packed)
 		return VECTOR4_ZERO;
 
-	CE_ASSERT(view < View::LOCAL_LIGHTS_COOKIE_ATLAS_LAST, "Too many light cookies");
-	bgfx::setViewRect(view, packed.x, packed.y, width, height);
-	const u32 sampler_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
-	bgfx::setTexture(0, _color_map, texture, sampler_flags);
-	screenSpaceQuad(width, height, 0.0f, bgfx::getCaps()->originBottomLeft);
-	bgfx::setState(_blit_shader.state);
-	bgfx::submit(view++, _blit_shader.program);
+	bgfx::TransientVertexBuffer vertices;
+	if (!render_pipeline::fullscreen_vertices(vertices))
+		return VECTOR4_ZERO;
+	RenderBatchView source(StringId32("light_cookies"), index++);
+	source.viewport = true;
+	source.rect = { f32(packed.x), f32(packed.y), f32(width), f32(height) };
+	const u32 view = frame.add_view(source);
+	RenderBatch batch;
+	batch.transient = true;
+	batch.transient_vertices = vertices;
+	batch.num_vertices = 3;
+	batch.num_indices = 0;
+	batch.first_texture = array::size(frame.textures);
+	batch.num_textures = 1;
+	const RenderBatchTexture input = { _color_map, texture, 0, BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP };
+	array::push_back(frame.textures, input);
+	frame.add_batch(view, batch);
 
 	const f32 atlas_w = _render_settings.lights_cookie_atlas_size.x;
 	const f32 atlas_h = _render_settings.lights_cookie_atlas_size.y;
@@ -1223,3 +715,5 @@ void Pipeline::set_global_lighting_params(GlobalLightingDesc *global_lighting)
 }
 
 } // namespace crown
+
+#undef PIPELINE_ENSURE

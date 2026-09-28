@@ -69,8 +69,13 @@ struct ShaderData
 	u64 state;
 	u32 stencil_front;
 	u32 stencil_back;
+	// Authored sampler states, not a complete list of shader texture inputs.
 	u32 num_samplers;
 	ShaderResource::Sampler samplers[ShaderResource::MAX_SAMPLERS];
+	// Runtime reflection of both shader stages; never serialized. Includes
+	// samplers declared in shader code without an authored sampler state.
+	u32 num_sampler_uniforms;
+	u32 sampler_uniforms[ShaderResource::MAX_SAMPLERS * 2]; // Name hashes.
 	bgfx::ProgramHandle program;
 #if CROWN_CAN_RELOAD
 	const void *resource;

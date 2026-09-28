@@ -726,6 +726,9 @@ int Device::main_loop()
 		_resource_manager->unload(RESOURCE_TYPE_CONFIG, config_name);
 	}
 
+	if (_options._render_config != NULL)
+		_boot_config.render_config_name = StringId64(_options._render_config);
+
 	_renderer_type = _options._renderer_type.has_changed()
 		? _options._renderer_type.value()
 		: _boot_config.renderer_type
@@ -854,6 +857,11 @@ int Device::main_loop()
 	render_config_package->flush();
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
+	logi(DEVICE, "Render config %016llx: %u layers, %u resources"
+		, (unsigned long long)_boot_config.render_config_name._id
+		, _render_config_resource->num_layers
+		, _render_config_resource->num_resources
+		);
 
 	ResourcePackage *stat_config_package = create_resource_package(_boot_config.stat_config_name);
 	stat_config_package->load();
@@ -868,7 +876,7 @@ int Device::main_loop()
 	_lua_environment->execute_string(_options._lua_string.c_str());
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
-	_pipeline->create(_width, _height, merged_render_settings(this));
+	_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
 
 	stat_globals::init(_allocator
 		, *_resource_manager
@@ -992,7 +1000,7 @@ void Device::render(World &world, UnitId camera_unit)
 	const Vector4 viewport = { 0.0f, 0.0f, (f32)_width, (f32)_height };
 
 	world.render(view, cull_proj, persp, viewport);
-	_pipeline->render(_width, _height, view, proj);
+	_pipeline->render(_width, _height, view, proj, &world._render_world->_render_frame);
 }
 
 World *Device::create_world()
@@ -1111,7 +1119,13 @@ void Device::refresh(const char *json)
 				if (_render_config_resource == old_resource) {
 					_render_config_resource = (RenderConfigResource *)new_resource;
 					_pipeline->destroy();
-					_pipeline->create(_width, _height, merged_render_settings(this));
+					_pipeline->create(_width, _height, merged_render_settings(this), _render_config_resource);
+					logi(DEVICE, "Reloaded render config %016llx: %u layers, %u resources"
+						, (unsigned long long)_boot_config.render_config_name._id
+						, _render_config_resource->num_layers
+						, _render_config_resource->num_resources
+						);
+					++_needs_draw;
 				}
 			} else if (resource_type == RESOURCE_TYPE_SPRITE) {
 				ListNode *cur;

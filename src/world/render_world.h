@@ -9,6 +9,7 @@
 #include "core/math/types.h"
 #include "core/strings/string_id.h"
 #include "device/pipeline.h"
+#include "device/render_frame.h"
 #include "resource/mesh_resource.h"
 #include "resource/mesh_skeleton_resource.h"
 #include "resource/shader_resource.h"
@@ -441,7 +442,7 @@ struct RenderWorld
 	void sync_cullable_sets();
 
 	///
-	void render(f32 dt
+	void prepare(f32 dt
 		, const Matrix4x4 &view
 		, const Matrix4x4 &cull_proj
 		, const Matrix4x4 &persp
@@ -449,6 +450,9 @@ struct RenderWorld
 		, UnitId skydome_unit
 		, DebugLine &dl
 		);
+
+	/// Copy the current caster result before the next light/cascade cull.
+	void gather_shadow_casters(const RenderBatchView &source, u32 stencil = UINT32_MAX);
 
 	/// Sets whether to @a enable debug drawing
 	void enable_debug_drawing(bool enable);
@@ -475,7 +479,7 @@ struct RenderWorld
 	void reload_light_cookies(const TextureResource *old_resource, const TextureResource *new_resource);
 
 	/// Callback to customize drawing of objects.
-	typedef void (*DrawOverride)(u8 view_id, UnitId unit_id, RenderWorld *rw);
+	typedef void (*DrawOverride)(u16 view_id, UnitId unit_id, RenderWorld *rw);
 
 	/// List of meshes to be rendered.
 	struct MeshManager
@@ -603,10 +607,7 @@ struct RenderWorld
 		u32 index(MeshId mesh);
 
 		///
-		void set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset = 0, u32 num_indices = UINT32_MAX);
-
-		///
-		void draw_shadow_casters(u8 view, SceneGraph &scene_graph, u32 stencil = BGFX_STENCIL_NONE);
+		u32 set_instance_data(u32 ii, SceneGraph &scene_graph, u32 index_offset = 0, u32 num_indices = UINT32_MAX);
 
 		///
 	};
@@ -839,6 +840,7 @@ struct RenderWorld
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
 		bool _dirty;
+		Array<ShaderData> _lights_data; // Staging only; RenderFrame owns a copy before submission.
 		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
 		Array<u32> _local_lights_omni;  // Indices to spot lights that will be rendered this frame.
 		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
@@ -849,6 +851,7 @@ struct RenderWorld
 			, _render_world(rw)
 			, _map(a)
 			, _dirty(true)
+			, _lights_data(a)
 			, _directional_lights(a)
 			, _local_lights_omni(a)
 			, _local_lights_spot(a)
@@ -908,6 +911,7 @@ struct RenderWorld
 	CullingSet _cullable_objects;
 	CullingSet _cullable_shadow_casters;
 	CullingSet _cullable_lights;
+	RenderFrame _render_frame;
 
 	UnitDestroyCallback _unit_destroy_callback;
 

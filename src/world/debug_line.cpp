@@ -31,6 +31,7 @@ DebugLine::DebugLine(Allocator &a, ShaderData *shader)
 	: _marker(DEBUG_LINE_MARKER)
 	, _lines(a)
 	, _shader(shader)
+	, _pipeline(NULL)
 {
 	if (vertex_layout.m_hash == 0) {
 		vertex_layout.begin();
@@ -228,18 +229,26 @@ void DebugLine::reset()
 	array::clear(_lines);
 }
 
-void DebugLine::submit(u8 view_id)
+void DebugLine::submit()
 {
+	CE_ENSURE(_pipeline != NULL);
+	submit(_pipeline->debug_view());
+}
+
+void DebugLine::submit(u16 view_id)
+{
+	if (view_id == UINT16_MAX) { bgfx::discard(); return; }
 	u32 num = array::size(_lines);
 	if (!num)
 		return;
 
 	bgfx::TransientVertexBuffer tvb;
-	uint32_t num_vertices = bgfx::getAvailTransientVertexBuffer(2*num, vertex_layout);
+	uint32_t num_vertices = bgfx::getAvailTransientVertexBuffer(2*num, vertex_layout) & ~1u;
+	if (num_vertices == 0) return;
 	bgfx::allocTransientVertexBuffer(&tvb, num_vertices, vertex_layout);
 	memcpy(tvb.data, array::begin(_lines), sizeof(Line)/2 * num_vertices);
 
-	bgfx::setVertexBuffer(0, &tvb, 0, num * 2);
+	bgfx::setVertexBuffer(0, &tvb, 0, num_vertices);
 	bgfx::setState(_shader->state);
 	bgfx::submit(view_id, _shader->program);
 }
@@ -248,7 +257,9 @@ namespace debug_line
 {
 	DebugLine *create(Allocator &a, Pipeline &pl, bool depth_enabled)
 	{
-		return CE_NEW(a, DebugLine)(a, depth_enabled ? &pl._debug_line_depth_enabled_shader : &pl._debug_line_shader);
+		DebugLine *dl = CE_NEW(a, DebugLine)(a, depth_enabled ? &pl._debug_line_depth_enabled_shader : &pl._debug_line_shader);
+		dl->_pipeline = &pl;
+		return dl;
 	}
 
 } // namespace debug_line
