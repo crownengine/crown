@@ -132,7 +132,9 @@ struct WindowEmscripten : public Window
 
 	void show_cursor(bool show) override
 	{
-		CE_UNUSED(show);
+		MAIN_THREAD_EM_ASM({
+				Module.canvas.style.cursor = $0 ? "" : "none";
+			}, show);
 	}
 
 	bool is_fullscreen() override;

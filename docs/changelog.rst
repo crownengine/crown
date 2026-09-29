@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: texture settings now expose ``mip_skip_largest`` to skip the largest mip levels.
+* Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 
 .. _v0.65.0:
