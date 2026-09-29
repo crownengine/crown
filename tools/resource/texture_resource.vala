@@ -72,7 +72,7 @@ public struct TextureResource
 			_db.set_bool(_id, "output." + platform + ".generate_mips", generate_mips);
 			_db.set_bool(_id, "output." + platform + ".normal_map", is_normal_map);
 			_db.set_bool(_id, "output." + platform + ".linear", is_linear);
-			_db.set_double(_id, "output." + platform + ".mip_skip_smallest", 0);
+			_db.set_double(_id, "output." + platform + ".mip_skip_largest", 0);
 		}
 	}
 

@@ -2788,7 +2788,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
-			name = "output.android.mip_skip_smallest",
+			name = "output.android.mip_skip_largest",
 		},
 		PropertyDefinition()
 		{
@@ -2822,7 +2822,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
-			name = "output.html5.mip_skip_smallest",
+			name = "output.html5.mip_skip_largest",
 		},
 		PropertyDefinition()
 		{
@@ -2856,7 +2856,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
-			name = "output.linux.mip_skip_smallest",
+			name = "output.linux.mip_skip_largest",
 		},
 		PropertyDefinition()
 		{
@@ -2890,7 +2890,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.DOUBLE,
-			name = "output.windows.mip_skip_smallest",
+			name = "output.windows.mip_skip_largest",
 		},
 		PropertyDefinition()
 		{
