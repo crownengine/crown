@@ -619,10 +619,10 @@ update_tinyexpr () {
 }
 
 update_ufbx () {
-	# Download latest tinyexpr.
+	# Download latest ufbx.
 	local REPO=https://github.com/ufbx/ufbx
 	local DEST=3rdparty/ufbx
-	local BRANCH=v0.21.4
+	local BRANCH=v0.23.1
 
 	rm -rf "${DEST}"
 	git_clone "${DEST}" "${REPO}" "${BRANCH}"
