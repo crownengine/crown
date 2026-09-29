@@ -6,6 +6,11 @@ Changelog
 :ref:`0.66.0 --- DD MMM YYYY <v0.66.0>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: texture settings now expose ``mip_skip_largest`` to skip the largest mip levels.
+* Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
+
 .. _v0.65.0:
 
 :ref:`0.65.0 --- 28 Sep 2026 <v0.65.0>`

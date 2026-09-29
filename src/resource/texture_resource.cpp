@@ -136,7 +136,7 @@ namespace texture_resource_internal
 	{
 		TextureFormat::Enum format; ///< Output format.
 		bool generate_mips;         ///< Whether to generate mip-maps.
-		u32 mip_skip_smallest;      ///< Number of (smallest) mip steps to skip.
+		u32 mip_skip_largest;       ///< Number of (largest) mip steps to skip.
 		bool normal_map;            ///< Whether the texture is a normal map.
 		bool linear;                ///< Whether to skip gamma correction.
 		bool premultiply_alpha;     ///< Whether to premultiply alpha into RGB channel.
@@ -144,7 +144,7 @@ namespace texture_resource_internal
 		OutputSettings()
 			: format(TextureFormat::RGBA8)
 			, generate_mips(true)
-			, mip_skip_smallest(0u)
+			, mip_skip_largest(0u)
 			, normal_map(false)
 			, linear(false)
 			, premultiply_alpha(false)
@@ -175,7 +175,10 @@ namespace texture_resource_internal
 				os.generate_mips     = RETURN_IF_ERROR(sjson::parse_bool(obj["generate_mips"]));
 			}
 			if (json_object::has(obj, "mip_skip_smallest")) {
-				os.mip_skip_smallest = RETURN_IF_ERROR(sjson::parse_int (obj["mip_skip_smallest"]));
+				opts.warning(TEXTURE_RESOURCE, "mip_skip_smallest is unused; use mip_skip_largest instead");
+			}
+			if (json_object::has(obj, "mip_skip_largest")) {
+				os.mip_skip_largest = RETURN_IF_ERROR(sjson::parse_int(obj["mip_skip_largest"]));
 			}
 			if (json_object::has(obj, "normal_map")) {
 				os.normal_map        = RETURN_IF_ERROR(sjson::parse_bool(obj["normal_map"]));
@@ -206,6 +209,9 @@ namespace texture_resource_internal
 
 		OutputSettings os;
 
+		if (json_object::has(obj, "mip_skip_smallest")) {
+			opts.warning(TEXTURE_RESOURCE, "mip_skip_smallest is unused; use output.<platform>.mip_skip_largest instead");
+		}
 		if (json_object::has(obj, "generate_mips")) {
 			os.generate_mips = RETURN_IF_ERROR(sjson::parse_bool(obj["generate_mips"]));
 		}
@@ -232,7 +238,7 @@ namespace texture_resource_internal
 			);
 
 		char mipskip[16];
-		stbsp_snprintf(mipskip, sizeof(mipskip), "--mipskip %u", os.mip_skip_smallest);
+		stbsp_snprintf(mipskip, sizeof(mipskip), "%u", os.mip_skip_largest);
 
 		const char *argv[] =
 		{
@@ -247,8 +253,8 @@ namespace texture_resource_internal
 			(os.linear ? "--linear" : ""),
 			(os.premultiply_alpha ? "--pma" : ""),
 			(os.generate_mips ? "-m" : ""),
-			(os.mip_skip_smallest > 0 ? "--mipskip" : ""),
-			(os.mip_skip_smallest > 0 ? mipskip : ""),
+			(os.mip_skip_largest > 0 ? "--mipskip" : ""),
+			(os.mip_skip_largest > 0 ? mipskip : ""),
 			NULL
 		};
 		Process pr;

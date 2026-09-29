@@ -23,7 +23,7 @@ public class TextureSettingsDialog : Gtk.Window
 	// Output page.
 	public InputEnum _format;
 	public InputBool _generate_mips;
-	public InputDouble _mip_skip_smallest;
+	public InputDouble _mip_skip_largest;
 	public InputBool _normal_map;
 	public InputBool _linear;
 	public InputBool _premultiply_alpha;
@@ -108,8 +108,8 @@ public class TextureSettingsDialog : Gtk.Window
 		_generate_mips.value = true;
 		_generate_mips.value_changed.connect(on_generate_mips_value_changed);
 
-		_mip_skip_smallest = new InputDouble(0, 0, 32);
-		_mip_skip_smallest.value_changed.connect(on_mip_skip_smallest_value_changed);
+		_mip_skip_largest = new InputDouble(0, 0, 32);
+		_mip_skip_largest.value_changed.connect(on_mip_skip_largest_value_changed);
 
 		_normal_map = new InputBool();
 		_normal_map.value = false;
@@ -127,7 +127,7 @@ public class TextureSettingsDialog : Gtk.Window
 		cv.column_homogeneous = true;
 		cv.add_row(_("Format"), _format, _("Output format."));
 		cv.add_row(_("Generate Mips"), _generate_mips, _("Generate mip-maps."));
-		cv.add_row(_("Skip Smallest Mips"), _mip_skip_smallest, _("Skip generation of the N smallest mip-maps."));
+		cv.add_row(_("Skip Largest Mips"), _mip_skip_largest, _("Skip generation of the N largest mip-maps."));
 		cv.add_row(_("Normal Map"), _normal_map, _("Skip gamma correction and mark as normal map."));
 		cv.add_row(_("Linear"), _linear, _("Skip gamma correction."));
 		cv.add_row(_("Premultiply Alpha"), _premultiply_alpha, _("Premultiply alpha into RGB channels."));
@@ -296,11 +296,11 @@ public class TextureSettingsDialog : Gtk.Window
 			return;
 		}
 
-		string property_names[] = { "source", "format", "generate_mips", "mip_skip_smallest", "normal_map", "linear", "premultiply_alpha" };
-		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_smallest, _normal_map, _linear, _premultiply_alpha };
+		string property_names[] = { "source", "format", "generate_mips", "mip_skip_largest", "normal_map", "linear", "premultiply_alpha" };
+		InputField properties[] = { _source, _format, _generate_mips, _mip_skip_largest, _normal_map, _linear, _premultiply_alpha };
 		_format.value_changed.disconnect(on_format_value_changed);
 		_generate_mips.value_changed.disconnect(on_generate_mips_value_changed);
-		_mip_skip_smallest.value_changed.disconnect(on_mip_skip_smallest_value_changed);
+		_mip_skip_largest.value_changed.disconnect(on_mip_skip_largest_value_changed);
 		_normal_map.value_changed.disconnect(on_normal_map_value_changed);
 		_linear.value_changed.disconnect(on_linear_value_changed);
 		_premultiply_alpha.value_changed.disconnect(on_premultiply_alpha_value_changed);
@@ -341,7 +341,7 @@ public class TextureSettingsDialog : Gtk.Window
 
 		_format.value_changed.connect(on_format_value_changed);
 		_generate_mips.value_changed.connect(on_generate_mips_value_changed);
-		_mip_skip_smallest.value_changed.connect(on_mip_skip_smallest_value_changed);
+		_mip_skip_largest.value_changed.connect(on_mip_skip_largest_value_changed);
 		_normal_map.value_changed.connect(on_normal_map_value_changed);
 		_linear.value_changed.connect(on_linear_value_changed);
 		_premultiply_alpha.value_changed.connect(on_premultiply_alpha_value_changed);
@@ -357,9 +357,9 @@ public class TextureSettingsDialog : Gtk.Window
 		on_property_value_changed("generate_mips", _generate_mips);
 	}
 
-	public void on_mip_skip_smallest_value_changed()
+	public void on_mip_skip_largest_value_changed()
 	{
-		on_property_value_changed("mip_skip_smallest", _mip_skip_smallest);
+		on_property_value_changed("mip_skip_largest", _mip_skip_largest);
 	}
 
 	public void on_normal_map_value_changed()

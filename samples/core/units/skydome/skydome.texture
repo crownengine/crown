@@ -4,25 +4,21 @@ output = {
 	android = {
 		format = "RGB8"
 		generate_mips = false
-		mip_skip_smallest = 0
 		normal_map = false
 	}
 	html5 = {
 		format = "RGB8"
 		generate_mips = false
-		mip_skip_smallest = 0
 		normal_map = false
 	}
 	linux = {
 		format = "RGB8"
 		generate_mips = false
-		mip_skip_smallest = 0
 		normal_map = false
 	}
 	windows = {
 		format = "RGB8"
 		generate_mips = false
-		mip_skip_smallest = 0
 		normal_map = false
 	}
 }
