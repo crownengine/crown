@@ -82,12 +82,18 @@ struct RenderPipeline
 	void set_condition(StringId32 name, bool enabled);
 	bool enabled(const RenderCondition &condition) const;
 
+	/// Optional name lookups return RENDER_CONFIG_INVALID / invalid handles.
+	/// Binary references from compiled data are still checked strictly.
 	u32 resource_index(StringId32 name) const;
 	const RenderTextureState &texture_state(RenderResourceRef ref) const;
 	bgfx::TextureHandle texture(StringId32 name, u32 index = 0) const;
 	u32 layer_index(StringId32 name) const;
 	u16 layer_view(u32 layer, u32 index = 0) const;
 	u16 view_id(StringId32 name, u32 index = 0) const;
+	/// Scene producers cannot submit into resource-generator views.
+	u16 geometry_view(StringId32 name, u32 index = 0) const;
+	u32 geometry_view_count(StringId32 name) const;
+	bool empty() const;
 	bgfx::FrameBufferHandle frame_buffer(StringId32 layer, u32 index = 0) const;
 	u16 shader_view(StringId32 shader, u16 fallback) const;
 

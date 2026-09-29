@@ -4,8 +4,9 @@ Data-driven rendering pipeline
 Target and scope
 ----------------
 
-This implementation targets olracrafter/crown at
-``e567cd09a43e6c59fdaeb2d9641ccb6821a08437``. It replaces the hard-coded
+The initial implementation targeted olracrafter/crown at
+``e567cd09a43e6c59fdaeb2d9641ccb6821a08437``. The layer-removal and configuration
+selection corrections apply on top of ``3da8fce437fcb16d11017e5a6954f73b1fd021c4``. It replaces the hard-coded
 resource allocation and view-configuration loops with compiled render_config
 data, and re-expresses the existing post-processing chain as modifier arrays.
 It does not introduce a new shading technique or change units into resources.
@@ -33,9 +34,11 @@ Files and boundaries
     handles, pointers into temporary compiler memory or callback pointers are
     serialized. The render_config resource version changes from 9 to 10.
 
-``src/resource/render_config_pipeline.inl``
-    PipelineCompiler, included by the existing resource compiler. It parses,
-    validates and links names to indices before writing the binary tables.
+``src/resource/render_config_resource.cpp``
+    PipelineCompiler is private to this translation unit. It parses, validates
+    and links names to indices before writing the binary tables. Nontrivial
+    runtime resource helpers also live here. The shared .inl contains only
+    short const accessors and predicates, not the compiler implementation.
 
 ``src/device/render_pipeline.h/.cpp``
     Technique-independent resource owner and layer/modifier executor. It knows
@@ -64,9 +67,10 @@ Files and boundaries
 Configuration
 -------------
 
-A configuration may contain an entire layout (all three of
-``global_resources``, ``layers`` and ``resource_generators``), or select another
-complete configuration as its layout::
+An inline layout declares ``layers``. ``global_resources`` and
+``resource_generators`` are optional; all three arrays may be empty. A
+settings-only resource can instead select another complete configuration as
+its layout::
 
     pipeline = "core/renderer/default"
     render_settings = {
@@ -232,27 +236,84 @@ multi-pass materials or a new shader permutation system.
 Native producer contracts
 -------------------------
 
-The generic executor permits arbitrary names and layouts, but Crown's existing
-scene producers have an explicit adapter contract. A configuration used by
-Pipeline must retain the mesh, sprite, sm_cascade, sm_cascade_clear, sm_local,
-sm_local_clear, lights_cookie_atlas, lights_cookie_atlas_clear, lights, selection,
-world_gui, screen_gui, debug and graph geometry layers with the required view
-counts. These native producer layers cannot use arbitrary dynamic conditions:
-only the existing selection/cookie gates are supported for their producers.
-Custom geometry layers used through shader_layers can be conditional.
+No native layer is mandatory. Removing a geometry layer (or setting its count
+to zero) suppresses submissions to that destination. A missing or disabled
+name returns UINT16_MAX, never view zero. Native producers do not submit into
+resource-generator views. Exact shader_layers routes can still send material
+batches to other declared geometry layers when the default mesh/sprite layer
+is absent. Dangling explicit routes remain authoring errors.
 
-The adapter also resolves existing resource names such as color0, color1,
-depth, selection_color/depth, outline_color, sun_shadow_map,
-local_lights_shadow_map, lights_data, lights_cookie_atlas and its fallback.
-Packed light data remains 768x1 RGBA32F; native shadow atlases must be square.
-The color0_clear, color1_clear, sprite, selection, outline and atlas-clear
-layers expose existing framebuffer aliases to current engine code. These are
-borrowed handles, not additional owners. Changing the native producer contract
-is an adapter change; it is not a change to the generic executor.
+The existing native algorithms still have named roles: mesh, sprite,
+sm_cascade, sm_local, lights_cookie_atlas, lights, selection, world_gui,
+screen_gui, debug and graph. GUI/debug destinations are looked up for each
+submission. The scene updates execution conditions before gathering native
+batches. Reserved sub-view ranges are respected: cookie packing stops when its
+configured views are exhausted, spot shadows consume one view, and omni
+shadows require four remaining views. The native sun shader still uses four
+cascade matrices; fewer declared cascade views omit those tile draws, not a
+new arbitrary-cascade shading algorithm.
 
-Thus this patch does not claim that deleting all 3D layers from the default
-file alone creates an entirely different renderer. It provides the generic
-execution boundary and the current Crown adapter, not every possible producer.
+Resource names are optional too, but a native operation needs compatible
+inputs. A material declaring a native lighting sampler is skipped when that
+resource is unavailable, rather than binding an invalid texture handle. An
+unlit shader that does not declare those samplers can render without the
+native lighting resources. The native packed-light layout remains 768x1
+RGBA32F, and native shadow atlases must be square and at least 2x2. These are
+algorithm requirements, not a requirement to retain the default topology.
+
+An explicitly empty layers array is a valid layout, not a request to inherit
+the default pipeline. No scene or modifier draw is submitted. The executor
+uses a presentation-only black backbuffer clear so that the previous frame is
+not left on screen. Zero-count layers and empty generators are also valid.
+Resources still declared in global_resources are allocated as requested.
+
+Clear operations are explicit data. Removing sm_cascade_clear removes that
+clear; sm_cascade can still draw into the atlas. This is not equivalent to
+turning off shadow rendering or clearing the final color buffer to black.
+Reading an uncleared target is the author's responsibility; its contents after
+creation/reset are not guaranteed. No replacement clear is inserted for a
+removed layer. The black presentation clear above is only for zero-view layouts.
+
+Cookie packing no longer implicitly touches lights_cookie_atlas_clear. In
+copies made before this correction, add ``touch = true`` to that clear layer
+and to sm_local_clear, as in the updated default.render_config. A clear-only
+view needs a touch (or a draw) to execute its declared clear.
+
+Selecting and reloading a project configuration
+-----------------------------------------------
+
+A copied file is not automatically the active configuration. For a file named
+``default.render_config`` at the project root, set this in the project's
+``boot.config`` (the resource name has no extension)::
+
+    render_config = "default"
+
+For ``renderer/my_pipeline.render_config``, use ``renderer/my_pipeline``.
+Do not confuse boot.config's ``render_config`` (which resource to load) with a
+render_config resource's optional ``pipeline`` (where its layout comes from).
+Do not add pipeline="core/renderer/default" alongside an inline layers array.
+
+The runtime also accepts ``--render-config <resource>``. It overrides only the
+selected render_config name, before loading its package; it does not replace
+the boot script, window configuration, or the boot render_settings overrides.
+EditorViewport reads the project root boot.config and passes its selected
+render_config through this option. The editor keeps its own tool boot script
+and selection setting, but no longer silently previews a different default
+layout. The thumbnail service retains its separate configuration.
+
+After rebuilding both the engine and editor, compile the project data and
+restart the editor viewport once. After that, editing the selected
+render_config and using compile-and-reload/Reload All recreates the active
+pipeline, resets old bgfx views, and requests another frame in pumped mode.
+Changing the resource name in boot.config itself requires compiling and
+restarting the game/editor viewport; boot settings are not hot-switched.
+Opening another level does not select a render_config, and Build Data without
+a client refresh does not apply an already-loaded resource to that client.
+
+The runtime logs the active resource's 64-bit ID and its layer/resource counts
+on startup and successful reload. A compiler error means the changed source
+was compiled, not necessarily that the running client selected it. Failed
+compilation cannot replace the currently loaded pipeline with that source.
 
 Ownership, reload and validation
 --------------------------------
@@ -276,11 +337,10 @@ before consumers and initialize resources before reading them.
 Applying and testing
 --------------------
 
-Apply the single patch to a clean checkout of the target commit, regenerate
-build projects so the new src/device/render_pipeline.cpp is included, and
-rebuild the engine and compiled data. Existing cached version-9 render_config
-binaries are not compatible. The existing scripts/crown.lua source glob
-includes the new .cpp when projects are regenerated.
+Apply the corrective patch on top of commit 3da8fce437fcb16d11017e5a6954f73b1fd021c4
+without reapplying the initial implementation patch. Rebuild the engine and
+the editor, and compile the project data. This correction does not change the
+binary schema (version 10); old version-9 resources remain incompatible.
 
 The isolated test command is::
 
@@ -291,9 +351,14 @@ native adapter against an explicitly substituted recording SDK. It checks 64
 feature/scene combinations, 64 resize cycles including 1x1 and 3x5 targets,
 conditional bypasses, layout reloads, view IDs above 255, ownership, immutable
 compiled data, scaled external sizes, transient-buffer failure, capability
-checks and 21 invalid configurations. The SDK replaces the SJSON frontend,
+checks and 21 invalid configurations. Regression cases also cover empty
+layouts, zero-count layers, empty generators, all 21 individual default-layer
+removals, persistent clear-state reuse, changed clear values, reduced cookie
+view budgets, optional native inputs and execution-condition toggles. The SDK replaces the SJSON frontend,
 containers, hash function, shader manager, bgfx and rectangle packer. These tests
-do not establish compatibility with the real Crown/bgfx headers or render pixels.
+do not establish compatibility with the real Crown/bgfx headers or render
+pixels. They do not execute the full RenderWorld, resource package loader,
+Device refresh path or Vala editor launcher.
 
 The patch was mechanically apply-checked against the locally reconstructed
 source used for development, with complete original pipeline files checked
@@ -303,6 +368,9 @@ following as required integration acceptance checks, not as already passed:
 
 * ``git apply --check`` on your complete checkout at the exact target commit;
   full debug/development and release builds, followed by a clean data compile.
+* Empty-layout acceptance: select the project resource, set layers=[], compile
+  and reload, and confirm a black viewport and no scene submissions. Restore
+  the layers, reload again, and confirm the scene returns without restarting.
 * Baseline image comparison for meshes, skydome, sprites, world/screen GUI,
   shadows, cookies and editor selection, with bloom/vignette independently on
   and off. Reordering layers and adding the preview copy must change execution

@@ -42,6 +42,12 @@ def main() -> int:
             target = include / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text('#pragma once\n#include "test_sdk.h"\n', encoding="utf-8")
+        source = (root / "src/resource/render_config_resource.cpp").read_text(encoding="utf-8")
+        start = source.index("\tstruct PipelineCompiler\n")
+        end = source.index("\n\ts32 compile(CompileOptions &opts)", start)
+        (include / "pipeline_compiler_under_test.h").write_text(source[start:end], encoding="utf-8")
+        accessors = source[source.index("\nnamespace render_config_resource\n"):source.rindex("\n} // namespace crown")]
+        (include / "render_config_accessors_under_test.h").write_text("namespace crown {" + accessors + "}\n", encoding="utf-8")
         binary = work / "pipeline-test"
         command = compiler + ["-std=c++17", "-Wall", "-Wextra", "-Werror"]
         if args.sanitize:

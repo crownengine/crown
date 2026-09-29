@@ -1,8 +1,9 @@
 #include <test_sdk.h>
 #include "resource/render_config_resource.h"
 #include "resource/render_config_resource.inl"
+#include "render_config_accessors_under_test.h"
 namespace crown { namespace render_config_resource_internal {
-#include "resource/render_config_pipeline.inl"
+#include "pipeline_compiler_under_test.h"
 }}
 #include "device/render_pipeline.cpp"
 #include "device/pipeline.cpp"
@@ -31,6 +32,193 @@ static std::vector<std::string> expected(const RenderPipeline&p){std::vector<std
  for(u32 i=0;i<r->num_layers;++i)if(p.enabled(l[i].condition)&&l[i].generator!=RENDER_CONFIG_INVALID)
  for(u32 k=0;k<g[l[i].generator].num_modifiers;++k){auto&d=m[g[l[i].generator].first_modifier+k];if(p.enabled(d.condition))names.push_back(render_config_resource::name(r,d.name_offset));}
  return names;}
+
+static std::string section(const std::string &text, const char *key, const std::string &replacement)
+{
+ Allocator a;
+ JsonObject obj(a);
+ sjson::parse(obj, text.c_str());
+ const char *start = obj[key];
+ const char *end = start;
+ sjson::skip(end);
+ return text.substr(0, size_t(start - text.c_str())) + replacement + text.substr(size_t(end - text.c_str()));
+}
+
+static std::string omit_layer(const std::string &text, const char *name)
+{
+ Allocator a;
+ JsonObject obj(a);
+ JsonArray layers(a);
+ sjson::parse(obj, text.c_str());
+ sjson::parse_array(layers, obj["layers"]);
+ std::string result = "[\n";
+ bool found = false;
+ for (const char *start : layers) {
+  JsonObject layer(a);
+  DynamicString layer_name(a);
+  sjson::parse_object(layer, start);
+  sjson::parse_string(layer_name, layer["name"]);
+  if (layer_name == name) { found = true; continue; }
+  const char *end = start;
+  sjson::skip(end);
+  result.append(start, end).append("\n");
+ }
+ CHECK(found);
+ return section(text, "layers", result + "]");
+}
+
+static void clear_frame_records()
+{
+ bgfx::submits.clear();
+ bgfx::touches.clear();
+ bgfx::discard();
+}
+
+static void deletion_regressions(const std::string &text)
+{
+ ShaderManager sm;
+ Pipeline p(sm);
+ RenderSettings rs = settings(15);
+ rs.flags |= RenderSettingsFlags::SUN_SHADOWS | RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS;
+ const Matrix4x4 &identity = MATRIX4X4_IDENTITY;
+ auto default_blob = compile(text);
+ const RenderConfigResource *r = (const RenderConfigResource *)default_blob.data();
+
+ // Exactly the reported experiment: keep resources and generators, remove all
+ // layer declarations. No default-layer reconstruction and no native shaders.
+ const std::string blank = section(text, "layers", "[\n// All layers commented out.\n]");
+ for (const auto &source : std::vector<std::string>{blank, "layers = []", "layers = [{ name = \"mesh\" count = 0 }]",
+      "layers = [{ name = \"post\" resource_generator = \"noop\" }] resource_generators = [{ name = \"noop\" modifiers = [] }]"}) {
+  auto bytes = compile(source);
+  auto *empty = (const RenderConfigResource *)bytes.data();
+  sm.lookups.clear();
+  p.create(320, 240, rs, empty);
+  CHECK(p._render_pipeline.empty());
+  CHECK(p.mesh_view() == UINT16_MAX);
+  CHECK(p.sprite_view() == UINT16_MAX);
+  CHECK(p.cascade_view() == UINT16_MAX);
+  CHECK(p.sm_local_view() == UINT16_MAX);
+  CHECK(p.cookie_atlas_view() == UINT16_MAX);
+  CHECK(p.lights_view() == UINT16_MAX);
+  CHECK(!p.selection_enabled());
+  CHECK(sm.lookups.empty());
+  clear_frame_records();
+  p.begin_light_cookie_atlas();
+  p.draw_local_lights_stencil(16, 1);
+  CHECK(bgfx::touches.empty() && bgfx::submits.empty());
+  u16 cookie_view = UINT16_MAX;
+  CHECK(p.add_light_cookie(cookie_view, bgfx::TextureHandle BGFX_INVALID_HANDLE, 16, 16).z == 0);
+  p.render(320, 240, identity, identity);
+  CHECK(bgfx::submits.empty());
+  CHECK(bgfx::touches == std::vector<uint16_t>{0});
+  CHECK(bgfx::views.at(0).name == "empty_pipeline");
+  CHECK(!bgfx::isValid(bgfx::views.at(0).fb));
+  CHECK(bgfx::views.at(0).clear == BGFX_CLEAR_COLOR);
+  CHECK(bgfx::views.at(0).rgba == 0x000000ff);
+  p.destroy();
+  no_leaks();
+  CHECK(bgfx::views.at(0).clear == 0);
+ }
+
+ // Remove each default layer independently and exercise the native adapter as
+ // well as the generic executor. In particular, a removed clear must not leave
+ // its persistent bgfx state on the next layer reusing that numeric view ID.
+ const RenderLayerData *layers = render_config_resource::layers(r);
+ for (u32 i = 0; i < r->num_layers; ++i) {
+  const char *name = render_config_resource::name(r, layers[i].name_offset);
+  p.create(320, 240, rs, r);
+  p.render(320, 240, identity, identity);
+  p.destroy();
+  auto bytes = compile(omit_layer(text, name));
+  p.create(320, 240, rs, (const RenderConfigResource *)bytes.data());
+  CHECK(p.view_id(StringId32(name)) == UINT16_MAX);
+  CHECK(p._render_pipeline.frame_buffer(StringId32(name)).idx == UINT16_MAX);
+  clear_frame_records();
+  p.begin_light_cookie_atlas();
+  p.draw_local_lights_stencil(16, 1);
+  p.render(320, 240, identity, identity);
+  for (u16 id : bgfx::touches) CHECK(bgfx::views.at(id).name != name);
+  for (const auto &draw : bgfx::submits) CHECK(bgfx::views.at(draw.view).name != name);
+  if (std::string(name) == "sm_cascade_clear") {
+   CHECK(p.cascade_view() != UINT16_MAX);
+   CHECK(p.sun_shadows_enabled());
+   CHECK(bgfx::views.at(p.cascade_view()).clear == 0);
+  }
+  if (std::string(name) == "sm_cascade") CHECK(!p.sun_shadows_enabled());
+  if (std::string(name) == "sm_local") CHECK(!p.local_shadows_enabled());
+  if (std::string(name) == "sm_local_clear") CHECK(p.local_shadows_enabled());
+  p.destroy();
+  no_leaks();
+ }
+
+ // Modified clear values reach the backend; packing cookies is no longer a
+ // hidden clear operation. Old copied configs should add touch=true explicitly.
+ auto changed = compile(replaced(text, "clear = { depth = true }", "clear = { depth = true depth_value = 0.25 }"));
+ p.create(320, 240, rs, (const RenderConfigResource *)changed.data());
+ CHECK(bgfx::views.at(p.cascade_clear_view()).depth == 0.25f);
+ clear_frame_records();
+ p.begin_light_cookie_atlas();
+ CHECK(bgfx::touches.empty());
+ p.render(320, 240, identity, identity);
+ CHECK(std::count(bgfx::touches.begin(), bgfx::touches.end(), p.cookie_atlas_clear_view()) == 1);
+ p.destroy();
+ no_leaks();
+
+ auto limited = compile(replaced(replaced(text, "count = 4 manual_rect", "count = 2 manual_rect"),
+     "count = 32 manual_rect", "count = 1 manual_rect"));
+ p.create(320, 240, rs, (const RenderConfigResource *)limited.data());
+ CHECK(p.cascade_view(1) != UINT16_MAX && p.cascade_view(2) == UINT16_MAX);
+ CHECK(p._render_pipeline.geometry_view_count(StringId32("lights_cookie_atlas")) == 1);
+ clear_frame_records();
+ p.begin_light_cookie_atlas();
+ u16 cookie_view = p.cookie_atlas_view();
+ CHECK(p.add_light_cookie(cookie_view, p._color_textures[0], 16, 16).z > 0);
+ CHECK(p.add_light_cookie(cookie_view, p._color_textures[0], 16, 16).z == 0);
+ CHECK(bgfx::submits.size() == 1);
+ p.destroy();
+ no_leaks();
+
+ // Arbitrary generic pipelines do not require the native renderer's resources.
+ // If a native material actually references a missing sampler, suppress that
+ // batch rather than send an invalid handle to bgfx. Unlit shaders can proceed.
+ auto generic = compile("layers = [{ name = \"custom\" touch = true clear = { color = true } }]"
+     "shader_layers = [{ shader = \"test_shader\" layer = \"custom\" }]");
+ p.create(320, 240, rs, (const RenderConfigResource *)generic.data());
+ CHECK(p.mesh_view() == UINT16_MAX);
+ CHECK(p.shader_view(StringId32("test_shader"), p.mesh_view()) == 0);
+ CHECK(p._render_pipeline.texture(StringId32("missing")).idx == UINT16_MAX);
+ ShaderData unlit = {};
+ CHECK(p.bind_lighting(unlit));
+ const ShaderResource::Sampler sampler = {LIGHTS_DATA_SLOT};
+ ShaderData lit = {}; lit.num_samplers = 1; lit.samplers = &sampler;
+ CHECK(!p.bind_lighting(lit));
+ p.destroy();
+ no_leaks();
+
+ // A scene role's shader must be cached even if its condition starts false.
+ // Updating conditions before native gathering observes the new value now.
+ auto conditional = compile("conditions = [\"vignette\"] layers = [{ name = \"debug\" if = [\"vignette\"] }]");
+ p.create(320, 240, rs, (const RenderConfigResource *)conditional.data());
+ CHECK(p.debug_view() == UINT16_MAX);
+ CHECK(bgfx::isValid(p._debug_line_shader.program));
+ p._vignette.enabled = 1;
+ p.update_conditions();
+ CHECK(p.debug_view() == 0);
+ p._vignette.enabled = 0;
+ p.update_conditions();
+ CHECK(p.debug_view() == UINT16_MAX);
+ p.destroy();
+ no_leaks();
+
+ // Reload back to the default must replace the presentation-only black clear.
+ p.create(320, 240, rs, r);
+ CHECK(bgfx::views.at(0).name == "color0_clear");
+ CHECK(p.mesh_view() != UINT16_MAX);
+ p.destroy();
+ no_leaks();
+ std::cout << "PASS empty layouts, zero-count layers, empty generators, all 21 single-layer removals, clear state reuse, reduced view ranges, optional resources and live conditions.\n";
+}
+
 int main(int argc,char**argv){try {
  CHECK(argc==2);std::ifstream in(argv[1]);std::string text((std::istreambuf_iterator<char>(in)),{});CHECK(!text.empty());
  auto blob=compile(text),original=blob;auto*r=(RenderConfigResource*)blob.data();
@@ -94,6 +282,7 @@ int main(int argc,char**argv){try {
  // Capability errors must fail in release as well, not index a truncated ID.
  bgfx::caps.limits.maxViews=128;bool failed=false;try{p.create(640,480,settings(15),r);}catch(const std::runtime_error&){failed=true;}CHECK(failed);p.destroy();no_leaks();bgfx::caps.limits.maxViews=512;
  p.create(640,480,settings(15),r);failed=false;try{p._render_pipeline.set_condition(StringId32("bloom_allocated"),false);}catch(const std::runtime_error&){failed=true;}CHECK(failed);p.destroy();no_leaks();
+ deletion_regressions(text);
  std::cout<<"PASS "<<checks<<" assertions; 64 feature/scene combinations; 64 resize cycles; 21 invalid configurations; reload, ownership, view widths, allocation guards.\n";
  return 0;
 }catch(const std::exception&e){std::cerr<<"FAIL: "<<e.what()<<"\n";return 1;}}

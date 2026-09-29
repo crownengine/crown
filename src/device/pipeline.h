@@ -108,30 +108,30 @@ struct Pipeline
 
 	// Default shaders.
 	ShaderData _blit_shader;
-	ShaderData _blit_blend_shader;
+	ShaderData _blit_blend_shader = {};
 	ShaderData _gui_shader;
 	ShaderData _gui_3d_shader;
 	ShaderData _debug_line_depth_enabled_shader;
 	ShaderData _debug_line_shader;
-	ShaderData _outline_shader;
-	ShaderData _outline_msaa_shader;
+	ShaderData _outline_shader = {};
+	ShaderData _outline_msaa_shader = {};
 	ShaderData _selection_shader;
 	ShaderData _selection_skinning_shader;
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
-	ShaderData _skydome_shader;
-	ShaderData _bloom_downsample_shader;
-	ShaderData _bloom_upsample_shader;
-	ShaderData _bloom_combine_shader;
-	ShaderData _tonemap_shader;
-	ShaderData _vignette_shader;
-	ShaderData _bloom_copy_shader;
+	ShaderData _skydome_shader = {};
+	ShaderData _bloom_downsample_shader = {};
+	ShaderData _bloom_upsample_shader = {};
+	ShaderData _bloom_combine_shader = {};
+	ShaderData _tonemap_shader = {};
+	ShaderData _vignette_shader = {};
+	ShaderData _bloom_copy_shader = {};
 
 	///
 	Pipeline(ShaderManager &sm);
 
 	/// Resolve logical layer names at submission time (safe across hot reload).
-	u16 view_id(StringId32 layer, u32 index = 0) const { return _render_pipeline.view_id(layer, index); }
+	u16 view_id(StringId32 layer, u32 index = 0) const { return _render_pipeline.geometry_view(layer, index); }
 	u16 shader_view(StringId32 shader, u16 fallback) const { return _render_pipeline.shader_view(shader, fallback); }
 	u16 mesh_view() const { return view_id(StringId32("mesh"), 0); }
 	u16 sprite_view(u32 index = 0) const { return view_id(StringId32("sprite"), index); }
@@ -151,6 +151,13 @@ struct Pipeline
 
 	///
 	bool selection_enabled() const;
+	bool sun_shadows_enabled() const;
+	bool local_shadows_enabled() const;
+	bool light_cookies_enabled() const;
+
+	/// Bind only the native lighting samplers actually used by this shader.
+	/// A missing input suppresses the batch instead of binding an invalid handle.
+	bool bind_lighting(const ShaderData &shader) const;
 
 	///
 	void create(u16 width, u16 height, const RenderSettings &render_settings, const RenderConfigResource *resource);
@@ -163,6 +170,9 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+
+	/// Update execution conditions before any native scene submissions.
+	void update_conditions();
 
 	///
 	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);

@@ -1,3 +1,7 @@
+// To use a project copy, select its resource name (without extension) with
+// render_config in the project boot.config. Copying this file alone does not
+// select it. An explicitly empty layer array is a valid empty/black pipeline.
+
 render_settings = {
 	// Whether shadows for the sun are enabled.
 	// sun_shadows = true
@@ -99,9 +103,9 @@ layers = [
 	{ name = "color1_clear" render_targets = [ "color1" ] depth_stencil_target = "depth" clear = { color = true depth = true rgba = "080808ff" } touch = true }
 	{ name = "sm_cascade_clear" depth_stencil_target = "sun_shadow_map" clear = { depth = true } touch = true }
 	{ name = "sm_cascade" depth_stencil_target = "sun_shadow_map" count = 4 manual_rect = true }
-	{ name = "sm_local_clear" depth_stencil_target = "local_lights_shadow_map" clear = { depth = true stencil = true } transform = "ortho_unit_flipped" }
+	{ name = "sm_local_clear" depth_stencil_target = "local_lights_shadow_map" clear = { depth = true stencil = true } transform = "ortho_unit_flipped" touch = true }
 	{ name = "sm_local" depth_stencil_target = "local_lights_shadow_map" count = 64 manual_rect = true }
-	{ name = "lights_cookie_atlas_clear" render_targets = [ "lights_cookie_atlas" ] clear = { color = true rgba = "00000000" } if = [ "cookies" ] }
+	{ name = "lights_cookie_atlas_clear" render_targets = [ "lights_cookie_atlas" ] clear = { color = true rgba = "00000000" } if = [ "cookies" ] touch = true }
 	{ name = "lights_cookie_atlas" render_targets = [ "lights_cookie_atlas" ] count = 32 manual_rect = true transform = "ortho_unit" if = [ "cookies" ] }
 	{ name = "lights" }
 	{ name = "mesh" render_targets = [ "color0" ] depth_stencil_target = "depth" transform = "camera" touch = true }

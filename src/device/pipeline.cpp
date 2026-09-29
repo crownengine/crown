@@ -41,27 +41,39 @@ struct PosVertex
 
 bgfx::VertexLayout PosVertex::pos_layout;
 
+static ShaderData native_shader(Pipeline &pipeline, const char *name, bool needed)
+{
+	ShaderData shader = {};
+	shader.program = BGFX_INVALID_HANDLE;
+	return needed ? pipeline._shader_manager->shader(StringId32(name)) : shader;
+}
+
+static bool has_geometry_layer(const Pipeline &pipeline, const char *name)
+{
+	const RenderPipeline &runtime = pipeline._render_pipeline;
+	const u32 index = runtime.layer_index(StringId32(name));
+	if (index == RENDER_CONFIG_INVALID)
+		return false;
+	const RenderLayerData &layer = render_config_resource::layers(runtime._resource)[index];
+	return layer.generator == RENDER_CONFIG_INVALID && layer.count != 0;
+}
+
 static void lookup_default_shaders(Pipeline &pl)
 {
-	pl._blit_shader = pl._shader_manager->shader(STRING_ID_32("blit", UINT32_C(0x045f02bb)));
-	pl._gui_shader = pl._shader_manager->shader(STRING_ID_32("gui", UINT32_C(0x66dbf9a2)));
-	pl._gui_3d_shader = pl._shader_manager->shader(STRING_ID_32("gui+DEPTH_ENABLED", UINT32_C(0xd594a1a5)));
-	pl._debug_line_depth_enabled_shader = pl._shader_manager->shader(STRING_ID_32("debug_line+DEPTH_ENABLED", UINT32_C(0x8819e848)));
-	pl._debug_line_shader = pl._shader_manager->shader(STRING_ID_32("debug_line", UINT32_C(0xbc06e973)));
-	pl._outline_shader = pl._shader_manager->shader(STRING_ID_32("outline", UINT32_C(0xb6b58d80)));
-	pl._outline_msaa_shader = pl._shader_manager->shader(STRING_ID_32("outline+MSAA_DEPTH", UINT32_C(0xeb4b24a0)));
-	pl._selection_shader = pl._shader_manager->shader(STRING_ID_32("selection", UINT32_C(0x17c0bc11)));
-	pl._selection_skinning_shader = pl._shader_manager->shader(STRING_ID_32("selection+SKINNING", UINT32_C(0x69b27030)));
-	pl._blit_blend_shader = pl._shader_manager->shader(STRING_ID_32("blit+BLEND_ENABLED", UINT32_C(0xb4fe5db5)));
-	pl._shadow_shader = pl._shader_manager->shader(STRING_ID_32("shadow", UINT32_C(0xaceb94a8)));
-	pl._shadow_skinning_shader = pl._shader_manager->shader(STRING_ID_32("shadow+SKINNING", UINT32_C(0x34005875)));
-	pl._skydome_shader = pl._shader_manager->shader(STRING_ID_32("skydome", UINT32_C(0x524dca1c)));
-	pl._bloom_downsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_downsample", UINT32_C(0x2399e6ad)));
-	pl._bloom_upsample_shader = pl._shader_manager->shader(STRING_ID_32("bloom_upsample", UINT32_C(0x26773c9c)));
-	pl._bloom_combine_shader = pl._shader_manager->shader(STRING_ID_32("bloom_combine", UINT32_C(0x4413efa4)));
-	pl._tonemap_shader = pl._shader_manager->shader(STRING_ID_32("tonemap", UINT32_C(0x7089b06b)));
-	pl._vignette_shader = pl._shader_manager->shader(STRING_ID_32("vignette", UINT32_C(0xb77c3567)));
-	pl._bloom_copy_shader = pl._shader_manager->shader(STRING_ID_32("bloom_copy", UINT32_C(0x439d45d5)));
+	// Look up declared roles, not this frame's enabled roles: execution
+	// conditions can turn a producer on later without recreating the pipeline.
+	const bool debug = has_geometry_layer(pl, "debug") || has_geometry_layer(pl, "graph");
+	const bool shadows = has_geometry_layer(pl, "sm_cascade") || has_geometry_layer(pl, "sm_local");
+	const bool selection = has_geometry_layer(pl, "selection");
+	pl._blit_shader = native_shader(pl, "blit", has_geometry_layer(pl, "lights_cookie_atlas"));
+	pl._gui_shader = native_shader(pl, "gui", has_geometry_layer(pl, "screen_gui"));
+	pl._gui_3d_shader = native_shader(pl, "gui+DEPTH_ENABLED", has_geometry_layer(pl, "world_gui"));
+	pl._debug_line_depth_enabled_shader = native_shader(pl, "debug_line+DEPTH_ENABLED", debug);
+	pl._debug_line_shader = native_shader(pl, "debug_line", debug);
+	pl._selection_shader = native_shader(pl, "selection", selection);
+	pl._selection_skinning_shader = native_shader(pl, "selection+SKINNING", selection);
+	pl._shadow_shader = native_shader(pl, "shadow", shadows);
+	pl._shadow_skinning_shader = native_shader(pl, "shadow+SKINNING", shadows);
 }
 
 Pipeline::Pipeline(ShaderManager &sm)
@@ -110,15 +122,65 @@ Pipeline::Pipeline(ShaderManager &sm)
 
 	for (u32 i = 0; i < countof(_colors); ++i)
 		_colors[i] = BGFX_INVALID_HANDLE;
-
-	lookup_default_shaders(*this);
 }
 
 bool Pipeline::selection_enabled() const
 {
 	return (CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS)
 		&& (_render_settings.flags & RenderSettingsFlags::SELECTION) != 0
+		&& selection_view() != UINT16_MAX
 		;
+}
+
+bool Pipeline::sun_shadows_enabled() const
+{
+	return (_render_settings.flags & RenderSettingsFlags::SUN_SHADOWS) != 0
+		&& bgfx::isValid(_sun_shadow_map_texture)
+		&& cascade_view() != UINT16_MAX;
+}
+
+bool Pipeline::local_shadows_enabled() const
+{
+	return (_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0
+		&& bgfx::isValid(_local_lights_shadow_map_texture)
+		&& sm_local_view() != UINT16_MAX;
+}
+
+bool Pipeline::light_cookies_enabled() const
+{
+	return (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0
+		&& _lights_cookie_atlas_packer != NULL
+		&& cookie_atlas_view() != UINT16_MAX;
+}
+
+bool Pipeline::bind_lighting(const ShaderData &shader) const
+{
+	const bgfx::TextureHandle textures[] = {
+		_sun_shadow_map_texture, _local_lights_shadow_map_texture,
+		_lights_data_texture, _lights_cookie_atlas_texture
+	};
+	const bgfx::UniformHandle samplers[] = {
+		_u_cascaded_shadow_map, _u_local_lights_shadow_map,
+		_lights_data, _u_lights_cookie_atlas
+	};
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 1 == LOCAL_LIGHTS_SHADOW_MAP_SLOT);
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 2 == LIGHTS_DATA_SLOT);
+	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 3 == LOCAL_LIGHTS_COOKIE_ATLAS_SLOT);
+	for (u32 i = 0; i < shader.num_samplers; ++i) {
+		const u32 stage = shader.samplers[i].stage;
+		if (stage < CASCADED_SHADOW_MAP_SLOT || stage > LOCAL_LIGHTS_COOKIE_ATLAS_SLOT)
+			continue;
+		const u32 index = stage - CASCADED_SHADOW_MAP_SLOT;
+		if (!bgfx::isValid(textures[index])) {
+			bgfx::discard();
+			return false;
+		}
+		const u32 flags = stage == LOCAL_LIGHTS_COOKIE_ATLAS_SLOT
+			? BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
+			: UINT32_MAX;
+		bgfx::setTexture((u8)stage, samplers[index], textures[index], flags);
+	}
+	return true;
 }
 
 namespace
@@ -177,19 +239,6 @@ namespace
 		{ StringId32("outline"), outline_modifier }
 	};
 
-	void require_layer(Pipeline &p, const char *name, u32 count, const char *condition = NULL)
-	{
-		const u32 index = p._render_pipeline.layer_index(StringId32(name));
-		const RenderLayerData &layer = render_config_resource::layers(p._render_config_resource)[index];
-		const u32 allowed = condition ? render_config_resource::condition_mask(p._render_config_resource, StringId32(condition)) : 0;
-		PIPELINE_ENSURE((layer.condition.required & ~allowed) == 0 && layer.condition.excluded == 0
-			, "The native '%s' producer does not support this execution condition", name);
-		PIPELINE_ENSURE(layer.generator == RENDER_CONFIG_INVALID && layer.count >= count
-			, "Crown's '%s' producer needs a geometry layer with at least %u views", name, count);
-		PIPELINE_ENSURE(!p._render_pipeline.enabled(layer.condition) || p._render_pipeline.layer_view(index) != UINT16_MAX
-			, "Crown's '%s' producer needs an allocated destination", name);
-	}
-
 	RenderResourceSize external_size(const char *name, Vector2 size)
 	{
 		PIPELINE_ENSURE(std::isfinite(size.x) && std::isfinite(size.y) && size.x >= 1 && size.y >= 1 && size.x <= UINT16_MAX && size.y <= UINT16_MAX
@@ -209,7 +258,7 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &settings, con
 		_render_settings.flags &= ~RenderSettingsFlags::LIGHTS_COOKIE;
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
-	if (selection_enabled()) {
+	{ // Callback uniforms also exist when the selection geometry layer is absent.
 		_depth_map = bgfx::createUniform("s_depth_map", bgfx::UniformType::Sampler);
 		_selection_map = bgfx::createUniform("s_selection_map", bgfx::UniformType::Sampler);
 		_selection_depth_map = bgfx::createUniform("s_selection_depth_map", bgfx::UniformType::Sampler);
@@ -275,7 +324,8 @@ void Pipeline::reset(u16 width, u16 height)
 	_render_pipeline.destroy();
 	u32 conditions = 0;
 	const RenderConfigResource *r = _render_config_resource;
-	if (selection_enabled()) conditions |= render_config_resource::condition_mask(r, StringId32("selection"));
+	if ((CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS) && (_render_settings.flags & RenderSettingsFlags::SELECTION))
+		conditions |= render_config_resource::condition_mask(r, StringId32("selection"));
 	if (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) conditions |= render_config_resource::condition_mask(r, StringId32("cookies"));
 	if (_render_settings.flags & RenderSettingsFlags::BLOOM) conditions |= render_config_resource::condition_mask(r, StringId32("bloom_allocated"));
 	if (_render_settings.flags & RenderSettingsFlags::MSAA) conditions |= render_config_resource::condition_mask(r, StringId32("msaa"));
@@ -287,22 +337,8 @@ void Pipeline::reset(u16 width, u16 height)
 	const u32 quality = (_render_settings.flags & RenderSettingsFlags::MSAA) ? _render_settings.msaa_quality : 0;
 	_render_pipeline.create(r, width, height, quality, conditions, sizes, countof(sizes), modifiers, countof(modifiers), this);
 
-	// This is the interface between the generic executor and Crown's existing
-	// mesh/sprite/shadow/GUI producers. No allocation decisions are made here.
-	require_layer(*this, "mesh", 1);
-	require_layer(*this, "sprite", MAX_NUM_SPRITE_LAYERS);
-	require_layer(*this, "sm_cascade", MAX_NUM_CASCADES);
-	require_layer(*this, "sm_cascade_clear", 1);
-	require_layer(*this, "sm_local", LOCAL_LIGHTS_SM_MAX_VIEWS);
-	require_layer(*this, "sm_local_clear", 1);
-	require_layer(*this, "lights_cookie_atlas", MAX_NUM_LIGHTS, "cookies");
-	require_layer(*this, "lights_cookie_atlas_clear", 1, "cookies");
-	require_layer(*this, "lights", 1);
-	require_layer(*this, "selection", 1, "selection");
-	require_layer(*this, "world_gui", 1);
-	require_layer(*this, "screen_gui", 1);
-	require_layer(*this, "debug", 1);
-	require_layer(*this, "graph", 1);
+	// Native destinations are optional. Their absence suppresses their producers;
+	// the executor never reconstructs any part of the default layer list.
 
 	_color_textures[0] = _render_pipeline.texture(StringId32("color0"));
 	_color_textures[1] = _render_pipeline.texture(StringId32("color1"));
@@ -316,22 +352,33 @@ void Pipeline::reset(u16 width, u16 height)
 	_outline_color_texture = _render_pipeline.texture(StringId32("outline_color"));
 	_outline_frame_buffer = _render_pipeline.frame_buffer(StringId32("outline"));
 	_sun_shadow_map_texture = _render_pipeline.texture(StringId32("sun_shadow_map"));
-	_sun_shadow_map_frame_buffer = _render_pipeline.frame_buffer(StringId32("sm_cascade_clear"));
+	_sun_shadow_map_frame_buffer = _render_pipeline.frame_buffer(StringId32("sm_cascade"));
 	_local_lights_shadow_map_texture = _render_pipeline.texture(StringId32("local_lights_shadow_map"));
-	_local_lights_shadow_map_frame_buffer = _render_pipeline.frame_buffer(StringId32("sm_local_clear"));
+	_local_lights_shadow_map_frame_buffer = _render_pipeline.frame_buffer(StringId32("sm_local"));
 	_lights_data_texture = _render_pipeline.texture(StringId32("lights_data"));
-	const RenderTextureState &lights = _render_pipeline.texture_state({ _render_pipeline.resource_index(StringId32("lights_data")), 0 });
-	PIPELINE_ENSURE(bgfx::isValid(lights.handle) && lights.width == MAX_NUM_LIGHTS * LIGHT_SIZE && lights.height == 1
-		&& render_config_resource::resources(r)[_render_pipeline.resource_index(StringId32("lights_data"))].format == RenderResourceFormat::RGBA32F
-		, "lights_data must match the native packed-light layout");
+	if (bgfx::isValid(_lights_data_texture) && has_geometry_layer(*this, "lights")) {
+		const u32 index = _render_pipeline.resource_index(StringId32("lights_data"));
+		const RenderTextureState &lights = _render_pipeline.texture_state({ index, 0 });
+		PIPELINE_ENSURE(lights.width == MAX_NUM_LIGHTS * LIGHT_SIZE && lights.height == 1
+			&& render_config_resource::resources(r)[index].format == RenderResourceFormat::RGBA32F
+			, "lights_data must match the native packed-light layout");
+	}
 
-	const RenderTextureState &sun = _render_pipeline.texture_state({ _render_pipeline.resource_index(StringId32("sun_shadow_map")), 0 });
-	const RenderTextureState &local = _render_pipeline.texture_state({ _render_pipeline.resource_index(StringId32("local_lights_shadow_map")), 0 });
-	PIPELINE_ENSURE(bgfx::isValid(sun.handle) && bgfx::isValid(local.handle), "Crown's lighting shaders need allocated shadow samplers");
-	PIPELINE_ENSURE(sun.width == sun.height && local.width == local.height, "Crown's shadow producers need square atlases");
-	_render_settings.sun_shadow_map_size = { f32(sun.width), f32(sun.height) };
-	_render_settings.local_lights_shadow_map_size = { f32(local.width), f32(local.height) };
-	_render_settings.shadow_map_params[0] = { 1.0f/sun.width, 1.0f/sun.height, 1.0f/local.width, 1.0f/local.height };
+	const char *shadow_names[] = { "sun_shadow_map", "local_lights_shadow_map" };
+	Vector2 *shadow_sizes[] = { &_render_settings.sun_shadow_map_size, &_render_settings.local_lights_shadow_map_size };
+	const bool shadow_producers[] = { has_geometry_layer(*this, "sm_cascade"), has_geometry_layer(*this, "sm_local") };
+	for (u32 i = 0; i < countof(shadow_names); ++i) {
+		const u32 index = _render_pipeline.resource_index(StringId32(shadow_names[i]));
+		if (index == RENDER_CONFIG_INVALID)
+			continue;
+		const RenderTextureState &texture = _render_pipeline.texture_state({ index, 0 });
+		if (shadow_producers[i])
+			PIPELINE_ENSURE(texture.width == texture.height && texture.width >= 2, "Native shadow atlases must be square and at least 2x2");
+		*shadow_sizes[i] = { f32(texture.width), f32(texture.height) };
+	}
+	const Vector2 sun = _render_settings.sun_shadow_map_size;
+	const Vector2 local = _render_settings.local_lights_shadow_map_size;
+	_render_settings.shadow_map_params[0] = { 1.0f/sun.x, 1.0f/sun.y, 1.0f/local.x, 1.0f/local.y };
 
 	if (_lights_cookie_atlas_packer) {
 		default_allocator().deallocate(_lights_cookie_atlas_packer);
@@ -339,8 +386,10 @@ void Pipeline::reset(u16 width, u16 height)
 		_lights_cookie_atlas_packer = NULL;
 		_lights_cookie_atlas_packer_nodes = NULL;
 	}
-	_lights_cookie_atlas_frame_buffer = _render_pipeline.frame_buffer(StringId32("lights_cookie_atlas_clear"));
-	if (_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) {
+	_lights_cookie_atlas_frame_buffer = _render_pipeline.frame_buffer(StringId32("lights_cookie_atlas"));
+	_lights_cookie_atlas_texture = _render_pipeline.texture(StringId32("lights_cookie_atlas"));
+	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE)
+		&& bgfx::isValid(_lights_cookie_atlas_texture) && has_geometry_layer(*this, "lights_cookie_atlas")) {
 		const u32 index = _render_pipeline.resource_index(StringId32("lights_cookie_atlas"));
 		const RenderTextureState &atlas = _render_pipeline.texture_state({ index, 0 });
 		PIPELINE_ENSURE(bgfx::isValid(atlas.handle) && render_config_resource::resources(r)[index].format == RenderResourceFormat::RGBA8, "The native cookie atlas requires allocated RGBA8 storage");
@@ -348,14 +397,16 @@ void Pipeline::reset(u16 width, u16 height)
 		_render_settings.lights_cookie_atlas_size = { f32(atlas.width), f32(atlas.height) };
 		_lights_cookie_atlas_packer = (stbrp_context *)default_allocator().allocate(sizeof(stbrp_context));
 		_lights_cookie_atlas_packer_nodes = (stbrp_node *)default_allocator().allocate(sizeof(stbrp_node) * atlas.width);
-	} else {
+	} else if (!bgfx::isValid(_lights_cookie_atlas_texture)) {
 		_lights_cookie_atlas_texture = _render_pipeline.texture(StringId32("lights_cookie_fallback"));
 	}
-	PIPELINE_ENSURE(bgfx::isValid(_lights_cookie_atlas_texture), "Crown's lighting shaders need an allocated cookie sampler");
+	lookup_default_shaders(*this);
 }
 
 void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
 {
+	if (sm_local_clear_view() == UINT16_MAX || !local_shadows_enabled() || tile_size == 0 || tile_cols == 0)
+		return;
 	CE_ENSURE(tile_size > 0);
 	CE_ENSURE(tile_cols > 0);
 
@@ -422,17 +473,22 @@ void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
 	}
 }
 
+void Pipeline::update_conditions()
+{
+	_render_pipeline.set_condition(StringId32("bloom"), (_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled);
+	_render_pipeline.set_condition(StringId32("vignette"), _vignette.enabled);
+}
+
 void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
 {
 	CE_UNUSED_2(width, height);
-	_render_pipeline.set_condition(StringId32("bloom"), (_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled);
-	_render_pipeline.set_condition(StringId32("vignette"), _vignette.enabled);
+	update_conditions();
 	_render_pipeline.render(view, proj);
 }
 
 void Pipeline::begin_light_cookie_atlas()
 {
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) == 0)
+	if (!light_cookies_enabled())
 		return;
 
 	const u16 width = (u16)_render_settings.lights_cookie_atlas_size.x;
@@ -443,12 +499,14 @@ void Pipeline::begin_light_cookie_atlas()
 		, _lights_cookie_atlas_packer_nodes
 		, width
 		);
-	bgfx::touch(cookie_atlas_clear_view());
+	// Clearing is an explicit layer operation, not a side effect of packing.
 }
 
 Vector4 Pipeline::add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 width, u16 height)
 {
-	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) == 0)
+	const u16 first = cookie_atlas_view();
+	const u32 count = _render_pipeline.geometry_view_count(StringId32("lights_cookie_atlas"));
+	if (!light_cookies_enabled() || view < first || u32(view) >= u32(first) + count)
 		return VECTOR4_ZERO;
 
 	stbrp_rect packed = { 0, width, height, 0, 0, 0 };
@@ -456,7 +514,6 @@ Vector4 Pipeline::add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 w
 	if (!packed.was_packed)
 		return VECTOR4_ZERO;
 
-	PIPELINE_ENSURE(view >= cookie_atlas_view() && view < cookie_atlas_view() + MAX_NUM_LIGHTS, "Too many light cookies");
 	bgfx::setViewRect(view, packed.x, packed.y, width, height);
 	const u32 sampler_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	bgfx::setTexture(0, _color_map, texture, sampler_flags);

@@ -232,6 +232,13 @@ CE_STATIC_ASSERT(sizeof(RenderUniformData) == 20);
 CE_STATIC_ASSERT(sizeof(RenderModifierData) == 152);
 CE_STATIC_ASSERT(sizeof(RenderShaderLayerData) == 12);
 
+namespace render_config_resource
+{
+	/// Returns the named condition bit, or zero when not declared.
+	u32 condition_mask(const RenderConfigResource *r, StringId32 name);
+
+} // namespace render_config_resource
+
 namespace render_settings
 {
 	///

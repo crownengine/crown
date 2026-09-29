@@ -64,7 +64,7 @@ struct Memory {uint8_t *data; uint32_t size;};
 inline const Memory *copy(const void *p,uint32_t n) {auto m=new Memory{new uint8_t[n],n}; memcpy(m->data,p,n);return m;}
 struct TextureRecord {uint16_t w,h; TextureFormat::Enum format;uint64_t flags;std::string name;};
 struct UniformRecord {std::string name;UniformType::Enum type;uint16_t count;uint32_t refs;};
-struct ViewRecord {FrameBufferHandle fb=BGFX_INVALID_HANDLE;uint16_t w=0,h=0,clear=0;ViewMode::Enum mode=ViewMode::Default;std::string name;};
+struct ViewRecord {FrameBufferHandle fb=BGFX_INVALID_HANDLE;uint16_t w=0,h=0,clear=0;ViewMode::Enum mode=ViewMode::Default;std::string name;uint32_t rgba=0;float depth=1.0f;uint8_t stencil=0;};
 struct SubmitRecord {uint16_t view; ProgramHandle program;std::vector<TextureHandle> inputs;};
 inline std::map<uint16_t,TextureRecord> textures;
 inline std::map<uint16_t,std::vector<TextureHandle>> framebuffers;
@@ -84,19 +84,19 @@ inline void destroy(TextureHandle h){for(const auto &f:framebuffers)for(auto t:f
 inline void destroy(FrameBufferHandle h){assert(framebuffers.erase(h.idx)==1);}
 inline void destroy(UniformHandle h){auto &u=uniforms.at(h.idx);if(!--u.refs)uniforms.erase(h.idx);}
 inline void resetView(uint16_t v){assert(v<caps.limits.maxViews);views[v]=ViewRecord{};resets.push_back(v);}
-inline void setViewName(uint16_t v,const char*n){views[v].name=n;}
+inline void setViewName(uint16_t v,const char*n){assert(v<caps.limits.maxViews);views[v].name=n;}
 inline void setViewFrameBuffer(uint16_t v,FrameBufferHandle f){assert(v<caps.limits.maxViews);views[v].fb=f;}
 inline void setViewRect(uint16_t v,uint16_t,uint16_t,uint16_t w,uint16_t h){assert(v<caps.limits.maxViews&&w&&h);views[v].w=w;views[v].h=h;}
 inline void setViewMode(uint16_t v,ViewMode::Enum m){views[v].mode=m;}
-inline void setViewClear(uint16_t v,uint16_t flags,uint32_t,float,uint8_t){views[v].clear=flags;}
-inline void setViewTransform(uint16_t,const void*,const void*){}
+inline void setViewClear(uint16_t v,uint16_t flags,uint32_t rgba,float depth,uint8_t stencil){assert(v<caps.limits.maxViews);views[v].clear=flags;views[v].rgba=rgba;views[v].depth=depth;views[v].stencil=stencil;}
+inline void setViewTransform(uint16_t v,const void*,const void*){assert(v<caps.limits.maxViews);}
 inline void setViewOrder(uint16_t,uint16_t,const uint16_t*){}
 inline void touch(uint16_t v){assert(v<caps.limits.maxViews);touches.push_back(v);}
 inline void setUniform(UniformHandle h,const void*,uint16_t n=1){assert(uniforms.count(h.idx));assert(n<=uniforms.at(h.idx).count);}
 inline void setTexture(uint8_t,UniformHandle u,TextureHandle t,uint32_t=UINT32_MAX){assert(uniforms.count(u.idx));assert(textures.count(t.idx));bound.push_back(t);}
 inline void setState(uint64_t){} inline void setStencil(uint32_t,uint32_t=0){}
 inline void discard(){bound.clear();}
-inline void submit(uint16_t v,ProgramHandle p,uint32_t=0){assert(v<caps.limits.maxViews);submits.push_back({v,p,bound});discard();}
+inline void submit(uint16_t v,ProgramHandle p,uint32_t=0){assert(v<caps.limits.maxViews&&isValid(p));submits.push_back({v,p,bound});discard();}
 struct TransientVertexBuffer {uint8_t*data;};struct TransientIndexBuffer {uint8_t*data;};
 inline uint8_t transient[1024*1024];
 inline uint32_t getAvailTransientVertexBuffer(uint32_t n,const VertexLayout&){return transient_available?n:0;}
@@ -119,8 +119,8 @@ inline Vector4 VECTOR4_ZERO={0,0,0,0};inline Matrix4x4 MATRIX4X4_IDENTITY={{1,0,
 inline const float*to_float_ptr(const Matrix4x4&m){return &m.x.x;}inline float*to_float_ptr(Matrix4x4&m){return &m.x.x;}
 struct Value{};
 struct BloomDesc{float enabled,threshold,weight,intensity;};struct VignetteDesc{float enabled;float pad[7];};struct ColorGradingDesc{float pad[8];};struct TonemapDesc{float pad[4];};struct GlobalLightingDesc{Vector3 ambient_color;float shadow_distance;};
-struct ShaderResource{};struct ShaderData {bgfx::ProgramHandle program;uint64_t state=0;uint32_t stencil_front=0,stencil_back=0;};
-struct ShaderManager{ShaderData shader(StringId32 n){return {{uint16_t(n._id%60000)},0,0,0};}};
+struct ShaderResource{struct Sampler{u32 stage;};};struct ShaderData {bgfx::ProgramHandle program;uint64_t state=0;uint32_t stencil_front=0,stencil_back=0;u32 num_samplers=0;const ShaderResource::Sampler*samplers=nullptr;};
+struct ShaderManager{std::vector<StringId32> lookups;ShaderData shader(StringId32 n){lookups.push_back(n);return {{uint16_t(n._id%60000)},0,0,0};}};
 template<class T>struct Array:std::vector<T>{explicit Array(Allocator&){} };
 namespace array {template<class T>u32 size(const Array<T>&a){return u32(a.size());}template<class T>u32 push_back(Array<T>&a,const T&t){a.push_back(t);return u32(a.size()-1);}template<class T>void push(Array<T>&a,const T*t,u32 n){a.insert(a.end(),t,t+n);}template<class T>T*begin(Array<T>&a){return a.data();}template<class T>const T*begin(const Array<T>&a){return a.data();}template<class T>void clear(Array<T>&a){a.clear();}}
 template<class K,class V>struct HashMap:std::map<K,V>{explicit HashMap(Allocator&){} };

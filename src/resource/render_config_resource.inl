@@ -64,14 +64,6 @@ namespace render_config_resource
 			&& (flags & condition.excluded) == 0;
 	}
 
-	inline u32 condition_mask(const RenderConfigResource *r, StringId32 name)
-	{
-		for (u32 i = 0; i < r->num_conditions; ++i) {
-			if (conditions(r)[i].name == name)
-				return 1u << i;
-		}
-		return 0;
-	}
 
 } // namespace render_config_resource
 } // namespace crown

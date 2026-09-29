@@ -102,9 +102,7 @@ void RenderPipeline::set_condition(StringId32 name, bool on)
 
 u32 RenderPipeline::resource_index(StringId32 name) const
 {
-	const u32 index = hash_map::get(_resource_names, name, RENDER_CONFIG_INVALID);
-	PIPELINE_ENSURE(index != RENDER_CONFIG_INVALID, "Unknown render resource 0x%08x", name._id);
-	return index;
+	return hash_map::get(_resource_names, name, RENDER_CONFIG_INVALID);
 }
 
 const RenderTextureState &RenderPipeline::texture_state(RenderResourceRef ref) const
@@ -116,21 +114,25 @@ const RenderTextureState &RenderPipeline::texture_state(RenderResourceRef ref) c
 
 bgfx::TextureHandle RenderPipeline::texture(StringId32 name, u32 index) const
 {
-	return texture_state({ resource_index(name), index }).handle;
+	const u32 resource = resource_index(name);
+	if (_resource == NULL || resource == RENDER_CONFIG_INVALID
+		|| index >= render_config_resource::resources(_resource)[resource].count)
+		return bgfx::TextureHandle BGFX_INVALID_HANDLE;
+	return texture_state({ resource, index }).handle;
 }
 
 u32 RenderPipeline::layer_index(StringId32 name) const
 {
-	const u32 index = hash_map::get(_layer_names, name, RENDER_CONFIG_INVALID);
-	PIPELINE_ENSURE(index != RENDER_CONFIG_INVALID, "Unknown render layer 0x%08x", name._id);
-	return index;
+	return hash_map::get(_layer_names, name, RENDER_CONFIG_INVALID);
 }
 
 u16 RenderPipeline::layer_view(u32 layer, u32 index) const
 {
-	PIPELINE_ENSURE(layer < _resource->num_layers, "Invalid render layer");
+	if (_resource == NULL || layer >= _resource->num_layers)
+		return UINT16_MAX;
 	const RenderLayerData &d = render_config_resource::layers(_resource)[layer];
-	PIPELINE_ENSURE(index < d.count, "Sub-view index out of range for '%s'", render_config_resource::name(_resource, d.name_offset));
+	if (index >= d.count)
+		return UINT16_MAX;
 	const u16 view = _layer_views[layer] + (u16)index;
 	return enabled(d.condition) && _views[view].usable ? view : UINT16_MAX;
 }
@@ -138,6 +140,27 @@ u16 RenderPipeline::layer_view(u32 layer, u32 index) const
 u16 RenderPipeline::view_id(StringId32 name, u32 index) const
 {
 	return layer_view(layer_index(name), index);
+}
+
+u16 RenderPipeline::geometry_view(StringId32 name, u32 index) const
+{
+	const u32 layer = layer_index(name);
+	if (_resource == NULL || layer == RENDER_CONFIG_INVALID
+		|| render_config_resource::layers(_resource)[layer].generator != RENDER_CONFIG_INVALID)
+		return UINT16_MAX;
+	return layer_view(layer, index);
+}
+
+u32 RenderPipeline::geometry_view_count(StringId32 name) const
+{
+	if (geometry_view(name) == UINT16_MAX)
+		return 0;
+	return render_config_resource::layers(_resource)[layer_index(name)].count;
+}
+
+bool RenderPipeline::empty() const
+{
+	return array::size(_views) == 0;
 }
 
 bgfx::FrameBufferHandle RenderPipeline::frame_buffer(StringId32 name, u32 index) const
@@ -148,6 +171,8 @@ bgfx::FrameBufferHandle RenderPipeline::frame_buffer(StringId32 name, u32 index)
 
 u16 RenderPipeline::shader_view(StringId32 shader, u16 fallback) const
 {
+	if (_resource == NULL)
+		return UINT16_MAX;
 	const RenderShaderLayerData *routes = render_config_resource::shader_layers(_resource);
 	for (u32 i = 0; i < _resource->num_shader_layers; ++i) {
 		if (routes[i].shader == shader) return layer_view(routes[i].layer, routes[i].index);
@@ -303,6 +328,8 @@ void RenderPipeline::create(const RenderConfigResource *r, u16 width, u16 height
 		const RenderLayerData &layer = layers[i];
 		hash_map::set(_layer_names, layer.name, i);
 		array::push_back(_layer_views, (u16)array::size(_views));
+		if (layer.count == 0)
+			continue;
 		if (layer.generator == RENDER_CONFIG_INVALID) {
 			RenderViewState target = create_target(layer.target, width, height);
 			for (u32 j = 0; j < layer.count; ++j) {
@@ -320,12 +347,24 @@ void RenderPipeline::create(const RenderConfigResource *r, u16 width, u16 height
 			}
 		}
 	}
+	if (view_count == 0) {
+		// Presentation housekeeping only: an empty pipeline must not display
+		// the previous frame. This view is not a destination for scene draws.
+		PIPELINE_ENSURE(caps->limits.maxViews != 0, "No presentation view available");
+		bgfx::resetView(0);
+		bgfx::setViewName(0, "empty_pipeline");
+		bgfx::setViewFrameBuffer(0, BGFX_INVALID_HANDLE);
+		bgfx::setViewRect(0, 0, 0, width, height);
+		bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x000000ff, 1.0f, 0);
+	}
 	// Declaration order is backend order; CPU submission order is independent.
-	bgfx::setViewOrder(0, (u16)view_count, NULL);
+	bgfx::setViewOrder(0, (u16)max(1u, view_count), NULL);
 }
 
 void RenderPipeline::destroy()
 {
+	if (_resource != NULL && empty())
+		bgfx::resetView(0);
 	for (u32 i = 0; i < array::size(_views); ++i) bgfx::resetView((u16)i);
 	for (u32 i = 0; i < array::size(_frame_buffers); ++i) bgfx::destroy(_frame_buffers[i]);
 	for (u32 i = 0; i < array::size(_textures); ++i) if (bgfx::isValid(_textures[i].handle)) bgfx::destroy(_textures[i].handle);
@@ -341,6 +380,12 @@ void RenderPipeline::destroy()
 
 void RenderPipeline::render(const Matrix4x4 &view, const Matrix4x4 &projection)
 {
+	if (_resource == NULL)
+		return;
+	if (empty()) {
+		bgfx::touch(0);
+		return;
+	}
 	const RenderLayerData *layers = render_config_resource::layers(_resource);
 	const RenderModifierData *mods = render_config_resource::modifiers(_resource);
 	for (u32 i = 0; i < _resource->num_layers; ++i) {
