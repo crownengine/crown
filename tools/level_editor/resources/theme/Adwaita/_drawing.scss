@@ -22,13 +22,6 @@
 }
 
 // entries
-@function entry_focus_border($fc:$selected_bg_color) {
-  @if $variant == 'light' { @return $fc; }
-  @else { @return if($fc==$selected_bg_color, $selected_borders_color, darken($fc, 35%)); }
-}
-
-@function entry_focus_shadow($fc:$selected_bg_color) { @return inset 0 0 0 1px $fc; }
-
 @mixin entry($t, $fc:$selected_bg_color, $edge: none) {
 //
 // Entries drawing function
@@ -49,12 +42,10 @@
     color: $text_color;
     border-color: $borders_color;
     background-color: $base_color;
-    @include _shadows(entry_focus_shadow(transparentize($fc, 1)), $_entry_edge);
-    // for the transition to work the number of shadows in different states needs to match, hence the transparent shadow here.
+    box-shadow: $_entry_edge;
   }
   @if $t==focus {
-    @include _shadows(entry_focus_shadow($fc), $_entry_edge);
-    border-color: entry_focus_border($fc);
+    border-color: $fc;
   }
   @if $t==insensitive {
     color: $insensitive_fg_color;
@@ -88,7 +79,6 @@
     border-color: $selected_bg_color;
     background-color: transparentize(opacify($osd_borders_color, 1), 0.5);
     background-clip: padding-box;
-    box-shadow: entry_focus_shadow($fc);
     text-shadow: 0 1px black;
     -gtk-icon-shadow: 0 1px black;
   }

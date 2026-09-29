@@ -366,7 +366,7 @@ entry {
                                (warning, $warning_color) {
       &.#{$e_type} {
         color: $e_color;
-        border-color: entry_focus_border($e_color);
+        border-color: $e_color;
 
         &:focus { @include entry(focus, $e_color); }
 
@@ -419,11 +419,11 @@ entry {
   .linked:not(.vertical) > & { @extend %linked; }
   .linked:not(.vertical) > &:focus + &,
   .linked:not(.vertical) > &:focus + button,
-  .linked:not(.vertical) > &:focus + combobox > box > button.combo { border-left-color: entry_focus_border(); }
+  .linked:not(.vertical) > &:focus + combobox > box > button.combo { border-left-color: $selected_bg_color; }
 
   .linked:not(.vertical) > &:focus.error + &,
   .linked:not(.vertical) > &:focus.error + button,
-  .linked:not(.vertical) > &:focus.error + combobox > box > button.combo { border-left-color: entry_focus_border($error_color); }
+  .linked:not(.vertical) > &:focus.error + combobox > box > button.combo { border-left-color: $error_color; }
 
   .linked:not(.vertical) > &:drop(active) + &,
   .linked:not(.vertical) > &:drop(active) + button,
@@ -449,10 +449,10 @@ entry {
     // color back the top border of a linked focused entry following another entry.
     // :not(:only-child) is a specificity bump hack.
     + %entry:focus:not(:only-child),
-    + entry:focus:not(:only-child) { border-top-color: entry_focus_border(); }
+    + entry:focus:not(:only-child) { border-top-color: $selected_bg_color; }
 
     + %entry:focus.error:not(:only-child),
-    + entry:focus.error:not(:only-child) { border-top-color: entry_focus_border($error_color); }
+    + entry:focus.error:not(:only-child) { border-top-color: $error_color; }
 
     + %entry:drop(active):not(:only-child),
     + entry:drop(active):not(:only-child) { border-top-color: $drop_target_color; }
@@ -463,14 +463,14 @@ entry {
       + %entry,
       + entry,
       + button,
-      + combobox > box > button.combo { border-top-color: entry_focus_border(); }
+      + combobox > box > button.combo { border-top-color: $selected_bg_color; }
     }
 
     &:focus.error:not(:only-child) {
       + %entry,
       + entry,
       + button,
-      + combobox > box > button.combo { border-top-color: entry_focus_border($error_color); }
+      + combobox > box > button.combo { border-top-color: $error_color; }
     }
 
     &:drop(active):not(:only-child) {
