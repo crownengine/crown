@@ -36,6 +36,20 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 
 	public signal void saved();
 
+	public void on_project_files_changed(string type, string name)
+	{
+		if (type == OBJECT_TYPE_UNIT && name == _unit.value)
+			send();
+	}
+
+	public override void dispose()
+	{
+		_database._project.file_added.disconnect(on_project_files_changed);
+		_database._project.file_changed.disconnect(on_project_files_changed);
+		_database._project.file_removed.disconnect(on_project_files_changed);
+		base.dispose();
+	}
+
 	public StateMachineEditor(LevelEditorApplication application
 		, PreferencesDialog preferences
 		, DataCompiler data_compiler
@@ -201,13 +215,16 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_event_buttons = new GLib.HashTable<string, Gtk.Button>(GLib.str_hash, GLib.str_equal);
 		_variable_sliders = new GLib.HashTable<string, Gtk.Box>(GLib.str_hash, GLib.str_equal);
 
-		_unit = new InputResource(OBJECT_TYPE_UNIT, _database);
+		_unit = new InputResource(OBJECT_TYPE_UNIT);
 		_unit.set_size_request(300, -1);
 		_unit.halign = Gtk.Align.START;
 		_unit.valign = Gtk.Align.START;
 		_unit.margin_top = 8;
 		_unit.margin_start = 8;
 		_unit.value_changed.connect(on_unit_value_changed);
+		project.file_added.connect(on_project_files_changed);
+		project.file_changed.connect(on_project_files_changed);
+		project.file_removed.connect(on_project_files_changed);
 		_editor_viewport._overlay.add_overlay(_unit);
 
 		reset();

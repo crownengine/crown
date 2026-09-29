@@ -65,7 +65,7 @@ public class InputResource : InputField
 		}
 	}
 
-	public InputResource(string type, Database db)
+	public InputResource(string type)
 	{
 		_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 #if CROWN_GTK3
@@ -160,10 +160,6 @@ public class InputResource : InputField
 
 		this.value = null;
 		_thumbnail_cache.changed.connect(on_thumbnail_cache_changed);
-
-		db._project.file_added.connect(on_file_added_or_changed);
-		db._project.file_changed.connect(on_file_added_or_changed);
-		db._project.file_removed.connect(on_file_removed);
 
 #if CROWN_GTK3
 		this.add(_box);
@@ -358,18 +354,6 @@ public class InputResource : InputField
 			this.value = null;
 
 		return Gdk.EVENT_PROPAGATE;
-	}
-
-	public void on_file_added_or_changed(string type, string name, uint64 size, uint64 mtime)
-	{
-		if (type == _type && name == _name.text)
-			value_changed(this);
-	}
-
-	public void on_file_removed(string type, string name)
-	{
-		if (type == _type && name == _name.text)
-			value_changed(this);
 	}
 
 #if CROWN_GTK3

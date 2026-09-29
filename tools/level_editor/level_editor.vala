@@ -100,7 +100,7 @@ public class UnitView : PropertyGrid
 		_order = -1.0;
 
 		// Widgets
-		_prefab = new InputResource(OBJECT_TYPE_UNIT, db);
+		_prefab = new InputResource(OBJECT_TYPE_UNIT);
 		_prefab._nullable = true;
 		_prefab.value_changed.connect(on_prefab_value_changed);
 

@@ -545,6 +545,29 @@ public class PropertyGrid : Gtk.Grid
 		field.set_union_value(def.deffault);
 	}
 
+	public void on_project_files_changed()
+	{
+		if (_db == null
+			|| _id == GUID_ZERO
+			|| !_db.is_alive(_id)
+			|| (_component_id != GUID_ZERO && !_db.is_alive(_component_id))
+			)
+			return;
+
+		read_properties();
+	}
+
+	public override void dispose()
+	{
+		if (_db != null) {
+			_db._project.file_added.disconnect(on_project_files_changed);
+			_db._project.file_changed.disconnect(on_project_files_changed);
+			_db._project.file_removed.disconnect(on_project_files_changed);
+		}
+
+		base.dispose();
+	}
+
 	public void on_expander_button_released(int n_press, double x, double y)
 	{
 		if (_controller_click.get_current_button() == Gdk.BUTTON_SECONDARY) {
@@ -604,6 +627,12 @@ public class PropertyGrid : Gtk.Grid
 		_action_group = new GLib.SimpleActionGroup();
 		_action_group.add_action_entries(actions, this);
 		this.insert_action_group("object", _action_group);
+
+		if (_db != null) {
+			_db._project.file_added.connect(on_project_files_changed);
+			_db._project.file_changed.connect(on_project_files_changed);
+			_db._project.file_removed.connect(on_project_files_changed);
+		}
 	}
 
 	public PropertyGrid.from_object_type(StringId64 type, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
@@ -813,7 +842,7 @@ public class PropertyGrid : Gtk.Grid
 				p = new InputQuaternion();
 				break;
 			case PropertyType.RESOURCE:
-				p = new InputResource(def.resource_type, _db);
+				p = new InputResource(def.resource_type);
 				((InputResource)p)._nullable = (string?)def.deffault == null;
 				break;
 			case PropertyType.REFERENCE:

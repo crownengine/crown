@@ -232,7 +232,7 @@ public class SceneImportDialog : Gtk.Window
 		_import_animation.value = _options.import_animation;
 		_new_skeleton = new InputBool();
 		_new_skeleton.value = _options.new_skeleton;
-		_target_skeleton = new InputResource(OBJECT_TYPE_MESH_SKELETON, database);
+		_target_skeleton = new InputResource(OBJECT_TYPE_MESH_SKELETON);
 		_target_skeleton.value = _options.target_skeleton != "" ? _options.target_skeleton : null;
 		_import_clips = new InputBool();
 		_import_clips.value = _options.import_clips;

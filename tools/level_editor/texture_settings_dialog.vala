@@ -35,6 +35,20 @@ public class TextureSettingsDialog : Gtk.Window
 
 	public signal void texture_saved();
 
+	public void on_project_files_changed(string type, string name)
+	{
+		if (type == OBJECT_TYPE_TEXTURE && name == _texture_name.value)
+			load_texture(name);
+	}
+
+	public override void dispose()
+	{
+		_project.file_added.disconnect(on_project_files_changed);
+		_project.file_changed.disconnect(on_project_files_changed);
+		_project.file_removed.disconnect(on_project_files_changed);
+		base.dispose();
+	}
+
 	public void text_func(Gtk.CellLayout cell_layout, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 	{
 		Value? platform;
@@ -76,8 +90,11 @@ public class TextureSettingsDialog : Gtk.Window
 		_texture_path = "";
 
 		// Input grid.
-		_texture_name = new InputResource(OBJECT_TYPE_TEXTURE, database);
+		_texture_name = new InputResource(OBJECT_TYPE_TEXTURE);
 		_texture_name.value_changed.connect(on_texture_resource_value_changed);
+		_project.file_added.connect(on_project_files_changed);
+		_project.file_changed.connect(on_project_files_changed);
+		_project.file_removed.connect(on_project_files_changed);
 
 		_source = new InputString();
 		_source.sensitive = false;
