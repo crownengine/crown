@@ -20,12 +20,16 @@
 #include "world/shader_manager.h"
 #include <bgfx/bgfx.h>
 #include <float.h>
+#include <string.h>
 
 namespace crown
 {
 static inline u32 depth_u32(f32 depth)
 {
-	return u32(depth * 100.0f * 1000.0f);
+	// FloatFlip: https://web.archive.org/web/20021217195928/http://www.stereopsis.com/radix.html
+	u32 bits;
+	memcpy(&bits, &depth, sizeof(bits));
+	return (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
 }
 
 GuiBuffer::GuiBuffer(ShaderManager &sm)
