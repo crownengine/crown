@@ -17,7 +17,9 @@
 #define CROWN_PLATFORM_LINUX 1
 #define CROWN_PLATFORM_WINDOWS 0
 #define CROWN_CAN_COMPILE 1
+#ifndef CROWN_CAN_RELOAD
 #define CROWN_CAN_RELOAD 1
+#endif
 #define CE_STATIC_ASSERT(c) static_assert(c, #c)
 #define CE_UNUSED(x) (void)(x)
 #define CE_UNUSED_2(x,y) (void)(x); (void)(y)
@@ -73,6 +75,8 @@ inline std::map<uint16_t,ViewRecord> views;
 inline std::vector<SubmitRecord> submits;
 inline std::vector<uint16_t> touches,resets;
 inline std::vector<TextureHandle> bound;
+struct TextureBinding {uint8_t stage; UniformHandle sampler; TextureHandle texture; uint32_t flags;};
+inline std::vector<TextureBinding> texture_bindings;
 inline uint16_t next_texture=0,next_fb=0,next_uniform=0;
 inline bool transient_available=true;
 inline bool isTextureValid(uint16_t,bool,uint16_t,TextureFormat::Enum,uint64_t){return true;}
@@ -93,9 +97,9 @@ inline void setViewTransform(uint16_t v,const void*,const void*){assert(v<caps.l
 inline void setViewOrder(uint16_t,uint16_t,const uint16_t*){}
 inline void touch(uint16_t v){assert(v<caps.limits.maxViews);touches.push_back(v);}
 inline void setUniform(UniformHandle h,const void*,uint16_t n=1){assert(uniforms.count(h.idx));assert(n<=uniforms.at(h.idx).count);}
-inline void setTexture(uint8_t,UniformHandle u,TextureHandle t,uint32_t=UINT32_MAX){assert(uniforms.count(u.idx));assert(textures.count(t.idx));bound.push_back(t);}
+inline void setTexture(uint8_t stage,UniformHandle u,TextureHandle t,uint32_t flags=UINT32_MAX){assert(uniforms.count(u.idx));assert(textures.count(t.idx));bound.push_back(t);texture_bindings.push_back({stage,u,t,flags});}
 inline void setState(uint64_t){} inline void setStencil(uint32_t,uint32_t=0){}
-inline void discard(){bound.clear();}
+inline void discard(){bound.clear();texture_bindings.clear();}
 inline void submit(uint16_t v,ProgramHandle p,uint32_t=0){assert(v<caps.limits.maxViews&&isValid(p));submits.push_back({v,p,bound});discard();}
 struct TransientVertexBuffer {uint8_t*data;};struct TransientIndexBuffer {uint8_t*data;};
 inline uint8_t transient[1024*1024];
@@ -119,12 +123,32 @@ inline Vector4 VECTOR4_ZERO={0,0,0,0};inline Matrix4x4 MATRIX4X4_IDENTITY={{1,0,
 inline const float*to_float_ptr(const Matrix4x4&m){return &m.x.x;}inline float*to_float_ptr(Matrix4x4&m){return &m.x.x;}
 struct Value{};
 struct BloomDesc{float enabled,threshold,weight,intensity;};struct VignetteDesc{float enabled;float pad[7];};struct ColorGradingDesc{float pad[8];};struct TonemapDesc{float pad[4];};struct GlobalLightingDesc{Vector3 ambient_color;float shadow_distance;};
-struct ShaderResource{struct Sampler{u32 stage;};};struct ShaderData {bgfx::ProgramHandle program;uint64_t state=0;uint32_t stencil_front=0,stencil_back=0;u32 num_samplers=0;const ShaderResource::Sampler*samplers=nullptr;};
-struct ShaderManager{std::vector<StringId32> lookups;ShaderData shader(StringId32 n){lookups.push_back(n);return {{uint16_t(n._id%60000)},0,0,0};}};
+struct FileBuffer;
+struct CompileOptions;
+struct DynamicString;
+struct StringView;
+struct ResourceManager;
+struct ShaderManager;
+struct StringId64 { u64 _id; };
+template<class T> struct Vector;
+} // namespace crown
+#include "resource/shader_resource.h"
+namespace crown {
+#ifndef CROWN_TEST_REAL_SHADER_MANAGER
+struct ShaderManager {
+ std::vector<StringId32> lookups;
+ ShaderData shader(StringId32 n) {
+  lookups.push_back(n);
+  ShaderData sd = {};
+  sd.program = {uint16_t(n._id % 60000)};
+  return sd;
+ }
+};
+#endif
 template<class T>struct Array:std::vector<T>{explicit Array(Allocator&){} };
-namespace array {template<class T>u32 size(const Array<T>&a){return u32(a.size());}template<class T>u32 push_back(Array<T>&a,const T&t){a.push_back(t);return u32(a.size()-1);}template<class T>void push(Array<T>&a,const T*t,u32 n){a.insert(a.end(),t,t+n);}template<class T>T*begin(Array<T>&a){return a.data();}template<class T>const T*begin(const Array<T>&a){return a.data();}template<class T>void clear(Array<T>&a){a.clear();}}
+namespace array {template<class T>void resize(Array<T>&a,u32 n){a.resize(n);}template<class T>u32 size(const Array<T>&a){return u32(a.size());}template<class T>u32 push_back(Array<T>&a,const T&t){a.push_back(t);return u32(a.size()-1);}template<class T>void push(Array<T>&a,const T*t,u32 n){a.insert(a.end(),t,t+n);}template<class T>T*begin(Array<T>&a){return a.data();}template<class T>const T*begin(const Array<T>&a){return a.data();}template<class T>void clear(Array<T>&a){a.clear();}}
 template<class K,class V>struct HashMap:std::map<K,V>{explicit HashMap(Allocator&){} };
-namespace hash_map {template<class K,class V>V get(const HashMap<K,V>&m,K k,V d){auto i=m.find(k);return i==m.end()?d:i->second;}template<class K,class V>void set(HashMap<K,V>&m,K k,V v){m[k]=v;}template<class K,class V>void clear(HashMap<K,V>&m){m.clear();}}
+namespace hash_map {template<class K,class V>bool has(const HashMap<K,V>&m,K k){return m.count(k)!=0;}template<class K,class V>void remove(HashMap<K,V>&m,K k){m.erase(k);}template<class K,class V>V get(const HashMap<K,V>&m,K k,V d){auto i=m.find(k);return i==m.end()?d:i->second;}template<class K,class V>void set(HashMap<K,V>&m,K k,V v){m[k]=v;}template<class K,class V>void clear(HashMap<K,V>&m){m.clear();}}
 struct DynamicString:std::string {using std::string::operator=;explicit DynamicString(Allocator&){} };
 struct StringView:std::string {using std::string::string;};
 struct JsonObject{std::vector<std::pair<StringView,const char*>> values;explicit JsonObject(Allocator&){}const char*operator[](const char*k)const{for(auto &v:values)if(v.first==k)return v.second;throw std::runtime_error("missing key");}};

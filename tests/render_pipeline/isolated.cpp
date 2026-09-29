@@ -189,8 +189,8 @@ static void deletion_regressions(const std::string &text)
  CHECK(p._render_pipeline.texture(StringId32("missing")).idx == UINT16_MAX);
  ShaderData unlit = {};
  CHECK(p.bind_lighting(unlit));
- const ShaderResource::Sampler sampler = {LIGHTS_DATA_SLOT};
- ShaderData lit = {}; lit.num_samplers = 1; lit.samplers = &sampler;
+ ShaderData lit = {}; lit.num_sampler_uniforms = 1;
+ lit.sampler_uniforms[0] = StringId32("u_lights_data")._id;
  CHECK(!p.bind_lighting(lit));
  p.destroy();
  no_leaks();

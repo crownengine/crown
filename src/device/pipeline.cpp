@@ -155,6 +155,10 @@ bool Pipeline::light_cookies_enabled() const
 
 bool Pipeline::bind_lighting(const ShaderData &shader) const
 {
+	static const StringId32 names[] = {
+		StringId32("u_cascaded_shadow_map"), StringId32("u_local_lights_shadow_map"),
+		StringId32("u_lights_data"), StringId32("u_lights_cookie_atlas")
+	};
 	const bgfx::TextureHandle textures[] = {
 		_sun_shadow_map_texture, _local_lights_shadow_map_texture,
 		_lights_data_texture, _lights_cookie_atlas_texture
@@ -166,11 +170,17 @@ bool Pipeline::bind_lighting(const ShaderData &shader) const
 	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 1 == LOCAL_LIGHTS_SHADOW_MAP_SLOT);
 	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 2 == LIGHTS_DATA_SLOT);
 	CE_STATIC_ASSERT(CASCADED_SHADOW_MAP_SLOT + 3 == LOCAL_LIGHTS_COOKIE_ATLAS_SLOT);
-	for (u32 i = 0; i < shader.num_samplers; ++i) {
-		const u32 stage = shader.samplers[i].stage;
-		if (stage < CASCADED_SHADOW_MAP_SLOT || stage > LOCAL_LIGHTS_COOKIE_ATLAS_SLOT)
+	// The authored sampler-state table usually contains only material textures.
+	// Native lighting inputs must be discovered from the compiled shader instead.
+	for (u32 i = 0; i < shader.num_sampler_uniforms; ++i) {
+		u32 index = 0;
+		for (; index < countof(names); ++index) {
+			if (shader.sampler_uniforms[i] == names[index]._id)
+				break;
+		}
+		if (index == countof(names))
 			continue;
-		const u32 index = stage - CASCADED_SHADOW_MAP_SLOT;
+		const u32 stage = CASCADED_SHADOW_MAP_SLOT + index;
 		if (!bgfx::isValid(textures[index])) {
 			bgfx::discard();
 			return false;
