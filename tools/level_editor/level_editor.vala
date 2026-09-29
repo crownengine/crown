@@ -520,6 +520,12 @@ public enum ToolType
 	COUNT
 }
 
+public enum ConsoleRuntime
+{
+	EDITOR,
+	GAME
+}
+
 public enum SnapMode
 {
 	RELATIVE,
@@ -1588,7 +1594,8 @@ public class LevelEditorApplication : Gtk.Application
 	public Statusbar _statusbar;
 	public Gtk.Box _main_vbox;
 	public Gtk.FileFilter _file_filter;
-	public Gtk.ComboBoxText _combo;
+	public Gtk.MenuButton _console_runtime_button;
+	public GLib.SimpleAction _console_runtime_action;
 	public NewProject _new_project;
 	public ProjectsList _projects_list;
 	public Gtk.Stack _main_stack;
@@ -1858,14 +1865,32 @@ public class LevelEditorApplication : Gtk.Application
 		_project_store = new ProjectStore(_project);
 
 		// Widgets
-		_combo = new Gtk.ComboBoxText();
-		_combo.set_tooltip_text(_("Runtime that will receive the message."));
-		_combo.append("editor", _("Editor"));
-		_combo.append("game", _("Game"));
-		_combo.set_active_id("editor");
-		_combo.set_size_request(50, -1);
+		_console_runtime_button = new Gtk.MenuButton();
+		_console_runtime_button.set_tooltip_text(_("Runtime that will receive the message."));
+		_console_runtime_button.set_label(_("Editor"));
+		_console_runtime_button.set_size_request(50, -1);
+		_console_runtime_action = new GLib.SimpleAction.stateful("console-runtime"
+			, new GLib.VariantType("i")
+			, new GLib.Variant.int32((int)ConsoleRuntime.EDITOR)
+			);
+		_console_runtime_action.activate.connect((target) => {
+			_console_runtime_action.set_state(target);
+			_console_runtime_button.set_label((ConsoleRuntime)target.get_int32() == ConsoleRuntime.EDITOR ? _("Editor") : _("Game"));
+		});
+		this.add_action(_console_runtime_action);
+		GLib.Menu runtime_menu = new GLib.Menu();
+		GLib.MenuItem editor_item = new GLib.MenuItem(_("Editor"), null);
+		editor_item.set_action_and_target_value("app.console-runtime", new GLib.Variant.int32((int)ConsoleRuntime.EDITOR));
+		runtime_menu.append_item(editor_item);
+		GLib.MenuItem game_item = new GLib.MenuItem(_("Game"), null);
+		game_item.set_action_and_target_value("app.console-runtime", new GLib.Variant.int32((int)ConsoleRuntime.GAME));
+		runtime_menu.append_item(game_item);
+#if CROWN_GTK3
+		_console_runtime_button.set_use_popover(true);
+#endif
+		_console_runtime_button.set_menu_model(runtime_menu);
 
-		_console_view = new ConsoleView(_project, _combo, _preferences_dialog);
+		_console_view = new ConsoleView(_project, _console_runtime_button, _preferences_dialog);
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache, _database);
 
 		_level_treeview = new ObjectTree(_database_editor);
@@ -2321,9 +2346,10 @@ public class LevelEditorApplication : Gtk.Application
 
 	public RuntimeInstance? current_selected_runtime()
 	{
-		if (_combo.get_active_id() == "editor")
+		ConsoleRuntime runtime = (ConsoleRuntime)_console_runtime_action.get_state().get_int32();
+		if (runtime == ConsoleRuntime.EDITOR)
 			return _editor;
-		else if (_combo.get_active_id() == "game")
+		else if (runtime == ConsoleRuntime.GAME)
 			return _game;
 		else
 			return null;
@@ -2408,7 +2434,7 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		on_runtime_connected(ri, address, port);
 
-		_combo.set_active_id("game");
+		_console_runtime_action.activate(new GLib.Variant.int32((int)ConsoleRuntime.GAME));
 	}
 
 	public void on_game_disconnected(RuntimeInstance ri)
@@ -2429,7 +2455,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 		_game_stop_spinner.stop();
 
-		_combo.set_active_id("editor");
+		_console_runtime_action.activate(new GLib.Variant.int32((int)ConsoleRuntime.EDITOR));
 #if CROWN_GTK3
 		_game_run_stop_image.set_from_icon_name(IconTheme.GAME_RUN, Gtk.IconSize.MENU);
 #else

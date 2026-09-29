@@ -160,7 +160,7 @@ public class ConsoleView : Gtk.Box
 	public int _completion_replace_start_byte;
 	public bool _history_navigation_active;
 
-	public ConsoleView(Project project, Gtk.ComboBoxText combo, PreferencesDialog preferences_dialog)
+	public ConsoleView(Project project, Gtk.MenuButton runtime_button, PreferencesDialog preferences_dialog)
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
@@ -300,13 +300,13 @@ public class ConsoleView : Gtk.Box
 
 		_entry_hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 #if CROWN_GTK3
-		_entry_hbox.pack_start(combo, false, false);
+		_entry_hbox.pack_start(runtime_button, false, false);
 		_entry_hbox.pack_start(_entry, true, true);
 
 		_entry_suggestions_popover = new Gtk.Popover(_entry);
 		_entry_suggestions_popover.set_modal(false);
 #else
-		_entry_hbox.append(combo);
+		_entry_hbox.append(runtime_button);
 		_entry_hbox.append(_entry);
 
 		_entry_suggestions_popover = new Gtk.Popover();
