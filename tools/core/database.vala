@@ -335,34 +335,34 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_null_action(uint32 action, Guid id, string key)
+	public void write_set_null_action(uint32 action, Guid id, uint32 property)
 	{
 		// No value to push
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_bool_action(uint32 action, Guid id, string key, bool val)
+	public void write_set_bool_action(uint32 action, Guid id, uint32 property, bool val)
 	{
 		write_bool(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_double_action(uint32 action, Guid id, string key, double val)
+	public void write_set_double_action(uint32 action, Guid id, uint32 property, double val)
 	{
 		write_double(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_string_action(uint32 action, Guid id, string key, string val)
+	public void write_set_string_action(uint32 action, Guid id, uint32 property, string val)
 	{
 		write_string(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
@@ -374,50 +374,50 @@ public class Stack
 		write_uint32(action);
 	}
 
-	public void write_set_vector3_action(uint32 action, Guid id, string key, Vector3 val)
+	public void write_set_vector3_action(uint32 action, Guid id, uint32 property, Vector3 val)
 	{
 		write_vector3(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_quaternion_action(uint32 action, Guid id, string key, Quaternion val)
+	public void write_set_quaternion_action(uint32 action, Guid id, uint32 property, Quaternion val)
 	{
 		write_quaternion(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_resource_action(uint32 action, Guid id, string key, Resource val)
+	public void write_set_resource_action(uint32 action, Guid id, uint32 property, Resource val)
 	{
 		write_string(val.name == null ? "" : val.name);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_set_reference_action(uint32 action, Guid id, string key, Guid val)
+	public void write_set_reference_action(uint32 action, Guid id, uint32 property, Guid val)
 	{
 		write_guid(val);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_add_to_set_action(uint32 action, Guid id, string key, Guid item_id)
+	public void write_add_to_set_action(uint32 action, Guid id, uint32 property, Guid item_id)
 	{
 		write_guid(item_id);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_remove_from_set_action(uint32 action, Guid id, string key, Guid item_id)
+	public void write_remove_from_set_action(uint32 action, Guid id, uint32 property, Guid item_id)
 	{
 		write_guid(item_id);
-		write_string(key);
+		write_uint32(property);
 		write_guid(id);
 		write_uint32(action);
 	}
@@ -829,7 +829,7 @@ public class Database
 				decode_object(object_id, GUID_ZERO, "", json);
 
 				// Create a mapping between the path and the object it has been loaded into.
-				set(0, GUID_ZERO, resource_path, object_id);
+				set(0, GUID_ZERO, ensure_property_index(GUID_ZERO, resource_path), object_id);
 
 				prune_stale_overrides(object_id);
 
@@ -968,11 +968,11 @@ public class Database
 					&& arr[0].holds(typeof(double))
 					&& k != "frames" // sprite_animation
 					)
-					set(0, id, k, decode_value(val));
+					set(0, id, ensure_property_index(id, k), decode_value(val));
 				else
 					decode_set(id, k, arr);
 			} else {
-				set(0, id, k, decode_value(val));
+				set(0, id, ensure_property_index(id, k), decode_value(val));
 			}
 
 			k = old_db;
@@ -1013,9 +1013,9 @@ public class Database
 					if (val.holds(typeof(string)))
 						res.name = (string)input[key];
 				}
-				set(0, id, def.name, res);
+				set(0, id, PROPERTY_FIRST + (uint32)property_i, res);
 			} else {
-				set(0, id, def.name, decode_value(input[key]));
+				set(0, id, PROPERTY_FIRST + (uint32)property_i, decode_value(input[key]));
 			}
 		}
 	}
@@ -1045,7 +1045,7 @@ public class Database
 		}
 
 		if (db_key == "" && json.contains("_prefab"))
-			set(0, id, "_prefab", Guid.parse((string)json["_prefab"]));
+			set(0, id, PROPERTY_PREFAB, Guid.parse((string)json["_prefab"]));
 		if (type == STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf))
 			convert_material(json);
 		else if (type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))
@@ -1063,6 +1063,7 @@ public class Database
 	{
 		// Set should be created even if it is empty.
 		create_empty_set(owner_id, key);
+		uint32 property = property_index(owner_id, StringId64(key));
 		StringId64 owner_type = object_type(owner_id);
 
 		for (int i = 0; i < json.length; ++i) {
@@ -1086,7 +1087,7 @@ public class Database
 			decode_object(obj_id, owner_id, "", obj);
 			assert(has_property(obj_id, "_type"));
 
-			add_to_set_internal(0, owner_id, key, obj_id);
+			add_to_set_internal(0, owner_id, property, obj_id);
 		}
 	}
 
@@ -1286,8 +1287,10 @@ public class Database
 	}
 
 	// Register undeclared keys when they are written.
-	private uint32 ensure_property_index(Guid id, string key)
+	public uint32 ensure_property_index(Guid id, string key)
 	{
+		assert(has_object(id));
+		assert(is_valid_key(id, key));
 		StringId64 key_id = StringId64(key);
 		uint32 property = find_property_index(id, key_id);
 		if (property != uint32.MAX)
@@ -1313,7 +1316,7 @@ public class Database
 		return index;
 	}
 
-	private string property_name(Guid id, uint32 property)
+	private unowned string property_name(Guid id, uint32 property)
 	{
 		if (property == PROPERTY_TYPE)
 			return "_type";
@@ -1353,19 +1356,19 @@ public class Database
 			values[property] = (owned)value;
 	}
 
-	public void set(int dir, Guid id, string key, Value? value)
+	public void set(int dir, Guid id, uint32 property, Value? value)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(value));
 
 		if (_debug)
-			logi("set_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
+			logi("set_property %s %s %s".printf(debug_string(id), property_name(id, property), debug_string(value)));
 
-		if (key == "_type" && value != null)
+		if (property == PROPERTY_TYPE && value != null && value.holds(typeof(string)))
 			set_type(id, StringId64((string)value));
 		else
-			set_local(id, ensure_property_index(id, key), value);
+			set_local(id, property, value);
 
 		if (_undo_redo != null)
 			_undo_redo._distance_from_last_sync += dir;
@@ -1379,17 +1382,16 @@ public class Database
 		set_local(id, ensure_property_index(id, key), guid_set_new());
 	}
 
-	public void add_to_set_internal(int dir, Guid id, string key, Guid item_id)
+	public void add_to_set_internal(int dir, Guid id, uint32 property, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
 
 		if (_debug)
-			logi("add_to_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
+			logi("add_to_set %s %s %s".printf(debug_string(id), property_name(id, property), debug_string(item_id)));
 
-		uint32 property = ensure_property_index(id, key);
 		unowned Value? value = property < _data[id].length ? get_local(id, property) : null;
 
 		if (value == null) {
@@ -1406,16 +1408,16 @@ public class Database
 			_undo_redo._distance_from_last_sync += dir;
 	}
 
-	public void remove_from_set_internal(int dir, Guid id, string key, Guid item_id)
+	public void remove_from_set_internal(int dir, Guid id, uint32 property, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(item_id != GUID_ZERO);
 
 		if (_debug)
-			logi("remove_from_set %s %s %s".printf(debug_string(id), key, debug_string(item_id)));
+			logi("remove_from_set %s %s %s".printf(debug_string(id), property_name(id, property), debug_string(item_id)));
 
-		((GLib.GenericSet<Guid?>)get_local(id, property_index(id, StringId64(key)))).remove(item_id);
+		((GLib.GenericSet<Guid?>)get_local(id, property)).remove(item_id);
 
 		set_owner(item_id, GUID_ZERO);
 
@@ -1578,35 +1580,35 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(null));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null) {
 				if (property == PROPERTY_TYPE)
 					_undo_redo._undo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 				if (ob[property].holds(typeof(bool)))
-					_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[property]);
+					_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, property, (bool)ob[property]);
 				if (ob[property].holds(typeof(double)))
-					_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[property]);
+					_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, property, (double)ob[property]);
 				if (ob[property].holds(typeof(string)))
-					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[property]);
+					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, property, (string)ob[property]);
 				if (ob[property].holds(typeof(Vector3)))
-					_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[property]);
+					_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, property, (Vector3)ob[property]);
 				if (ob[property].holds(typeof(Quaternion)))
-					_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[property]);
+					_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, property, (Quaternion)ob[property]);
 				if (ob[property].holds(typeof(Resource)))
-					_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, (Resource)ob[property]);
+					_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, property, (Resource)ob[property]);
 				if (ob[property].holds(typeof(Guid)))
-					_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[property]);
+					_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, property, (Guid)ob[property]);
 			} else {
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 			}
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, null);
+		set(1, id, property, null);
 	}
 
 	public void set_bool(Guid id, string key, bool val)
@@ -1614,19 +1616,19 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[property]);
+				_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, property, (bool)ob[property]);
 			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_double(Guid id, string key, double val)
@@ -1634,19 +1636,19 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)ob[property]);
+				_undo_redo._undo.write_set_double_action(Action.SET_DOUBLE, id, property, (double)ob[property]);
 			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_string(Guid id, string key, string val)
@@ -1654,23 +1656,23 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null) {
 				if (property == PROPERTY_TYPE)
 					_undo_redo._undo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 				else
-					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[property]);
+					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, property, (string)ob[property]);
 			} else {
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 			}
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_vector3(Guid id, string key, Vector3 val)
@@ -1678,19 +1680,19 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)ob[property]);
+				_undo_redo._undo.write_set_vector3_action(Action.SET_VECTOR3, id, property, (Vector3)ob[property]);
 			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_quaternion(Guid id, string key, Quaternion val)
@@ -1698,19 +1700,19 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)ob[property]);
+				_undo_redo._undo.write_set_quaternion_action(Action.SET_QUATERNION, id, property, (Quaternion)ob[property]);
 			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_resource(Guid id, string key, string? val)
@@ -1718,12 +1720,12 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property >= ob.length || ob[property] == null) {
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 			} else {
 				Value? old_value = ob[property];
 				Resource old_resource = { null };
@@ -1734,14 +1736,14 @@ public class Database
 					assert(old_value.holds(typeof(Resource)));
 					old_resource = (Resource)old_value;
 				}
-				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, key, old_resource);
+				_undo_redo._undo.write_set_resource_action(Action.SET_RESOURCE, id, property, old_resource);
 			}
 
 			_undo_redo._redo.clear();
 		}
 
 		Resource res = { val };
-		set(1, id, key, res);
+		set(1, id, property, res);
 	}
 
 	public void set_reference(Guid id, string key, Guid val)
@@ -1749,19 +1751,19 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(is_valid_value(val));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
-			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)ob[property]);
+				_undo_redo._undo.write_set_reference_action(Action.SET_REFERENCE, id, property, (Guid)ob[property]);
 			else
-				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, property);
 
 			_undo_redo._redo.clear();
 		}
 
-		set(1, id, key, val);
+		set(1, id, property, val);
 	}
 
 	public void set_property(Guid id, string key, Value? val)
@@ -1792,13 +1794,14 @@ public class Database
 		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
+		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
-			_undo_redo._undo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, key, item_id);
+			_undo_redo._undo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, property, item_id);
 			_undo_redo._redo.clear();
 		}
 
-		add_to_set_internal(1, id, key, item_id);
+		add_to_set_internal(1, id, property, item_id);
 	}
 
 	public void remove_from_set(Guid id, string key, Guid item_id)
@@ -1806,13 +1809,15 @@ public class Database
 		assert(has_object(id));
 		assert(is_valid_key(id, key));
 		assert(item_id != GUID_ZERO);
+		uint32 property = property_index(id, StringId64(key));
+		assert(property != uint32.MAX);
 
 		if (_undo_redo != null) {
-			_undo_redo._undo.write_add_to_set_action(Action.ADD_TO_SET, id, key, item_id);
+			_undo_redo._undo.write_add_to_set_action(Action.ADD_TO_SET, id, property, item_id);
 			_undo_redo._redo.clear();
 		}
 
-		remove_from_set_internal(1, id, key, item_id);
+		remove_from_set_internal(1, id, property, item_id);
 	}
 
 	public bool has_object(Guid id)
@@ -1825,10 +1830,9 @@ public class Database
 		return get_property(id, key) != null;
 	}
 
-	private bool has_local_property(Guid id, string key)
+	private bool has_local_property(Guid id, uint32 property)
 	{
-		uint32 property = find_property_index(id, StringId64(key));
-		return property != uint32.MAX && property < _data[id].length && get_local(id, property) != null;
+		return property < _data[id].length && get_local(id, property) != null;
 	}
 
 	private Guid legacy_mesh_material_source(GLib.GenericSet<Guid?> objects)
@@ -1851,7 +1855,7 @@ public class Database
 	private bool mesh_material_overrides_inherited_slot(Guid local_id, GLib.GenericSet<Guid?> objects)
 	{
 		if (object_type(local_id) != STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d)
-			|| !has_local_property(local_id, "data.slot")
+			|| !has_local_property(local_id, property_index(local_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe)))
 			)
 			return false;
 
@@ -1909,7 +1913,7 @@ public class Database
 					if (legacy_source == GUID_ZERO)
 						continue;
 					prefab_id = legacy_source;
-					set(0, id, "_prefab", prefab_id);
+					set(0, id, PROPERTY_PREFAB, prefab_id);
 					if (!merged.contains(prefab_id))
 						continue;
 				}
@@ -2364,124 +2368,123 @@ public class Database
 				redo.write_create_action(Action.CREATE, id, obj_type);
 			} else if (action == Action.SET_NULL) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
-				uint32 property = property_index(id, StringId64(key));
+				uint32 property = undo.read_uint32();
 				unowned Value? value = property < _data[id].length ? get_local(id, property) : null;
 
 				if (value != null) {
-					if (key == "_type")
+					if (property == PROPERTY_TYPE)
 						redo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 					if (value.holds(typeof(bool)))
-						redo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)value);
+						redo.write_set_bool_action(Action.SET_BOOL, id, property, (bool)value);
 					if (value.holds(typeof(double)))
-						redo.write_set_double_action(Action.SET_DOUBLE, id, key, (double)value);
+						redo.write_set_double_action(Action.SET_DOUBLE, id, property, (double)value);
 					if (value.holds(typeof(string)))
-						redo.write_set_string_action(Action.SET_STRING, id, key, (string)value);
+						redo.write_set_string_action(Action.SET_STRING, id, property, (string)value);
 					if (value.holds(typeof(Vector3)))
-						redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, (Vector3)value);
+						redo.write_set_vector3_action(Action.SET_VECTOR3, id, property, (Vector3)value);
 					if (value.holds(typeof(Quaternion)))
-						redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, (Quaternion)value);
+						redo.write_set_quaternion_action(Action.SET_QUATERNION, id, property, (Quaternion)value);
 					if (value.holds(typeof(Resource)))
-						redo.write_set_resource_action(Action.SET_RESOURCE, id, key, (Resource)value);
+						redo.write_set_resource_action(Action.SET_RESOURCE, id, property, (Resource)value);
 					if (value.holds(typeof(Guid)))
-						redo.write_set_reference_action(Action.SET_REFERENCE, id, key, (Guid)value);
+						redo.write_set_reference_action(Action.SET_REFERENCE, id, property, (Guid)value);
 				} else {
-					redo.write_set_null_action(Action.SET_NULL, id, key);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
 				}
-				set(dir, id, key, null);
+				set(dir, id, property, null);
 			} else if (action == Action.SET_BOOL) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				bool val = undo.read_bool();
 
-				if (has_local_property(id, key))
-					redo.write_set_bool_action(Action.SET_BOOL, id, key, get_bool(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_bool_action(Action.SET_BOOL, id, property, get_bool(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_DOUBLE) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				double val = undo.read_double();
 
-				if (has_local_property(id, key))
-					redo.write_set_double_action(Action.SET_DOUBLE, id, key, get_double(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_double_action(Action.SET_DOUBLE, id, property, get_double(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_STRING) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				string val = undo.read_string();
 
-				if (has_local_property(id, key))
-					redo.write_set_string_action(Action.SET_STRING, id, key, get_string(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_string_action(Action.SET_STRING, id, property, get_string(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_TYPE) {
 				Guid id = undo.read_guid();
 				StringId64 type = undo.read_string_id64();
-				if (has_local_property(id, "_type"))
+				if (has_local_property(id, PROPERTY_TYPE))
 					redo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, "_type");
+					redo.write_set_null_action(Action.SET_NULL, id, PROPERTY_TYPE);
 				set_type(id, type);
 				_undo_redo._distance_from_last_sync += dir;
 			} else if (action == Action.SET_VECTOR3) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Vector3 val = undo.read_vector3();
 
-				if (has_local_property(id, key))
-					redo.write_set_vector3_action(Action.SET_VECTOR3, id, key, get_vector3(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_vector3_action(Action.SET_VECTOR3, id, property, get_vector3(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_QUATERNION) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Quaternion val = undo.read_quaternion();
 
-				if (has_local_property(id, key))
-					redo.write_set_quaternion_action(Action.SET_QUATERNION, id, key, get_quaternion(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_quaternion_action(Action.SET_QUATERNION, id, property, get_quaternion(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_RESOURCE) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Resource val = undo.read_resource();
 
-				if (has_local_property(id, key))
-					redo.write_set_resource_action(Action.SET_RESOURCE, id, key, { get_resource(id, property_index(id, StringId64(key))) });
+				if (has_local_property(id, property))
+					redo.write_set_resource_action(Action.SET_RESOURCE, id, property, { get_resource(id, property) });
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.SET_REFERENCE) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Guid val = undo.read_guid();
 
-				if (has_local_property(id, key))
-					redo.write_set_reference_action(Action.SET_REFERENCE, id, key, get_reference(id, property_index(id, StringId64(key))));
+				if (has_local_property(id, property))
+					redo.write_set_reference_action(Action.SET_REFERENCE, id, property, get_reference(id, property));
 				else
-					redo.write_set_null_action(Action.SET_NULL, id, key);
-				set(dir, id, key, val);
+					redo.write_set_null_action(Action.SET_NULL, id, property);
+				set(dir, id, property, val);
 			} else if (action == Action.ADD_TO_SET) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Guid item_id = undo.read_guid();
 
-				redo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, key, item_id);
-				add_to_set_internal(dir, id, key, item_id);
+				redo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, property, item_id);
+				add_to_set_internal(dir, id, property, item_id);
 			} else if (action == Action.REMOVE_FROM_SET) {
 				Guid id = undo.read_guid();
-				string key = undo.read_string();
+				uint32 property = undo.read_uint32();
 				Guid item_id = undo.read_guid();
 
-				redo.write_add_to_set_action(Action.ADD_TO_SET, id, key, item_id);
-				remove_from_set_internal(dir, id, key, item_id);
+				redo.write_add_to_set_action(Action.ADD_TO_SET, id, property, item_id);
+				remove_from_set_internal(dir, id, property, item_id);
 			}
 		}
 	}

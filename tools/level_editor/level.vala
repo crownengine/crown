@@ -355,10 +355,10 @@ public class Level
 
 	public void on_camera(GLib.HashTable<string, Value?> msg)
 	{
-		_db.set(0, _id, "editor.camera.position", Vector3.from_array((GLib.GenericArray<Value?>)msg["position"]));
-		_db.set(0, _id, "editor.camera.rotation", Quaternion.from_array((GLib.GenericArray<Value?>)msg["rotation"]));
-		_db.set(0, _id, "editor.camera.orthographic_size", (double)msg["orthographic_size"]);
-		_db.set(0, _id, "editor.camera.target_distance", (double)msg["target_distance"]);
+		_db.set(0, _id, _db.property_index(_id, STRING_ID_64("editor.camera.position", 0x3b9ff144c72f4c83)), Vector3.from_array((GLib.GenericArray<Value?>)msg["position"]));
+		_db.set(0, _id, _db.property_index(_id, STRING_ID_64("editor.camera.rotation", 0xc7df9e055172f68e)), Quaternion.from_array((GLib.GenericArray<Value?>)msg["rotation"]));
+		_db.set(0, _id, _db.property_index(_id, STRING_ID_64("editor.camera.orthographic_size", 0x7440577c22811692)), (double)msg["orthographic_size"]);
+		_db.set(0, _id, _db.property_index(_id, STRING_ID_64("editor.camera.target_distance", 0x10a29a9ca45da49f)), (double)msg["target_distance"]);
 	}
 }
 

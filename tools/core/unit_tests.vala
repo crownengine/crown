@@ -312,6 +312,9 @@ private static void test_database()
 		db.create(id, StringId64("object"));
 		undo_redo.reset();
 
+		db.set_string(id, "dynamic", "value");
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id });
+		uint32 dynamic_property = db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a));
 		db.set_string(id, "_type", "other");
 		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id });
 		assert(db.object_type(id) == StringId64("other"));
@@ -320,8 +323,39 @@ private static void test_database()
 		assert(type_id == StringId64("other"));
 		db.undo();
 		assert(db.object_type(id) == StringId64("object"));
+		db.undo();
+		assert(db.get_property(id, "dynamic") == null);
+		db.redo();
+		assert(db.get_string(id, dynamic_property) == "value");
 		db.redo();
 		assert(db.object_type(id) == StringId64("other"));
+	}
+	{
+		UndoRedo undo_redo = new UndoRedo();
+		Database db = new Database(p, undo_redo);
+		db.create_object_type("object", props);
+		Guid id = Guid.new_guid();
+		Guid child = Guid.new_guid();
+		db.create(id, StringId64("object"));
+		db.create(child, StringId64("object"));
+		undo_redo.reset();
+
+		db.add_to_set(id, "dynamic_set", child);
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id, child });
+		uint32 property = db.property_index(id, StringId64("dynamic_set"));
+		assert(db.get_set(id, property).length == 1);
+		db.undo();
+		assert(db.get_set(id, property).length == 0);
+		db.redo();
+		assert(db.get_set(id, property).length == 1);
+
+		db.remove_from_set(id, "dynamic_set", child);
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id, child });
+		assert(db.get_set(id, property).length == 0);
+		db.undo();
+		assert(db.get_set(id, property).length == 1);
+		db.redo();
+		assert(db.get_set(id, property).length == 0);
 	}
 	{
 		Database db = new Database(p);
