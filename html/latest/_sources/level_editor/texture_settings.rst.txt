@@ -56,7 +56,7 @@ Mip-mapping
 Control mipmap generation with these options:
 
 * ``Generate Mips``: enable or disable automatic mipmap generation.
-* ``Skip Smallest Mips``: skip generation of the N smallest mip levels to save space.
+* ``Skip Largest Mips``: skip generation of the N largest mip levels to save space.
 
 Other flags
 ~~~~~~~~~~~
