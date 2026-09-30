@@ -20,6 +20,36 @@ private static void test_string()
 	assert(print_max_decimals(buffer, double.MAX, 5).length == 309);
 }
 
+private static void test_sjson()
+{
+	stdout.printf("test_sjson\n");
+	string sjson = "name = \"plain\"\nescaped = \"a\\\"b\"\n";
+	try {
+		for (int i = 0; i < 2; ++i) {
+			GLib.HashTable<string, Value?> parsed = SJSON.decode(sjson.data[0 : sjson.length]);
+			assert((string)parsed["name"] == "plain");
+			assert((string)parsed["escaped"] == "a\"b");
+		}
+	} catch (JsonSyntaxError e) {
+		assert_not_reached();
+	}
+}
+
+private static void test_json()
+{
+	stdout.printf("test_json\n");
+	string json = "{\"name\":\"plain\",\"escaped\":\"a\\\"b\"}";
+	try {
+		for (int i = 0; i < 2; ++i) {
+			GLib.HashTable<string, Value?> parsed = (GLib.HashTable<string, Value?>)JSON.decode(json.data[0 : json.length]);
+			assert((string)parsed["name"] == "plain");
+			assert((string)parsed["escaped"] == "a\"b");
+		}
+	} catch (JsonSyntaxError e) {
+		assert_not_reached();
+	}
+}
+
 private static bool contains_guid(Guid?[] ids, Guid id)
 {
 	foreach (unowned Guid? member in ids) {
@@ -1605,6 +1635,8 @@ private static void test_inherited_lod_levels()
 public static int main_unit_tests()
 {
 	test_string();
+	test_sjson();
+	test_json();
 	test_database();
 	test_duplicate_unit_tree();
 	test_mesh_resource();
