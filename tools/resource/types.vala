@@ -155,7 +155,7 @@ public static void material_enum_callback(InputField property_enum, InputEnum co
 
 public static void mesh_material_name_aspect(out string name, Database database, Guid id)
 {
-	name = database.get_string(id, "data.slot");
+	name = database.get_string(id, database.property_index(id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe)));
 }
 
 public static void create_object_types(Database database)
@@ -2388,7 +2388,7 @@ public static void create_object_types(Database database)
 	database.set_aspect(node_animation_type
 		, StringId64("name")
 		, (out name, database, id) => {
-			string? anim_name = database.get_resource(id, "name");
+			string? anim_name = database.get_resource(id, database.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b)));
 			name = anim_name == null ? "(None)" : GLib.Path.get_basename(anim_name);
 		});
 
@@ -2422,9 +2422,9 @@ public static void create_object_types(Database database)
 		, StringId64("name")
 		, (out name, database, id) => {
 			string node_name = "Unknown";
-			Guid to_node = database.get_reference(id, "to");
+			Guid to_node = database.get_reference(id, database.property_index(id, STRING_ID_64("to", 0x9558f59f36417bc6)));
 			if (to_node != GUID_ZERO)
-				node_name = database.get_string(to_node, "name");
+				node_name = database.get_string(to_node, database.property_index(to_node, STRING_ID_64("name", 0xd4c943cba60c270b)));
 			name = "To %s".printf(node_name);
 		});
 

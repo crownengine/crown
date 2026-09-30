@@ -119,7 +119,7 @@ public class UnitView : PropertyGrid
 
 		GLib.HashTable<string, double?> category_orders = new GLib.HashTable<string, double?>(GLib.str_hash, GLib.str_equal);
 		Unit._component_registry.foreach((component_type, _value) => {
-				ObjectTypeInfo info = db.type_info(StringId64(component_type));
+				unowned ObjectTypeInfo? info = db.type_info(StringId64(component_type));
 				string? category = info.ui_category;
 				if (category != null
 				&& (!category_orders.contains(category) || info.ui_order < category_orders[category])
@@ -128,7 +128,7 @@ public class UnitView : PropertyGrid
 			});
 
 		Unit._component_registry.foreach((component_type, _value) => {
-				ObjectTypeInfo info = db.type_info(StringId64(component_type));
+				unowned ObjectTypeInfo? info = db.type_info(StringId64(component_type));
 				string category = info.ui_category != null ? info.ui_category : _("Other");
 				double category_order = info.ui_category != null
 				? category_orders[info.ui_category]
@@ -334,7 +334,7 @@ public class UnitView : PropertyGrid
 
 	public override void read_properties()
 	{
-		string? prefab = _db.get_resource(_id, "prefab");
+		string? prefab = _db.get_resource(_id, _db.property_index(_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 		_prefab.value_changed.disconnect(on_prefab_value_changed);
 		_prefab.value = prefab;
 		_prefab.value_changed.connect(on_prefab_value_changed);

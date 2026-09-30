@@ -1169,7 +1169,7 @@ public class ObjectTree : Gtk.Box
 				if (def.type != PropertyType.OBJECTS_SET || !_database.has_property(owner_id, def.name))
 					continue;
 
-				Guid?[] children = _database.get_set(owner_id, def.name);
+				Guid?[] children = _database.get_set(owner_id, _database.property_index(owner_id, StringId64(def.name)));
 				foreach (unowned Guid? child_id in children) {
 					if (!Guid.equal_func(child_id, id))
 						continue;
@@ -1202,7 +1202,7 @@ public class ObjectTree : Gtk.Box
 		Guid?[] children = {};
 		var desired = new GLib.HashTable<Guid?, bool?>(Guid.hash_func, Guid.equal_func);
 		if (_database.has_property(owner_id, def.name)) {
-			children = _database.get_set(owner_id, def.name);
+			children = _database.get_set(owner_id, _database.property_index(owner_id, StringId64(def.name)));
 			foreach (unowned Guid? child_id in children)
 				desired.insert(child_id, true);
 		}
@@ -1419,7 +1419,7 @@ public class ObjectTree : Gtk.Box
 			if (!_database.has_property(id, def.name))
 				continue;
 
-			Guid?[] children = _database.get_set(id, def.name);
+			Guid?[] children = _database.get_set(id, _database.property_index(id, StringId64(def.name)));
 			foreach (unowned Guid? child_id in children)
 				insert_object_child(children_parent, child_id, set_key);
 		}
@@ -1446,7 +1446,7 @@ public class ObjectTree : Gtk.Box
 
 		if (id != GUID_ZERO) {
 			if (show_root) {
-				ObjectTypeInfo info = _database.type_info(StringId64(_database.object_type(id)));
+				unowned ObjectTypeInfo? info = _database.type_info(StringId64(_database.object_type(id)));
 				int object_kind;
 				string object_icon;
 				object_aspect(id, out object_kind, out object_icon);

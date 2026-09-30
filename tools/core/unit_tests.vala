@@ -121,6 +121,164 @@ private static void test_database()
 		},
 	};
 
+	// Declared and undeclared keys share the object type's schema.
+	{
+		Database db = new Database(p);
+		db.create_object_type("object", props);
+		PropertyDefinition[] other_props =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING, name = "name"
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL, name = "b"
+			},
+		};
+		db.create_object_type("other", other_props);
+		Guid a = Guid.new_guid();
+		Guid b = Guid.new_guid();
+		Guid other = Guid.new_guid();
+		db.create(a, "object");
+		db.create(b, "object");
+		db.create(other, "other");
+		uint32 bool_index = 0;
+		assert(db.find_property(ref bool_index, StringId64("object"), PropertyType.BOOL, "b"));
+		assert(db.property_index(a, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == bool_index);
+		assert(db.property_index(other, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == 5u);
+		assert(db.property_index(a, STRING_ID_64("_prefab", 0xeb91306c1265f913)) == 3u);
+		unowned ObjectTypeInfo? object_info = db.type_info(StringId64("object"));
+		int num_properties = object_info.property_name_ids.length;
+		string missing_key = "deleted_components.#" + Guid.new_guid().to_string();
+		assert(db.property_index(a, StringId64(missing_key)) == uint32.MAX);
+		assert(db.get_property(a, missing_key) == null);
+		assert(!db.has_property(b, missing_key));
+		assert((string)db.get_property(a, missing_key, "fallback") == "fallback");
+		assert(db.get_string(a, db.property_index(a, StringId64(missing_key)), "fallback") == "fallback");
+		assert(object_info.property_name_ids.length == num_properties);
+
+		string key_a = "modified_components.#" + Guid.new_guid().to_string() + ".name";
+		string key_b = "modified_components.#" + Guid.new_guid().to_string() + ".name";
+		db.set_string(a, key_a, "a");
+		assert(db.get_string(b, db.property_index(b, StringId64(key_a)), "missing") == "missing");
+		db.set_string(b, key_b, "b");
+		assert(db.property_index(a, StringId64(key_a)) == db.property_index(b, StringId64(key_a)));
+		assert(db.property_index(a, StringId64(key_a)) != db.property_index(b, StringId64(key_b)));
+		assert(db.get_string(a, db.property_index(a, StringId64(key_a))) == "a");
+		assert(db.get_string(b, db.property_index(b, StringId64(key_b))) == "b");
+		assert(db.get_string(b, db.property_index(b, StringId64(key_a)), "missing") == "missing");
+		int num_properties_before_read = object_info.property_name_ids.length;
+		assert(db.property_index(b, STRING_ID_64("unused", 0x67b793809e581fd6)) == uint32.MAX);
+		assert(!db.has_property(b, "unused"));
+		assert(db.get_set(b, db.property_index(b, STRING_ID_64("unused", 0x67b793809e581fd6))).length == 0);
+		assert(object_info.property_name_ids.length == num_properties_before_read);
+		db.set_null(b, "unused");
+		assert(db._data[b].length > db.property_index(b, STRING_ID_64("unused", 0x67b793809e581fd6)));
+		assert(!db.has_property(b, "unused"));
+
+		int num_properties_before_prefab = object_info.property_name_ids.length;
+		Guid instance = Guid.new_guid();
+		db.create_from_prefab(instance, a);
+		assert(object_info.property_name_ids.length == num_properties_before_prefab);
+		assert(db.get_string(instance, db.property_index(instance, StringId64(key_a))) == "a");
+		assert(db.property_index(instance, StringId64(key_a)) == db.property_index(a, StringId64(key_a)));
+
+		Database dest = new Database(p);
+		dest.create_object_type("object", props);
+		Guid copy = Guid.new_guid();
+		db.duplicate_one(a, copy, dest);
+		assert(dest.get_string(copy, dest.property_index(copy, StringId64(key_a))) == "a");
+
+		Guid cleared = Guid.new_guid();
+		Guid cleared_copy = Guid.new_guid();
+		db.create(cleared, "object");
+		db.set_null(cleared, "s");
+		db.duplicate_one(cleared, cleared_copy, dest);
+		assert(!dest.has_property(cleared_copy, "s"));
+		assert(dest.get_property(cleared_copy, "set") != null);
+		assert(dest.get_set(cleared_copy, dest.property_index(cleared_copy, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
+	}
+	{
+		Database db = new Database(p);
+		Guid id = Guid.new_guid();
+		db.create(id, "late");
+		db.set_string(id, "dynamic", "value");
+		db.set_bool(id, "b", true);
+		PropertyDefinition[] late_props =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.BOOL, name = "b"
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING, name = "name"
+			},
+		};
+		db.create_object_type("late", late_props);
+		assert(db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a)) == 4u);
+		assert(db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == 5u);
+		assert(db.get_bool(id, 5u));
+		assert(db.get_string(id, db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a))) == "value");
+		unowned ObjectTypeInfo? info = db.type_info(StringId64("late"));
+		assert(info.property_names.length == info.property_name_ids.length);
+		assert(info.property_names.length == info.property_definitions.length);
+		assert(info.property_name_ids[0] == StringId64("dynamic"));
+		assert(info.property_names[0] == "dynamic" && info.property_definitions[0].declaration_order == -1);
+		assert(info.property_names[1] == "b" && info.property_definitions[1].type == PropertyType.BOOL);
+		uint32 dynamic_index = 0;
+		assert(!db.find_property(ref dynamic_index, StringId64("late"), PropertyType.BOOL, "dynamic"));
+		unowned PropertyDefinition[] declared = db.object_definition(StringId64("late"));
+		assert(declared.length == 2);
+		assert(declared[0].name == "b" && declared[1].name == "name");
+	}
+	{
+		Database db = new Database(p);
+		PropertyDefinition[] unit_props =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.OBJECTS_SET, name = "children", object_type = StringId64("unit")
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING, name = "name"
+			},
+		};
+		db.create_object_type("unit", unit_props);
+		Guid root_id = Guid.new_guid();
+		Guid child_id = Guid.new_guid();
+		GLib.HashTable<string, Value?> child = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		child["_guid"] = child_id.to_string();
+		child["_type"] = "unit";
+		child["dynamic"] = "child";
+		GLib.GenericArray<Value?> children = new GLib.GenericArray<Value?>();
+		children.add(child);
+		GLib.HashTable<string, Value?> root = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
+		root["_guid"] = root_id.to_string();
+		root["_type"] = "unit";
+		root["children"] = children;
+		root["name"] = "root";
+		GLib.GenericArray<Value?> roots = new GLib.GenericArray<Value?>();
+		roots.add(root);
+		db.decode_set(GUID_ZERO, "objects", roots);
+		assert(db.get_string(root_id, db.property_index(root_id, STRING_ID_64("name", 0xd4c943cba60c270b))) == "root");
+		assert(db.get_string(child_id, db.property_index(child_id, STRING_ID_64("dynamic", 0x3995d0559a810e3a))) == "child");
+	}
+	{
+		Database db = new Database(p);
+		db.create_object_type("object", props);
+		Guid id = Guid.new_guid();
+		Guid child = Guid.new_guid();
+		db.create(id, "object");
+		db.create(child, "object");
+		db.add_to_set(id, "set", child);
+		Value? set_value = db.get_property(id, "set");
+		((GLib.GenericSet<Guid?>)set_value).remove(child);
+		assert(db.get_set(id, db.property_index(id, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
+	}
+
 	// Read property defaults.
 	// Read a bool property default.
 	{
@@ -129,7 +287,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(db.get_bool(id, "b") == true);
+		assert(db.get_bool(id, db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == true);
 	}
 
 	// Read a double property default.
@@ -139,7 +297,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(db.get_double(id, "d") == 1.0);
+		assert(db.get_double(id, db.property_index(id, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 1.0);
 	}
 
 	// Read a string property default.
@@ -149,7 +307,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(db.get_string(id, "s") == "a");
+		assert(db.get_string(id, db.property_index(id, STRING_ID_64("s", 0xe5db19474a903141))) == "a");
 	}
 
 	// Read a vector property default.
@@ -159,7 +317,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(Vector3.equal_func(db.get_vector3(id, "v"), Vector3(1.0, 2.0, 3.0)));
+		assert(Vector3.equal_func(db.get_vector3(id, db.property_index(id, STRING_ID_64("v", 0x039e135b4a2b31d2))), Vector3(1.0, 2.0, 3.0)));
 	}
 
 	// Read a quaternion property default.
@@ -169,7 +327,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(Quaternion.equal_func(db.get_quaternion(id, "q"), Quaternion(1.0, 2.0, 3.0, 4.0)));
+		assert(Quaternion.equal_func(db.get_quaternion(id, db.property_index(id, STRING_ID_64("q", 0x7af8d99b413c664f))), Quaternion(1.0, 2.0, 3.0, 4.0)));
 	}
 
 	// Read a resource property default.
@@ -179,7 +337,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(db.get_resource(id, "r") == "a");
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "a");
 	}
 
 	// Read a reference property default.
@@ -189,7 +347,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(Guid.equal_func(db.get_reference(id, "ref"), GUID_ZERO));
+		assert(Guid.equal_func(db.get_reference(id, db.property_index(id, STRING_ID_64("ref", 0x83fe77400dff8939))), GUID_ZERO));
 	}
 
 	// Read an objects set property default.
@@ -199,7 +357,7 @@ private static void test_database()
 		Guid id = Guid.new_guid();
 		db.create(id, "object");
 
-		assert(db.get_set(id, "set").length == 0);
+		assert(db.get_set(id, db.property_index(id, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
 	}
 
 	// Write each property type.
@@ -211,7 +369,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_bool(id, "b", false);
-		assert(db.get_bool(id, "b") == false);
+		assert(db.get_bool(id, db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == false);
 	}
 
 	// Write a double property.
@@ -222,7 +380,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_double(id, "d", 2.0);
-		assert(db.get_double(id, "d") == 2.0);
+		assert(db.get_double(id, db.property_index(id, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 2.0);
 	}
 
 	// Write a string property.
@@ -233,7 +391,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_string(id, "s", "b");
-		assert(db.get_string(id, "s") == "b");
+		assert(db.get_string(id, db.property_index(id, STRING_ID_64("s", 0xe5db19474a903141))) == "b");
 	}
 
 	// Write a vector property.
@@ -244,7 +402,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_vector3(id, "v", Vector3(4.0, 5.0, 6.0));
-		assert(Vector3.equal_func(db.get_vector3(id, "v"), Vector3(4.0, 5.0, 6.0)));
+		assert(Vector3.equal_func(db.get_vector3(id, db.property_index(id, STRING_ID_64("v", 0x039e135b4a2b31d2))), Vector3(4.0, 5.0, 6.0)));
 	}
 
 	// Write a quaternion property.
@@ -255,7 +413,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_quaternion(id, "q", Quaternion(5.0, 6.0, 7.0, 8.0));
-		assert(Quaternion.equal_func(db.get_quaternion(id, "q"), Quaternion(5.0, 6.0, 7.0, 8.0)));
+		assert(Quaternion.equal_func(db.get_quaternion(id, db.property_index(id, STRING_ID_64("q", 0x7af8d99b413c664f))), Quaternion(5.0, 6.0, 7.0, 8.0)));
 	}
 
 	// Write a resource property.
@@ -266,7 +424,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_resource(id, "r", "b");
-		assert(db.get_resource(id, "r") == "b");
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "b");
 	}
 
 	// Write a reference property.
@@ -279,7 +437,7 @@ private static void test_database()
 		db.create(to, "object");
 
 		db.set_reference(id, "ref", to);
-		assert(Guid.equal_func(db.get_reference(id, "ref"), to));
+		assert(Guid.equal_func(db.get_reference(id, db.property_index(id, STRING_ID_64("ref", 0x83fe77400dff8939))), to));
 	}
 
 	// Write a null resource.
@@ -290,7 +448,7 @@ private static void test_database()
 		db.create(id, "object");
 
 		db.set_resource(id, "r", null);
-		assert(db.get_resource(id, "r") == null);
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == null);
 	}
 
 	// Replace a string-backed resource value.
@@ -308,13 +466,13 @@ private static void test_database()
 
 		db.set_resource(id, "r", "b");
 		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id });
-		assert(db.get_resource(id, "r") == "b");
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "b");
 
 		db.undo();
-		assert(db.get_resource(id, "r") == "a");
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "a");
 
 		db.redo();
-		assert(db.get_resource(id, "r") == "b");
+		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "b");
 	}
 
 	// Add and remove an object from a set.
@@ -329,7 +487,7 @@ private static void test_database()
 
 		db.add_to_set(root, "set", child);
 
-		Guid?[] ids = db.get_set(root, "set");
+		Guid?[] ids = db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(ids.length == 1);
 		assert(Guid.equal_func(ids[0], child));
 		assert(Guid.equal_func(db.owner(child), root));
@@ -347,7 +505,7 @@ private static void test_database()
 
 		db.remove_from_set(root, "set", child);
 
-		assert(db.get_set(root, "set").length == 0);
+		assert(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
 		assert(Guid.equal_func(db.owner(child), GUID_ZERO));
 	}
 
@@ -363,7 +521,7 @@ private static void test_database()
 		db.add_to_set(root, "set", child);
 		db.add_to_set(root, "set", child);
 
-		assert(db.get_set(root, "set").length == 1);
+		assert(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
 	}
 
 	// Skip dead objects in sets.
@@ -378,7 +536,7 @@ private static void test_database()
 
 		db.destroy(child);
 
-		assert(db.get_set(root, "set").length == 0);
+		assert(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
 	}
 
 	// Destroy an object.
@@ -447,7 +605,7 @@ private static void test_database()
 		db.duplicate_one(root, copy);
 
 		assert(db._data.size() == 6);
-		assert(db.get_set(copy, "set").length == 1);
+		assert(db.get_set(copy, db.property_index(copy, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
 	}
 
 	// Remap internal references when duplicating.
@@ -464,9 +622,9 @@ private static void test_database()
 
 		db.duplicate_one(root, copy);
 
-		Guid?[] ids = db.get_set(copy, "set");
+		Guid?[] ids = db.get_set(copy, db.property_index(copy, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(ids.length == 1);
-		assert(Guid.equal_func(db.get_reference(copy, "ref"), ids[0]));
+		assert(Guid.equal_func(db.get_reference(copy, db.property_index(copy, STRING_ID_64("ref", 0x83fe77400dff8939))), ids[0]));
 	}
 
 	// Preserve external references when duplicating.
@@ -482,7 +640,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(Guid.equal_func(db.get_reference(copy, "ref"), to));
+		assert(Guid.equal_func(db.get_reference(copy, db.property_index(copy, STRING_ID_64("ref", 0x83fe77400dff8939))), to));
 	}
 
 	// Remap references between duplicated roots.
@@ -500,8 +658,8 @@ private static void test_database()
 
 		db.duplicate({ a, b }, { ca, cb });
 
-		assert(Guid.equal_func(db.get_reference(ca, "ref"), cb));
-		assert(Guid.equal_func(db.get_reference(cb, "ref"), ca));
+		assert(Guid.equal_func(db.get_reference(ca, db.property_index(ca, STRING_ID_64("ref", 0x83fe77400dff8939))), cb));
+		assert(Guid.equal_func(db.get_reference(cb, db.property_index(cb, STRING_ID_64("ref", 0x83fe77400dff8939))), ca));
 	}
 
 	// Add duplicated roots to their set.
@@ -521,7 +679,7 @@ private static void test_database()
 
 		db.duplicate_and_add_to_set({ a, b }, { ca, cb });
 
-		Guid?[] ids = db.get_set(root, "set");
+		Guid?[] ids = db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(ids.length == 4);
 		assert(contains_guid(ids, ca));
 		assert(contains_guid(ids, cb));
@@ -554,23 +712,23 @@ private static void test_database()
 			else
 				db.duplicate_and_add_to_set({ b, a }, { cb, ca });
 
-			assert(db.get_set(root, "set").length == 2);
-			assert(contains_guid(db.get_set(root, "set"), a));
-			assert(contains_guid(db.get_set(root, "set"), ca));
-			assert(db.get_set(parent, "set").length == 1);
-			assert(contains_guid(db.get_set(parent, "set"), b));
+			assert(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 2);
+			assert(contains_guid(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))), a));
+			assert(contains_guid(db.get_set(root, db.property_index(root, STRING_ID_64("set", 0x237afba9ce4e06bf))), ca));
+			assert(db.get_set(parent, db.property_index(parent, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
+			assert(contains_guid(db.get_set(parent, db.property_index(parent, STRING_ID_64("set", 0x237afba9ce4e06bf))), b));
 			assert(Guid.equal_func(db.owner(b), parent));
-			assert(db.get_set(ca, "set").length == 1);
+			assert(db.get_set(ca, db.property_index(ca, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
 			Guid copied_parent = ca;
 			if (depth == 2) {
-				assert(db.get_set(a, "set").length == 1);
-				assert(contains_guid(db.get_set(a, "set"), parent));
-				copied_parent = db.get_set(ca, "set")[0];
+				assert(db.get_set(a, db.property_index(a, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
+				assert(contains_guid(db.get_set(a, db.property_index(a, STRING_ID_64("set", 0x237afba9ce4e06bf))), parent));
+				copied_parent = db.get_set(ca, db.property_index(ca, STRING_ID_64("set", 0x237afba9ce4e06bf)))[0];
 				assert(!Guid.equal_func(copied_parent, parent));
 				assert(Guid.equal_func(db.owner(copied_parent), ca));
 			}
-			assert(db.get_set(copied_parent, "set").length == 1);
-			assert(contains_guid(db.get_set(copied_parent, "set"), cb));
+			assert(db.get_set(copied_parent, db.property_index(copied_parent, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 1);
+			assert(contains_guid(db.get_set(copied_parent, db.property_index(copied_parent, STRING_ID_64("set", 0x237afba9ce4e06bf))), cb));
 			assert(Guid.equal_func(db.owner(cb), copied_parent));
 			assert(Guid.equal_func(db.owner(ca), root));
 			assert(db._data.size() == 2 + 2 * (depth + 1));
@@ -589,7 +747,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(db.get_bool(copy, "b") == false);
+		assert(db.get_bool(copy, db.property_index(copy, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == false);
 	}
 
 	// Copy a double property when duplicating.
@@ -603,7 +761,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(db.get_double(copy, "d") == 2.0);
+		assert(db.get_double(copy, db.property_index(copy, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 2.0);
 	}
 
 	// Copy a string property when duplicating.
@@ -617,7 +775,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(db.get_string(copy, "s") == "b");
+		assert(db.get_string(copy, db.property_index(copy, STRING_ID_64("s", 0xe5db19474a903141))) == "b");
 	}
 
 	// Copy a vector property when duplicating.
@@ -631,7 +789,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(Vector3.equal_func(db.get_vector3(copy, "v"), Vector3(4.0, 5.0, 6.0)));
+		assert(Vector3.equal_func(db.get_vector3(copy, db.property_index(copy, STRING_ID_64("v", 0x039e135b4a2b31d2))), Vector3(4.0, 5.0, 6.0)));
 	}
 
 	// Copy a quaternion property when duplicating.
@@ -645,7 +803,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(Quaternion.equal_func(db.get_quaternion(copy, "q"), Quaternion(5.0, 6.0, 7.0, 8.0)));
+		assert(Quaternion.equal_func(db.get_quaternion(copy, db.property_index(copy, STRING_ID_64("q", 0x7af8d99b413c664f))), Quaternion(5.0, 6.0, 7.0, 8.0)));
 	}
 
 	// Copy a resource property when duplicating.
@@ -659,7 +817,7 @@ private static void test_database()
 
 		db.duplicate_one(id, copy);
 
-		assert(db.get_resource(copy, "r") == "b");
+		assert(db.get_resource(copy, db.property_index(copy, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "b");
 	}
 
 	// Reuse supplied IDs when duplicated roots overlap.
@@ -676,7 +834,7 @@ private static void test_database()
 
 		db.duplicate({ root, child }, { copy, cc });
 
-		Guid?[] ids = db.get_set(copy, "set");
+		Guid?[] ids = db.get_set(copy, db.property_index(copy, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(db._data.size() == 5);
 		assert(ids.length == 1);
 		assert(Guid.equal_func(ids[0], cc));
@@ -701,7 +859,7 @@ private static void test_database()
 
 		db.decode_object(root, GUID_ZERO, "", json);
 
-		assert(db.get_set(root, "children").length == 1);
+		assert(db.get_set(root, db.property_index(root, STRING_ID_64("children", 0x6fbb13de0e1dce0d))).length == 1);
 		assert(db._data.size() == 3);
 	}
 
@@ -715,9 +873,9 @@ private static void test_database()
 		Guid inst = Guid.new_guid();
 		db.create_from_prefab(inst, src);
 
-		assert(!db.get_data(inst).contains("s"));
+		assert(db._data[inst].length <= db.property_index(inst, STRING_ID_64("s", 0xe5db19474a903141)) || db._data[inst][db.property_index(inst, STRING_ID_64("s", 0xe5db19474a903141))] == null);
 		db.set_string(src, "s", "from source");
-		assert(db.get_string(inst, "s") == "from source");
+		assert(db.get_string(inst, db.property_index(inst, STRING_ID_64("s", 0xe5db19474a903141))) == "from source");
 	}
 
 	// Preserve a local property override.
@@ -733,7 +891,7 @@ private static void test_database()
 		db.set_string(inst, "s", "local");
 		db.set_string(src, "s", "source after");
 
-		assert(db.get_string(inst, "s") == "local");
+		assert(db.get_string(inst, db.property_index(inst, STRING_ID_64("s", 0xe5db19474a903141))) == "local");
 	}
 
 	// Clear a local property override.
@@ -749,7 +907,7 @@ private static void test_database()
 
 		db.set_null(inst, "b");
 
-		assert(db.get_bool(inst, "b") == false);
+		assert(db.get_bool(inst, db.property_index(inst, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == false);
 	}
 
 	// Preserve inheritance when duplicating an instance.
@@ -765,9 +923,9 @@ private static void test_database()
 
 		db.duplicate_one(inst, copy);
 
-		assert(!db.get_data(copy).contains("s"));
+		assert(db._data[copy].length <= db.property_index(copy, STRING_ID_64("s", 0xe5db19474a903141)) || db._data[copy][db.property_index(copy, STRING_ID_64("s", 0xe5db19474a903141))] == null);
 		db.set_string(src, "s", "after duplication");
-		assert(db.get_string(copy, "s") == "after duplication");
+		assert(db.get_string(copy, db.property_index(copy, STRING_ID_64("s", 0xe5db19474a903141))) == "after duplication");
 	}
 
 	// Inherit object set members.
@@ -786,7 +944,7 @@ private static void test_database()
 
 		db.create_from_prefab(inst, src);
 
-		Guid?[] members = db.get_set(inst, "set");
+		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(members.length == 2);
 		assert(contains_guid(members, a));
 		assert(contains_guid(members, b));
@@ -811,7 +969,7 @@ private static void test_database()
 
 		db.add_to_set(inst, "set", repl);
 
-		Guid?[] members = db.get_set(inst, "set");
+		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(members.length == 2);
 		assert(contains_guid(members, repl));
 		assert(contains_guid(members, other));
@@ -836,7 +994,7 @@ private static void test_database()
 		db.create_from_prefab(repl, child);
 		db.add_to_set(inst, "set", repl);
 
-		GLib.HashTable<string, Value?> encoded = db.encode_object(inst, db.get_data(inst));
+		GLib.HashTable<string, Value?> encoded = db.encode_object(inst);
 
 		Database loaded = new Database(p);
 		loaded.create_object_type("object", props);
@@ -848,7 +1006,7 @@ private static void test_database()
 		loaded.create_from_prefab(inst, src);
 		loaded.decode_object(inst, GUID_ZERO, "", encoded);
 
-		Guid?[] members = loaded.get_set(inst, "set");
+		Guid?[] members = loaded.get_set(inst, loaded.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(members.length == 2);
 		assert(contains_guid(members, repl));
 		assert(contains_guid(members, other));
@@ -871,7 +1029,7 @@ private static void test_database()
 		db.set_double(repl, "d", 7.0);
 		db.add_to_set(inst, "set", repl);
 
-		GLib.HashTable<string, Value?> encoded = db.encode_object(inst, db.get_data(inst));
+		GLib.HashTable<string, Value?> encoded = db.encode_object(inst);
 
 		Database loaded = new Database(p);
 		loaded.create_object_type("object", props);
@@ -881,7 +1039,7 @@ private static void test_database()
 		loaded.create_from_prefab(inst, src);
 		loaded.decode_object(inst, GUID_ZERO, "", encoded);
 
-		assert(loaded.get_double(repl, "d") == 7.0);
+		assert(loaded.get_double(repl, loaded.property_index(repl, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 7.0);
 	}
 
 	// Undo and redo an inherited set member replacement.
@@ -909,12 +1067,12 @@ private static void test_database()
 
 		// Undo removes the local instance and reveals its source member again.
 		db.undo();
-		Guid?[] members = db.get_set(inst, "set");
+		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(contains_guid(members, child));
 		assert(!contains_guid(members, repl));
 
 		db.redo();
-		members = db.get_set(inst, "set");
+		members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(contains_guid(members, repl));
 		assert(!contains_guid(members, child));
 	}
@@ -935,7 +1093,7 @@ private static void test_database()
 		db.create(added, "object");
 		db.add_to_set(src, "set", added);
 
-		Guid?[] members = db.get_set(inst, "set");
+		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(members.length == 2);
 		assert(contains_guid(members, child));
 		assert(contains_guid(members, added));
@@ -961,7 +1119,7 @@ private static void test_database()
 
 		db.remove_from_set(src, "set", child);
 
-		Guid?[] members = db.get_set(inst, "set");
+		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
 		assert(members.length == 1);
 		assert(contains_guid(members, other));
 		assert(!contains_guid(members, child));
@@ -1023,7 +1181,7 @@ private static void test_duplicate_unit_tree()
 		Guid ca = editor._selection[reverse == 0 ? 0 : 2];
 		Guid cb = editor._selection[reverse == 0 ? 2 : 0];
 		Guid cs = editor._selection[1];
-		Guid cm = db.get_set(ca, "children")[0];
+		Guid cm = db.get_set(ca, db.property_index(ca, STRING_ID_64("children", 0x6fbb13de0e1dce0d)))[0];
 		assert(editor._selection.length == 3);
 		assert(created.length == 3);
 		assert(contains_guid(created, ca));
@@ -1072,12 +1230,12 @@ private static void test_mesh_resource()
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
 
-		Guid?[] members = db.get_set(comp, "data.materials");
+		Guid?[] members = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
 		assert(members.length == 2);
-		Guid ma = db.get_string(members[0], "data.slot") == "Ma" ? members[0] : members[1];
+		Guid ma = db.get_string(members[0], db.property_index(members[0], STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "Ma" ? members[0] : members[1];
 		Guid mb = Guid.equal_func(ma, members[0]) ? members[1] : members[0];
-		assert(db.get_resource(ma, "data.material") == "materials/Ma");
-		assert(db.get_resource(mb, "data.material") == "materials/Mb");
+		assert(db.get_resource(ma, db.property_index(ma, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Ma");
+		assert(db.get_resource(mb, db.property_index(mb, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Mb");
 	}
 
 	// Update an existing mesh material slot without changing its identity.
@@ -1088,14 +1246,14 @@ private static void test_mesh_resource()
 		Guid comp = Guid.new_guid();
 		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
-		Guid binding = db.get_set(comp, "data.materials")[0];
+		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Mc");
 
-		Guid?[] members = db.get_set(comp, "data.materials");
+		Guid?[] members = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
 		assert(members.length == 1);
 		assert(Guid.equal_func(members[0], binding));
-		assert(db.get_resource(binding, "data.material") == "materials/Mc");
+		assert(db.get_resource(binding, db.property_index(binding, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Mc");
 	}
 
 	// Undo and redo a mesh material slot update.
@@ -1107,18 +1265,18 @@ private static void test_mesh_resource()
 		Guid comp = Guid.new_guid();
 		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
-		Guid binding = db.get_set(comp, "data.materials")[0];
+		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		undo_redo.reset();
 
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Mc");
 		db.add_restore_point(ActionType.CHANGE_OBJECTS, { binding });
-		assert(db.get_resource(binding, "data.material") == "materials/Mc");
+		assert(db.get_resource(binding, db.property_index(binding, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Mc");
 
 		db.undo();
-		assert(db.get_resource(binding, "data.material") == "materials/Ma");
+		assert(db.get_resource(binding, db.property_index(binding, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Ma");
 
 		db.redo();
-		assert(db.get_resource(binding, "data.material") == "materials/Mc");
+		assert(db.get_resource(binding, db.property_index(binding, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Mc");
 	}
 
 	// Generate mesh setup commands before material assignment commands.
@@ -1154,16 +1312,16 @@ private static void test_mesh_resource()
 		db.add_to_set(unit, "components", comp);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
-		Guid?[] members = db.get_set(comp, "data.materials");
-		Guid ma = db.get_string(members[0], "data.slot") == "Ma" ? members[0] : members[1];
+		Guid?[] members = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
+		Guid ma = db.get_string(members[0], db.property_index(members[0], STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "Ma" ? members[0] : members[1];
 
 		Database loaded = new Database(p);
 		create_object_types(loaded);
 		loaded.create(unit, OBJECT_TYPE_UNIT);
-		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit, db.get_data(unit)));
+		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit));
 
-		assert(loaded.get_set(comp, "data.materials").length == 2);
-		assert(loaded.get_resource(ma, "data.material") == "materials/Ma");
+		assert(loaded.get_set(comp, loaded.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d))).length == 2);
+		assert(loaded.get_resource(ma, loaded.property_index(ma, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Ma");
 	}
 
 	// Omit a destroyed mesh material slot from destroy commands.
@@ -1178,8 +1336,8 @@ private static void test_mesh_resource()
 		db.add_to_set(unit, "components", comp);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
-		Guid?[] members = db.get_set(comp, "data.materials");
-		Guid ma = db.get_string(members[0], "data.slot") == "Ma" ? members[0] : members[1];
+		Guid?[] members = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
+		Guid ma = db.get_string(members[0], db.property_index(members[0], STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "Ma" ? members[0] : members[1];
 
 		db.destroy(ma);
 		StringBuilder commands = new StringBuilder();
@@ -1199,18 +1357,18 @@ private static void test_mesh_resource()
 		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
-		Guid binding = db.get_set(comp, "data.materials")[0];
+		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		undo_redo.reset();
 
 		db.destroy(binding);
 		db.add_restore_point(ActionType.DESTROY_OBJECTS, { binding });
-		assert(db.get_set(comp, "data.materials").length == 1);
+		assert(db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d))).length == 1);
 
 		db.undo();
-		assert(db.get_set(comp, "data.materials").length == 2);
+		assert(db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d))).length == 2);
 
 		db.redo();
-		assert(db.get_set(comp, "data.materials").length == 1);
+		assert(db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d))).length == 1);
 	}
 
 	// Round-trip mesh material overrides.
@@ -1232,14 +1390,14 @@ private static void test_mesh_resource()
 		Database loaded = new Database(p);
 		create_object_types(loaded);
 		loaded.create(unit, OBJECT_TYPE_UNIT);
-		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit, db.get_data(unit)));
+		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit));
 
 		assert(!loaded.has_property(unit, "materials"));
 		assert(loaded.has_property(unit, key));
-		Guid?[] members = loaded.get_set(unit, key);
+		Guid?[] members = loaded.get_set(unit, loaded.property_index(unit, StringId64(key)));
 		assert(members.length == 1);
 		assert(Guid.equal_func(members[0], binding));
-		assert(loaded.get_resource(binding, "data.material") == "materials/Ma");
+		assert(loaded.get_resource(binding, loaded.property_index(binding, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/Ma");
 	}
 
 	// Give legacy whole-mesh materials a stable binding identity.
@@ -1251,13 +1409,13 @@ private static void test_mesh_resource()
 		create_object_types(first);
 		first.create(src, OBJECT_TYPE_UNIT);
 		first.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
-		Guid a = first.get_set(comp, "data.materials")[0];
+		Guid a = first.get_set(comp, first.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
 		Database second = new Database(p);
 		create_object_types(second);
 		second.create(src, OBJECT_TYPE_UNIT);
 		second.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
-		Guid b = second.get_set(comp, "data.materials")[0];
+		Guid b = second.get_set(comp, second.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
 		assert(Guid.equal_func(b, a));
 	}
@@ -1271,7 +1429,7 @@ private static void test_mesh_resource()
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
 		db.create(src, OBJECT_TYPE_UNIT);
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
-		Guid child = db.get_set(comp, "data.materials")[0];
+		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
 		Guid inst = Guid.new_guid();
 		db.create(inst, OBJECT_TYPE_UNIT);
@@ -1289,9 +1447,9 @@ private static void test_mesh_resource()
 		}
 		assert(count == 1);
 		assert(!Guid.equal_func(repl, child));
-		assert(Guid.equal_func(db.get_reference(repl, "_prefab"), child));
-		assert(db.get_string(repl, "data.slot") == "default");
-		assert(db.get_resource(repl, "data.material") == "materials/instance");
+		assert(Guid.equal_func(db.get_reference(repl, db.property_index(repl, STRING_ID_64("_prefab", 0xeb91306c1265f913))), child));
+		assert(db.get_string(repl, db.property_index(repl, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "default");
+		assert(db.get_resource(repl, db.property_index(repl, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/instance");
 	}
 
 	// Collapse duplicate legacy material overrides onto their source binding.
@@ -1303,7 +1461,7 @@ private static void test_mesh_resource()
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
 		db.create(src, OBJECT_TYPE_UNIT);
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
-		Guid child = db.get_set(comp, "data.materials")[0];
+		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
 		Guid inst = Guid.parse("0444b593-d55c-49c2-86aa-eea58388eea6");
 		db.create(inst, OBJECT_TYPE_UNIT);
@@ -1328,11 +1486,11 @@ private static void test_mesh_resource()
 		assert(count == 1);
 		assert(members.contains(repl) || members.contains(other));
 		assert(!members.contains(child));
-		assert(Guid.equal_func(db.get_reference(repl, "_prefab"), child));
-		assert(Guid.equal_func(db.get_reference(other, "_prefab"), child));
+		assert(Guid.equal_func(db.get_reference(repl, db.property_index(repl, STRING_ID_64("_prefab", 0xeb91306c1265f913))), child));
+		assert(Guid.equal_func(db.get_reference(other, db.property_index(other, STRING_ID_64("_prefab", 0xeb91306c1265f913))), child));
 		foreach (unowned Guid? id in members) {
-			assert(db.get_string(id, "data.slot") == "default");
-			assert(db.get_resource(id, "data.material") == "units/beach/materials/M_MountainBike_Variant02");
+			assert(db.get_string(id, db.property_index(id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "default");
+			assert(db.get_resource(id, db.property_index(id, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "units/beach/materials/M_MountainBike_Variant02");
 		}
 	}
 
@@ -1345,7 +1503,7 @@ private static void test_mesh_resource()
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
 		db.create(src, OBJECT_TYPE_UNIT);
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
-		Guid child = db.get_set(comp, "data.materials")[0];
+		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "core/units/primitives/cube.unit", src);
 		Guid inst = Guid.new_guid();
 		db.create(inst, OBJECT_TYPE_UNIT);
@@ -1365,7 +1523,7 @@ private static void test_mesh_resource()
 		assert(count == 1);
 		assert(!members.contains(binding));
 		assert(members.contains(child));
-		assert(Guid.equal_func(db.get_reference(binding, "_prefab"), GUID_ZERO));
+		assert(Guid.equal_func(db.get_reference(binding, db.property_index(binding, STRING_ID_64("_prefab", 0xeb91306c1265f913))), GUID_ZERO));
 	}
 
 	// Exclude unsupported full material overrides from generated commands.
@@ -1526,12 +1684,12 @@ private static void test_mesh_resource()
 		Database loaded = new Database(p);
 		create_object_types(loaded);
 		loaded.create(src, OBJECT_TYPE_UNIT);
-		loaded.decode_object(src, GUID_ZERO, "", db.encode_object(src, db.get_data(src)));
+		loaded.decode_object(src, GUID_ZERO, "", db.encode_object(src));
 		loaded.set_reference(GUID_ZERO, "units/prefab.unit", src);
 		loaded.create(inst, OBJECT_TYPE_UNIT);
-		loaded.decode_object(inst, GUID_ZERO, "", db.encode_object(inst, db.get_data(inst)));
+		loaded.decode_object(inst, GUID_ZERO, "", db.encode_object(inst));
 
-		assert(loaded.get_resource(repl, "data.material") == "materials/instance");
+		assert(loaded.get_resource(repl, loaded.property_index(repl, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/instance");
 		GLib.GenericSet<Guid?> members = (GLib.GenericSet<Guid?>)Unit(loaded, inst).get_component_property(comp, "data.materials");
 		assert(members.contains(repl));
 		assert(!members.contains(child));

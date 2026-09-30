@@ -138,7 +138,7 @@ public class Project
 		}
 
 		Guid id = _map[path];
-		string mtime = _files.get_string(id, "mtime");
+		string mtime = _files.get_string(id, _files.property_index(id, STRING_ID_64("mtime", 0x3e21d636bb05aaf2)));
 		return uint64.parse(mtime);
 	}
 
@@ -645,7 +645,7 @@ public class Project
 		}
 
 		Guid id = _map[path];
-		file_removed(_files.get_string(id, "type"), _files.get_string(id, "name"));
+		file_removed(_files.get_string(id, _files.property_index(id, STRING_ID_64("type", 0xa21bd0e01ac8f01f))), _files.get_string(id, _files.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b))));
 
 		_files.remove_from_set(GUID_ZERO, "data", id);
 		_files.destroy(id);

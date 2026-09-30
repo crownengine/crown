@@ -40,7 +40,7 @@ public class MoveOperation
 						&& old_name != null
 						&& new_name != null
 						&& def.resource_type == old_type
-						&& db.get_resource(id, def.name) == old_name
+						&& db.get_resource(id, db.property_index(id, StringId64(def.name))) == old_name
 						) {
 						db.set_resource(id, def.name, new_name);
 						changed = true;

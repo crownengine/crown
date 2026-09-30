@@ -42,7 +42,7 @@ public struct Unit
 			return ObjectExists.UNKNOWN;
 
 		ObjectExists exists = ObjectExists.MISSING;
-		foreach (unowned Guid? local_component_id in db.get_set(unit_id, "components")) {
+		foreach (unowned Guid? local_component_id in db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)))) {
 			if (Guid.equal_func(local_component_id, component_id)) {
 				exists = ObjectExists.EXISTS;
 				break;
@@ -50,7 +50,7 @@ public struct Unit
 		}
 
 		if (exists == ObjectExists.MISSING) {
-			string? prefab = db.get_resource(unit_id, "prefab");
+			string? prefab = db.get_resource(unit_id, db.property_index(unit_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 			if (prefab != null) {
 				Guid prefab_id;
 				if (Unit.load_unit(out prefab_id, db, prefab) != LoadError.SUCCESS)
@@ -75,7 +75,7 @@ public struct Unit
 			return ObjectExists.UNKNOWN;
 
 		ObjectExists exists = ObjectExists.MISSING;
-		Guid?[] children = db.get_set(unit_id, "children");
+		Guid?[] children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 		foreach (unowned Guid? local_child_id in children) {
 			if (local_child_id == child_id) {
 				exists = ObjectExists.EXISTS;
@@ -92,7 +92,7 @@ public struct Unit
 		}
 
 		if (exists == ObjectExists.MISSING) {
-			string? prefab = db.get_resource(unit_id, "prefab");
+			string? prefab = db.get_resource(unit_id, db.property_index(unit_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 			if (prefab != null) {
 				Guid prefab_id;
 				if (Unit.load_unit(out prefab_id, db, prefab) != LoadError.SUCCESS)
@@ -103,7 +103,7 @@ public struct Unit
 		}
 
 		if (exists == ObjectExists.EXISTS && apply_unit_deletes) {
-			Guid?[] deleted_children = db.get_set(unit_id, "deleted_children");
+			Guid?[] deleted_children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("deleted_children", 0xc93de33d9fd602fe)));
 			foreach (unowned Guid? deleted_child_id in deleted_children) {
 				if (deleted_child_id == child_id) {
 					exists = ObjectExists.MISSING;
@@ -147,7 +147,7 @@ public struct Unit
 				Guid prefab_id = GUID_ZERO;
 				GLib.GenericSet<Guid?> materials = (GLib.GenericSet<Guid?>)get_component_property(component_id, "data.materials", guid_set_new());
 				foreach (unowned Guid? id in materials) {
-					if (_db.is_alive(id) && _db.get_string(id, "data.slot") == "default") {
+					if (_db.is_alive(id) && _db.get_string(id, _db.property_index(id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == "default") {
 						prefab_id = id;
 						break;
 					}
@@ -188,7 +188,7 @@ public struct Unit
 
 	private void prune_stale_child_override_set(string key, bool apply_unit_deletes)
 	{
-		foreach (unowned Guid? child_id in _db.get_set(_id, key)) {
+		foreach (unowned Guid? child_id in _db.get_set(_id, _db.property_index(_id, StringId64(key)))) {
 			if (child_exists_internal(_db, _id, child_id, apply_unit_deletes) == ObjectExists.MISSING)
 				_db.remove_from_set(_id, key, child_id);
 		}
@@ -394,7 +394,7 @@ public struct Unit
 		}
 
 		// Otherwise, search if any prefab has the component.
-		string? prefab = db.get_resource(unit_id, "prefab");
+		string? prefab = db.get_resource(unit_id, db.property_index(unit_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 		if (prefab != null) {
 			// Convert prefab path to object ID.
 			Guid prefab_id = GUID_ZERO;
@@ -429,7 +429,7 @@ public struct Unit
 		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 			position = get_component_vector3(component_id, "data.position");
 		else
-			position = _db.get_vector3(_id, "position");
+			position = _db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("position", 0x8bbeb160190f613a)));
 
 		return position;
 	}
@@ -442,7 +442,7 @@ public struct Unit
 		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 			rotation = get_component_quaternion(component_id, "data.rotation");
 		else
-			rotation = _db.get_quaternion(_id, "rotation");
+			rotation = _db.get_quaternion(_id, _db.property_index(_id, STRING_ID_64("rotation", 0x2060566242789baa)));
 
 		return rotation;
 	}
@@ -455,7 +455,7 @@ public struct Unit
 		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
 			scale = get_component_vector3(component_id, "data.scale");
 		else
-			scale = _db.get_vector3(_id, "scale", VECTOR3_ONE);
+			scale = _db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("scale", 0xeec8c5fba3c8bc0b)), VECTOR3_ONE);
 
 		return scale;
 	}
@@ -533,7 +533,7 @@ public struct Unit
 
 	public string? prefab()
 	{
-		return _db.get_resource(_id, "prefab");
+		return _db.get_resource(_id, _db.property_index(_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 	}
 
 	/// Returns whether the unit has a prefab.
@@ -564,7 +564,7 @@ public struct Unit
 			}
 			visited.add(prefab_id);
 
-			string? prefab = validation_db.get_resource(prefab_id, "prefab");
+			string? prefab = validation_db.get_resource(prefab_id, validation_db.property_index(prefab_id, STRING_ID_64("prefab", 0xab2f78e885f513c6)));
 			if (prefab == null)
 				return 0;
 
@@ -615,7 +615,7 @@ public struct Unit
 		if (prefab_name != null) {
 			Guid prefab_id = GUID_ZERO;
 			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
-				foreach (unowned Guid? component_id in _db.get_set(_id, "components")) {
+				foreach (unowned Guid? component_id in _db.get_set(_id, _db.property_index(_id, STRING_ID_64("components", 0xe71d1687374e5a54)))) {
 					Guid prefab_component_id;
 					if (!Unit.has_component_static(out prefab_component_id, StringId64(_db.object_type(component_id)), _db, prefab_id))
 						continue;
@@ -640,14 +640,14 @@ public struct Unit
 	public bool is_light()
 	{
 		return has_prefab()
-			&& _db.get_resource(_id, "prefab") == "core/units/light";
+			&& _db.get_resource(_id, _db.property_index(_id, STRING_ID_64("prefab", 0xab2f78e885f513c6))) == "core/units/light";
 	}
 
 	/// Returns whether the unit is a camera unit.
 	public bool is_camera()
 	{
 		return has_prefab()
-			&& _db.get_resource(_id, "prefab") == "core/units/camera";
+			&& _db.get_resource(_id, _db.property_index(_id, STRING_ID_64("prefab", 0xab2f78e885f513c6))) == "core/units/camera";
 	}
 
 	public static void generate_add_component_commands(StringBuilder sb, Guid unit_id, Guid component_id, Database db)
@@ -773,16 +773,16 @@ public struct Unit
 			}
 			Guid?[] lod_levels = live_levels.steal();
 			GLib.qsort_with_data<Guid?>(lod_levels, sizeof(Guid?), (a, b) => {
-					double screen_size_a = db.get_double(a, "data.screen_size");
-					double screen_size_b = db.get_double(b, "data.screen_size");
+					double screen_size_a = db.get_double(a, db.property_index(a, STRING_ID_64("data.screen_size", 0xb0affbb45037b116)));
+					double screen_size_b = db.get_double(b, db.property_index(b, STRING_ID_64("data.screen_size", 0xb0affbb45037b116)));
 					return screen_size_a > screen_size_b ? -1 : (screen_size_a < screen_size_b ? 1 : 0);
 				});
 
 			Guid[] mesh_renderer_ids = new Guid[lod_levels.length];
 			double[] screen_sizes = new double[lod_levels.length];
 			for (int i = 0; i < lod_levels.length; ++i) {
-				mesh_renderer_ids[i] = db.get_reference(lod_levels[i], "data.mesh_renderer");
-				screen_sizes[i] = db.get_double(lod_levels[i], "data.screen_size");
+				mesh_renderer_ids[i] = db.get_reference(lod_levels[i], db.property_index(lod_levels[i], STRING_ID_64("data.mesh_renderer", 0xba4d878d19255e65)));
+				screen_sizes[i] = db.get_double(lod_levels[i], db.property_index(lod_levels[i], STRING_ID_64("data.screen_size", 0xb0affbb45037b116)));
 			}
 
 			sb.append(LevelEditorApi.add_lod_group_component(unit_id
@@ -852,7 +852,7 @@ public struct Unit
 		unit_ids.add(unit_id);
 
 		if (db.has_property(unit_id, "children")) {
-			Guid?[] children = db.get_set(unit_id, "children");
+			Guid?[] children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 			foreach (unowned Guid? child_id in children)
 				collect_unit_tree(unit_ids, child_id, db);
 		}
@@ -860,8 +860,8 @@ public struct Unit
 
 	public static int compare_component_spawn_order(Database db, Guid? component_a, Guid? component_b)
 	{
-		double order_a = db.get_double(component_a, "spawn_order");
-		double order_b = db.get_double(component_b, "spawn_order");
+		double order_a = db.get_double(component_a, db.property_index(component_a, STRING_ID_64("spawn_order", 0x2f8a65a7213a6ef5)));
+		double order_b = db.get_double(component_b, db.property_index(component_b, STRING_ID_64("spawn_order", 0x2f8a65a7213a6ef5)));
 
 		if (order_a < order_b)
 			return -1;
@@ -883,7 +883,7 @@ public struct Unit
 				spawn_unit(sb, id, db);
 			} else {
 				sb.append(LevelEditorApi.spawn_empty_unit(id));
-				Guid?[] unit_components = db.get_set(id, "components");
+				Guid?[] unit_components = db.get_set(id, db.property_index(id, STRING_ID_64("components", 0xe71d1687374e5a54)));
 				foreach (unowned Guid? component_id in unit_components)
 					components.add(component_id);
 			}
@@ -917,8 +917,8 @@ public struct Unit
 			Guid id = unit_ids[i];
 			Unit unit = Unit(db, id);
 			if (unit.prefab() == null) {
-				sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
-				sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
+				sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false)));
+				sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false)));
 			}
 		}
 	}
@@ -937,18 +937,18 @@ public struct Unit
 		} else {
 			sb.append(LevelEditorApi.spawn_empty_unit(unit_id));
 
-			Guid?[] components = db.get_set(unit_id, "components");
+			Guid?[] components = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)));
 			GLib.qsort_with_data<Guid?>(components, sizeof(Guid?), (a, b) => {
-					double order_a = db.get_double(a, "spawn_order");
-					double order_b = db.get_double(b, "spawn_order");
+					double order_a = db.get_double(a, db.property_index(a, STRING_ID_64("spawn_order", 0x2f8a65a7213a6ef5)));
+					double order_b = db.get_double(b, db.property_index(b, STRING_ID_64("spawn_order", 0x2f8a65a7213a6ef5)));
 					return (int)(order_a - order_b);
 				});
 
 			foreach (unowned Guid? component_id in components)
 				generate_add_component_commands(sb, unit_id, component_id, db);
 
-			sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
-			sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
+			sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, db.property_index(unit_id, STRING_ID_64(Level.OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false)));
+			sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, db.property_index(unit_id, STRING_ID_64(Level.OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false)));
 		}
 	}
 
@@ -959,16 +959,16 @@ public struct Unit
 		foreach (Guid? binding_id in bindings) {
 			if (!db.is_alive(binding_id))
 				continue;
-			string slot = db.get_string(binding_id, "data.slot");
+			string slot = db.get_string(binding_id, db.property_index(binding_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe)));
 			if (slot == "default")
-				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, "data.material")));
+				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, db.property_index(binding_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)))));
 		}
 		foreach (Guid? binding_id in bindings) {
 			if (!db.is_alive(binding_id))
 				continue;
-			string slot = db.get_string(binding_id, "data.slot");
+			string slot = db.get_string(binding_id, db.property_index(binding_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe)));
 			if (slot != "" && slot != "default")
-				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, "data.material")));
+				sb.append(LevelEditorApi.set_mesh_material(unit_id, slot, db.get_resource(binding_id, db.property_index(binding_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)))));
 		}
 	}
 
@@ -1204,8 +1204,8 @@ public struct Unit
 						generate_set_component_commands(sb, unit_id, component_id, db);
 					});
 
-				sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, Level.OBJECT_HIDDEN_KEY, false)));
-				sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, Level.OBJECT_LOCKED_KEY, false)));
+				sb.append(LevelEditorApi.object_set_hidden(unit_id, db.get_bool(unit_id, db.property_index(unit_id, STRING_ID_64(Level.OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false)));
+				sb.append(LevelEditorApi.object_set_selectable(unit_id, !db.get_bool(unit_id, db.property_index(unit_id, STRING_ID_64(Level.OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false)));
 			} else if (Unit.is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
 				Guid unit_id = db.owner(component_id);

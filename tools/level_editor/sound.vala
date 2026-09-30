@@ -31,12 +31,12 @@ public struct Sound
 
 	public Vector3 local_position()
 	{
-		return _db.get_vector3(_id, "position");
+		return _db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("position", 0x8bbeb160190f613a)));
 	}
 
 	public Quaternion local_rotation()
 	{
-		return _db.get_quaternion(_id, "rotation");
+		return _db.get_quaternion(_id, _db.property_index(_id, STRING_ID_64("rotation", 0x2060566242789baa)));
 	}
 
 	public Vector3 local_scale()
@@ -61,7 +61,7 @@ public struct Sound
 
 	public double range()
 	{
-		return _db.get_double(_id, "range");
+		return _db.get_double(_id, _db.property_index(_id, STRING_ID_64("range", 0xc8beeb904f5e61ed)));
 	}
 
 	public void set_range(double range)
@@ -71,7 +71,7 @@ public struct Sound
 
 	public double volume()
 	{
-		return _db.get_double(_id, "volume");
+		return _db.get_double(_id, _db.property_index(_id, STRING_ID_64("volume", 0x6ad9817aa72d9533)));
 	}
 
 	public void set_volume(double volume)
@@ -81,7 +81,7 @@ public struct Sound
 
 	public bool loop()
 	{
-		return _db.get_bool(_id, "loop");
+		return _db.get_bool(_id, _db.property_index(_id, STRING_ID_64("loop", 0x8c9c410e83f48bce)));
 	}
 
 	public void set_loop(bool loop)
@@ -104,16 +104,16 @@ public struct Sound
 			Guid id = object_ids[i];
 
 			string s = LevelEditorApi.spawn_sound(id
-				, db.get_resource  (id, "name")
-				, db.get_vector3   (id, "position")
-				, db.get_quaternion(id, "rotation")
-				, db.get_double    (id, "range")
-				, db.get_double    (id, "volume")
-				, db.get_bool      (id, "loop")
+				, db.get_resource  (id, db.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b)))
+				, db.get_vector3   (id, db.property_index(id, STRING_ID_64("position", 0x8bbeb160190f613a)))
+				, db.get_quaternion(id, db.property_index(id, STRING_ID_64("rotation", 0x2060566242789baa)))
+				, db.get_double    (id, db.property_index(id, STRING_ID_64("range", 0xc8beeb904f5e61ed)))
+				, db.get_double    (id, db.property_index(id, STRING_ID_64("volume", 0x6ad9817aa72d9533)))
+				, db.get_bool      (id, db.property_index(id, STRING_ID_64("loop", 0x8c9c410e83f48bce)))
 				);
 			sb.append(s);
-			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
-			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
+			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false)));
+			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false)));
 		}
 
 		return i;
@@ -148,8 +148,8 @@ public struct Sound
 				, sound.local_scale()
 				));
 			sb.append(LevelEditorApi.set_sound_range(id, sound.range()));
-			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, Level.OBJECT_HIDDEN_KEY, false)));
-			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, Level.OBJECT_LOCKED_KEY, false)));
+			sb.append(LevelEditorApi.object_set_hidden(id, db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false)));
+			sb.append(LevelEditorApi.object_set_selectable(id, !db.get_bool(id, db.property_index(id, STRING_ID_64(Level.OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false)));
 		}
 
 		return i;

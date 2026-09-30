@@ -1074,11 +1074,11 @@ public class GLTFImporter
 			db.add_to_set(parent_unit_id, "children", unit_id);
 
 		GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-		Guid?[] old_children = db.get_set(unit_id, "children");
+		Guid?[] old_children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_import_path = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
 		GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_name = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
 		foreach (Guid? child_id in old_children) {
-			string old_import_path = db.get_string(child_id, "editor.import_path", "");
+			string old_import_path = db.get_string(child_id, db.property_index(child_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), "");
 			if (old_import_path != "") {
 				unowned GLib.Queue<Guid?>? children = old_children_by_import_path[old_import_path];
 				if (children == null) {
@@ -1622,10 +1622,10 @@ public class GLTFImporter
 					set_transform(root, transform_id, identity_transform(), resource_basename);
 					db.set_name(unit_id, resource_basename);
 					db.set_string(unit_id, "editor.import_path", "root");
-					Guid?[] old_children = db.get_set(unit_id, "children");
+					Guid?[] old_children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 					GLib.HashTable<string, GLib.Queue<Guid?>> old_children_by_import_path = new GLib.HashTable<string, GLib.Queue<Guid?>>(GLib.str_hash, GLib.str_equal);
 					foreach (Guid? child_id in old_children) {
-						string old_import_path = db.get_string(child_id, "editor.import_path", "");
+						string old_import_path = db.get_string(child_id, db.property_index(child_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), "");
 						if (old_import_path == "")
 							continue;
 

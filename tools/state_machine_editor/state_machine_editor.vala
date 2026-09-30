@@ -541,7 +541,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 				if (!_database.is_subobject_of(transition, state, "transitions"))
 					continue;
 
-				string event_name = _database.get_string(transition, "event");
+				string event_name = _database.get_string(transition, _database.property_index(transition, STRING_ID_64("event", 0xceeef8e1db253a5a)));
 				if (!_event_buttons.contains(event_name))
 					_event_buttons.set(event_name, create_trigger_event_button(transition, event_name));
 			}
@@ -580,11 +580,11 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			if (!_database.is_subobject_of(variable, _state_machine_id, "variables"))
 				continue;
 
-			string variable_name = _database.get_string(variable, "name");
+			string variable_name = _database.get_string(variable, _database.property_index(variable, STRING_ID_64("name", 0xd4c943cba60c270b)));
 			if (!_variable_sliders.contains(variable_name)) {
-				double min_value = _database.get_double(variable, "min");
-				double max_value = _database.get_double(variable, "max");
-				double current_value = _database.get_double(variable, "value");
+				double min_value = _database.get_double(variable, _database.property_index(variable, STRING_ID_64("min", 0x7b036730a478919c)));
+				double max_value = _database.get_double(variable, _database.property_index(variable, STRING_ID_64("max", 0x5f6f4dddca7efd93)));
+				double current_value = _database.get_double(variable, _database.property_index(variable, STRING_ID_64("value", 0x920b430f38928dc9)));
 
 				_variable_sliders.set(variable_name, create_variable_slider(variable, variable_name, min_value, max_value, current_value));
 			}

@@ -205,12 +205,12 @@ public class Level
 
 	public bool object_hidden(Guid id)
 	{
-		return _db.get_bool(id, OBJECT_HIDDEN_KEY, false);
+		return _db.get_bool(id, _db.property_index(id, STRING_ID_64(OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), false);
 	}
 
 	public bool object_locked(Guid id)
 	{
-		return _db.get_bool(id, OBJECT_LOCKED_KEY, false);
+		return _db.get_bool(id, _db.property_index(id, STRING_ID_64(OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), false);
 	}
 
 	public void set_object_hidden(Guid id, bool hidden)
@@ -281,7 +281,7 @@ public class Level
 
 		// FIXME: Replace this full-database scan when undo uses full object snapshots.
 		// Undoing creation currently removes child-set links before notifying us of destruction.
-		GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>> iter = GLib.HashTableIter<Guid?, GLib.HashTable<string, Value?>>(_db._data);
+		GLib.HashTableIter<Guid?, GLib.GenericArray<Value?>> iter = GLib.HashTableIter<Guid?, GLib.GenericArray<Value?>>(_db._data);
 		unowned Guid? id;
 		while (iter.next(out id, null)) {
 			if (_db.is_alive(id))
@@ -317,7 +317,7 @@ public class Level
 		sb.append(LevelEditorApi.reset());
 		Unit.generate_spawn_unit_commands(sb, unit_ids.data, _db);
 		Sound.generate_spawn_sound_commands(sb, sound_ids.data, _db);
-		sb.append(LevelEditorApi.spawn_skydome(_db.get_resource(_id, "skydome_unit", "core/units/skydome/skydome")));
+		sb.append(LevelEditorApi.spawn_skydome(_db.get_resource(_id, _db.property_index(_id, STRING_ID_64("skydome_unit", 0x369f874f9af399e8)), "core/units/skydome/skydome")));
 		_runtime.send_script(sb.str);
 
 		send_camera();
@@ -325,14 +325,14 @@ public class Level
 
 	public void units(ref GLib.GenericArray<Guid?> ids)
 	{
-		Guid?[] units = _db.get_set(_id, "units");
+		Guid?[] units = _db.get_set(_id, _db.property_index(_id, STRING_ID_64("units", 0x11d87c01b90297db)));
 		foreach (unowned Guid? id in units)
 			ids.add(id);
 	}
 
 	public void sounds(ref GLib.GenericArray<Guid?> ids)
 	{
-		Guid?[] sounds = _db.get_set(_id, "sounds");
+		Guid?[] sounds = _db.get_set(_id, _db.property_index(_id, STRING_ID_64("sounds", 0x78e18d73fedbb256)));
 		foreach (unowned Guid? id in sounds)
 			ids.add(id);
 	}
@@ -345,11 +345,11 @@ public class Level
 
 	public void send_camera()
 	{
-		_runtime.send_script(LevelEditorApi.camera_restore(_db.get_vector3(_id, "editor.camera.position")
-			, _db.get_quaternion(_id, "editor.camera.rotation")
-			, _db.get_double(_id, "editor.camera.orthographic_size")
-			, _db.get_double(_id, "editor.camera.target_distance")
-			, (CameraViewType)_db.get_double(_id, "editor.camera.view_type")
+		_runtime.send_script(LevelEditorApi.camera_restore(_db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("editor.camera.position", 0x3b9ff144c72f4c83)))
+			, _db.get_quaternion(_id, _db.property_index(_id, STRING_ID_64("editor.camera.rotation", 0xc7df9e055172f68e)))
+			, _db.get_double(_id, _db.property_index(_id, STRING_ID_64("editor.camera.orthographic_size", 0x7440577c22811692)))
+			, _db.get_double(_id, _db.property_index(_id, STRING_ID_64("editor.camera.target_distance", 0x10a29a9ca45da49f)))
+			, (CameraViewType)_db.get_double(_id, _db.property_index(_id, STRING_ID_64("editor.camera.view_type", 0xe5c5c6c75a8fa0e4)))
 			));
 	}
 

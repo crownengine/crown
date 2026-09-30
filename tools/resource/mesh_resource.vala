@@ -9,9 +9,9 @@ namespace MeshResource
 {
 	public static void set_material_slot(Database db, Guid component_id, string slot, string material)
 	{
-		Guid?[] bindings = db.get_set(component_id, "data.materials");
+		Guid?[] bindings = db.get_set(component_id, db.property_index(component_id, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
 		foreach (Guid? binding_id in bindings) {
-			if (db.get_string(binding_id, "data.slot") == slot) {
+			if (db.get_string(binding_id, db.property_index(binding_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == slot) {
 				db.set_resource(binding_id, "data.material", material);
 				return;
 			}
@@ -179,7 +179,7 @@ namespace MeshResource
 			// Reuse only children that existed before this import, and assign each
 			// existing child to at most one imported node.
 			GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-			Guid?[] old_children = db.get_set(unit_id, "children");
+			Guid?[] old_children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 
 			children.foreach((child_name, child_value) => {
 					string child_import_path = import_path + "/" + child_name;
@@ -188,7 +188,7 @@ namespace MeshResource
 					foreach (Guid? child_id in old_children) {
 						if (matched_children.contains(child_id))
 							continue;
-						if (db.get_string(child_id, "editor.import_path", "") == child_import_path) {
+						if (db.get_string(child_id, db.property_index(child_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), "") == child_import_path) {
 							child_unit_id = child_id;
 							break;
 						}
@@ -289,7 +289,7 @@ namespace MeshResource
 
 				Guid new_unit_id = unit_id;
 				GLib.GenericSet<Guid?> matched_children = new GLib.GenericSet<Guid?>(Guid.hash_func, Guid.equal_func);
-				Guid?[] old_children = db.get_set(unit_id, "children");
+				Guid?[] old_children = db.get_set(unit_id, db.property_index(unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 				mesh_nodes.foreach((node_name, node_value) => {
 						string import_path = mesh_nodes.length > 1 ? "root/" + node_name : "root";
 						if (mesh_nodes.length > 1) {
@@ -300,7 +300,7 @@ namespace MeshResource
 							foreach (Guid? child_id in old_children) {
 								if (matched_children.contains(child_id))
 									continue;
-								if (db.get_string(child_id, "editor.import_path", "") == import_path) {
+								if (db.get_string(child_id, db.property_index(child_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), "") == import_path) {
 									new_unit_id = child_id;
 									break;
 								}
