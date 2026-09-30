@@ -273,16 +273,14 @@ public class SJSON
 		if (json[index] == '"')
 			return parse_string(json, ref index);
 
-		GLib.ByteArray s = new GLib.ByteArray();
+		int start = index;
 		while (true) {
 			uint8 c = json[index];
 			if (c == ' ' || c == '\t' || c == '\n' || c == '=')
 				break;
-			s.append({ c });
 			++index;
 		}
-		s.append({ '\0' });
-		return (string)s.steal();
+		return ((string)(&json[start])).substring(0, index - start);
 	}
 
 	static void consume(uint8 [] json, ref int index, string consume) throws JsonSyntaxError
@@ -357,6 +355,20 @@ public class SJSON
 
 	static string parse_string(uint8[] json, ref int index) throws JsonSyntaxError
 	{
+		int quote = index;
+		consume(json, ref index, "\"");
+		int start = index;
+		while (index < json.length && json[index] != '"' && json[index] != '\\')
+			++index;
+		if (index >= json.length)
+			throw new JsonSyntaxError.BAD_STRING("Unterminated string");
+		if (json[index] == '"') {
+			string value = ((string)(&json[start])).substring(0, index - start);
+			++index;
+			return value;
+		}
+
+		index = quote;
 		GLib.ByteArray s = new GLib.ByteArray();
 
 		consume(json, ref index, "\"");

@@ -261,6 +261,22 @@ public class JSON
 
 	static uint8[] parse_binary(uint8[] json, ref int index) throws JsonSyntaxError
 	{
+		int quote = index;
+		consume(json, ref index, "\"");
+		int start = index;
+		while (index < json.length && json[index] != '"' && json[index] != '\\')
+			++index;
+		if (index >= json.length)
+			throw new JsonSyntaxError.BAD_STRING("Unterminated string");
+		if (json[index] == '"') {
+			uint8[] value = new uint8[index - start + 1];
+			for (int i = 0; i < index - start; ++i)
+				value[i] = json[start + i];
+			++index;
+			return value;
+		}
+
+		index = quote;
 		GLib.ByteArray s = new GLib.ByteArray();
 
 		consume(json, ref index, "\"");
