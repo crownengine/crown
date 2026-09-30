@@ -68,6 +68,16 @@ private static void test_database()
 	stdout.printf("test_database\n");
 
 	Project p = new Project();
+	{
+		Database files = p.files();
+		assert(files.has_type(STRING_ID_64(OBJECT_TYPE_DATABASE, 0x6d90dd26dff90856)));
+		assert(files.object_definition(STRING_ID_64(OBJECT_TYPE_DATABASE, 0x6d90dd26dff90856)).length == 0);
+		p.add_file("example.unit", 1, 2);
+		Guid?[] file_ids = files.get_set(GUID_ZERO, files.property_index(GUID_ZERO, STRING_ID_64("data", 0x8fd0d44d20650b68)));
+		assert(file_ids.length == 1);
+		assert(files.object_type(file_ids[0]) == STRING_ID_64(OBJECT_TYPE_FILE, 0x63d525adf27fd749));
+		assert(files.get_string(file_ids[0], files.property_index(file_ids[0], STRING_ID_64("path", 0xae70259f6415b584))) == "example.unit");
+	}
 	PropertyDefinition[] props =
 	{
 		PropertyDefinition()
@@ -140,9 +150,26 @@ private static void test_database()
 		Guid a = Guid.new_guid();
 		Guid b = Guid.new_guid();
 		Guid other = Guid.new_guid();
-		db.create(a, "object");
-		db.create(b, "object");
-		db.create(other, "other");
+		db.create(a, StringId64("object"));
+		db.create(b, StringId64("object"));
+		db.create(other, StringId64("other"));
+		assert(db._data[a][0].holds(typeof(StringId64)));
+		assert(db.object_type(a) == StringId64("object"));
+		Value? type_value = db.get_property(a, "_type");
+		assert(type_value.holds(typeof(StringId64)));
+		StringId64 type_id = (StringId64)type_value;
+		assert(type_id == StringId64("object"));
+		GLib.HashTable<string, Value?> encoded = db.encode_object(a);
+		assert((string)encoded["_type"] == "object");
+		Database loaded = new Database(p);
+		loaded.create_object_type("object", props);
+		GLib.GenericArray<Value?> objects = new GLib.GenericArray<Value?>();
+		objects.add(encoded);
+		loaded.decode_set(GUID_ZERO, "objects", objects);
+		assert(loaded.object_type(a) == StringId64("object"));
+		type_value = loaded.get_property(a, "_type");
+		type_id = (StringId64)type_value;
+		assert(type_id == StringId64("object"));
 		uint32 bool_index = 0;
 		assert(db.find_property(ref bool_index, StringId64("object"), PropertyType.BOOL, "b"));
 		assert(db.property_index(a, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == bool_index);
@@ -189,10 +216,18 @@ private static void test_database()
 		Guid copy = Guid.new_guid();
 		db.duplicate_one(a, copy, dest);
 		assert(dest.get_string(copy, dest.property_index(copy, StringId64(key_a))) == "a");
+		assert(dest.object_type(copy) == db.object_type(a));
+		type_value = dest.get_property(copy, "_type");
+		type_id = (StringId64)type_value;
+		assert(type_id == StringId64("object"));
+		Database deep = new Database(p);
+		deep.create_object_type("object", props);
+		db.copy_deep(deep, a, "");
+		assert(deep.object_type(a) == db.object_type(a));
 
 		Guid cleared = Guid.new_guid();
 		Guid cleared_copy = Guid.new_guid();
-		db.create(cleared, "object");
+		db.create(cleared, StringId64("object"));
 		db.set_null(cleared, "s");
 		db.duplicate_one(cleared, cleared_copy, dest);
 		assert(!dest.has_property(cleared_copy, "s"));
@@ -201,10 +236,6 @@ private static void test_database()
 	}
 	{
 		Database db = new Database(p);
-		Guid id = Guid.new_guid();
-		db.create(id, "late");
-		db.set_string(id, "dynamic", "value");
-		db.set_bool(id, "b", true);
 		PropertyDefinition[] late_props =
 		{
 			PropertyDefinition()
@@ -216,17 +247,23 @@ private static void test_database()
 				type = PropertyType.STRING, name = "name"
 			},
 		};
-		db.create_object_type("late", late_props);
-		assert(db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a)) == 4u);
-		assert(db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == 5u);
-		assert(db.get_bool(id, 5u));
+		StringId64 late_type = db.create_object_type("late", late_props);
+		Guid id = Guid.new_guid();
+		db.create(id, late_type);
+		db.set_string(id, "dynamic", "value");
+		db.set_bool(id, "b", true);
+		assert(db.object_type(id) == StringId64("late"));
+		assert(db.type_name(db.object_type(id)) == "late");
+		assert(db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a)) == 6u);
+		assert(db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37)) == 4u);
+		assert(db.get_bool(id, 4u));
 		assert(db.get_string(id, db.property_index(id, STRING_ID_64("dynamic", 0x3995d0559a810e3a))) == "value");
 		unowned ObjectTypeInfo? info = db.type_info(StringId64("late"));
 		assert(info.property_names.length == info.property_name_ids.length);
 		assert(info.property_names.length == info.property_definitions.length);
-		assert(info.property_name_ids[0] == StringId64("dynamic"));
-		assert(info.property_names[0] == "dynamic" && info.property_definitions[0].declaration_order == -1);
-		assert(info.property_names[1] == "b" && info.property_definitions[1].type == PropertyType.BOOL);
+		assert(info.property_name_ids[2] == StringId64("dynamic"));
+		assert(info.property_names[2] == "dynamic" && info.property_definitions[2].declaration_order == -1);
+		assert(info.property_names[0] == "b" && info.property_definitions[0].type == PropertyType.BOOL);
 		uint32 dynamic_index = 0;
 		assert(!db.find_property(ref dynamic_index, StringId64("late"), PropertyType.BOOL, "dynamic"));
 		unowned PropertyDefinition[] declared = db.object_definition(StringId64("late"));
@@ -267,12 +304,32 @@ private static void test_database()
 		assert(db.get_string(child_id, db.property_index(child_id, STRING_ID_64("dynamic", 0x3995d0559a810e3a))) == "child");
 	}
 	{
+		UndoRedo undo_redo = new UndoRedo();
+		Database db = new Database(p, undo_redo);
+		db.create_object_type("object", props);
+		db.create_object_type("other", props);
+		Guid id = Guid.new_guid();
+		db.create(id, StringId64("object"));
+		undo_redo.reset();
+
+		db.set_string(id, "_type", "other");
+		db.add_restore_point(ActionType.CHANGE_OBJECTS, { id });
+		assert(db.object_type(id) == StringId64("other"));
+		Value? type_value = db.get_property(id, "_type");
+		StringId64 type_id = (StringId64)type_value;
+		assert(type_id == StringId64("other"));
+		db.undo();
+		assert(db.object_type(id) == StringId64("object"));
+		db.redo();
+		assert(db.object_type(id) == StringId64("other"));
+	}
+	{
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
 		Guid child = Guid.new_guid();
-		db.create(id, "object");
-		db.create(child, "object");
+		db.create(id, StringId64("object"));
+		db.create(child, StringId64("object"));
 		db.add_to_set(id, "set", child);
 		Value? set_value = db.get_property(id, "set");
 		((GLib.GenericSet<Guid?>)set_value).remove(child);
@@ -285,7 +342,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(db.get_bool(id, db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == true);
 	}
@@ -295,7 +352,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(db.get_double(id, db.property_index(id, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 1.0);
 	}
@@ -305,7 +362,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(db.get_string(id, db.property_index(id, STRING_ID_64("s", 0xe5db19474a903141))) == "a");
 	}
@@ -315,7 +372,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(Vector3.equal_func(db.get_vector3(id, db.property_index(id, STRING_ID_64("v", 0x039e135b4a2b31d2))), Vector3(1.0, 2.0, 3.0)));
 	}
@@ -325,7 +382,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(Quaternion.equal_func(db.get_quaternion(id, db.property_index(id, STRING_ID_64("q", 0x7af8d99b413c664f))), Quaternion(1.0, 2.0, 3.0, 4.0)));
 	}
@@ -335,7 +392,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "a");
 	}
@@ -345,7 +402,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(Guid.equal_func(db.get_reference(id, db.property_index(id, STRING_ID_64("ref", 0x83fe77400dff8939))), GUID_ZERO));
 	}
@@ -355,7 +412,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		assert(db.get_set(id, db.property_index(id, STRING_ID_64("set", 0x237afba9ce4e06bf))).length == 0);
 	}
@@ -366,7 +423,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_bool(id, "b", false);
 		assert(db.get_bool(id, db.property_index(id, STRING_ID_64("b", 0xea8bfc7d922a2a37))) == false);
@@ -377,7 +434,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_double(id, "d", 2.0);
 		assert(db.get_double(id, db.property_index(id, STRING_ID_64("d", 0x17dffbc5a8f17839))) == 2.0);
@@ -388,7 +445,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_string(id, "s", "b");
 		assert(db.get_string(id, db.property_index(id, STRING_ID_64("s", 0xe5db19474a903141))) == "b");
@@ -399,7 +456,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_vector3(id, "v", Vector3(4.0, 5.0, 6.0));
 		assert(Vector3.equal_func(db.get_vector3(id, db.property_index(id, STRING_ID_64("v", 0x039e135b4a2b31d2))), Vector3(4.0, 5.0, 6.0)));
@@ -410,7 +467,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_quaternion(id, "q", Quaternion(5.0, 6.0, 7.0, 8.0));
 		assert(Quaternion.equal_func(db.get_quaternion(id, db.property_index(id, STRING_ID_64("q", 0x7af8d99b413c664f))), Quaternion(5.0, 6.0, 7.0, 8.0)));
@@ -421,7 +478,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_resource(id, "r", "b");
 		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == "b");
@@ -432,9 +489,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid to = Guid.new_guid();
-		db.create(to, "object");
+		db.create(to, StringId64("object"));
 
 		db.set_reference(id, "ref", to);
 		assert(Guid.equal_func(db.get_reference(id, db.property_index(id, STRING_ID_64("ref", 0x83fe77400dff8939))), to));
@@ -445,7 +502,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.set_resource(id, "r", null);
 		assert(db.get_resource(id, db.property_index(id, STRING_ID_64("r", 0xeb9e71988f8c8e3d))) == null);
@@ -457,7 +514,7 @@ private static void test_database()
 		Database db = new Database(p, undo_redo);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		UndoRedo? ur = db.disable_undo();
 		db.set_string(id, "r", "a");
@@ -481,9 +538,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 
 		db.add_to_set(root, "set", child);
 
@@ -498,9 +555,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		db.add_to_set(root, "set", child);
 
 		db.remove_from_set(root, "set", child);
@@ -514,9 +571,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 
 		db.add_to_set(root, "set", child);
 		db.add_to_set(root, "set", child);
@@ -529,9 +586,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		db.add_to_set(root, "set", child);
 
 		db.destroy(child);
@@ -544,13 +601,13 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 
 		db.destroy(id);
 
 		assert(db.has_object(id));
 		assert(!db.is_alive(id));
-		assert(db.object_type(id) == "object");
+		assert(db.object_type(id) == StringId64("object"));
 	}
 
 	// Destroy descendants recursively.
@@ -558,9 +615,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		db.add_to_set(root, "set", child);
 
 		db.destroy(root);
@@ -576,9 +633,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid a = Guid.new_guid();
-		db.create(a, "object");
+		db.create(a, StringId64("object"));
 		Guid b = Guid.new_guid();
-		db.create(b, "object");
+		db.create(b, StringId64("object"));
 
 		db.reset();
 
@@ -592,11 +649,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid dead = Guid.new_guid();
-		db.create(dead, "object");
+		db.create(dead, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.add_to_set(root, "set", child);
 		db.add_to_set(root, "set", dead);
@@ -613,9 +670,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.add_to_set(root, "set", child);
 		db.set_reference(root, "ref", child);
@@ -632,9 +689,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid to = Guid.new_guid();
-		db.create(to, "object");
+		db.create(to, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_reference(id, "ref", to);
 
@@ -648,9 +705,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid a = Guid.new_guid();
-		db.create(a, "object");
+		db.create(a, StringId64("object"));
 		Guid b = Guid.new_guid();
-		db.create(b, "object");
+		db.create(b, StringId64("object"));
 		Guid ca = Guid.new_guid();
 		Guid cb = Guid.new_guid();
 		db.set_reference(a, "ref", b);
@@ -667,11 +724,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid a = Guid.new_guid();
-		db.create(a, "object");
+		db.create(a, StringId64("object"));
 		Guid b = Guid.new_guid();
-		db.create(b, "object");
+		db.create(b, StringId64("object"));
 		Guid ca = Guid.new_guid();
 		Guid cb = Guid.new_guid();
 		db.add_to_set(root, "set", a);
@@ -691,18 +748,18 @@ private static void test_database()
 			Database db = new Database(p);
 			db.create_object_type("object", props);
 			Guid root = Guid.new_guid();
-			db.create(root, "object");
+			db.create(root, StringId64("object"));
 			Guid a = Guid.new_guid();
-			db.create(a, "object");
+			db.create(a, StringId64("object"));
 			db.add_to_set(root, "set", a);
 			Guid parent = a;
 			if (depth == 2) {
 				parent = Guid.new_guid();
-				db.create(parent, "object");
+				db.create(parent, StringId64("object"));
 				db.add_to_set(a, "set", parent);
 			}
 			Guid b = Guid.new_guid();
-			db.create(b, "object");
+			db.create(b, StringId64("object"));
 			db.add_to_set(parent, "set", b);
 			Guid ca = Guid.new_guid();
 			Guid cb = Guid.new_guid();
@@ -741,7 +798,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_bool(id, "b", false);
 
@@ -755,7 +812,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_double(id, "d", 2.0);
 
@@ -769,7 +826,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_string(id, "s", "b");
 
@@ -783,7 +840,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_vector3(id, "v", Vector3(4.0, 5.0, 6.0));
 
@@ -797,7 +854,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_quaternion(id, "q", Quaternion(5.0, 6.0, 7.0, 8.0));
 
@@ -811,7 +868,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid id = Guid.new_guid();
-		db.create(id, "object");
+		db.create(id, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		db.set_resource(id, "r", "b");
 
@@ -825,9 +882,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid root = Guid.new_guid();
-		db.create(root, "object");
+		db.create(root, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid copy = Guid.new_guid();
 		Guid cc = Guid.new_guid();
 		db.add_to_set(root, "set", child);
@@ -845,7 +902,7 @@ private static void test_database()
 		Database db = new Database(p);
 		create_object_types(db);
 		Guid root = Guid.new_guid();
-		db.create(root, OBJECT_TYPE_UNIT);
+		db.create(root, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 
 		GLib.HashTable<string, Value?> child = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		child["_type"] = OBJECT_TYPE_UNIT;
@@ -869,7 +926,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		db.create_from_prefab(inst, src);
 
@@ -883,7 +940,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		db.set_string(src, "s", "source before");
 		db.create_from_prefab(inst, src);
@@ -899,7 +956,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		db.set_bool(src, "b", false);
 		db.create_from_prefab(inst, src);
@@ -915,7 +972,7 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid copy = Guid.new_guid();
 		db.create_from_prefab(inst, src);
@@ -933,11 +990,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid a = Guid.new_guid();
-		db.create(a, "object");
+		db.create(a, StringId64("object"));
 		Guid b = Guid.new_guid();
-		db.create(b, "object");
+		db.create(b, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		db.add_to_set(src, "set", a);
 		db.add_to_set(src, "set", b);
@@ -955,11 +1012,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid other = Guid.new_guid();
-		db.create(other, "object");
+		db.create(other, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		db.add_to_set(src, "set", child);
@@ -981,11 +1038,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid other = Guid.new_guid();
-		db.create(other, "object");
+		db.create(other, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		db.add_to_set(src, "set", child);
@@ -998,9 +1055,9 @@ private static void test_database()
 
 		Database loaded = new Database(p);
 		loaded.create_object_type("object", props);
-		loaded.create(src, "object");
-		loaded.create(child, "object");
-		loaded.create(other, "object");
+		loaded.create(src, StringId64("object"));
+		loaded.create(child, StringId64("object"));
+		loaded.create(other, StringId64("object"));
 		loaded.add_to_set(src, "set", child);
 		loaded.add_to_set(src, "set", other);
 		loaded.create_from_prefab(inst, src);
@@ -1018,9 +1075,9 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		db.add_to_set(src, "set", child);
@@ -1033,8 +1090,8 @@ private static void test_database()
 
 		Database loaded = new Database(p);
 		loaded.create_object_type("object", props);
-		loaded.create(src, "object");
-		loaded.create(child, "object");
+		loaded.create(src, StringId64("object"));
+		loaded.create(child, StringId64("object"));
 		loaded.add_to_set(src, "set", child);
 		loaded.create_from_prefab(inst, src);
 		loaded.decode_object(inst, GUID_ZERO, "", encoded);
@@ -1048,11 +1105,11 @@ private static void test_database()
 		Database db = new Database(p, undo_redo);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid other = Guid.new_guid();
-		db.create(other, "object");
+		db.create(other, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		db.add_to_set(src, "set", child);
@@ -1082,15 +1139,15 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		db.add_to_set(src, "set", child);
 		db.create_from_prefab(inst, src);
 
 		Guid added = Guid.new_guid();
-		db.create(added, "object");
+		db.create(added, StringId64("object"));
 		db.add_to_set(src, "set", added);
 
 		Guid?[] members = db.get_set(inst, db.property_index(inst, STRING_ID_64("set", 0x237afba9ce4e06bf)));
@@ -1104,11 +1161,11 @@ private static void test_database()
 		Database db = new Database(p);
 		db.create_object_type("object", props);
 		Guid src = Guid.new_guid();
-		db.create(src, "object");
+		db.create(src, StringId64("object"));
 		Guid child = Guid.new_guid();
-		db.create(child, "object");
+		db.create(child, StringId64("object"));
 		Guid other = Guid.new_guid();
-		db.create(other, "object");
+		db.create(other, StringId64("object"));
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		db.add_to_set(src, "set", child);
@@ -1155,15 +1212,15 @@ private static void test_duplicate_unit_tree()
 		create_object_types(db);
 		DatabaseEditor editor = new DatabaseEditor(1024 * 1024, db);
 		Guid a = Guid.new_guid();
-		db.create(a, OBJECT_TYPE_UNIT);
+		db.create(a, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		Guid middle = Guid.new_guid();
-		db.create(middle, OBJECT_TYPE_UNIT);
+		db.create(middle, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.add_to_set(a, "children", middle);
 		Guid b = Guid.new_guid();
-		db.create(b, OBJECT_TYPE_UNIT);
+		db.create(b, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.add_to_set(middle, "children", b);
 		Guid sound = Guid.new_guid();
-		db.create(sound, OBJECT_TYPE_SOUND_SOURCE);
+		db.create(sound, STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684));
 		db.add_restore_point((int)ActionType.CREATE_OBJECTS, { a, sound });
 
 		StringBuilder commands = new StringBuilder();
@@ -1215,6 +1272,27 @@ private static void test_duplicate_unit_tree()
 	}
 }
 
+private static void test_component_type_dependencies()
+{
+	Database db = new Database(new Project());
+	create_object_types(db);
+	GLib.HashTable<StringId64?, GLib.GenericArray<StringId64?>> previous_registry = Unit._component_registry;
+	Unit._component_registry = null;
+	StringId64 collider_type = STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e);
+	StringId64 actor_type = STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583);
+	Unit.register_component_type(collider_type, "");
+	Unit.register_component_type(actor_type, OBJECT_TYPE_COLLIDER);
+	Guid id = Guid.new_guid();
+	db.create(id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+	Unit unit = Unit(db, id);
+	assert(unit.add_component_type_dependencies(actor_type));
+	Guid component_id;
+	assert(unit.has_component(out component_id, collider_type));
+	assert(unit.has_component(out component_id, actor_type));
+	assert(!unit.add_component_type_dependencies(actor_type));
+	Unit._component_registry = previous_registry;
+}
+
 private static void test_mesh_resource()
 {
 	stdout.printf("test_mesh_resource\n");
@@ -1225,7 +1303,7 @@ private static void test_mesh_resource()
 		Database db = new Database(p);
 		create_object_types(db);
 		Guid comp = Guid.new_guid();
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
@@ -1244,7 +1322,7 @@ private static void test_mesh_resource()
 		Database db = new Database(p);
 		create_object_types(db);
 		Guid comp = Guid.new_guid();
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
@@ -1263,7 +1341,7 @@ private static void test_mesh_resource()
 		Database db = new Database(p, undo_redo);
 		create_object_types(db);
 		Guid comp = Guid.new_guid();
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		undo_redo.reset();
@@ -1286,8 +1364,8 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid unit = Guid.new_guid();
 		Guid comp = Guid.new_guid();
-		db.create(unit, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(unit, "components", comp);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
@@ -1307,8 +1385,8 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid unit = Guid.new_guid();
 		Guid comp = Guid.new_guid();
-		db.create(unit, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(unit, "components", comp);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
@@ -1317,7 +1395,7 @@ private static void test_mesh_resource()
 
 		Database loaded = new Database(p);
 		create_object_types(loaded);
-		loaded.create(unit, OBJECT_TYPE_UNIT);
+		loaded.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit));
 
 		assert(loaded.get_set(comp, loaded.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d))).length == 2);
@@ -1331,8 +1409,8 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid unit = Guid.new_guid();
 		Guid comp = Guid.new_guid();
-		db.create(unit, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(unit, "components", comp);
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
@@ -1354,7 +1432,7 @@ private static void test_mesh_resource()
 		Database db = new Database(p, undo_redo);
 		create_object_types(db);
 		Guid comp = Guid.new_guid();
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		MeshResource.set_material_slot(db, comp, "Ma", "materials/Ma");
 		MeshResource.set_material_slot(db, comp, "Mb", "materials/Mb");
 		Guid binding = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
@@ -1380,16 +1458,16 @@ private static void test_mesh_resource()
 		Guid comp = Guid.new_guid();
 		Guid binding = Guid.new_guid();
 		string key = "modified_components.#" + comp.to_string() + ".data.materials";
-		db.create(unit, OBJECT_TYPE_UNIT);
+		db.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(unit, "prefab", "units/prefab");
-		db.create(binding, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(binding, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(binding, "data.slot", "Ma");
 		db.set_resource(binding, "data.material", "materials/Ma");
 		db.add_to_set(unit, key, binding);
 
 		Database loaded = new Database(p);
 		create_object_types(loaded);
-		loaded.create(unit, OBJECT_TYPE_UNIT);
+		loaded.create(unit, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		loaded.decode_object(unit, GUID_ZERO, "", db.encode_object(unit));
 
 		assert(!loaded.has_property(unit, "materials"));
@@ -1407,13 +1485,13 @@ private static void test_mesh_resource()
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
 		Database first = new Database(p);
 		create_object_types(first);
-		first.create(src, OBJECT_TYPE_UNIT);
+		first.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		first.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		Guid a = first.get_set(comp, first.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
 		Database second = new Database(p);
 		create_object_types(second);
-		second.create(src, OBJECT_TYPE_UNIT);
+		second.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		second.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		Guid b = second.get_set(comp, second.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 
@@ -1427,12 +1505,12 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid src = Guid.parse("0cc80c3d-089a-43ad-b145-77c504e2ef50");
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
-		db.create(src, OBJECT_TYPE_UNIT);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
 		Guid inst = Guid.new_guid();
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		db.set_resource(inst, "modified_components.#" + comp.to_string() + ".data.material", "materials/instance");
 
@@ -1459,12 +1537,12 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid src = Guid.parse("0cc80c3d-089a-43ad-b145-77c504e2ef50");
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
-		db.create(src, OBJECT_TYPE_UNIT);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
 		Guid inst = Guid.parse("0444b593-d55c-49c2-86aa-eea58388eea6");
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		string key = "modified_components.#" + comp.to_string() + ".data.materials";
 		Guid repl = Guid.parse("4edacc7b-8622-4979-aa7d-90e79befe109");
@@ -1501,15 +1579,15 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid src = Guid.parse("0cc80c3d-089a-43ad-b145-77c504e2ef50");
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
-		db.create(src, OBJECT_TYPE_UNIT);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		Guid child = db.get_set(comp, db.property_index(comp, STRING_ID_64("data.materials", 0xb4c01840c957402d)))[0];
 		db.set_reference(GUID_ZERO, "core/units/primitives/cube.unit", src);
 		Guid inst = Guid.new_guid();
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "core/units/primitives/cube");
 		Guid binding = Guid.new_guid();
-		db.create(binding, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(binding, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(binding, "data.slot", "default");
 		db.set_resource(binding, "data.material", "units/water/water2");
 		string key = "modified_components.#" + comp.to_string() + ".data.materials";
@@ -1533,14 +1611,14 @@ private static void test_mesh_resource()
 		create_object_types(db);
 		Guid src = Guid.parse("0cc80c3d-089a-43ad-b145-77c504e2ef50");
 		Guid comp = Guid.parse("49753fff-34ea-4aff-8bcf-5116f1c1519a");
-		db.create(src, OBJECT_TYPE_UNIT);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.decode_object(src, GUID_ZERO, "", legacy_mesh_renderer_unit_json(comp));
 		db.set_reference(GUID_ZERO, "core/units/primitives/cube.unit", src);
 		Guid inst = Guid.new_guid();
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "core/units/primitives/cube");
 		Guid binding = Guid.new_guid();
-		db.create(binding, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(binding, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(binding, "data.slot", "default");
 		db.set_resource(binding, "data.material", "units/water/water2");
 		string key = "modified_components.#" + comp.to_string() + ".data.materials";
@@ -1564,19 +1642,19 @@ private static void test_mesh_resource()
 		Guid other = Guid.new_guid();
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(child, "data.slot", "Ma");
 		db.set_resource(child, "data.material", "materials/source");
 		db.add_to_set(comp, "data.materials", child);
-		db.create(other, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(other, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(other, "data.slot", "Mb");
 		db.set_resource(other, "data.material", "materials/other");
 		db.add_to_set(comp, "data.materials", other);
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		db.create_from_prefab(repl, child);
 		db.set_resource(repl, "data.material", "materials/instance");
@@ -1603,18 +1681,18 @@ private static void test_mesh_resource()
 		Guid comp = Guid.new_guid();
 		Guid child = Guid.new_guid();
 		Guid inst = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(child, "data.slot", "Ma");
 		db.add_to_set(comp, "data.materials", child);
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 
 		Guid added = Guid.new_guid();
-		db.create(added, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(added, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(added, "data.slot", "Mb");
 		db.add_to_set(comp, "data.materials", added);
 
@@ -1633,15 +1711,15 @@ private static void test_mesh_resource()
 		Guid child = Guid.new_guid();
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(child, "data.slot", "Ma");
 		db.set_resource(child, "data.material", "materials/source");
 		db.add_to_set(comp, "data.materials", child);
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		db.create_from_prefab(repl, child);
 		db.set_resource(repl, "data.material", "materials/instance");
@@ -1666,15 +1744,15 @@ private static void test_mesh_resource()
 		Guid child = Guid.new_guid();
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(child, "data.slot", "Ma");
 		db.set_resource(child, "data.material", "materials/source");
 		db.add_to_set(comp, "data.materials", child);
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		db.create_from_prefab(repl, child);
 		db.set_resource(repl, "data.material", "materials/instance");
@@ -1683,10 +1761,10 @@ private static void test_mesh_resource()
 
 		Database loaded = new Database(p);
 		create_object_types(loaded);
-		loaded.create(src, OBJECT_TYPE_UNIT);
+		loaded.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		loaded.decode_object(src, GUID_ZERO, "", db.encode_object(src));
 		loaded.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		loaded.create(inst, OBJECT_TYPE_UNIT);
+		loaded.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		loaded.decode_object(inst, GUID_ZERO, "", db.encode_object(inst));
 
 		assert(loaded.get_resource(repl, loaded.property_index(repl, STRING_ID_64("data.material", 0xf014ddbddc53c116))) == "materials/instance");
@@ -1705,14 +1783,14 @@ private static void test_mesh_resource()
 		Guid child = Guid.new_guid();
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_MESH_RENDERER);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(child, "data.slot", "Ma");
 		db.add_to_set(comp, "data.materials", child);
 		db.set_reference(GUID_ZERO, "units/prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/prefab");
 		db.create_from_prefab(repl, child);
 		string key = "modified_components.#" + comp.to_string() + ".data.materials";
@@ -1740,15 +1818,15 @@ private static void test_inherited_lod_levels()
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		Guid mesh = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_LOD_GROUP);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_LOD_LEVEL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
 		db.set_double(child, "data.screen_size", 0.5);
 		db.set_reference(child, "data.mesh_renderer", mesh);
 		db.add_to_set(comp, "data.lod_levels", child);
 		db.set_reference(GUID_ZERO, "units/lod-prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/lod-prefab");
 		db.create_from_prefab(repl, child);
 		db.set_double(repl, "data.screen_size", 0.25);
@@ -1773,14 +1851,14 @@ private static void test_inherited_lod_levels()
 		Guid inst = Guid.new_guid();
 		Guid repl = Guid.new_guid();
 		Guid mesh = Guid.new_guid();
-		db.create(src, OBJECT_TYPE_UNIT);
-		db.create(comp, OBJECT_TYPE_LOD_GROUP);
+		db.create(src, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		db.create(comp, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 		db.add_to_set(src, "components", comp);
-		db.create(child, OBJECT_TYPE_LOD_LEVEL);
+		db.create(child, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
 		db.set_double(child, "data.screen_size", 0.5);
 		db.add_to_set(comp, "data.lod_levels", child);
 		db.set_reference(GUID_ZERO, "units/lod-prefab.unit", src);
-		db.create(inst, OBJECT_TYPE_UNIT);
+		db.create(inst, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_resource(inst, "prefab", "units/lod-prefab");
 		db.create_from_prefab(repl, child);
 		string key = "modified_components.#" + comp.to_string() + ".data.lod_levels";
@@ -1801,6 +1879,7 @@ public static int main_unit_tests()
 	test_json();
 	test_database();
 	test_duplicate_unit_tree();
+	test_component_type_dependencies();
 	test_mesh_resource();
 	test_inherited_lod_levels();
 	return 0;

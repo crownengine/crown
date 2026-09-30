@@ -79,7 +79,7 @@ public class SelectObjectDialog : Gtk.Window
 		if (!_database.is_alive(id))
 			return false;
 
-		StringId64 type = StringId64(_database.object_type(id));
+		StringId64 type = _database.object_type(id);
 		return type == _object_type;
 	}
 

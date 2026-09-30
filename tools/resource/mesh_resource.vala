@@ -17,7 +17,7 @@ namespace MeshResource
 			}
 		}
 		Guid binding_id = Guid.new_guid();
-		db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+		db.create(binding_id, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 		db.set_string(binding_id, "data.slot", slot);
 		db.set_resource(binding_id, "data.material", material);
 		db.add_to_set(component_id, "data.materials", binding_id);
@@ -99,7 +99,7 @@ namespace MeshResource
 	{
 		Unit unit = Unit(db, unit_id);
 		if (!db.has_object(unit_id))
-			db.create(unit_id, OBJECT_TYPE_UNIT);
+			db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_name(unit_id, node_name);
 		// editor.import_path is importer-owned metadata, not a filesystem path.
 		// It identifies the source node in the imported hierarchy so reimport
@@ -114,9 +114,9 @@ namespace MeshResource
 		// Create transform
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_TRANSFORM);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -129,9 +129,9 @@ namespace MeshResource
 		// Create mesh_renderer
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -144,9 +144,9 @@ namespace MeshResource
 		// Create collider
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_COLLIDER);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -158,9 +158,9 @@ namespace MeshResource
 		// Create actor
 		{
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_ACTOR);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -202,7 +202,7 @@ namespace MeshResource
 							Unit child_unit = Unit(db, child_id);
 							Guid component_id = GUID_ZERO;
 							bool name_matches = db.name(child_id) == child_name;
-							if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+							if (!name_matches && child_unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 								name_matches = child_unit.get_component_string(component_id, "data.name", "") == child_name;
 
 							if (name_matches) {
@@ -243,6 +243,7 @@ namespace MeshResource
 			string resource_name     = ResourceId.name(resource_path);
 
 			Database db = new Database(project);
+			create_object_types(db);
 
 			string material_name = resource_name;
 			MaterialResource material_resource = MaterialResource.mesh(db, Guid.new_guid());
@@ -257,11 +258,10 @@ namespace MeshResource
 			}
 
 			// Generate or modify existing .unit.
-			create_object_types(db);
 			Guid unit_id;
 			if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0) {
 				unit_id = Guid.new_guid();
-				db.create(unit_id, OBJECT_TYPE_UNIT);
+				db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 			}
 
 			try {
@@ -276,9 +276,9 @@ namespace MeshResource
 					db.set_string(unit_id, "editor.import_path", "root");
 
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_TRANSFORM);
+						db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -314,7 +314,7 @@ namespace MeshResource
 									Unit child_unit = Unit(db, child_id);
 									Guid component_id = GUID_ZERO;
 									bool name_matches = db.name(child_id) == node_name;
-									if (!name_matches && child_unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+									if (!name_matches && child_unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 										name_matches = child_unit.get_component_string(component_id, "data.name", "") == node_name;
 
 									if (name_matches) {

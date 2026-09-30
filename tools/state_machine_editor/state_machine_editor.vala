@@ -530,8 +530,8 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		destroy_event_buttons();
 
-		Guid?[] all_states = _database.all_objects_of_type(StringId64(OBJECT_TYPE_STATE_MACHINE_NODE));
-		Guid?[] all_transitions = _database.all_objects_of_type(StringId64(OBJECT_TYPE_NODE_TRANSITION));
+		Guid?[] all_states = _database.all_objects_of_type(STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_NODE, 0x20aedaf23037aaf8));
+		Guid?[] all_transitions = _database.all_objects_of_type(STRING_ID_64(OBJECT_TYPE_NODE_TRANSITION, 0x2efbb91403bad92d));
 
 		foreach (var state in all_states) {
 			if (!_database.is_subobject_of(state, _state_machine_id, "states"))
@@ -574,7 +574,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	{
 		destroy_variable_sliders();
 
-		Guid?[] all_variables = _database.all_objects_of_type(StringId64(OBJECT_TYPE_STATE_MACHINE_VARIABLE));
+		Guid?[] all_variables = _database.all_objects_of_type(STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_VARIABLE, 0x1e37741082325873));
 
 		foreach (var variable in all_variables) {
 			if (!_database.is_subobject_of(variable, _state_machine_id, "variables"))

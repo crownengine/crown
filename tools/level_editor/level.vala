@@ -189,12 +189,12 @@ public class Level
 	public void on_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
 	{
 		for (int i = 0; i < ids.length; ++i) {
-			if (_db.object_type(ids[i]) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(ids[i]) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit unit = Unit(_db, ids[i]);
 				unit.set_local_position(positions[i]);
 				unit.set_local_rotation(rotations[i]);
 				unit.set_local_scale(scales[i]);
-			} else if (_db.object_type(ids[i]) == OBJECT_TYPE_SOUND_SOURCE) {
+			} else if (_db.object_type(ids[i]) == STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684)) {
 				Sound sound = Sound(_db, ids[i]);
 				sound.set_local_position(positions[i]);
 				sound.set_local_rotation(rotations[i]);
@@ -244,7 +244,7 @@ public class Level
 	{
 		GLib.GenericSet<Guid?> units = guid_set_new();
 		foreach (Guid id in object_ids) {
-			if (_db.object_type(id) == OBJECT_TYPE_UNIT && _db.is_alive(id))
+			if (_db.object_type(id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) && _db.is_alive(id))
 				units.add(id);
 		}
 
@@ -286,8 +286,8 @@ public class Level
 		while (iter.next(out id, null)) {
 			if (_db.is_alive(id))
 				continue;
-			string type = _db.object_type(id);
-			if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_SOUND_SOURCE)
+			StringId64 type = _db.object_type(id);
+			if (type == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) || type == STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684))
 				sb.append(LevelEditorApi.destroy(id));
 		}
 	}

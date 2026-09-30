@@ -18,7 +18,7 @@ public struct Sound
 
 	public void create(Vector3 pos, Quaternion rot, Vector3 scl, double range, double volume, bool loop)
 	{
-		_db.create(_id, OBJECT_TYPE_SOUND_SOURCE);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684));
 
 		set_local_position(pos);
 		set_local_rotation(rot);
@@ -98,7 +98,7 @@ public struct Sound
 	{
 		int i = 0;
 		for (; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+			if (db.object_type(object_ids[i]) != STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684))
 				break;
 
 			Guid id = object_ids[i];
@@ -123,7 +123,7 @@ public struct Sound
 	{
 		int i = 0;
 		for (; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+			if (db.object_type(object_ids[i]) != STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684))
 				break;
 
 			sb.append(LevelEditorApi.destroy(object_ids[i]));
@@ -136,7 +136,7 @@ public struct Sound
 	{
 		int i = 0;
 		for (; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) != OBJECT_TYPE_SOUND_SOURCE)
+			if (db.object_type(object_ids[i]) != STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684))
 				break;
 
 			Guid id = object_ids[i];

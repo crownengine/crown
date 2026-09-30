@@ -20,7 +20,7 @@ public enum UnitFlags
 
 public struct Unit
 {
-	public static GLib.HashTable<string, Value?> _component_registry;
+	public static GLib.HashTable<StringId64?, GLib.GenericArray<StringId64?>> _component_registry;
 	public Database _db;
 	public Guid _id;
 
@@ -137,7 +137,7 @@ public struct Unit
 
 			Guid component_id = Guid.parse(key.substring(prefix.length, 36));
 			if (component_exists_internal(_db, _id, component_id, true) != ObjectExists.EXISTS
-				|| _db.object_type(component_id) != OBJECT_TYPE_MESH_RENDERER
+				|| _db.object_type(component_id) != STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893)
 				)
 				continue;
 
@@ -157,7 +157,7 @@ public struct Unit
 				if (prefab_id != GUID_ZERO) {
 					_db.create_from_prefab(binding_id, prefab_id);
 				} else {
-					_db.create(binding_id, OBJECT_TYPE_MESH_MATERIAL);
+					_db.create(binding_id, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
 					_db.set_string(binding_id, "data.slot", "default");
 				}
 				_db.set_resource(binding_id, "data.material", material);
@@ -196,7 +196,7 @@ public struct Unit
 
 	public void create_empty()
 	{
-		_db.create(_id, OBJECT_TYPE_UNIT);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 	}
 
 	public int create(string? prefab, uint32 flags = UnitFlags.NONE)
@@ -386,7 +386,7 @@ public struct Unit
 		val = db.get_property(unit_id, "components");
 		if (val != null) {
 			foreach (Guid? id in (GLib.GenericSet<Guid?>)val) {
-				if (StringId64(db.object_type(id)) == component_type) {
+				if (db.object_type(id) == component_type) {
 					component_id = id;
 					return true;
 				}
@@ -416,9 +416,9 @@ public struct Unit
 	}
 
 	/// Returns whether the unit has the component_type.
-	public bool has_component(out Guid component_id, string component_type)
+	public bool has_component(out Guid component_id, StringId64 component_type)
 	{
-		return Unit.has_component_static(out component_id, StringId64(component_type), _db, _id);
+		return Unit.has_component_static(out component_id, component_type, _db, _id);
 	}
 
 	public Vector3 local_position()
@@ -426,7 +426,7 @@ public struct Unit
 		Vector3 position;
 
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			position = get_component_vector3(component_id, "data.position");
 		else
 			position = _db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("position", 0x8bbeb160190f613a)));
@@ -439,7 +439,7 @@ public struct Unit
 		Quaternion rotation;
 
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			rotation = get_component_quaternion(component_id, "data.rotation");
 		else
 			rotation = _db.get_quaternion(_id, _db.property_index(_id, STRING_ID_64("rotation", 0x2060566242789baa)));
@@ -452,7 +452,7 @@ public struct Unit
 		Vector3 scale;
 
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			scale = get_component_vector3(component_id, "data.scale");
 		else
 			scale = _db.get_vector3(_id, _db.property_index(_id, STRING_ID_64("scale", 0xeec8c5fba3c8bc0b)), VECTOR3_ONE);
@@ -463,7 +463,7 @@ public struct Unit
 	public void set_local_position(Vector3 position)
 	{
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			set_component_vector3(component_id, "data.position", position);
 		else
 			_db.set_vector3(_id, "position", position);
@@ -472,7 +472,7 @@ public struct Unit
 	public void set_local_rotation(Quaternion rotation)
 	{
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			set_component_quaternion(component_id, "data.rotation", rotation);
 		else
 			_db.set_quaternion(_id, "rotation", rotation);
@@ -481,26 +481,26 @@ public struct Unit
 	public void set_local_scale(Vector3 scale)
 	{
 		Guid component_id;
-		if (has_component(out component_id, OBJECT_TYPE_TRANSFORM))
+		if (has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
 			set_component_vector3(component_id, "data.scale", scale);
 		else
 			_db.set_vector3(_id, "scale", scale);
 	}
 
 	// Adds the @a component_type to the unit and returns its ID.
-	public Guid add_component_type(string component_type)
+	public Guid add_component_type(StringId64 component_type)
 	{
 		// Create a new component.
 		Guid component_id = Guid.new_guid();
 		_db.create(component_id, component_type);
 		_db.add_to_set(_id, "components", component_id);
-		if (component_type == OBJECT_TYPE_MESH_RENDERER)
+		if (component_type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))
 			MeshResource.set_material_slot(_db, component_id, "default", "core/components/noop");
 		return component_id;
 	}
 
 	/// Removes the @a component_type from the unit.
-	public void remove_component_type(string component_type)
+	public void remove_component_type(StringId64 component_type)
 	{
 		Guid component_id;
 		if (has_component(out component_id, component_type)) {
@@ -520,15 +520,20 @@ public struct Unit
 				_db.add_restore_point((int)ActionType.CHANGE_OBJECTS, { _id });
 			}
 		} else {
-			logw("The unit has no such component type `%s`".printf(component_type));
+			logw("The unit has no such component type `%s`".printf(_db.type_name(component_type)));
 		}
 	}
 
-	public static void register_component_type(string type, string depends_on)
+	public static void register_component_type(StringId64 type, string depends_on)
 	{
 		if (_component_registry == null)
-			_component_registry = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-		_component_registry[type] = depends_on;
+			_component_registry = new GLib.HashTable<StringId64?, GLib.GenericArray<StringId64?>>(StringId64.hash_func, StringId64.equal_func);
+		GLib.GenericArray<StringId64?> dependencies = new GLib.GenericArray<StringId64?>();
+		if (depends_on != "") {
+			foreach (unowned string dependency in depends_on.split(", "))
+				dependencies.add(StringId64(dependency));
+		}
+		_component_registry[type] = dependencies;
 	}
 
 	public string? prefab()
@@ -589,7 +594,7 @@ public struct Unit
 		}
 
 		Guid transform_id;
-		bool has_transform = has_component(out transform_id, OBJECT_TYPE_TRANSFORM);
+		bool has_transform = has_component(out transform_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 		bool restore_position = has_transform || _db.has_property(_id, "position");
 		bool restore_rotation = has_transform || _db.has_property(_id, "rotation");
 		bool restore_scale = has_transform || _db.has_property(_id, "scale");
@@ -617,7 +622,7 @@ public struct Unit
 			if (Unit.load_unit(out prefab_id, _db, prefab_name) == LoadError.SUCCESS) {
 				foreach (unowned Guid? component_id in _db.get_set(_id, _db.property_index(_id, STRING_ID_64("components", 0xe71d1687374e5a54)))) {
 					Guid prefab_component_id;
-					if (!Unit.has_component_static(out prefab_component_id, StringId64(_db.object_type(component_id)), _db, prefab_id))
+					if (!Unit.has_component_static(out prefab_component_id, _db.object_type(component_id), _db, prefab_id))
 						continue;
 
 					_db.remove_from_set(_id, "components", component_id);
@@ -653,8 +658,9 @@ public struct Unit
 	public static void generate_add_component_commands(StringBuilder sb, Guid unit_id, Guid component_id, Database db)
 	{
 		Unit unit = Unit(db, unit_id);
+		StringId64 component_type = db.object_type(component_id);
 
-		if (db.object_type(component_id) == OBJECT_TYPE_TRANSFORM) {
+		if (component_type == STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)) {
 			string s = LevelEditorApi.add_tranform_component(unit_id
 				, component_id
 				, unit.get_component_vector3   (component_id, "data.position")
@@ -662,7 +668,7 @@ public struct Unit
 				, unit.get_component_vector3   (component_id, "data.scale")
 				);
 			sb.append(s);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_CAMERA) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_CAMERA, 0x60ed8c3931822dc7)) {
 			string s = LevelEditorApi.add_camera_component(unit_id
 				, component_id
 				, unit.get_component_string(component_id, "data.projection")
@@ -672,7 +678,7 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.orthographic_size")
 				);
 			sb.append(s);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_MESH_RENDERER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893)) {
 			string s = LevelEditorApi.add_mesh_renderer_component(unit_id
 				, component_id
 				, unit.get_component_resource(component_id, "data.mesh_resource")
@@ -682,7 +688,7 @@ public struct Unit
 				);
 			sb.append(s);
 			generate_mesh_material_commands(sb, unit_id, component_id, db);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_SPRITE_RENDERER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b)) {
 			string s = LevelEditorApi.add_sprite_renderer_component(unit_id
 				, component_id
 				, unit.get_component_resource(component_id, "data.sprite_resource")
@@ -694,7 +700,7 @@ public struct Unit
 				, unit.get_component_bool  (component_id, "data.flip_y")
 				);
 			sb.append(s);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_LIGHT) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_LIGHT, 0x7dd7224fbb9f08c2)) {
 			string s = LevelEditorApi.add_light_component(unit_id
 				, component_id
 				, unit.get_component_string (component_id, "data.type")
@@ -711,13 +717,13 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.cookie_y", 0.0)
 				);
 			sb.append(s);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac)) {
 			string s = LevelEditorApi.add_animation_state_machine_component(unit_id
 				, component_id
 				, unit.get_component_resource(component_id, "data.state_machine_resource")
 				);
 			sb.append(s);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_MOVER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_MOVER, 0x273ef5a1ac07d371)) {
 			sb.append(LevelEditorApi.add_mover_component(unit_id
 				, component_id
 				, unit.get_component_double(component_id, "data.height")
@@ -725,9 +731,9 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.max_slope_angle")
 				, unit.get_component_string(component_id, "data.collision_filter")
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_COLLIDER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e)) {
 			Guid actor_id;
-			if (unit.has_component(out actor_id, OBJECT_TYPE_ACTOR)) {
+			if (unit.has_component(out actor_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 				string shape = unit.get_component_string(component_id, "data.shape", "box");
 				bool is_mesh = shape == "convex_hull" || shape == "mesh";
 				sb.append(LevelEditorApi.add_actor_component(unit_id
@@ -742,29 +748,29 @@ public struct Unit
 					, is_mesh ? unit.get_component_string(component_id, "data.name") : ""
 					));
 			}
-		} else if (db.object_type(component_id) == OBJECT_TYPE_ACTOR) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583)) {
 			Guid collider_id;
-			if (unit.has_component(out collider_id, OBJECT_TYPE_COLLIDER))
+			if (unit.has_component(out collider_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e)))
 				generate_add_component_commands(sb, unit_id, collider_id, db);
-		} else if (db.object_type(component_id) == OBJECT_TYPE_FIXED_JOINT
-			|| db.object_type(component_id) == OBJECT_TYPE_HINGE_JOINT
-			|| db.object_type(component_id) == OBJECT_TYPE_SPHERICAL_JOINT
-			|| db.object_type(component_id) == OBJECT_TYPE_SPRING_JOINT
-			|| db.object_type(component_id) == OBJECT_TYPE_LIMB_JOINT
-			|| db.object_type(component_id) == OBJECT_TYPE_D6_JOINT) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_FIXED_JOINT, 0x69617f389ada03c1)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_HINGE_JOINT, 0xd8064886bb32c4e8)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_SPHERICAL_JOINT, 0xf69ceb04066c63e3)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_SPRING_JOINT, 0xcdf8657d6ccbbba7)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_LIMB_JOINT, 0x96f166437068fff7)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_D6_JOINT, 0x4f780f631099cc71)) {
 			Guid other_actor_unit_id = unit.get_component_reference(component_id, "data.other_actor");
 			if (other_actor_unit_id != GUID_ZERO && !db.is_alive(other_actor_unit_id))
 				other_actor_unit_id = GUID_ZERO;
 			sb.append(LevelEditorApi.add_joint_component(unit_id
 				, component_id
-				, db.object_type(component_id)
+				, db.type_name(component_type)
 				, unit.get_component_vector3(component_id, "data.position", VECTOR3_ZERO)
 				, unit.get_component_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY)
 				, other_actor_unit_id
 				, unit.get_component_vector3(component_id, "data.other_position", VECTOR3_ZERO)
 				, unit.get_component_quaternion(component_id, "data.other_rotation", QUATERNION_IDENTITY)
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_LOD_GROUP) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0)) {
 			GLib.GenericSet<Guid?> levels = (GLib.GenericSet<Guid?>)unit.get_component_property(component_id, "data.lod_levels", guid_set_new());
 			GLib.GenericArray<Guid?> live_levels = new GLib.GenericArray<Guid?>();
 			foreach (unowned Guid? level_id in levels) {
@@ -792,7 +798,7 @@ public struct Unit
 				, mesh_renderer_ids
 				, screen_sizes
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_FOG) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_FOG, 0x063924dbf007ef0d)) {
 			sb.append(LevelEditorApi.add_fog_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_fog(unit_id
 				, unit.get_component_vector3(component_id, "data.color")
@@ -802,7 +808,7 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.sun_blend")
 				, unit.get_component_bool   (component_id, "data.enabled")
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_GLOBAL_LIGHTING) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_GLOBAL_LIGHTING, 0xa002d9c1718af7fe)) {
 			sb.append(LevelEditorApi.add_global_lighting_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_global_lighting(unit_id
 				, unit.get_component_resource (component_id, "data.skydome_map")
@@ -810,7 +816,7 @@ public struct Unit
 				, unit.get_component_vector3(component_id, "data.ambient_color")
 				, unit.get_component_double (component_id, "data.shadow_distance", 100.0)
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_BLOOM) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_BLOOM, 0x28e4a7cb995dd31c)) {
 			sb.append(LevelEditorApi.add_bloom_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_bloom(unit_id
 				, unit.get_component_bool  (component_id, "data.enabled")
@@ -818,7 +824,7 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.weight")
 				, unit.get_component_double(component_id, "data.intensity")
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_COLOR_GRADING) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_COLOR_GRADING, 0x18f07f17486057e5)) {
 			sb.append(LevelEditorApi.add_color_grading_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_color_grading(unit_id
 				, unit.get_component_bool   (component_id, "data.enabled")
@@ -827,12 +833,12 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.saturation")
 				, unit.get_component_vector3(component_id, "data.color_filter")
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_TONEMAP) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_TONEMAP, 0xeda056ab7089b06b)) {
 			sb.append(LevelEditorApi.add_tonemap_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_tonemap(unit_id
 				, unit.get_component_string(component_id, "data.type")
 				));
-		} else if (db.object_type(component_id) == OBJECT_TYPE_VIGNETTE) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_VIGNETTE, 0xae5dfa90b77c3567)) {
 			sb.append(LevelEditorApi.add_vignette_component(unit_id, component_id));
 			sb.append(LevelEditorApi.set_vignette(unit_id
 				, unit.get_component_bool   (component_id, "data.enabled")
@@ -895,21 +901,21 @@ public struct Unit
 
 		for (int i = 0; i < components.length; ++i) {
 			Guid component_id = components[i];
-			if (db.object_type(component_id) == OBJECT_TYPE_TRANSFORM)
+			if (db.object_type(component_id) == STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))
 				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
 		}
 
 		for (int i = 0; i < unit_ids.length; ++i) {
 			Guid id = unit_ids[i];
 			Guid owner_id = db.owner(id);
-			if (owner_id != GUID_ZERO && db.object_type(owner_id) == OBJECT_TYPE_UNIT) {
+			if (owner_id != GUID_ZERO && db.object_type(owner_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				sb.append(LevelEditorApi.unit_set_parent(owner_id, id));
 			}
 		}
 
 		for (int i = 0; i < components.length; ++i) {
 			Guid component_id = components[i];
-			if (db.object_type(component_id) != OBJECT_TYPE_TRANSFORM)
+			if (db.object_type(component_id) != STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))
 				generate_add_component_commands(sb, db.owner(component_id), component_id, db);
 		}
 
@@ -975,7 +981,7 @@ public struct Unit
 	public static bool generate_lod_group_subobject_commands(StringBuilder sb, Guid object_id, Database db)
 	{
 		Guid component_id = db.owner(object_id);
-		if (component_id == GUID_ZERO || db.object_type(component_id) != OBJECT_TYPE_LOD_GROUP)
+		if (component_id == GUID_ZERO || db.object_type(component_id) != STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0))
 			return false;
 
 		generate_add_component_commands(sb, db.owner(component_id), component_id, db);
@@ -985,7 +991,7 @@ public struct Unit
 	public static bool generate_mesh_material_subobject_commands(StringBuilder sb, Guid object_id, Database db)
 	{
 		Guid component_id = db.owner(object_id);
-		if (component_id == GUID_ZERO || db.object_type(component_id) != OBJECT_TYPE_MESH_RENDERER)
+		if (component_id == GUID_ZERO || db.object_type(component_id) != STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))
 			return false;
 
 		generate_set_component_commands(sb, db.owner(component_id), component_id, db);
@@ -997,7 +1003,7 @@ public struct Unit
 		int i;
 
 		for (i = 0; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+			if (db.object_type(object_ids[i]) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				if (!db.is_alive(object_ids[i]))
 					continue;
 
@@ -1029,11 +1035,11 @@ public struct Unit
 		int i;
 
 		for (i = 0; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+			if (db.object_type(object_ids[i]) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				sb.append(LevelEditorApi.destroy(object_ids[i]));
 			} else if (is_component(object_ids[i], db)) {
 				Guid component_id = object_ids[i];
-				sb.append(LevelEditorApi.unit_destroy_component_type(db.owner(component_id), db.object_type(component_id)));
+				sb.append(LevelEditorApi.unit_destroy_component_type(db.owner(component_id), db.type_name(db.object_type(component_id))));
 			} else if (!generate_lod_group_subobject_commands(sb, object_ids[i], db)
 				&& !generate_mesh_material_subobject_commands(sb, object_ids[i], db)) {
 				break;
@@ -1046,15 +1052,15 @@ public struct Unit
 	public static void generate_set_component_commands(StringBuilder sb, Guid unit_id, Guid component_id, Database db)
 	{
 		Unit unit = Unit(db, unit_id);
-		string component_type = db.object_type(component_id);
+		StringId64 component_type = db.object_type(component_id);
 
-		if (component_type == OBJECT_TYPE_TRANSFORM) {
+		if (component_type == STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)) {
 			sb.append(LevelEditorApi.move_object(unit_id
 				, unit.get_component_vector3   (component_id, "data.position")
 				, unit.get_component_quaternion(component_id, "data.rotation")
 				, unit.get_component_vector3   (component_id, "data.scale")
 				));
-		} else if (component_type == OBJECT_TYPE_CAMERA) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_CAMERA, 0x60ed8c3931822dc7)) {
 			sb.append(LevelEditorApi.set_camera(unit_id
 				, unit.get_component_string(component_id, "data.projection")
 				, unit.get_component_double(component_id, "data.fov")
@@ -1062,7 +1068,7 @@ public struct Unit
 				, unit.get_component_double(component_id, "data.near_range")
 				, unit.get_component_double(component_id, "data.orthographic_size")
 				));
-		} else if (component_type == OBJECT_TYPE_MESH_RENDERER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893)) {
 			sb.append(LevelEditorApi.set_mesh(unit_id
 				, unit.get_component_resource(component_id, "data.mesh_resource")
 				, unit.get_component_string(component_id, "data.geometry_name")
@@ -1070,7 +1076,7 @@ public struct Unit
 				, unit.get_component_bool  (component_id, "data.cast_shadows", true)
 				));
 			generate_mesh_material_commands(sb, unit_id, component_id, db);
-		} else if (component_type == OBJECT_TYPE_SPRITE_RENDERER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b)) {
 			sb.append(LevelEditorApi.set_sprite(unit_id
 				, unit.get_component_resource(component_id, "data.sprite_resource")
 				, unit.get_component_resource(component_id, "data.material")
@@ -1080,7 +1086,7 @@ public struct Unit
 				, unit.get_component_bool  (component_id, "data.flip_x")
 				, unit.get_component_bool  (component_id, "data.flip_y")
 				));
-		} else if (component_type == OBJECT_TYPE_LIGHT) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_LIGHT, 0x7dd7224fbb9f08c2)) {
 			sb.append(LevelEditorApi.set_light(unit_id
 				, unit.get_component_string (component_id, "data.type")
 				, unit.get_component_double (component_id, "data.range")
@@ -1095,13 +1101,13 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.cookie_x", 0.0)
 				, unit.get_component_double (component_id, "data.cookie_y", 0.0)
 				));
-		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac)) {
 			sb.append(LevelEditorApi.set_animation_state_machine(unit_id
 				, unit.get_component_resource(component_id, "data.state_machine_resource")
 				));
-		} else if (component_type == OBJECT_TYPE_COLLIDER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e)) {
 			generate_add_component_commands(sb, unit_id, component_id, db);
-		} else if (component_type == OBJECT_TYPE_FOG) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_FOG, 0x063924dbf007ef0d)) {
 			sb.append(LevelEditorApi.set_fog(unit_id
 				, unit.get_component_vector3(component_id, "data.color")
 				, unit.get_component_double (component_id, "data.density")
@@ -1110,21 +1116,21 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.sun_blend")
 				, unit.get_component_bool   (component_id, "data.enabled")
 				));
-		} else if (component_type == OBJECT_TYPE_GLOBAL_LIGHTING) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_GLOBAL_LIGHTING, 0xa002d9c1718af7fe)) {
 			sb.append(LevelEditorApi.set_global_lighting(unit_id
 				, unit.get_component_resource (component_id, "data.skydome_map")
 				, unit.get_component_double (component_id, "data.skydome_intensity")
 				, unit.get_component_vector3(component_id, "data.ambient_color")
 				, unit.get_component_double (component_id, "data.shadow_distance", 100.0)
 				));
-		} else if (component_type == OBJECT_TYPE_BLOOM) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_BLOOM, 0x28e4a7cb995dd31c)) {
 			sb.append(LevelEditorApi.set_bloom(unit_id
 				, unit.get_component_bool  (component_id, "data.enabled")
 				, unit.get_component_double(component_id, "data.threshold")
 				, unit.get_component_double(component_id, "data.weight")
 				, unit.get_component_double(component_id, "data.intensity")
 				));
-		} else if (component_type == OBJECT_TYPE_COLOR_GRADING) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_COLOR_GRADING, 0x18f07f17486057e5)) {
 			sb.append(LevelEditorApi.set_color_grading(unit_id
 				, unit.get_component_bool   (component_id, "data.enabled")
 				, unit.get_component_double (component_id, "data.exposure_bias")
@@ -1132,11 +1138,11 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.saturation")
 				, unit.get_component_vector3(component_id, "data.color_filter")
 				));
-		} else if (component_type == OBJECT_TYPE_TONEMAP) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_TONEMAP, 0xeda056ab7089b06b)) {
 			sb.append(LevelEditorApi.set_tonemap(unit_id
 				, unit.get_component_string(component_id, "data.type")
 				));
-		} else if (component_type == OBJECT_TYPE_VIGNETTE) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_VIGNETTE, 0xae5dfa90b77c3567)) {
 			sb.append(LevelEditorApi.set_vignette(unit_id
 				, unit.get_component_bool   (component_id, "data.enabled")
 				, unit.get_component_vector3(component_id, "data.color")
@@ -1147,33 +1153,33 @@ public struct Unit
 				, unit.get_component_double (component_id, "data.center_x")
 				, unit.get_component_double (component_id, "data.center_y")
 				));
-		} else if (component_type == OBJECT_TYPE_SCRIPT) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_SCRIPT, 0x297611d5d18f8ad6)) {
 			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_ACTOR) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583)) {
 			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_FIXED_JOINT
-			|| component_type == OBJECT_TYPE_HINGE_JOINT
-			|| component_type == OBJECT_TYPE_SPHERICAL_JOINT
-			|| component_type == OBJECT_TYPE_SPRING_JOINT
-			|| component_type == OBJECT_TYPE_LIMB_JOINT
-			|| component_type == OBJECT_TYPE_D6_JOINT) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_FIXED_JOINT, 0x69617f389ada03c1)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_HINGE_JOINT, 0xd8064886bb32c4e8)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_SPHERICAL_JOINT, 0xf69ceb04066c63e3)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_SPRING_JOINT, 0xcdf8657d6ccbbba7)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_LIMB_JOINT, 0x96f166437068fff7)
+			|| component_type == STRING_ID_64(OBJECT_TYPE_D6_JOINT, 0x4f780f631099cc71)) {
 			/* No sync. */
-		} else if (component_type == OBJECT_TYPE_MOVER) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_MOVER, 0x273ef5a1ac07d371)) {
 			sb.append(LevelEditorApi.set_mover(unit_id
 				, unit.get_component_double(component_id, "data.height")
 				, unit.get_component_double(component_id, "data.radius")
 				, unit.get_component_double(component_id, "data.max_slope_angle")
 				, unit.get_component_vector3(component_id, "data.center")
 				));
-		} else if (component_type == OBJECT_TYPE_LOD_GROUP) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0)) {
 			sb.append(LevelEditorApi.set_lod_group(unit_id
 				, unit.get_component_double(component_id, "data.level", -1.0)
 				, unit.get_component_string(component_id, "data.fade_mode", "none")
 				));
-		} else if (component_type == OBJECT_TYPE_ANIMATION_STATE_MACHINE) {
+		} else if (component_type == STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac)) {
 			/* No sync. */
 		} else {
-			logw("Unregistered component type `%s`".printf(component_type));
+			logw("Unregistered component type `%s`".printf(db.type_name(component_type)));
 		}
 	}
 
@@ -1182,7 +1188,7 @@ public struct Unit
 		int i;
 
 		for (i = 0; i < object_ids.length; ++i) {
-			if (db.object_type(object_ids[i]) == OBJECT_TYPE_UNIT) {
+			if (db.object_type(object_ids[i]) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Guid unit_id = object_ids[i];
 				Unit unit = Unit(db, unit_id);
 
@@ -1196,7 +1202,7 @@ public struct Unit
 						Guid component_id;
 
 						if (!unit.has_component(out component_id, component_type)) {
-							sb.append(LevelEditorApi.unit_destroy_component_type(unit_id, component_type));
+							sb.append(LevelEditorApi.unit_destroy_component_type(unit_id, db.type_name(component_type)));
 							return;
 						}
 
@@ -1221,17 +1227,17 @@ public struct Unit
 
 	public static bool is_component(Guid id, Database db)
 	{
-		return (db.type_flags(StringId64(db.object_type(id))) & ObjectTypeFlags.UNIT_COMPONENT) != 0;
+		return (db.type_flags(db.object_type(id)) & ObjectTypeFlags.UNIT_COMPONENT) != 0;
 	}
 
-	public bool add_component_type_dependencies(string component_type)
+	public bool add_component_type_dependencies(StringId64 component_type)
 	{
 		Guid dummy;
 		if (has_component(out dummy, component_type))
 			return false;
 
-		string[] component_type_dependencies = ((string)Unit._component_registry[component_type]).split(", ");
-		foreach (unowned string dependency in component_type_dependencies) {
+		GLib.GenericArray<StringId64?> dependencies = Unit._component_registry[component_type];
+		foreach (unowned StringId64? dependency in dependencies) {
 			Guid dependency_component_id;
 			if (!has_component(out dependency_component_id, dependency))
 				add_component_type_dependencies(dependency);

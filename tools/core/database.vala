@@ -216,6 +216,11 @@ public class Stack
 		write_data(&a, sizeof(uint32));
 	}
 
+	public void write_string_id64(StringId64 a)
+	{
+		write_data(&a._id, sizeof(uint64));
+	}
+
 	public void write_double(double a)
 	{
 		write_data(&a, sizeof(double));
@@ -264,6 +269,13 @@ public class Stack
 		return a;
 	}
 
+	public StringId64 read_string_id64()
+	{
+		uint64 id = 0;
+		read_data(&id, sizeof(uint64));
+		return StringId64.from_uint64(id);
+	}
+
 	public double read_double()
 	{
 		double a = 0;
@@ -309,16 +321,16 @@ public class Stack
 		return resource;
 	}
 
-	public void write_create_action(uint32 action, Guid id, string type)
+	public void write_create_action(uint32 action, Guid id, StringId64 type)
 	{
-		write_string(type);
+		write_string_id64(type);
 		write_guid(id);
 		write_uint32(action);
 	}
 
-	public void write_destroy_action(uint32 action, Guid id, string type)
+	public void write_destroy_action(uint32 action, Guid id, StringId64 type)
 	{
-		write_string(type);
+		write_string_id64(type);
 		write_guid(id);
 		write_uint32(action);
 	}
@@ -351,6 +363,13 @@ public class Stack
 	{
 		write_string(val);
 		write_string(key);
+		write_guid(id);
+		write_uint32(action);
+	}
+
+	public void write_set_type_action(uint32 action, Guid id, StringId64 type)
+	{
+		write_string_id64(type);
 		write_guid(id);
 		write_uint32(action);
 	}
@@ -462,6 +481,8 @@ public class UndoRedo
 }
 
 const string OBJECT_NAME_UNNAMED = "Unnamed";
+const string OBJECT_TYPE_DATABASE = "database";
+const string OBJECT_TYPE_FILE = "file";
 public const StringId64 OBJECT_TYPE_ANY = { 0u };
 
 public enum ObjectTypeFlags
@@ -512,6 +533,7 @@ public class Database
 		SET_BOOL,
 		SET_DOUBLE,
 		SET_STRING,
+		SET_TYPE,
 		SET_VECTOR3,
 		SET_QUATERNION,
 		SET_RESOURCE,
@@ -531,7 +553,7 @@ public class Database
 	// create(), destroy(), set_*() etc. A value of 0 means there were no changes.
 
 	// Signals
-	public signal void object_type_added(ObjectTypeInfo info);
+	public signal void object_type_added(StringId64 type, ObjectTypeInfo info);
 	public signal void objects_created(Guid?[] object_ids, uint32 flags);
 	public signal void objects_destroyed(Guid?[] object_ids, uint32 flags);
 	public signal void objects_changed(Guid?[] object_ids, uint32 flags);
@@ -543,6 +565,40 @@ public class Database
 		_project = project;
 		_undo_redo = undo_redo;
 
+		PropertyDefinition[] properties;
+
+		properties = {};
+		create_object_type(OBJECT_TYPE_DATABASE, properties);
+
+		properties =
+		{
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "path",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "type",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "name",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "size",
+			},
+			PropertyDefinition()
+			{
+				type = PropertyType.STRING,
+				name = "mtime",
+			},
+		};
+		create_object_type(OBJECT_TYPE_FILE, properties);
 		reset();
 	}
 
@@ -570,11 +626,11 @@ public class Database
 
 	private void prune_stale_overrides(Guid id)
 	{
-		string type = object_type(id);
+		StringId64 type = object_type(id);
 
-		if (type == OBJECT_TYPE_UNIT) {
+		if (type == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 			prune_stale_unit_overrides(id);
-		} else if (type == OBJECT_TYPE_LEVEL) {
+		} else if (type == STRING_ID_64(OBJECT_TYPE_LEVEL, 0x2a690fd348fe9ac5)) {
 			Guid?[] units = get_set(id, property_index(id, STRING_ID_64("units", 0x11d87c01b90297db)));
 			foreach (unowned Guid? unit_id in units)
 				prune_stale_unit_overrides(unit_id);
@@ -759,9 +815,10 @@ public class Database
 
 				string type = ResourceId.type(resource_path);
 				StringId64 type_hash = StringId64(type);
+				assert(has_type(type_hash));
 
 				_data[object_id] = new GLib.GenericArray<Value?>(PROPERTY_FIRST);
-				set_type(object_id, type);
+				set_type(object_id, type_hash);
 				set_owner(object_id, GUID_ZERO);
 				set_alive(object_id, true);
 				_data[object_id].length = (int)PROPERTY_FIRST;
@@ -965,39 +1022,40 @@ public class Database
 
 	public void decode_object(Guid id, Guid owner_id, string db_key, GLib.HashTable<string, Value?> json)
 	{
-		string? type = null;
+		StringId64 type;
 
 		// The "type" key defines object type only if it appears
 		// in the root of a JSON object (k == "").
 		if (db_key == "" && !has_property(id, "_type")) {
+			string? type_name = null;
 			if (json.contains("_type"))
-				type = (string)json["_type"];
+				type_name = (string)json["_type"];
 			else if (json.contains("type"))
-				type = (string)json["type"];
+				type_name = (string)json["type"];
 
-			assert(type != null);
+			assert(type_name != null);
+			type = StringId64(type_name);
+			assert(has_type(type));
 			set_type(id, type);
 
-			StringId64 type_hash = StringId64(type);
-			if (has_type(type_hash) && !json.contains("_prefab"))
-				_init_object(id, object_definition(type_hash));
+			if (!json.contains("_prefab"))
+				_init_object(id, object_definition(type));
 		} else {
 			type = object_type(id);
 		}
 
-		assert(type != null);
 		if (db_key == "" && json.contains("_prefab"))
 			set(0, id, "_prefab", Guid.parse((string)json["_prefab"]));
-		if (type == OBJECT_TYPE_MATERIAL)
+		if (type == STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf))
 			convert_material(json);
-		else if (type == OBJECT_TYPE_MESH_RENDERER)
+		else if (type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))
 			convert_mesh_renderer(id, json);
 
-		unowned ObjectTypeInfo? info = type_info(StringId64(type));
+		unowned ObjectTypeInfo? info = type_info(type);
 		if (info != null)
 			decode_object_from_properties(id, owner_id, info, json);
 
-		if (type == OBJECT_TYPE_UNIT || (type == OBJECT_TYPE_MATERIAL && info == null))
+		if (type == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) || (type == STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf) && info == null))
 			decode_object_compat(id, owner_id, db_key, json);
 	}
 
@@ -1005,15 +1063,15 @@ public class Database
 	{
 		// Set should be created even if it is empty.
 		create_empty_set(owner_id, key);
+		StringId64 owner_type = object_type(owner_id);
 
 		for (int i = 0; i < json.length; ++i) {
 			GLib.HashTable<string, Value?> obj;
-			string owner_type = object_type(owner_id);
 			obj = (GLib.HashTable<string, Value?>)json[i];
 
 			// Decode object ID.
 			Guid obj_id;
-			if (obj.contains("id") && owner_type != OBJECT_TYPE_FONT)
+			if (obj.contains("id") && owner_type != STRING_ID_64(OBJECT_TYPE_FONT, 0x9efe0a916aae7880))
 				obj_id = Guid.parse((string)obj["id"]);
 			else if (obj.contains("_guid"))
 				obj_id = Guid.parse((string)obj["_guid"]);
@@ -1070,6 +1128,10 @@ public class Database
 			Value? value = db[property];
 			if (value == null || property == PROPERTY_OWNER || property == PROPERTY_ALIVE)
 				continue;
+			if (property == PROPERTY_TYPE) {
+				obj["_type"] = type_name(object_type(id));
+				continue;
+			}
 
 			string key = property_name(id, property);
 			string[] foo = key.split(".");
@@ -1098,16 +1160,16 @@ public class Database
 	{
 		assert(is_alive(id));
 
-		string type = object_type(id);
-		unowned PropertyDefinition[]? properties = object_definition(StringId64(type));
+		StringId64 type = object_type(id);
+		unowned PropertyDefinition[]? properties = object_definition(type);
 
-		if (type == OBJECT_TYPE_UNIT || type == OBJECT_TYPE_MATERIAL || properties == null)
+		if (type == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) || type == STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf) || properties == null)
 			return encode_object_compat(id, get_data(id));
 
 		GLib.HashTable<string, Value?> obj = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
 		if (id != GUID_ZERO) {
 			obj["_guid"] = id.to_string();
-			obj["_type"] = type;
+			obj["_type"] = type_name(type);
 			unowned Value? prefab = get_local(id, PROPERTY_PREFAB);
 			if (prefab != null)
 				obj["_prefab"] = ((Guid)prefab).to_string();
@@ -1201,17 +1263,15 @@ public class Database
 		if (key == STRING_ID_64("_prefab", 0xeb91306c1265f913))
 			return PROPERTY_PREFAB;
 
-		unowned string type;
+		unowned ObjectTypeInfo? info;
 		if (id == GUID_ZERO) {
-			type = "database";
+			info = _object_definitions[STRING_ID_64(OBJECT_TYPE_DATABASE, 0x6d90dd26dff90856)];
 		} else {
-			unowned GLib.GenericArray<Value?> values = _data[id];
-			type = (string)values[PROPERTY_TYPE];
+			unowned Value? type_value = _data[id][PROPERTY_TYPE];
+			unowned StringId64? type = (StringId64?)type_value.get_boxed();
+			info = _object_definitions[type];
 		}
-		StringId64 type_hash = StringId64(type);
-		unowned ObjectTypeInfo? info = _object_definitions[type_hash];
-		if (info == null)
-			return uint32.MAX;
+		assert(info != null);
 		for (uint32 i = 0; i < info.property_name_ids.length; ++i) {
 			if (info.property_name_ids[i] == key)
 				return PROPERTY_FIRST + i;
@@ -1233,15 +1293,9 @@ public class Database
 		if (property != uint32.MAX)
 			return property;
 
-		unowned string type = id == GUID_ZERO ? "database" : (string)_data[id][PROPERTY_TYPE];
-		StringId64 type_hash = StringId64(type);
+		StringId64 type_hash = object_type(id);
 		unowned ObjectTypeInfo? info = _object_definitions[type_hash];
-		if (info == null) {
-			ObjectTypeInfo new_info = {};
-			_object_definitions[type_hash] = new_info;
-			info = _object_definitions[type_hash];
-			info.name = type;
-		}
+		assert(info != null);
 		uint32 index = PROPERTY_FIRST + (uint32)info.property_name_ids.length;
 		// Move the arrays to avoid copying them when appending a new property.
 		string[] names = (owned)info.property_names;
@@ -1269,7 +1323,7 @@ public class Database
 			return "_alive";
 		if (property == PROPERTY_PREFAB)
 			return "_prefab";
-		unowned ObjectTypeInfo? info = _object_definitions[StringId64(object_type(id))];
+		unowned ObjectTypeInfo? info = _object_definitions[object_type(id)];
 		assert(property >= PROPERTY_FIRST && property - PROPERTY_FIRST < info.property_names.length);
 		return info.property_names[property - PROPERTY_FIRST];
 	}
@@ -1308,7 +1362,10 @@ public class Database
 		if (_debug)
 			logi("set_property %s %s %s".printf(debug_string(id), key, debug_string(value)));
 
-		set_local(id, ensure_property_index(id, key), value);
+		if (key == "_type" && value != null)
+			set_type(id, StringId64((string)value));
+		else
+			set_local(id, ensure_property_index(id, key), value);
 
 		if (_undo_redo != null)
 			_undo_redo._distance_from_last_sync += dir;
@@ -1366,15 +1423,15 @@ public class Database
 			_undo_redo._distance_from_last_sync += dir;
 	}
 
-	// Returns the type of the object @a id.
-	public string object_type(Guid id)
+	// Returns the schema ID of the object @a id.
+	public StringId64 object_type(Guid id)
 	{
 		assert(has_object(id));
 
 		if (id == GUID_ZERO)
-			return "database";
-		else
-			return (string)get_local(id, PROPERTY_TYPE);
+			return STRING_ID_64(OBJECT_TYPE_DATABASE, 0x6d90dd26dff90856);
+		unowned Value? type = get_local(id, PROPERTY_TYPE);
+		return (StringId64)type;
 	}
 
 	// Returns the owner of @a id.
@@ -1388,9 +1445,10 @@ public class Database
 	// This is called automatically when loading data or when new objects are created via create().
 	// It can occasionally be called manually after loading legacy data with no type information
 	// stored inside objects.
-	public void set_type(Guid id, string type)
+	public void set_type(Guid id, StringId64 type)
 	{
 		assert(has_object(id));
+		assert(has_type(type));
 		set_local(id, PROPERTY_TYPE, type);
 	}
 
@@ -1449,10 +1507,11 @@ public class Database
 		}
 	}
 
-	private void create_empty(Guid id, string type)
+	public void create_empty(Guid id, StringId64 type)
 	{
 		assert(id != GUID_ZERO);
 		assert(!has_object(id));
+		assert(has_type(type));
 
 		if (_debug)
 			logi("create %s".printf(debug_string(id)));
@@ -1470,13 +1529,10 @@ public class Database
 		_data[id].length = (int)PROPERTY_FIRST;
 	}
 
-	public void create(Guid id, string type)
+	public void create(Guid id, StringId64 type)
 	{
 		create_empty(id, type);
-
-		StringId64 type_hash = StringId64(type);
-		if (has_type(type_hash))
-			_init_object(id, object_definition(type_hash));
+		_init_object(id, object_definition(type));
 	}
 
 	public void create_from_prefab(Guid id, Guid prefab_id)
@@ -1492,7 +1548,7 @@ public class Database
 		assert(id != GUID_ZERO);
 		assert(has_object(id));
 
-		string obj_type = object_type(id);
+		StringId64 obj_type = object_type(id);
 
 		GLib.GenericArray<Value?> values = get_data(id);
 		foreach (unowned Value? value in values) {
@@ -1527,6 +1583,8 @@ public class Database
 			GLib.GenericArray<Value?> ob = get_data(id);
 			uint32 property = property_index(id, StringId64(key));
 			if (property < ob.length && ob[property] != null) {
+				if (property == PROPERTY_TYPE)
+					_undo_redo._undo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 				if (ob[property].holds(typeof(bool)))
 					_undo_redo._undo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)ob[property]);
 				if (ob[property].holds(typeof(double)))
@@ -1600,10 +1658,14 @@ public class Database
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
 			uint32 property = property_index(id, StringId64(key));
-			if (property < ob.length && ob[property] != null)
-				_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[property]);
-			else
+			if (property < ob.length && ob[property] != null) {
+				if (property == PROPERTY_TYPE)
+					_undo_redo._undo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
+				else
+					_undo_redo._undo.write_set_string_action(Action.SET_STRING, id, key, (string)ob[property]);
+			} else {
 				_undo_redo._undo.write_set_null_action(Action.SET_NULL, id, key);
+			}
 
 			_undo_redo._redo.clear();
 		}
@@ -1772,12 +1834,12 @@ public class Database
 	private Guid legacy_mesh_material_source(GLib.GenericSet<Guid?> objects)
 	{
 		foreach (unowned Guid? id in objects) {
-			if (!is_alive(id) || object_type(id) != OBJECT_TYPE_MESH_MATERIAL)
+			if (!is_alive(id) || object_type(id) != STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d))
 				continue;
 			Guid component_id = owner(id);
 			if (component_id != GUID_ZERO
 				&& is_alive(component_id)
-				&& object_type(component_id) == OBJECT_TYPE_MESH_RENDERER
+				&& object_type(component_id) == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893)
 				&& Guid.equal_func(id, legacy_mesh_material_guid(component_id))
 				)
 				return id;
@@ -1788,7 +1850,7 @@ public class Database
 
 	private bool mesh_material_overrides_inherited_slot(Guid local_id, GLib.GenericSet<Guid?> objects)
 	{
-		if (object_type(local_id) != OBJECT_TYPE_MESH_MATERIAL
+		if (object_type(local_id) != STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d)
 			|| !has_local_property(local_id, "data.slot")
 			)
 			return false;
@@ -1799,7 +1861,7 @@ public class Database
 
 		foreach (unowned Guid? id in objects) {
 			if (is_alive(id)
-				&& object_type(id) == OBJECT_TYPE_MESH_MATERIAL
+				&& object_type(id) == STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d)
 				&& get_string(id, property_index(id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == slot
 				)
 				return true;
@@ -1838,7 +1900,7 @@ public class Database
 			if (prefab_id != GUID_ZERO) {
 				// A local instance replaces its source only while the source is in the set.
 				if (!merged.contains(prefab_id)) {
-					Guid legacy_source = object_type(id) == OBJECT_TYPE_MESH_MATERIAL
+					Guid legacy_source = object_type(id) == STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d)
 					&& !is_alive(prefab_id)
 					&& inherited != null
 						? legacy_mesh_material_source((GLib.GenericSet<Guid?>)inherited)
@@ -1882,6 +1944,12 @@ public class Database
 		assert(has_object(id));
 		if (property == uint32.MAX)
 			return val;
+		if (property == PROPERTY_TYPE) {
+			unowned Value? type_hash = get_local(id, PROPERTY_TYPE);
+			if (type_hash == null)
+				return val;
+			return type_hash;
+		}
 
 		string key = property_name(id, property);
 		unowned Value? local = property < _data[id].length ? get_local(id, property) : null;
@@ -2027,7 +2095,8 @@ public class Database
 
 			duplicates[ids[i]] = new_ids[i];
 			objects.add(ids[i]);
-			dest.create_empty(new_ids[i], object_type(ids[i]));
+			StringId64 type = object_type(ids[i]);
+			dest.create_empty(new_ids[i], type);
 		}
 
 		for (uint i = 0; i < objects.length; ++i) {
@@ -2044,7 +2113,8 @@ public class Database
 					Guid x = Guid.new_guid();
 					duplicates[j] = x;
 					objects.add(j);
-					dest.create_empty(x, object_type(j));
+					StringId64 type = object_type(j);
+					dest.create_empty(x, type);
 				}
 			}
 		}
@@ -2053,7 +2123,7 @@ public class Database
 			Guid source_id = objects[i];
 			Guid duplicate_id = duplicates[source_id];
 			GLib.GenericArray<Value?> values = get_data(source_id);
-			for (uint32 property = 0; property < values.length; ++property) {
+			for (uint32 property = PROPERTY_OWNER; property < values.length; ++property) {
 				Value? value = values[property];
 				if (value == null)
 					continue;
@@ -2103,7 +2173,7 @@ public class Database
 			if (owner(new_id) != owner_id)
 				continue;
 
-			unowned PropertyDefinition[]? properties = object_definition(StringId64(object_type(owner_id)));
+			unowned PropertyDefinition[]? properties = object_definition(object_type(owner_id));
 			bool added = false;
 
 			foreach (PropertyDefinition def in properties) {
@@ -2136,8 +2206,10 @@ public class Database
 
 	public void copy_deep(Database db, Guid id, string new_key)
 	{
-		if (!db.has_object(id))
-			db.create_empty(id, object_type(id));
+		if (!db.has_object(id)) {
+			StringId64 type = object_type(id);
+			db.create_empty(id, type);
+		}
 
 		GLib.GenericArray<Value?> ob = get_data(id);
 		for (uint32 property = 0; property < ob.length; ++property) {
@@ -2145,12 +2217,17 @@ public class Database
 			if (value == null)
 				continue;
 			string key = property_name(id, property);
+			if (property == PROPERTY_TYPE) {
+				db.set_type(id, object_type(id));
+				continue;
+			}
 			if (value.holds(typeof(GLib.GenericSet))) {
 				string set_key = new_key + (new_key == "" ? "" : ".") + key;
 				db.create_empty_set(id, set_key);
 				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
 				foreach (Guid? j in hs) {
-					db.create_empty(j, object_type(j));
+					StringId64 type = object_type(j);
+					db.create_empty(j, type);
 					copy_deep(db, j, "");
 					db.add_to_set(id, set_key, j);
 				}
@@ -2275,13 +2352,13 @@ public class Database
 			Action action = (Action)undo.read_uint32();
 			if (action == Action.CREATE) {
 				Guid id = undo.read_guid();
-				string obj_type = undo.read_string();
+				StringId64 obj_type = undo.read_string_id64();
 				set_alive(id, true);
 				_undo_redo._distance_from_last_sync += dir;
 				redo.write_destroy_action(Action.DESTROY, id, obj_type);
 			} else if (action == Action.DESTROY) {
 				Guid id = undo.read_guid();
-				string obj_type = undo.read_string();
+				StringId64 obj_type = undo.read_string_id64();
 				set_alive(id, false);
 				_undo_redo._distance_from_last_sync += dir;
 				redo.write_create_action(Action.CREATE, id, obj_type);
@@ -2292,6 +2369,8 @@ public class Database
 				unowned Value? value = property < _data[id].length ? get_local(id, property) : null;
 
 				if (value != null) {
+					if (key == "_type")
+						redo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
 					if (value.holds(typeof(bool)))
 						redo.write_set_bool_action(Action.SET_BOOL, id, key, (bool)value);
 					if (value.holds(typeof(double)))
@@ -2340,6 +2419,15 @@ public class Database
 				else
 					redo.write_set_null_action(Action.SET_NULL, id, key);
 				set(dir, id, key, val);
+			} else if (action == Action.SET_TYPE) {
+				Guid id = undo.read_guid();
+				StringId64 type = undo.read_string_id64();
+				if (has_local_property(id, "_type"))
+					redo.write_set_type_action(Action.SET_TYPE, id, object_type(id));
+				else
+					redo.write_set_null_action(Action.SET_NULL, id, "_type");
+				set_type(id, type);
+				_undo_redo._distance_from_last_sync += dir;
 			} else if (action == Action.SET_VECTOR3) {
 				Guid id = undo.read_guid();
 				string key = undo.read_string();
@@ -2497,42 +2585,21 @@ public class Database
 		)
 	{
 		StringId64 type_hash = StringId64(type);
-		assert(!_object_definitions.contains(type_hash) || _object_definitions[type_hash].num_declared == 0);
-		assert(properties.length > 0);
+		assert(!_object_definitions.contains(type_hash));
 
 		PropertyDefinition[] validated = validate_properties(properties);
-
+		ObjectTypeInfo new_info = {};
+		_object_definitions[type_hash] = new_info;
 		unowned ObjectTypeInfo? info = _object_definitions[type_hash];
-		if (info == null) {
-			ObjectTypeInfo new_info = {};
-			_object_definitions[type_hash] = new_info;
-			info = _object_definitions[type_hash];
-		}
-		for (int i = 0; i < validated.length; ++i) {
-			PropertyDefinition def = validated[i];
-			def.declaration_order = i;
-			StringId64 name_id = StringId64(def.name);
-			bool found = false;
-			for (uint j = 0; j < info.property_name_ids.length; ++j) {
-				if (info.property_name_ids[j] == name_id) {
-					info.property_definitions[j] = def;
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				string[] names = info.property_names;
-				names += def.name;
-				info.property_names = names;
-				StringId64[] name_ids = info.property_name_ids;
-				name_ids += name_id;
-				info.property_name_ids = name_ids;
-				PropertyDefinition[] definitions = info.property_definitions;
-				definitions += def;
-				info.property_definitions = definitions;
-			}
-		}
+		info.property_names = new string[validated.length];
+		info.property_name_ids = new StringId64[validated.length];
 		info.num_declared = validated.length;
+		for (int i = 0; i < validated.length; ++i) {
+			validated[i].declaration_order = i;
+			info.property_names[i] = validated[i].name;
+			info.property_name_ids[i] = StringId64(validated[i].name);
+		}
+		info.property_definitions = (owned)validated;
 		info.name = type;
 		info.ui_name = camel_case(type);
 		info.ui_order = ui_order;
@@ -2540,7 +2607,7 @@ public class Database
 		info.flags = flags;
 		info.user_data = user_data;
 		info.aspects = new GLib.HashTable<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);
-		object_type_added(info);
+		object_type_added(type_hash, info);
 		return type_hash;
 	}
 
@@ -2575,10 +2642,10 @@ public class Database
 	// Returns whether the object @a type exists (i.e. has been created with create_object_type()).
 	public bool has_type(StringId64 type)
 	{
-		return _object_definitions.contains(type) && _object_definitions[type].num_declared != 0;
+		return _object_definitions.contains(type);
 	}
 
-	public string type_name(StringId64 type)
+	public unowned string type_name(StringId64 type)
 	{
 		return _object_definitions[type].name;
 	}
@@ -2602,7 +2669,7 @@ public class Database
 
 		while (iter.next(out id, out data)) {
 			if (id != GUID_ZERO
-				&& (type == OBJECT_TYPE_ANY || StringId64(object_type(id)) == type)
+				&& (type == OBJECT_TYPE_ANY || object_type(id) == type)
 				&& is_alive(id)) {
 				all.add(id);
 			}
@@ -2674,7 +2741,7 @@ public void default_name_aspect(out string name, Database database, Guid id)
 {
 	name = database.name(id);
 
-	StringId64 object_type = StringId64(database.object_type(id));
+	StringId64 object_type = database.object_type(id);
 
 	uint32 name_index = 0;
 	if (database.find_property(ref name_index, object_type, PropertyType.STRING, "name"))

@@ -699,7 +699,7 @@ public class ObjectTree : Gtk.Box
 				mi.set_action_and_target_value("database.delete", null);
 				menu_model.append_item(mi);
 			} else if (allow_add && set_index >= 0) {
-				StringId64 object_type = StringId64(_database.object_type(set_owner_id));
+				StringId64 object_type = _database.object_type(set_owner_id);
 				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 				assert(set_index < object_definition.length);
 				assert(object_definition[set_index].type == PropertyType.OBJECTS_SET);
@@ -713,7 +713,7 @@ public class ObjectTree : Gtk.Box
 
 			if (allow_add && selected_count == 1 && selected_object_ids.length == 1) {
 				Guid owner_id = (Guid)selected_object_ids[0];
-				StringId64 object_type = StringId64(_database.object_type(owner_id));
+				StringId64 object_type = _database.object_type(owner_id);
 				unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 				int flattened_set_count = 0;
 				int flattened_set_index = -1;
@@ -1059,7 +1059,7 @@ public class ObjectTree : Gtk.Box
 
 	public string object_display_name(Guid id)
 	{
-		StringId64 object_type = StringId64(_database.object_type(id));
+		StringId64 object_type = _database.object_type(id);
 		Aspect? name_aspect = _database.get_aspect(object_type, StringId64("name"));
 		if (name_aspect == null)
 			name_aspect = default_name_aspect;
@@ -1132,7 +1132,7 @@ public class ObjectTree : Gtk.Box
 
 	public void insert_object_in_set(SetRowKey set_key, Guid child_id)
 	{
-		StringId64 object_type = StringId64(_database.object_type(set_key.id));
+		StringId64 object_type = _database.object_type(set_key.id);
 		if (objects_set_flattened(object_type, set_key.set_index)) {
 			if (set_key.id == _object_id && !show_root) {
 				insert_object_child(null, child_id, set_key);
@@ -1162,7 +1162,7 @@ public class ObjectTree : Gtk.Box
 		if (owner_id != GUID_ZERO
 			&& (owner_id == _object_id || _object_rows.lookup(owner_id) != null)
 			) {
-			StringId64 owner_type = StringId64(_database.object_type(owner_id));
+			StringId64 owner_type = _database.object_type(owner_id);
 			unowned PropertyDefinition[] object_definition = _database.object_definition(owner_type);
 			for (int set_index = 0; set_index < object_definition.length && !has_desired; ++set_index) {
 				var def = object_definition[set_index];
@@ -1311,7 +1311,7 @@ public class ObjectTree : Gtk.Box
 				continue;
 			}
 
-			StringId64 object_type = StringId64(_database.object_type(id));
+			StringId64 object_type = _database.object_type(id);
 			unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 			for (int set_index = 0; set_index < object_definition.length; ++set_index) {
 				var def = object_definition[set_index];
@@ -1377,7 +1377,7 @@ public class ObjectTree : Gtk.Box
 
 	public void add_object_set(Gtk.TreeIter? parent_iter, Guid id)
 	{
-		StringId64 object_type = StringId64(_database.object_type(id));
+		StringId64 object_type = _database.object_type(id);
 		unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 
 		for (int set_index = 0; set_index < object_definition.length; ++set_index) {
@@ -1446,7 +1446,7 @@ public class ObjectTree : Gtk.Box
 
 		if (id != GUID_ZERO) {
 			if (show_root) {
-				unowned ObjectTypeInfo? info = _database.type_info(StringId64(_database.object_type(id)));
+				unowned ObjectTypeInfo? info = _database.type_info(_database.object_type(id));
 				int object_kind;
 				string object_icon;
 				object_aspect(id, out object_kind, out object_icon);

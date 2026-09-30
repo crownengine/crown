@@ -136,7 +136,7 @@ public class ObjectProperties : Gtk.Box
 			return;
 		}
 
-		StringId64 object_type = StringId64(_database.object_type(id));
+		StringId64 object_type = _database.object_type(id);
 		PropertyGrid? direct_grid = _grids[object_type];
 		if (direct_grid == null) {
 			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor);

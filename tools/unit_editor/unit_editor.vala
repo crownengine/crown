@@ -67,8 +67,8 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_properties_view.set_component_func(Unit.has_component_static);
 
 		_database_editor.load_types();
-		_objects_tree.flatten_objects_set(StringId64(OBJECT_TYPE_UNIT), "children");
-		_properties_view.register_object_type(StringId64(OBJECT_TYPE_UNIT), new UnitView(_database));
+		_objects_tree.flatten_objects_set(STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f), "children");
+		_properties_view.register_object_type(STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f), new UnitView(_database));
 
 		_editor_viewport = new EditorViewport("unit_editor"
 			, data_compiler
@@ -374,13 +374,13 @@ public class UnitEditor : Gtk.ApplicationWindow
 		save_as(_unit_path, (owned)on_save_success);
 	}
 
-	public void on_object_type_added(ObjectTypeInfo info)
+	public void on_object_type_added(StringId64 type, ObjectTypeInfo info)
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
-			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
-			_properties_view.register_object_type(StringId64(info.name), null);
-		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
-			_properties_view.register_object_type(StringId64(info.name), null);
+			Unit.register_component_type(type, info.user_data != null ? info.user_data : "");
+			_properties_view.register_object_type(type, null);
+		} else if (type != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) { // FIXME
+			_properties_view.register_object_type(type, null);
 		}
 	}
 
@@ -402,10 +402,10 @@ public class UnitEditor : Gtk.ApplicationWindow
 		if ((flags& ActionTypeFlags.FROM_OBJECTS_SET_EDITOR) != 0) {
 			_properties_view.read_selection(_database_editor._selection.data);
 		} else {
-			if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
+			if (_database.object_type(last) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				_database_editor.selection_set({ last }); // Select the objects just created.
 				_properties_view.set_object(last);
-			} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+			} else if ((_database.type_flags(_database.object_type(last)) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 				_database_editor.selection_set({ _database.owner(last) });
 				_properties_view.set_object(_database.owner(last));
 			}
@@ -420,11 +420,11 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		Guid last = object_ids[object_ids.length - 1];
 
-		if (_database.object_type(last) == OBJECT_TYPE_UNIT) {
+		if (_database.object_type(last) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 			// Select the root object which must always exits.
 			_database_editor.selection_set({ _unit_id });
 			_properties_view.set_object(_unit_id);
-		} else if ((_database.type_flags(StringId64(_database.object_type(last))) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
+		} else if ((_database.type_flags(_database.object_type(last)) & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
 			Guid owner_id = _database.owner(last);
 
 			if (_database.is_alive(owner_id)) {
@@ -549,7 +549,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 				continue;
 
 			Guid unit_id = id;
-			if (_database.object_type(id) != OBJECT_TYPE_UNIT) {
+			if (_database.object_type(id) != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				if (!Unit.is_component(id, _database))
 					continue;
 				unit_id = _database.owner(id);
@@ -558,7 +558,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 			if (unit_id == GUID_ZERO
 				|| !_database.has_object(unit_id)
 				|| !_database.is_alive(unit_id)
-				|| _database.object_type(unit_id) != OBJECT_TYPE_UNIT)
+				|| _database.object_type(unit_id) != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f))
 				continue;
 
 			if (!selected.contains(unit_id)) {

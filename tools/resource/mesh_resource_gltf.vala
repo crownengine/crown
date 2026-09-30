@@ -802,7 +802,7 @@ public class GLTFImporter
 		}
 	}
 
-	public static void remove_owned_component(Database db, Unit unit, Guid unit_id, string type)
+	public static void remove_owned_component(Database db, Unit unit, Guid unit_id, StringId64 type)
 	{
 		Guid component_id;
 		if (unit.has_component(out component_id, type) && db.owner(component_id) == unit_id) {
@@ -866,9 +866,9 @@ public class GLTFImporter
 			}
 
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 			unit.set_component_string(component_id, "data.fade_mode", "none");
@@ -878,7 +878,7 @@ public class GLTFImporter
 			double screen_size = 1.0;
 			for (int lod = first_lod; lod_units.contains(lod); ++lod) {
 				Guid level_id = Guid.new_guid();
-				db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+				db.create(level_id, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
 				db.set_reference(level_id, "data.mesh_renderer", lod_units[lod]);
 				db.set_double(level_id, "data.screen_size", screen_size);
 				db.add_to_set(component_id, "data.lod_levels", level_id);
@@ -921,12 +921,12 @@ public class GLTFImporter
 
 		if (node.mesh != null) {
 			if (!db.has_object(unit_id))
-				db.create(unit_id, OBJECT_TYPE_UNIT);
+				db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 
 			Guid transform_id;
-			if (!unit.has_component(out transform_id, OBJECT_TYPE_TRANSFORM)) {
+			if (!unit.has_component(out transform_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				transform_id = Guid.new_guid();
-				db.create(transform_id, OBJECT_TYPE_TRANSFORM);
+				db.create(transform_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 				db.add_to_set(unit_id, "components", transform_id);
 			}
 			set_transform(unit, transform_id, transform, editor_name);
@@ -948,9 +948,9 @@ public class GLTFImporter
 
 			if (has_triangles) {
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -976,9 +976,9 @@ public class GLTFImporter
 
 				if (options.create_colliders) {
 					Guid collider_id;
-					if (!unit.has_component(out collider_id, OBJECT_TYPE_COLLIDER)) {
+					if (!unit.has_component(out collider_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 						collider_id = Guid.new_guid();
-						db.create(collider_id, OBJECT_TYPE_COLLIDER);
+						db.create(collider_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
 						db.add_to_set(unit_id, "components", collider_id);
 					}
 					unit.set_component_string(collider_id, "data.shape", "mesh");
@@ -986,9 +986,9 @@ public class GLTFImporter
 					unit.set_component_string(collider_id, "data.name", editor_name);
 
 					Guid actor_id;
-					if (!unit.has_component(out actor_id, OBJECT_TYPE_ACTOR)) {
+					if (!unit.has_component(out actor_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 						actor_id = Guid.new_guid();
-						db.create(actor_id, OBJECT_TYPE_ACTOR);
+						db.create(actor_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
 						db.add_to_set(unit_id, "components", actor_id);
 					}
 					unit.set_component_string(actor_id, "data.class", "static");
@@ -1007,7 +1007,7 @@ public class GLTFImporter
 			unit.set_local_scale(transform.scale());
 
 			Guid component_id;
-			if (unit.has_component(out component_id, OBJECT_TYPE_LIGHT)) {
+			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LIGHT, 0x7dd7224fbb9f08c2))) {
 				unit.set_component_string (component_id, "data.type", light_type(node.light.type));
 				unit.set_component_double (component_id, "data.range", node.light.range > 0.0f ? node.light.range : 10.0);
 				unit.set_component_double (component_id, "data.intensity", node.light.intensity);
@@ -1026,7 +1026,7 @@ public class GLTFImporter
 			unit.set_local_scale(transform.scale());
 
 			Guid component_id;
-			if (unit.has_component(out component_id, OBJECT_TYPE_CAMERA)) {
+			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_CAMERA, 0x60ed8c3931822dc7))) {
 				bool orthographic = node.camera.type == cgltf.CameraType.ORTHOGRAPHIC;
 				unit.set_component_string(component_id, "data.projection", orthographic ? "orthographic" : "perspective");
 				if (orthographic) {
@@ -1041,31 +1041,31 @@ public class GLTFImporter
 			}
 		} else {
 			if (!db.has_object(unit_id))
-				db.create(unit_id, OBJECT_TYPE_UNIT);
+				db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_TRANSFORM);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 			set_transform(unit, component_id, transform, editor_name);
 		}
 
 		if (!options.create_colliders) {
-			remove_owned_component(db, unit, unit_id, OBJECT_TYPE_COLLIDER);
-			remove_owned_component(db, unit, unit_id, OBJECT_TYPE_ACTOR);
+			remove_owned_component(db, unit, unit_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
+			remove_owned_component(db, unit, unit_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
 		}
 
 		if (attach_state_machine && state_machines.contains(node)) {
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 			unit.set_component_string(component_id, "data.state_machine_resource", state_machines[node]);
 		} else if (attach_state_machine || parent_unit_id != GUID_ZERO) {
-			remove_owned_component(db, unit, unit_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+			remove_owned_component(db, unit, unit_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 		}
 
 		db.set_name(unit_id, editor_name);
@@ -1136,7 +1136,7 @@ public class GLTFImporter
 		if (options.import_lods) {
 			import_named_lods(db, unit, unit_id, data, names, imported_children);
 		} else {
-			remove_owned_component(db, unit, unit_id, OBJECT_TYPE_LOD_GROUP);
+			remove_owned_component(db, unit, unit_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 		}
 
 		return true;
@@ -1162,7 +1162,7 @@ public class GLTFImporter
 		, cgltf.Node* node
 		)
 	{
-		db.create(bone_id, OBJECT_TYPE_MESH_BONE);
+		db.create(bone_id, STRING_ID_64(OBJECT_TYPE_MESH_BONE, 0x0e2e3f571084be90));
 		db.set_string(bone_id, "name", names.node(data, node));
 		if (parent_bone_id != GUID_ZERO)
 			db.add_to_set(parent_bone_id, "children", bone_id);
@@ -1428,6 +1428,7 @@ public class GLTFImporter
 			}
 
 			Database db = new Database(project);
+			create_object_types(db);
 			GLib.HashTable<cgltf.Skin*, string> skin_state_machines = new GLib.HashTable<cgltf.Skin*, string>(GLib.direct_hash, GLib.direct_equal);
 			GLib.GenericArray<string> target_skeletons = new GLib.GenericArray<string>();
 			bool has_state_machine = false;
@@ -1471,7 +1472,7 @@ public class GLTFImporter
 					GLib.HashTable<cgltf.Node*, bool> marked = new GLib.HashTable<cgltf.Node*, bool>(GLib.direct_hash, GLib.direct_equal);
 					mark_bones(skin, marked);
 					Guid animation_skeleton_id = Guid.new_guid();
-					db.create(animation_skeleton_id, OBJECT_TYPE_MESH_SKELETON);
+					db.create(animation_skeleton_id, STRING_ID_64(OBJECT_TYPE_MESH_SKELETON, 0x2597bb272931eded));
 					db.set_string(animation_skeleton_id, "mesh_resource", resource_name);
 					db.set_string(animation_skeleton_id, "skin_name", names.skin(data, skin));
 					for (size_t ni = 0; ni < data.nodes_count; ++ni) {
@@ -1526,7 +1527,7 @@ public class GLTFImporter
 							, animation
 							);
 						Guid animation_id = Guid.new_guid();
-						db.create(animation_id, OBJECT_TYPE_MESH_ANIMATION);
+						db.create(animation_id, STRING_ID_64(OBJECT_TYPE_MESH_ANIMATION, 0x7369558b842d5314));
 						db.set_string(animation_id, "source", resource_path);
 						db.set_string(animation_id, "target_skeleton", target_skeleton);
 						db.set_string(animation_id, "stack_name", names.animation(data, animation));
@@ -1598,7 +1599,6 @@ public class GLTFImporter
 			}
 
 			if (options.import_units) {
-				create_object_types(db);
 				Guid unit_id;
 				if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0)
 					unit_id = Guid.new_guid();
@@ -1614,9 +1614,9 @@ public class GLTFImporter
 					if (!db.has_object(unit_id))
 						root.create_empty();
 					Guid transform_id;
-					if (!root.has_component(out transform_id, OBJECT_TYPE_TRANSFORM)) {
+					if (!root.has_component(out transform_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 						transform_id = Guid.new_guid();
-						db.create(transform_id, OBJECT_TYPE_TRANSFORM);
+						db.create(transform_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 						db.add_to_set(unit_id, "components", transform_id);
 					}
 					set_transform(root, transform_id, identity_transform(), resource_basename);
@@ -1664,26 +1664,26 @@ public class GLTFImporter
 					if (options.import_lods)
 						import_named_lods(db, root, unit_id, data, names, imported_children);
 					else
-						remove_owned_component(db, root, unit_id, OBJECT_TYPE_LOD_GROUP);
+						remove_owned_component(db, root, unit_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 				}
 
 				Unit unit = Unit(db, unit_id);
 				if (single_state_machine != "") {
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
+					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))) {
 						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+						db.create(component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 						db.add_to_set(unit_id, "components", component_id);
 					}
 					unit.set_component_string(component_id, "data.state_machine_resource", single_state_machine);
 				} else if (!attach_state_machine || active_scene.nodes.length != 1) {
-					remove_owned_component(db, unit, unit_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+					remove_owned_component(db, unit, unit_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 				}
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
 					return ImportResult.ERROR;
 				Guid mesh_id = Guid.new_guid();
-				db.create(mesh_id, OBJECT_TYPE_MESH);
+				db.create(mesh_id, STRING_ID_64(OBJECT_TYPE_MESH, 0x48ff313713a997a1));
 				db.set_string(mesh_id, "source", resource_path);
 				// The compiler derives rigid nodes, bones and roots from the glTF.
 				// Only the generated unit's animation mode is not present in the source.

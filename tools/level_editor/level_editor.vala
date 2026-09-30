@@ -14,15 +14,17 @@ namespace Crown
 {
 public class UnitComponentRow : Gtk.ListBoxRow
 {
-	public string _component_type;
+	public StringId64 _component_type;
+	public string _component_name;
 	public string _ui_name;
 	public string _ui_category;
 	public double _ui_category_order;
 	public double _ui_order;
 
-	public UnitComponentRow(ObjectTypeInfo info, string ui_category, double ui_category_order)
+	public UnitComponentRow(StringId64 type, ObjectTypeInfo info, string ui_category, double ui_category_order)
 	{
-		_component_type = info.name;
+		_component_type = type;
+		_component_name = info.name;
 		_ui_name = info.ui_name;
 		_ui_category = ui_category;
 		_ui_category_order = ui_category_order;
@@ -53,12 +55,12 @@ public class UnitView : PropertyGrid
 
 	public const GLib.ActionEntry[] actions =
 	{
-		{ "add-component", on_add_component, "s", null },
+		{ "add-component", on_add_component, "t", null },
 	};
 
 	public void on_add_component(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string component_type = param.get_string();
+		StringId64 component_type = StringId64.from_uint64(param.get_uint64());
 
 		Guid unit_id = _id;
 		Unit unit = Unit(_db, unit_id);
@@ -119,7 +121,7 @@ public class UnitView : PropertyGrid
 
 		GLib.HashTable<string, double?> category_orders = new GLib.HashTable<string, double?>(GLib.str_hash, GLib.str_equal);
 		Unit._component_registry.foreach((component_type, _value) => {
-				unowned ObjectTypeInfo? info = db.type_info(StringId64(component_type));
+				unowned ObjectTypeInfo? info = db.type_info(component_type);
 				string? category = info.ui_category;
 				if (category != null
 				&& (!category_orders.contains(category) || info.ui_order < category_orders[category])
@@ -128,16 +130,16 @@ public class UnitView : PropertyGrid
 			});
 
 		Unit._component_registry.foreach((component_type, _value) => {
-				unowned ObjectTypeInfo? info = db.type_info(StringId64(component_type));
+				unowned ObjectTypeInfo? info = db.type_info(component_type);
 				string category = info.ui_category != null ? info.ui_category : _("Other");
 				double category_order = info.ui_category != null
 				? category_orders[info.ui_category]
 				: double.MAX;
 
 #if CROWN_GTK3
-				component_list.add(new UnitComponentRow(info, category, category_order));
+				component_list.add(new UnitComponentRow(component_type, info, category, category_order));
 #else
-				component_list.append(new UnitComponentRow(info, category, category_order));
+				component_list.append(new UnitComponentRow(component_type, info, category, category_order));
 #endif
 			});
 
@@ -156,7 +158,7 @@ public class UnitView : PropertyGrid
 					return a._ui_order < b._ui_order ? -1 : 1;
 
 				result = a._ui_name.collate(b._ui_name);
-				return result != 0 ? result : a._component_type.collate(b._component_type);
+			return result != 0 ? result : a._component_name.collate(b._component_name);
 			});
 
 		component_list.set_filter_func((row) => {
@@ -204,7 +206,7 @@ public class UnitView : PropertyGrid
 
 		component_list.row_activated.connect((row) => {
 				UnitComponentRow component_row = (UnitComponentRow)row;
-				_action_group.activate_action("add-component", new GLib.Variant.string(component_row._component_type));
+				_action_group.activate_action("add-component", new GLib.Variant.uint64(component_row._component_type._id));
 				_add_popover.popdown();
 			});
 
@@ -1842,7 +1844,7 @@ public class LevelEditorApplication : Gtk.Application
 
 		create_object_types(_database);
 
-		_properties_view.register_object_type(StringId64(OBJECT_TYPE_UNIT), new UnitView(_database));
+		_properties_view.register_object_type(STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f), new UnitView(_database));
 
 		_level = new Level(_database, _editor);
 
@@ -1901,7 +1903,7 @@ public class LevelEditorApplication : Gtk.Application
 		_level_treeview.set_selection_lock_func(level_tree_selection_locked, level_tree_set_selection_locked);
 		_level_treeview.set_object_aspect_func(level_tree_object_aspect);
 		_level_treeview.set_context_menu_func(level_tree_context_menu);
-		_level_treeview.flatten_objects_set(StringId64(OBJECT_TYPE_UNIT), "children");
+		_level_treeview.flatten_objects_set(STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f), "children");
 		_level_treeview.object_activated.connect(on_level_treeview_object_activated);
 		_level_treeview.objects_edited.connect(on_level_treeview_objects_edited);
 		_level_treeview.selection_changed.connect(on_level_treeview_selection_changed);
@@ -2752,13 +2754,13 @@ public class LevelEditorApplication : Gtk.Application
 		update_active_window_title();
 	}
 
-	public void on_object_type_added(ObjectTypeInfo info)
+	public void on_object_type_added(StringId64 type, ObjectTypeInfo info)
 	{
 		if ((info.flags & ObjectTypeFlags.UNIT_COMPONENT) != 0) {
-			Unit.register_component_type(info.name, info.user_data != null ? info.user_data : "");
-			_properties_view.register_object_type(StringId64(info.name), null);
-		} else if (info.name != OBJECT_TYPE_UNIT) { // FIXME
-			_properties_view.register_object_type(StringId64(info.name), null);
+			Unit.register_component_type(type, info.user_data != null ? info.user_data : "");
+			_properties_view.register_object_type(type, null);
+		} else if (type != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) { // FIXME
+			_properties_view.register_object_type(type, null);
 		}
 	}
 
@@ -4435,8 +4437,8 @@ public class LevelEditorApplication : Gtk.Application
 			if (!_database.has_object(object_id) || !_database.is_alive(object_id))
 				continue;
 
-			string object_type = _database.object_type(object_id);
-			if (object_type != OBJECT_TYPE_UNIT && object_type != OBJECT_TYPE_SOUND_SOURCE)
+			StringId64 object_type = _database.object_type(object_id);
+			if (object_type != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) && object_type != STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684))
 				continue;
 
 			object_ids.add(object_id);
@@ -5450,6 +5452,7 @@ public class LevelEditorApplication : Gtk.Application
 					} else if (_database.has_object(unit_id)) {
 						Guid prefab_id = Guid.new_guid();
 						Database new_database = new Database(_project);
+						create_object_types(new_database);
 						_database.duplicate_one(unit_id, prefab_id, new_database);
 						new_database.save(path, prefab_id);
 
@@ -5701,14 +5704,14 @@ public class LevelEditorApplication : Gtk.Application
 		kind = LEVEL_TREE_KIND_UNKNOWN;
 		icon_name = IconTheme.LEVEL_OBJECT_UNKNOWN;
 
-		string object_type = _database.object_type(id);
-		if (object_type == OBJECT_TYPE_SOUND_SOURCE) {
+		StringId64 object_type = _database.object_type(id);
+		if (object_type == STRING_ID_64(OBJECT_TYPE_SOUND_SOURCE, 0xbe0fa879e7a28684)) {
 			kind = LEVEL_TREE_KIND_SOUND;
 			icon_name = IconTheme.LEVEL_OBJECT_SOUND;
 			return;
 		}
 
-		if (object_type != OBJECT_TYPE_UNIT)
+		if (object_type != STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f))
 			return;
 
 		Unit unit = Unit(_database, id);
@@ -5735,7 +5738,7 @@ public class LevelEditorApplication : Gtk.Application
 		mi.set_action_and_target_value("app.rename", new GLib.Variant.tuple({ object_id.to_string(), "" }));
 		menu.append_item(mi);
 
-		if (_database.object_type(object_id) == OBJECT_TYPE_UNIT) {
+		if (_database.object_type(object_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 			mi = new GLib.MenuItem(_("Save as Prefab..."), null);
 			mi.set_action_and_target_value("app.unit-save-as-prefab"
 				, new GLib.Variant.tuple({ object_id.to_string(), _database.name(object_id) })

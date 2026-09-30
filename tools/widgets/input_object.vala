@@ -64,7 +64,7 @@ public class InputObject : InputField
 			} else if (!_database.is_alive(_object)) {
 				_name.text = MISSING_OBJECT;
 			} else {
-				Aspect? name_aspect = _database.get_aspect(StringId64(_database.object_type(value)), StringId64("name"));
+				Aspect? name_aspect = _database.get_aspect(_database.object_type(value), StringId64("name"));
 				if (name_aspect == null)
 					name_aspect = default_name_aspect;
 
@@ -291,7 +291,7 @@ public class InputObject : InputField
 		if (!Guid.try_parse(out object_id, (string)value))
 			return false;
 
-		StringId64 object_type = StringId64(_database.object_type(object_id));
+		StringId64 object_type = _database.object_type(object_id);
 		if (object_type != _type)
 			return false;
 
@@ -310,7 +310,7 @@ public class InputObject : InputField
 			Guid object_id = GUID_ZERO;
 			Memory.copy(&object_id, raw_data, sizeof(Guid));
 
-			StringId64 object_type = StringId64(_database.object_type(object_id));
+			StringId64 object_type = _database.object_type(object_id);
 			if (object_type == _type) {
 				this.value = object_id;
 				success = true;

@@ -467,6 +467,7 @@ public class FontResource
 			argb32.write_to_png(project.absolute_path(resource_name) + ".png");
 
 			Database db = new Database(project);
+			create_object_types(db);
 
 			// Generate .texture resource.
 			var texture_resource = TextureResource.font_atlas(db, Guid.new_guid(), resource_name + ".png");
@@ -486,7 +487,7 @@ public class FontResource
 
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();
-			db.create(font_id, OBJECT_TYPE_FONT);
+			db.create(font_id, STRING_ID_64(OBJECT_TYPE_FONT, 0x9efe0a916aae7880));
 			db.set_double(font_id, "size", size);
 			db.set_double(font_id, "font_size", font_size);
 
@@ -494,7 +495,7 @@ public class FontResource
 				GlyphData* gd = &font_atlas.glyphs[ii];
 
 				Guid glyph_id = Guid.new_guid();
-				db.create(glyph_id, "font_glyph");
+				db.create(glyph_id, STRING_ID_64(OBJECT_TYPE_FONT_GLYPH, 0x950882c567ca2dad));
 				db.set_double(glyph_id, "cp", gd->id);
 				db.set_double(glyph_id, "x", gd->x);
 				db.set_double(glyph_id, "y", gd->y);

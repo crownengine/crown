@@ -491,6 +491,7 @@ public class Project
 		string path = this.absolute_path(unit_path);
 
 		Database db = new Database(this, null);
+		create_object_types(db);
 		Guid unit_id = Guid.new_guid();
 		Unit unit = Unit(db, unit_id);
 		unit.create_empty();
@@ -503,6 +504,7 @@ public class Project
 		string resource_name = Path.build_filename(directory, name);
 
 		Database db = new Database(this, null);
+		create_object_types(db);
 		Guid machine_id = Guid.new_guid();
 
 		StateMachineResource machine;
@@ -519,6 +521,7 @@ public class Project
 		string resource_name = Path.build_filename(directory, name);
 
 		Database db = new Database(this, null);
+		create_object_types(db);
 		Guid material_id = Guid.new_guid();
 		MaterialResource material_resource = MaterialResource.mesh(db, material_id);
 		return material_resource.save(this, resource_name);
@@ -604,7 +607,7 @@ public class Project
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 		Guid id = Guid.new_guid();
-		_files.create(id, OBJECT_TYPE_FILE);
+		_files.create_empty(id, STRING_ID_64(OBJECT_TYPE_FILE, 0x63d525adf27fd749));
 		_files.set_string(id, "path", path);
 		_files.set_string(id, "type", type);
 		_files.set_string(id, "name", name);

@@ -63,7 +63,7 @@ public struct TextureResource
 		_db = db;
 		_id = id;
 
-		_db.create(_id, OBJECT_TYPE_TEXTURE);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_TEXTURE, 0xcd4238c6a0c69e32));
 		_db.set_string(_id, "source", source_image);
 
 		for (int tp = 0; tp < TargetPlatform.COUNT; ++tp) {
@@ -143,6 +143,7 @@ public struct TextureResource
 			}
 
 			Database db = new Database(project);
+			create_object_types(db);
 			var texture_resource = TextureResource.color_map(db, Guid.new_guid(), resource_path);
 			texture_resource.save(project, resource_name);
 

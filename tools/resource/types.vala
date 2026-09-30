@@ -14,7 +14,6 @@ const string OBJECT_TYPE_CAMERA                  = "camera";
 const string OBJECT_TYPE_COLLIDER                = "collider";
 const string OBJECT_TYPE_COLOR_GRADING           = "color_grading";
 const string OBJECT_TYPE_D6_JOINT                = "d6_joint";
-const string OBJECT_TYPE_FILE                    = "file";
 const string OBJECT_TYPE_FIXED_JOINT             = "fixed_joint";
 const string OBJECT_TYPE_FOG                     = "fog";
 const string OBJECT_TYPE_FONT                    = "font";
@@ -351,7 +350,7 @@ public static void create_object_types(Database database)
 			type = PropertyType.OBJECTS_SET,
 			name = "data.materials",
 			label = _("Materials"),
-			object_type = StringId64(OBJECT_TYPE_MESH_MATERIAL),
+			object_type = STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d),
 			fixed_set = true,
 		},
 	};
@@ -577,7 +576,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.mesh_renderer",
 			deffault = GUID_ZERO,
 			tooltip = _("Mesh to render at this LOD level."),
@@ -619,7 +618,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "data.lod_levels",
-			object_type = StringId64(OBJECT_TYPE_LOD_LEVEL),
+			object_type = STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a),
 		},
 		PropertyDefinition()
 		{
@@ -1059,7 +1058,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "frames",
-			object_type = StringId64(OBJECT_TYPE_ANIMATION_FRAME),
+			object_type = STRING_ID_64(OBJECT_TYPE_ANIMATION_FRAME, 0x5b6893db5cc56d9e),
 		},
 		PropertyDefinition()
 		{
@@ -1103,7 +1102,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "frames",
-			object_type = StringId64(OBJECT_TYPE_SPRITE_FRAME),
+			object_type = STRING_ID_64(OBJECT_TYPE_SPRITE_FRAME, 0x1fb42b4c64dd9c48),
 		},
 		PropertyDefinition()
 		{
@@ -1268,7 +1267,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -1305,7 +1304,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -1354,7 +1353,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -1610,7 +1609,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -1737,7 +1736,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -1855,7 +1854,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 			name = "data.other_actor",
 			label = _("Other Unit"),
 			deffault = GUID_ZERO,
@@ -2154,7 +2153,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "children",
-			object_type = StringId64(OBJECT_TYPE_UNIT),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f),
 		},
 #if false
 		PropertyDefinition()
@@ -2196,13 +2195,13 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.OBJECTS_SET,
-			object_type = StringId64(OBJECT_TYPE_TEXTURE_SAMPLER),
+			object_type = STRING_ID_64(OBJECT_TYPE_TEXTURE_SAMPLER, 0x703635aedd770877),
 			name = "textures",
 		},
 		PropertyDefinition()
 		{
 			type = PropertyType.OBJECTS_SET,
-			object_type = StringId64(OBJECT_TYPE_UNIFORM_VECTOR4),
+			object_type = STRING_ID_64(OBJECT_TYPE_UNIFORM_VECTOR4, 0x0727ab62adb92bf0),
 			name = "uniforms",
 		},
 	};
@@ -2411,7 +2410,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
+			object_type = STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_NODE, 0x20aedaf23037aaf8),
 			name = "to",
 			tooltip = _("Animation state to enter to."),
 		},
@@ -2500,7 +2499,7 @@ public static void create_object_types(Database database)
 		PropertyDefinition()
 		{
 			type = PropertyType.REFERENCE,
-			object_type = StringId64(OBJECT_TYPE_STATE_MACHINE_NODE),
+			object_type = STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_NODE, 0x20aedaf23037aaf8),
 			name = "initial_state",
 			tooltip = _("Animation state to enter at the beginning."),
 		},
@@ -2646,7 +2645,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "glyphs",
-			object_type = StringId64(OBJECT_TYPE_FONT_GLYPH),
+			object_type = STRING_ID_64(OBJECT_TYPE_FONT_GLYPH, 0x950882c567ca2dad),
 		},
 		PropertyDefinition()
 		{
@@ -2690,7 +2689,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "events",
-			object_type = StringId64(OBJECT_TYPE_ANIMATION_EVENT),
+			object_type = STRING_ID_64(OBJECT_TYPE_ANIMATION_EVENT, 0xb3d820f511d13bd1),
 		},
 		PropertyDefinition()
 		{
@@ -2723,7 +2722,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "children",
-			object_type = StringId64(OBJECT_TYPE_MESH_BONE),
+			object_type = STRING_ID_64(OBJECT_TYPE_MESH_BONE, 0x0e2e3f571084be90),
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_BONE, properties);
@@ -2746,7 +2745,7 @@ public static void create_object_types(Database database)
 		{
 			type = PropertyType.OBJECTS_SET,
 			name = "skeleton",
-			object_type = StringId64(OBJECT_TYPE_MESH_BONE),
+			object_type = STRING_ID_64(OBJECT_TYPE_MESH_BONE, 0x0e2e3f571084be90),
 		},
 	};
 	database.create_object_type(OBJECT_TYPE_MESH_SKELETON, properties, 0.0, null, ObjectTypeFlags.RESOURCE);

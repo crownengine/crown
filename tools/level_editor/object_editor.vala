@@ -287,7 +287,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		if (err == LoadError.NOT_FOUND) {
 			UndoRedo? undo_redo = _database.disable_undo();
 			_object_id = Guid.new_guid();
-			_database.create(_object_id, type);
+			_database.create(_object_id, StringId64(type));
 			_database.set_name(_object_id, GLib.Path.get_basename(name));
 			_database.restore_undo(undo_redo);
 		} else if (err != LoadError.SUCCESS) {

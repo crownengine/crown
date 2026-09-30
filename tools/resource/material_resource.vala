@@ -15,7 +15,7 @@ public struct MaterialResource
 		_db = db;
 		_id = id;
 
-		_db.create(_id, OBJECT_TYPE_MATERIAL);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf));
 		_db.set_string(_id, "shader", shader);
 	}
 
@@ -102,7 +102,7 @@ public struct MaterialResource
 
 		if (uniform_id == GUID_ZERO) {
 			uniform_id = Guid.new_guid();
-			_db.create(uniform_id, OBJECT_TYPE_UNIFORM_VECTOR4);
+			_db.create(uniform_id, STRING_ID_64(OBJECT_TYPE_UNIFORM_VECTOR4, 0x0727ab62adb92bf0));
 			_db.set_string(uniform_id, "name", uniform_name);
 			_db.add_to_set(_id, "uniforms", uniform_id);
 		}
@@ -146,7 +146,7 @@ public struct MaterialResource
 
 		if (texture_id == GUID_ZERO) {
 			texture_id = Guid.new_guid();
-			_db.create(texture_id, OBJECT_TYPE_TEXTURE_SAMPLER);
+			_db.create(texture_id, STRING_ID_64(OBJECT_TYPE_TEXTURE_SAMPLER, 0x703635aedd770877));
 			_db.set_string(texture_id, "name", sampler_name);
 			_db.add_to_set(_id, "textures", texture_id);
 		}

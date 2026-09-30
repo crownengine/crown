@@ -19,7 +19,7 @@ public struct NodeAnimation
 		_db = db;
 		_id = id;
 
-		_db.create(_id, OBJECT_TYPE_NODE_ANIMATION);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_NODE_ANIMATION, 0xdfec9ab6472a94b9));
 		_db.set_resource(_id, "name", name);
 		_db.set_string(_id, "weight", weight);
 	}
@@ -35,7 +35,7 @@ public struct StateMachineNode
 		_db = db;
 		_id = id;
 
-		_db.create(_id, OBJECT_TYPE_STATE_MACHINE_NODE);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_NODE, 0x20aedaf23037aaf8));
 		_db.set_bool(_id, "loop", true);
 		_db.set_string(_id, "speed", "1");
 		_db.create_empty_set(_id, "animations");
@@ -71,7 +71,7 @@ public struct StateMachineResource
 			initial_state.add_animation(na);
 		}
 
-		_db.create(_id, OBJECT_TYPE_STATE_MACHINE);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_STATE_MACHINE, 0xa486d4045106165c));
 		add_node(initial_state);
 		_db.set_reference(_id, "initial_state", initial_state._id);
 		_db.create_empty_set(_id, "variables");

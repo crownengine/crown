@@ -167,7 +167,7 @@ public class OBJImporter
 
 		Unit unit = Unit(db, unit_id);
 		if (!db.has_object(unit_id))
-			db.create(unit_id, OBJECT_TYPE_UNIT);
+			db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 		db.set_name(unit_id, editor_name);
 		// editor.import_path is importer-owned metadata, not a filesystem path.
 		// It identifies the source node in the imported hierarchy so reimport
@@ -178,9 +178,9 @@ public class OBJImporter
 			// Create transform.
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_TRANSFORM);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -194,9 +194,9 @@ public class OBJImporter
 				// Create mesh_renderer.
 				{
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_MESH_RENDERER)) {
+					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))) {
 						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_MESH_RENDERER);
+						db.create(component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -210,9 +210,9 @@ public class OBJImporter
 					// Create collider.
 					{
 						Guid component_id;
-						if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+						if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 							component_id = Guid.new_guid();
-							db.create(component_id, OBJECT_TYPE_COLLIDER);
+							db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
 							db.add_to_set(unit_id, "components", component_id);
 						}
 
@@ -224,9 +224,9 @@ public class OBJImporter
 					// Create actor.
 					{
 						Guid component_id;
-						if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+						if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 							component_id = Guid.new_guid();
-							db.create(component_id, OBJECT_TYPE_ACTOR);
+							db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
 							db.add_to_set(unit_id, "components", component_id);
 						}
 
@@ -240,9 +240,9 @@ public class OBJImporter
 		} else {
 			// Create transform.
 			Guid component_id;
-			if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				component_id = Guid.new_guid();
-				db.create(component_id, OBJECT_TYPE_TRANSFORM);
+				db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 				db.add_to_set(unit_id, "components", component_id);
 			}
 
@@ -254,14 +254,14 @@ public class OBJImporter
 
 		if (!options.create_colliders) {
 			Guid component_id;
-			if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER) && db.owner(component_id) == unit_id) {
+			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e)) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
 			}
 
-			if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR) && db.owner(component_id) == unit_id) {
+			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583)) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
@@ -382,9 +382,9 @@ public class OBJImporter
 				}
 
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_LOD_GROUP);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -401,7 +401,7 @@ public class OBJImporter
 					Guid lod_unit_id = lod_units[lod_i];
 
 					Guid level_id = Guid.new_guid();
-					db.create(level_id, OBJECT_TYPE_LOD_LEVEL);
+					db.create(level_id, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
 					db.set_reference(level_id, "data.mesh_renderer", lod_unit_id);
 					db.set_double(level_id, "data.screen_size", screen_size);
 					db.add_to_set(component_id, "data.lod_levels", level_id);
@@ -415,7 +415,7 @@ public class OBJImporter
 			}
 		} else {
 			Guid component_id;
-			if (unit.has_component(out component_id, OBJECT_TYPE_LOD_GROUP) && db.owner(component_id) == unit_id) {
+			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0)) && db.owner(component_id) == unit_id) {
 				Value? components = db.get_property(unit_id, "components");
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
@@ -481,6 +481,7 @@ public class OBJImporter
 			}
 
 			Database db = new Database(project);
+			create_object_types(db);
 			GLib.HashTable<string, string> imported_textures = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
 			GLib.HashTable<unowned ufbx.Material, string> imported_materials = new GLib.HashTable<unowned ufbx.Material, string>(GLib.direct_hash, GLib.direct_equal);
 
@@ -706,7 +707,6 @@ public class OBJImporter
 			}
 
 			// Generate or modify existing .unit.
-			create_object_types(db);
 			Guid unit_id;
 			if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0)
 				unit_id = Guid.new_guid();
@@ -724,7 +724,7 @@ public class OBJImporter
 				return ImportResult.ERROR;
 
 			Guid mesh_id = Guid.new_guid();
-			db.create(mesh_id, OBJECT_TYPE_MESH);
+			db.create(mesh_id, STRING_ID_64(OBJECT_TYPE_MESH, 0x48ff313713a997a1));
 			db.set_string(mesh_id, "source", resource_path);
 			if (db.save(project.absolute_path(resource_name) + ".mesh", mesh_id) != 0)
 				return ImportResult.ERROR;

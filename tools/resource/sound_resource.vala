@@ -18,7 +18,7 @@ public struct SoundResource
 		_db = db;
 		_id = id;
 
-		_db.create(_id, OBJECT_TYPE_SOUND);
+		_db.create(_id, STRING_ID_64(OBJECT_TYPE_SOUND, 0x90641b51c98b7aac));
 		_db.set_string(_id, "source", source_sound);
 	}
 
@@ -49,6 +49,7 @@ public struct SoundResource
 			}
 
 			Database db = new Database(project);
+			create_object_types(db);
 			var sound_resource = SoundResource(db, Guid.new_guid(), resource_path);
 			if (sound_resource.save(project, resource_name) != 0) {
 				import_result(ImportResult.ERROR);

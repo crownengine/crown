@@ -30,8 +30,8 @@ public class MoveOperation
 		bool old_type_is_database_type = old_type != null && db.has_type(StringId64(old_type));
 
 		foreach (Guid? id in db.all_objects_of_type(OBJECT_TYPE_ANY)) {
-			string object_type = db.object_type(id);
-			unowned PropertyDefinition[]? properties = db.object_definition(StringId64(object_type));
+			StringId64 object_type = db.object_type(id);
+			unowned PropertyDefinition[]? properties = db.object_definition(object_type);
 
 			if (properties != null) {
 				foreach (PropertyDefinition def in properties) {

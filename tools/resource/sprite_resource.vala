@@ -976,6 +976,7 @@ public class SpriteResource
 			}
 
 			Database db = new Database(project);
+			create_object_types(db);
 
 			MaterialResource material_resource = MaterialResource.sprite(db, Guid.new_guid(), resource_name);
 			if (material_resource.save(project, resource_name) != 0)
@@ -996,7 +997,7 @@ public class SpriteResource
 
 			// Generate .sprite.
 			Guid sprite_id = Guid.new_guid();
-			db.create(sprite_id, OBJECT_TYPE_SPRITE);
+			db.create(sprite_id, STRING_ID_64(OBJECT_TYPE_SPRITE, 0x8d5871f9ebdb651c));
 			db.set_double(sprite_id, "width", width);
 			db.set_double(sprite_id, "height", height);
 
@@ -1019,7 +1020,7 @@ public class SpriteResource
 					int y = (int)cell_xy.y;
 
 					Guid frame_id = Guid.new_guid();
-					db.create(frame_id, "sprite_frame");
+					db.create(frame_id, STRING_ID_64(OBJECT_TYPE_SPRITE_FRAME, 0x1fb42b4c64dd9c48));
 					db.set_string    (frame_id, "name", "sprite_%d".printf(c + num_h*r));
 					db.set_quaternion(frame_id, "region", Quaternion(x, y, cell_w, cell_h));
 					db.set_vector3   (frame_id, "pivot", Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
@@ -1085,11 +1086,10 @@ public class SpriteResource
 			db.reset();
 
 			// Generate or modify existing .unit.
-			create_object_types(db);
 			Guid unit_id;
 			if (db.add_from_resource_path(out unit_id, resource_name + ".unit") != 0) {
 				unit_id = Guid.new_guid();
-				db.create(unit_id, OBJECT_TYPE_UNIT);
+				db.create(unit_id, STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
 			}
 
 			Unit unit = Unit(db, unit_id);
@@ -1097,9 +1097,9 @@ public class SpriteResource
 			// Create transform
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_TRANSFORM)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_TRANSFORM);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -1111,9 +1111,9 @@ public class SpriteResource
 			// Create sprite_renderer
 			{
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_SPRITE_RENDERER)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_SPRITE_RENDERER);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
@@ -1127,19 +1127,19 @@ public class SpriteResource
 			if (has_animation) {
 				// Create state_machine_component.
 				Guid component_id;
-				if (!unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)) {
+				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))) {
 					component_id = Guid.new_guid();
-					db.create(component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+					db.create(component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 					db.add_to_set(unit_id, "components", component_id);
 				}
 
 				unit.set_component_string(component_id, "data.state_machine_resource", resource_name);
 			} else {
 				Guid component_id;
-				if (unit.has_component(out component_id, OBJECT_TYPE_ANIMATION_STATE_MACHINE)
+				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))
 					&& unit.get_component_resource(component_id, "data.state_machine_resource") == resource_name
 					) {
-					unit.remove_component_type(OBJECT_TYPE_ANIMATION_STATE_MACHINE);
+					unit.remove_component_type(STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 				}
 			}
 
@@ -1150,9 +1150,9 @@ public class SpriteResource
 					Quaternion rotation = QUATERNION_IDENTITY;
 
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_COLLIDER);
+						db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -1192,9 +1192,9 @@ public class SpriteResource
 				// Create actor
 				{
 					Guid component_id;
-					if (!unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 						component_id = Guid.new_guid();
-						db.create(component_id, OBJECT_TYPE_ACTOR);
+						db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
 						db.add_to_set(unit_id, "components", component_id);
 					}
 
@@ -1212,11 +1212,11 @@ public class SpriteResource
 			} else { /* if (collision_enabled) */
 				// Destroy collider and actor if any
 				Guid component_id;
-				if (unit.has_component(out component_id, OBJECT_TYPE_COLLIDER)) {
+				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}
-				if (unit.has_component(out component_id, OBJECT_TYPE_ACTOR)) {
+				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 					db.remove_from_set(unit_id, "components", component_id);
 					db.destroy(component_id);
 				}

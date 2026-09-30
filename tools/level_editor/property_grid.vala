@@ -210,7 +210,7 @@ class ObjectsSetEditor : Gtk.Box
 
 	public bool is_read_only()
 	{
-		return _grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT
+		return _grid._db.object_type(_grid._id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)
 			&& _grid._component_id != GUID_ZERO
 			&& _grid._id != _grid._db.owner(_grid._component_id)
 			;
@@ -218,7 +218,7 @@ class ObjectsSetEditor : Gtk.Box
 
 	public string object_name(Guid id)
 	{
-		StringId64 object_type = StringId64(_grid._db.object_type(id));
+		StringId64 object_type = _grid._db.object_type(id);
 		Aspect? name_aspect = _grid._db.get_aspect(object_type, StringId64("name"));
 		if (name_aspect == null)
 			name_aspect = default_name_aspect;
@@ -233,12 +233,11 @@ class ObjectsSetEditor : Gtk.Box
 		if (_definition.fixed_set || is_read_only())
 			return;
 
-		string object_type = _grid._db.type_name(_definition.object_type);
 		Guid object_id = Guid.new_guid();
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
 		_object_id = object_id;
 
-		_grid._db.create(object_id, object_type);
+		_grid._db.create(object_id, _definition.object_type);
 		_grid._db.add_to_set(owner_id, _definition.name, object_id);
 		_grid._db.add_restore_point((int)ActionType.CREATE_OBJECTS, { object_id }, ActionTypeFlags.FROM_OBJECTS_SET_EDITOR);
 	}
@@ -395,7 +394,7 @@ class ObjectsSetEditor : Gtk.Box
 
 		Guid owner_id = _grid._component_id != GUID_ZERO ? _grid._component_id : _grid._id;
 		Guid?[] children;
-		if (_grid._db.object_type(_grid._id) == OBJECT_TYPE_UNIT && _grid._component_id != GUID_ZERO) {
+		if (_grid._db.object_type(_grid._id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) && _grid._component_id != GUID_ZERO) {
 			Unit unit = Unit(_grid._db, _grid._id);
 			GLib.GenericSet<Guid?> component_children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, guid_set_new());
 			GLib.GenericArray<Guid?> live_children = new GLib.GenericArray<Guid?>();
@@ -490,7 +489,7 @@ public class PropertyGrid : Gtk.Grid
 
 	public void on_remove(GLib.SimpleAction action, GLib.Variant? param)
 	{
-		string component_type = _db.type_name(_type);
+		StringId64 component_type = _type;
 		Guid unit_id = _id;
 		Unit unit = Unit(_db, unit_id);
 
@@ -498,23 +497,26 @@ public class PropertyGrid : Gtk.Grid
 		if (!unit.has_component(out component_id, component_type))
 			return;
 
-		GLib.GenericArray<unowned string> dependents = new GLib.GenericArray<unowned string>();
+		GLib.GenericArray<StringId64?> dependents = new GLib.GenericArray<StringId64?>();
 		// Do not remove if any other component needs us.
 		Unit._component_registry.foreach((registered_type, dependencies_value) => {
 				Guid dummy;
 				if (!unit.has_component(out dummy, registered_type))
 					return;
 
-				string[] component_type_dependencies = ((string)dependencies_value).split(", ");
-				if (component_type in component_type_dependencies)
-					dependents.add(registered_type);
+				foreach (unowned StringId64? dependency in dependencies_value) {
+					if (component_type == dependency) {
+						dependents.add(registered_type);
+						break;
+					}
+				}
 			});
 
 		if (dependents.length > 0) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(_("Cannot remove %s due to the following dependencies:\n\n").printf(component_type));
+			sb.append(_("Cannot remove %s due to the following dependencies:\n\n").printf(_db.type_name(component_type)));
 			for (int i = 0; i < dependents.length; ++i)
-				sb.append("• %s\n".printf(dependents[i]));
+				sb.append("• %s\n".printf(_db.type_name(dependents[i])));
 
 			Gtk.MessageDialog md = new Gtk.MessageDialog(null
 				, Gtk.DialogFlags.MODAL
@@ -574,7 +576,7 @@ public class PropertyGrid : Gtk.Grid
 			GLib.Menu menu = new GLib.Menu();
 			GLib.MenuItem mi;
 
-			if (_db != null && _db.object_type(_id) == OBJECT_TYPE_UNIT && _component_id != GUID_ZERO) {
+			if (_db != null && _db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) && _component_id != GUID_ZERO) {
 				mi = new GLib.MenuItem(_("Remove Component"), null);
 				mi.set_action_and_target_value("object.remove", null);
 				menu.append_item(mi);
@@ -646,7 +648,7 @@ public class PropertyGrid : Gtk.Grid
 
 	public PropertyGrid.from_object(Guid id, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
 	{
-		this.from_object_type(StringId64(db.object_type(id)), db, database_editor, selection_anchor_id);
+		this.from_object_type(db.object_type(id), db, database_editor, selection_anchor_id);
 		_id = id;
 	}
 
@@ -1003,7 +1005,7 @@ public class PropertyGrid : Gtk.Grid
 		bool changed = false;
 
 		if (def.type == PropertyType.BOOL) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_bool(_component_id, def.name, (bool)def.deffault) != new_value) {
 					u.set_component_bool(_component_id, def.name, (bool)new_value);
@@ -1016,7 +1018,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.DOUBLE) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_double(_component_id, def.name, (double)def.deffault) != new_value) {
 					u.set_component_double(_component_id, def.name, (double)new_value);
@@ -1029,7 +1031,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.STRING) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_string(_component_id, def.name, (string)def.deffault) != (string)new_value) {
 					u.set_component_string(_component_id, def.name, (string)new_value);
@@ -1042,7 +1044,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.VECTOR3) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (Vector3.equal_func(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault), (Vector3)new_value) == false) {
 					u.set_component_vector3(_component_id, def.name, (Vector3)new_value);
@@ -1055,7 +1057,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.QUATERNION) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (Quaternion.equal_func(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault), (Quaternion)new_value) == false) {
 					u.set_component_quaternion(_component_id, def.name, (Quaternion)new_value);
@@ -1068,7 +1070,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.RESOURCE) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (u.get_component_resource(_component_id, def.name, (string?)def.deffault) != (string?)new_value) {
 					u.set_component_resource(_component_id, def.name, (string?)new_value);
@@ -1081,7 +1083,7 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.REFERENCE) {
-			if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
 				if (Guid.equal_func(u.get_component_reference(_component_id, def.name, (Guid)def.deffault), (Guid)new_value) == false) {
 					u.set_component_reference(_component_id, def.name, (Guid)new_value);
@@ -1142,7 +1144,7 @@ public class PropertyGrid : Gtk.Grid
 
 		if ((changed || _instance_pending_restore) && undo_redo != -1) {
 			Guid changed_id = _instance_owner_id != GUID_ZERO
-				&& _db.object_type(_instance_owner_id) == OBJECT_TYPE_UNIT
+				&& _db.object_type(_instance_owner_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)
 				? _instance_owner_id
 				: _id;
 			_db.add_restore_point(ActionType.CHANGE_OBJECTS, new Guid?[] { changed_id });
@@ -1166,49 +1168,49 @@ public class PropertyGrid : Gtk.Grid
 				p.value_changed.disconnect(on_property_value_changed);
 
 				if (def.type == PropertyType.BOOL) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_bool(_component_id, def.name, (bool)def.deffault));
 					} else {
 						p.set_union_value(_db.get_bool(_id, _db.property_index(_id, StringId64(def.name)), (bool)def.deffault));
 					}
 				} else if (def.type == PropertyType.DOUBLE) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_double(_component_id, def.name, (double)def.deffault));
 					} else {
 						p.set_union_value(_db.get_double(_id, _db.property_index(_id, StringId64(def.name)), (double)def.deffault));
 					}
 				} else if (def.type == PropertyType.STRING) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_string(_component_id, def.name, (string)def.deffault));
 					} else {
 						p.set_union_value(_db.get_string(_id, _db.property_index(_id, StringId64(def.name)), (string)def.deffault));
 					}
 				} else if (def.type == PropertyType.VECTOR3) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault));
 					} else {
 						p.set_union_value(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault));
 					}
 				} else if (def.type == PropertyType.QUATERNION) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault));
 					} else {
 						p.set_union_value(_db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault));
 					}
 				} else if (def.type == PropertyType.RESOURCE) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_resource(_component_id, def.name, (string?)def.deffault));
 					} else {
 						p.set_union_value(_db.get_resource(_id, _db.property_index(_id, StringId64(def.name)), (string?)def.deffault));
 					}
 				} else if (def.type == PropertyType.REFERENCE) {
-					if (_db.object_type(_id) == OBJECT_TYPE_UNIT) {
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
 						p.set_union_value(u.get_component_reference(_component_id, def.name, (Guid)def.deffault));
 					} else {
