@@ -46,6 +46,11 @@ public struct StringId64
 		hash(str.data, str.length);
 	}
 
+	public StringId64.from_uint64(uint64 id)
+	{
+		_id = id;
+	}
+
 	public void hash(uint8[] str, uint len)
 	{
 		_id = murmur64(str, str.length, 0);
@@ -67,6 +72,18 @@ public struct StringId64
 			, (uint32)((_id & 0x00000000ffffffffu))
 			);
 	}
+}
+
+public StringId64 STRING_ID_64(string? str, uint64 id)
+{
+#if CROWN_DEBUG
+	assert(str != null);
+	StringId64 sid = StringId64(str);
+	assert(sid._id == id);
+	return sid;
+#else
+	return StringId64.from_uint64(id);
+#endif
 }
 
 } /* namespace Crown */

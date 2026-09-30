@@ -18,6 +18,10 @@ private static void test_string()
 	assert(print_max_decimals(buffer, 1.6, 0) == "2");
 	assert(print_max_decimals(buffer, 0.00001, 4) == "0");
 	assert(print_max_decimals(buffer, double.MAX, 5).length == 309);
+
+	StringId64 unit_id = STRING_ID_64("unit", 0xe0a48d0be9a7453f);
+	assert(unit_id == StringId64("unit"));
+	assert(unit_id.to_string() == "e0a48d0be9a7453f");
 }
 
 private static void test_sjson()
