@@ -2503,9 +2503,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "remove_file") {
 			string path = (string)msg["path"];
 
-			uint32 property = _database.property_index(GUID_ZERO, StringId64(path));
-			if (property != uint32.MAX)
-				_database.set(0, GUID_ZERO, property, null);
+			_database.remove_resource_path(path);
 			_project.remove_file(path);
 		} else if (msg_type == "add_tree") {
 			string path = (string)msg["path"];
@@ -2520,9 +2518,7 @@ public class LevelEditorApplication : Gtk.Application
 			uint64 size = uint64.parse((string)msg["size"]);
 			uint64 mtime = uint64.parse((string)msg["mtime"]);
 
-			uint32 property = _database.property_index(GUID_ZERO, StringId64(path));
-			if (property != uint32.MAX)
-				_database.set(0, GUID_ZERO, property, null);
+			_database.remove_resource_path(path);
 			_project.change_file(path, size, mtime);
 		} else if (msg_type == "compile") {
 			_data_compiler.message(msg);

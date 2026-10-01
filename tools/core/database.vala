@@ -545,6 +545,7 @@ public class Database
 	// Data
 	public GLib.HashTable<StringId64?, ObjectTypeInfo?> _object_definitions;
 	public GLib.HashTable<Guid?, GLib.GenericArray<Value?>> _data;
+	public GLib.HashTable<StringId64?, Guid?> _resource_id_to_object;
 	public UndoRedo? _undo_redo;
 	public Project _project;
 	// The number of changes to the database since the last successful state
@@ -562,6 +563,7 @@ public class Database
 	{
 		_object_definitions = new GLib.HashTable<StringId64?, ObjectTypeInfo?>(StringId64.hash_func, StringId64.equal_func);
 		_data = new GLib.HashTable<Guid?, GLib.GenericArray<Value?>>(Guid.hash_func, Guid.equal_func);
+		_resource_id_to_object = new GLib.HashTable<StringId64?, Guid?>(StringId64.hash_func, StringId64.equal_func);
 		_project = project;
 		_undo_redo = undo_redo;
 
@@ -606,6 +608,7 @@ public class Database
 	public void reset()
 	{
 		_data.remove_all();
+		_resource_id_to_object.remove_all();
 
 		if (_undo_redo != null)
 			_undo_redo.reset();
@@ -828,8 +831,7 @@ public class Database
 
 				decode_object(object_id, GUID_ZERO, "", json);
 
-				// Create a mapping between the path and the object it has been loaded into.
-				set(0, GUID_ZERO, register_property(GUID_ZERO, resource_path), object_id);
+				_resource_id_to_object[ResourceId.id(resource_path)] = object_id;
 
 				prune_stale_overrides(object_id);
 
@@ -852,7 +854,7 @@ public class Database
 	// Adds the object stored at @a path to the database.
 	// This makes it possible to load multiple objects from distinct
 	// paths in the same database. @a resource_path is used as a key in the
-	// database to refer to the object that has been loaded. This is useful when
+	// resource map to refer to the object that has been loaded. This is useful when
 	// you do not have the object ID but only its path, as it is often the case
 	// since resources use paths and not IDs to reference each other.
 	public LoadError add_from_path(out Guid object_id, string path, string resource_path)
@@ -863,14 +865,22 @@ public class Database
 	public LoadError add_from_resource_path(out Guid object_id, string resource_path)
 	{
 		// If the resource is already loaded.
-		uint32 property = property_index(GUID_ZERO, StringId64(resource_path));
-		if (has_property(GUID_ZERO, property)) {
-			object_id = get_reference(GUID_ZERO, property);
+		StringId64 resource_id = ResourceId.id(resource_path);
+		if (_resource_id_to_object.contains(resource_id)) {
+			object_id = _resource_id_to_object[resource_id];
 			return LoadError.SUCCESS;
 		}
 
 		string path = _project.absolute_path(resource_path);
 		return add_from_path(out object_id, path, resource_path);
+	}
+
+	public void remove_resource_path(string resource_path)
+	{
+		if (ResourceId.type(resource_path) == null)
+			return;
+
+		_resource_id_to_object.remove(ResourceId.id(resource_path));
 	}
 
 	/// Loads the database with the object stored at @a file.

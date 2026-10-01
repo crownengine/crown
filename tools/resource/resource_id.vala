@@ -28,6 +28,16 @@ namespace ResourceId
 		return type == null ? null : path.substring(0, path.last_index_of_char('.'));
 	}
 
+	/// Returns the resource ID for @a path.
+	public StringId64 id(string path)
+	{
+		string type = ResourceId.type(path);
+		string name = ResourceId.name(path);
+		StringId64 type_id = StringId64(type);
+		StringId64 name_id = StringId64(name);
+		return StringId64.from_uint64(type_id._id ^ name_id._id);
+	}
+
 	/// Returns the parent folder of the resource located at @a path.
 	public string parent_folder(string path)
 	{

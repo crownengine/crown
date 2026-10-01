@@ -22,6 +22,7 @@ private static void test_string()
 	StringId64 unit_id = STRING_ID_64("unit", 0xe0a48d0be9a7453f);
 	assert(unit_id == StringId64("unit"));
 	assert(unit_id.to_string() == "e0a48d0be9a7453f");
+	assert(ResourceId.id("units/ship.unit") == StringId64.from_uint64(0x91f99ab9acfba43fu));
 }
 
 private static void test_sjson()
@@ -65,9 +66,53 @@ private static bool contains_guid(Guid?[] ids, Guid id)
 
 private static void load_resource_reference(Database db, string path, Guid id)
 {
-	GLib.HashTable<string, Value?> json = new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal);
-	json[path] = id.to_string();
-	db.decode_object_compat(GUID_ZERO, GUID_ZERO, "", json);
+	db._resource_id_to_object[ResourceId.id(path)] = id;
+}
+
+private static void test_database_resource_map()
+{
+	stdout.printf("test_database_resource_map\n");
+
+	Project project = new Project();
+	Database db = new Database(project);
+	PropertyDefinition[] properties =
+	{
+		PropertyDefinition()
+		{
+			type = PropertyType.STRING,
+			name = "name",
+			deffault = "",
+		},
+	};
+	db.create_object_type("object", properties);
+	string resource_path = "units/ship.object";
+	string path = GLib.Path.build_filename(GLib.Environment.get_tmp_dir(), "crown-db-" + Guid.new_guid().to_string() + ".object");
+	try {
+		GLib.FileUtils.set_contents(path, "_type = \"object\"\n");
+		Guid id;
+		LoadError error = db.add_from_file(out id, GLib.File.new_for_path(path), resource_path);
+		assert(error == LoadError.SUCCESS);
+		assert(db._resource_id_to_object[ResourceId.id(resource_path)] == id);
+		assert(db.property_index(GUID_ZERO, StringId64(resource_path)) == uint32.MAX);
+
+		Guid cached_id;
+		error = db.add_from_resource_path(out cached_id, resource_path);
+		assert(error == LoadError.SUCCESS);
+		assert(cached_id == id);
+
+		db.remove_resource_path(resource_path);
+		assert(!db._resource_id_to_object.contains(ResourceId.id(resource_path)));
+		db.remove_resource_path("README");
+		error = db.add_from_file(out id, GLib.File.new_for_path(path), resource_path);
+		assert(error == LoadError.SUCCESS);
+		assert(db._resource_id_to_object.size() == 1);
+		db.reset();
+		assert(db._resource_id_to_object.size() == 0);
+	} catch (GLib.Error e) {
+		assert_not_reached();
+	} finally {
+		GLib.FileUtils.remove(path);
+	}
 }
 
 private static void test_database()
@@ -1935,6 +1980,7 @@ public static int main_unit_tests()
 	test_string();
 	test_sjson();
 	test_json();
+	test_database_resource_map();
 	test_database();
 	test_duplicate_unit_tree();
 	test_component_type_dependencies();
