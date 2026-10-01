@@ -488,24 +488,24 @@ public class FontResource
 			// Generate .font resource.
 			Guid font_id = Guid.new_guid();
 			db.create(font_id, STRING_ID_64(OBJECT_TYPE_FONT, 0x9efe0a916aae7880));
-			db.set_double(font_id, "size", size);
-			db.set_double(font_id, "font_size", font_size);
+			db.set_double(font_id, db.property_index(font_id, STRING_ID_64("size", 0x6687058679006e12)), size);
+			db.set_double(font_id, db.property_index(font_id, STRING_ID_64("font_size", 0xae65d4098fe4c2f0)), font_size);
 
 			for (int ii = 0; ii < options.range_max - options.range_min + 1; ++ii) {
 				GlyphData* gd = &font_atlas.glyphs[ii];
 
 				Guid glyph_id = Guid.new_guid();
 				db.create(glyph_id, STRING_ID_64(OBJECT_TYPE_FONT_GLYPH, 0x950882c567ca2dad));
-				db.set_double(glyph_id, "cp", gd->id);
-				db.set_double(glyph_id, "x", gd->x);
-				db.set_double(glyph_id, "y", gd->y);
-				db.set_double(glyph_id, "width", gd->width);
-				db.set_double(glyph_id, "height", gd->height);
-				db.set_double(glyph_id, "x_offset", gd->x_offset);
-				db.set_double(glyph_id, "y_offset", gd->y_offset);
-				db.set_double(glyph_id, "x_advance", gd->x_advance);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("cp", 0xce0444acfde78532)), gd->id);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("x", 0x8295151af8224269)), gd->x);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("y", 0x9a5db2cd2c1fd6ce)), gd->y);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("width", 0x12926f04f655d5d9)), gd->width);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("height", 0xef1c29a0b6d24e92)), gd->height);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("x_offset", 0x782b24307ce13de8)), gd->x_offset);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("y_offset", 0x80cb687977300ccc)), gd->y_offset);
+				db.set_double(glyph_id, db.property_index(glyph_id, STRING_ID_64("x_advance", 0xe500bab23c2adff9)), gd->x_advance);
 
-				db.add_to_set(font_id, "glyphs", glyph_id);
+				db.add_to_set(font_id, db.property_index(font_id, STRING_ID_64("glyphs", 0x177665f10f9c2f48)), glyph_id);
 			}
 
 			if (db.save(project.absolute_path(resource_name) + ".font", font_id) != 0) {

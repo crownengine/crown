@@ -1060,7 +1060,7 @@ public class ObjectTree : Gtk.Box
 	public string object_display_name(Guid id)
 	{
 		StringId64 object_type = _database.object_type(id);
-		Aspect? name_aspect = _database.get_aspect(object_type, StringId64("name"));
+		Aspect? name_aspect = _database.get_aspect(object_type, STRING_ID_64("name", 0xd4c943cba60c270b));
 		if (name_aspect == null)
 			name_aspect = default_name_aspect;
 
@@ -1166,7 +1166,7 @@ public class ObjectTree : Gtk.Box
 			unowned PropertyDefinition[] object_definition = _database.object_definition(owner_type);
 			for (int set_index = 0; set_index < object_definition.length && !has_desired; ++set_index) {
 				var def = object_definition[set_index];
-				if (def.type != PropertyType.OBJECTS_SET || !_database.has_property(owner_id, def.name))
+				if (def.type != PropertyType.OBJECTS_SET || !_database.has_property(owner_id, _database.property_index(owner_id, StringId64(def.name))))
 					continue;
 
 				Guid?[] children = _database.get_set(owner_id, _database.property_index(owner_id, StringId64(def.name)));
@@ -1201,7 +1201,7 @@ public class ObjectTree : Gtk.Box
 		SetRowKey set_key = SetRowKey(owner_id, set_index);
 		Guid?[] children = {};
 		var desired = new GLib.HashTable<Guid?, bool?>(Guid.hash_func, Guid.equal_func);
-		if (_database.has_property(owner_id, def.name)) {
+		if (_database.has_property(owner_id, _database.property_index(owner_id, StringId64(def.name)))) {
 			children = _database.get_set(owner_id, _database.property_index(owner_id, StringId64(def.name)));
 			foreach (unowned Guid? child_id in children)
 				desired.insert(child_id, true);
@@ -1416,7 +1416,7 @@ public class ObjectTree : Gtk.Box
 				children_parent = set_iter;
 			}
 
-			if (!_database.has_property(id, def.name))
+			if (!_database.has_property(id, _database.property_index(id, StringId64(def.name))))
 				continue;
 
 			Guid?[] children = _database.get_set(id, _database.property_index(id, StringId64(def.name)));

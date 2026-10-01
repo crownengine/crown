@@ -64,7 +64,7 @@ public class InputObject : InputField
 			} else if (!_database.is_alive(_object)) {
 				_name.text = MISSING_OBJECT;
 			} else {
-				Aspect? name_aspect = _database.get_aspect(_database.object_type(value), StringId64("name"));
+				Aspect? name_aspect = _database.get_aspect(_database.object_type(value), STRING_ID_64("name", 0xd4c943cba60c270b));
 				if (name_aspect == null)
 					name_aspect = default_name_aspect;
 

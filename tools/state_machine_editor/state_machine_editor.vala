@@ -534,11 +534,11 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Guid?[] all_transitions = _database.all_objects_of_type(STRING_ID_64(OBJECT_TYPE_NODE_TRANSITION, 0x2efbb91403bad92d));
 
 		foreach (var state in all_states) {
-			if (!_database.is_subobject_of(state, _state_machine_id, "states"))
+			if (!_database.is_subobject_of(state, _state_machine_id, _database.property_index(_state_machine_id, STRING_ID_64("states", 0x87c1f74888ad323c))))
 				continue;
 
 			foreach (var transition in all_transitions) {
-				if (!_database.is_subobject_of(transition, state, "transitions"))
+				if (!_database.is_subobject_of(transition, state, _database.property_index(state, STRING_ID_64("transitions", 0x024d73d5d9042c38))))
 					continue;
 
 				string event_name = _database.get_string(transition, _database.property_index(transition, STRING_ID_64("event", 0xceeef8e1db253a5a)));
@@ -577,7 +577,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		Guid?[] all_variables = _database.all_objects_of_type(STRING_ID_64(OBJECT_TYPE_STATE_MACHINE_VARIABLE, 0x1e37741082325873));
 
 		foreach (var variable in all_variables) {
-			if (!_database.is_subobject_of(variable, _state_machine_id, "variables"))
+			if (!_database.is_subobject_of(variable, _state_machine_id, _database.property_index(_state_machine_id, STRING_ID_64("variables", 0x4fb1ab3fd540bd03))))
 				continue;
 
 			string variable_name = _database.get_string(variable, _database.property_index(variable, STRING_ID_64("name", 0xd4c943cba60c270b)));

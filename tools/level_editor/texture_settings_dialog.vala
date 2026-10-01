@@ -333,11 +333,11 @@ public class TextureSettingsDialog : Gtk.Window
 					bool init = properties[i].get_data<bool>("init");
 
 					// Try <platform>.<property> first. Fallback to <property>.
-					if (!_texture_database.has_property(_texture_id, key))
+					if (!_texture_database.has_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(key))))
 						key = property_names[i];
 
-					if (_texture_database.has_property(_texture_id, key)) {
-						Value? val = _texture_database.get_property(_texture_id, key);
+					if (_texture_database.has_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(key)))) {
+						Value? val = _texture_database.get_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(key)));
 
 						if (!init) {
 							properties[i].set_data("init", true);
@@ -403,8 +403,8 @@ public class TextureSettingsDialog : Gtk.Window
 
 		// For backward compatibility.
 		if (property_name == "generate_mips" || property_name == "normal_map") {
-			if (_texture_database.has_property(_texture_id, property_name))
-				_texture_database.set_property(_texture_id, property_name, val);
+			if (_texture_database.has_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(property_name))))
+				_texture_database.set_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(property_name)), val);
 		}
 
 		_platforms.get_selection().selected_foreach((model, path, iter) => {
@@ -413,7 +413,7 @@ public class TextureSettingsDialog : Gtk.Window
 
 				string key = platform_property(((TargetPlatform)platform).to_key(), property_name);
 
-				_texture_database.set_property(_texture_id, key, val);
+				_texture_database.set_property(_texture_id, _texture_database.property_index(_texture_id, StringId64(key)), val);
 			});
 	}
 

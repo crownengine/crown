@@ -42,14 +42,14 @@ public class MoveOperation
 						&& def.resource_type == old_type
 						&& db.get_resource(id, db.property_index(id, StringId64(def.name))) == old_name
 						) {
-						db.set_resource(id, def.name, new_name);
+						db.set_resource(id, db.property_index(id, StringId64(def.name)), new_name);
 						changed = true;
 					}
 				}
 			}
 
 			foreach (string key in db.get_keys(id)) {
-				Value? val = db.get_property(id, key);
+				Value? val = db.get_property(id, db.property_index(id, StringId64(key)));
 				if (val == null)
 					continue;
 
@@ -67,9 +67,9 @@ public class MoveOperation
 					continue;
 
 				if (is_resource)
-					db.set_resource(id, key, replacement);
+					db.set_resource(id, db.property_index(id, StringId64(key)), replacement);
 				else
-					db.set_string(id, key, replacement);
+					db.set_string(id, db.property_index(id, StringId64(key)), replacement);
 				changed = true;
 			}
 		}

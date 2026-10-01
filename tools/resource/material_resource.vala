@@ -16,7 +16,7 @@ public struct MaterialResource
 		_id = id;
 
 		_db.create(_id, STRING_ID_64(OBJECT_TYPE_MATERIAL, 0xeac0b497876adedf));
-		_db.set_string(_id, "shader", shader);
+		_db.set_string(_id, _db.property_index(_id, STRING_ID_64("shader", 0xcce8d5b5f5ae333f)), shader);
 	}
 
 	public MaterialResource.mesh(Database db
@@ -103,14 +103,14 @@ public struct MaterialResource
 		if (uniform_id == GUID_ZERO) {
 			uniform_id = Guid.new_guid();
 			_db.create(uniform_id, STRING_ID_64(OBJECT_TYPE_UNIFORM_VECTOR4, 0x0727ab62adb92bf0));
-			_db.set_string(uniform_id, "name", uniform_name);
-			_db.add_to_set(_id, "uniforms", uniform_id);
+			_db.set_string(uniform_id, _db.property_index(uniform_id, STRING_ID_64("name", 0xd4c943cba60c270b)), uniform_name);
+			_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("uniforms", 0x3ba38dc4d483d37e)), uniform_id);
 		}
 
-		_db.set_double(uniform_id, "value.x", x);
-		_db.set_double(uniform_id, "value.y", y);
-		_db.set_double(uniform_id, "value.z", z);
-		_db.set_double(uniform_id, "value.w", w);
+		_db.set_double(uniform_id, _db.property_index(uniform_id, STRING_ID_64("value.x", 0xfa204d422e6d6299)), x);
+		_db.set_double(uniform_id, _db.property_index(uniform_id, STRING_ID_64("value.y", 0xe5776873c594fbf5)), y);
+		_db.set_double(uniform_id, _db.property_index(uniform_id, STRING_ID_64("value.z", 0x150e7a91a060d411)), z);
+		_db.set_double(uniform_id, _db.property_index(uniform_id, STRING_ID_64("value.w", 0x7e696a767c2af865)), w);
 	}
 
 	public void set_float(string uniform_name, double value)
@@ -147,11 +147,11 @@ public struct MaterialResource
 		if (texture_id == GUID_ZERO) {
 			texture_id = Guid.new_guid();
 			_db.create(texture_id, STRING_ID_64(OBJECT_TYPE_TEXTURE_SAMPLER, 0x703635aedd770877));
-			_db.set_string(texture_id, "name", sampler_name);
-			_db.add_to_set(_id, "textures", texture_id);
+			_db.set_string(texture_id, _db.property_index(texture_id, STRING_ID_64("name", 0xd4c943cba60c270b)), sampler_name);
+			_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("textures", 0x64e318ce6361e6ac)), texture_id);
 		}
 
-		_db.set_resource(texture_id, "texture", texture_name);
+		_db.set_resource(texture_id, _db.property_index(texture_id, STRING_ID_64("texture", 0xcd4238c6a0c69e32)), texture_name);
 	}
 
 	public int save(Project project, string resource_name)

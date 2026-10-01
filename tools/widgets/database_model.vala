@@ -110,7 +110,7 @@ public class DatabaseModel : GLib.Object, Gtk.TreeModel
 
 		switch (column) {
 		case Column.NAME:
-			Aspect? name_aspect = _db.get_aspect(_db.object_type(id), StringId64("name"));
+			Aspect? name_aspect = _db.get_aspect(_db.object_type(id), STRING_ID_64("name", 0xd4c943cba60c270b));
 			if (name_aspect == null)
 				name_aspect = default_name_aspect;
 			string object_name;

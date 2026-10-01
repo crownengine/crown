@@ -12,15 +12,15 @@ namespace MeshResource
 		Guid?[] bindings = db.get_set(component_id, db.property_index(component_id, STRING_ID_64("data.materials", 0xb4c01840c957402d)));
 		foreach (Guid? binding_id in bindings) {
 			if (db.get_string(binding_id, db.property_index(binding_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe))) == slot) {
-				db.set_resource(binding_id, "data.material", material);
+				db.set_resource(binding_id, db.property_index(binding_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), material);
 				return;
 			}
 		}
 		Guid binding_id = Guid.new_guid();
 		db.create(binding_id, STRING_ID_64(OBJECT_TYPE_MESH_MATERIAL, 0x6701353384dd782d));
-		db.set_string(binding_id, "data.slot", slot);
-		db.set_resource(binding_id, "data.material", material);
-		db.add_to_set(component_id, "data.materials", binding_id);
+		db.set_string(binding_id, db.property_index(binding_id, STRING_ID_64("data.slot", 0x0de060e1cd2f27fe)), slot);
+		db.set_resource(binding_id, db.property_index(binding_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), material);
+		db.add_to_set(component_id, db.property_index(component_id, STRING_ID_64("data.materials", 0xb4c01840c957402d)), binding_id);
 	}
 
 	public static string texture_filename(ufbx.Texture texture)
@@ -104,7 +104,7 @@ namespace MeshResource
 		// editor.import_path is importer-owned metadata, not a filesystem path.
 		// It identifies the source node in the imported hierarchy so reimport
 		// can reuse the same unit and preserve component GUIDs.
-		db.set_string(unit_id, "editor.import_path", import_path);
+		db.set_string(unit_id, db.property_index(unit_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), import_path);
 
 		Matrix4x4 matrix_local = Matrix4x4.from_array((GLib.GenericArray<Value?>)node["matrix_local"]);
 		Vector3 position = matrix_local.t.to_vector3();
@@ -117,13 +117,13 @@ namespace MeshResource
 			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				component_id = Guid.new_guid();
 				db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
-				db.add_to_set(unit_id, "components", component_id);
+				db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 			}
 
-			unit.set_component_vector3   (component_id, "data.position", position);
-			unit.set_component_quaternion(component_id, "data.rotation", rotation);
-			unit.set_component_vector3   (component_id, "data.scale", scale);
-			unit.set_component_string    (component_id, "data.name", node_name);
+			unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.position", 0xbf17708e8bd2a30b)), position);
+			unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.rotation", 0x3c8974411eeaf63c)), rotation);
+			unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.scale", 0x16021af8bd4fea50)), scale);
+			unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), node_name);
 		}
 
 		// Create mesh_renderer
@@ -132,13 +132,13 @@ namespace MeshResource
 			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))) {
 				component_id = Guid.new_guid();
 				db.create(component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
-				db.add_to_set(unit_id, "components", component_id);
+				db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 			}
 
-			unit.set_component_string(component_id, "data.geometry_name", node_name);
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.geometry_name", 0x040a59886a3e4a2d)), node_name);
 			MeshResource.set_material_slot(db, component_id, "default", material_name);
-			unit.set_component_string(component_id, "data.mesh_resource", resource_name);
-			unit.set_component_bool  (component_id, "data.visible", true);
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.mesh_resource", 0xd08afb39c15cc158)), resource_name);
+			unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.visible", 0xad0490cc1fffda48)), true);
 		}
 
 		// Create collider
@@ -147,12 +147,12 @@ namespace MeshResource
 			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 				component_id = Guid.new_guid();
 				db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
-				db.add_to_set(unit_id, "components", component_id);
+				db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 			}
 
-			unit.set_component_string(component_id, "data.shape", "mesh");
-			unit.set_component_string(component_id, "data.scene", resource_name);
-			unit.set_component_string(component_id, "data.name", node_name);
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.shape", 0xd4ffa681b8480051)), "mesh");
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.scene", 0x8f8eae68a99b51cc)), resource_name);
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), node_name);
 		}
 
 		// Create actor
@@ -161,17 +161,17 @@ namespace MeshResource
 			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 				component_id = Guid.new_guid();
 				db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
-				db.add_to_set(unit_id, "components", component_id);
+				db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 			}
 
-			unit.set_component_string(component_id, "data.class", "static");
-			unit.set_component_string(component_id, "data.collision_filter", "default");
-			unit.set_component_double(component_id, "data.mass", 10);
-			unit.set_component_string(component_id, "data.material", "default");
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.class", 0xf5345d5fdfcd4f82)), "static");
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collision_filter", 0x493f7c3cd3e78169)), "default");
+			unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.mass", 0xb77cc8d9b93f1d8e)), 10);
+			unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), "default");
 		}
 
 		if (parent_unit_id != unit_id)
-			db.add_to_set(parent_unit_id, "children", unit_id);
+			db.add_to_set(parent_unit_id, db.property_index(parent_unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)), unit_id);
 
 		if (node.contains("children")) {
 			GLib.HashTable<string, Value?> children = (GLib.HashTable<string, Value?>)node["children"];
@@ -203,7 +203,7 @@ namespace MeshResource
 							Guid component_id = GUID_ZERO;
 							bool name_matches = db.name(child_id) == child_name;
 							if (!name_matches && child_unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
-								name_matches = child_unit.get_component_string(component_id, "data.name", "") == child_name;
+								name_matches = child_unit.get_component_string(component_id, child_unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), "") == child_name;
 
 							if (name_matches) {
 								child_unit_id = child_id;
@@ -273,18 +273,18 @@ namespace MeshResource
 					// "root" unit will only have a transform centered at origin to allow other
 					// objects to be linked to it via the SceneGraph.
 					Unit unit = Unit(db, unit_id);
-					db.set_string(unit_id, "editor.import_path", "root");
+					db.set_string(unit_id, db.property_index(unit_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), "root");
 
 					Guid component_id;
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_vector3   (component_id, "data.position", VECTOR3_ZERO);
-					unit.set_component_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-					unit.set_component_vector3   (component_id, "data.scale", VECTOR3_ONE);
+					unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.position", 0xbf17708e8bd2a30b)), VECTOR3_ZERO);
+					unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.rotation", 0x3c8974411eeaf63c)), QUATERNION_IDENTITY);
+					unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.scale", 0x16021af8bd4fea50)), VECTOR3_ONE);
 				}
 
 				Guid new_unit_id = unit_id;
@@ -315,7 +315,7 @@ namespace MeshResource
 									Guid component_id = GUID_ZERO;
 									bool name_matches = db.name(child_id) == node_name;
 									if (!name_matches && child_unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315)))
-										name_matches = child_unit.get_component_string(component_id, "data.name", "") == node_name;
+										name_matches = child_unit.get_component_string(component_id, child_unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), "") == node_name;
 
 									if (name_matches) {
 										new_unit_id = child_id;

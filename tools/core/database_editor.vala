@@ -106,7 +106,7 @@ public class DatabaseEditor
 		if (i != properties.length) {
 			Guid new_obj = Guid.new_guid();
 			_database.create(new_obj, properties[i].object_type);
-			_database.add_to_set(object_id, properties[i].name, new_obj);
+			_database.add_to_set(object_id, _database.property_index(object_id, StringId64(properties[i].name)), new_obj);
 			_database.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_obj });
 		}
 	}

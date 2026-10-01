@@ -143,7 +143,7 @@ public class Level
 		new_unit.set_local_scale(unit_scl);
 
 		_db.set_name(new_id, unit_editor_name);
-		_db.add_to_set(_id, "units", new_id);
+		_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("units", 0x11d87c01b90297db)), new_id);
 		_db.add_restore_point((int)ActionType.CREATE_OBJECTS, { new_id });
 	}
 
@@ -172,7 +172,7 @@ public class Level
 		unit.set_local_scale(scl);
 
 		_db.set_name(id, add_object_name(_unit_names, name != null ? name : "unit"));
-		_db.add_to_set(_id, "units", id);
+		_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("units", 0x11d87c01b90297db)), id);
 
 		return 0;
 	}
@@ -183,7 +183,7 @@ public class Level
 		sound.create(pos, rot, scl, range, volume, loop);
 
 		_db.set_name(id, add_object_name(_sound_names, "sound"));
-		_db.add_to_set(_id, "sounds", id);
+		_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("sounds", 0x78e18d73fedbb256)), id);
 	}
 
 	public void on_move_objects(Guid?[] ids, Vector3[] positions, Quaternion[] rotations, Vector3[] scales)
@@ -215,12 +215,12 @@ public class Level
 
 	public void set_object_hidden(Guid id, bool hidden)
 	{
-		_db.set_bool(id, OBJECT_HIDDEN_KEY, hidden);
+		_db.set_bool(id, _db.property_index(id, STRING_ID_64(OBJECT_HIDDEN_KEY, 0xd378c492cdcff388)), hidden);
 	}
 
 	public void set_object_locked(Guid id, bool locked)
 	{
-		_db.set_bool(id, OBJECT_LOCKED_KEY, locked);
+		_db.set_bool(id, _db.property_index(id, STRING_ID_64(OBJECT_LOCKED_KEY, 0x3b9b1b9d1ccaf2e8)), locked);
 	}
 
 	public Guid?[] filter_runtime_selection(Guid?[] selection)

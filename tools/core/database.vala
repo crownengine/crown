@@ -829,7 +829,7 @@ public class Database
 				decode_object(object_id, GUID_ZERO, "", json);
 
 				// Create a mapping between the path and the object it has been loaded into.
-				set(0, GUID_ZERO, ensure_property_index(GUID_ZERO, resource_path), object_id);
+				set(0, GUID_ZERO, register_property(GUID_ZERO, resource_path), object_id);
 
 				prune_stale_overrides(object_id);
 
@@ -863,8 +863,9 @@ public class Database
 	public LoadError add_from_resource_path(out Guid object_id, string resource_path)
 	{
 		// If the resource is already loaded.
-		if (has_property(GUID_ZERO, resource_path)) {
-			object_id = get_reference(GUID_ZERO, property_index(GUID_ZERO, StringId64(resource_path)));
+		uint32 property = property_index(GUID_ZERO, StringId64(resource_path));
+		if (has_property(GUID_ZERO, property)) {
+			object_id = get_reference(GUID_ZERO, property);
 			return LoadError.SUCCESS;
 		}
 
@@ -968,11 +969,11 @@ public class Database
 					&& arr[0].holds(typeof(double))
 					&& k != "frames" // sprite_animation
 					)
-					set(0, id, ensure_property_index(id, k), decode_value(val));
+					set(0, id, register_property(id, k), decode_value(val));
 				else
-					decode_set(id, k, arr);
+					decode_set(id, register_property(id, k), arr);
 			} else {
-				set(0, id, ensure_property_index(id, k), decode_value(val));
+				set(0, id, register_property(id, k), decode_value(val));
 			}
 
 			k = old_db;
@@ -1005,7 +1006,7 @@ public class Database
 
 			// Read property.
 			if (def.type == PropertyType.OBJECTS_SET) {
-				decode_set(id, def.name, (GLib.GenericArray<Value?>)input[key]);
+				decode_set(id, PROPERTY_FIRST + (uint32)property_i, (GLib.GenericArray<Value?>)input[key]);
 			} else if (def.type == PropertyType.RESOURCE) {
 				Resource res = { null };
 				if (input.contains(key)) {
@@ -1026,7 +1027,7 @@ public class Database
 
 		// The "type" key defines object type only if it appears
 		// in the root of a JSON object (k == "").
-		if (db_key == "" && !has_property(id, "_type")) {
+		if (db_key == "" && !has_property(id, PROPERTY_TYPE)) {
 			string? type_name = null;
 			if (json.contains("_type"))
 				type_name = (string)json["_type"];
@@ -1059,11 +1060,10 @@ public class Database
 			decode_object_compat(id, owner_id, db_key, json);
 	}
 
-	public void decode_set(Guid owner_id, string key, GLib.GenericArray<Value?> json)
+	public void decode_set(Guid owner_id, uint32 property, GLib.GenericArray<Value?> json)
 	{
 		// Set should be created even if it is empty.
-		create_empty_set(owner_id, key);
-		uint32 property = property_index(owner_id, StringId64(key));
+		create_empty_set(owner_id, property);
 		StringId64 owner_type = object_type(owner_id);
 
 		for (int i = 0; i < json.length; ++i) {
@@ -1085,7 +1085,7 @@ public class Database
 			set_alive(obj_id, true);
 			_data[obj_id].length = (int)PROPERTY_FIRST;
 			decode_object(obj_id, owner_id, "", obj);
-			assert(has_property(obj_id, "_type"));
+			assert(has_property(obj_id, PROPERTY_TYPE));
 
 			add_to_set_internal(0, owner_id, property, obj_id);
 		}
@@ -1286,19 +1286,8 @@ public class Database
 		return find_property_index(id, key);
 	}
 
-	// Register undeclared keys when they are written.
-	public uint32 ensure_property_index(Guid id, string key)
+	private uint32 append_property(ObjectTypeInfo? info, string key, StringId64 key_id)
 	{
-		assert(has_object(id));
-		assert(is_valid_key(id, key));
-		StringId64 key_id = StringId64(key);
-		uint32 property = find_property_index(id, key_id);
-		if (property != uint32.MAX)
-			return property;
-
-		StringId64 type_hash = object_type(id);
-		unowned ObjectTypeInfo? info = _object_definitions[type_hash];
-		assert(info != null);
 		uint32 index = PROPERTY_FIRST + (uint32)info.property_name_ids.length;
 		// Move the arrays to avoid copying them when appending a new property.
 		string[] names = (owned)info.property_names;
@@ -1316,7 +1305,29 @@ public class Database
 		return index;
 	}
 
-	private unowned string property_name(Guid id, uint32 property)
+	// Register keys discovered while loading or copying objects.
+	private uint32 register_property(Guid id, string key)
+	{
+		assert(has_object(id));
+		assert(is_valid_key(id, key));
+		StringId64 key_id = StringId64(key);
+		uint32 property = find_property_index(id, key_id);
+		if (property != uint32.MAX)
+			return property;
+
+		unowned ObjectTypeInfo? info = _object_definitions[object_type(id)];
+		assert(info != null);
+		return append_property(info, key, key_id);
+	}
+
+	public uint32 ensure_property_index(Guid id, string key)
+	{
+		assert(object_type(id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f));
+		assert(key.has_prefix("modified_components.#") || key.has_prefix("deleted_components.#"));
+		return register_property(id, key);
+	}
+
+	public unowned string property_name(Guid id, uint32 property)
 	{
 		if (property == PROPERTY_TYPE)
 			return "_type";
@@ -1374,12 +1385,12 @@ public class Database
 			_undo_redo._distance_from_last_sync += dir;
 	}
 
-	public void create_empty_set(Guid id, string key)
+	public void create_empty_set(Guid id, uint32 property)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 
-		set_local(id, ensure_property_index(id, key), guid_set_new());
+		set_local(id, property, guid_set_new());
 	}
 
 	public void add_to_set_internal(int dir, Guid id, uint32 property, Guid item_id)
@@ -1476,31 +1487,33 @@ public class Database
 
 	public void _init_object(Guid id, PropertyDefinition[] properties)
 	{
-		foreach (PropertyDefinition def in properties) {
+		for (uint32 i = 0; i < properties.length; ++i) {
+			unowned PropertyDefinition def = properties[i];
+			uint32 property = PROPERTY_FIRST + i;
 			switch (def.type) {
 			case PropertyType.BOOL:
-				set_bool(id, def.name, (bool)def.deffault);
+				set_bool(id, property, (bool)def.deffault);
 				break;
 			case PropertyType.DOUBLE:
-				set_double(id, def.name, (double)def.deffault);
+				set_double(id, property, (double)def.deffault);
 				break;
 			case PropertyType.STRING:
-				set_string(id, def.name, (string)def.deffault);
+				set_string(id, property, (string)def.deffault);
 				break;
 			case PropertyType.VECTOR3:
-				set_vector3(id, def.name, (Vector3)def.deffault);
+				set_vector3(id, property, (Vector3)def.deffault);
 				break;
 			case PropertyType.QUATERNION:
-				set_quaternion(id, def.name, (Quaternion)def.deffault);
+				set_quaternion(id, property, (Quaternion)def.deffault);
 				break;
 			case PropertyType.RESOURCE:
-				set_resource(id, def.name, (string?)def.deffault);
+				set_resource(id, property, (string?)def.deffault);
 				break;
 			case PropertyType.REFERENCE:
-				set_reference(id, def.name, (Guid)def.deffault);
+				set_reference(id, property, (Guid)def.deffault);
 				break;
 			case PropertyType.OBJECTS_SET:
-				create_empty_set(id, def.name);
+				create_empty_set(id, property);
 				break;
 				default:
 				assert(false);
@@ -1542,7 +1555,7 @@ public class Database
 		assert(is_alive(prefab_id));
 		// Instances store only their own properties; missing values come from _prefab.
 		create_empty(id, object_type(prefab_id));
-		set_reference(id, "_prefab", prefab_id);
+		set_reference(id, PROPERTY_PREFAB, prefab_id);
 	}
 
 	public void destroy(Guid id)
@@ -1575,12 +1588,11 @@ public class Database
 			logi("destroy %s".printf(debug_string(id)));
 	}
 
-	public void set_null(Guid id, string key)
+	public void set_null(Guid id, uint32 property)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(null));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1611,12 +1623,11 @@ public class Database
 		set(1, id, property, null);
 	}
 
-	public void set_bool(Guid id, string key, bool val)
+	public void set_bool(Guid id, uint32 property, bool val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1631,12 +1642,11 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_double(Guid id, string key, double val)
+	public void set_double(Guid id, uint32 property, double val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1651,12 +1661,11 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_string(Guid id, string key, string val)
+	public void set_string(Guid id, uint32 property, string val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1675,12 +1684,11 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_vector3(Guid id, string key, Vector3 val)
+	public void set_vector3(Guid id, uint32 property, Vector3 val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1695,12 +1703,11 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_quaternion(Guid id, string key, Quaternion val)
+	public void set_quaternion(Guid id, uint32 property, Quaternion val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1715,12 +1722,11 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_resource(Guid id, string key, string? val)
+	public void set_resource(Guid id, uint32 property, string? val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1746,12 +1752,11 @@ public class Database
 		set(1, id, property, res);
 	}
 
-	public void set_reference(Guid id, string key, Guid val)
+	public void set_reference(Guid id, uint32 property, Guid val)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(is_valid_value(val));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			GLib.GenericArray<Value?> ob = get_data(id);
@@ -1766,35 +1771,34 @@ public class Database
 		set(1, id, property, val);
 	}
 
-	public void set_property(Guid id, string key, Value? val)
+	public void set_property(Guid id, uint32 property, Value? val)
 	{
 		if (val == null)
-			set_null(id, key);
+			set_null(id, property);
 		if (val.holds(typeof(bool)))
-			set_bool(id, key, (bool)val);
+			set_bool(id, property, (bool)val);
 		else if (val.holds(typeof(double)))
-			set_double(id, key, (double)val);
+			set_double(id, property, (double)val);
 		else if (val.holds(typeof(string)))
-			set_string(id, key, (string)val);
+			set_string(id, property, (string)val);
 		else if (val.holds(typeof(Vector3)))
-			set_vector3(id, key, (Vector3)val);
+			set_vector3(id, property, (Vector3)val);
 		else if (val.holds(typeof(Quaternion)))
-			set_quaternion(id, key, (Quaternion)val);
+			set_quaternion(id, property, (Quaternion)val);
 		else if (val.holds(typeof(Resource)))
-			set_resource(id, key, ((Resource)val).name);
+			set_resource(id, property, ((Resource)val).name);
 		else if (val.holds(typeof(Guid)))
-			set_reference(id, key, (Guid)val);
+			set_reference(id, property, (Guid)val);
 		else
 			assert(false);
 	}
 
-	public void add_to_set(Guid id, string key, Guid item_id)
+	public void add_to_set(Guid id, uint32 property, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
+		assert(property != uint32.MAX);
 		assert(item_id != GUID_ZERO);
 		assert(has_object(item_id));
-		uint32 property = ensure_property_index(id, key);
 
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_remove_from_set_action(Action.REMOVE_FROM_SET, id, property, item_id);
@@ -1804,13 +1808,11 @@ public class Database
 		add_to_set_internal(1, id, property, item_id);
 	}
 
-	public void remove_from_set(Guid id, string key, Guid item_id)
+	public void remove_from_set(Guid id, uint32 property, Guid item_id)
 	{
 		assert(has_object(id));
-		assert(is_valid_key(id, key));
-		assert(item_id != GUID_ZERO);
-		uint32 property = property_index(id, StringId64(key));
 		assert(property != uint32.MAX);
+		assert(item_id != GUID_ZERO);
 
 		if (_undo_redo != null) {
 			_undo_redo._undo.write_add_to_set_action(Action.ADD_TO_SET, id, property, item_id);
@@ -1825,9 +1827,9 @@ public class Database
 		return id == GUID_ZERO || _data.contains(id);
 	}
 
-	public bool has_property(Guid id, string key)
+	public bool has_property(Guid id, uint32 property)
 	{
-		return get_property(id, key) != null;
+		return get_property(id, property) != null;
 	}
 
 	private bool has_local_property(Guid id, uint32 property)
@@ -1943,7 +1945,7 @@ public class Database
 		return inherit_value(local, inherited);
 	}
 
-	private Value? get_property_at(Guid id, uint32 property, Value? val = null)
+	public Value? get_property(Guid id, uint32 property, Value? val = null)
 	{
 		assert(has_object(id));
 		if (property == uint32.MAX)
@@ -1972,55 +1974,42 @@ public class Database
 		return value;
 	}
 
-	public Value? get_property(Guid id, string key, Value? val = null)
-	{
-		assert(has_object(id));
-		assert(is_valid_key(id, key));
-		uint32 property = find_property_index(id, StringId64(key));
-		if (property == uint32.MAX) {
-			if (_debug_getters)
-				logi("get_property %s %s %s".printf(debug_string(id), key, debug_string(val)));
-			return val;
-		}
-		return get_property_at(id, property, val);
-	}
-
 	public bool get_bool(Guid id, uint32 property, bool deffault = false)
 	{
-		return (bool)get_property_at(id, property, deffault);
+		return (bool)get_property(id, property, deffault);
 	}
 
 	public double get_double(Guid id, uint32 property, double deffault = 0.0)
 	{
-		return (double)get_property_at(id, property, deffault);
+		return (double)get_property(id, property, deffault);
 	}
 
 	public string get_string(Guid id, uint32 property, string deffault = "")
 	{
-		return (string)get_property_at(id, property, deffault);
+		return (string)get_property(id, property, deffault);
 	}
 
 	public Vector3 get_vector3(Guid id, uint32 property, Vector3 deffault = VECTOR3_ZERO)
 	{
-		return (Vector3)get_property_at(id, property, deffault);
+		return (Vector3)get_property(id, property, deffault);
 	}
 
 	public Quaternion get_quaternion(Guid id, uint32 property, Quaternion deffault = QUATERNION_IDENTITY)
 	{
-		return (Quaternion)get_property_at(id, property, deffault);
+		return (Quaternion)get_property(id, property, deffault);
 	}
 
 	public string? get_resource(Guid id, uint32 property, string? deffault = null)
 	{
 		Resource deffault_res = { deffault };
-		Value? val = get_property_at(id, property, deffault_res);
+		Value? val = get_property(id, property, deffault_res);
 		assert(val == null || val.holds(typeof(Crown.Resource)));
 		return ((Resource)val).name;
 	}
 
 	public Guid get_reference(Guid id, uint32 property, Guid deffault = GUID_ZERO)
 	{
-		return (Guid)get_property_at(id, property, deffault);
+		return (Guid)get_property(id, property, deffault);
 	}
 
 	public Guid?[] get_set(Guid id, uint32 property)
@@ -2028,7 +2017,7 @@ public class Database
 		assert(has_object(id));
 
 		GLib.GenericArray<Guid?> value = new GLib.GenericArray<Guid?>();
-		Value? set_value = get_property_at(id, property);
+		Value? set_value = get_property(id, property);
 		if (set_value != null) {
 			GLib.GenericSet<Guid?> objects = (GLib.GenericSet<Guid?>)set_value;
 			foreach (unowned Guid? obj in objects) {
@@ -2132,23 +2121,24 @@ public class Database
 				if (value == null)
 					continue;
 				string key = property_name(source_id, property);
+				uint32 dest_property = dest.register_property(duplicate_id, key);
 				if (value.holds(typeof(GLib.GenericSet))) {
-					dest.create_empty_set(duplicate_id, key);
+					dest.create_empty_set(duplicate_id, dest_property);
 					GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
 					foreach (Guid? j in hs) {
 						if (!is_alive(j))
 							continue;
 
-						dest.add_to_set(duplicate_id, key, duplicates[j]);
+						dest.add_to_set(duplicate_id, dest_property, duplicates[j]);
 					}
 				} else {
 					if (value.holds(typeof(Guid))) {
 						Guid reference = (Guid)value;
 						if (duplicates.contains(reference))
 							reference = duplicates[reference];
-						dest.set_reference(duplicate_id, key, reference);
+						dest.set_reference(duplicate_id, dest_property, reference);
 					} else {
-						dest.set_property(duplicate_id, key, value);
+						dest.set_property(duplicate_id, dest_property, value);
 					}
 				}
 			}
@@ -2184,10 +2174,11 @@ public class Database
 				if (def.type != PropertyType.OBJECTS_SET)
 					continue;
 
-				Guid?[] objects = get_set(owner_id, property_index(owner_id, StringId64(def.name)));
+				uint32 property = property_index(owner_id, StringId64(def.name));
+				Guid?[] objects = get_set(owner_id, property);
 				foreach (unowned Guid? object_id in objects) {
 					if (Guid.equal_func(object_id, id)) {
-						add_to_set(owner_id, def.name, new_id);
+						add_to_set(owner_id, property, new_id);
 						added = true;
 						break;
 					}
@@ -2220,38 +2211,37 @@ public class Database
 			Value? value = ob[property];
 			if (value == null)
 				continue;
-			string key = property_name(id, property);
 			if (property == PROPERTY_TYPE) {
 				db.set_type(id, object_type(id));
 				continue;
 			}
+			string key = property_name(id, property);
+			string target_key = new_key + (new_key == "" ? "" : ".") + key;
+			uint32 target_property = db.register_property(id, target_key);
 			if (value.holds(typeof(GLib.GenericSet))) {
-				string set_key = new_key + (new_key == "" ? "" : ".") + key;
-				db.create_empty_set(id, set_key);
+				db.create_empty_set(id, target_property);
 				GLib.GenericSet<Guid?> hs = (GLib.GenericSet<Guid?>)value;
 				foreach (Guid? j in hs) {
 					StringId64 type = object_type(j);
 					db.create_empty(j, type);
 					copy_deep(db, j, "");
-					db.add_to_set(id, set_key, j);
+					db.add_to_set(id, target_property, j);
 				}
 			} else {
-				string kk = new_key + (new_key == "" ? "" : ".") + key;
-
 				if (value.holds(typeof(bool)))
-					db.set_bool(id, kk, (bool)value);
+					db.set_bool(id, target_property, (bool)value);
 				if (value.holds(typeof(double)))
-					db.set_double(id, kk, (double)value);
+					db.set_double(id, target_property, (double)value);
 				if (value.holds(typeof(string)))
-					db.set_string(id, kk, (string)value);
+					db.set_string(id, target_property, (string)value);
 				if (value.holds(typeof(Vector3)))
-					db.set_vector3(id, kk, (Vector3)value);
+					db.set_vector3(id, target_property, (Vector3)value);
 				if (value.holds(typeof(Quaternion)))
-					db.set_quaternion(id, kk, (Quaternion)value);
+					db.set_quaternion(id, target_property, (Quaternion)value);
 				if (value.holds(typeof(Resource)))
-					db.set_resource(id, kk, ((Resource)value).name);
+					db.set_resource(id, target_property, ((Resource)value).name);
 				if (value.holds(typeof(Guid)))
-					db.set_reference(id, kk, (Guid)value);
+					db.set_reference(id, target_property, (Guid)value);
 			}
 		}
 	}
@@ -2610,6 +2600,25 @@ public class Database
 		info.flags = flags;
 		info.user_data = user_data;
 		info.aspects = new GLib.HashTable<StringId64?, AspectData?>(StringId64.hash_func, StringId64.equal_func);
+		if ((flags& ObjectTypeFlags.RESOURCE) != 0) {
+			StringId64 editor_name = STRING_ID_64("editor.name", 0xf03c7393491c46db);
+			bool found = false;
+			foreach (StringId64 name_id in info.property_name_ids) {
+				if (name_id == editor_name) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				append_property(info, "editor.name", editor_name);
+		}
+		if (type_hash == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
+			string[] implicit_names = { "components", "deleted_components", "modified_components", "deleted_children", "modified_children", "position", "rotation", "scale", "editor.import_path" };
+			foreach (unowned string key in implicit_names)
+				append_property(info, key, StringId64(key));
+		} else if (type_hash == STRING_ID_64(OBJECT_TYPE_DATABASE, 0x6d90dd26dff90856)) {
+			append_property(info, "data", STRING_ID_64("data", 0x8fd0d44d20650b68));
+		}
 		object_type_added(type_hash, info);
 		return type_hash;
 	}
@@ -2639,7 +2648,7 @@ public class Database
 	// Sets the @a name of the object @a id.
 	public void set_name(Guid id, string name)
 	{
-		set_string(id, "editor.name", name);
+		set_string(id, property_index(id, STRING_ID_64("editor.name", 0xf03c7393491c46db)), name);
 	}
 
 	// Returns whether the object @a type exists (i.e. has been created with create_object_type()).
@@ -2681,15 +2690,15 @@ public class Database
 		return all.steal();
 	}
 
-	public bool is_subobject_of(Guid subobject_id, Guid object_id, string set_name)
+	public bool is_subobject_of(Guid subobject_id, Guid object_id, uint32 property)
 	{
 		assert(has_object(subobject_id));
 		assert(has_object(object_id));
 
-		if (!has_property(object_id, set_name))
+		if (!has_property(object_id, property))
 			return false;
 
-		foreach (unowned Guid? object in get_set(object_id, property_index(object_id, StringId64(set_name)))) {
+		foreach (unowned Guid? object in get_set(object_id, property)) {
 			if (Guid.equal_func(object, subobject_id))
 				return true;
 		}

@@ -46,12 +46,12 @@ public struct Sound
 
 	public void set_local_position(Vector3 position)
 	{
-		_db.set_vector3(_id, "position", position);
+		_db.set_vector3(_id, _db.property_index(_id, STRING_ID_64("position", 0x8bbeb160190f613a)), position);
 	}
 
 	public void set_local_rotation(Quaternion rotation)
 	{
-		_db.set_quaternion(_id, "rotation", rotation);
+		_db.set_quaternion(_id, _db.property_index(_id, STRING_ID_64("rotation", 0x2060566242789baa)), rotation);
 	}
 
 	public void set_local_scale(Vector3 scale)
@@ -66,7 +66,7 @@ public struct Sound
 
 	public void set_range(double range)
 	{
-		_db.set_double(_id, "range", range);
+		_db.set_double(_id, _db.property_index(_id, STRING_ID_64("range", 0xc8beeb904f5e61ed)), range);
 	}
 
 	public double volume()
@@ -76,7 +76,7 @@ public struct Sound
 
 	public void set_volume(double volume)
 	{
-		_db.set_double(_id, "volume", volume);
+		_db.set_double(_id, _db.property_index(_id, STRING_ID_64("volume", 0x6ad9817aa72d9533)), volume);
 	}
 
 	public bool loop()
@@ -86,12 +86,12 @@ public struct Sound
 
 	public void set_loop(bool loop)
 	{
-		_db.set_bool(_id, "loop", loop);
+		_db.set_bool(_id, _db.property_index(_id, STRING_ID_64("loop", 0x8c9c410e83f48bce)), loop);
 	}
 
 	public void set_group(string group)
 	{
-		_db.set_string(_id, "group", group);
+		_db.set_string(_id, _db.property_index(_id, STRING_ID_64("group", 0x7c2e1729c6e0be44)), group);
 	}
 
 	public static int generate_spawn_sound_commands(StringBuilder sb, Guid?[] object_ids, Database db)

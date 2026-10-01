@@ -608,12 +608,12 @@ public class Project
 
 		Guid id = Guid.new_guid();
 		_files.create_empty(id, STRING_ID_64(OBJECT_TYPE_FILE, 0x63d525adf27fd749));
-		_files.set_string(id, "path", path);
-		_files.set_string(id, "type", type);
-		_files.set_string(id, "name", name);
-		_files.set_string(id, "size", size.to_string());
-		_files.set_string(id, "mtime", mtime.to_string());
-		_files.add_to_set(GUID_ZERO, "data", id);
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("path", 0xae70259f6415b584)), path);
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("type", 0xa21bd0e01ac8f01f)), type);
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b)), name);
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("size", 0x6687058679006e12)), size.to_string());
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("mtime", 0x3e21d636bb05aaf2)), mtime.to_string());
+		_files.add_to_set(GUID_ZERO, _files.property_index(GUID_ZERO, STRING_ID_64("data", 0x8fd0d44d20650b68)), id);
 
 		_map[path] = id;
 		_data_compiled = false;
@@ -632,8 +632,8 @@ public class Project
 		string name = type == "" ? path : path.substring(0, path.last_index_of("."));
 
 		Guid id = _map[path];
-		_files.set_string(id, "size", size.to_string());
-		_files.set_string(id, "mtime", mtime.to_string());
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("size", 0x6687058679006e12)), size.to_string());
+		_files.set_string(id, _files.property_index(id, STRING_ID_64("mtime", 0x3e21d636bb05aaf2)), mtime.to_string());
 
 		_data_compiled = false;
 
@@ -650,7 +650,7 @@ public class Project
 		Guid id = _map[path];
 		file_removed(_files.get_string(id, _files.property_index(id, STRING_ID_64("type", 0xa21bd0e01ac8f01f))), _files.get_string(id, _files.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b))));
 
-		_files.remove_from_set(GUID_ZERO, "data", id);
+		_files.remove_from_set(GUID_ZERO, _files.property_index(GUID_ZERO, STRING_ID_64("data", 0x8fd0d44d20650b68)), id);
 		_files.destroy(id);
 
 		_map.remove(path);

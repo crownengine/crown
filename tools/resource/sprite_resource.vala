@@ -998,8 +998,8 @@ public class SpriteResource
 			// Generate .sprite.
 			Guid sprite_id = Guid.new_guid();
 			db.create(sprite_id, STRING_ID_64(OBJECT_TYPE_SPRITE, 0x8d5871f9ebdb651c));
-			db.set_double(sprite_id, "width", width);
-			db.set_double(sprite_id, "height", height);
+			db.set_double(sprite_id, db.property_index(sprite_id, STRING_ID_64("width", 0x12926f04f655d5d9)), width);
+			db.set_double(sprite_id, db.property_index(sprite_id, STRING_ID_64("height", 0xef1c29a0b6d24e92)), height);
 
 			double frame_index = 0.0;
 
@@ -1021,12 +1021,12 @@ public class SpriteResource
 
 					Guid frame_id = Guid.new_guid();
 					db.create(frame_id, STRING_ID_64(OBJECT_TYPE_SPRITE_FRAME, 0x1fb42b4c64dd9c48));
-					db.set_string    (frame_id, "name", "sprite_%d".printf(c + num_h*r));
-					db.set_quaternion(frame_id, "region", Quaternion(x, y, cell_w, cell_h));
-					db.set_vector3   (frame_id, "pivot", Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
-					db.set_double    (frame_id, "index", frame_index);
+					db.set_string    (frame_id, db.property_index(frame_id, STRING_ID_64("name", 0xd4c943cba60c270b)), "sprite_%d".printf(c + num_h*r));
+					db.set_quaternion(frame_id, db.property_index(frame_id, STRING_ID_64("region", 0xa7b0fe012225301a)), Quaternion(x, y, cell_w, cell_h));
+					db.set_vector3   (frame_id, db.property_index(frame_id, STRING_ID_64("pivot", 0x8144a2c268aedd32)), Vector3(x + pivot_xy.x, y + pivot_xy.y, 0.0));
+					db.set_double    (frame_id, db.property_index(frame_id, STRING_ID_64("index", 0xb03b8bced9422c44)), frame_index);
 
-					db.add_to_set(sprite_id, "frames", frame_id);
+					db.add_to_set(sprite_id, db.property_index(sprite_id, STRING_ID_64("frames", 0xbb0b674305a539e7)), frame_id);
 
 					frame_index++;
 				}
@@ -1100,12 +1100,12 @@ public class SpriteResource
 				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 					component_id = Guid.new_guid();
 					db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
-					db.add_to_set(unit_id, "components", component_id);
+					db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 				}
 
-				unit.set_component_vector3   (component_id, "data.position", VECTOR3_ZERO);
-				unit.set_component_quaternion(component_id, "data.rotation", QUATERNION_IDENTITY);
-				unit.set_component_vector3   (component_id, "data.scale", VECTOR3_ONE);
+				unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.position", 0xbf17708e8bd2a30b)), VECTOR3_ZERO);
+				unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.rotation", 0x3c8974411eeaf63c)), QUATERNION_IDENTITY);
+				unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.scale", 0x16021af8bd4fea50)), VECTOR3_ONE);
 			}
 
 			// Create sprite_renderer
@@ -1114,14 +1114,14 @@ public class SpriteResource
 				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b))) {
 					component_id = Guid.new_guid();
 					db.create(component_id, STRING_ID_64(OBJECT_TYPE_SPRITE_RENDERER, 0x3d7229ea6a1c2a3b));
-					db.add_to_set(unit_id, "components", component_id);
+					db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 				}
 
-				unit.set_component_string(component_id, "data.material", resource_name);
-				unit.set_component_string(component_id, "data.sprite_resource", resource_name);
-				unit.set_component_double(component_id, "data.layer", layer);
-				unit.set_component_double(component_id, "data.depth", depth);
-				unit.set_component_bool  (component_id, "data.visible", true);
+				unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), resource_name);
+				unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.sprite_resource", 0x223dd1c4e8beb8b0)), resource_name);
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.layer", 0x90a95ce10ee6d6ed)), layer);
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.depth", 0x0ccfd59731b887a6)), depth);
+				unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.visible", 0xad0490cc1fffda48)), true);
 			}
 
 			if (has_animation) {
@@ -1130,14 +1130,14 @@ public class SpriteResource
 				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))) {
 					component_id = Guid.new_guid();
 					db.create(component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
-					db.add_to_set(unit_id, "components", component_id);
+					db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 				}
 
-				unit.set_component_string(component_id, "data.state_machine_resource", resource_name);
+				unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.state_machine_resource", 0xd98f8b4d76314483)), resource_name);
 			} else {
 				Guid component_id;
 				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))
-					&& unit.get_component_resource(component_id, "data.state_machine_resource") == resource_name
+					&& unit.get_component_resource(component_id, unit._db.property_index(component_id, STRING_ID_64("data.state_machine_resource", 0xd98f8b4d76314483))) == resource_name
 					) {
 					unit.remove_component_type(STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
 				}
@@ -1153,39 +1153,39 @@ public class SpriteResource
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_string(component_id, "data.source", "inline");
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.source", 0xeb6e9c3c75dcfe5a)), "inline");
 					if (shape_active_name == "square_collider") {
 						double pos_x =  (collision_x + collision_w/2.0 - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(collision_y + collision_h/2.0 - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, pos_y, 0);
 						Vector3 half_extents = Vector3(collision_w/2/PIXELS_PER_METER, collision_h/2/PIXELS_PER_METER, 0.5/PIXELS_PER_METER);
-						unit.set_component_vector3   (component_id, "data.collider_data.position", position);
-						unit.set_component_quaternion(component_id, "data.collider_data.rotation", rotation);
-						unit.set_component_string    (component_id, "data.shape", "box");
-						unit.set_component_vector3   (component_id, "data.collider_data.half_extents", half_extents);
+						unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.position", 0x88957275bc90e7ca)), position);
+						unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.rotation", 0xb69c28e242fd898a)), rotation);
+						unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.shape", 0xd4ffa681b8480051)), "box");
+						unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.half_extents", 0xa4df041618e7072c)), half_extents);
 					} else if (shape_active_name == "circle_collider") {
 						double pos_x =  (circle_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(circle_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, pos_y, 0);
 						double radius = circle_collision_radius / PIXELS_PER_METER;
-						unit.set_component_vector3   (component_id, "data.collider_data.position", position);
-						unit.set_component_quaternion(component_id, "data.collider_data.rotation", rotation);
-						unit.set_component_string    (component_id, "data.shape", "sphere");
-						unit.set_component_double    (component_id, "data.collider_data.radius", radius);
+						unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.position", 0x88957275bc90e7ca)), position);
+						unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.rotation", 0xb69c28e242fd898a)), rotation);
+						unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.shape", 0xd4ffa681b8480051)), "sphere");
+						unit.set_component_double    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.radius", 0x09bb508b35944b45)), radius);
 					} else if (shape_active_name == "capsule_collider") {
 						double pos_x =  (capsule_collision_center_x - pivot_xy.x) / PIXELS_PER_METER;
 						double pos_y = -(capsule_collision_center_y - pivot_xy.y) / PIXELS_PER_METER;
 						Vector3 position = Vector3(pos_x, pos_y, 0);
 						double radius = capsule_collision_radius / PIXELS_PER_METER;
 						double capsule_height = (capsule_collision_height - 2*capsule_collision_radius) / PIXELS_PER_METER;
-						unit.set_component_vector3   (component_id, "data.collider_data.position", position);
-						unit.set_component_quaternion(component_id, "data.collider_data.rotation", Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
-						unit.set_component_string    (component_id, "data.shape", "capsule");
-						unit.set_component_double    (component_id, "data.collider_data.radius", radius);
-						unit.set_component_double    (component_id, "data.collider_data.height", capsule_height);
+						unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.position", 0x88957275bc90e7ca)), position);
+						unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.rotation", 0xb69c28e242fd898a)), Quaternion.from_axis_angle(Vector3(0, 0, 1), (float)Math.PI/2));
+						unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.shape", 0xd4ffa681b8480051)), "capsule");
+						unit.set_component_double    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.radius", 0x09bb508b35944b45)), radius);
+						unit.set_component_double    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.collider_data.height", 0xb7ea14ce927d094d)), capsule_height);
 					}
 				}
 
@@ -1195,29 +1195,29 @@ public class SpriteResource
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_string(component_id, "data.class", actor_class);
-					unit.set_component_string(component_id, "data.collision_filter", "default");
-					unit.set_component_bool  (component_id, "data.lock_rotation_x", true);
-					unit.set_component_bool  (component_id, "data.lock_rotation_z", true);
-					unit.set_component_bool  (component_id, "data.lock_rotation_z", lock_rotation_z);
-					unit.set_component_bool  (component_id, "data.lock_translation_x", false);
-					unit.set_component_bool  (component_id, "data.lock_translation_y", false);
-					unit.set_component_bool  (component_id, "data.lock_translation_z", true);
-					unit.set_component_double(component_id, "data.mass", mass);
-					unit.set_component_string(component_id, "data.material", "default");
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.class", 0xf5345d5fdfcd4f82)), actor_class);
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collision_filter", 0x493f7c3cd3e78169)), "default");
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_rotation_x", 0xc4a7365567bf0174)), true);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_rotation_z", 0x9e51a0520d9116fc)), true);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_rotation_z", 0x9e51a0520d9116fc)), lock_rotation_z);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_translation_x", 0x01671e300f8d626e)), false);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_translation_y", 0xeea13034d0944b60)), false);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.lock_translation_z", 0x1fe23900ffad5178)), true);
+					unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.mass", 0xb77cc8d9b93f1d8e)), mass);
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), "default");
 				}
 			} else { /* if (collision_enabled) */
 				// Destroy collider and actor if any
 				Guid component_id;
 				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
-					db.remove_from_set(unit_id, "components", component_id);
+					db.remove_from_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					db.destroy(component_id);
 				}
 				if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
-					db.remove_from_set(unit_id, "components", component_id);
+					db.remove_from_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					db.destroy(component_id);
 				}
 			}

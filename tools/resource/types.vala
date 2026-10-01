@@ -380,7 +380,7 @@ public static void create_object_types(Database database)
 		},
 	};
 	StringId64 mesh_material_type = database.create_object_type(OBJECT_TYPE_MESH_MATERIAL, material_properties, 1102);
-	database.set_aspect(mesh_material_type, StringId64("name"), mesh_material_name_aspect);
+	database.set_aspect(mesh_material_type, STRING_ID_64("name", 0xd4c943cba60c270b), mesh_material_name_aspect);
 
 	properties =
 	{
@@ -2385,7 +2385,7 @@ public static void create_object_types(Database database)
 	StringId64 node_animation_type = database.create_object_type(OBJECT_TYPE_NODE_ANIMATION, properties);
 
 	database.set_aspect(node_animation_type
-		, StringId64("name")
+		, STRING_ID_64("name", 0xd4c943cba60c270b)
 		, (out name, database, id) => {
 			string? anim_name = database.get_resource(id, database.property_index(id, STRING_ID_64("name", 0xd4c943cba60c270b)));
 			name = anim_name == null ? "(None)" : GLib.Path.get_basename(anim_name);
@@ -2418,7 +2418,7 @@ public static void create_object_types(Database database)
 	StringId64 node_transition_type = database.create_object_type(OBJECT_TYPE_NODE_TRANSITION, properties);
 
 	database.set_aspect(node_transition_type
-		, StringId64("name")
+		, STRING_ID_64("name", 0xd4c943cba60c270b)
 		, (out name, database, id) => {
 			string node_name = "Unknown";
 			Guid to_node = database.get_reference(id, database.property_index(id, STRING_ID_64("to", 0x9558f59f36417bc6)));

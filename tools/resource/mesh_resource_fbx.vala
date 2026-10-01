@@ -291,7 +291,7 @@ public class FBXImporter
 			|| (node.camera != null && !options.import_cameras)
 			) {
 			if (db.has_object(unit_id) && parent_unit_id != GUID_ZERO) {
-				Value? children = db.get_property(parent_unit_id, "children");
+				Value? children = db.get_property(parent_unit_id, db.property_index(parent_unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)));
 				if (children != null)
 					((GLib.GenericSet<Guid?>)children).remove(unit_id);
 				db.destroy(unit_id);
@@ -310,13 +310,13 @@ public class FBXImporter
 				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 					component_id = Guid.new_guid();
 					db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
-					db.add_to_set(unit_id, "components", component_id);
+					db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 				}
 
-				unit.set_component_vector3   (component_id, "data.position", pos);
-				unit.set_component_quaternion(component_id, "data.rotation", rot);
-				unit.set_component_vector3   (component_id, "data.scale", scl);
-				unit.set_component_string    (component_id, "data.name", editor_name);
+				unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.position", 0xbf17708e8bd2a30b)), pos);
+				unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.rotation", 0x3c8974411eeaf63c)), rot);
+				unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.scale", 0x16021af8bd4fea50)), scl);
+				unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), editor_name);
 			}
 
 			if (node.mesh.num_triangles > 0) {
@@ -326,13 +326,13 @@ public class FBXImporter
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_string(component_id, "data.geometry_name", editor_name);
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.geometry_name", 0x040a59886a3e4a2d)), editor_name);
 					import_material_slots(db, component_id, node, imported_materials, imported_skinned_materials, skinned_fallback_material);
-					unit.set_component_string(component_id, "data.mesh_resource", resource_name);
-					unit.set_component_bool  (component_id, "data.visible", true);
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.mesh_resource", 0xd08afb39c15cc158)), resource_name);
+					unit.set_component_bool  (component_id, unit._db.property_index(component_id, STRING_ID_64("data.visible", 0xad0490cc1fffda48)), true);
 				}
 
 				if (options.create_colliders) {
@@ -342,12 +342,12 @@ public class FBXImporter
 						if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e))) {
 							component_id = Guid.new_guid();
 							db.create(component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e));
-							db.add_to_set(unit_id, "components", component_id);
+							db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 						}
 
-						unit.set_component_string(component_id, "data.shape", "mesh");
-						unit.set_component_string(component_id, "data.scene", resource_name);
-						unit.set_component_string(component_id, "data.name", editor_name);
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.shape", 0xd4ffa681b8480051)), "mesh");
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.scene", 0x8f8eae68a99b51cc)), resource_name);
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), editor_name);
 					}
 
 					// Create actor.
@@ -356,13 +356,13 @@ public class FBXImporter
 						if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583))) {
 							component_id = Guid.new_guid();
 							db.create(component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583));
-							db.add_to_set(unit_id, "components", component_id);
+							db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 						}
 
-						unit.set_component_string(component_id, "data.class", "static");
-						unit.set_component_string(component_id, "data.collision_filter", "default");
-						unit.set_component_double(component_id, "data.mass", 1.0);
-						unit.set_component_string(component_id, "data.material", "default");
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.class", 0xf5345d5fdfcd4f82)), "static");
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.collision_filter", 0x493f7c3cd3e78169)), "default");
+						unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.mass", 0xb77cc8d9b93f1d8e)), 1.0);
+						unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.material", 0xf014ddbddc53c116)), "default");
 					}
 				}
 			}
@@ -380,13 +380,13 @@ public class FBXImporter
 
 			Guid component_id;
 			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LIGHT, 0x7dd7224fbb9f08c2))) {
-				unit.set_component_string (component_id, "data.type", light_type(node.light.type));
-				unit.set_component_double (component_id, "data.range", 10.0);
-				unit.set_component_double (component_id, "data.intensity", (double)node.light.intensity);
-				unit.set_component_double (component_id, "data.spot_angle", 0.5 * MathUtils.rad((double)node.light.outer_angle));
-				unit.set_component_vector3(component_id, "data.color", vector3(node.light.color));
-				unit.set_component_double (component_id, "data.shadow_bias", 0.0004);
-				unit.set_component_bool   (component_id, "data.cast_shadows", node.light.cast_shadows);
+				unit.set_component_string (component_id, unit._db.property_index(component_id, STRING_ID_64("data.type", 0x3d4dcce26f0f13fd)), light_type(node.light.type));
+				unit.set_component_double (component_id, unit._db.property_index(component_id, STRING_ID_64("data.range", 0x969effdaa778c82b)), 10.0);
+				unit.set_component_double (component_id, unit._db.property_index(component_id, STRING_ID_64("data.intensity", 0xd1e406b3aeae4d67)), (double)node.light.intensity);
+				unit.set_component_double (component_id, unit._db.property_index(component_id, STRING_ID_64("data.spot_angle", 0xad796e4ae667dead)), 0.5 * MathUtils.rad((double)node.light.outer_angle));
+				unit.set_component_vector3(component_id, unit._db.property_index(component_id, STRING_ID_64("data.color", 0xac9624a15a2891c0)), vector3(node.light.color));
+				unit.set_component_double (component_id, unit._db.property_index(component_id, STRING_ID_64("data.shadow_bias", 0xa8290b921c961845)), 0.0004);
+				unit.set_component_bool   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.cast_shadows", 0xc2b3140260446694)), node.light.cast_shadows);
 			}
 		} else if (node.camera != null) {
 			if (!options.import_cameras)
@@ -402,10 +402,10 @@ public class FBXImporter
 
 			Guid component_id;
 			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_CAMERA, 0x60ed8c3931822dc7))) {
-				unit.set_component_string(component_id, "data.projection", projection_type(node.camera.projection_mode));
-				unit.set_component_double(component_id, "data.fov", MathUtils.rad((double)node.camera.field_of_view_deg.y));
-				unit.set_component_double(component_id, "data.far_range", (double)node.camera.far_plane);
-				unit.set_component_double(component_id, "data.near_range", (double)node.camera.near_plane);
+				unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.projection", 0x6e0676d6db8d3734)), projection_type(node.camera.projection_mode));
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.fov", 0xae3b0c9413994b89)), MathUtils.rad((double)node.camera.field_of_view_deg.y));
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.far_range", 0x3283caec3b9511b0)), (double)node.camera.far_plane);
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.near_range", 0xbaf158a47f2c7242)), (double)node.camera.near_plane);
 			}
 		} else if (node.bone != null) {
 			return;
@@ -418,26 +418,26 @@ public class FBXImporter
 			if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315))) {
 				component_id = Guid.new_guid();
 				db.create(component_id, STRING_ID_64(OBJECT_TYPE_TRANSFORM, 0x69e14b13ad9b5315));
-				db.add_to_set(unit_id, "components", component_id);
+				db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 			}
 
-			unit.set_component_vector3   (component_id, "data.position", pos);
-			unit.set_component_quaternion(component_id, "data.rotation", rot);
-			unit.set_component_vector3   (component_id, "data.scale", scl);
-			unit.set_component_string    (component_id, "data.name", editor_name);
+			unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.position", 0xbf17708e8bd2a30b)), pos);
+			unit.set_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.rotation", 0x3c8974411eeaf63c)), rot);
+			unit.set_component_vector3   (component_id, unit._db.property_index(component_id, STRING_ID_64("data.scale", 0x16021af8bd4fea50)), scl);
+			unit.set_component_string    (component_id, unit._db.property_index(component_id, STRING_ID_64("data.name", 0x2b855b7e7675517f)), editor_name);
 		}
 
 		if (!options.create_colliders) {
 			Guid component_id;
 			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_COLLIDER, 0x9a9fe4362129d74e)) && db.owner(component_id) == unit_id) {
-				Value? components = db.get_property(unit_id, "components");
+				Value? components = db.get_property(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)));
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
 			}
 
 			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ACTOR, 0xac2b738a374cf583)) && db.owner(component_id) == unit_id) {
-				Value? components = db.get_property(unit_id, "components");
+				Value? components = db.get_property(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)));
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
@@ -448,10 +448,10 @@ public class FBXImporter
 		// editor.import_path is importer-owned metadata, not a filesystem path.
 		// It identifies the source node in the imported hierarchy so reimport
 		// can reuse the same unit and preserve component GUIDs.
-		db.set_string(unit_id, "editor.import_path", import_path);
+		db.set_string(unit_id, db.property_index(unit_id, STRING_ID_64("editor.import_path", 0xbfe7f0f8d6d0656a)), import_path);
 
 		if (parent_unit_id != GUID_ZERO)
-			db.add_to_set(parent_unit_id, "children", unit_id);
+			db.add_to_set(parent_unit_id, db.property_index(parent_unit_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)), unit_id);
 
 		// Reuse only children that existed before this import, and assign each
 		// existing child to at most one imported node.
@@ -542,12 +542,12 @@ public class FBXImporter
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_string(component_id, "data.fade_mode", "none");
-					unit.set_component_double(component_id, "data.level", -1.0);
-					db.create_empty_set(component_id, "data.lod_levels");
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.fade_mode", 0xd1e695426829933b)), "none");
+					unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.level", 0xd70ddfec12f72a7b)), -1.0);
+					db.create_empty_set(component_id, db.property_index(component_id, STRING_ID_64("data.lod_levels", 0xf8b66d06ee19128f)));
 
 					// Add levels in source order, using FBX distances when available.
 					for (size_t li = 0; li < lod_group.lod_levels.data.length && (int)li < child_unit_ids.length; ++li) {
@@ -558,9 +558,9 @@ public class FBXImporter
 
 						Guid level_id = Guid.new_guid();
 						db.create(level_id, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
-						db.set_reference(level_id, "data.mesh_renderer", child_unit_ids[(int)li]);
-						db.set_double(level_id, "data.screen_size", screen_size);
-						db.add_to_set(component_id, "data.lod_levels", level_id);
+						db.set_reference(level_id, db.property_index(level_id, STRING_ID_64("data.mesh_renderer", 0xba4d878d19255e65)), child_unit_ids[(int)li]);
+						db.set_double(level_id, db.property_index(level_id, STRING_ID_64("data.screen_size", 0xb0affbb45037b116)), screen_size);
+						db.add_to_set(component_id, db.property_index(component_id, STRING_ID_64("data.lod_levels", 0xf8b66d06ee19128f)), level_id);
 					}
 					return;
 				}
@@ -607,12 +607,12 @@ public class FBXImporter
 				if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0))) {
 					component_id = Guid.new_guid();
 					db.create(component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0));
-					db.add_to_set(unit_id, "components", component_id);
+					db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 				}
 
-				unit.set_component_string(component_id, "data.fade_mode", "none");
-				unit.set_component_double(component_id, "data.level", -1.0);
-				db.create_empty_set(component_id, "data.lod_levels");
+				unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.fade_mode", 0xd1e695426829933b)), "none");
+				unit.set_component_double(component_id, unit._db.property_index(component_id, STRING_ID_64("data.level", 0xd70ddfec12f72a7b)), -1.0);
+				db.create_empty_set(component_id, db.property_index(component_id, STRING_ID_64("data.lod_levels", 0xf8b66d06ee19128f)));
 
 				double screen_size = 1.0;
 				// Add levels by suffix until the next LOD mesh is missing.
@@ -624,9 +624,9 @@ public class FBXImporter
 
 					Guid level_id = Guid.new_guid();
 					db.create(level_id, STRING_ID_64(OBJECT_TYPE_LOD_LEVEL, 0x5aeafa4cb5acd79a));
-					db.set_reference(level_id, "data.mesh_renderer", lod_unit_id);
-					db.set_double(level_id, "data.screen_size", screen_size);
-					db.add_to_set(component_id, "data.lod_levels", level_id);
+					db.set_reference(level_id, db.property_index(level_id, STRING_ID_64("data.mesh_renderer", 0xba4d878d19255e65)), lod_unit_id);
+					db.set_double(level_id, db.property_index(level_id, STRING_ID_64("data.screen_size", 0xb0affbb45037b116)), screen_size);
+					db.add_to_set(component_id, db.property_index(component_id, STRING_ID_64("data.lod_levels", 0xf8b66d06ee19128f)), level_id);
 					screen_size *= 0.5;
 
 					if (lod_i == int.MAX)
@@ -638,7 +638,7 @@ public class FBXImporter
 		} else {
 			Guid component_id;
 			if (unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0)) && db.owner(component_id) == unit_id) {
-				Value? components = db.get_property(unit_id, "components");
+				Value? components = db.get_property(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)));
 				if (components != null)
 					((GLib.GenericSet<Guid?>)components).remove(component_id);
 				db.destroy(component_id);
@@ -678,9 +678,9 @@ public class FBXImporter
 		)
 	{
 		db.create(bone_id, STRING_ID_64(OBJECT_TYPE_MESH_BONE, 0x0e2e3f571084be90));
-		db.set_string(bone_id, "name", (string)node.name.data);
+		db.set_string(bone_id, db.property_index(bone_id, STRING_ID_64("name", 0xd4c943cba60c270b)), (string)node.name.data);
 		if (parent_bone_id != GUID_ZERO)
-			db.add_to_set(parent_bone_id, "children", bone_id);
+			db.add_to_set(parent_bone_id, db.property_index(parent_bone_id, STRING_ID_64("children", 0x6fbb13de0e1dce0d)), bone_id);
 
 		for (size_t i = 0; i < node.children.data.length; ++i) {
 			unowned ufbx.Node child_bone = node.children.data[i];
@@ -821,8 +821,8 @@ public class FBXImporter
 
 						Guid animation_skeleton_id = Guid.new_guid();
 						db.create(animation_skeleton_id, STRING_ID_64(OBJECT_TYPE_MESH_SKELETON, 0x2597bb272931eded));
-						db.set_string(animation_skeleton_id, "mesh_resource", resource_name);
-						db.add_to_set(animation_skeleton_id, "skeleton", skeleton_hierarchy_id);
+						db.set_string(animation_skeleton_id, db.property_index(animation_skeleton_id, STRING_ID_64("mesh_resource", 0x4576d9c12bc9cb7a)), resource_name);
+						db.add_to_set(animation_skeleton_id, db.property_index(animation_skeleton_id, STRING_ID_64("skeleton", 0x975cebbda510e575)), skeleton_hierarchy_id);
 						if (db.save(project.absolute_path(resource_name) + "." + OBJECT_TYPE_MESH_SKELETON, animation_skeleton_id) != 0)
 							return ImportResult.ERROR;
 
@@ -888,9 +888,9 @@ public class FBXImporter
 							// Create .mesh_animation resource.
 							Guid anim_id = Guid.new_guid();
 							db.create(anim_id, STRING_ID_64(OBJECT_TYPE_MESH_ANIMATION, 0x7369558b842d5314));
-							db.set_string(anim_id, "source", resource_path);
-							db.set_string(anim_id, "target_skeleton", target_skeleton);
-							db.set_string(anim_id, "stack_name", stack_name);
+							db.set_string(anim_id, db.property_index(anim_id, STRING_ID_64("source", 0x921f1370045bad6e)), resource_path);
+							db.set_string(anim_id, db.property_index(anim_id, STRING_ID_64("target_skeleton", 0xf3bffa3b8de7b210)), target_skeleton);
+							db.set_string(anim_id, db.property_index(anim_id, STRING_ID_64("stack_name", 0x18834943532142f2)), stack_name);
 							if (db.save(project.absolute_path(anim_resource_name) + "." + OBJECT_TYPE_MESH_ANIMATION, anim_id) != 0)
 								return ImportResult.ERROR;
 							if (initial_animation_name == null)
@@ -1202,7 +1202,7 @@ public class FBXImporter
 				if (smr != null && needs_skinned_fallback(scene, imported_skinned_materials)) {
 					skinned_fallback_material = resource_name + "_fbx_skinned_fallback";
 					MaterialResource fallback = MaterialResource.mesh(db, Guid.new_guid());
-					db.set_string(fallback._id, "shader", "mesh+SKINNING");
+					db.set_string(fallback._id, db.property_index(fallback._id, STRING_ID_64("shader", 0xcce8d5b5f5ae333f)), "mesh+SKINNING");
 					if (fallback.save(project, skinned_fallback_material) != 0)
 						return ImportResult.ERROR;
 				}
@@ -1231,10 +1231,10 @@ public class FBXImporter
 					if (!unit.has_component(out component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac))) {
 						component_id = Guid.new_guid();
 						db.create(component_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_STATE_MACHINE, 0x0d694773e87992ac));
-						db.add_to_set(unit_id, "components", component_id);
+						db.add_to_set(unit_id, db.property_index(unit_id, STRING_ID_64("components", 0xe71d1687374e5a54)), component_id);
 					}
 
-					unit.set_component_string(component_id, "data.state_machine_resource", resource_name);
+					unit.set_component_string(component_id, unit._db.property_index(component_id, STRING_ID_64("data.state_machine_resource", 0xd98f8b4d76314483)), resource_name);
 				}
 
 				if (db.save(project.absolute_path(resource_name) + ".unit", unit_id) != 0)
@@ -1242,7 +1242,7 @@ public class FBXImporter
 
 				Guid mesh_id = Guid.new_guid();
 				db.create(mesh_id, STRING_ID_64(OBJECT_TYPE_MESH, 0x48ff313713a997a1));
-				db.set_string(mesh_id, "source", resource_path);
+				db.set_string(mesh_id, db.property_index(mesh_id, STRING_ID_64("source", 0x921f1370045bad6e)), resource_path);
 				if (db.save(project.absolute_path(resource_name) + ".mesh", mesh_id) != 0)
 					return ImportResult.ERROR;
 			}

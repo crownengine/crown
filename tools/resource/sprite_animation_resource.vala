@@ -20,8 +20,8 @@ public struct AnimationFrame
 		_id = id;
 
 		_db.create(_id, STRING_ID_64(OBJECT_TYPE_ANIMATION_FRAME, 0x5b6893db5cc56d9e));
-		_db.set_double(_id, "frame", (double)frame);
-		_db.set_double(_id, "index", (double)index);
+		_db.set_double(_id, _db.property_index(_id, STRING_ID_64("frame", 0x4285067a507a51e2)), (double)frame);
+		_db.set_double(_id, _db.property_index(_id, STRING_ID_64("index", 0xb03b8bced9422c44)), (double)index);
 	}
 }
 
@@ -36,13 +36,13 @@ public struct SpriteAnimation
 		_id = id;
 
 		_db.create(_id, STRING_ID_64(OBJECT_TYPE_SPRITE_ANIMATION, 0x487e78e3f87f238d));
-		_db.set_double(_id, "frames_per_second", 16.0);
-		_db.create_empty_set(_id, "frames");
+		_db.set_double(_id, _db.property_index(_id, STRING_ID_64("frames_per_second", 0x20f235a9b753a8b7)), 16.0);
+		_db.create_empty_set(_id, _db.property_index(_id, STRING_ID_64("frames", 0xbb0b674305a539e7)));
 	}
 
 	public void add_frame(AnimationFrame anim)
 	{
-		_db.add_to_set(_id, "frames", anim._id);
+		_db.add_to_set(_id, _db.property_index(_id, STRING_ID_64("frames", 0xbb0b674305a539e7)), anim._id);
 	}
 
 	public int save(Project project, string resource_name)

@@ -219,7 +219,7 @@ class ObjectsSetEditor : Gtk.Box
 	public string object_name(Guid id)
 	{
 		StringId64 object_type = _grid._db.object_type(id);
-		Aspect? name_aspect = _grid._db.get_aspect(object_type, StringId64("name"));
+		Aspect? name_aspect = _grid._db.get_aspect(object_type, STRING_ID_64("name", 0xd4c943cba60c270b));
 		if (name_aspect == null)
 			name_aspect = default_name_aspect;
 
@@ -238,7 +238,7 @@ class ObjectsSetEditor : Gtk.Box
 		_object_id = object_id;
 
 		_grid._db.create(object_id, _definition.object_type);
-		_grid._db.add_to_set(owner_id, _definition.name, object_id);
+		_grid._db.add_to_set(owner_id, _grid._db.property_index(owner_id, StringId64(_definition.name)), object_id);
 		_grid._db.add_restore_point((int)ActionType.CREATE_OBJECTS, { object_id }, ActionTypeFlags.FROM_OBJECTS_SET_EDITOR);
 	}
 
@@ -396,7 +396,7 @@ class ObjectsSetEditor : Gtk.Box
 		Guid?[] children;
 		if (_grid._db.object_type(_grid._id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f) && _grid._component_id != GUID_ZERO) {
 			Unit unit = Unit(_grid._db, _grid._id);
-			GLib.GenericSet<Guid?> component_children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, _definition.name, guid_set_new());
+			GLib.GenericSet<Guid?> component_children = (GLib.GenericSet<Guid?>)unit.get_component_property(_grid._component_id, unit._db.property_index(_grid._component_id, StringId64(_definition.name)), guid_set_new());
 			GLib.GenericArray<Guid?> live_children = new GLib.GenericArray<Guid?>();
 			foreach (unowned Guid? child_id in component_children) {
 				if (_grid._db.is_alive(child_id))
@@ -1007,91 +1007,91 @@ public class PropertyGrid : Gtk.Grid
 		if (def.type == PropertyType.BOOL) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (u.get_component_bool(_component_id, def.name, (bool)def.deffault) != new_value) {
-					u.set_component_bool(_component_id, def.name, (bool)new_value);
+				if (u.get_component_bool(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (bool)def.deffault) != new_value) {
+					u.set_component_bool(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (bool)new_value);
 					changed = true;
 				}
 			} else {
 				if (_db.get_bool(_id, _db.property_index(_id, StringId64(def.name)), (bool)def.deffault) != new_value) {
-					_db.set_bool(_id, def.name, (bool)new_value);
+					_db.set_bool(_id, _db.property_index(_id, StringId64(def.name)), (bool)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.DOUBLE) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (u.get_component_double(_component_id, def.name, (double)def.deffault) != new_value) {
-					u.set_component_double(_component_id, def.name, (double)new_value);
+				if (u.get_component_double(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (double)def.deffault) != new_value) {
+					u.set_component_double(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (double)new_value);
 					changed = true;
 				}
 			} else {
 				if (_db.get_double(_id, _db.property_index(_id, StringId64(def.name)), (double)def.deffault) != new_value) {
-					_db.set_double(_id, def.name, (double)new_value);
+					_db.set_double(_id, _db.property_index(_id, StringId64(def.name)), (double)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.STRING) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (u.get_component_string(_component_id, def.name, (string)def.deffault) != (string)new_value) {
-					u.set_component_string(_component_id, def.name, (string)new_value);
+				if (u.get_component_string(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string)def.deffault) != (string)new_value) {
+					u.set_component_string(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string)new_value);
 					changed = true;
 				}
 			} else {
 				if (_db.get_string(_id, _db.property_index(_id, StringId64(def.name)), (string)def.deffault) != (string)new_value) {
-					_db.set_string(_id, def.name, (string)new_value);
+					_db.set_string(_id, _db.property_index(_id, StringId64(def.name)), (string)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.VECTOR3) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (Vector3.equal_func(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault), (Vector3)new_value) == false) {
-					u.set_component_vector3(_component_id, def.name, (Vector3)new_value);
+				if (Vector3.equal_func(u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault), (Vector3)new_value) == false) {
+					u.set_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)new_value);
 					changed = true;
 				}
 			} else {
 				if (Vector3.equal_func(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault), (Vector3)new_value) == false) {
-					_db.set_vector3(_id, def.name, (Vector3)new_value);
+					_db.set_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.QUATERNION) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (Quaternion.equal_func(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault), (Quaternion)new_value) == false) {
-					u.set_component_quaternion(_component_id, def.name, (Quaternion)new_value);
+				if (Quaternion.equal_func(u.get_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)def.deffault), (Quaternion)new_value) == false) {
+					u.set_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)new_value);
 					changed = true;
 				}
 			} else {
 				if (Quaternion.equal_func(_db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault), (Quaternion)new_value) == false) {
-					_db.set_quaternion(_id, def.name, (Quaternion)new_value);
+					_db.set_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.RESOURCE) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (u.get_component_resource(_component_id, def.name, (string?)def.deffault) != (string?)new_value) {
-					u.set_component_resource(_component_id, def.name, (string?)new_value);
+				if (u.get_component_resource(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string?)def.deffault) != (string?)new_value) {
+					u.set_component_resource(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string?)new_value);
 					changed = true;
 				}
 			} else {
 				if (_db.get_resource(_id, _db.property_index(_id, StringId64(def.name)), (string?)def.deffault) != (string?)new_value) {
-					_db.set_resource(_id, def.name, (string?)new_value);
+					_db.set_resource(_id, _db.property_index(_id, StringId64(def.name)), (string?)new_value);
 					changed = true;
 				}
 			}
 		} else if (def.type == PropertyType.REFERENCE) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (Guid.equal_func(u.get_component_reference(_component_id, def.name, (Guid)def.deffault), (Guid)new_value) == false) {
-					u.set_component_reference(_component_id, def.name, (Guid)new_value);
+				if (Guid.equal_func(u.get_component_reference(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Guid)def.deffault), (Guid)new_value) == false) {
+					u.set_component_reference(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Guid)new_value);
 					changed = true;
 				}
 			} else {
 				if (Guid.equal_func(_db.get_reference(_id, _db.property_index(_id, StringId64(def.name)), (Guid)def.deffault), (Guid)new_value) == false) {
-					_db.set_reference(_id, def.name, (Guid)new_value);
+					_db.set_reference(_id, _db.property_index(_id, StringId64(def.name)), (Guid)new_value);
 					changed = true;
 				}
 			}
@@ -1111,7 +1111,10 @@ public class PropertyGrid : Gtk.Grid
 		Guid prefab_id = _id;
 		Guid id = Guid.new_guid();
 		_db.create_from_prefab(id, prefab_id);
-		_db.add_to_set(_instance_owner_id, _instance_set_key, id);
+		uint32 property = _instance_set_key.has_prefix("modified_components.#")
+			? Unit(_db, _instance_owner_id).override_property_index(_instance_set_key)
+			: _db.property_index(_instance_owner_id, StringId64(_instance_set_key));
+		_db.add_to_set(_instance_owner_id, property, id);
 		_id = id;
 		_instance_pending_restore = true;
 		instance_created(id);
@@ -1170,49 +1173,49 @@ public class PropertyGrid : Gtk.Grid
 				if (def.type == PropertyType.BOOL) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_bool(_component_id, def.name, (bool)def.deffault));
+						p.set_union_value(u.get_component_bool(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (bool)def.deffault));
 					} else {
 						p.set_union_value(_db.get_bool(_id, _db.property_index(_id, StringId64(def.name)), (bool)def.deffault));
 					}
 				} else if (def.type == PropertyType.DOUBLE) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_double(_component_id, def.name, (double)def.deffault));
+						p.set_union_value(u.get_component_double(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (double)def.deffault));
 					} else {
 						p.set_union_value(_db.get_double(_id, _db.property_index(_id, StringId64(def.name)), (double)def.deffault));
 					}
 				} else if (def.type == PropertyType.STRING) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_string(_component_id, def.name, (string)def.deffault));
+						p.set_union_value(u.get_component_string(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string)def.deffault));
 					} else {
 						p.set_union_value(_db.get_string(_id, _db.property_index(_id, StringId64(def.name)), (string)def.deffault));
 					}
 				} else if (def.type == PropertyType.VECTOR3) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_vector3(_component_id, def.name, (Vector3)def.deffault));
+						p.set_union_value(u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault));
 					} else {
 						p.set_union_value(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault));
 					}
 				} else if (def.type == PropertyType.QUATERNION) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_quaternion(_component_id, def.name, (Quaternion)def.deffault));
+						p.set_union_value(u.get_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)def.deffault));
 					} else {
 						p.set_union_value(_db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault));
 					}
 				} else if (def.type == PropertyType.RESOURCE) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_resource(_component_id, def.name, (string?)def.deffault));
+						p.set_union_value(u.get_component_resource(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (string?)def.deffault));
 					} else {
 						p.set_union_value(_db.get_resource(_id, _db.property_index(_id, StringId64(def.name)), (string?)def.deffault));
 					}
 				} else if (def.type == PropertyType.REFERENCE) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_reference(_component_id, def.name, (Guid)def.deffault));
+						p.set_union_value(u.get_component_reference(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Guid)def.deffault));
 					} else {
 						p.set_union_value(_db.get_reference(_id, _db.property_index(_id, StringId64(def.name)), (Guid)def.deffault));
 					}
