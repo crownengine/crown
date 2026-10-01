@@ -121,6 +121,16 @@ static void test_memory()
 		void *p = ta.allocate(16);
 		ENSURE(p != NULL);
 	}
+	{
+		Allocator &scratch = default_scratch_allocator();
+		void *p = scratch.allocate(1024*1024);
+		memset(p, 0x42, 1024*1024);
+		scratch.deallocate(p);
+
+		p = scratch.allocate(16);
+		ENSURE(p != NULL);
+		scratch.deallocate(p);
+	}
 	memory_globals::shutdown();
 }
 

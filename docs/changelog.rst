@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.2 --- DD MMM YYYY <v0.65.2>`
 ---------------------------------------
 
+**Fixes**
+
+* Data Compiler: fixed a crash when restoring projects with large dependency lists.
+
 .. _v0.65.1:
 
 :ref:`0.65.1 --- 30 Sep 2026 <v0.65.1>`

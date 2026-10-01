@@ -266,6 +266,8 @@ namespace memory
 
 			CE_ASSERT(align % 4 == 0, "Must be 4-byte aligned");
 			size = ((size + 3)/4)*4;
+			if (u64(size) + align + sizeof(Header) >= u64(_end - _begin))
+				return _backing.allocate(size, align);
 
 			char *p = _allocate;
 			Header *h = (Header *)p;
@@ -273,7 +275,7 @@ namespace memory
 			p = data + size;
 
 			// Reached the end of the buffer, wrap around to the beginning.
-			if (p > _end) {
+			if (p >= _end) {
 				h->size = u32(_end - (char *)h) | 0x80000000u;
 
 				p = _begin;
