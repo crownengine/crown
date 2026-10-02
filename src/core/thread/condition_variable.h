@@ -47,6 +47,9 @@ struct ConditionVariable
 
 	///
 	void signal();
+
+	///
+	void broadcast();
 };
 
 } // namespace crown

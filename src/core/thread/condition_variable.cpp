@@ -106,4 +106,15 @@ void ConditionVariable::signal()
 #endif
 }
 
+void ConditionVariable::broadcast()
+{
+#if CROWN_PLATFORM_WINDOWS
+	WakeAllConditionVariable(&_priv->cv);
+#else
+	int err = pthread_cond_broadcast(&_priv->cond);
+	CE_ASSERT(err == 0, "pthread_cond_broadcast: errno = %d", err);
+	CE_UNUSED(err);
+#endif
+}
+
 } // namespace crown
