@@ -9,6 +9,7 @@
 #include "core/profiler.h"
 #include "core/thread/scoped_mutex.inl"
 #include "core/time.h"
+#include <atomic>
 #include <new>
 
 namespace crown
@@ -46,7 +47,16 @@ namespace profiler
 	enum { THREAD_BUFFER_SIZE = 4 * 1024 };
 	static CE_THREAD_LOCAL char _thread_buffer[THREAD_BUFFER_SIZE];
 	static CE_THREAD_LOCAL u32 _thread_buffer_size = 0;
+	static CE_THREAD_LOCAL u32 _thread_id = 0;
+	static std::atomic<u32> _next_thread_id(0);
 	static Mutex _buffer_mutex;
+
+	static u32 thread_id()
+	{
+		if (_thread_id == 0)
+			_thread_id = _next_thread_id.fetch_add(1) + 1;
+		return _thread_id;
+	}
 
 	static void flush_local_buffer()
 	{
@@ -76,6 +86,7 @@ namespace profiler
 		EnterProfileScope ev;
 		ev.name = name;
 		ev.time = time::now();
+		ev.thread_id = thread_id();
 
 		push(ProfilerEventType::ENTER_PROFILE_SCOPE, ev);
 	}
@@ -84,6 +95,7 @@ namespace profiler
 	{
 		LeaveProfileScope ev;
 		ev.time = time::now();
+		ev.thread_id = thread_id();
 
 		push(ProfilerEventType::LEAVE_PROFILE_SCOPE, ev);
 	}

@@ -44,11 +44,13 @@ struct EnterProfileScope
 {
 	const char *name;
 	s64 time;
+	u32 thread_id;
 };
 
 struct LeaveProfileScope
 {
 	s64 time;
+	u32 thread_id;
 };
 
 struct AllocateMemory
