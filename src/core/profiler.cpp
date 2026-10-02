@@ -8,6 +8,7 @@
 #include "core/memory/globals.h"
 #include "core/profiler.h"
 #include "core/thread/scoped_mutex.inl"
+#include "core/thread/task_manager.h"
 #include "core/time.h"
 #include <atomic>
 #include <new>
@@ -60,6 +61,8 @@ namespace profiler
 
 	static void flush_local_buffer()
 	{
+		if (_thread_buffer_size == 0)
+			return;
 		ScopedMutex sm(_buffer_mutex);
 		array::push(*profiler_globals::_buffer, _thread_buffer, _thread_buffer_size);
 		_thread_buffer_size = 0;
@@ -140,8 +143,15 @@ namespace profiler
 
 namespace profiler_globals
 {
+	static s32 flush_worker(void *)
+	{
+		profiler::flush_local_buffer();
+		return 0;
+	}
+
 	void flush()
 	{
+		task_manager().execute_on_workers(flush_worker, NULL);
 		profiler::flush_local_buffer();
 		u32 end = ProfilerEventType::COUNT;
 		array::push(*_buffer, (const char *)&end, (u32)sizeof(end));

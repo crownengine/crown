@@ -14,6 +14,7 @@
 #include "core/option.inl"
 #include "core/profiler.h"
 #include "core/thread/spsc_queue.inl"
+#include "core/thread/task_manager.h"
 #include "core/unit_tests.h"
 #include "core/unit_tests.h"
 #include "device/device.h"
@@ -878,6 +879,7 @@ struct InitGlobals
 	InitGlobals()
 	{
 		memory_globals::init();
+		task_manager_globals::init();
 		profiler_globals::init();
 		guid_globals::init();
 	}
@@ -886,6 +888,7 @@ struct InitGlobals
 	{
 		guid_globals::shutdown();
 		profiler_globals::shutdown();
+		task_manager_globals::shutdown();
 		memory_globals::shutdown();
 	}
 };

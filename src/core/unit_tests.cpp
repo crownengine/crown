@@ -48,6 +48,8 @@
 #include "core/strings/string_view.inl"
 #include "core/thread/condition_variable.h"
 #include "core/thread/mutex.h"
+#include "core/thread/semaphore.h"
+#include "core/thread/task_manager.h"
 #include "core/thread/thread.h"
 #include "core/time.h"
 #include "resource/expression_language.h"
@@ -56,6 +58,7 @@
 #include <float.h>
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdio.h>  // printf
+#include <string.h> // memcpy
 
 #undef CE_ASSERT
 #undef CE_ENSURE
@@ -1980,14 +1983,448 @@ static void test_command_line()
 	}
 }
 
+static s32 thread_test_run(void *data)
+{
+	CE_UNUSED(data);
+	return 0xbadc0d3;
+}
+
 static void test_thread()
 {
 	Thread thread;
 	ENSURE(!thread.is_running());
 
-	thread.start([](void *) { return 0xbadc0d3; }, NULL);
+	thread.start(thread_test_run, NULL);
 	thread.stop();
 	ENSURE(thread.exit_code() == 0xbadc0d3);
+}
+
+static void test_task_manager()
+{
+	memory_globals::init();
+	task_manager_globals::init();
+	TaskManager &tasks = task_manager();
+
+	{
+		struct Job
+		{
+			std::atomic_uint *calls;
+			std::atomic_uint *seen_id;
+
+			static void run(u32 task_id, void *data)
+			{
+				Job &job = *(Job *)data;
+				job.seen_id->store(task_id);
+				job.calls->fetch_add(1);
+			}
+		};
+
+		std::atomic_uint calls(0);
+		std::atomic_uint seen_id(0);
+		Job job = { &calls, &seen_id };
+		const u32 id = tasks.begin_add(Job::run, &job);
+		tasks.finish_add(id);
+		tasks.wait(id);
+		ENSURE(id >= MAX_TASKS);
+		ENSURE(calls.load() == 1);
+		ENSURE(seen_id.load() == id);
+	}
+	{
+		struct Payload
+		{
+			std::atomic_int *seen;
+			s32 value;
+
+			static void run(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Payload payload;
+				memcpy(&payload, data, sizeof(payload));
+				payload.seen->store(payload.value);
+			}
+		};
+		struct Padded
+		{
+			Payload payload;
+			u8 rest[sizeof(Task::pad) - sizeof(Payload)];
+		};
+		struct Large
+		{
+			Payload payload;
+			u8 rest[sizeof(Task::pad)];
+		};
+
+		CE_STATIC_ASSERT(sizeof(Padded) == sizeof(Task::pad));
+		std::atomic_int borrowed_seen(0);
+		std::atomic_int copied_seen(0);
+		std::atomic_int padded_seen(0);
+		std::atomic_int large_seen(0);
+		Payload borrowed = { &borrowed_seen, 1 };
+		Payload copied = { &copied_seen, 2 };
+		Padded padded = { { &padded_seen, 3 }, {} };
+		Large large = { { &large_seen, 4 }, {} };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 parent = tasks.begin_add_empty();
+		tasks.begin_add(Payload::run, &borrowed, 0, parent, gate);
+		tasks.begin_add(Payload::run, &copied, sizeof(copied), parent, gate);
+		tasks.begin_add(Payload::run, &padded, sizeof(padded), parent, gate);
+		tasks.begin_add(Payload::run, &large, sizeof(large), parent, gate);
+		borrowed.value = 11;
+		copied.value = 12;
+		padded.payload.value = 13;
+		large.payload.value = 14;
+		tasks.finish_add(parent);
+		tasks.finish_add(gate);
+		tasks.wait(parent);
+		ENSURE(borrowed_seen.load() == 11);
+		ENSURE(copied_seen.load() == 2);
+		ENSURE(padded_seen.load() == 3);
+		ENSURE(large_seen.load() == 14);
+	}
+	{
+		struct Probe
+		{
+			static void run8(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				std::atomic_int *seen;
+				memcpy(&seen, data, sizeof(seen));
+				seen->fetch_add(1);
+			}
+
+			static void run16(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				std::atomic_int *seen;
+				memcpy(&seen, data, sizeof(seen));
+				seen->fetch_add(((u8 *)data)[15]);
+			}
+
+			static void run32(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				std::atomic_int *seen;
+				memcpy(&seen, data, sizeof(seen));
+				seen->fetch_add(((u8 *)data)[31]);
+			}
+		};
+
+		std::atomic_int seen(0);
+		std::atomic_int wrong(0);
+		std::atomic_int *destination = &seen;
+		TaskData8 task8 = { Probe::run8, {} };
+		TaskData16 task16 = { Probe::run16, {} };
+		TaskData32 task32 = { Probe::run32, {} };
+		memcpy(task8.data, &destination, sizeof(destination));
+		memcpy(task16.data, &destination, sizeof(destination));
+		memcpy(task32.data, &destination, sizeof(destination));
+		task16.data[15] = 2;
+		task32.data[31] = 3;
+		const u32 gate = tasks.begin_add_empty();
+		const u32 a = tasks.begin_add(task8, 0, gate);
+		const u32 b = tasks.begin_add(task16, 0, a);
+		const u32 c = tasks.begin_add(task32, 0, b);
+		destination = &wrong;
+		memcpy(task8.data, &destination, sizeof(destination));
+		memcpy(task16.data, &destination, sizeof(destination));
+		memcpy(task32.data, &destination, sizeof(destination));
+		task16.data[15] = 9;
+		task32.data[31] = 9;
+		tasks.finish_add(gate);
+		tasks.wait(c);
+		ENSURE(seen.load() == 6);
+		ENSURE(wrong.load() == 0);
+	}
+	{
+		struct Job
+		{
+			TaskManager *tasks;
+			std::atomic_uint *parent_calls;
+			std::atomic_uint *children;
+			std::atomic_uint *observed;
+
+			static void parent(u32 task_id, void *data)
+			{
+				Job &job = *(Job *)data;
+				job.parent_calls->fetch_add(1);
+				job.tasks->begin_add(child, &job, 0, task_id);
+			}
+
+			static void child(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				((Job *)data)->children->fetch_add(1);
+			}
+
+			static void after(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.observed->store(job.children->load());
+			}
+		};
+
+		std::atomic_uint parent_calls(0);
+		std::atomic_uint children(0);
+		std::atomic_uint observed(0);
+		Job job = { &tasks, &parent_calls, &children, &observed };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 parent = tasks.begin_add(Job::parent, &job);
+		tasks.begin_add(Job::child, &job, 0, parent, gate);
+		tasks.begin_add(Job::child, &job, 0, parent, gate);
+		const u32 after = tasks.begin_add(Job::after, &job, 0, 0, parent);
+		tasks.finish_add(parent);
+		tasks.finish_add(gate);
+		tasks.wait(after);
+		ENSURE(parent_calls.load() == 1);
+		ENSURE(children.load() == 3);
+		ENSURE(observed.load() == 3);
+	}
+	{
+		struct Job
+		{
+			std::atomic_int *stage;
+			s32 expected;
+			s32 next;
+
+			static void run(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.stage->store(job.stage->load() == job.expected ? job.next : -100);
+			}
+		};
+
+		std::atomic_int stage(0);
+		Job jobs[] = { { &stage, 0, 1 }, { &stage, 1, 2 }, { &stage, 2, 3 }, { &stage, 3, 4 } };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 a = tasks.begin_add(Job::run, &jobs[0], 0, 0, gate);
+		const u32 b = tasks.begin_add(Job::run, &jobs[1], 0, 0, a);
+		const u32 c = tasks.begin_add(Job::run, &jobs[2], 0, 0, b);
+		tasks.finish_add(gate);
+		tasks.wait(c);
+		ENSURE(stage.load() == 3);
+		const u32 d = tasks.begin_add(Job::run, &jobs[3], 0, 0, c);
+		tasks.wait(d);
+		ENSURE(stage.load() == 4);
+	}
+	{
+		struct Job
+		{
+			TaskManager *tasks;
+			std::atomic_uint *children;
+			std::atomic_uint *observed;
+
+			static void child(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				((Job *)data)->children->fetch_add(1);
+			}
+
+			static void root(u32 task_id, void *data)
+			{
+				Job &job = *(Job *)data;
+				for (u32 i = 0; i < 3; ++i)
+					job.tasks->begin_add(child, &job, 0, task_id);
+			}
+
+			static void dependent(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.observed->store(job.children->load());
+			}
+		};
+
+		std::atomic_uint children(0);
+		std::atomic_uint observed(0);
+		Job job = { &tasks, &children, &observed };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 work = tasks.begin_add(Job::root, &job, 0, 0, gate);
+		const u32 parent = tasks.begin_add_empty();
+		tasks.begin_add(Job::dependent, &job, 0, parent, work);
+		tasks.finish_add(parent);
+		tasks.finish_add(gate);
+		tasks.wait(parent);
+		ENSURE(children.load() == 3);
+		ENSURE(observed.load() == 3);
+	}
+	{
+		struct Job
+		{
+			Semaphore *ready;
+			Semaphore *release;
+			std::atomic_bool *on_main;
+			void *main_token;
+			u32 num_workers;
+
+			static void *thread_token()
+			{
+				static thread_local u8 token;
+				return &token;
+			}
+
+			static void block(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.ready->post();
+				job.release->wait();
+			}
+
+			static void unblock(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.on_main->store(thread_token() == job.main_token);
+				if (job.num_workers != 0)
+					job.release->post(job.num_workers);
+			}
+		};
+
+		Semaphore ready;
+		Semaphore release;
+		std::atomic_bool on_main(false);
+		Job job = { &ready, &release, &on_main, Job::thread_token(), tasks._num_workers };
+		const u32 blockers = tasks.begin_add_empty();
+		for (u32 i = 0; i < tasks._num_workers; ++i)
+			tasks.begin_add(Job::block, &job, 0, blockers);
+		tasks.finish_add(blockers);
+		for (u32 i = 0; i < tasks._num_workers; ++i)
+			ready.wait();
+		const u32 target = tasks.begin_add(Job::unblock, &job);
+		tasks.finish_add(target);
+		tasks.wait(target);
+		ENSURE(on_main.load());
+		tasks.wait(blockers);
+
+		bool reused = false;
+		for (u32 i = 0; i < MAX_TASKS; ++i) {
+			const u32 id = tasks.begin_add_empty();
+			tasks.finish_add(id);
+			tasks.wait(id);
+			if ((id & TASK_INDEX_MASK) == (target & TASK_INDEX_MASK)) {
+				ENSURE(id > target);
+				reused = true;
+				break;
+			}
+		}
+		ENSURE(reused);
+		tasks.wait(target);
+	}
+	{
+		struct Job
+		{
+			Mutex *mutex;
+			void **tokens;
+			u32 calls;
+			bool duplicate;
+			void *main_token;
+
+			static void *thread_token()
+			{
+				static thread_local u8 token;
+				return &token;
+			}
+
+			static s32 run(void *data)
+			{
+				Job &job = *(Job *)data;
+				void *token = thread_token();
+				job.mutex->lock();
+				if (token == job.main_token)
+					job.duplicate = true;
+				for (u32 i = 0; i < job.calls; ++i) {
+					if (job.tokens[i] == token)
+						job.duplicate = true;
+				}
+				job.tokens[job.calls++] = token;
+				job.mutex->unlock();
+				return 0;
+			}
+		};
+
+		Mutex mutex;
+		Array<void *> tokens(default_allocator());
+		array::resize(tokens, tasks._num_workers);
+		Job job = { &mutex, array::begin(tokens), 0, false, Job::thread_token() };
+		tasks.execute_on_workers(Job::run, &job);
+		ENSURE(job.calls == tasks._num_workers);
+		ENSURE(!job.duplicate);
+	}
+	{
+		struct Item
+		{
+			std::atomic_uint *hits;
+			std::atomic_uint *calls;
+
+			static void run(void *items, u32 num_items)
+			{
+				Item *range = (Item *)items;
+				range[0].calls->fetch_add(1);
+				for (u32 i = 0; i < num_items; ++i)
+					range[i].hits->fetch_add(1);
+			}
+		};
+
+		std::atomic_uint hits[17];
+		std::atomic_uint calls(0);
+		Item items[countof(hits)];
+		for (u32 i = 0; i < countof(items); ++i) {
+			hits[i].store(0);
+			items[i] = { &hits[i], &calls };
+		}
+		tasks.wait(parallel_for(NULL, sizeof(Item), 0, 4, Item::run));
+		ENSURE(calls.load() == 0);
+		const u32 jobs[] = { 1, 7, 32 };
+		const u32 expected[] = { 1, 7, countof(items) };
+		for (u32 i = 0; i < countof(jobs); ++i) {
+			calls.store(0);
+			for (u32 j = 0; j < countof(hits); ++j)
+				hits[j].store(0);
+			tasks.wait(parallel_for(items, sizeof(items[0]), countof(items), jobs[i], Item::run));
+			ENSURE(calls.load() == expected[i]);
+			for (u32 j = 0; j < countof(hits); ++j)
+				ENSURE(hits[j].load() == 1);
+		}
+	}
+	{
+		struct Item
+		{
+			std::atomic_uint *completed;
+			std::atomic_uint *observed;
+			u32 expected;
+
+			static void first(void *items, u32 num_items)
+			{
+				((Item *)items)[0].completed->fetch_add(num_items);
+			}
+
+			static void second(void *items, u32 num_items)
+			{
+				Item &item = ((Item *)items)[0];
+				if (item.completed->load() == item.expected)
+					item.observed->fetch_add(num_items);
+			}
+		};
+
+		std::atomic_uint completed(0);
+		std::atomic_uint observed(0);
+		Item items[31];
+		for (u32 i = 0; i < countof(items); ++i)
+			items[i] = { &completed, &observed, countof(items) };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 a = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::first, gate);
+		const u32 b = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::second, a);
+		ENSURE(completed.load() == 0);
+		tasks.finish_add(gate);
+		tasks.wait(b);
+		ENSURE(completed.load() == countof(items));
+		ENSURE(observed.load() == countof(items));
+	}
+
+	task_manager_globals::shutdown();
+	memory_globals::shutdown();
 }
 
 static void test_process()
@@ -2576,6 +3013,8 @@ static void test_frustum()
 
 int main_unit_tests()
 {
+	RUN_TEST(test_task_manager);
+	return 0;
 	RUN_TEST(test_memory);
 	RUN_TEST(test_array);
 	RUN_TEST(test_vector);
