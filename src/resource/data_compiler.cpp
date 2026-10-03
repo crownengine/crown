@@ -16,19 +16,19 @@
 #include "core/guid.inl"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
-#include "core/math/random.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
 #include "core/os.h"
 #include "core/profiler.h"
+#include "core/profiler.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/line_reader.inl"
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "core/thread/scoped_mutex.inl"
-#include "core/thread/thread.h"
+#include "core/thread/task_manager.h"
 #include "core/time.h"
 #include "device/console_server.h"
 #include "device/device_options.h"
@@ -2421,29 +2421,32 @@ struct CompileResourcesArgs
 {
 	DataCompiler *data_compiler;
 	FilesystemDisk *data_fs;
-	const Vector<DynamicString> *resources;
 	Array<ResourceId> *potentially_stale_outputs;
 	bool *success;
 	Platform::Enum platform;
-	u32 offset;
-	u32 count;
 };
 
-static s32 compile_resources_worker(void *user_data)
+struct CompileResourceItem
 {
-	CompileResourcesArgs &args = *(CompileResourcesArgs *)user_data;
+	DynamicString *path;
+	CompileResourcesArgs *args;
+};
+
+static void compile_resources_worker(void *items, u32 num_items)
+{
+	CompileResourceItem *resources = (CompileResourceItem *)items;
+	CompileResourcesArgs &args = *resources[0].args;
 	DataCompiler &dc = *args.data_compiler;
 	FilesystemDisk &data_fs = *args.data_fs;
 
-	const u32 num = args.offset + args.count;
-	for (u32 i = args.offset; i < num; ++i) {
+	for (u32 i = 0; i < num_items; ++i) {
 		{
 			ScopedMutex sm(dc._compiler_mutex);
 			if (!*args.success)
 				break;
 		}
 
-		const DynamicString &path = (*args.resources)[i];
+		const DynamicString &path = *resources[i].path;
 		const char *type_str = resource_type(path.c_str());
 		if (type_str == NULL)
 			continue;
@@ -2466,6 +2469,7 @@ static s32 compile_resources_worker(void *user_data)
 		rtd.version = 0;
 		rtd.compiler = NULL;
 		rtd = hash_map::get(dc._compilers, type, rtd);
+		ScopedProfileScope scope(rtd.type_str);
 		const u32 stored_type_version = dc.data_version_stored(type);
 		const bool type_version_mismatch = stored_type_version != UINT32_MAX
 			&& stored_type_version != rtd.version
@@ -2583,8 +2587,6 @@ static s32 compile_resources_worker(void *user_data)
 			break;
 		}
 	}
-
-	return 0;
 }
 
 bool DataCompiler::compile_internal(const char *data_dir, const char *platform_name)
@@ -2765,64 +2767,32 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 	bool success = true;
 	const u32 num_resources = vector::size(to_compile) + vector::size(packages_to_compile);
 
-#if CROWN_DATA_COMPILER_MULTITHREADED
-	u32 num_workers = 1u;
-	if (num_resources != 0)
-		num_workers = thread::num_logical_cpus();
-
-	if (num_workers > 1u) {
-		Random random;
-		for (u32 i = vector::size(to_compile); i > 1u; --i) {
-			const u32 j = (u32)random.integer((s32)i);
-			exchange(to_compile[i - 1u], to_compile[j]);
-		}
-	}
-#endif
-
-	const Vector<DynamicString> *phases[] = { &to_compile, &packages_to_compile };
+	Vector<DynamicString> *phases[] = { &to_compile, &packages_to_compile };
 	for (u32 phase = 0; phase < countof(phases) && success; ++phase) {
-		const Vector<DynamicString> &resources = *phases[phase];
+		Vector<DynamicString> &resources = *phases[phase];
 		const u32 phase_resources = vector::size(resources);
 		if (phase_resources == 0)
 			continue;
+		ScopedProfileScope phase_scope(phase == 0 ? "resources" : "packages");
 
-#if CROWN_DATA_COMPILER_MULTITHREADED
-		Array<CompileResourcesArgs> args(default_allocator());
-		Array<Thread *> workers(default_allocator());
-		array::resize(args, num_workers);
-		array::resize(workers, num_workers);
-
-		for (u32 i = 0; i < num_workers; ++i) {
-			args[i].data_compiler = this;
-			args[i].data_fs = &data_fs;
-			args[i].resources = &resources;
-			args[i].potentially_stale_outputs = &potentially_stale_outputs;
-			args[i].success = &success;
-			args[i].platform = platform;
-			args[i].offset = (u32)((u64)phase_resources * i / num_workers);
-			args[i].count = (u32)((u64)phase_resources * (i + 1) / num_workers) - args[i].offset;
-			workers[i] = CE_NEW(default_allocator(), Thread)();
+		CompileResourcesArgs args = { this, &data_fs, &potentially_stale_outputs, &success, platform };
+		Array<CompileResourceItem> items(default_allocator());
+		array::resize(items, phase_resources);
+		for (u32 i = 0; i < phase_resources; ++i) {
+			items[i].path = &resources[i];
+			items[i].args = &args;
 		}
-
-		for (u32 i = 0; i < num_workers; ++i)
-			workers[i]->start(compile_resources_worker, &args[i]);
-
-		for (u32 i = 0; i < num_workers; ++i)
-			workers[i]->stop();
-
-		for (u32 i = 0; i < num_workers; ++i)
-			CE_DELETE(default_allocator(), workers[i]);
+#if CROWN_DATA_COMPILER_MULTITHREADED
+		const u32 max_jobs = (MAX_TASKS - 2u) / 32u;
+		const u32 root = parallel_for(array::begin(items)
+			, sizeof(items[0])
+			, phase_resources
+			, min(max_jobs, phase_resources)
+			, compile_resources_worker
+			);
+		task_manager().wait(root);
 #else
-		CompileResourcesArgs args;
-		args.data_compiler = this;
-		args.data_fs = &data_fs;
-		args.resources = &resources;
-		args.potentially_stale_outputs = &potentially_stale_outputs;
-		args.success = &success;
-		args.platform = platform;
-		args.offset = 0u;
-		args.count = phase_resources;
-		compile_resources_worker(&args);
+		compile_resources_worker(array::begin(items), phase_resources);
 #endif // if CROWN_DATA_COMPILER_MULTITHREADED
 	}
 
@@ -2997,11 +2967,13 @@ bool DataCompiler::compile(const char *data_dir, const char *platform_name)
 	CE_ENSURE(mesh_cache != NULL);
 
 	profiler_globals::clear();
+	ENTER_PROFILE_SCOPE("DataCompiler::compile");
 	mesh_cache::clear(*mesh_cache);
 	shader_compiler::clear_metadata_cache();
 	bool success = compile_internal(data_dir, platform_name);
 	shader_compiler::clear_metadata_cache();
 	mesh_cache::clear(*mesh_cache);
+	LEAVE_PROFILE_SCOPE();
 	profiler_globals::flush();
 	return success;
 }
