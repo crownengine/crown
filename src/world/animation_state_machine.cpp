@@ -14,6 +14,7 @@
 #include "core/math/vector3.inl"
 #include "core/memory/globals.h"
 #include "core/profiler.h"
+#include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
@@ -352,6 +353,8 @@ void AnimationStateMachine::trigger(StateMachineId state_machine, StringId32 eve
 
 void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 {
+	ScopedProfileScope scope("AnimationStateMachine::update");
+
 	f32 stack_data[32];
 	expression_language::Stack stack(stack_data, countof(stack_data));
 	u32 mesh_animations_playing = 0;

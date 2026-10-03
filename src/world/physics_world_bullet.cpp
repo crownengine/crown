@@ -21,6 +21,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/murmur.h"
 #include "core/profiler.h"
+#include "core/profiler.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
@@ -4403,6 +4404,8 @@ void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *e
 
 void PhysicsWorld::update(f32 dt)
 {
+	ScopedProfileScope scope("PhysicsWorld::update");
+
 	_impl->update(dt);
 }
 

@@ -5,6 +5,7 @@
 
 #include "core/containers/hash_map.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/profiler.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
 #include "resource/package_resource.h"
@@ -265,6 +266,8 @@ void ResourceManager::scoped_autoload_end()
 
 void ResourceManager::complete_requests()
 {
+	ScopedProfileScope scope("ResourceManager::complete_requests");
+
 	ResourceRequest rr;
 	while (_resource_loader->pop_loaded(rr)) {
 		ResourcePackage *package = rr.resource_package;

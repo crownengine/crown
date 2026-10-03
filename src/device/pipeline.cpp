@@ -5,6 +5,7 @@
 
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
+#include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "core/types.h"
 #include "device/pipeline.h"
@@ -847,6 +848,8 @@ void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
 
 void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
 {
+	ScopedProfileScope scope("Pipeline::render");
+
 	const bgfx::Caps *caps = bgfx::getCaps();
 
 	const u32 samplerFlags = 0

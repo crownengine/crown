@@ -18,6 +18,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/string_id.inl"
 #include "core/profiler.h"
+#include "core/profiler.inl"
 #include "device/log.h"
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
@@ -1823,6 +1824,8 @@ void RenderWorld::render(f32 dt
 	, DebugLine &dl
 	)
 {
+	ScopedProfileScope scope("RenderWorld::render");
+
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
 

@@ -9,7 +9,7 @@
 #include "core/math/matrix4x4.inl"
 #include "core/math/quaternion.inl"
 #include "core/math/vector3.inl"
-#include "core/profiler.h"
+#include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "resource/mesh_animation_resource.inl"
@@ -186,6 +186,8 @@ namespace mesh_animation_player
 
 	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset)
 	{
+		ScopedProfileScope scope("mesh_anim_eval");
+
 		MeshAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		MeshAnimation &anim = p._animations[index.index];
 

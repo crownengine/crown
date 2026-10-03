@@ -11,6 +11,7 @@
 #include "core/math/vector3.inl"
 #include "core/math/vector4.inl"
 #include "core/memory/temp_allocator.inl"
+#include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "device/device.h"
 #include "device/log.h"
@@ -388,6 +389,8 @@ void World::process_world_events()
 
 void World::update_scene(f32 dt)
 {
+	ScopedProfileScope scope("World::update_scene");
+
 	// Process animation events
 	{
 		EventStream &events = _animation_state_machine->_events;
@@ -649,6 +652,8 @@ void World::update_render_transforms()
 
 void World::update(f32 dt)
 {
+	ScopedProfileScope scope("World::update");
+
 	_dt = dt;
 
 	process_world_events();

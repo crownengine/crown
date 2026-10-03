@@ -25,6 +25,7 @@
 #include "core/option.inl"
 #include "core/os.h"
 #include "core/profiler.h"
+#include "core/profiler.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
@@ -514,6 +515,7 @@ bool Device::frame()
 	_last_time = time;
 
 	profiler_globals::clear();
+	ENTER_PROFILE_SCOPE("Device::frame");
 	RECORD_FLOAT("device.dt", raw_dt);
 	RECORD_FLOAT("device.fps", 1.0f/raw_dt);
 	RECORD_FLOAT("device.smoothed_dt", smoothed_dt);
@@ -533,14 +535,18 @@ bool Device::frame()
 			const s64 t0 = time::now();
 			ArgType::Enum arg_types = ArgType::FLOAT;
 			Arg args; args.float_value = dt;
+			ENTER_PROFILE_SCOPE("update");
 			_lua_environment->call_global("update", &arg_types, &args, 1);
+			LEAVE_PROFILE_SCOPE();
 			RECORD_FLOAT("lua.update", f32(time::seconds(time::now() - t0)));
 		}
 		{
 			const s64 t0 = time::now();
 			ArgType::Enum arg_types = ArgType::FLOAT;
 			Arg args; args.float_value = dt;
+			ENTER_PROFILE_SCOPE("render");
 			_lua_environment->call_global("render", &arg_types, &args, 1);
+			LEAVE_PROFILE_SCOPE();
 			RECORD_FLOAT("lua.render", f32(time::seconds(time::now() - t0)));
 		}
 
@@ -590,6 +596,7 @@ bool Device::frame()
 
 	RECORD_FLOAT("memory.default_allocator", f32(default_allocator().total_allocated()));
 
+	LEAVE_PROFILE_SCOPE();
 	profiler_globals::flush();
 
 	graph_globals::draw_all(_width, _height);
@@ -967,6 +974,8 @@ void Device::resolution(u16 &width, u16 &height)
 
 void Device::render(World &world, UnitId camera_unit)
 {
+	ScopedProfileScope scope("Device::render");
+
 	CameraId camera = world.camera_instance(camera_unit);
 
 	const f32 aspect_ratio = (_boot_config.aspect_ratio == -1.0f
