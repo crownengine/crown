@@ -99,6 +99,22 @@ public class EditorViewport : Gtk.Box
 		if (window_xid == 0)
 			return;
 
+		// Keep the tool's boot script and selection settings, but render with
+		// the project's selected pipeline rather than the toolchain default.
+		string render_config = "core/renderer/default";
+		try {
+			var boot = SJSON.load_from_path(_project.absolute_path("boot.config"));
+			if (boot.contains("render_config"))
+				render_config = (string)boot["render_config"];
+		} catch (JsonSyntaxError e) {
+			loge(e.message);
+			return;
+		}
+		if (render_config == null || render_config.length == 0) {
+			loge("Invalid render_config in project boot.config");
+			return;
+		}
+
 		// Spawn the level editor.
 		string port_file;
 		if (!create_port_file_path(out port_file))
@@ -116,6 +132,8 @@ public class EditorViewport : Gtk.Box
 			_project.data_dir(),
 			"--boot-dir",
 			_boot_dir,
+			"--render-config",
+			render_config,
 			"--parent-window",
 			window_xid.to_string(),
 			"--port-file",

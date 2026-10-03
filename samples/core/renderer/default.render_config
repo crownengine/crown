@@ -1,3 +1,7 @@
+// To use a project copy, select its resource name (without extension) with
+// render_config in the project boot.config. Copying this file alone does not
+// select it. An explicitly empty layer array is a valid empty/black pipeline.
+
 render_settings = {
 	// Whether shadows for the sun are enabled.
 	// sun_shadows = true
@@ -63,4 +67,265 @@ shaders = [
 	"core/shaders/shadow_map"
 	"core/shaders/post_processing"
 	"core/shaders/editor"
+]
+
+// A layer is a logical, ordered group; a bgfx View is a runtime ID.
+// The native scene producers bind the named mesh/sprite/shadow/GUI layers.
+// Generators are arrays of modifiers. Every modifier gets its own View.
+// See docs/rendering_pipeline.rst for the schema and extension interface.
+
+// Names are local to this config; the application supplies their values.
+conditions = [ "selection" "cookies" "bloom_allocated" "bloom" "vignette" "msaa" ]
+
+// Relative dimensions use the backbuffer unless a named application size is
+// selected. A count > 1 creates separate textures, halving each dimension at
+// every index (clamped to one texel). All framebuffer attachments are borrowed.
+global_resources = [
+	{ name = "color0" format = "RGBA16F" flags = [ "clamp" "msaa" ] }
+	{ name = "color1" format = "RGBA16F" flags = [ "clamp" "msaa" ] }
+	{ name = "color_sdr" format = "RGBA8" flags = [ "clamp" "msaa" ] }
+	{ name = "depth" format = "D24S8" flags = [ "clamp" "msaa" ] }
+	{ name = "selection_color" format = "R32U" if = [ "selection" ] }
+	{ name = "selection_depth" format = "D24" if = [ "selection" ] }
+	{ name = "outline_color" format = "BGRA8" if = [ "selection" ] }
+	{ name = "sun_shadow_map" format = "D32F" size = "sun_shadow_map_size" flags = [ "compare" ] }
+	{ name = "local_lights_shadow_map" format = "D24S8" size = "local_lights_shadow_map_size" flags = [ "compare" ] }
+	{ name = "lights_cookie_atlas" format = "RGBA8" size = "lights_cookie_atlas_size" flags = [ "clamp" ] if = [ "cookies" ] }
+	{ name = "lights_cookie_fallback" format = "RGBA8" type = "texture" width = 1 height = 1 initial_value = "00000000" }
+	{ name = "lights_data" format = "RGBA32F" type = "texture" width = 768 height = 1 flags = [ "point" ] }
+	{ name = "bloom" format = "RGBA16F" count = 6 flags = [ "clamp" ] if = [ "bloom_allocated" ] }
+]
+
+// Declaration order is the final backend order. Native producers supply the
+// per-cascade, per-local-light and per-cookie sub-rectangles/cameras themselves.
+layers = [
+	{ name = "color0_clear" render_targets = [ "color0" ] depth_stencil_target = "depth" clear = { color = true depth = true rgba = "080808ff" } touch = true }
+	{ name = "color1_clear" render_targets = [ "color1" ] depth_stencil_target = "depth" clear = { color = true depth = true rgba = "080808ff" } touch = true }
+	{ name = "sm_cascade_clear" depth_stencil_target = "sun_shadow_map" clear = { depth = true } touch = true }
+	{ name = "sm_cascade" depth_stencil_target = "sun_shadow_map" count = 4 manual_rect = true }
+	{ name = "sm_local_clear" depth_stencil_target = "local_lights_shadow_map" clear = { depth = true stencil = true } transform = "ortho_unit_flipped" touch = true }
+	{ name = "sm_local" depth_stencil_target = "local_lights_shadow_map" count = 64 manual_rect = true }
+	{ name = "lights_cookie_atlas_clear" render_targets = [ "lights_cookie_atlas" ] clear = { color = true rgba = "00000000" } if = [ "cookies" ] touch = true }
+	{ name = "lights_cookie_atlas" render_targets = [ "lights_cookie_atlas" ] count = 32 manual_rect = true transform = "ortho_unit" if = [ "cookies" ] }
+	{ name = "lights" }
+	{ name = "mesh" render_targets = [ "color0" ] depth_stencil_target = "depth" transform = "camera" touch = true }
+	{ name = "post_processing" resource_generator = "post_processing" }
+	{ name = "sprite" render_targets = [ "color_sdr" ] depth_stencil_target = "depth" count = 8 transform = "camera" sort = "front_to_back" touch = true }
+	{ name = "world_gui" render_targets = [ "color_sdr" ] depth_stencil_target = "depth" transform = "camera" sort = "back_to_front" touch = true }
+	{ name = "selection" render_targets = [ "selection_color" ] depth_stencil_target = "selection_depth" transform = "camera" clear = { color = true depth = true rgba = "ffffffff" } touch = true if = [ "selection" ] }
+	{ name = "outline" resource_generator = "outline" if = [ "selection" ] }
+	{ name = "outline_blit" resource_generator = "outline_blit" if = [ "selection" ] }
+	{ name = "debug" render_targets = [ "color_sdr" ] depth_stencil_target = "depth" transform = "camera" touch = true }
+	{ name = "screen_gui" render_targets = [ "color_sdr" ] depth_stencil_target = "depth" transform = "ortho_screen" sort = "back_to_front" touch = true }
+	{ name = "graph" render_targets = [ "color_sdr" ] depth_stencil_target = "depth" transform = "ortho_graph" touch = true }
+	{ name = "blit" resource_generator = "present" }
+	{ name = "imgui" }
+]
+
+// Optional exact shader/permutation -> geometry-layer mappings. Unmapped
+// materials use the producer's default (mesh or the instance's sprite layer).
+shader_layers = []
+
+// Inputs are explicitly bound by sampler and stage. Shader names denote
+// programs in the libraries above, not .shader resource filenames.
+// Empty render_targets with no depth target means the swap chain.
+resource_generators = [
+	{
+		name = "post_processing"
+		modifiers = [
+			{
+				type = "bloom"
+				shader = "bloom_copy"
+				profiling_scope = "bloom_copy"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 0 } ]
+				inputs = [ { texture = "color0" sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "bloom_downsample"
+				profiling_scope = "bloom_downsample_1"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 1 } ]
+				inputs = [ { texture = { resource = "bloom" index = 0 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "bloom_downsample"
+				profiling_scope = "bloom_downsample_2"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 2 } ]
+				inputs = [ { texture = { resource = "bloom" index = 1 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "bloom_downsample"
+				profiling_scope = "bloom_downsample_3"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 3 } ]
+				inputs = [ { texture = { resource = "bloom" index = 2 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "bloom_downsample"
+				profiling_scope = "bloom_downsample_4"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 4 } ]
+				inputs = [ { texture = { resource = "bloom" index = 3 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "bloom_downsample"
+				profiling_scope = "bloom_downsample_5"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 5 } ]
+				inputs = [ { texture = { resource = "bloom" index = 4 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom"
+				shader = "bloom_upsample"
+				profiling_scope = "bloom_upsample_4"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 4 } ]
+				inputs = [ { texture = { resource = "bloom" index = 5 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom"
+				shader = "bloom_upsample"
+				profiling_scope = "bloom_upsample_3"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 3 } ]
+				inputs = [ { texture = { resource = "bloom" index = 4 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom"
+				shader = "bloom_upsample"
+				profiling_scope = "bloom_upsample_2"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 2 } ]
+				inputs = [ { texture = { resource = "bloom" index = 3 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom"
+				shader = "bloom_upsample"
+				profiling_scope = "bloom_upsample_1"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 1 } ]
+				inputs = [ { texture = { resource = "bloom" index = 2 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom"
+				shader = "bloom_upsample"
+				profiling_scope = "bloom_upsample_0"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ { resource = "bloom" index = 0 } ]
+				inputs = [ { texture = { resource = "bloom" index = 1 } sampler = "s_color_map" stage = 0 flags = [ "anisotropic" "clamp" ] } ]
+				pixel_size_uniform = "u_map_pixel_size"
+			}
+			{
+				type = "bloom_combine"
+				shader = "bloom_combine"
+				resource = "bloom"
+				if = [ "bloom_allocated" "bloom" ]
+				render_targets = [ "color1" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "color0" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } { texture = { resource = "bloom" index = 0 } sampler = "s_bloom_map" stage = 1 flags = [ "point" "clamp" ] } ]
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "blit"
+				profiling_scope = "bloom_bypass"
+				unless = [ "bloom" ]
+				render_targets = [ "color1" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "color0" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+			{
+				type = "vignette"
+				shader = "vignette"
+				if = [ "vignette" ]
+				render_targets = [ "color0" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "color1" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+			{
+				type = "fullscreen_pass"
+				shader = "blit"
+				profiling_scope = "vignette_bypass"
+				unless = [ "vignette" ]
+				render_targets = [ "color0" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "color1" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+			{
+				type = "tonemap"
+				shader = "tonemap"
+				render_targets = [ "color_sdr" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "color0" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+		]
+	}
+	{
+		name = "outline"
+		modifiers = [
+			{
+				type = "outline"
+				shader = "outline"
+				unless = [ "msaa" ]
+				render_targets = [ "outline_color" ]
+				clear = { color = true rgba = "ffffffff" }
+				inputs = [ { texture = "selection_color" sampler = "s_selection_map" stage = 0 flags = [ "point" "clamp" ] } { texture = "selection_depth" sampler = "s_selection_depth_map" stage = 1 flags = [ "point" "clamp" ] } { texture = "depth" sampler = "s_depth_map" stage = 2 flags = [ "point" "clamp" ] } ]
+				uniforms = [ { name = "u_outline_color" value = [ 1.0 0.37 0.05 1.0 ] } ]
+			}
+			{
+				type = "outline"
+				shader = "outline+MSAA_DEPTH"
+				if = [ "msaa" ]
+				render_targets = [ "outline_color" ]
+				clear = { color = true rgba = "ffffffff" }
+				inputs = [ { texture = "selection_color" sampler = "s_selection_map" stage = 0 flags = [ "point" "clamp" ] } { texture = "selection_depth" sampler = "s_selection_depth_map" stage = 1 flags = [ "point" "clamp" ] } { texture = "depth" sampler = "s_depth_map" stage = 2 flags = [ "point" "clamp" ] } ]
+				uniforms = [ { name = "u_outline_color" value = [ 1.0 0.37 0.05 1.0 ] } ]
+			}
+		]
+	}
+	{
+		name = "outline_blit"
+		modifiers = [
+			{
+				type = "fullscreen_pass"
+				shader = "blit+BLEND_ENABLED"
+				render_targets = [ "color_sdr" ]
+				depth_stencil_target = "depth"
+				inputs = [ { texture = "outline_color" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+		]
+	}
+	{
+		name = "present"
+		modifiers = [
+			{
+				type = "fullscreen_pass"
+				shader = "blit"
+				render_targets = [  ]
+				sort = "sequential"
+				inputs = [ { texture = "color_sdr" sampler = "s_color_map" stage = 0 flags = [ "point" "clamp" ] } ]
+			}
+		]
+	}
 ]

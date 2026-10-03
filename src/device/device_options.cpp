@@ -34,6 +34,7 @@ static void help(const char *msg = NULL)
 		"  --bundle-dir <path>             Run with the bundles located at <path>.\n"
 		"  --map-source-dir <name> <path>  Mount <path>/<name> at <source-dir>/<name>.\n"
 		"  --boot-dir <prefix>             Use <prefix>/boot.config to boot the engine.\n"
+		"  --render-config <resource>      Override the boot render_config resource.\n"
 		"  --compile                       Compile the project's source data.\n"
 		"  --bundle                        Generate bundles after the data has been compiled.\n"
 		"  --platform <platform>           Specify the target <platform> for data compilation.\n"
@@ -80,6 +81,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _bundle_dir(DynamicString(a))
 	, _port_file(DynamicString(a))
 	, _boot_dir(NULL)
+	, _render_config(NULL)
 	, _platform(NULL)
 	, _lua_string(DynamicString(a))
 	, _wait_console(false)
@@ -174,6 +176,14 @@ int DeviceOptions::parse(bool *quit)
 	_pumped = cl.has_option("pumped");
 	_hidden = cl.has_option("hidden");
 	_keep_above = cl.has_option("keep-above");
+
+	if (cl.has_option("render-config")) {
+		_render_config = cl.get_parameter(0, "render-config");
+		if (_render_config == NULL || _render_config[0] == '\0') {
+			help("Render config resource name must be specified, without its extension.");
+			return EXIT_FAILURE;
+		}
+	}
 
 	if (cl.has_option("renderer")) {
 		const char *renderer = cl.get_parameter(0, "renderer");

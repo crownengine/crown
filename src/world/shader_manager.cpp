@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/error/error.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/filesystem/file_memory.inl"
+#include "core/memory/temp_allocator.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_id.inl"
 #include "resource/resource_manager.h"
@@ -24,6 +27,8 @@ static ShaderData SHADER_DATA_INVALID =
 			0u, 0u, 0u
 		}
 	},
+	0u,
+	{ 0u },
 	BGFX_INVALID_HANDLE,
 #if CROWN_CAN_RELOAD
 	NULL
@@ -38,6 +43,39 @@ static ShaderBackend::Enum renderer_type_to_shader_backend(bgfx::RendererType::E
 	case bgfx::RendererType::OpenGLES:   return ShaderBackend::ESSL;
 	case bgfx::RendererType::Vulkan:     return ShaderBackend::SPIRV;
 	default:                             return ShaderBackend::COUNT;
+	}
+}
+
+// Reflect the selected backend's compiled shader, not its optional sampler
+// state descriptions. Cache names once so native draws need no reflection.
+static void collect_sampler_uniforms(ShaderData &sd, bgfx::ShaderHandle shader)
+{
+	const u16 count = bgfx::getShaderUniforms(shader);
+	if (count == 0)
+		return;
+
+	TempAllocator4096 ta;
+	Array<bgfx::UniformHandle> uniforms(ta);
+	array::resize(uniforms, count);
+	bgfx::getShaderUniforms(shader, array::begin(uniforms), count);
+	for (u32 i = 0; i < count; ++i) {
+		bgfx::UniformInfo info;
+		bgfx::getUniformInfo(uniforms[i], info);
+		if (info.type != bgfx::UniformType::Sampler)
+			continue;
+
+		const u32 name = StringId32(info.name)._id;
+		u32 j = 0;
+		for (; j < sd.num_sampler_uniforms; ++j) {
+			if (sd.sampler_uniforms[j] == name)
+				break;
+		}
+		if (j != sd.num_sampler_uniforms)
+			continue;
+
+		if (sd.num_sampler_uniforms == countof(sd.sampler_uniforms))
+			error::abort("Too many sampler uniforms in GPU program");
+		sd.sampler_uniforms[sd.num_sampler_uniforms++] = name;
 	}
 }
 
@@ -70,7 +108,7 @@ void ShaderManager::create_shaders(const void *shader_resource)
 		StringId32 name;
 		br.read(name._id);
 
-		ShaderData sd;
+		ShaderData sd = {};
 		br.read(sd.state);
 		br.read(sd.stencil_front);
 		br.read(sd.stencil_back);
@@ -134,6 +172,8 @@ void ShaderManager::create_shaders(const void *shader_resource)
 		CE_ASSERT(bgfx::isValid(vs), "Failed to create vertex shader");
 		bgfx::ShaderHandle fs = bgfx::createShader(bgfx::makeRef(fs_data, fs_size));
 		CE_ASSERT(bgfx::isValid(fs), "Failed to create fragment shader");
+		collect_sampler_uniforms(sd, vs);
+		collect_sampler_uniforms(sd, fs);
 		sd.program = bgfx::createProgram(vs, fs, true);
 		CE_ASSERT(bgfx::isValid(sd.program), "Failed to create GPU program");
 #if CROWN_CAN_RELOAD

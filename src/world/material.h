@@ -32,7 +32,7 @@ struct Material
 	explicit Material(Allocator &a);
 
 	///
-	void bind(u8 view, u32 depth = 0u) const;
+	void bind(u16 view, u32 depth = 0u) const;
 
 	/// Sets the @a value of the variable @a name.
 	void set_float(StringId32 name, f32 value);

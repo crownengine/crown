@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "device/render_pipeline.h"
+#include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/render_config_resource.h"
 #include "resource/shader_resource.h"
@@ -25,52 +27,6 @@ struct stbrp_node;
 CE_STATIC_ASSERT(LOCAL_LIGHTS_MAX_SHADOW_CASTERS <= MAX_NUM_LIGHTS);
 #define LOCAL_LIGHTS_SM_MAX_VIEWS (LOCAL_LIGHTS_MAX_SHADOW_CASTERS * 4) // Worst case all omni casters.
 #define LOCAL_LIGHTS_COOKIE_ATLAS_SLOT 13
-#define BLOOM_MIPS 6
-
-struct View
-{
-	enum Enum
-	{
-		COLOR_0,
-		COLOR_1,
-		CASCADE_CLEAR,
-		CASCADE_0,
-		CASCADE_LAST                    = CASCADE_0 + MAX_NUM_CASCADES,
-		SM_LOCAL_CLEAR                  = CASCADE_LAST,
-		SM_LOCAL_0,
-		SM_LOCAL_LAST                   = SM_LOCAL_0 + LOCAL_LIGHTS_SM_MAX_VIEWS,
-		LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR = SM_LOCAL_LAST,
-		LOCAL_LIGHTS_COOKIE_ATLAS_0,
-		LOCAL_LIGHTS_COOKIE_ATLAS_LAST  = LOCAL_LIGHTS_COOKIE_ATLAS_0 + MAX_NUM_LIGHTS,
-		LIGHTS                          = LOCAL_LIGHTS_COOKIE_ATLAS_LAST,
-		MESH,
-		BLOOM_COPY,
-		BLOOM_DOWNSAMPLE_0,
-		BLOOM_DOWNSAMPLE_LAST           = BLOOM_DOWNSAMPLE_0 + BLOOM_MIPS - 1,
-		BLOOM_UPSAMPLE_0,
-		BLOOM_UPSAMPLE_LAST             = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
-		BLOOM_COMBINE,
-		DUMMY_BLIT,
-		VIGNETTE,
-		TONEMAP,
-
-		SDR, // SDR rendering below.
-
-		SPRITE_0              = SDR,
-		SPRITE_LAST           = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
-		WORLD_GUI             = SPRITE_LAST,
-		SELECTION,
-		OUTLINE,
-		OUTLINE_BLIT,
-		DEBUG,
-		SCREEN_GUI,
-		GRAPH,
-		BLIT,
-		IMGUI,
-
-		COUNT
-	};
-};
 
 namespace crown
 {
@@ -81,7 +37,12 @@ struct Pipeline
 {
 	ShaderManager *_shader_manager;
 	RenderSettings _render_settings;
+	RenderSettings _requested_render_settings; // Unscaled size sources across resizes.
+	RenderPipeline _render_pipeline;
+	const RenderConfigResource *_render_config_resource;
 
+	// Non-owning aliases used by Crown's native scene producers.
+	// RenderPipeline alone owns and destroys textures/framebuffers.
 	// Main output color/depth handles.
 	bgfx::FrameBufferHandle _color_sdr;
 	bgfx::TextureHandle _color_textures[2];
@@ -130,7 +91,6 @@ struct Pipeline
 	stbrp_node *_lights_cookie_atlas_packer_nodes; // Sized once for fixed atlas width.
 
 	// Bloom.
-	bgfx::FrameBufferHandle _bloom_frame_buffers[BLOOM_MIPS];
 	bgfx::UniformHandle _bloom_map;
 	bgfx::UniformHandle _map_pixel_size;
 	bgfx::UniformHandle _bloom_params;
@@ -148,33 +108,59 @@ struct Pipeline
 
 	// Default shaders.
 	ShaderData _blit_shader;
-	ShaderData _blit_blend_shader;
+	ShaderData _blit_blend_shader = {};
 	ShaderData _gui_shader;
 	ShaderData _gui_3d_shader;
 	ShaderData _debug_line_depth_enabled_shader;
 	ShaderData _debug_line_shader;
-	ShaderData _outline_shader;
-	ShaderData _outline_msaa_shader;
+	ShaderData _outline_shader = {};
+	ShaderData _outline_msaa_shader = {};
 	ShaderData _selection_shader;
 	ShaderData _selection_skinning_shader;
 	ShaderData _shadow_shader;
 	ShaderData _shadow_skinning_shader;
-	ShaderData _skydome_shader;
-	ShaderData _bloom_downsample_shader;
-	ShaderData _bloom_upsample_shader;
-	ShaderData _bloom_combine_shader;
-	ShaderData _tonemap_shader;
-	ShaderData _vignette_shader;
-	ShaderData _bloom_copy_shader;
+	ShaderData _skydome_shader = {};
+	ShaderData _bloom_downsample_shader = {};
+	ShaderData _bloom_upsample_shader = {};
+	ShaderData _bloom_combine_shader = {};
+	ShaderData _tonemap_shader = {};
+	ShaderData _vignette_shader = {};
+	ShaderData _bloom_copy_shader = {};
 
 	///
 	Pipeline(ShaderManager &sm);
 
-	///
-	bool selection_enabled() const;
+	/// Resolve logical layer names at submission time (safe across hot reload).
+	u16 view_id(StringId32 layer, u32 index = 0) const { return _render_pipeline.geometry_view(layer, index); }
+	u16 shader_view(StringId32 shader, u16 fallback) const { return _render_pipeline.shader_view(shader, fallback); }
+	u16 mesh_view() const { return view_id(StringId32("mesh"), 0); }
+	u16 sprite_view(u32 index = 0) const { return view_id(StringId32("sprite"), index); }
+	u16 cascade_view(u32 index = 0) const { return view_id(StringId32("sm_cascade"), index); }
+	u16 cascade_clear_view() const { return view_id(StringId32("sm_cascade_clear"), 0); }
+	u16 sm_local_view(u32 index = 0) const { return view_id(StringId32("sm_local"), index); }
+	u16 sm_local_clear_view() const { return view_id(StringId32("sm_local_clear"), 0); }
+	u16 cookie_atlas_view(u32 index = 0) const { return view_id(StringId32("lights_cookie_atlas"), index); }
+	u16 cookie_atlas_clear_view() const { return view_id(StringId32("lights_cookie_atlas_clear"), 0); }
+	u16 lights_view() const { return view_id(StringId32("lights"), 0); }
+	u16 selection_view() const { return view_id(StringId32("selection"), 0); }
+	u16 debug_view() const { return view_id(StringId32("debug"), 0); }
+	u16 screen_gui_view() const { return view_id(StringId32("screen_gui"), 0); }
+	u16 world_gui_view() const { return view_id(StringId32("world_gui"), 0); }
+	u16 graph_view() const { return view_id(StringId32("graph"), 0); }
+	u16 imgui_view() const { return view_id(StringId32("imgui"), 0); }
 
 	///
-	void create(u16 width, u16 height, const RenderSettings &render_settings);
+	bool selection_enabled() const;
+	bool sun_shadows_enabled() const;
+	bool local_shadows_enabled() const;
+	bool light_cookies_enabled() const;
+
+	/// Bind only the native lighting samplers actually used by this shader.
+	/// A missing input suppresses the batch instead of binding an invalid handle.
+	bool bind_lighting(const ShaderData &shader) const;
+
+	///
+	void create(u16 width, u16 height, const RenderSettings &render_settings, const RenderConfigResource *resource);
 
 	///
 	void destroy();
@@ -184,6 +170,9 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+
+	/// Update execution conditions before any native scene submissions.
+	void update_conditions();
 
 	///
 	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);
