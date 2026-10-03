@@ -22,10 +22,12 @@
 #   include "core/math/vector3.inl"
 #   include "core/memory/temp_allocator.inl"
 #   include "core/murmur.h"
+#   include "core/profiler.inl"
 #   include "core/strings/dynamic_string.inl"
 #   include "core/strings/string.inl"
 #   include "core/strings/string_id.inl"
 #   include "core/thread/scoped_mutex.inl"
+#   include "core/thread/task_manager.h"
 #   include "device/log.h"
 #   include "resource/compile_options.inl"
 #   include "resource/data_compiler.h"
@@ -274,6 +276,7 @@ namespace mesh
 	{
 		if (!has_normals(geometry) || !has_uvs(geometry))
 			return;
+		ScopedProfileScope scope(__func__);
 
 		const u32 num_indices = geometry._position_indices.count;
 		array::resize(output._tangents, num_indices * 3);
@@ -505,48 +508,71 @@ namespace mesh
 		return obb;
 	}
 
-	// Finds the tightest bounding sphere by calling add_points() multiple times on the same
-	// randomly ordered positions. Uses a seed dependent on initial positions to guarantee stable
-	// results.
+	struct SphereJob
+	{
+		const f32 *source_positions;
+		u64 seed;
+		Sphere result;
+		u32 num_positions;
+		u32 trial;
+	};
+
+	static void sphere_job(void *items, u32 count)
+	{
+		ENTER_PROFILE_SCOPE(__func__);
+		SphereJob *jobs = (SphereJob *)items;
+		Array<u32> indices(default_allocator());
+		array::resize(indices, jobs[0].num_positions);
+		for (u32 i = 0; i < count; ++i) {
+			SphereJob &job = jobs[i];
+			Random random(s32(murmur64(&job.trial, sizeof(job.trial), job.seed) & 0x7fffffff));
+			for (u32 j = 0; j < job.num_positions; ++j)
+				indices[j] = j;
+			for (u32 j = 0; j < job.num_positions; ++j) {
+				const s32 k = random.integer(job.num_positions);
+				exchange(indices[j], indices[k]);
+			}
+			sphere::reset(job.result);
+			sphere::add_points(job.result
+				, job.num_positions
+				, sizeof(f32) * 3
+				, job.source_positions
+				, array::begin(indices)
+				);
+		}
+		LEAVE_PROFILE_SCOPE();
+	}
+
+	// Finds the tightest bounding sphere by calling add_points() on independently shuffled
+	// positions. Each trial's seed depends on the positions and its trial index for stable results.
 	static Sphere sphere(const Geometry &g, const GeometryInfo &geometry)
 	{
+		ScopedProfileScope scope(__func__);
 		const u32 MAX_TRIES = 256;
 		Sphere sphere;
 		sphere::reset(sphere);
 
 		if (geometry._positions.count != 0) {
 			const f32 *source_positions = array::begin(g._positions) + geometry._positions.offset;
-			const u16 seed = (u16)murmur64(source_positions
+			const u32 num_positions = geometry._positions.count / 3;
+			const u64 seed = murmur64(source_positions
 				, geometry._positions.count*sizeof(g._positions[0])
 				, 0u
 				);
-			Random random((s32)seed);
 
-			Array<u32> indices(default_allocator());
-			array::resize(indices, geometry._positions.count / 3);
-
-			for (u32 j = 0; j < array::size(indices); ++j)
-				indices[j] = j;
-
-			Sphere s;
+			SphereJob jobs[MAX_TRIES];
 			for (u32 i = 0; i < MAX_TRIES; ++i) {
-				sphere::reset(s);
-
-				// Shuffle index.
-				for (u32 i = 0; i < array::size(indices); ++i) {
-					s32 k = random.integer(array::size(indices));
-					exchange(indices[i], indices[k]);
-				}
-
-				sphere::add_points(s
-					, array::size(indices)
-					, sizeof(g._positions[0]) * 3
-					, source_positions
-					, array::begin(indices)
-					);
-
-				if (sphere::volume(s) < sphere::volume(sphere) || i == 0)
-					sphere = s;
+				jobs[i].source_positions = source_positions;
+				jobs[i].seed = seed;
+				jobs[i].num_positions = num_positions;
+				jobs[i].trial = i;
+			}
+			const u32 num_jobs = num_positions >= 256 ? 16 : 1;
+			const u32 root = parallel_for(jobs, sizeof(jobs[0]), MAX_TRIES, num_jobs, sphere_job);
+			task_manager().wait(root);
+			for (u32 i = 0; i < MAX_TRIES; ++i) {
+				if (sphere::volume(jobs[i].result) < sphere::volume(sphere) || i == 0)
+					sphere = jobs[i].result;
 			}
 		}
 
