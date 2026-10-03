@@ -36,6 +36,12 @@ namespace sjson
 		_error_user_data = callback ? user_data : NULL;
 	}
 
+	void get_error_callback(SJsonError &callback, void *&user_data)
+	{
+		callback = _error_function;
+		user_data = _error_user_data;
+	}
+
 	void clear_error()
 	{
 		_error = false;

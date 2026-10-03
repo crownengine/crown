@@ -8,6 +8,7 @@
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/file_buffer.inl"
+#include "core/filesystem/file_memory.inl"
 #include "core/filesystem/filesystem.h"
 #include "core/json/json.h"
 #include "core/json/json_object.inl"
@@ -17,11 +18,13 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/option.inl"
 #include "core/process.h"
+#include "core/profiler.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/line_reader.inl"
 #include "core/strings/string_id.inl"
 #include "core/strings/string_stream.inl"
 #include "core/thread/scoped_mutex.inl"
+#include "core/thread/task_manager.h"
 #include "device/device.h"
 #include "device/log.h"
 #include "resource/compile_options.inl"
@@ -1283,11 +1286,11 @@ namespace shader_resource_internal
 	{
 		StringStream ss(default_allocator());
 		ss << u32(platform) << "|";
-		ss << shader_library.c_str() << "|";
-		ss << shader.c_str();
+		ss << shader_library.string_view() << "|";
+		ss << shader.string_view();
 
 		for (u32 i = 0; i < vector::size(defines); ++i)
-			ss << "+" << defines[i].c_str();
+			ss << "+" << defines[i].string_view();
 
 		key = string_stream::c_str(ss);
 	}
@@ -1426,6 +1429,75 @@ namespace shader_resource_internal
 		}
 	};
 
+	struct ShaderTempFiles
+	{
+		CompileOptions &_opts;
+		DynamicString _vs_path;
+		DynamicString _fs_path;
+		DynamicString _varying_path;
+		DynamicString _vs_pp_path;
+		DynamicString _fs_pp_path;
+		DynamicString _vs_bin_path;
+		DynamicString _fs_bin_path;
+
+		explicit ShaderTempFiles(CompileOptions &opts)
+			: _opts(opts)
+			, _vs_path(default_allocator())
+			, _fs_path(default_allocator())
+			, _varying_path(default_allocator())
+			, _vs_pp_path(default_allocator())
+			, _fs_pp_path(default_allocator())
+			, _vs_bin_path(default_allocator())
+			, _fs_bin_path(default_allocator())
+		{
+			_opts.temporary_path(_vs_path, "vs.sc");
+			_opts.temporary_path(_fs_path, "fs.sc");
+			_opts.temporary_path(_varying_path, "varying.sc");
+			_opts.temporary_path(_vs_pp_path, "vs_pp.sc");
+			_opts.temporary_path(_fs_pp_path, "fs_pp.sc");
+			_opts.temporary_path(_vs_bin_path, "vs.bin");
+			_opts.temporary_path(_fs_bin_path, "fs.bin");
+		}
+
+		void delete_temp_files()
+		{
+			_opts.delete_file(_vs_path.c_str());
+			_opts.delete_file(_fs_path.c_str());
+			_opts.delete_file(_varying_path.c_str());
+			_opts.delete_file(_vs_pp_path.c_str());
+			_opts.delete_file(_fs_pp_path.c_str());
+			_opts.delete_file(_vs_bin_path.c_str());
+			_opts.delete_file(_fs_bin_path.c_str());
+		}
+
+		void delete_temp_files(DynamicString * const *vs_bin_paths, DynamicString * const *fs_bin_paths, u32 count)
+		{
+			for (u32 i = 1; i < count; ++i) {
+				_opts.delete_file(vs_bin_paths[i]->c_str());
+				_opts.delete_file(fs_bin_paths[i]->c_str());
+			}
+
+			delete_temp_files();
+		}
+	};
+
+	struct ShaderCompiler;
+
+	struct StaticCompileItem
+	{
+		ShaderCompiler *compiler;
+		Buffer *variant;
+		s32 *error;
+		u32 index;
+	};
+
+	static void static_compile_sjson_error(const char *msg, void *user_data)
+	{
+		((CompileOptions *)user_data)->error(SHADER_RESOURCE, "%s", msg);
+	}
+
+	static void static_compile_items(void *items, u32 count);
+
 	struct ShaderCompiler
 	{
 		CompileOptions &_opts;
@@ -1437,13 +1509,6 @@ namespace shader_resource_internal
 		Vector<StaticCompile> _static_compile;
 
 		DynamicString _shader_library;
-		DynamicString _vs_path;
-		DynamicString _fs_path;
-		DynamicString _varying_path;
-		DynamicString _vs_pp_path;
-		DynamicString _fs_pp_path;
-		DynamicString _vs_bin_path;
-		DynamicString _fs_bin_path;
 
 		bool has_shader(const StringView &shader_name)
 		{
@@ -1462,21 +1527,7 @@ namespace shader_resource_internal
 			, _shaders(default_allocator())
 			, _static_compile(default_allocator())
 			, _shader_library(default_allocator())
-			, _vs_path(default_allocator())
-			, _fs_path(default_allocator())
-			, _varying_path(default_allocator())
-			, _vs_pp_path(default_allocator())
-			, _fs_pp_path(default_allocator())
-			, _vs_bin_path(default_allocator())
-			, _fs_bin_path(default_allocator())
 		{
-			_opts.temporary_path(_vs_path, "vs.sc");
-			_opts.temporary_path(_fs_path, "fs.sc");
-			_opts.temporary_path(_varying_path, "varying.sc");
-			_opts.temporary_path(_vs_pp_path, "vs_pp.sc");
-			_opts.temporary_path(_fs_pp_path, "fs_pp.sc");
-			_opts.temporary_path(_vs_bin_path, "vs.bin");
-			_opts.temporary_path(_fs_bin_path, "fs.bin");
 		}
 
 		void reset()
@@ -2258,33 +2309,57 @@ namespace shader_resource_internal
 			return 0;
 		}
 
-		void delete_temp_files()
-		{
-			_opts.delete_file(_vs_path.c_str());
-			_opts.delete_file(_fs_path.c_str());
-			_opts.delete_file(_varying_path.c_str());
-			_opts.delete_file(_vs_pp_path.c_str());
-			_opts.delete_file(_fs_pp_path.c_str());
-			_opts.delete_file(_vs_bin_path.c_str());
-			_opts.delete_file(_fs_bin_path.c_str());
-		}
-
-		void delete_temp_files(DynamicString * const *vs_bin_paths, DynamicString * const *fs_bin_paths, u32 count)
-		{
-			for (u32 i = 1; i < count; ++i) {
-				_opts.delete_file(vs_bin_paths[i]->c_str());
-				_opts.delete_file(fs_bin_paths[i]->c_str());
-			}
-
-			delete_temp_files();
-		}
-
 		static StringId32 shader_variant_id(const char *shader, const Vector<DynamicString> &defines)
 		{
 			TempAllocator1024 ta;
 			DynamicString variant(ta);
 			shader_variant(variant, shader, defines);
 			return StringId32(variant.c_str());
+		}
+
+		void write_variant(BinaryWriter &bw, const Buffer &variant)
+		{
+			// Alignment in each variant buffer starts at zero; serialize against the combined buffer position.
+			FileMemory fm(array::begin(variant), array::size(variant));
+			BinaryReader br(fm);
+			u32 value;
+			u64 state;
+
+			br.read(value);
+			bw.write(value); // Name.
+			br.read(state);
+			bw.write(state);
+			br.read(value);
+			bw.write(value); // Stencil front.
+			br.read(value);
+			bw.write(value); // Stencil back.
+			br.read(value);
+			bw.write(value); // Sampler count.
+			const u32 num_samplers = value;
+			for (u32 i = 0; i < num_samplers; ++i) {
+				br.read(value);
+				bw.write(value); // Name.
+				br.read(value);
+				bw.write(value); // State.
+				br.read(value);
+				bw.write(value); // Stage.
+			}
+
+			br.read(value);
+			bw.write(value); // Backend count.
+			const u32 num_backends = value;
+			for (u32 i = 0; i < num_backends; ++i) {
+				br.read(value);
+				bw.write(value); // Backend.
+				br.read(value);
+				bw.write(value); // Vertex size.
+				bw.write(array::begin(variant) + fm.position(), value);
+				br.skip(value);
+				br.read(value);
+				bw.write(value); // Fragment size.
+				bw.write(array::begin(variant) + fm.position(), value);
+				br.skip(value);
+			}
 		}
 
 		s32 compile_variant(FileBuffer &fb
@@ -2302,20 +2377,24 @@ namespace shader_resource_internal
 			const ShaderPermutation &sp       = hash_map::get(_shaders, shader, sp_default);
 			const DynamicString &bgfx_shader  = sp._bgfx_shader;
 			const DynamicString &render_state = sp._render_state;
+			const StringView bgfx_shader_view = bgfx_shader.string_view();
+			const StringView render_state_view = render_state.string_view();
 
 			RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_bgfx_shaders, sp._bgfx_shader)
 				, _opts
-				, "Unknown bgfx shader: '%s'"
-				, bgfx_shader.c_str()
+				, "Unknown bgfx shader: '%.*s'"
+				, s32(bgfx_shader_view.length())
+				, bgfx_shader_view.data()
 				);
 			RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_render_states, sp._render_state)
 				, _opts
-				, "Unknown render state: '%s'"
-				, render_state.c_str()
+				, "Unknown render state: '%.*s'"
+				, s32(render_state_view.length())
+				, render_state_view.data()
 				);
 
 			RenderState::State state;
-			s32 err = compile_render_state(state, render_state.c_str(), defines);
+			s32 err = compile_render_state(state, render_state, defines);
 			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
 			u32 stencil_front;
@@ -2326,24 +2405,26 @@ namespace shader_resource_internal
 			bw.write(state.encode());                                // Render state
 			bw.write(stencil_front);                                 // Stencil
 			bw.write(stencil_back);                                  //
-			return compile_bgfx_shader(fb, meta, sampler_meta, shader, bgfx_shader.c_str(), defines, metadata_only); // Sampler states and shader code
+			return compile_bgfx_shader(fb, meta, sampler_meta, shader, bgfx_shader, defines, metadata_only); // Sampler states and shader code
 		}
 
 		s32 compile()
 		{
-			Buffer variants(default_allocator());
-			FileBuffer fb(variants);
+			ScopedProfileScope scope("ShaderCompiler::compile");
+			Vector<Buffer> variants(default_allocator());
+			Array<s32> errors(default_allocator());
+			const u32 count = vector::size(_static_compile);
+			array::resize(errors, count);
 
 			// Write header.
 			_opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
 
 			// Write variants.
-			_opts.write(vector::size(_static_compile));
+			_opts.write(count);
 
-			for (u32 ii = 0; ii < vector::size(_static_compile); ++ii) {
+			for (u32 ii = 0; ii < count; ++ii) {
 				const StaticCompile &sc              = _static_compile[ii];
 				const DynamicString &shader          = sc._shader;
-				const Vector<DynamicString> &defines = sc._defines;
 
 				cache_shader_library(shader, _shader_library);
 
@@ -2353,11 +2434,28 @@ namespace shader_resource_internal
 					, shader.c_str()
 					);
 
-				s32 err = compile_variant(fb, NULL, NULL, shader, defines, false);
-				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
+				Buffer variant(default_allocator());
+				vector::push_back(variants, variant);
 			}
 
-			_opts.write(variants);
+			// Leave slots for the resource task and parallel_for root.
+			for (u32 first = 0; first < count; first += 30u) {
+				const u32 batch = min(30u, count - first);
+				StaticCompileItem items[30];
+				for (u32 i = 0; i < batch; ++i)
+					items[i] = { this, &variants[first + i], &errors[first + i], first + i };
+				const u32 root = parallel_for(items, sizeof(items[0]), batch, batch, static_compile_items);
+				task_manager().wait(root);
+			}
+
+			Buffer serialized_variants(default_allocator());
+			FileBuffer fb(serialized_variants);
+			BinaryWriter bw(fb);
+			for (u32 ii = 0; ii < count; ++ii) {
+				ENSURE_OR_RETURN(SHADER_RESOURCE, errors[ii] == 0, _opts);
+				write_variant(bw, variants[ii]);
+			}
+			_opts.write(serialized_variants);
 
 			return 0;
 		}
@@ -2372,7 +2470,7 @@ namespace shader_resource_internal
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
-			code << shader._code.c_str();
+			code << shader._code.string_view();
 			return 0;
 		}
 
@@ -2492,17 +2590,17 @@ namespace shader_resource_internal
 			, Vector<UniformMetadata> *meta
 			, Vector<ShaderResource::Sampler> *sampler_meta
 			, const DynamicString &shader_name
-			, const char *bgfx_shader
+			, const DynamicString &bgfx_shader
 			, const Vector<DynamicString> &defines
 			, bool metadata_only
 			)
 		{
+			ScopedProfileScope scope("ShaderCompiler::compile_bgfx_shader");
 			BinaryWriter bw(fb);
-			TempAllocator512 taa;
-			DynamicString key(taa);
-			key = bgfx_shader;
+			ShaderTempFiles files(_opts);
+			const StringView bgfx_shader_view = bgfx_shader.string_view();
 			const BgfxShader shader_default(default_allocator());
-			const BgfxShader &shader = hash_map::get(_bgfx_shaders, key, shader_default);
+			const BgfxShader &shader = hash_map::get(_bgfx_shaders, bgfx_shader, shader_default);
 			const bool has_sampler_metadata = hash_map::size(shader._samplers) > 0;
 			// Full static compiles can seed metadata for later material-only compiles.
 			const bool cache_static_metadata = !metadata_only
@@ -2520,15 +2618,15 @@ namespace shader_resource_internal
 			StringStream vs_code(default_allocator());
 			StringStream fs_code(default_allocator());
 			// Generate varying.
-			varying_code << shader._varying.c_str();
+			varying_code << shader._varying.string_view();
 			// Generate vertex shader.
-			vs_code << shader._vs_input_output.c_str();
+			vs_code << shader._vs_input_output.string_view();
 			vs_code << string_stream::c_str(code);
-			vs_code << shader._vs_code.c_str();
+			vs_code << shader._vs_code.string_view();
 			// Generate fragment shader.
-			fs_code << shader._fs_input_output.c_str();
+			fs_code << shader._fs_input_output.string_view();
 			fs_code << string_stream::c_str(code);
-			fs_code << shader._fs_code.c_str();
+			fs_code << shader._fs_code.string_view();
 			const bool need_preprocess = meta != NULL || has_sampler_metadata;
 
 			if (need_preprocess) {
@@ -2539,13 +2637,13 @@ namespace shader_resource_internal
 				err = inject_sampler_stage_comments(fs_source, string_stream::c_str(fs_code), _opts);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 
-				_opts.write_temporary(_vs_path.c_str(), vs_source);
-				_opts.write_temporary(_fs_path.c_str(), fs_source);
+				_opts.write_temporary(files._vs_path.c_str(), vs_source);
+				_opts.write_temporary(files._fs_path.c_str(), fs_source);
 			} else {
-				_opts.write_temporary(_vs_path.c_str(), vs_code);
-				_opts.write_temporary(_fs_path.c_str(), fs_code);
+				_opts.write_temporary(files._vs_path.c_str(), vs_code);
+				_opts.write_temporary(files._fs_path.c_str(), fs_code);
 			}
-			_opts.write_temporary(_varying_path.c_str(), varying_code);
+			_opts.write_temporary(files._varying_path.c_str(), varying_code);
 
 			const ShadercTargetList targets = shaderc_targets(_opts._platform);
 			Process binary_pr_vert[ShaderBackend::COUNT];
@@ -2577,8 +2675,8 @@ namespace shader_resource_internal
 
 			for (u32 ti = 0; ti < targets.count; ++ti) {
 				const ShadercTarget &target = targets.targets[ti];
-				*vs_bin_paths[ti] = _vs_bin_path.c_str();
-				*fs_bin_paths[ti] = _fs_bin_path.c_str();
+				*vs_bin_paths[ti] = files._vs_bin_path.c_str();
+				*fs_bin_paths[ti] = files._fs_bin_path.c_str();
 
 				if (ti > 0) {
 					*vs_bin_paths[ti] += ".";
@@ -2596,15 +2694,15 @@ namespace shader_resource_internal
 					s32 sc = run_shaderc(binary_pr_vert[ti]
 						, _opts
 						, target
-						, _vs_path.c_str()
+						, files._vs_path.c_str()
 						, vs_bin_paths[ti]->c_str()
-						, _varying_path.c_str()
+						, files._varying_path.c_str()
 						, "vertex"
 						, defines
 						);
 					if (sc != 0) {
 						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 						RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 							, _opts
 							, "Failed to spawn shaderc"
@@ -2614,15 +2712,15 @@ namespace shader_resource_internal
 					sc = run_shaderc(binary_pr_frag[ti]
 						, _opts
 						, target
-						, _fs_path.c_str()
+						, files._fs_path.c_str()
 						, fs_bin_paths[ti]->c_str()
-						, _varying_path.c_str()
+						, files._varying_path.c_str()
 						, "fragment"
 						, defines
 						);
 					if (sc != 0) {
 						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 						RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 							, _opts
 							, "Failed to spawn shaderc"
@@ -2638,6 +2736,7 @@ namespace shader_resource_internal
 
 			// Run preprocess pass on shaders.
 			if (need_preprocess) {
+				ScopedProfileScope preprocess_scope("shaderc preprocess");
 				s32 sc;
 				Process pr_vert;
 				Process pr_frag;
@@ -2645,16 +2744,16 @@ namespace shader_resource_internal
 				sc = run_shaderc(pr_vert
 					, _opts
 					, metadata_target
-					, _vs_path.c_str()
-					, _vs_pp_path.c_str()
-					, _varying_path.c_str()
+					, files._vs_path.c_str()
+					, files._vs_pp_path.c_str()
+					, files._varying_path.c_str()
 					, "vertex"
 					, defines
 					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
 					);
 				if (sc != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
@@ -2664,16 +2763,16 @@ namespace shader_resource_internal
 				sc = run_shaderc(pr_frag
 					, _opts
 					, metadata_target
-					, _fs_path.c_str()
-					, _fs_pp_path.c_str()
-					, _varying_path.c_str()
+					, files._fs_path.c_str()
+					, files._fs_pp_path.c_str()
+					, files._varying_path.c_str()
 					, "fragment"
 					, defines
 					, ShadercFlags::PREPROCESS | ShadercFlags::KEEPCOMMENTS
 					);
 				if (sc != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, sc == 0
 						, _opts
 						, "Failed to spawn shaderc"
@@ -2691,11 +2790,12 @@ namespace shader_resource_internal
 				if (ec != 0) {
 					wait_shaderc_process(_opts, pr_frag);
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
-						, "Failed to preprocess vertex shader `%s`:\n%s"
-						, bgfx_shader
+						, "Failed to preprocess vertex shader `%.*s`:\n%s"
+						, s32(bgfx_shader_view.length())
+						, bgfx_shader_view.data()
 						, string_stream::c_str(output_vert)
 						);
 				}
@@ -2704,31 +2804,32 @@ namespace shader_resource_internal
 				ec = pr_frag.wait();
 				if (ec != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
-						, "Failed to preprocess fragment shader `%s`:\n%s"
-						, bgfx_shader
+						, "Failed to preprocess fragment shader `%.*s`:\n%s"
+						, s32(bgfx_shader_view.length())
+						, bgfx_shader_view.data()
 						, string_stream::c_str(output_frag)
 						);
 				}
 
 				// Parse sampler stages and metadata from preprocessed shaders.
-				Buffer vs_pp_data = _opts.read_temporary(_vs_pp_path.c_str());
+				Buffer vs_pp_data = _opts.read_temporary(files._vs_pp_path.c_str());
 				array::push_back(vs_pp_data, '\0');
-				Buffer fs_pp_data = _opts.read_temporary(_fs_pp_path.c_str());
+				Buffer fs_pp_data = _opts.read_temporary(files._fs_pp_path.c_str());
 				array::push_back(fs_pp_data, '\0');
 
 				err = parse_sampler_stage_markers(sampler_stages, vs_pp_data, _opts);
 				if (err != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					return err;
 				}
 				err = parse_sampler_stage_markers(sampler_stages, fs_pp_data, _opts);
 				if (err != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					return err;
 				}
 
@@ -2738,13 +2839,13 @@ namespace shader_resource_internal
 					err = parse_metadata(metadata, vs_pp_data, _opts);
 					if (err != 0) {
 						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 						return err;
 					}
 					err = parse_metadata(metadata, fs_pp_data, _opts);
 					if (err != 0) {
 						wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-						delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+						files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 						return err;
 					}
 				}
@@ -2776,18 +2877,19 @@ namespace shader_resource_internal
 
 			if (vector::size(samplers) > ShaderResource::MAX_SAMPLERS) {
 				wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-				delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+				files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 				RETURN_IF_FALSE(SHADER_RESOURCE, false
 					, _opts
-					, "Too many active samplers in shader '%s': %u"
-					, bgfx_shader
+					, "Too many active samplers in shader '%.*s': %u"
+					, s32(bgfx_shader_view.length())
+					, bgfx_shader_view.data()
 					, vector::size(samplers)
 					);
 			}
 
 			if (metadata_only) {
 				// Metadata-only compiles do not spawn the binary jobs or per-target output paths.
-				delete_temp_files();
+				files.delete_temp_files();
 				return 0;
 			}
 
@@ -2802,6 +2904,7 @@ namespace shader_resource_internal
 			bw.write(targets.count);
 
 			for (u32 ti = 0; ti < targets.count; ++ti) {
+				ScopedProfileScope binary_scope("shaderc binary output");
 				const ShadercTarget &target = targets.targets[ti];
 
 				// Check exit code.
@@ -2814,11 +2917,12 @@ namespace shader_resource_internal
 				ec = binary_pr_vert[ti].wait();
 				if (ec != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
-						, "Failed to compile vertex shader `%s` for %s/%s:\n%s"
-						, bgfx_shader
+						, "Failed to compile vertex shader `%.*s` for %s/%s:\n%s"
+						, s32(bgfx_shader_view.length())
+						, bgfx_shader_view.data()
 						, target.platform
 						, target.profile
 						, string_stream::c_str(output_vert)
@@ -2829,11 +2933,12 @@ namespace shader_resource_internal
 				ec = binary_pr_frag[ti].wait();
 				if (ec != 0) {
 					wait_shaderc_processes(_opts, binary_pr_vert, binary_pr_frag, targets.count);
-					delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+					files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 					RETURN_IF_FALSE(SHADER_RESOURCE, false
 						, _opts
-						, "Failed to compile fragment shader `%s` for %s/%s:\n%s"
-						, bgfx_shader
+						, "Failed to compile fragment shader `%.*s` for %s/%s:\n%s"
+						, s32(bgfx_shader_view.length())
+						, bgfx_shader_view.data()
 						, target.platform
 						, target.profile
 						, string_stream::c_str(output_frag)
@@ -2857,7 +2962,7 @@ namespace shader_resource_internal
 				store_metadata_cache(cache_key, _shader_library, _parsed_includes, &cached_uniform_meta, &samplers);
 			}
 
-			delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
+			files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
 
 			return 0;
 		}
@@ -2918,23 +3023,21 @@ namespace shader_resource_internal
 			return (bool)stack_data[stack.size - 1];
 		}
 
-		s32 compile_render_state(RenderState::State &state, const char *render_state, const Vector<DynamicString> &defines)
+		s32 compile_render_state(RenderState::State &state, const DynamicString &render_state, const Vector<DynamicString> &defines)
 		{
-			TempAllocator512 taa;
-			DynamicString key(taa);
-			key = render_state;
 			const RenderState rs_default(default_allocator());
-			const RenderState &rs = hash_map::get(_render_states, key, rs_default);
+			const RenderState &rs = hash_map::get(_render_states, render_state, rs_default);
 
 			// Compile inherited state if any.
 			if (!(rs._inherit == "")) {
 				RETURN_IF_FALSE(SHADER_RESOURCE, hash_map::has(_render_states, rs._inherit)
 					, _opts
-					, "Unknown inherit render state: '%s'"
-					, rs._inherit.c_str()
+					, "Unknown inherit render state: '%.*s'"
+					, s32(rs._inherit.length())
+					, rs._inherit.string_view().data()
 					);
 
-				s32 err = compile_render_state(state, rs._inherit.c_str(), defines);
+				s32 err = compile_render_state(state, rs._inherit, defines);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, _opts);
 			}
 
@@ -2953,7 +3056,9 @@ namespace shader_resource_internal
 				// in the source file.
 				for (u32 i = 0; i < vector::size(rs._expressions); ++i) {
 					const u32 state_index = rs._states_indices[i].index;
-					const char *expr = rs._expressions[state_index].c_str();
+					DynamicString expression(default_allocator());
+					expression = rs._expressions[state_index];
+					const char *expr = expression.c_str();
 					const RenderState::State &cond_state = rs._states[state_index];
 
 					bool eval_result = eval(expr
@@ -2974,8 +3079,25 @@ namespace shader_resource_internal
 		}
 	};
 
+	static void static_compile_items(void *items, u32 count)
+	{
+		StaticCompileItem *jobs = (StaticCompileItem *)items;
+		SJsonError previous_error_callback;
+		void *previous_error_user_data;
+		sjson::get_error_callback(previous_error_callback, previous_error_user_data);
+		sjson::set_error_callback(static_compile_sjson_error, &jobs[0].compiler->_opts);
+		for (u32 i = 0; i < count; ++i) {
+			StaticCompileItem &job = jobs[i];
+			const StaticCompile &sc = job.compiler->_static_compile[job.index];
+			FileBuffer fb(*job.variant);
+			*job.error = job.compiler->compile_variant(fb, NULL, NULL, sc._shader, sc._defines, false);
+		}
+		sjson::set_error_callback(previous_error_callback, previous_error_user_data);
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
+		ScopedProfileScope scope("shader_resource_internal::compile");
 		ShaderCompiler sc(opts);
 		s32 err = sc.parse(opts.source_path(), false);
 		ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
@@ -3014,6 +3136,7 @@ namespace shader_compiler
 		, Vector<ShaderResource::Sampler> *sampler_meta
 		)
 	{
+		ScopedProfileScope scope("shader_compiler::compile_variant");
 		ShaderCompiler sc(opts);
 		Vector<DynamicString> defines_dyn(default_allocator());
 		DynamicString shader_library_path(default_allocator());

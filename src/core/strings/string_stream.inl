@@ -8,6 +8,7 @@
 #include "core/containers/array.inl"
 #include "core/strings/string.inl"
 #include "core/strings/string_stream.h"
+#include "core/strings/string_view.inl"
 #include <stb_sprintf.h>
 
 namespace crown
@@ -74,6 +75,13 @@ inline StringStream &operator<<(StringStream &s, f64 val)
 inline StringStream &operator<<(StringStream &s, const char *str)
 {
 	array::push(s, str, strlen32(str));
+	return s;
+}
+
+inline StringStream &operator<<(StringStream &s, const StringView &str)
+{
+	if (str.length() != 0)
+		array::push(s, str.data(), str.length());
 	return s;
 }
 

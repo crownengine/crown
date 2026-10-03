@@ -30,6 +30,9 @@ namespace sjson
 	/// Sets @a callback as error handler. Pass NULL to restore the default handler.
 	void set_error_callback(SJsonError callback, void *user_data);
 
+	/// Returns the error handler and user data for this thread.
+	void get_error_callback(SJsonError &callback, void *&user_data);
+
 	/// Clears the error flag on this thread.
 	void clear_error();
 
