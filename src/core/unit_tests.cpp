@@ -2130,6 +2130,9 @@ static void test_task_manager()
 		memcpy(task32.data, &destination, sizeof(destination));
 		task16.data[15] = 9;
 		task32.data[31] = 9;
+		tasks.finish_add(a);
+		tasks.finish_add(b);
+		tasks.finish_add(c);
 		tasks.finish_add(gate);
 		tasks.wait(c);
 		ENSURE(seen.load() == 6);
@@ -2173,6 +2176,7 @@ static void test_task_manager()
 		tasks.begin_add(Job::child, &job, 0, parent, gate);
 		tasks.begin_add(Job::child, &job, 0, parent, gate);
 		const u32 after = tasks.begin_add(Job::after, &job, 0, 0, parent);
+		tasks.finish_add(after);
 		tasks.finish_add(parent);
 		tasks.finish_add(gate);
 		tasks.wait(after);
@@ -2201,12 +2205,88 @@ static void test_task_manager()
 		const u32 a = tasks.begin_add(Job::run, &jobs[0], 0, 0, gate);
 		const u32 b = tasks.begin_add(Job::run, &jobs[1], 0, 0, a);
 		const u32 c = tasks.begin_add(Job::run, &jobs[2], 0, 0, b);
+		tasks.finish_add(a);
+		tasks.finish_add(b);
+		tasks.finish_add(c);
 		tasks.finish_add(gate);
 		tasks.wait(c);
 		ENSURE(stage.load() == 3);
 		const u32 d = tasks.begin_add(Job::run, &jobs[3], 0, 0, c);
+		tasks.finish_add(d);
 		tasks.wait(d);
 		ENSURE(stage.load() == 4);
+	}
+	{
+		struct Job
+		{
+			std::atomic_uint *children;
+			std::atomic_uint *observed;
+
+			static void child(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				((Job *)data)->children->fetch_add(1);
+			}
+
+			static void dependent(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.observed->store(job.children->load());
+			}
+		};
+
+		std::atomic_uint children(0);
+		std::atomic_uint observed(0);
+		Job job = { &children, &observed };
+		const u32 gate = tasks.begin_add_empty();
+		const u32 root = tasks.begin_add_empty(0, gate);
+		ENSURE(tasks._objects[root & TASK_INDEX_MASK].pending.load() == 2);
+		tasks.begin_add(Job::child, &job, 0, root);
+		const u32 dependent = tasks.begin_add(Job::dependent, &job, 0, 0, root);
+		tasks.finish_add(root);
+		tasks.finish_add(dependent);
+		tasks.finish_add(gate);
+		tasks.wait(dependent);
+		ENSURE(children.load() == 1);
+		ENSURE(observed.load() == 1);
+	}
+	{
+		struct Job
+		{
+			std::atomic_uint *completed;
+			std::atomic_uint *observed;
+
+			static void prerequisite(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				((Job *)data)->completed->fetch_add(1);
+			}
+
+			static void dependent(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				Job &job = *(Job *)data;
+				job.observed->store(job.completed->load());
+			}
+		};
+
+		std::atomic_uint completed(0);
+		std::atomic_uint observed(0);
+		Job job = { &completed, &observed };
+		const u32 a = tasks.begin_add(Job::prerequisite, &job);
+		const u32 b = tasks.begin_add(Job::prerequisite, &job);
+		const u32 join = tasks.begin_add_empty();
+		tasks.begin_add_empty(join, a);
+		tasks.begin_add_empty(join, b);
+		const u32 dependent = tasks.begin_add(Job::dependent, &job, 0, 0, join);
+		tasks.finish_add(dependent);
+		tasks.finish_add(join);
+		tasks.finish_add(a);
+		tasks.finish_add(b);
+		tasks.wait(dependent);
+		ENSURE(completed.load() == 2);
+		ENSURE(observed.load() == 2);
 	}
 	{
 		struct Job
@@ -2241,6 +2321,7 @@ static void test_task_manager()
 		Job job = { &tasks, &children, &observed };
 		const u32 gate = tasks.begin_add_empty();
 		const u32 work = tasks.begin_add(Job::root, &job, 0, 0, gate);
+		tasks.finish_add(work);
 		const u32 parent = tasks.begin_add_empty();
 		tasks.begin_add(Job::dependent, &job, 0, parent, work);
 		tasks.finish_add(parent);
