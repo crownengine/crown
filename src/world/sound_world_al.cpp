@@ -181,7 +181,7 @@ struct SoundInstance
 	/// Returns the number of samples that have been decoded.
 	u32 decode_samples()
 	{
-		ScopedProfileScope sps(__func__);
+		ScopedProfileScope sps("SoundInstance::decode_samples");
 
 		if (!_stream)
 			return 0;
@@ -334,7 +334,7 @@ struct SoundInstance
 
 	void update()
 	{
-		ScopedProfileScope sps(__func__);
+		ScopedProfileScope sps("SoundInstance::update");
 
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));
@@ -702,7 +702,7 @@ struct SoundWorldImpl
 
 	void update()
 	{
-		ScopedProfileScope sps(__func__);
+		ScopedProfileScope sps("SoundWorldImpl::update");
 
 		TempAllocator256 alloc;
 		Array<SoundInstanceId> to_delete(alloc);

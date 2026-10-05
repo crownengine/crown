@@ -276,7 +276,7 @@ namespace mesh
 	{
 		if (!has_normals(geometry) || !has_uvs(geometry))
 			return;
-		ScopedProfileScope scope(__func__);
+		ScopedProfileScope scope("mesh::generate_tangent_space");
 
 		const u32 num_indices = geometry._position_indices.count;
 		array::resize(output._tangents, num_indices * 3);
@@ -519,7 +519,7 @@ namespace mesh
 
 	static void sphere_job(void *items, u32 count)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("mesh::sphere_job");
 		SphereJob *jobs = (SphereJob *)items;
 		Array<u32> indices(default_allocator());
 		array::resize(indices, jobs[0].num_positions);
@@ -547,7 +547,7 @@ namespace mesh
 	// positions. Each trial's seed depends on the positions and its trial index for stable results.
 	static Sphere sphere(const Geometry &g, const GeometryInfo &geometry)
 	{
-		ScopedProfileScope scope(__func__);
+		ScopedProfileScope scope("mesh::sphere");
 		const u32 MAX_TRIES = 256;
 		Sphere sphere;
 		sphere::reset(sphere);

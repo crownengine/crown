@@ -289,7 +289,7 @@ namespace culling_set
 
 	static void sync_dirty(CullingSet &set, const RenderWorld &rw)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::sync_dirty");
 
 		const RenderWorld::MeshManager::MeshInstanceData &mid = rw._mesh_manager._data;
 		const RenderWorld::SpriteManager::SpriteInstanceData &sid = rw._sprite_manager._data;
@@ -337,7 +337,7 @@ namespace culling_set
 
 	static void cull_spheres(CullingSet &set, const Plane3 *planes, u32 num_planes, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::cull_spheres (planes)");
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -369,7 +369,7 @@ namespace culling_set
 
 	static void cull_spheres(CullingSet &set, const Sphere &sphere, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::cull_spheres (sphere)");
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -385,7 +385,7 @@ namespace culling_set
 
 	static void cull_obbs(CullingSet &set, const Plane3 *planes, u32 num_planes, const u32 *indices, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::cull_obbs (planes)");
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -419,7 +419,7 @@ namespace culling_set
 
 	static void cull_obbs(CullingSet &set, const Matrix4x4 &view_proj, const u32 *indices, u32 offset, u32 count)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::cull_obbs (view_proj)");
 
 		const u32 num = offset + count;
 		for (u32 i = offset; i < num; ++i) {
@@ -471,7 +471,7 @@ namespace culling_set
 		, u32 count
 		)
 	{
-		ENTER_PROFILE_SCOPE(__func__);
+		ENTER_PROFILE_SCOPE("culling_set::cull_contributions");
 
 		const f32 viewport_max_x = viewport.x + viewport.z;
 		const f32 viewport_max_y = viewport.y + viewport.w;
@@ -1661,7 +1661,7 @@ static void mtxYawPitchRoll(f32 *_result
 
 void RenderWorld::sync_cullable_sets()
 {
-	ENTER_PROFILE_SCOPE(__func__);
+	ENTER_PROFILE_SCOPE("RenderWorld::sync_cullable_sets");
 
 	MeshManager::MeshInstanceData &mid = _mesh_manager._data;
 	SpriteManager::SpriteInstanceData &sid = _sprite_manager._data;
