@@ -7,6 +7,7 @@
 
 #include "core/math/types.h"
 #include "core/event_stream.h"
+#include "core/thread/types.h"
 #include "resource/types.h"
 #include "world/types.h"
 
@@ -408,6 +409,9 @@ struct PhysicsWorld
 
 	/// Updates the physics simulation.
 	void update(f32 dt);
+
+	/// Returns a task that updates the physics simulation.
+	TaskData16 update_task(f32 dt);
 
 	/// Rebuilds colliders that reference the reloaded mesh.
 	void reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource);

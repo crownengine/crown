@@ -6,6 +6,7 @@
 #pragma once
 
 #include "core/event_stream.h"
+#include "core/thread/types.h"
 #include "resource/sprite_resource.h"
 #include "world/types.h"
 
@@ -61,7 +62,7 @@ namespace sprite_animation_player
 	bool has(SpriteAnimationPlayer &p, AnimationId anim_id);
 
 	///
-	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, bool reset);
+	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, Mutex &events_mutex, bool reset);
 
 } // namespace sprite_animation_player
 

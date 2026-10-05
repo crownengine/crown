@@ -13,6 +13,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
+#include "core/thread/task_manager.h"
 #include "device/device.h"
 #include "device/log.h"
 #include "lua/lua_environment.h"
@@ -324,7 +325,12 @@ UnitId World::unit_by_name(StringId32 name)
 
 void World::update_animations(f32 dt)
 {
-	_animation_state_machine->update(dt, *_scene_graph);
+	ScopedProfileScope scope("World::update_animations");
+
+	TaskManager &tasks = task_manager();
+	const u32 animation = tasks.begin_add(_animation_state_machine->update_task(dt, *_scene_graph));
+	tasks.finish_add(animation);
+	tasks.wait(animation);
 }
 
 void World::process_world_events()
@@ -447,7 +453,12 @@ void World::update_scene(f32 dt)
 		, array::begin(_changed_world)
 		);
 
-	_physics_world->update(dt);
+	TaskManager &tasks = task_manager();
+	const u32 physics_and_sound_update = tasks.begin_add_empty();
+	tasks.begin_add(_physics_world->update_task(dt), physics_and_sound_update);
+	tasks.begin_add(_sound_world->update_task(), physics_and_sound_update);
+	tasks.finish_add(physics_and_sound_update);
+	tasks.wait(physics_and_sound_update);
 
 	// Process physics transform events.
 	{
@@ -487,8 +498,6 @@ void World::update_scene(f32 dt)
 
 	array::clear(_changed_units);
 	array::clear(_changed_world);
-
-	_sound_world->update();
 
 	// Process collision events.
 	{

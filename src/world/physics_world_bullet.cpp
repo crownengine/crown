@@ -22,6 +22,7 @@
 #include "core/murmur.h"
 #include "core/profiler.h"
 #include "core/profiler.inl"
+#include "core/thread/task_manager.h"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string.h"
 #include "core/strings/string_id.inl"
@@ -4407,6 +4408,38 @@ void PhysicsWorld::update(f32 dt)
 	ScopedProfileScope scope("PhysicsWorld::update");
 
 	_impl->update(dt);
+}
+
+struct PhysicsUpdateData
+{
+	PhysicsWorld *world;
+	f32 dt;
+};
+
+static void update_physics_task(u32 task_id, void *data)
+{
+	CE_UNUSED(task_id);
+	PhysicsUpdateData &task = *(PhysicsUpdateData *)data;
+	task.world->update(task.dt);
+}
+
+TaskData16 PhysicsWorld::update_task(f32 dt)
+{
+	struct PhysicsUpdateTaskData
+	{
+		TaskFunction func;
+		PhysicsUpdateData data;
+	};
+	union PhysicsUpdateTask
+	{
+		TaskData16 task;
+		PhysicsUpdateTaskData data;
+	};
+	CE_STATIC_ASSERT(sizeof(PhysicsUpdateTask) == sizeof(TaskData16));
+
+	PhysicsUpdateTask task = {};
+	task.data = { update_physics_task, { this, dt } };
+	return task.task;
 }
 
 void PhysicsWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)

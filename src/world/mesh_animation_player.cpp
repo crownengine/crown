@@ -11,6 +11,7 @@
 #include "core/math/vector3.inl"
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
+#include "core/thread/scoped_mutex.inl"
 #include "device/device.h"
 #include "resource/mesh_animation_resource.inl"
 #include "resource/resource_manager.h"
@@ -184,7 +185,7 @@ namespace mesh_animation_player
 		return index.index != UINT32_MAX && index.id == anim_id;
 	}
 
-	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset)
+	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, Mutex &events_mutex, bool reset)
 	{
 		ScopedProfileScope scope("mesh_anim_eval");
 
@@ -230,13 +231,16 @@ namespace mesh_animation_player
 		const u16 *event_times = mesh_animation_resource::event_times(anim.animation_resource);
 		const u16 *event_end = event_times + anim.animation_resource->num_events;
 		const StringId32 *event_names = mesh_animation_resource::event_names(anim.animation_resource);
-		while (anim.events_playhead != event_end && *anim.events_playhead <= ts) {
-			UnitEvent ev;
-			ev.unit = unit;
-			ev.name = event_names[anim.events_playhead - event_times];
-			event_stream::write(events, 1, ev);
+		{
+			ScopedMutex sm(events_mutex);
+			while (anim.events_playhead != event_end && *anim.events_playhead <= ts) {
+				UnitEvent ev;
+				ev.unit = unit;
+				ev.name = event_names[anim.events_playhead - event_times];
+				event_stream::write(events, 1, ev);
 
-			++anim.events_playhead;
+				++anim.events_playhead;
+			}
 		}
 
 		if (reset)

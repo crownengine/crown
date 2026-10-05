@@ -8,6 +8,7 @@
 #include "core/math/constants.h"
 #include "core/math/types.h"
 #include "core/memory/types.h"
+#include "core/thread/types.h"
 #include "core/types.h"
 #include "resource/types.h"
 #include "world/types.h"
@@ -85,6 +86,9 @@ struct SoundWorld
 
 	///
 	void update();
+
+	/// Returns a task that updates the sound world.
+	TaskData8 update_task();
 };
 
 namespace sound_world

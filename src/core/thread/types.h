@@ -12,6 +12,11 @@ struct ConditionVariable;
 struct Mutex;
 struct ScopedMutex;
 struct Semaphore;
+struct Task;
+struct TaskData8;
+struct TaskData16;
+struct TaskData32;
+struct TaskManager;
 struct Thread;
 
 } // namespace crown

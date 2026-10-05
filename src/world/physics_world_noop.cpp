@@ -9,6 +9,7 @@
 #include "core/containers/array.inl"
 #include "core/math/constants.h"
 #include "core/memory/memory.inl"
+#include "core/thread/task_manager.h"
 #include "world/physics.h"
 #include "world/physics_world.h"
 
@@ -1159,6 +1160,38 @@ void PhysicsWorld::update_actor_world_poses(const UnitId *begin, const UnitId *e
 void PhysicsWorld::update(f32 dt)
 {
 	_impl->update(dt);
+}
+
+struct PhysicsUpdateData
+{
+	PhysicsWorld *world;
+	f32 dt;
+};
+
+static void update_physics_task(u32 task_id, void *data)
+{
+	CE_UNUSED(task_id);
+	PhysicsUpdateData &task = *(PhysicsUpdateData *)data;
+	task.world->update(task.dt);
+}
+
+TaskData16 PhysicsWorld::update_task(f32 dt)
+{
+	struct PhysicsUpdateTaskData
+	{
+		TaskFunction func;
+		PhysicsUpdateData data;
+	};
+	union PhysicsUpdateTask
+	{
+		TaskData16 task;
+		PhysicsUpdateTaskData data;
+	};
+	CE_STATIC_ASSERT(sizeof(PhysicsUpdateTask) == sizeof(TaskData16));
+
+	PhysicsUpdateTask task = {};
+	task.data = { update_physics_task, { this, dt } };
+	return task.task;
 }
 
 void PhysicsWorld::reload_meshes(const MeshResource *old_resource, const MeshResource *new_resource)

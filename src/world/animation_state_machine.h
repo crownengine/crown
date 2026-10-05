@@ -7,6 +7,8 @@
 
 #include "core/containers/types.h"
 #include "core/event_stream.h"
+#include "core/thread/mutex.h"
+#include "core/thread/types.h"
 #include "resource/state_machine_resource.h"
 #include "resource/types.h"
 #include "world/mesh_animation_player.h"
@@ -39,6 +41,7 @@ struct AnimationStateMachine
 	HashMap<UnitId, u32> _map;
 	Array<Machine> _machines;
 	EventStream _events;
+	Mutex _events_mutex;
 	UnitDestroyCallback _unit_destroy_callback;
 	SpriteAnimationPlayer *_sprite_animation_player;
 	MeshAnimationPlayer *_mesh_animation_player;
@@ -112,7 +115,10 @@ struct AnimationStateMachine
 	void set_state_machine(StateMachineId state_machine, StringId64 state_machine_name);
 
 	///
-	void update(float dt, SceneGraph &scene_graph);
+	void update(float dt, SceneGraph &scene_graph, u32 task_id);
+
+	/// Returns a task that updates all state machines.
+	TaskData32 update_task(float dt, SceneGraph &scene_graph);
 
 	///
 	void unit_destroyed_callback(UnitId unit);

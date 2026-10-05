@@ -5,6 +5,7 @@
 
 #include "core/event_stream.inl"
 #include "core/strings/string_id.inl"
+#include "core/thread/scoped_mutex.inl"
 #include "world/sprite_animation_player.h"
 
 namespace crown
@@ -50,7 +51,7 @@ namespace sprite_animation_player
 		return index.index != UINT32_MAX && index.id == anim_id;
 	}
 
-	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, bool reset)
+	void evaluate(SpriteAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, EventStream &events, Mutex &events_mutex, bool reset)
 	{
 		SpriteAnimationPlayer::Index &index = p._indices[anim_id & ANIMATION_INDEX_MASK];
 		SpriteAnimationPlayer::Animation &a = p._animations[index.index];
@@ -64,18 +65,20 @@ namespace sprite_animation_player
 		SpriteFrameChangeEvent ev;
 		ev.unit      = unit;
 		ev.frame_num = a.frames[frame_index];
-		event_stream::write(events, 0, ev);
-
 		const u16 *event_times = sprite_animation_resource::event_times(a.resource);
 		const u16 *event_end = event_times + a.resource->num_events;
 		const StringId32 *event_names = sprite_animation_resource::event_names(a.resource);
-		while (a.events_playhead != event_end && *a.events_playhead <= ts) {
-			UnitEvent unit_ev;
-			unit_ev.unit = unit;
-			unit_ev.name = event_names[a.events_playhead - event_times];
-			event_stream::write(events, 1, unit_ev);
+		{
+			ScopedMutex sm(events_mutex);
+			event_stream::write(events, 0, ev);
+			while (a.events_playhead != event_end && *a.events_playhead <= ts) {
+				UnitEvent unit_ev;
+				unit_ev.unit = unit;
+				unit_ev.name = event_names[a.events_playhead - event_times];
+				event_stream::write(events, 1, unit_ev);
 
-			++a.events_playhead;
+				++a.events_playhead;
+			}
 		}
 
 		if (reset)

@@ -16,6 +16,7 @@
 #include "core/profiler.h"
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
+#include "core/thread/task_manager.h"
 #include "resource/expression_language.h"
 #include "resource/resource_manager.h"
 #include "resource/mesh_animation_resource.inl"
@@ -351,10 +352,63 @@ void AnimationStateMachine::trigger(StateMachineId state_machine, StringId32 eve
 		CE_FATAL("Unknown transition mode");
 }
 
-void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
+struct AnimationEvaluationData
+{
+	AnimationStateMachine *state_machine;
+	AnimationStateMachine::Machine *machine;
+	SceneGraph *scene_graph;
+	f32 time;
+	bool reset;
+};
+
+static void evaluate_animation_task(u32 task_id, void *data)
+{
+	CE_UNUSED(task_id);
+	AnimationEvaluationData &task = *(AnimationEvaluationData *)data;
+	AnimationStateMachine &state_machine = *task.state_machine;
+	AnimationStateMachine::Machine &machine = *task.machine;
+
+	if (machine.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
+		mesh_animation_player::evaluate(*state_machine._mesh_animation_player
+			, machine.anim_id
+			, task.time
+			, machine.unit
+			, *task.scene_graph
+			, machine.skeleton->bone_lookup
+			, state_machine._events
+			, state_machine._events_mutex
+			, task.reset
+			);
+	} else if (machine.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
+		sprite_animation_player::evaluate(*state_machine._sprite_animation_player
+			, machine.anim_id
+			, task.time
+			, machine.unit
+			, state_machine._events
+			, state_machine._events_mutex
+			, task.reset
+			);
+	}
+}
+
+void AnimationStateMachine::update(float dt, SceneGraph &scene_graph, u32 task_id)
 {
 	ScopedProfileScope scope("AnimationStateMachine::update");
 
+	struct AnimationEvaluationTaskData
+	{
+		TaskFunction func;
+		AnimationEvaluationData data;
+	};
+	union AnimationEvaluationTask
+	{
+		TaskData32 task;
+		AnimationEvaluationTaskData data;
+	};
+	CE_STATIC_ASSERT(sizeof(AnimationEvaluationTask) == sizeof(TaskData32));
+
+	TaskManager &tasks = task_manager();
+	const u32 prepared = tasks.begin_add_empty();
 	f32 stack_data[32];
 	expression_language::Stack stack(stack_data, countof(stack_data));
 	u32 mesh_animations_playing = 0;
@@ -417,25 +471,12 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 		if (!anim_resource)
 			continue;
 
+		AnimationEvaluationTask evaluation = {};
+		evaluation.data = { evaluate_animation_task, { this, &mi, &scene_graph, mi.time, mi.time + dt*speed > mi.time_total } };
+		tasks.begin_add(evaluation.task, task_id, prepared);
 		if (mi.anim_type == RESOURCE_TYPE_MESH_ANIMATION) {
-			mesh_animation_player::evaluate(*_mesh_animation_player
-				, mi.anim_id
-				, mi.time
-				, mi.unit
-				, scene_graph
-				, mi.skeleton->bone_lookup
-				, _events
-				, mi.time + dt*speed > mi.time_total
-				);
 			++mesh_animations_playing;
 		} else if (mi.anim_type == RESOURCE_TYPE_SPRITE_ANIMATION) {
-			sprite_animation_player::evaluate(*_sprite_animation_player
-				, mi.anim_id
-				, mi.time
-				, mi.unit
-				, _events
-				, mi.time + dt*speed > mi.time_total
-				);
 			++sprite_animations_playing;
 		}
 
@@ -463,9 +504,42 @@ void AnimationStateMachine::update(float dt, SceneGraph &scene_graph)
 			}
 		}
 	}
+	tasks.finish_add(prepared);
 
 	RECORD_FLOAT("world.mesh_animations_playing", (f32)mesh_animations_playing);
 	RECORD_FLOAT("world.sprite_animations_playing", (f32)sprite_animations_playing);
+}
+
+struct AnimationUpdateData
+{
+	AnimationStateMachine *state_machine;
+	SceneGraph *scene_graph;
+	f32 dt;
+};
+
+static void update_animation_task(u32 task_id, void *data)
+{
+	AnimationUpdateData &task = *(AnimationUpdateData *)data;
+	task.state_machine->update(task.dt, *task.scene_graph, task_id);
+}
+
+TaskData32 AnimationStateMachine::update_task(float dt, SceneGraph &scene_graph)
+{
+	struct AnimationUpdateTaskData
+	{
+		TaskFunction func;
+		AnimationUpdateData data;
+	};
+	union AnimationUpdateTask
+	{
+		TaskData32 task;
+		AnimationUpdateTaskData data;
+	};
+	CE_STATIC_ASSERT(sizeof(AnimationUpdateTask) == sizeof(TaskData32));
+
+	AnimationUpdateTask task = {};
+	task.data = { update_animation_task, { this, &scene_graph, dt } };
+	return task.task;
 }
 
 void AnimationStateMachine::reload(const StateMachineResource *old_resource, const StateMachineResource *new_resource)

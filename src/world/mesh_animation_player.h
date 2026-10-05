@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/thread/types.h"
 #include "resource/mesh_skeleton_resource.h"
 #include "resource/mesh_animation_resource.h"
 #include "world/types.h" // UnitId
@@ -71,7 +72,7 @@ namespace mesh_animation_player
 	bool has(MeshAnimationPlayer &p, AnimationId anim_id);
 
 	///
-	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, bool reset);
+	void evaluate(MeshAnimationPlayer &p, AnimationId anim_id, f32 time, UnitId unit, SceneGraph &scene_graph, const UnitId *bone_lookup, EventStream &events, Mutex &events_mutex, bool reset);
 
 	///
 	void reload(MeshAnimationPlayer &p, const MeshAnimationResource *old_resource, const MeshAnimationResource *new_resource);
