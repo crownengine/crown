@@ -16,6 +16,7 @@
 #include "core/os.h"
 #include "core/process.h"
 #include "core/profiler.h"
+#include "core/thread/scoped_mutex.inl"
 #include "core/thread/spsc_queue.inl"
 #include "core/thread/task_manager.h"
 #include "core/thread/thread.h"
@@ -1418,6 +1419,7 @@ struct SystemX11 : public System
 	bool detectable_autorepeat;
 	XRRScreenConfiguration *screen_config;
 	::Window window;
+	Mutex window_mutex;
 	Pixmap bitmap;
 	XIM im;
 	XIC ic;
@@ -1636,6 +1638,10 @@ struct SystemX11 : public System
 
 			case PropertyNotify: {
 				if (event.xproperty.atom != net_wm_state)
+					break;
+
+				ScopedMutex sm(window_mutex);
+				if (event.xproperty.window != window)
 					break;
 
 				Atom type;
@@ -1950,6 +1956,7 @@ struct WindowX11 : public Window
 				;
 		}
 
+		ScopedMutex sm(_x11->window_mutex);
 		_x11->window = XCreateWindow(_x11->display
 			, parent_window
 			, x
@@ -1970,7 +1977,10 @@ struct WindowX11 : public Window
 
 	void close() override
 	{
-		XDestroyWindow(_x11->display, _x11->window);
+		ScopedMutex sm(_x11->window_mutex);
+		const ::Window window = _x11->window;
+		_x11->window = None;
+		XDestroyWindow(_x11->display, window);
 	}
 
 	void show() override
