@@ -13,6 +13,7 @@ Changelog
 * Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.
+* Runtime: fixed lighting artifacts.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 
