@@ -162,6 +162,9 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _lights_data_buffer {Array<Vector4>(default_allocator()), Array<Vector4>(default_allocator())}
+	, _lights_cpu(&_lights_data_buffer[0])
+	, _lights_gpu(&_lights_data_buffer[1])
 	, _bones_data_sampler(BGFX_INVALID_HANDLE)
 	, _bones_data_size(BGFX_INVALID_HANDLE)
 	, _bones_texture(BGFX_INVALID_HANDLE)
@@ -471,25 +474,45 @@ void Pipeline::destroy()
 
 void Pipeline::begin_frame()
 {
+	array::clear(*_lights_cpu);
 	_bones_row = 0;
 	array::clear(*_bones_cpu);
 }
 
 void Pipeline::end_frame()
 {
-	if (_bones_row == 0)
-		return;
+	if (array::size(*_lights_cpu) != 0) {
+		exchange(_lights_cpu, _lights_gpu);
+		bgfx::updateTexture2D(_lights_data_texture
+			, 0
+			, 0
+			, 0
+			, 0
+			, (u16)array::size(*_lights_gpu)
+			, 1
+			, bgfx::makeRef(array::begin(*_lights_gpu), array::size(*_lights_gpu) * sizeof(Vector4))
+			);
+	}
 
-	exchange(_bones_cpu, _bones_gpu);
-	bgfx::updateTexture2D(_bones_texture
-		, 0
-		, 0
-		, 0
-		, 0
-		, 64
-		, (u16)_bones_row
-		, bgfx::makeRef(array::begin(*_bones_gpu), array::size(*_bones_gpu) * sizeof(Matrix4x4))
-		);
+	if (_bones_row != 0) {
+		exchange(_bones_cpu, _bones_gpu);
+		bgfx::updateTexture2D(_bones_texture
+			, 0
+			, 0
+			, 0
+			, 0
+			, 64
+			, (u16)_bones_row
+			, bgfx::makeRef(array::begin(*_bones_gpu), array::size(*_bones_gpu) * sizeof(Matrix4x4))
+			);
+	}
+}
+
+void Pipeline::add_lights_data(const Vector4 *data, u32 num)
+{
+	CE_ASSERT(num > 0, "Light data must not be empty");
+	CE_ASSERT(array::size(*_lights_cpu) + num <= MAX_NUM_LIGHTS * LIGHT_SIZE, "Lights data texture capacity exceeded");
+	array::push(*_lights_cpu, data, num);
 }
 
 void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)

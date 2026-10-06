@@ -839,7 +839,6 @@ struct RenderWorld
 		HashMap<UnitId, u32> _map;
 		LightInstanceData _data;
 		bool _dirty;
-		Array<ShaderData> _lights_data; // Shader array to send to GPU.
 		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
 		Array<u32> _local_lights_omni;  // Indices to spot lights that will be rendered this frame.
 		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
@@ -850,7 +849,6 @@ struct RenderWorld
 			, _render_world(rw)
 			, _map(a)
 			, _dirty(true)
-			, _lights_data(a)
 			, _directional_lights(a)
 			, _local_lights_omni(a)
 			, _local_lights_spot(a)

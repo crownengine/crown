@@ -121,6 +121,9 @@ struct Pipeline
 	bgfx::UniformHandle _lights_num;
 	bgfx::UniformHandle _lights_data;
 	bgfx::TextureHandle _lights_data_texture;
+	Array<Vector4> _lights_data_buffer[2]; // bgfx::makeRef needs the source to survive two bgfx::frame() calls.
+	Array<Vector4> *_lights_cpu;
+	Array<Vector4> *_lights_gpu;
 	bgfx::UniformHandle _fog_data;
 	bgfx::UniformHandle _lighting_params;
 
@@ -200,6 +203,9 @@ struct Pipeline
 	///
 	void begin_frame();
 	void end_frame();
+
+	/// Adds @a num Vector4s to the shared lights data buffer.
+	void add_lights_data(const Vector4 *data, u32 num);
 
 	/// Adds a palette to the shared bone atlas.
 	void add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones);
