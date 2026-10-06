@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/containers/types.h"
 #include "resource/material_resource.h"
 #include "resource/render_config_resource.h"
 #include "resource/shader_resource.h"
@@ -19,6 +20,7 @@ struct stbrp_node;
 #define MAX_NUM_SPRITE_LAYERS 8
 #define MAX_NUM_CASCADES 4
 #define LIGHTS_DATA_SLOT 12
+#define BONES_DATA_SLOT 14
 #define CASCADED_SHADOW_MAP_SLOT MATERIAL_MAX_TEXTURE_SLOTS
 #define LOCAL_LIGHTS_SHADOW_MAP_SLOT 11
 #define LOCAL_LIGHTS_MAX_SHADOW_CASTERS 16 // Maximum number of local shadow-casting lights per frame.
@@ -122,6 +124,16 @@ struct Pipeline
 	bgfx::UniformHandle _fog_data;
 	bgfx::UniformHandle _lighting_params;
 
+	// Skinning.
+	bgfx::UniformHandle _bones_data_sampler;
+	bgfx::UniformHandle _bones_data_size;
+	bgfx::TextureHandle _bones_texture;
+	u32 _bones_texture_height;
+	u32 _bones_row;
+	Array<Matrix4x4> _bones_data[2]; // bgfx::makeRef needs the source to survive two bgfx::frame() calls.
+	Array<Matrix4x4> *_bones_cpu;
+	Array<Matrix4x4> *_bones_gpu;
+
 	// Light cookies.
 	bgfx::UniformHandle _u_lights_cookie_atlas;
 	bgfx::TextureHandle _lights_cookie_atlas_texture;
@@ -184,6 +196,16 @@ struct Pipeline
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+
+	///
+	void begin_frame();
+	void end_frame();
+
+	/// Adds a palette to the shared bone atlas.
+	void add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones);
+
+	/// Binds a previously added palette.
+	void bind_bones_data(u32 row);
 
 	///
 	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);

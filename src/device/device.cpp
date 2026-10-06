@@ -507,6 +507,7 @@ bool Device::frame()
 
 	if (CE_UNLIKELY(!_needs_draw))
 		return false;
+	_pipeline->begin_frame();
 
 	const s64 time = time::now();
 	const s64 raw_dt_ticks = time - _last_time;
@@ -602,6 +603,7 @@ bool Device::frame()
 	graph_globals::draw_all(_width, _height);
 	stat_globals::draw(_width, _height);
 
+	_pipeline->end_frame();
 	bgfx::frame();
 
 	if (_needs_draw-- == 1)
@@ -911,6 +913,7 @@ int Device::main_loop()
 	graph_globals::shutdown();
 
 	_pipeline->destroy();
+	bgfx::frame(); // Wait for pending uploads to finish.
 	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
 	save_game_globals::shutdown();

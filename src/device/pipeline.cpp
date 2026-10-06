@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
 #include "core/profiler.inl"
@@ -161,6 +162,14 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _bones_data_sampler(BGFX_INVALID_HANDLE)
+	, _bones_data_size(BGFX_INVALID_HANDLE)
+	, _bones_texture(BGFX_INVALID_HANDLE)
+	, _bones_texture_height(0)
+	, _bones_row(0)
+	, _bones_data {Array<Matrix4x4>(default_allocator()), Array<Matrix4x4>(default_allocator())}
+	, _bones_cpu(&_bones_data[0])
+	, _bones_gpu(&_bones_data[1])
 	, _u_lights_cookie_atlas(BGFX_INVALID_HANDLE)
 	, _lights_cookie_atlas_texture(BGFX_INVALID_HANDLE)
 	, _lights_cookie_atlas_frame_buffer(BGFX_INVALID_HANDLE)
@@ -266,6 +275,11 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 	_fog_data = bgfx::createUniform("u_fog_data", bgfx::UniformType::Vec4, 3);
 	_lighting_params = bgfx::createUniform("u_lighting_params", bgfx::UniformType::Vec4);
+	// Skinning.
+	_bones_data_sampler = bgfx::createUniform("u_bones_data", bgfx::UniformType::Sampler);
+	_bones_data_size = bgfx::createUniform("u_bones_data_size", bgfx::UniformType::Vec4);
+	_bones_texture_height = min(u32(16384), u32(bgfx::getCaps()->limits.maxTextureSize));
+	CE_ASSERT(bgfx::getCaps()->limits.maxTextureSize >= 64, "Bone texture requires a minimum width of 64 texels");
 
 	_u_lights_cookie_atlas = bgfx::createUniform("u_lights_cookie_atlas", bgfx::UniformType::Sampler);
 	if ((_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0
@@ -319,6 +333,14 @@ void Pipeline::destroy()
 	// Unbind all views that may still point to our framebuffers.
 	for (u32 id = 0; id < View::COUNT; ++id)
 		bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+
+	if (bgfx::isValid(_bones_texture))
+		bgfx::destroy(_bones_texture);
+	_bones_texture = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_bones_data_size);
+	_bones_data_size = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_bones_data_sampler);
+	_bones_data_sampler = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_lighting_params);
 	_lighting_params = BGFX_INVALID_HANDLE;
@@ -445,6 +467,64 @@ void Pipeline::destroy()
 		bgfx::destroy(_color_textures[i]);
 		_color_textures[i] = BGFX_INVALID_HANDLE;
 	}
+}
+
+void Pipeline::begin_frame()
+{
+	_bones_row = 0;
+	array::clear(*_bones_cpu);
+}
+
+void Pipeline::end_frame()
+{
+	if (_bones_row == 0)
+		return;
+
+	exchange(_bones_cpu, _bones_gpu);
+	bgfx::updateTexture2D(_bones_texture
+		, 0
+		, 0
+		, 0
+		, 0
+		, 64
+		, (u16)_bones_row
+		, bgfx::makeRef(array::begin(*_bones_gpu), array::size(*_bones_gpu) * sizeof(Matrix4x4))
+		);
+}
+
+void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)
+{
+	CE_ASSERT(num_bones > 0, "Skeleton must contain bones");
+	const u32 num_rows = (num_bones + 15)/16; // Each row stores 16 matrices of four RGBA texels each.
+	CE_ASSERT(_bones_row + num_rows <= _bones_texture_height, "Bone texture capacity exceeded");
+
+	if (!bgfx::isValid(_bones_texture)) {
+		_bones_texture = bgfx::createTexture2D(64
+			, (u16)_bones_texture_height
+			, false
+			, 1
+			, bgfx::TextureFormat::RGBA32F
+			, BGFX_SAMPLER_MIN_POINT
+			| BGFX_SAMPLER_MAG_POINT
+			| BGFX_SAMPLER_MIP_POINT
+			| BGFX_SAMPLER_U_CLAMP
+			| BGFX_SAMPLER_V_CLAMP
+			);
+	}
+
+	row = _bones_row;
+	_bones_row += num_rows;
+	const u32 num_matrices = _bones_row * 16;
+	array::reserve(*_bones_cpu, num_matrices);
+	array::resize(*_bones_cpu, num_matrices);
+	memcpy(array::begin(*_bones_cpu) + row * 16, bones, num_bones * sizeof(bones[0]));
+}
+
+void Pipeline::bind_bones_data(u32 row)
+{
+	const Vector4 texture_size = { 1.0f / _bones_texture_height, f32(row), 0.0f, 0.0f };
+	bgfx::setUniform(_bones_data_size, &texture_size);
+	bgfx::setTexture(BONES_DATA_SLOT, _bones_data_sampler, _bones_texture);
 }
 
 void Pipeline::reset(u16 width, u16 height)

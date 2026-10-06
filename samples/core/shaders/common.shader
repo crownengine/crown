@@ -96,7 +96,7 @@ bgfx_shaders = {
 			#define BGFX_SHADER_H_HEADER_GUARD
 
 			#if !defined(BGFX_CONFIG_MAX_BONES)
-			#	define BGFX_CONFIG_MAX_BONES 192
+			#	define BGFX_CONFIG_MAX_BONES 1
 			#endif // !defined(BGFX_CONFIG_MAX_BONES)
 
 			#ifndef __cplusplus
@@ -1265,25 +1265,39 @@ bgfx_shaders = {
 			}
 
 		#if defined(SKINNING)
+			SAMPLER2D(u_bones_data, 14);
+			uniform vec4 u_bones_data_size; // x = inverse texture height, y = palette row.
+
+			mat4 bone_data(float index)
+			{
+				// Each row stores 16 matrices of four RGBA texels each.
+				float bone_row = floor(index / 16.0);
+				float x_coord = ((index - bone_row * 16.0) * 4.0 + 0.5) / 64.0;
+				float y = (u_bones_data_size.y + bone_row + 0.5) * u_bones_data_size.x;
+				vec4 x = texture2DLod(u_bones_data, vec2(x_coord, y), 0.0);
+				vec4 y_axis = texture2DLod(u_bones_data, vec2(x_coord + 1.0/64.0, y), 0.0);
+				vec4 z = texture2DLod(u_bones_data, vec2(x_coord + 2.0/64.0, y), 0.0);
+				vec4 t = texture2DLod(u_bones_data, vec2(x_coord + 3.0/64.0, y), 0.0);
+				return mtxFromCols(x, y_axis, z, t);
+			}
+
+			mat4 skinning_transform(vec4 indices, vec4 weight)
+			{
+				return weight.x * bone_data(indices.x)
+					+ weight.y * bone_data(indices.y)
+					+ weight.z * bone_data(indices.z)
+					+ weight.w * bone_data(indices.w)
+					;
+			}
+
 			vec4 skin_skinned(vec3 vertex, vec4 indices, vec4 weight)
 			{
-				vec4 position = vec4(vertex, 1.0);
-				return weight.x * mul(u_model[int(indices.x)], position)
-					+ weight.y * mul(u_model[int(indices.y)], position)
-					+ weight.z * mul(u_model[int(indices.z)], position)
-					+ weight.w * mul(u_model[int(indices.w)], position)
-					;
+				return mul(skinning_transform(indices, weight), vec4(vertex, 1.0));
 			}
 
 			mat3 skin_normal_transform_skinned(vec4 indices, vec4 weight)
 			{
-				mat4 skinning_transform;
-				skinning_transform  = weight.x * u_model[int(indices.x)];
-				skinning_transform += weight.y * u_model[int(indices.y)];
-				skinning_transform += weight.z * u_model[int(indices.z)];
-				skinning_transform += weight.w * u_model[int(indices.w)];
-
-				return cofactor(mul(u_model[0], skinning_transform));
+				return cofactor(mul(u_model[0], skinning_transform(indices, weight)));
 			}
 
 		#	define skin(_vertex) skin_skinned(_vertex, a_indices, a_weight)

@@ -517,7 +517,7 @@ struct RenderWorld
 			UnitId *lod_group_unit; ///< Unit that owns this mesh's LOD group, or invalid.
 			u32 *flags;
 			u32 *prev_flags;
-			u32 *matrix_cache;
+			u32 *draw_cache; ///< BGFX transform index if unskinned, bone texture row if skinned.
 			StringId32 *geometry_name; ///< Needed for animation bounds in all builds.
 		};
 

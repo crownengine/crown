@@ -23,6 +23,7 @@
 #include "device/pipeline.h"
 #include "resource/mesh_resource.h"
 #include "resource/mesh_animation_resource.inl"
+#include "resource/mesh_skeleton_resource.h"
 #include "resource/render_config_resource.h"
 #include "resource/resource_manager.h"
 #include "resource/sprite_resource.inl"
@@ -709,6 +710,8 @@ void RenderWorld::mesh_set_skeleton(MeshId mesh, const AnimationSkeletonInstance
 		return;
 	}
 
+	if (skeleton != NULL)
+		CE_ASSERT(skeleton->num_bones > 0 && skeleton->num_bones <= MESH_SKELETON_MAX_BONES, "Invalid skeleton size");
 	_mesh_manager._data.skeleton[mesh_i] = skeleton;
 
 	if (skeleton != NULL) {
@@ -1829,8 +1832,8 @@ void RenderWorld::render(f32 dt
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
 
-	// Reset matrix cache.
-	memset(_mesh_manager._data.matrix_cache, UINT32_MAX, sizeof(u32)*_mesh_manager._data.size);
+	// Reset the cached transform indices and bone texture rows.
+	memset(_mesh_manager._data.draw_cache, UINT32_MAX, sizeof(u32)*_mesh_manager._data.size);
 
 	const bgfx::Caps *caps = bgfx::getCaps();
 	Matrix4x4 inv_view = view;
@@ -2817,8 +2820,8 @@ void RenderWorld::MeshManager::allocate(u32 num, u32 num_bindings)
 	new_data.lod_group_unit = (UnitId *             )memory::align_top(new_data.skeleton + num, alignof(UnitId));
 	new_data.flags         = (u32 *                )memory::align_top(new_data.lod_group_unit + num, alignof(u32));
 	new_data.prev_flags    = (u32 *                )memory::align_top(new_data.flags + num, alignof(u32));
-	new_data.matrix_cache  = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
-	new_data.geometry_name = (StringId32 *         )memory::align_top(new_data.matrix_cache + num, alignof(StringId32));
+	new_data.draw_cache    = (u32 *                )memory::align_top(new_data.prev_flags + num, alignof(u32));
+	new_data.geometry_name = (StringId32 *         )memory::align_top(new_data.draw_cache + num, alignof(StringId32));
 	new_data.bindings      = (MaterialBinding *    )memory::align_top(new_data.geometry_name + num, alignof(MaterialBinding));
 	new_data.slots         = (StringId32 *         )memory::align_top(new_data.bindings + num_bindings, alignof(StringId32));
 
@@ -2833,7 +2836,7 @@ void RenderWorld::MeshManager::allocate(u32 num, u32 num_bindings)
 	memcpy(new_data.lod_group_unit, _data.lod_group_unit, _data.size * sizeof(UnitId));
 	memcpy(new_data.flags, _data.flags, _data.size * sizeof(u32));
 	memcpy(new_data.prev_flags, _data.prev_flags, _data.size * sizeof(u32));
-	memcpy(new_data.matrix_cache, _data.matrix_cache, _data.size * sizeof(u32));
+	memcpy(new_data.draw_cache, _data.draw_cache, _data.size * sizeof(u32));
 	memcpy(new_data.geometry_name, _data.geometry_name, _data.size * sizeof(StringId32));
 	memcpy(new_data.bindings, _data.bindings, _data.bindings_size * sizeof(MaterialBinding));
 	memcpy(new_data.slots, _data.slots, _data.bindings_size * sizeof(StringId32));
@@ -2923,7 +2926,7 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		_data.lod_group_unit[last] = UNIT_INVALID;
 		_data.flags[last]    = meshes->flags | RenderableFlags::DIRTY;
 		_data.prev_flags[last] = 0;
-		_data.matrix_cache[last] = UINT32_MAX;
+		_data.draw_cache[last] = UINT32_MAX;
 		_data.geometry_name[last] = meshes->geometry_name;
 		_dirty = true;
 
@@ -3046,7 +3049,7 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.lod_group_unit[mesh_i] = _data.lod_group_unit[last];
 	_data.flags[mesh_i]    = _data.flags[last];
 	_data.prev_flags[mesh_i] = _data.prev_flags[last];
-	_data.matrix_cache[mesh_i] = _data.matrix_cache[last];
+	_data.draw_cache[mesh_i] = _data.draw_cache[last];
 	_data.geometry_name[mesh_i] = _data.geometry_name[last];
 
 	if (mesh_i != last) {
@@ -3086,7 +3089,7 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 	exchange(_data.lod_group_unit[inst_a], _data.lod_group_unit[inst_b]);
 	exchange(_data.flags[inst_a],    _data.flags[inst_b]);
 	exchange(_data.prev_flags[inst_a], _data.prev_flags[inst_b]);
-	exchange(_data.matrix_cache[inst_a], _data.matrix_cache[inst_b]);
+	exchange(_data.draw_cache[inst_a], _data.draw_cache[inst_b]);
 	exchange(_data.geometry_name[inst_a], _data.geometry_name[inst_b]);
 
 	_indices[id_a.i & MESH_INDEX_MASK].index = inst_b;
@@ -3236,24 +3239,25 @@ void RenderWorld::MeshManager::set_instance_data(u32 ii, SceneGraph &scene_graph
 {
 	if (_data.skeleton[ii] != NULL) {
 		AnimationSkeletonInstance *skeleton = (AnimationSkeletonInstance *)_data.skeleton[ii];
-
-		for (u32 b = 0; b < skeleton->num_bones; ++b) {
-			TransformId bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
-			skeleton->bones[b] = mesh_animation::skinning_transform(skeleton->offsets[b]
-				, scene_graph.world_pose(bone_ti)
-				);
-		}
-
 		TransformId ti = scene_graph.instance(_data.unit[ii]);
 		Matrix4x4 world_pose = scene_graph.world_pose(ti);
-		skeleton->bones[0] = world_pose;
-
-		bgfx::setTransform(skeleton->bones, skeleton->num_bones);
+		if (_data.draw_cache[ii] == UINT32_MAX) {
+			for (u32 b = 0; b < skeleton->num_bones; ++b) {
+				TransformId bone_ti = scene_graph.instance(skeleton->bone_lookup[b]);
+				skeleton->bones[b] = mesh_animation::skinning_transform(skeleton->offsets[b]
+					, scene_graph.world_pose(bone_ti)
+					);
+			}
+			skeleton->bones[0] = world_pose;
+			_render_world->_pipeline->add_bones_data(_data.draw_cache[ii], skeleton->bones, skeleton->num_bones);
+		}
+		_render_world->_pipeline->bind_bones_data(_data.draw_cache[ii]);
+		bgfx::setTransform(to_float_ptr(world_pose));
 	} else {
-		if (_data.matrix_cache[ii] == UINT32_MAX)
-			_data.matrix_cache[ii] = bgfx::setTransform(to_float_ptr(_data.world[ii]));
+		if (_data.draw_cache[ii] == UINT32_MAX)
+			_data.draw_cache[ii] = bgfx::setTransform(to_float_ptr(_data.world[ii]));
 		else
-			bgfx::setTransform(_data.matrix_cache[ii]);
+			bgfx::setTransform(_data.draw_cache[ii]);
 	}
 
 	bgfx::setVertexBuffer(0, _data.mesh[ii].vbh);
