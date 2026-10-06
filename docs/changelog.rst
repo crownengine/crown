@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Runtime: Linux: fix a Window-related race at shutdown.
+* Runtime: fixed lighting artifacts.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 
 .. _v0.65.1:

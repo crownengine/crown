@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "core/containers/array.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
 #include "core/strings/string_id.inl"
@@ -160,6 +161,9 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _sun_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_texture(BGFX_INVALID_HANDLE)
 	, _local_lights_shadow_map_frame_buffer(BGFX_INVALID_HANDLE)
+	, _lights_data_buffer {Array<Vector4>(default_allocator()), Array<Vector4>(default_allocator())}
+	, _lights_cpu(&_lights_data_buffer[0])
+	, _lights_gpu(&_lights_data_buffer[1])
 	, _u_lights_cookie_atlas(BGFX_INVALID_HANDLE)
 	, _lights_cookie_atlas_texture(BGFX_INVALID_HANDLE)
 	, _lights_cookie_atlas_frame_buffer(BGFX_INVALID_HANDLE)
@@ -444,6 +448,34 @@ void Pipeline::destroy()
 		bgfx::destroy(_color_textures[i]);
 		_color_textures[i] = BGFX_INVALID_HANDLE;
 	}
+}
+
+void Pipeline::begin_frame()
+{
+	array::clear(*_lights_cpu);
+}
+
+void Pipeline::end_frame()
+{
+	if (array::size(*_lights_cpu) != 0) {
+		exchange(_lights_cpu, _lights_gpu);
+		bgfx::updateTexture2D(_lights_data_texture
+			, 0
+			, 0
+			, 0
+			, 0
+			, (u16)array::size(*_lights_gpu)
+			, 1
+			, bgfx::makeRef(array::begin(*_lights_gpu), array::size(*_lights_gpu) * sizeof(Vector4))
+			);
+	}
+}
+
+void Pipeline::add_lights_data(const Vector4 *data, u32 num)
+{
+	CE_ASSERT(num > 0, "Light data must not be empty");
+	CE_ASSERT(array::size(*_lights_cpu) + num <= MAX_NUM_LIGHTS * LIGHT_SIZE, "Lights data texture capacity exceeded");
+	array::push(*_lights_cpu, data, num);
 }
 
 void Pipeline::reset(u16 width, u16 height)

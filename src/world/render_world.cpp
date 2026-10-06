@@ -1945,7 +1945,6 @@ void RenderWorld::render(f32 dt
 	array::clear(lm._directional_lights);
 	array::clear(lm._local_lights_spot);
 	array::clear(lm._local_lights_omni);
-	array::clear(lm._lights_data);
 	u32 num_lights = 0; // Total lights to render this frame.
 
 	// Collect indices to all directional lights.
@@ -2151,7 +2150,7 @@ void RenderWorld::render(f32 dt
 
 		lid.shader[L].cast_shadows = f32(render_shadow);
 
-		array::push_back(lm._lights_data, lid.shader[L]);
+		_pipeline->add_lights_data((const Vector4 *)&lid.shader[L], LIGHT_SIZE);
 		++num_lights;
 	}
 
@@ -2433,9 +2432,9 @@ void RenderWorld::render(f32 dt
 		}
 
 		for (u32 i = 0; i < array::size(lm._local_lights_omni); ++i)
-			array::push_back(lm._lights_data, lid.shader[lm._local_lights_omni[i]]);
+			_pipeline->add_lights_data((const Vector4 *)&lid.shader[lm._local_lights_omni[i]], LIGHT_SIZE);
 		for (u32 i = 0; i < array::size(lm._local_lights_spot); ++i)
-			array::push_back(lm._lights_data, lid.shader[lm._local_lights_spot[i]]);
+			_pipeline->add_lights_data((const Vector4 *)&lid.shader[lm._local_lights_spot[i]], LIGHT_SIZE);
 	}
 	RECORD_FLOAT("world.visible_lights", f32(num_lights));
 
@@ -2446,16 +2445,6 @@ void RenderWorld::render(f32 dt
 	h.z = (f32)array::size(lm._local_lights_spot);
 	h.w = 0.0f;
 	bgfx::setUniform(_pipeline->_lights_num, &h);
-	CE_ENSURE(array::size(lm._lights_data) <= MAX_NUM_LIGHTS);
-	bgfx::updateTexture2D(_pipeline->_lights_data_texture
-		, 0 // layer
-		, 0 // mip
-		, 0 // x
-		, 0 // y
-		, LIGHT_SIZE * array::size(lm._lights_data) // width
-		, 1 // height
-		, bgfx::makeRef(array::begin(lm._lights_data), array::size(lm._lights_data)*sizeof(LightManager::ShaderData))
-		);
 	bgfx::touch(View::LIGHTS);
 
 	_pipeline->_bloom = _bloom_desc;
