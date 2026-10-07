@@ -6,6 +6,10 @@ Changelog
 :ref:`0.66.0 --- DD MMM YYYY <v0.66.0>`
 ---------------------------------------
 
+**New Features and Improvements**
+
+* HTML5: added support to wasm64.
+
 **Fixes**
 
 * Tools: texture settings now expose ``mip_skip_largest`` to skip the largest mip levels.

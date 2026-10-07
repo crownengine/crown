@@ -239,11 +239,13 @@ Editor Options
     Overwrite an existing package directory.
 
 ``--arch <arch>``
-    Android architecture.
+    Android or HTML5 architecture.
     Possible values for <arch>:
 
     * ``arm``
     * ``arm64``
+    * ``wasm``
+    * ``wasm64``
 
 ``--app-id <id>``
     Android application identifier.
