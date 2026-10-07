@@ -48,7 +48,8 @@ public enum TargetArch
 	X64,
 	ARM,
 	ARM64,
-	WASM
+	WASM,
+	WASM64
 }
 
 public struct DeployOptions

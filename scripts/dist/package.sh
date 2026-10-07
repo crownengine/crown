@@ -55,7 +55,7 @@ if [ "${PLATFORM}" = "android" ]; then
 		exit 1
 	fi
 elif [ "${PLATFORM}" = "html5" ]; then
-	if [ "${ARCH}" != "wasm" ]; then
+	if [ "${ARCH}" != "wasm" ] && [ "${ARCH}" != "wasm64" ]; then
 		echo "Invalid architecture ${ARCH}"
 		exit 1
 	fi
@@ -103,8 +103,8 @@ if [ "${PLATFORM}" = "android" ]; then
 	make android-"${ARCH}"-development MAKE_JOBS="${BUILD_JOBS}"
 	make android-"${ARCH}"-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "html5" ]; then
-	make wasm-development MAKE_JOBS="${BUILD_JOBS}"
-	make wasm-release MAKE_JOBS="${BUILD_JOBS}"
+	make "${ARCH}"-development MAKE_JOBS="${BUILD_JOBS}"
+	make "${ARCH}"-release MAKE_JOBS="${BUILD_JOBS}"
 elif [ "${PLATFORM}" = "linux" ]; then
 	make docs
 	make linux-development32 MAKE_JOBS="${BUILD_JOBS}"

@@ -98,10 +98,20 @@ build/linux32/bin/luac: \
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release32
 	-@install -m775 -D $@-release $@
 
+build/linux64/bin/luac: \
+	build/projects/linux
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux luac config=release64
+	install -m775 -D $@-release $@
+
 build/mingw32/bin/luac: \
 	build/projects/mingw32
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw luac config=release32
 	-@install -m775 -D $@-release $@
+
+build/mingw64/bin/luac.exe: \
+	build/projects/mingw
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw luac config=release64
+	install -m775 -D build/mingw64/bin/luac-release.exe $@
 
 build/linux64/bin/texturec: \
 	build/projects/linux
@@ -183,18 +193,21 @@ linux-development32:         \
 linux-debug64:                 \
 	build/projects/linux       \
 	build/linux64/bin/luajit   \
+	build/linux64/bin/luac     \
 	build/linux64/bin/texturec \
 	build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=debug64
 linux-development64:           \
 	build/projects/linux       \
 	build/linux64/bin/luajit   \
+	build/linux64/bin/luac     \
 	build/linux64/bin/texturec \
 	build/linux64/bin/shaderc
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=development64
 linux-release64:         \
 	build/projects/linux \
-	build/linux64/bin/luajit
+	build/linux64/bin/luajit \
+	build/linux64/bin/luac
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/linux crown config=release64
 linux:                  \
 	linux-debug64       \
@@ -217,6 +230,22 @@ wasm:                \
 	wasm-development \
 	wasm-release
 
+build/projects/wasm64:
+	"$(GENIE)" --no-luajit --gfxapi=gles3 --compiler=wasm64 gmake
+wasm64-debug: \
+	build/projects/wasm64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm64 crown config=debug
+wasm64-development: \
+	build/projects/wasm64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm64 crown config=development
+wasm64-release: \
+	build/projects/wasm64
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/wasm64 crown config=release
+wasm64:                  \
+	wasm64-debug       \
+	wasm64-development \
+	wasm64-release
+
 build/projects/mingw32:
 	"$(GENIE)" --gfxapi=d3d11 --with-tools --compiler=mingw-gcc --with-32bit-compiler gmake
 build/projects/mingw:
@@ -232,18 +261,21 @@ mingw-development32:       \
 mingw-debug64:                     \
 	build/projects/mingw           \
 	build/mingw64/bin/luajit.exe   \
+	build/mingw64/bin/luac.exe     \
 	build/mingw64/bin/texturec.exe \
 	build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=debug64
 mingw-development64:               \
 	build/projects/mingw           \
 	build/mingw64/bin/luajit.exe   \
+	build/mingw64/bin/luac.exe     \
 	build/mingw64/bin/texturec.exe \
 	build/mingw64/bin/shaderc.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=development64
 mingw-release64:         \
 	build/projects/mingw \
-	build/mingw64/bin/luajit.exe
+	build/mingw64/bin/luajit.exe \
+	build/mingw64/bin/luac.exe
 	"$(MAKE)" -j$(MAKE_JOBS) -R -C build/projects/mingw crown config=release64
 mingw:                  \
 	mingw-debug64       \

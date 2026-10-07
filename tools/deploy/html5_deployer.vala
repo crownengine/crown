@@ -92,6 +92,7 @@ public class HTML5Deployer
 	public async int create_package(Project project
 		, GLib.File package_dir
 		, TargetConfig config
+		, TargetArch arch
 		, string app_title
 		, string html5_index_path
 		, string exe_name
@@ -102,6 +103,18 @@ public class HTML5Deployer
 		logi("Creating HTML5 package...");
 
 		string package_path = package_dir.get_path();
+		string dc_platform = null;
+		string bin_folder = null;
+		if (arch == TargetArch.WASM) {
+			dc_platform = "html5";
+			bin_folder = "wasm";
+		} else if (arch == TargetArch.WASM64) {
+			dc_platform = "html5-wasm64";
+			bin_folder = "wasm64";
+		} else {
+			loge("Invalid architecture");
+			return -1;
+		}
 
 		// Create data bundle.
 		try {
@@ -121,7 +134,7 @@ public class HTML5Deployer
 				"--compile",
 				"--bundle",
 				"--platform",
-				"html5"
+				dc_platform
 			};
 
 			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
@@ -134,7 +147,7 @@ public class HTML5Deployer
 
 			// Copy runtime executables to package folder.
 			var runtime_name_src = "crown-%s".printf(deploy_config_name(config));
-			var runtime_path_src = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", "wasm", "bin", runtime_name_src);
+			var runtime_path_src = Path.build_path(Path.DIR_SEPARATOR_S, "..", "..", bin_folder, "bin", runtime_name_src);
 			var runtime_name_dst = Path.build_filename(package_path, runtime_name_src);
 
 			var src = File.new_for_path(runtime_path_src + ".js");

@@ -134,6 +134,26 @@ static void test_memory()
 		ENSURE(p != NULL);
 		scratch.deallocate(p);
 	}
+#if defined(__wasm64__)
+	ENSURE(sizeof(void *) == 8);
+
+	const size_t block_size = 1024u*1024u*1024u;
+	char *blocks[5];
+	for (u32 ii = 0; ii < countof(blocks); ++ii) {
+		blocks[ii] = (char *)malloc(block_size);
+		ENSURE(blocks[ii] != NULL);
+		printf("block %u: %p - %p\n", ii, blocks[ii], blocks[ii] + block_size - 1);
+		blocks[ii][0] = char(ii);
+		blocks[ii][block_size - 1] = char(ii + 1);
+	}
+
+	ENSURE((uintptr_t)blocks[4] > 0xffffffffu);
+	for (u32 ii = 0; ii < countof(blocks); ++ii) {
+		ENSURE(blocks[ii][0] == char(ii));
+		ENSURE(blocks[ii][block_size - 1] == char(ii + 1));
+		free(blocks[ii]);
+	}
+#endif // if defined(__wasm64__)
 	memory_globals::shutdown();
 }
 

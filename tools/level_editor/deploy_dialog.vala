@@ -276,6 +276,8 @@ public class DeployDialog : Gtk.Window
 	public Gtk.Button _html5_deploy_button;
 	public InputFile _html5_output_path;
 	public InputEnum _html5_config;
+	public InputBool _html5_wasm;
+	public InputBool _html5_wasm64;
 	public InputString _html5_app_title;
 	public InputFile _html5_index;
 	public PropertyGridSet _html5_set;
@@ -623,18 +625,36 @@ public class DeployDialog : Gtk.Window
 				string? index_html_path_or_null = _html5_index.value;
 				string index_html_path = index_html_path_or_null == null ? "" : (string)index_html_path_or_null;
 
-				// Create the package.
-				DeployOptions options = DeployOptions();
-				options.platform = TargetPlatform.HTML5;
-				options.output_dir = output_path;
-				options.config = (TargetConfig)int.parse(_html5_config.value);
-				options.app_title = app_title;
-				options.index_html = index_html_path;
-				deploy(options);
+				TargetArch[] archs =
+				{
+					TargetArch.WASM,
+					TargetArch.WASM64
+				};
+
+				for (int ii = 0; ii < archs.length; ++ii) {
+					if (archs[ii] == TargetArch.WASM && !_html5_wasm.value)
+						continue;
+					if (archs[ii] == TargetArch.WASM64 && !_html5_wasm64.value)
+						continue;
+
+					// Create the package.
+					DeployOptions options = DeployOptions();
+					options.platform = TargetPlatform.HTML5;
+					options.output_dir = output_path;
+					options.config = (TargetConfig)int.parse(_html5_config.value);
+					options.arch = archs[ii];
+					options.app_title = app_title;
+					options.index_html = index_html_path;
+					deploy(options);
+				}
 			});
 
 		_html5_output_path = new InputFile(Gtk.FileChooserAction.SELECT_FOLDER);
 		_html5_config = make_deploy_config_combo();
+		_html5_wasm = new InputBool();
+		_html5_wasm.value = true;
+		_html5_wasm64 = new InputBool();
+		_html5_wasm64.value = false;
 		_html5_app_title = new InputString();
 		_html5_app_title._entry.placeholder_text = _("My Application");
 		_html5_app_title.value = _project.name();
@@ -708,6 +728,8 @@ public class DeployDialog : Gtk.Window
 		cv.column_homogeneous = true;
 		cv.add_row(_("Destination"), _html5_output_path);
 		cv.add_row(_("Config"), _html5_config);
+		cv.add_row("wasm", _html5_wasm);
+		cv.add_row("wasm64", _html5_wasm64);
 		_html5_set.add_property_grid(cv, _("Output"));
 
 		// HTML5 Application.

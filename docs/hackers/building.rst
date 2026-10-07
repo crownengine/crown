@@ -175,6 +175,7 @@ HTML5
 .. code::
 
 	make wasm-release MAKE_JOBS=4
+	make wasm64-release MAKE_JOBS=4
 
 .. _build_linux:
 
