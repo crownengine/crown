@@ -63,6 +63,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v6
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
     - name: prepare
       run: |
         git clone https://github.com/emscripten-core/emsdk.git
@@ -90,6 +93,27 @@ jobs:
     - name: wasm-test-release
       run: |
         cd ./build/wasm/bin && node crown-release --run-unit-tests
+    - name: wasm64-make-debug
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=4 wasm64-debug
+    - name: wasm64-test-debug
+      run: |
+        cd ./build/wasm64/bin && node crown-debug --run-unit-tests
+    - name: wasm64-make-development
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=4 wasm64-development
+    - name: wasm64-test-development
+      run: |
+        cd ./build/wasm64/bin && node crown-development --run-unit-tests
+    - name: wasm64-make-release
+      run: |
+        export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
+        make MAKE_JOBS=4 wasm64-release
+    - name: wasm64-test-release
+      run: |
+        cd ./build/wasm64/bin && node crown-release --run-unit-tests
   linux:
     runs-on: ubuntu-22.04
     steps:

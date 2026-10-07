@@ -999,9 +999,11 @@ public struct CommandLineOptions
 			+ "      debug\n"
 			+ "  --app-title <title>              Application title.\n"
 			+ "  --force                          Overwrite an existing package directory.\n"
-			+ "  --arch <arch>                    Android architecture.\n"
+			+ "  --arch <arch>                    Android or HTML5 architecture.\n"
 			+ "      arm\n"
 			+ "      arm64\n"
+			+ "      wasm\n"
+			+ "      wasm64\n"
 			+ "  --app-id <id>                    Android application identifier.\n"
 			+ "  --app-version-code <number>      Android version code.\n"
 			+ "  --app-version-name <name>        Android version name.\n"
@@ -1074,7 +1076,7 @@ public struct CommandLineOptions
 			{ "config",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_config,             "Deploy config.",                        "config"   },
 			{ "app-title",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_title,          "Application title.",                    "title"    },
 			{ "force",              0,   0, GLib.OptionArg.NONE,     ref option_deploy_force,              "Overwrite package directory.",          null       },
-			{ "arch",               0,   0, GLib.OptionArg.STRING,   ref option_deploy_arch,               "Android architecture.",                 "arch"     },
+			{ "arch",               0,   0, GLib.OptionArg.STRING,   ref option_deploy_arch,               "Android or HTML5 architecture.",        "arch"     },
 			{ "app-id",             0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_id,             "Android application identifier.",       "id"       },
 			{ "app-version-code",   0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_version_code,   "Android version code.",                 "number"   },
 			{ "app-version-name",   0,   0, GLib.OptionArg.STRING,   ref option_deploy_app_version_name,   "Android version name.",                 "name"     },
@@ -1260,15 +1262,32 @@ public struct CommandLineOptions
 			deploy.force = option_deploy_force;
 
 			if (option_deploy_arch != null) {
-				switch (option_deploy_arch) {
-				case "arm":
-					deploy.arch = TargetArch.ARM;
-					break;
-				case "arm64":
-					deploy.arch = TargetArch.ARM64;
-					break;
-				default:
-					error = "Unknown arch.";
+				if (deploy.platform == TargetPlatform.ANDROID) {
+					switch (option_deploy_arch) {
+					case "arm":
+						deploy.arch = TargetArch.ARM;
+						break;
+					case "arm64":
+						deploy.arch = TargetArch.ARM64;
+						break;
+					default:
+						error = "Unknown Android arch.";
+						return false;
+					}
+				} else if (deploy.platform == TargetPlatform.HTML5) {
+					switch (option_deploy_arch) {
+					case "wasm":
+						deploy.arch = TargetArch.WASM;
+						break;
+					case "wasm64":
+						deploy.arch = TargetArch.WASM64;
+						break;
+					default:
+						error = "Unknown HTML5 arch.";
+						return false;
+					}
+				} else {
+					error = "Architecture cannot be specified for this platform.";
 					return false;
 				}
 			}

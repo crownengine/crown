@@ -46,6 +46,7 @@ struct Platform
 		ANDROID,
 		ANDROID_ARM64,
 		HTML5,
+		HTML5_WASM64,
 		LINUX,
 		WINDOWS,
 

@@ -15,7 +15,7 @@ project "lua"
 			"-Wno-implicit-fallthrough",
 		}
 
-	configuration { "wasm" }
+	configuration { "wasm or wasm64" }
 		buildoptions {
 			"-Wno-empty-body",
 		}

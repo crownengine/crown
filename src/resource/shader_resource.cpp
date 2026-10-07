@@ -82,6 +82,7 @@ namespace shader_resource_internal
 		{ "android", "300_es", ShaderBackend::ESSL  }, // Platform::ANDROID
 		{ "android", "300_es", ShaderBackend::ESSL  }, // Platform::ANDROID_ARM64
 		{ "asm.js",  "300_es", ShaderBackend::ESSL  }, // Platform::HTML5
+		{ "asm.js",  "300_es", ShaderBackend::ESSL  }, // Platform::HTML5_WASM64
 		{ "linux",   "spirv",  ShaderBackend::SPIRV }, // Platform::LINUX
 		{ "windows", "s_4_0",  ShaderBackend::HLSL  }  // Platform::WINDOWS
 	};

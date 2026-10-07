@@ -32,6 +32,8 @@ public string deploy_arch_name(TargetArch arch)
 		return "arm64";
 	case TargetArch.WASM:
 		return "wasm";
+	case TargetArch.WASM64:
+		return "wasm64";
 	default:
 		return "unknown";
 	}
@@ -90,7 +92,7 @@ public class DeployPackage
 			_app_identifier = options.app_id + "-" + options.app_version_name;
 			_arch = options.arch;
 		} else if (options.platform == TargetPlatform.HTML5) {
-			_arch = TargetArch.WASM;
+			_arch = options.arch == TargetArch.WASM64 ? TargetArch.WASM64 : TargetArch.WASM;
 		}
 
 		_package_dir = deploy_package_dir(out _config_path
@@ -156,6 +158,7 @@ public class DeployPackage
 			status = yield deployer.create_package(_project
 				, _package_dir
 				, _options.config
+				, _arch
 				, _app_title
 				, _options.index_html
 				, _exe_name

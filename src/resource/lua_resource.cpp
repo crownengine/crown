@@ -108,8 +108,12 @@ namespace lua_resource_internal
 
 		const char *argv[16];
 
-		if (opts._platform == Platform::HTML5) {
-			argv[0] = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luac");
+		if (opts._platform == Platform::HTML5 || opts._platform == Platform::HTML5_WASM64) {
+			const char *luac = EXE_PATH("luac");
+			if (opts._platform == Platform::HTML5)
+				luac = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luac");
+
+			argv[0] = luac;
 			argv[1] = "-o";
 			argv[2] = lua_out.c_str();
 			argv[3] = lua_src.c_str();

@@ -111,7 +111,7 @@ function crown_project(_name, _kind, _defines)
 				CROWN_DIR .. "3rdparty/wayland/include",
 			}
 
-		configuration { "wasm" }
+		configuration { "wasm or wasm64" }
 			kind "ConsoleApp"
 			targetextension ".js"
 			linkoptions {
@@ -128,6 +128,11 @@ function crown_project(_name, _kind, _defines)
 				"-s STACK_SIZE=256KB",
 				"-s GL_ENABLE_GET_PROC_ADDRESS",
 				-- "-s SAFE_HEAP=1",
+			}
+
+		configuration { "wasm64" }
+			linkoptions {
+				"-s MAXIMUM_MEMORY=8GB",
 			}
 
 		configuration { "vs* or mingw*" }

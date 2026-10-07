@@ -35,6 +35,7 @@ static const char *s_platforms[] =
 	"android", // Platform::ANDROID
 	"android", // Platform::ANDROID_ARM64
 	"html5",   // Platform::HTML5
+	"html5",   // Platform::HTML5_WASM64
 	"linux",   // Platform::LINUX
 	"windows"  // Platform::WINDOWS
 };

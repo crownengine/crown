@@ -17,7 +17,7 @@ PKG_NAME=$(basename "${OUTPUT_DIR}")
 PARTIALS_DIR="${OUTPUT_DIR}/partials"
 PARTIAL_PKG="${PARTIALS_DIR}/${PKG_NAME}"
 
-TARGET_PLATFORMS="android-arm android-arm64 html5-wasm windows-x32"
+TARGET_PLATFORMS="android-arm android-arm64 html5-wasm html5-wasm64 windows-x32"
 MASTER_PLATFORMS="linux-x64 windows-x64"
 
 merge_and_compress () {

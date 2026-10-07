@@ -35,6 +35,7 @@ function toolchain(build_dir, lib_dir)
 			{ "linux-clang",   "Linux (Clang compiler)" },
 			{ "mingw-gcc",     "MinGW (GCC compiler)"   },
 			{ "wasm",          "emscripten/wasm"        },
+			{ "wasm64",        "emscripten/wasm64"      },
 		}
 	}
 
@@ -132,7 +133,7 @@ function toolchain(build_dir, lib_dir)
 			premake.valac.cc  = premake.gcc.cc
 			location(build_dir .. "projects/mingw")
 
-		elseif "wasm" == _OPTIONS["compiler"] then
+		elseif "wasm" == _OPTIONS["compiler"] or "wasm64" == _OPTIONS["compiler"] then
 
 			if not os.getenv("EMSCRIPTEN") then
 				print("Set EMSCRIPTEN environment variable.")
@@ -144,7 +145,7 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.ar  = "$(EMSCRIPTEN)/emar"
 
 			premake.gcc.llvm = true
-			location(build_dir .. "projects/wasm")
+			location(build_dir .. "projects/" .. _OPTIONS["compiler"])
 	end
 	elseif _ACTION == "vs2019"
 		or _ACTION == "vs2022"
@@ -204,7 +205,7 @@ function toolchain(build_dir, lib_dir)
 			"-rdynamic"
 		}
 
-	configuration { "debug or development", "wasm" }
+	configuration { "debug or development", "wasm or wasm64" }
 		linkoptions {
 			"-gsource-map" -- See: https://emscripten.org/docs/porting/exceptions.html?highlight=gsource%20map#stack-traces
 		}
@@ -361,16 +362,25 @@ function toolchain(build_dir, lib_dir)
 		}
 		buildoptions { "-m64" }
 
-	configuration { "wasm" }
-		targetdir (path.join(build_dir, "wasm/bin"))
-		objdir (path.join(build_dir, "wasm/obj"))
-		libdirs { path.join(lib_dir, "lib/wasm") }
+	configuration { "wasm or wasm64" }
 		buildoptions {
 			"-Wunused-value",
 			"-Wundef",
 			"-Wno-deprecated-pragma",
 			"-pthread",
 		}
+
+	configuration { "wasm" }
+		targetdir (path.join(build_dir, "wasm/bin"))
+		objdir (path.join(build_dir, "wasm/obj"))
+		libdirs { path.join(lib_dir, "lib/wasm") }
+
+	configuration { "wasm64" }
+		targetdir (path.join(build_dir, "wasm64/bin"))
+		objdir (path.join(build_dir, "wasm64/obj"))
+		libdirs { path.join(lib_dir, "lib/wasm64") }
+		buildoptions { "-m64" }
+		linkoptions { "-m64" }
 
 	configuration { "vs*" }
 		includedirs { CROWN_DIR .. "3rdparty/bx/include/compat/msvc" }

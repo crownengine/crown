@@ -68,6 +68,9 @@ jobs:
           - target: html5-wasm
             platform: html5
             arch: wasm
+          - target: html5-wasm64
+            platform: html5
+            arch: wasm64
           - target: linux-x64
             platform: linux
             arch: x64

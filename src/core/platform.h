@@ -103,7 +103,7 @@
 	#define CROWN_CACHE_LINE_SIZE 64
 #endif // if defined(__arm__)
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__64BIT__) || defined(__powerpc64__) || defined(__ppc64__)
+#if defined(__x86_64__) || defined(_M_X64) || defined(__64BIT__) || defined(__powerpc64__) || defined(__ppc64__) || defined(__wasm64__)
 	#undef CROWN_ARCH_64BIT
 	#define CROWN_ARCH_64BIT 64
 #else
