@@ -3094,8 +3094,6 @@ static void test_frustum()
 
 int main_unit_tests()
 {
-	RUN_TEST(test_task_manager);
-	return 0;
 	RUN_TEST(test_memory);
 	RUN_TEST(test_array);
 	RUN_TEST(test_vector);
@@ -3122,6 +3120,7 @@ int main_unit_tests()
 	RUN_TEST(test_path);
 	RUN_TEST(test_command_line);
 	RUN_TEST(test_thread);
+	RUN_TEST(test_task_manager);
 	RUN_TEST(test_process);
 	RUN_TEST(test_filesystem);
 	RUN_TEST(test_file_monitor);
