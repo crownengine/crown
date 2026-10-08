@@ -5,7 +5,8 @@
 
 #pragma once
 
-#include "core/containers/types.h"
+#include "device/render_pipeline.h"
+#include "core/strings/string_id.inl"
 #include "resource/material_resource.h"
 #include "resource/render_config_resource.h"
 #include "resource/shader_resource.h"
@@ -27,55 +28,10 @@ struct stbrp_node;
 CE_STATIC_ASSERT(LOCAL_LIGHTS_MAX_SHADOW_CASTERS <= MAX_NUM_LIGHTS);
 #define LOCAL_LIGHTS_SM_MAX_VIEWS (LOCAL_LIGHTS_MAX_SHADOW_CASTERS * 4) // Worst case all omni casters.
 #define LOCAL_LIGHTS_COOKIE_ATLAS_SLOT 13
-#define BLOOM_MIPS 6
-
-struct View
-{
-	enum Enum
-	{
-		COLOR_0,
-		COLOR_1,
-		CASCADE_CLEAR,
-		CASCADE_0,
-		CASCADE_LAST                    = CASCADE_0 + MAX_NUM_CASCADES,
-		SM_LOCAL_CLEAR                  = CASCADE_LAST,
-		SM_LOCAL_0,
-		SM_LOCAL_LAST                   = SM_LOCAL_0 + LOCAL_LIGHTS_SM_MAX_VIEWS,
-		LOCAL_LIGHTS_COOKIE_ATLAS_CLEAR = SM_LOCAL_LAST,
-		LOCAL_LIGHTS_COOKIE_ATLAS_0,
-		LOCAL_LIGHTS_COOKIE_ATLAS_LAST  = LOCAL_LIGHTS_COOKIE_ATLAS_0 + MAX_NUM_LIGHTS,
-		LIGHTS                          = LOCAL_LIGHTS_COOKIE_ATLAS_LAST,
-		MESH,
-		BLOOM_COPY,
-		BLOOM_DOWNSAMPLE_0,
-		BLOOM_DOWNSAMPLE_LAST           = BLOOM_DOWNSAMPLE_0 + BLOOM_MIPS - 1,
-		BLOOM_UPSAMPLE_0,
-		BLOOM_UPSAMPLE_LAST             = BLOOM_UPSAMPLE_0 + BLOOM_MIPS - 1,
-		BLOOM_COMBINE,
-		DUMMY_BLIT,
-		VIGNETTE,
-		TONEMAP,
-
-		SDR, // SDR rendering below.
-
-		SPRITE_0              = SDR,
-		SPRITE_LAST           = SPRITE_0 + MAX_NUM_SPRITE_LAYERS,
-		WORLD_GUI             = SPRITE_LAST,
-		SELECTION,
-		OUTLINE,
-		OUTLINE_BLIT,
-		DEBUG,
-		SCREEN_GUI,
-		GRAPH,
-		BLIT,
-		IMGUI,
-
-		COUNT
-	};
-};
 
 namespace crown
 {
+struct RenderFrame;
 /// Render pipeline.
 ///
 /// @ingroup Device
@@ -83,7 +39,12 @@ struct Pipeline
 {
 	ShaderManager *_shader_manager;
 	RenderSettings _render_settings;
+	RenderSettings _requested_render_settings; // Unscaled size sources across resizes.
+	RenderPipeline _render_pipeline;
+	const RenderConfigResource *_render_config_resource;
 
+	// Non-owning aliases used by Crown's native scene producers.
+	// RenderPipeline alone owns and destroys textures/framebuffers.
 	// Main output color/depth handles.
 	bgfx::FrameBufferHandle _color_sdr;
 	bgfx::TextureHandle _color_textures[2];
@@ -121,19 +82,16 @@ struct Pipeline
 	bgfx::UniformHandle _lights_num;
 	bgfx::UniformHandle _lights_data;
 	bgfx::TextureHandle _lights_data_texture;
-	Array<Vector4> _lights_data_buffer[2]; // bgfx::makeRef needs the source to survive two bgfx::frame() calls.
-	Array<Vector4> *_lights_cpu;
-	Array<Vector4> *_lights_gpu;
 	bgfx::UniformHandle _fog_data;
 	bgfx::UniformHandle _lighting_params;
 
-	// Skinning.
+	// Skinning. The atlas layout matches common.shader from upstream.
 	bgfx::UniformHandle _bones_data_sampler;
 	bgfx::UniformHandle _bones_data_size;
 	bgfx::TextureHandle _bones_texture;
 	u32 _bones_texture_height;
 	u32 _bones_row;
-	Array<Matrix4x4> _bones_data[2]; // bgfx::makeRef needs the source to survive two bgfx::frame() calls.
+	Array<Matrix4x4> _bones_data[2]; // makeRef storage survives two bgfx::frame() calls.
 	Array<Matrix4x4> *_bones_cpu;
 	Array<Matrix4x4> *_bones_gpu;
 
@@ -145,7 +103,6 @@ struct Pipeline
 	stbrp_node *_lights_cookie_atlas_packer_nodes; // Sized once for fixed atlas width.
 
 	// Bloom.
-	bgfx::FrameBufferHandle _bloom_frame_buffers[BLOOM_MIPS];
 	bgfx::UniformHandle _bloom_map;
 	bgfx::UniformHandle _map_pixel_size;
 	bgfx::UniformHandle _bloom_params;
@@ -162,34 +119,50 @@ struct Pipeline
 	VignetteDesc _vignette;
 
 	// Default shaders.
-	ShaderData _blit_shader;
-	ShaderData _blit_blend_shader;
-	ShaderData _gui_shader;
-	ShaderData _gui_3d_shader;
-	ShaderData _debug_line_depth_enabled_shader;
-	ShaderData _debug_line_shader;
-	ShaderData _outline_shader;
-	ShaderData _outline_msaa_shader;
-	ShaderData _selection_shader;
-	ShaderData _selection_skinning_shader;
-	ShaderData _shadow_shader;
-	ShaderData _shadow_skinning_shader;
-	ShaderData _skydome_shader;
-	ShaderData _bloom_downsample_shader;
-	ShaderData _bloom_upsample_shader;
-	ShaderData _bloom_combine_shader;
-	ShaderData _tonemap_shader;
-	ShaderData _vignette_shader;
-	ShaderData _bloom_copy_shader;
+	ShaderData _blit_shader = {};
+	ShaderData _blit_blend_shader = {};
+	ShaderData _gui_shader = {};
+	ShaderData _gui_3d_shader = {};
+	ShaderData _debug_line_depth_enabled_shader = {};
+	ShaderData _debug_line_shader = {};
+	ShaderData _outline_shader = {};
+	ShaderData _outline_msaa_shader = {};
+	ShaderData _selection_shader = {};
+	ShaderData _selection_skinning_shader = {};
+	ShaderData _shadow_shader = {};
+	ShaderData _shadow_skinning_shader = {};
+	ShaderData _skydome_shader = {};
+	ShaderData _bloom_downsample_shader = {};
+	ShaderData _bloom_upsample_shader = {};
+	ShaderData _bloom_combine_shader = {};
+	ShaderData _tonemap_shader = {};
+	ShaderData _vignette_shader = {};
+	ShaderData _bloom_copy_shader = {};
 
 	///
 	Pipeline(ShaderManager &sm);
 
-	///
-	bool selection_enabled() const;
+	/// Resolve logical layer names at submission time (safe across hot reload).
+	u16 view_id(StringId32 layer, u32 index = 0) const { return _render_pipeline.geometry_view(layer, index); }
+	u16 shader_view(StringId32 shader, u16 fallback) const { return _render_pipeline.shader_view(shader, fallback); }
+	u16 debug_view() const { return _render_pipeline.external_view(StringId32("debug")); }
+	u16 screen_gui_view() const { return _render_pipeline.external_view(StringId32("screen_gui")); }
+	u16 world_gui_view() const { return _render_pipeline.external_view(StringId32("world_gui")); }
+	u16 graph_view() const { return _render_pipeline.external_view(StringId32("graph")); }
+	u16 imgui_view() const { return _render_pipeline.external_view(StringId32("imgui")); }
 
 	///
-	void create(u16 width, u16 height, const RenderSettings &render_settings);
+	bool selection_enabled() const;
+	bool sun_shadows_enabled() const;
+	bool local_shadows_enabled() const;
+	bool light_cookies_enabled() const;
+
+	/// Bind only the native lighting samplers actually used by this shader.
+	/// A missing input suppresses the batch instead of binding an invalid handle.
+	bool bind_lighting(const ShaderData &shader) const;
+
+	///
+	void create(u16 width, u16 height, const RenderSettings &render_settings, const RenderConfigResource *resource);
 
 	///
 	void destroy();
@@ -198,30 +171,33 @@ struct Pipeline
 	void reset(u16 width, u16 height);
 
 	///
-	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);
+	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj, RenderFrame *frame = NULL);
 
-	///
+	/// Application-frame lifetime, shared by all prepared world/camera draws.
 	void begin_frame();
 	void end_frame();
-
-	/// Adds @a num Vector4s to the shared lights data buffer.
-	void add_lights_data(const Vector4 *data, u32 num);
 
 	/// Adds a palette to the shared bone atlas.
 	void add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones);
 
-	/// Binds a previously added palette.
+	/// Binds a previously added palette for immediate native draws.
 	void bind_bones_data(u32 row);
 
+	/// Update execution conditions before any native scene submissions.
+	void update_conditions();
+
+	/// Refresh native source dimensions/aliases after changing execution conditions.
+	void update_source_resources();
+
 	///
-	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);
+	void prepare_local_lights_stencil(RenderFrame &frame, u16 tile_size, u16 tile_cols);
 
 	///
 	void begin_light_cookie_atlas();
 
-	/// Packs @a texture into the atlas, renders it and returns its normalized
+	/// Packs @a texture into the atlas, prepares a batch and returns its normalized
 	/// texel-center bounds. Returns zero if it does not fit.
-	Vector4 add_light_cookie(u16 &view, bgfx::TextureHandle texture, u16 width, u16 height);
+	Vector4 add_light_cookie(RenderFrame &frame, u32 &index, bgfx::TextureHandle texture, u16 width, u16 height);
 
 	///
 	void reload_shaders(const ShaderResource *old_resource, const ShaderResource *new_resource);
