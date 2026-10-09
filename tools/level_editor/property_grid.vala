@@ -698,7 +698,8 @@ public class PropertyGrid : Gtk.Grid
 		assert(_label_size_group == null);
 
 		_label_size_group = size_group;
-		add_labels_to_size_group();
+		if (_visible)
+			add_labels_to_size_group();
 	}
 
 	private void add_labels_to_size_group()
@@ -1371,12 +1372,14 @@ public class PropertyGridSet : Gtk.Box
 {
 	public Gtk.ListBox _list_box;
 	public Gtk.SizeGroup _label_size_group;
+	public Expander? _sole_visible_expander;
 
 	public PropertyGridSet()
 	{
 		Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
 		_label_size_group = new Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL);
+		_sole_visible_expander = null;
 
 		_list_box = new Gtk.ListBox();
 		_list_box.selection_mode = Gtk.SelectionMode.NONE;
@@ -1408,6 +1411,34 @@ public class PropertyGridSet : Gtk.Box
 	{
 		Expander e = (Expander)row.get_child();
 		return ((PropertyGrid)e._child)._visible;
+	}
+
+	public void update_collapsible()
+	{
+		Expander? sole_visible = null;
+		for (int i = 0; ; ++i) {
+			Gtk.ListBoxRow? row = _list_box.get_row_at_index(i);
+			if (row == null)
+				break;
+			Expander e = (Expander)row.get_child();
+			if (!((PropertyGrid)e._child)._visible)
+				continue;
+
+			if (sole_visible != null) {
+				sole_visible = null;
+				break;
+			}
+			sole_visible = e;
+		}
+
+		if (_sole_visible_expander == sole_visible)
+			return;
+
+		if (_sole_visible_expander != null)
+			_sole_visible_expander.collapsible = true;
+		if (sole_visible != null)
+			sole_visible.collapsible = false;
+		_sole_visible_expander = sole_visible;
 	}
 
 	private void set_header(Expander expander, Gtk.Label label, InputBool? input_bool)
@@ -1455,6 +1486,7 @@ public class PropertyGridSet : Gtk.Box
 		_list_box.append(row);
 #endif
 
+		update_collapsible();
 		return e;
 	}
 
@@ -1486,6 +1518,7 @@ public class PropertyGridSet : Gtk.Box
 		_list_box.append(row);
 #endif
 
+		update_collapsible();
 		return e;
 	}
 }

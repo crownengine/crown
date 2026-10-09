@@ -103,8 +103,8 @@ public class ObjectProperties : Gtk.Box
 			, GUID_ZERO, _max_subobject_depth)
 			;
 
-		_object_view.add_property_grid(grid, camel_case(_database.type_name(object_type)));
 		grid.hide_grid();
+		_object_view.add_property_grid(grid, camel_case(_database.type_name(object_type)));
 		_grids[object_type] = grid;
 	}
 
@@ -137,6 +137,7 @@ public class ObjectProperties : Gtk.Box
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
+		_object_view.update_collapsible();
 	}
 
 	public void set_object(Guid id)
@@ -190,6 +191,7 @@ public class ObjectProperties : Gtk.Box
 
 		_object_view._list_box.invalidate_filter();
 		_object_view._list_box.invalidate_sort();
+		_object_view.update_collapsible();
 	}
 
 	public void read_selection(Guid?[] selection)
