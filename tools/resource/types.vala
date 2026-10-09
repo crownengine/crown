@@ -358,7 +358,7 @@ public static void create_object_types(Database database)
 		, properties
 		, 1102
 		, _("Rendering")
-		, ObjectTypeFlags.UNIT_COMPONENT
+		, ObjectTypeFlags.UNIT_COMPONENT | ObjectTypeFlags.LEAF
 		, OBJECT_TYPE_TRANSFORM
 		);
 
@@ -633,7 +633,7 @@ public static void create_object_types(Database database)
 		, properties
 		, 1104
 		, _("Rendering")
-		, ObjectTypeFlags.UNIT_COMPONENT
+		, ObjectTypeFlags.UNIT_COMPONENT | ObjectTypeFlags.LEAF
 		, OBJECT_TYPE_TRANSFORM
 		);
 

@@ -312,7 +312,11 @@ class ObjectsSetEditor : Gtk.Box
 #endif
 
 			Guid selection_anchor_id = _grid._selection_anchor_id != GUID_ZERO ? _grid._selection_anchor_id : _grid._id;
-			_editor_grid = new PropertyGrid.from_object(_object_id, _grid._db, _grid._database_editor, selection_anchor_id);
+			int child_depth = _grid._max_subobject_depth > 0
+				? _grid._max_subobject_depth - 1
+				: _grid._max_subobject_depth
+				;
+			_editor_grid = new PropertyGrid.from_object(_object_id, _grid._db, _grid._database_editor, selection_anchor_id, child_depth);
 			Guid instance_owner_id = is_read_only() ? _grid._id : owner_id;
 			if (is_read_only() || _grid._db.owner(_object_id) != instance_owner_id) {
 				_editor_grid._instance_owner_id = instance_owner_id;
@@ -476,6 +480,7 @@ public class PropertyGrid : Gtk.Grid
 	public Gtk.Widget? _expander_input_label;
 	public int _expander_input_row;
 	public DatabaseEditor? _database_editor;
+	public int _max_subobject_depth;
 	public Guid _selection_anchor_id;
 	public Guid _instance_owner_id;
 	public string? _instance_set_key;
@@ -597,8 +602,14 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
-	public PropertyGrid(Database? db = null, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
+	public PropertyGrid(Database? db = null
+		, DatabaseEditor? database_editor = null
+		, Guid selection_anchor_id = GUID_ZERO
+		, int max_subobject_depth = -1
+		)
 	{
+		assert(max_subobject_depth >= -1);
+
 		this.row_spacing = 4;
 		this.row_homogeneous = true;
 		this.column_spacing = 12;
@@ -607,6 +618,7 @@ public class PropertyGrid : Gtk.Grid
 		_expander = null;
 		_db = db;
 		_database_editor = database_editor;
+		_max_subobject_depth = max_subobject_depth;
 		_id = GUID_ZERO;
 		_component_id = GUID_ZERO;
 		_rows = 0;
@@ -637,18 +649,30 @@ public class PropertyGrid : Gtk.Grid
 		}
 	}
 
-	public PropertyGrid.from_object_type(StringId64 type, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
+	public PropertyGrid.from_object_type(StringId64 type
+		, Database db
+		, DatabaseEditor? database_editor = null
+		, Guid selection_anchor_id = GUID_ZERO
+		, int max_subobject_depth = -1
+		)
 	{
-		this(db, database_editor, selection_anchor_id);
+		this(db, database_editor, selection_anchor_id, max_subobject_depth);
+		if ((db.type_flags(type) & ObjectTypeFlags.LEAF) != 0)
+			_max_subobject_depth = -1;
 
 		_order = db.type_info(type).ui_order;
 		_type = type;
 		add_object_type(db.object_definition(type));
 	}
 
-	public PropertyGrid.from_object(Guid id, Database db, DatabaseEditor? database_editor = null, Guid selection_anchor_id = GUID_ZERO)
+	public PropertyGrid.from_object(Guid id
+		, Database db
+		, DatabaseEditor? database_editor = null
+		, Guid selection_anchor_id = GUID_ZERO
+		, int max_subobject_depth = -1
+		)
 	{
-		this.from_object_type(db.object_type(id), db, database_editor, selection_anchor_id);
+		this.from_object_type(db.object_type(id), db, database_editor, selection_anchor_id, max_subobject_depth);
 		_id = id;
 	}
 
@@ -851,7 +875,7 @@ public class PropertyGrid : Gtk.Grid
 				p = new InputObject(def.object_type, _db);
 				break;
 			case PropertyType.OBJECTS_SET:
-				if (_database_editor == null)
+				if (_database_editor == null || _max_subobject_depth == 0)
 					continue;
 				this.row_homogeneous = false;
 				ObjectsSetEditor set_editor = new ObjectsSetEditor(this, def);

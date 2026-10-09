@@ -79,6 +79,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_database.objects_changed.connect(_objects_tree.on_objects_changed);
 
 		_objects_properties = new ObjectProperties(_database_editor);
+		_objects_properties.set_max_subobject_depth(0);
 
 		_database_editor.load_types();
 

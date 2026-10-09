@@ -490,6 +490,7 @@ public enum ObjectTypeFlags
 	NONE           = 0,
 	UNIT_COMPONENT = 1 << 0,
 	RESOURCE       = 1 << 1,
+	LEAF           = 1 << 2, ///< Show object sets in properties despite a depth limit.
 }
 
 public delegate void Aspect(out string name, Database database, Guid id);

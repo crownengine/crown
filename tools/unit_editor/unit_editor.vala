@@ -64,6 +64,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_database.objects_changed.connect(_objects_tree.on_objects_changed);
 
 		_properties_view = new ObjectProperties(_database_editor);
+		_properties_view.set_max_subobject_depth(0);
 		_properties_view.set_component_func(Unit.has_component_static);
 
 		_database_editor.load_types();
