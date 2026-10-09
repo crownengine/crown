@@ -490,6 +490,9 @@ public class ObjectTree : Gtk.Box
 
 	public bool objects_set_flattened(StringId64 object_type, int set_index)
 	{
+		if ((_database.type_flags(object_type) & ObjectTypeFlags.LEAF) != 0)
+			return false;
+
 		for (int i = 0; i < _flattened_sets.length; ++i) {
 			FlattenedSetKey key = _flattened_sets[i];
 			if (key.object_type == object_type && key.set_index == set_index)
@@ -1161,6 +1164,7 @@ public class ObjectTree : Gtk.Box
 		Guid owner_id = _database.owner(id);
 		if (owner_id != GUID_ZERO
 			&& (owner_id == _object_id || _object_rows.lookup(owner_id) != null)
+			&& (_database.type_flags(_database.object_type(owner_id)) & ObjectTypeFlags.LEAF) == 0
 			) {
 			StringId64 owner_type = _database.object_type(owner_id);
 			unowned PropertyDefinition[] object_definition = _database.object_definition(owner_type);
@@ -1198,6 +1202,9 @@ public class ObjectTree : Gtk.Box
 
 	public void reconcile_objects_set(Guid owner_id, StringId64 object_type, int set_index, PropertyDefinition def)
 	{
+		if ((_database.type_flags(object_type) & ObjectTypeFlags.LEAF) != 0)
+			return;
+
 		SetRowKey set_key = SetRowKey(owner_id, set_index);
 		Guid?[] children = {};
 		var desired = new GLib.HashTable<Guid?, bool?>(Guid.hash_func, Guid.equal_func);
@@ -1378,6 +1385,9 @@ public class ObjectTree : Gtk.Box
 	public void add_object_set(Gtk.TreeIter? parent_iter, Guid id)
 	{
 		StringId64 object_type = _database.object_type(id);
+		if ((_database.type_flags(object_type) & ObjectTypeFlags.LEAF) != 0)
+			return;
+
 		unowned PropertyDefinition[] object_definition = _database.object_definition(object_type);
 
 		for (int set_index = 0; set_index < object_definition.length; ++set_index) {
