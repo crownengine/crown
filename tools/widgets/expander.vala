@@ -10,6 +10,7 @@ namespace Crown
 public class Expander : Gtk.Box
 {
 	public bool _expanded = false;
+	public bool _collapsible = true;
 #if CROWN_GTK3
 	public Gtk.EventBox _header_event_box;
 #endif
@@ -71,6 +72,9 @@ public class Expander : Gtk.Box
 		}
 		set
 		{
+			if (!_collapsible && !value)
+				return;
+
 			if (_expanded == value)
 				return;
 
@@ -98,11 +102,29 @@ public class Expander : Gtk.Box
 		}
 	}
 
+	public bool collapsible
+	{
+		get
+		{
+			return _collapsible;
+		}
+		set
+		{
+			if (_collapsible == value)
+				return;
+
+			_collapsible = value;
+			_arrow_image.sensitive = value;
+			if (!value)
+				expanded = true;
+		}
+	}
+
 	public void on_header_button_pressed(int n_press, double x, double y)
 	{
 		uint button = _gesture_click.get_current_button();
 
-		if (button == Gdk.BUTTON_PRIMARY)
+		if (button == Gdk.BUTTON_PRIMARY && collapsible)
 			expanded = !expanded;
 	}
 
