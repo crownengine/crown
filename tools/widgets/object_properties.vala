@@ -152,7 +152,9 @@ public class ObjectProperties : Gtk.Box
 		if (direct_grid == null) {
 			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor
 				, GUID_ZERO, _max_subobject_depth);
-			Expander expander = _object_view.add_property_grid(direct_grid, _("General"));
+			Expander expander = _object_view.add_property_grid(direct_grid
+				, camel_case(_database.type_name(object_type))
+				);
 			_grids[object_type] = direct_grid;
 #if CROWN_GTK3
 			expander.get_parent().show();
