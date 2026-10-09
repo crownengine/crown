@@ -18,6 +18,7 @@ public class ObjectProperties : Gtk.Box
 
 	public DatabaseEditor _database_editor;
 	public Database _database;
+	public int _max_subobject_depth;
 	public unowned ComponentDelegate? _component_func;
 	public GLib.HashTable<StringId64?, PropertyGrid> _grids;
 	public Gtk.Viewport _viewport;
@@ -33,6 +34,7 @@ public class ObjectProperties : Gtk.Box
 		_database_editor = database_editor;
 		_database_editor.selection_changed.connect(on_database_selection_changed);
 		_database = database_editor._database;
+		_max_subobject_depth = -1;
 		_database._project.project_reset.connect(on_project_reset);
 		_component_func = null;
 
@@ -78,6 +80,14 @@ public class ObjectProperties : Gtk.Box
 #endif
 	}
 
+	/// Set before registering or displaying object types. -1 allows unlimited nesting.
+	public void set_max_subobject_depth(int max_subobject_depth)
+	{
+		assert(max_subobject_depth >= -1);
+		assert(_grids.size() == 0);
+		_max_subobject_depth = max_subobject_depth;
+	}
+
 	public void set_component_func(ComponentDelegate? component_func)
 	{
 		_component_func = component_func;
@@ -89,7 +99,8 @@ public class ObjectProperties : Gtk.Box
 
 		PropertyGrid grid = custom_grid != null
 			? custom_grid
-			: new PropertyGrid.from_object_type(object_type, _database, _database_editor)
+			: new PropertyGrid.from_object_type(object_type, _database, _database_editor
+			, GUID_ZERO, _max_subobject_depth)
 			;
 
 		_object_view.add_property_grid(grid, camel_case(_database.type_name(object_type)));
@@ -139,7 +150,8 @@ public class ObjectProperties : Gtk.Box
 		StringId64 object_type = _database.object_type(id);
 		PropertyGrid? direct_grid = _grids[object_type];
 		if (direct_grid == null) {
-			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor);
+			direct_grid = new PropertyGrid.from_object_type(object_type, _database, _database_editor
+				, GUID_ZERO, _max_subobject_depth);
 			Expander expander = _object_view.add_property_grid(direct_grid, _("General"));
 			_grids[object_type] = direct_grid;
 #if CROWN_GTK3

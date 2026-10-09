@@ -1840,6 +1840,7 @@ public class LevelEditorApplication : Gtk.Application
 		_database.object_type_added.connect(on_object_type_added);
 
 		_properties_view = new ObjectProperties(_database_editor);
+		_properties_view.set_max_subobject_depth(0);
 		_properties_view.set_component_func(Unit.has_component_static);
 
 		create_object_types(_database);
