@@ -8,6 +8,7 @@ Changelog
 
 **New Features and Improvements**
 
+* Tools: color inputs now support editing alpha and previewing transparency.
 * HTML5: added support to wasm64.
 
 **Fixes**
