@@ -883,4 +883,14 @@ public class EditorView : Gtk.Box
 	}
 }
 
+public void device_frame_delayed(uint delay_ms, RuntimeInstance runtime)
+{
+	// FIXME: find a way to time exactly when it is effective to queue a redraw.
+	// See: https://blogs.gnome.org/jnelson/2010/10/13/those-realize-map-widget-signals/
+	GLib.Timeout.add_full(GLib.Priority.DEFAULT, delay_ms, () => {
+			runtime.send(DeviceApi.frame());
+			return GLib.Source.REMOVE;
+		});
+}
+
 } /* namespace Crown */

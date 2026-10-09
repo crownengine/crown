@@ -52,6 +52,48 @@ public enum TargetArch
 	WASM64
 }
 
+public enum TargetPlatform
+{
+	ANDROID,
+	HTML5,
+	LINUX,
+	WINDOWS,
+
+	COUNT;
+
+	public string to_key()
+	{
+		switch (this) {
+		case ANDROID:
+			return "android";
+		case HTML5:
+			return "html5";
+		case LINUX:
+			return "linux";
+		case WINDOWS:
+			return "windows";
+		default:
+			return "unknown";
+		}
+	}
+
+	public string to_label()
+	{
+		switch (this) {
+		case ANDROID:
+			return _("Android");
+		case HTML5:
+			return _("HTML5");
+		case LINUX:
+			return _("Linux");
+		case WINDOWS:
+			return _("Windows");
+		default:
+			return _("Unknown");
+		}
+	}
+}
+
 public struct DeployOptions
 {
 	public TargetPlatform platform;

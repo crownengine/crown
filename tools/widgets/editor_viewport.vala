@@ -5,6 +5,41 @@
 
 namespace Crown
 {
+public enum CameraViewType
+{
+	PERSPECTIVE,
+	FRONT,
+	BACK,
+	RIGHT,
+	LEFT,
+	TOP,
+	BOTTOM,
+
+	COUNT;
+
+	public string to_label()
+	{
+		switch (this) {
+		case PERSPECTIVE:
+			return _("Perspective");
+		case FRONT:
+			return _("View Front");
+		case BACK:
+			return _("View Back");
+		case RIGHT:
+			return _("View Right");
+		case LEFT:
+			return _("View Left");
+		case TOP:
+			return _("View Top");
+		case BOTTOM:
+			return _("View Bottom");
+		default:
+			return _("View Unknown");
+		}
+	}
+}
+
 public enum ViewportRenderMode
 {
 	CONTINUOUS,

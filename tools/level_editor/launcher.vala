@@ -286,4 +286,289 @@ public static int launcher_main(string[] args)
 	return 0;
 }
 
+public bool parse_port_from_string(out uint16 port, string str)
+{
+	port = 0;
+
+	string trimmed = str.strip();
+	if (trimmed == "")
+		return false;
+
+	for (int i = 0; i < trimmed.length; ++i) {
+		if (trimmed[i] < '0' || trimmed[i] > '9')
+			return false;
+	}
+
+	int parsed = int.parse(trimmed);
+	if (parsed < 1 || parsed > 65535)
+		return false;
+
+	port = (uint16)parsed;
+	return true;
+}
+
+public bool wait_port_file(out uint16 port, string file_path, int num_tries, int interval)
+{
+	port = 0;
+	for (int tries = 0; tries < num_tries; ++tries) {
+		try {
+			string contents = null;
+			GLib.FileUtils.get_contents(file_path, out contents);
+			if (parse_port_from_string(out port, contents))
+				return true;
+		} catch (FileError e) {
+		}
+
+		GLib.Thread.usleep(interval*1000);
+	}
+
+	return false;
+}
+
+public bool create_port_file_path(out string file_path)
+{
+	file_path = "";
+
+	try {
+		GLib.FileIOStream io;
+		file_path = GLib.File.new_tmp("crown_port_file_XXXXXX", out io).get_path();
+		return true;
+	} catch (Error e) {
+		loge(e.message);
+		return false;
+	}
+}
+
+public void cleanup_port_file_path(string file_path)
+{
+	try {
+		GLib.File.new_for_path(file_path).delete();
+	} catch (Error e) {
+		// Ignore.
+	}
+}
+
+public class RuntimeInstance
+{
+	public const int QUIT_TIMEOUT_MS = 4000;
+
+	public string _name;
+	public uint32 _process_id;
+	public bool _stuck;
+	public uint _revision;
+	public GLib.SourceFunc _stop_callback;
+	public GLib.SourceFunc _refresh_callback;
+	public bool _refresh_success;
+	public ConsoleClient _client;
+	public DataCompiler? _data_compiler;
+
+	public signal void connected(RuntimeInstance ri, string address, int port);
+	public signal void disconnected(RuntimeInstance ri);
+	public signal void disconnected_unexpected(RuntimeInstance ri);
+	public signal void message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json);
+
+	public RuntimeInstance(string name, DataCompiler? dc)
+	{
+		_name = name;
+		_process_id = uint32.MAX;
+		_stuck = false;
+		_revision = 0;
+		_stop_callback = null;
+		_refresh_callback = null;
+		_refresh_success = false;
+		_client = new ConsoleClient();
+		_client.connected.connect(on_client_connected);
+		_client.message_received.connect(on_client_message_received);
+		_data_compiler = dc;
+	}
+
+	public void on_client_connected(string address, int port)
+	{
+		if (_data_compiler != null)
+			_revision = _data_compiler._revision;
+
+		connected(this, address, port);
+	}
+
+	public void on_client_disconnected()
+	{
+		disconnected(this);
+
+		if (_stop_callback != null)
+			_stop_callback();
+	}
+
+	public void on_client_disconnected_unexpected()
+	{
+		disconnected_unexpected(this);
+
+		try {
+			if (_process_id != uint32.MAX) {
+				_subprocess_launcher.wait(_process_id);
+				_process_id = uint32.MAX;
+			}
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+	}
+
+	public void on_client_message_received(ConsoleClient client, uint8[] json)
+	{
+		message_received(this, client, json);
+	}
+
+	// Tries to connect to the @a client. Return the number of tries after
+	// it succeeded or @a num_tries if failed.
+	public async int connect_async(string address, int port, int num_tries, int interval)
+	{
+		// It is an error if the client disconnects after here.
+		_client.disconnected.disconnect(on_client_disconnected);
+		_client.disconnected.connect(on_client_disconnected_unexpected);
+
+		// Try to connect to the client.
+		int tries;
+		for (tries = 0; tries < num_tries; ++tries) {
+			_client.connect(address, port);
+			if (_client.is_connected())
+				break;
+
+			GLib.Thread.usleep(interval*1000);
+		}
+		return tries;
+	}
+
+	public async void stop()
+	{
+		if (_client != null) {
+			// Reset "disconnected" signal.
+			_client.disconnected.disconnect(on_client_disconnected);
+			_client.disconnected.disconnect(on_client_disconnected_unexpected);
+
+			// Explicit call to this function should not produce error messages.
+			_client.disconnected.connect(on_client_disconnected);
+
+			if (_client.is_connected()) {
+				_stop_callback = stop.callback;
+				_client.send(RuntimeApi.quit());
+
+				// Call it stuck if not disconnected before a while.
+				GLib.Timeout.add_full(GLib.Priority.HIGH, QUIT_TIMEOUT_MS, () => {
+						if (_stop_callback != null) {
+							_stuck = true;
+							_stop_callback();
+						}
+
+						return GLib.Source.REMOVE;
+					});
+
+				yield; // Wait for _client to disconnect.
+				_stop_callback = null;
+			}
+		}
+
+		try {
+			if (_process_id != uint32.MAX) {
+				if (_stuck) {
+					_subprocess_launcher.kill(_process_id);
+					_stuck = false;
+					logw("Process %u took more than %d ms to quit: killed".printf(_process_id, QUIT_TIMEOUT_MS));
+				}
+
+				_subprocess_launcher.wait(_process_id);
+			}
+			_process_id = uint32.MAX;
+		} catch (GLib.Error e) {
+			loge(e.message);
+		}
+	}
+
+	public void send(string json)
+	{
+		_client.send(json);
+	}
+
+	public void send_script(string lua)
+	{
+		_client.send_script(lua);
+	}
+
+	public bool is_connected()
+	{
+		return _client.is_connected();
+	}
+
+	public async bool refresh(DataCompiler dc)
+	{
+		if (_refresh_callback != null)
+			return false;
+
+		if (!is_connected())
+			return false;
+
+		var compiler_revision = dc._revision;
+
+		if (_revision != compiler_revision) {
+			var refresh_list = yield dc.refresh_list(_revision);
+			_client.send(DeviceApi.refresh(refresh_list));
+			_client.send(DeviceApi.frame());
+			_refresh_callback = refresh.callback;
+			yield; // Wait for client to refresh the resources.
+
+			if (_refresh_success)
+				_revision = compiler_revision;
+
+			return _refresh_success;
+		}
+
+		return true;
+	}
+
+	public void refresh_finished(bool success)
+	{
+		_refresh_success = success;
+		if (_refresh_callback != null)
+			_refresh_callback();
+		_refresh_callback = null;
+	}
+}
+
+public void open_directory(string directory)
+{
+#if CROWN_PLATFORM_LINUX
+	try {
+		GLib.AppInfo.launch_default_for_uri("file://" + directory, Gdk.Display.get_default().get_app_launch_context());
+	} catch (Error e) {
+		loge(e.message);
+	}
+#else
+	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+	try {
+		sl.spawnv({ "explorer.exe", directory, null });
+	} catch (Error e) {
+		loge(e.message);
+	}
+#endif
+}
+
+public void open_text_editor(string path)
+{
+#if CROWN_PLATFORM_WINDOWS
+	GLib.SubprocessLauncher sl = new GLib.SubprocessLauncher(subprocess_flags());
+	try {
+		sl.spawnv({ "notepad.exe", path, null });
+	} catch (Error e) {
+		loge(e.message);
+	}
+#endif
+}
+
+public static GLib.SubprocessFlags subprocess_flags()
+{
+	GLib.SubprocessFlags flags = SubprocessFlags.NONE;
+#if !CROWN_DEBUG
+	flags |= SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE;
+#endif
+	return flags;
+}
+
 } /* namespace Crown */

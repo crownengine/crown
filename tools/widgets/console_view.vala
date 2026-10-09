@@ -116,6 +116,9 @@ public class EntryHistory
 	}
 }
 
+public static ConsoleView _console_view;
+public static bool _console_view_valid = false;
+
 public class ConsoleView : Gtk.Box
 {
 	public struct LastMsg
