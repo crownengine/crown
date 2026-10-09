@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.3 --- DD MMM YYYY <v0.65.3>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed object properties showing ``General`` instead of the object's type name.
+
 .. _v0.65.2:
 
 :ref:`0.65.2 --- 06 Oct 2026 <v0.65.2>`
