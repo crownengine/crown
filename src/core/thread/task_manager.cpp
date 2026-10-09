@@ -71,13 +71,14 @@ u32 TaskManager::begin_add(TaskFunction func, void *data, u32 data_size, u32 par
 	CE_ASSERT(data_size == 0 || data != NULL, "Invalid task data");
 	if (data_size != 0 && data_size <= sizeof(task.pad)) {
 		memcpy(task.pad, data, data_size);
-		task.data = task.pad;
+		task.data_external = false;
 	} else {
-		task.data = data;
+		memcpy(task.pad, &data, sizeof(data));
+		task.data_external = true;
 	}
 	task.pending.store(parent_id == 0 ? 2 : 1);
-	task.parent = parent_id;
-	task.dependency = dependency_id;
+	task.parent_index = parent_id & TASK_INDEX_MASK;
+	index.dependency = dependency_id;
 	if (dependency_id != 0)
 		CE_ASSERT(dependency_id >= MAX_TASKS
 			&& _indices[dependency_id & TASK_INDEX_MASK].id >= dependency_id
@@ -86,7 +87,7 @@ u32 TaskManager::begin_add(TaskFunction func, void *data, u32 data_size, u32 par
 	if (parent_id != 0) {
 		CE_ASSERT(_indices[parent_id & TASK_INDEX_MASK].id == parent_id, "Invalid parent task ID");
 		Task &parent = _objects[parent_id & TASK_INDEX_MASK];
-		CE_ASSERT(parent.parent == 0, "Task is not a parent");
+		CE_ASSERT(parent.parent_index == 0, "Task is not a parent");
 		CE_ASSERT(parent.pending.load() > 0, "Parent task has completed");
 		parent.pending.fetch_add(1);
 	}
@@ -107,6 +108,11 @@ u32 TaskManager::begin_add(TaskData16 task, u32 parent_id, u32 dependency_id)
 }
 
 u32 TaskManager::begin_add(TaskData32 task, u32 parent_id, u32 dependency_id)
+{
+	return begin_add(task.func, task.data, sizeof(task.data), parent_id, dependency_id);
+}
+
+u32 TaskManager::begin_add(TaskData48 task, u32 parent_id, u32 dependency_id)
 {
 	return begin_add(task.func, task.data, sizeof(task.data), parent_id, dependency_id);
 }
@@ -133,12 +139,12 @@ static void complete_task(TaskManager &manager, u32 task_id)
 {
 	Task &task = manager._objects[task_id & TASK_INDEX_MASK];
 	if (task.pending.fetch_sub(1) == 1) {
-		const u32 parent_id = task.parent;
+		const u32 parent_index = task.parent_index;
 		recycle_task(manager, task_id);
-		if (parent_id != 0) {
-			Task &parent = manager._objects[parent_id & TASK_INDEX_MASK];
+		if (parent_index != 0) {
+			Task &parent = manager._objects[parent_index];
 			if (parent.pending.fetch_sub(1) == 1)
-				recycle_task(manager, parent_id);
+				recycle_task(manager, parent_index);
 		}
 	}
 	manager._tasks_condition.broadcast();
@@ -148,7 +154,7 @@ void TaskManager::finish_add(u32 task_id)
 {
 	_tasks_mutex.lock();
 	CE_ASSERT(_indices[task_id & TASK_INDEX_MASK].id == task_id, "Invalid task ID");
-	CE_ASSERT(_objects[task_id & TASK_INDEX_MASK].parent == 0, "Task is not a parent");
+	CE_ASSERT(_objects[task_id & TASK_INDEX_MASK].parent_index == 0, "Task is not a parent");
 	complete_task(*this, task_id);
 	_tasks_mutex.unlock();
 }
@@ -161,7 +167,7 @@ static bool run_next(TaskManager &manager)
 		const u32 task_id = queue::back(manager._queue);
 		queue::pop_back(manager._queue);
 		Task &task = manager._objects[task_id & TASK_INDEX_MASK];
-		const u32 dependency_id = task.dependency;
+		const u32 dependency_id = manager._indices[task_id & TASK_INDEX_MASK].dependency;
 		const bool dependency_pending = dependency_id != 0
 			&& manager._indices[dependency_id & TASK_INDEX_MASK].id == dependency_id
 			&& manager._objects[dependency_id & TASK_INDEX_MASK].pending.load() > 0;
@@ -171,8 +177,12 @@ static bool run_next(TaskManager &manager)
 		}
 		manager._tasks_mutex.unlock();
 
-		if (task.func != NULL)
-			task.func(task_id, task.data);
+		if (task.func != NULL) {
+			void *data = task.pad;
+			if (task.data_external)
+				memcpy(&data, task.pad, sizeof(data));
+			task.func(task_id, data);
+		}
 		manager._tasks_mutex.lock();
 		complete_task(manager, task_id);
 		return true;

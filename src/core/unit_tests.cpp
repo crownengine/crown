@@ -2063,25 +2063,21 @@ static void test_task_manager()
 				payload.seen->store(payload.value);
 			}
 		};
-		struct Padded
-		{
-			Payload payload;
-			u8 rest[sizeof(Task::pad) - sizeof(Payload)];
-		};
 		struct Large
 		{
 			Payload payload;
 			u8 rest[sizeof(Task::pad)];
 		};
 
-		CE_STATIC_ASSERT(sizeof(Padded) == sizeof(Task::pad));
 		std::atomic_int borrowed_seen(0);
 		std::atomic_int copied_seen(0);
 		std::atomic_int padded_seen(0);
 		std::atomic_int large_seen(0);
 		Payload borrowed = { &borrowed_seen, 1 };
 		Payload copied = { &copied_seen, 2 };
-		Padded padded = { { &padded_seen, 3 }, {} };
+		Payload padded_data = { &padded_seen, 3 };
+		u8 padded[sizeof(Task::pad)] = {};
+		memcpy(padded, &padded_data, sizeof(padded_data));
 		Large large = { { &large_seen, 4 }, {} };
 		const u32 gate = tasks.begin_add_empty();
 		const u32 parent = tasks.begin_add_empty();
@@ -2091,7 +2087,8 @@ static void test_task_manager()
 		tasks.begin_add(Payload::run, &large, sizeof(large), parent, gate);
 		borrowed.value = 11;
 		copied.value = 12;
-		padded.payload.value = 13;
+		padded_data.value = 13;
+		memcpy(padded, &padded_data, sizeof(padded_data));
 		large.payload.value = 14;
 		tasks.finish_add(parent);
 		tasks.finish_add(gate);
@@ -2127,6 +2124,14 @@ static void test_task_manager()
 				memcpy(&seen, data, sizeof(seen));
 				seen->fetch_add(((u8 *)data)[31]);
 			}
+
+			static void run48(u32 task_id, void *data)
+			{
+				CE_UNUSED(task_id);
+				std::atomic_int *seen;
+				memcpy(&seen, data, sizeof(seen));
+				seen->fetch_add(((u8 *)data)[47]);
+			}
 		};
 
 		std::atomic_int seen(0);
@@ -2135,27 +2140,34 @@ static void test_task_manager()
 		TaskData8 task8 = { Probe::run8, {} };
 		TaskData16 task16 = { Probe::run16, {} };
 		TaskData32 task32 = { Probe::run32, {} };
+		TaskData48 task48 = { Probe::run48, {} };
 		memcpy(task8.data, &destination, sizeof(destination));
 		memcpy(task16.data, &destination, sizeof(destination));
 		memcpy(task32.data, &destination, sizeof(destination));
+		memcpy(task48.data, &destination, sizeof(destination));
 		task16.data[15] = 2;
 		task32.data[31] = 3;
+		task48.data[47] = 4;
 		const u32 gate = tasks.begin_add_empty();
 		const u32 a = tasks.begin_add(task8, 0, gate);
 		const u32 b = tasks.begin_add(task16, 0, a);
 		const u32 c = tasks.begin_add(task32, 0, b);
+		const u32 d = tasks.begin_add(task48, 0, c);
 		destination = &wrong;
 		memcpy(task8.data, &destination, sizeof(destination));
 		memcpy(task16.data, &destination, sizeof(destination));
 		memcpy(task32.data, &destination, sizeof(destination));
+		memcpy(task48.data, &destination, sizeof(destination));
 		task16.data[15] = 9;
 		task32.data[31] = 9;
+		task48.data[47] = 9;
 		tasks.finish_add(a);
 		tasks.finish_add(b);
 		tasks.finish_add(c);
+		tasks.finish_add(d);
 		tasks.finish_add(gate);
-		tasks.wait(c);
-		ENSURE(seen.load() == 6);
+		tasks.wait(d);
+		ENSURE(seen.load() == 10);
 		ENSURE(wrong.load() == 0);
 	}
 	{

@@ -16,6 +16,7 @@ struct Task;
 struct TaskData8;
 struct TaskData16;
 struct TaskData32;
+struct TaskData48;
 struct TaskManager;
 struct Thread;
 

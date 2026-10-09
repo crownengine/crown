@@ -19,24 +19,22 @@ namespace crown
 #define MAX_TASKS 32768
 #define TASK_INDEX_MASK (MAX_TASKS - 1)
 #define NEW_TASK_ID_ADD MAX_TASKS
+CE_STATIC_ASSERT(MAX_TASKS - 1 <= u16(-1));
 
 typedef void (*TaskFunction)(u32 task_id, void *data);
 
 struct Task
 {
 	CE_ALIGN_DECL(CROWN_CACHE_LINE_SIZE, TaskFunction func);
-	void *data;
-	u32 parent;
-	u32 dependency;
 	std::atomic_int pending;
-
-	enum { FIELDS_SIZE = sizeof(TaskFunction) + sizeof(void *) + 2 * sizeof(u32) + sizeof(std::atomic_int) };
-	enum { PAD_OFFSET = (FIELDS_SIZE + 15) / 16 * 16 };
-	CE_ALIGN_DECL(16, u8 pad[CROWN_CACHE_LINE_SIZE - PAD_OFFSET]);
+	u16 parent_index;      // A parent remains allocated until its children complete.
+	u16 data_external : 1; // pad contains a pointer instead of copied data.
+	CE_ALIGN_DECL(16, u8 pad[CROWN_CACHE_LINE_SIZE - 16]);
 };
 
 CE_STATIC_ASSERT(sizeof(Task) == CROWN_CACHE_LINE_SIZE);
 CE_STATIC_ASSERT(alignof(Task) == CROWN_CACHE_LINE_SIZE);
+CE_STATIC_ASSERT(sizeof(Task::pad) == CROWN_CACHE_LINE_SIZE - 16);
 
 struct TaskData8
 {
@@ -55,7 +53,13 @@ struct TaskData32
 	TaskFunction func;
 	char data[32];
 };
-CE_STATIC_ASSERT(sizeof(TaskData32::data) <= sizeof(Task::pad));
+
+struct TaskData48
+{
+	TaskFunction func;
+	char data[48];
+};
+CE_STATIC_ASSERT(sizeof(TaskData48::data) <= sizeof(Task::pad));
 
 /// TaskManager.
 ///
@@ -65,7 +69,11 @@ struct TaskManager
 	struct Index
 	{
 		u32 id;
-		u32 next;
+		union
+		{
+			u32 next;       // While free.
+			u32 dependency; // While allocated.
+		};
 	};
 
 	Allocator *_allocator;
@@ -115,6 +123,9 @@ struct TaskManager
 
 	/// Like begin_add() but the data is guaranteed to be copied internally.
 	u32 begin_add(TaskData32 task, u32 parent_id = 0, u32 dependency_id = 0);
+
+	/// Like begin_add() but the data is guaranteed to be copied internally.
+	u32 begin_add(TaskData48 task, u32 parent_id = 0, u32 dependency_id = 0);
 
 	/// Creates and queues an empty task. Empty tasks can be useful when you have a task with
 	/// multiple dependencies:
