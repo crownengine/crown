@@ -29,7 +29,7 @@ tools/unit_editor/unit_editor.vala
 tools/widgets/app_chooser_button.vala
 tools/widgets/console_view.vala
 tools/widgets/editor_viewport.vala
-tools/widgets/input_color3.vala
+tools/widgets/input_color4.vala
 tools/widgets/input_file.vala
 tools/widgets/input_object.vala
 tools/widgets/input_resource.vala

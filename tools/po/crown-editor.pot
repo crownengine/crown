@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 18:12+0200\n"
+"POT-Creation-Date: 2026-10-09 22:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,7 +96,7 @@ msgstr ""
 #: tools/level_editor/delete_dialog.vala:112
 #: tools/level_editor/delete_dialog.vala:147
 #: tools/level_editor/delete_dialog.vala:169 tools/level_editor/menus.vala:224
-#: tools/widgets/object_tree.vala:698
+#: tools/widgets/object_tree.vala:701
 msgid "Delete"
 msgstr ""
 
@@ -645,7 +645,7 @@ msgstr ""
 #: tools/level_editor/panel_projects_list.vala:254
 #: tools/level_editor/project_browser.vala:1492
 #: tools/level_editor/project_browser.vala:1499
-#: tools/level_editor/property_grid.vala:1595
+#: tools/level_editor/property_grid.vala:1641
 #: tools/widgets/object_tree.vala:186
 msgid "Search..."
 msgstr ""
@@ -750,7 +750,7 @@ msgstr ""
 msgid "Redo"
 msgstr ""
 
-#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:694
+#: tools/level_editor/menus.vala:220 tools/widgets/object_tree.vala:697
 msgid "Duplicate"
 msgstr ""
 
@@ -1341,7 +1341,7 @@ msgstr ""
 
 #: tools/level_editor/project_browser.vala:50
 #: tools/level_editor/project_browser.vala:181
-#: tools/widgets/console_view.vala:830
+#: tools/widgets/console_view.vala:833
 msgid "Open Containing Folder..."
 msgstr ""
 
@@ -1559,8 +1559,8 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:48 tools/widgets/object_tree.vala:707
-#: tools/widgets/object_tree.vala:728 tools/widgets/object_tree.vala:745
+#: tools/level_editor/property_grid.vala:48 tools/widgets/object_tree.vala:710
+#: tools/widgets/object_tree.vala:731 tools/widgets/object_tree.vala:748
 msgid "Add"
 msgstr ""
 
@@ -1571,32 +1571,32 @@ msgid ""
 "\n"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:585
+#: tools/level_editor/property_grid.vala:588
 msgid "Remove Component"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:916
+#: tools/level_editor/property_grid.vala:920
 msgid "Reset to default"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:1587
+#: tools/level_editor/property_grid.vala:1633
 msgid "Open Prefab"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:1612
+#: tools/level_editor/property_grid.vala:1658
 msgid "Other"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:1797
+#: tools/level_editor/property_grid.vala:1843
 msgid "Add Component"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:1810
-#: tools/level_editor/property_grid.vala:1811
+#: tools/level_editor/property_grid.vala:1856
+#: tools/level_editor/property_grid.vala:1857
 msgid "Prefab"
 msgstr ""
 
-#: tools/level_editor/property_grid.vala:1812
+#: tools/level_editor/property_grid.vala:1858
 msgid "Components"
 msgstr ""
 
@@ -2890,15 +2890,15 @@ msgstr ""
 msgid "Open by extension"
 msgstr ""
 
-#: tools/widgets/console_view.vala:199
+#: tools/widgets/console_view.vala:202
 msgid "Clear the console."
 msgstr ""
 
-#: tools/widgets/console_view.vala:253
+#: tools/widgets/console_view.vala:256
 msgid "Enter Command or Lua expression"
 msgstr ""
 
-#: tools/widgets/console_view.vala:825
+#: tools/widgets/console_view.vala:828
 msgid "Reveal in Project Browser"
 msgstr ""
 
@@ -2934,43 +2934,43 @@ msgstr ""
 msgid "View Unknown"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:433
+#: tools/widgets/input_color4.vala:480
 msgid "Red"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:434
+#: tools/widgets/input_color4.vala:481
 msgid "Green"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:435
+#: tools/widgets/input_color4.vala:482
 msgid "Blue"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:436 tools/widgets/input_color3.vala:444
-msgid "Alpha"
-msgstr ""
-
-#: tools/widgets/input_color3.vala:441
+#: tools/widgets/input_color4.vala:487
 msgid "Hue"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:442
+#: tools/widgets/input_color4.vala:488
 msgid "Saturation"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:443
+#: tools/widgets/input_color4.vala:489
 msgid "Value"
 msgstr ""
 
-#: tools/widgets/input_color3.vala:447
+#: tools/widgets/input_color4.vala:492
 msgid "Lua color code."
 msgstr ""
 
-#: tools/widgets/input_color3.vala:451 tools/widgets/input_color3.vala:454
+#: tools/widgets/input_color4.vala:496 tools/widgets/input_color4.vala:499
 msgid "Pick a color from the screen."
 msgstr ""
 
-#: tools/widgets/input_color3.vala:526
+#: tools/widgets/input_color4.vala:535
+msgid "Alpha"
+msgstr ""
+
+#: tools/widgets/input_color4.vala:588
 msgid "Choose a color."
 msgstr ""
 
@@ -3038,11 +3038,11 @@ msgstr ""
 msgid "Select an object to start editing"
 msgstr ""
 
-#: tools/widgets/object_tree.vala:569
+#: tools/widgets/object_tree.vala:572
 msgid "Toggle visibility."
 msgstr ""
 
-#: tools/widgets/object_tree.vala:571
+#: tools/widgets/object_tree.vala:574
 msgid "Toggle selection lock."
 msgstr ""
 

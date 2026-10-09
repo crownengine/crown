@@ -10,12 +10,12 @@ public class PreferencesDialog : Gtk.Window
 	public RuntimeInstance? _editor;
 
 	// Document page.
-	public InputColor3 _grid_color_button;
-	public InputColor3 _grid_disabled_color_button;
-	public InputColor3 _axis_x_color_button;
-	public InputColor3 _axis_y_color_button;
-	public InputColor3 _axis_z_color_button;
-	public InputColor3 _axis_selected_color_button;
+	public InputColor4 _grid_color_button;
+	public InputColor4 _grid_disabled_color_button;
+	public InputColor4 _axis_x_color_button;
+	public InputColor4 _axis_y_color_button;
+	public InputColor4 _axis_z_color_button;
+	public InputColor4 _axis_selected_color_button;
 	public InputDouble _gizmo_size_spin_button;
 	public InputEnum _theme_combo;
 	public PropertyGridSet _document_set;
@@ -62,23 +62,23 @@ public class PreferencesDialog : Gtk.Window
 		_external_tools_set = new PropertyGridSet();
 
 		// Document page.
-		_grid_color_button = new InputColor3();
-		_grid_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
+		_grid_color_button = new InputColor4(InputColorChannels.RGB);
+		_grid_color_button.value = Vector4(102.0/255.0, 102.0/255.0, 102.0/255.0, 1.0);
 		_grid_color_button.value_changed.connect(on_color_set);
-		_grid_disabled_color_button = new InputColor3();
-		_grid_disabled_color_button.value = Vector3(102.0/255.0, 102.0/255.0, 102.0/255.0);
+		_grid_disabled_color_button = new InputColor4(InputColorChannels.RGB);
+		_grid_disabled_color_button.value = Vector4(102.0/255.0, 102.0/255.0, 102.0/255.0, 1.0);
 		_grid_disabled_color_button.value_changed.connect(on_color_set);
-		_axis_x_color_button = new InputColor3();
-		_axis_x_color_button.value = Vector3(217.0/255.0, 0.0/255.0, 0.0/255.0);
+		_axis_x_color_button = new InputColor4(InputColorChannels.RGB);
+		_axis_x_color_button.value = Vector4(217.0/255.0, 0.0/255.0, 0.0/255.0, 1.0);
 		_axis_x_color_button.value_changed.connect(on_color_set);
-		_axis_y_color_button = new InputColor3();
-		_axis_y_color_button.value = Vector3(0.0/255.0, 217.0/255.0, 0.0/255.0);
+		_axis_y_color_button = new InputColor4(InputColorChannels.RGB);
+		_axis_y_color_button.value = Vector4(0.0/255.0, 217.0/255.0, 0.0/255.0, 1.0);
 		_axis_y_color_button.value_changed.connect(on_color_set);
-		_axis_z_color_button = new InputColor3();
-		_axis_z_color_button.value = Vector3(0.0/255.0, 0.0/255.0, 217.0/255.0);
+		_axis_z_color_button = new InputColor4(InputColorChannels.RGB);
+		_axis_z_color_button.value = Vector4(0.0/255.0, 0.0/255.0, 217.0/255.0, 1.0);
 		_axis_z_color_button.value_changed.connect(on_color_set);
-		_axis_selected_color_button = new InputColor3();
-		_axis_selected_color_button.value = Vector3(217.0/255.0, 217.0/255.0, 0.0/255.0);
+		_axis_selected_color_button = new InputColor4(InputColorChannels.RGB);
+		_axis_selected_color_button.value = Vector4(217.0/255.0, 217.0/255.0, 0.0/255.0, 1.0);
 		_axis_selected_color_button.value_changed.connect(on_color_set);
 
 		PropertyGrid cv;
@@ -246,12 +246,12 @@ public class PreferencesDialog : Gtk.Window
 		if (_editor == null)
 			return;
 
-		_editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value));
-		_editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value));
-		_editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value));
-		_editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value));
-		_editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value));
-		_editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value));
+		_editor.send_script(LevelEditorApi.set_color("grid", _grid_color_button.value.to_vector3()));
+		_editor.send_script(LevelEditorApi.set_color("grid_disabled", _grid_disabled_color_button.value.to_vector3()));
+		_editor.send_script(LevelEditorApi.set_color("axis_x", _axis_x_color_button.value.to_vector3()));
+		_editor.send_script(LevelEditorApi.set_color("axis_y", _axis_y_color_button.value.to_vector3()));
+		_editor.send_script(LevelEditorApi.set_color("axis_z", _axis_z_color_button.value.to_vector3()));
+		_editor.send_script(LevelEditorApi.set_color("axis_selected", _axis_selected_color_button.value.to_vector3()));
 		_editor.send(DeviceApi.frame());
 	}
 
@@ -297,12 +297,12 @@ public class PreferencesDialog : Gtk.Window
 			: new GLib.HashTable<string, Value?>(GLib.str_hash, GLib.str_equal)
 			;
 
-		_grid_color_button.value          = Vector3.from_array(preferences.contains("grid") ? (GLib.GenericArray<Value?>)preferences["grid"] : _grid_color_button.value.to_array());
-		_grid_disabled_color_button.value = Vector3.from_array(preferences.contains("grid_disabled") ? (GLib.GenericArray<Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_array());
-		_axis_x_color_button.value        = Vector3.from_array(preferences.contains("axis_x") ? (GLib.GenericArray<Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_array());
-		_axis_y_color_button.value        = Vector3.from_array(preferences.contains("axis_y") ? (GLib.GenericArray<Value?>)preferences["axis_y"] : _axis_y_color_button.value.to_array());
-		_axis_z_color_button.value        = Vector3.from_array(preferences.contains("axis_z") ? (GLib.GenericArray<Value?>)preferences["axis_z"] : _axis_z_color_button.value.to_array());
-		_axis_selected_color_button.value = Vector3.from_array(preferences.contains("axis_selected") ? (GLib.GenericArray<Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_array());
+		_grid_color_button.value          = Vector4.from_vector3(Vector3.from_array(preferences.contains("grid") ? (GLib.GenericArray<Value?>)preferences["grid"] : _grid_color_button.value.to_vector3().to_array()));
+		_grid_disabled_color_button.value = Vector4.from_vector3(Vector3.from_array(preferences.contains("grid_disabled") ? (GLib.GenericArray<Value?>)preferences["grid_disabled"] : _grid_disabled_color_button.value.to_vector3().to_array()));
+		_axis_x_color_button.value        = Vector4.from_vector3(Vector3.from_array(preferences.contains("axis_x") ? (GLib.GenericArray<Value?>)preferences["axis_x"] : _axis_x_color_button.value.to_vector3().to_array()));
+		_axis_y_color_button.value        = Vector4.from_vector3(Vector3.from_array(preferences.contains("axis_y") ? (GLib.GenericArray<Value?>)preferences["axis_y"] : _axis_y_color_button.value.to_vector3().to_array()));
+		_axis_z_color_button.value        = Vector4.from_vector3(Vector3.from_array(preferences.contains("axis_z") ? (GLib.GenericArray<Value?>)preferences["axis_z"] : _axis_z_color_button.value.to_vector3().to_array()));
+		_axis_selected_color_button.value = Vector4.from_vector3(Vector3.from_array(preferences.contains("axis_selected") ? (GLib.GenericArray<Value?>)preferences["axis_selected"] : _axis_selected_color_button.value.to_vector3().to_array()));
 		_gizmo_size_spin_button.value     = preferences.contains("gizmo_size") ? (double)preferences["gizmo_size"] : _gizmo_size_spin_button.value;
 		_level_autosave_spin_button.value = preferences.contains("autosave_timer") ? (double)preferences["autosave_timer"] : _level_autosave_spin_button.value;
 		_game_keep_above.value            = preferences.contains("game_keep_above") ? (bool)preferences["game_keep_above"] : _game_keep_above.value;
@@ -384,12 +384,12 @@ public class PreferencesDialog : Gtk.Window
 			;
 		settings["preferences"] = preferences;
 
-		preferences["grid"]           = _grid_color_button.value.to_array();
-		preferences["grid_disabled"]  = _grid_disabled_color_button.value.to_array();
-		preferences["axis_x"]         = _axis_x_color_button.value.to_array();
-		preferences["axis_y"]         = _axis_y_color_button.value.to_array();
-		preferences["axis_z"]         = _axis_z_color_button.value.to_array();
-		preferences["axis_selected"]  = _axis_selected_color_button.value.to_array();
+		preferences["grid"]           = _grid_color_button.value.to_vector3().to_array();
+		preferences["grid_disabled"]  = _grid_disabled_color_button.value.to_vector3().to_array();
+		preferences["axis_x"]         = _axis_x_color_button.value.to_vector3().to_array();
+		preferences["axis_y"]         = _axis_y_color_button.value.to_vector3().to_array();
+		preferences["axis_z"]         = _axis_z_color_button.value.to_vector3().to_array();
+		preferences["axis_selected"]  = _axis_selected_color_button.value.to_vector3().to_array();
 		preferences["gizmo_size"]     = _gizmo_size_spin_button.value;
 		preferences["autosave_timer"] = _level_autosave_spin_button.value;
 		preferences["game_keep_above"] = _game_keep_above.value;

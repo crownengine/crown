@@ -21,6 +21,14 @@ public struct Vector4
 		this.w = w;
 	}
 
+	public Vector4.from_vector3(Vector3 rgb)
+	{
+		this.x = rgb.x;
+		this.y = rgb.y;
+		this.z = rgb.z;
+		this.w = 1.0;
+	}
+
 	public Vector4.from_array(GLib.GenericArray<Value?> arr)
 	{
 		this.x = (double)arr[0];

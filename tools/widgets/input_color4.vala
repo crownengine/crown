@@ -9,6 +9,12 @@ extern Gdk.RGBA? gtk_color_picker_pick_finish(GLib.Object picker, GLib.AsyncResu
 
 namespace Crown
 {
+public enum InputColorChannels
+{
+	RGB,
+	RGBA,
+}
+
 #if CROWN_GTK3
 public class ColorButton : Gtk.MenuButton
 #else
@@ -44,6 +50,8 @@ public class ColorButton : Gtk.Button
 #if CROWN_GTK3
 		Gtk.Allocation alloc;
 		this.get_allocation(out alloc);
+		int alloc_width = alloc.width;
+		int alloc_height = alloc.height;
 #else
 		int alloc_width = this.get_allocated_width();
 		int alloc_height = this.get_allocated_height();
@@ -55,12 +63,22 @@ public class ColorButton : Gtk.Button
 			});
 #endif
 
+		int color_width = alloc_width - 2 * PADDING;
+		int left_width = color_width / 2;
+		int right_x = PADDING + left_width;
+		int right_width = color_width - left_width;
+		int color_height = alloc_height - 2 * PADDING;
+		cr.set_source_rgb(this.color.red, this.color.green, this.color.blue);
+		cr.rectangle(PADDING, PADDING, left_width, color_height);
+		cr.fill();
+
+		PixbufView.create_checkered_pattern();
+		cr.set_source(PixbufView._checker_pattern);
+		cr.rectangle(right_x, PADDING, right_width, color_height);
+		cr.fill();
+
 		cr.set_source_rgba(this.color.red, this.color.green, this.color.blue, this.color.alpha);
-#if CROWN_GTK3
-		cr.rectangle(PADDING, PADDING, alloc.width - 2 * PADDING, alloc.height - 2 * PADDING);
-#else
-		cr.rectangle(PADDING, PADDING, alloc_width - 2 * PADDING, alloc_height - 2 * PADDING);
-#endif
+		cr.rectangle(right_x, PADDING, right_width, color_height);
 		cr.fill();
 #if CROWN_GTK3
 		return false;
@@ -245,11 +263,12 @@ static Cairo.MeshPattern create_circle_mesh(double cx, double cy, double r, doub
 	return mesh;
 }
 
-public class InputColor3 : InputField
+public class InputColor4 : InputField
 {
+	private InputColorChannels _channels;
 	public bool _dragging;
 	public bool _silent;
-	public Vector3 _drag_start_rgb;
+	public Vector4 _drag_start_color;
 	public int _hs_palette_radius;
 	public double _hs_lens_radius_scale;
 	public double _hs_lens_small_radius_scale;
@@ -261,13 +280,12 @@ public class InputColor3 : InputField
 	public InputDouble _rgb_r;
 	public InputDouble _rgb_g;
 	public InputDouble _rgb_b;
-	public InputDouble _rgb_a;
+	public InputDouble _alpha;
 	public InputDouble _hsv_h;
 	public InputDouble _hsv_s;
 	public InputDouble _hsv_v;
-	public InputDouble _hsv_a;
-	public PropertyGrid _rgb_grid;
-	public PropertyGrid _hsv_grid;
+	public Gtk.Grid _rgb_grid;
+	public Gtk.Grid _hsv_grid;
 	public InputString _color_string;
 	public Gtk.Button _picker_button;
 	public Gtk.Button _main_picker_button;
@@ -302,28 +320,56 @@ public class InputColor3 : InputField
 
 	public override void set_union_value(GLib.Value v)
 	{
-		this.value = (Vector3)v;
+		this.value = (Vector4)v;
 	}
 
-	public Vector3 value
+	private static void add_channel_row(Gtk.Grid grid, Gtk.SizeGroup label_size_group, string name, InputDouble input, int row)
+	{
+		Gtk.Label label = new Gtk.Label(name);
+		label.ellipsize = Pango.EllipsizeMode.END;
+		label.xalign = 1.0f;
+		label.yalign = 0.5f;
+		label_size_group.add_widget(label);
+		input.hexpand = true;
+		grid.attach(label, 0, row, 1, 1);
+		grid.attach(input, 1, row, 1, 1);
+	}
+
+	public Vector4 value
 	{
 		get
 		{
-			return Vector3(_rgb_r.value, _rgb_g.value, _rgb_b.value);
+			return Vector4(_rgb_r.value
+				, _rgb_g.value
+				, _rgb_b.value
+				, _channels == InputColorChannels.RGB ? 1.0 : _alpha.value
+				);
 		}
 		set
 		{
-			Vector3 rgb = (Vector3)value;
-			Vector3 old_rgb = this.value;
+			Vector4 color = (Vector4)value;
+			Vector4 old_color = this.value;
+			if (_channels == InputColorChannels.RGB)
+				color.w = 1.0;
 
 			disconnect_rgb();
-			_rgb_r.value = rgb.x;
-			_rgb_g.value = rgb.y;
-			_rgb_b.value = rgb.z;
+			_alpha.value_changed.disconnect(on_alpha_value_changed);
+			_rgb_r.value = color.x;
+			_rgb_g.value = color.y;
+			_rgb_b.value = color.z;
+			_alpha.value = color.w;
+			_alpha.value_changed.connect(on_alpha_value_changed);
 			connect_rgb();
 
-			if (Vector3.equal_func(this.value, old_rgb))
+			Vector4 current_color = this.value;
+			if (current_color.x == old_color.x
+				&& current_color.y == old_color.y
+				&& current_color.z == old_color.z
+				&& current_color.w == old_color.w) {
+				// Normalize the color string even when the numeric value is unchanged.
+				on_value_changed();
 				return;
+			}
 
 			sync_hsv_from_rgb();
 			value_changed(this, _silent ? -1 : (_dragging ? 0 : 1));
@@ -337,10 +383,11 @@ public class InputColor3 : InputField
 		return (int)(palette_size + lens_size);
 	}
 
-	public InputColor3()
+	public InputColor4(InputColorChannels channels = InputColorChannels.RGBA)
 	{
+		_channels = channels;
 		_dragging = false;
-		_drag_start_rgb = Vector3(1.0, 1.0, 1.0);
+		_drag_start_color = VECTOR4_ONE;
 
 		_hs_palette_radius = 100;
 		_hs_lens_radius_scale = 0.1;
@@ -412,36 +459,34 @@ public class InputColor3 : InputField
 		_rgb_r = new InputDouble(1.0, 0.0, 1.0);
 		_rgb_g = new InputDouble(1.0, 0.0, 1.0);
 		_rgb_b = new InputDouble(1.0, 0.0, 1.0);
-		_rgb_a = new InputDouble(1.0, 0.0, 1.0);
+		_alpha = new InputDouble(1.0, 0.0, 1.0);
 		_rgb_r.value_changed.connect(on_rgb_value_changed);
 		_rgb_g.value_changed.connect(on_rgb_value_changed);
 		_rgb_b.value_changed.connect(on_rgb_value_changed);
+		_alpha.value_changed.connect(on_alpha_value_changed);
 
 		_hsv_h = new InputDouble(0.0, 0.0, 1.0);
 		_hsv_s = new InputDouble(0.0, 0.0, 1.0);
 		_hsv_v = new InputDouble(1.0, 0.0, 1.0);
-		_hsv_a = new InputDouble(_rgb_a.value, 0.0, 1.0);
 		_hsv_h.value_changed.connect(on_hsv_value_changed);
 		_hsv_s.value_changed.connect(on_hsv_value_changed);
 		_hsv_v.value_changed.connect(on_hsv_value_changed);
 
 		Gtk.SizeGroup label_size_group = new Gtk.SizeGroup(Gtk.SizeGroupMode.HORIZONTAL);
 
-		_rgb_grid = new PropertyGrid();
-		_rgb_grid.row_homogeneous = false;
-		_rgb_grid.set_label_size_group(label_size_group);
-		_rgb_grid.add_row(_("Red"), _rgb_r);
-		_rgb_grid.add_row(_("Green"), _rgb_g);
-		_rgb_grid.add_row(_("Blue"), _rgb_b);
-		_rgb_grid.add_row(_("Alpha"), _rgb_a);
+		_rgb_grid = new Gtk.Grid();
+		_rgb_grid.row_spacing = 4;
+		_rgb_grid.column_spacing = 12;
+		add_channel_row(_rgb_grid, label_size_group, _("Red"), _rgb_r, 0);
+		add_channel_row(_rgb_grid, label_size_group, _("Green"), _rgb_g, 1);
+		add_channel_row(_rgb_grid, label_size_group, _("Blue"), _rgb_b, 2);
 
-		_hsv_grid = new PropertyGrid();
-		_hsv_grid.row_homogeneous = false;
-		_hsv_grid.set_label_size_group(label_size_group);
-		_hsv_grid.add_row(_("Hue"), _hsv_h);
-		_hsv_grid.add_row(_("Saturation"), _hsv_s);
-		_hsv_grid.add_row(_("Value"), _hsv_v);
-		_hsv_grid.add_row(_("Alpha"), _hsv_a);
+		_hsv_grid = new Gtk.Grid();
+		_hsv_grid.row_spacing = 4;
+		_hsv_grid.column_spacing = 12;
+		add_channel_row(_hsv_grid, label_size_group, _("Hue"), _hsv_h, 0);
+		add_channel_row(_hsv_grid, label_size_group, _("Saturation"), _hsv_s, 1);
+		add_channel_row(_hsv_grid, label_size_group, _("Value"), _hsv_v, 2);
 
 		_color_string = new InputString();
 		_color_string.set_tooltip_text(_("Lua color code."));
@@ -477,7 +522,7 @@ public class InputColor3 : InputField
 		_visual_box.append(_hsv_v_scale);
 #endif
 
-		_numeric_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 8);
+		_numeric_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 4);
 #if CROWN_GTK3
 		_numeric_box.pack_start(_rgb_hsv_switcher);
 		_numeric_box.pack_start(_rgb_hsv_stack);
@@ -485,6 +530,23 @@ public class InputColor3 : InputField
 		_numeric_box.append(_rgb_hsv_switcher);
 		_numeric_box.append(_rgb_hsv_stack);
 #endif
+		if (_channels == InputColorChannels.RGBA) {
+			Gtk.Box alpha_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 12);
+			Gtk.Label alpha_label = new Gtk.Label(_("Alpha"));
+			alpha_label.ellipsize = Pango.EllipsizeMode.END;
+			alpha_label.xalign = 1.0f;
+			label_size_group.add_widget(alpha_label);
+			_alpha.hexpand = true;
+#if CROWN_GTK3
+			alpha_box.pack_start(alpha_label, false, false, 0);
+			alpha_box.pack_start(_alpha, true, true, 0);
+			_numeric_box.pack_start(alpha_box);
+#else
+			alpha_box.append(alpha_label);
+			alpha_box.append(_alpha);
+			_numeric_box.append(alpha_box);
+#endif
+		}
 
 		_utils_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
 #if CROWN_GTK3
@@ -682,6 +744,18 @@ public class InputColor3 : InputField
 		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
 	}
 
+	public void on_alpha_value_changed(InputField p, int undo_redo)
+	{
+		if (_channels == InputColorChannels.RGB) {
+			_alpha.value_changed.disconnect(on_alpha_value_changed);
+			_alpha.value = 1.0;
+			_alpha.value_changed.connect(on_alpha_value_changed);
+			return;
+		}
+
+		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
+	}
+
 	public void sync_rgb_from_hsv()
 	{
 		double r = 1.0;
@@ -709,9 +783,9 @@ public class InputColor3 : InputField
 
 	public void on_hsv_value_changed(InputField p, int undo_redo)
 	{
-		Vector3 old_rgb = this.value;
+		Vector3 old_rgb = this.value.to_vector3();
 		sync_rgb_from_hsv();
-		if (Vector3.equal_func(this.value, old_rgb))
+		if (Vector3.equal_func(this.value.to_vector3(), old_rgb))
 			return;
 
 		value_changed(this, _silent ? -1 : (_dragging ? 0 : undo_redo));
@@ -749,17 +823,17 @@ public class InputColor3 : InputField
 
 	public void on_value_changed()
 	{
-		Vector3 c = this.value;
+		Vector4 c = this.value;
 #if CROWN_GTK3
-		_color_button.set_color({ c.x, c.y, c.z, 1.0 });
+		_color_button.set_color({ c.x, c.y, c.z, c.w });
 #else
-		_color_button.set_color({ (float)c.x, (float)c.y, (float)c.z, 1.0f });
+		_color_button.set_color({ (float)c.x, (float)c.y, (float)c.z, (float)c.w });
 #endif
 		_color_string.value_changed.disconnect(on_color_string_value_changed);
-		_color_string.value = "Color4(%d, %d, %d, %d)".printf((int)(_rgb_r.value * 255.0)
-			, (int)(_rgb_g.value * 255.0)
-			, (int)(_rgb_b.value * 255.0)
-			, (int)(_rgb_a.value * 255.0)
+		_color_string.value = "Color4(%d, %d, %d, %d)".printf((int)(c.x * 255.0)
+			, (int)(c.y * 255.0)
+			, (int)(c.z * 255.0)
+			, (int)(c.w * 255.0)
 			);
 		_color_string.value_changed.connect(on_color_string_value_changed);
 	}
@@ -803,7 +877,7 @@ public class InputColor3 : InputField
 	{
 		double old_h = _hsv_h.value;
 		double old_s = _hsv_s.value;
-		Vector3 old_rgb = this.value;
+		Vector3 old_rgb = this.value.to_vector3();
 
 		disconnect_hsv();
 		_hsv_h.value = hs.x;
@@ -814,7 +888,7 @@ public class InputColor3 : InputField
 			return;
 
 		sync_rgb_from_hsv();
-		if (Vector3.equal_func(this.value, old_rgb))
+		if (Vector3.equal_func(this.value.to_vector3(), old_rgb))
 			return;
 
 		value_changed(this, _silent ? -1 : (int)!_dragging);
@@ -823,7 +897,7 @@ public class InputColor3 : InputField
 	public void on_hs_circle_button_pressed(int n_press, double x, double y)
 	{
 		_dragging = true;
-		_drag_start_rgb = this.value;
+		_drag_start_color = this.value;
 
 		on_hs_circle_changed(hs_from_xy({ x, y }));
 
@@ -840,9 +914,9 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		Vector3 current_value = this.value;
+		Vector4 current_value = this.value;
 		_silent = true;
-		this.value = _drag_start_rgb;
+		this.value = _drag_start_color;
 		_silent = false;
 		_dragging = false;
 		this.value = current_value;
@@ -860,7 +934,7 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		this.value = _drag_start_rgb;
+		this.value = _drag_start_color;
 		_dragging = false;
 
 #if CROWN_GTK3
@@ -885,7 +959,7 @@ public class InputColor3 : InputField
 		GLib.Error error = null;
 		Gdk.RGBA? rgba = gtk_color_picker_pick_finish(_picker, result, ref error);
 		if (rgba != null)
-			this.value = Vector3(rgba.red, rgba.green, rgba.blue);
+			this.value = Vector4(rgba.red, rgba.green, rgba.blue, this.value.w);
 	}
 
 	public void on_picker_button_clicked()
@@ -910,18 +984,18 @@ public class InputColor3 : InputField
 			, out rgba[2]
 			, out rgba[3]
 			) == 4) {
-			this.value = Vector3(rgba[0] / 255.0
+			this.value = Vector4(rgba[0] / 255.0
 				, rgba[1] / 255.0
 				, rgba[2] / 255.0
+				, rgba[3] / 255.0
 				);
-			_rgb_a.value = rgba[3] / 255.0;
 		}
 	}
 
 	public void on_hsv_v_scale_pressed(int n_press, double x, double y)
 	{
 		_dragging = true;
-		_drag_start_rgb = this.value;
+		_drag_start_color = this.value;
 	}
 
 	public void on_hsv_v_scale_released(int n_press, double x, double y)
@@ -929,9 +1003,9 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		Vector3 current_value = this.value;
+		Vector4 current_value = this.value;
 		_silent = true;
-		this.value = _drag_start_rgb;
+		this.value = _drag_start_color;
 		_silent = false;
 		_dragging = false;
 		this.value = current_value;
@@ -942,7 +1016,7 @@ public class InputColor3 : InputField
 		if (!_dragging)
 			return;
 
-		this.value = _drag_start_rgb;
+		this.value = _drag_start_color;
 		_dragging = false;
 	}
 }

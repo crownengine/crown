@@ -549,7 +549,10 @@ public class PropertyGrid : Gtk.Grid
 
 		InputField field = _widgets[property_name];
 		PropertyDefinition? def = _definitions[field];
-		field.set_union_value(def.deffault);
+		if (def.type == PropertyType.VECTOR3 && def.editor == PropertyEditorType.COLOR)
+			field.set_union_value(Vector4.from_vector3((Vector3)def.deffault));
+		else
+			field.set_union_value(def.deffault);
 	}
 
 	public void on_project_files_changed()
@@ -859,7 +862,7 @@ public class PropertyGrid : Gtk.Grid
 				break;
 			case PropertyType.VECTOR3:
 				if (def.editor == PropertyEditorType.COLOR)
-					p = new InputColor3();
+					p = new InputColor4(InputColorChannels.RGB);
 				else if (def.editor == PropertyEditorType.ANGLE)
 					p = new InputAngle3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				else
@@ -1069,15 +1072,20 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.VECTOR3) {
+			// Reassigning new_value to a temporary Vector3 leaves a dangling GValue.
+			Vector3 value = def.editor == PropertyEditorType.COLOR
+				? ((Vector4)new_value).to_vector3()
+				: (Vector3)new_value
+				;
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 				Unit u = Unit(_db, _id);
-				if (Vector3.equal_func(u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault), (Vector3)new_value) == false) {
-					u.set_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)new_value);
+				if (Vector3.equal_func(u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault), value) == false) {
+					u.set_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), value);
 					changed = true;
 				}
 			} else {
-				if (Vector3.equal_func(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault), (Vector3)new_value) == false) {
-					_db.set_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)new_value);
+				if (Vector3.equal_func(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault), value) == false) {
+					_db.set_vector3(_id, _db.property_index(_id, StringId64(def.name)), value);
 					changed = true;
 				}
 			}
@@ -1217,12 +1225,17 @@ public class PropertyGrid : Gtk.Grid
 						p.set_union_value(_db.get_string(_id, _db.property_index(_id, StringId64(def.name)), (string)def.deffault));
 					}
 				} else if (def.type == PropertyType.VECTOR3) {
+					Vector3 value;
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault));
+						value = u.get_component_vector3(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Vector3)def.deffault);
 					} else {
-						p.set_union_value(_db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault));
+						value = _db.get_vector3(_id, _db.property_index(_id, StringId64(def.name)), (Vector3)def.deffault);
 					}
+					if (def.editor == PropertyEditorType.COLOR)
+						p.set_union_value(Vector4.from_vector3(value));
+					else
+						p.set_union_value(value);
 				} else if (def.type == PropertyType.QUATERNION) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
