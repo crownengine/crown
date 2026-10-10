@@ -1825,15 +1825,38 @@ struct LinuxDevice
 
 	explicit LinuxDevice(Allocator &a)
 		: _allocator(&a)
+		, _options(NULL)
 		, _events(a)
 		, _queue(push_event)
 		, _joypad(_queue)
+		, _system(NULL)
 		, display_server(DisplayServer::COUNT)
 	{
 	}
 
+	static s32 run_runtime(void *user_data)
+	{
+		DeviceOptions *opts = (DeviceOptions *)user_data;
+		int ec = crown::main_runtime(*opts);
+		s_exit = true;
+		if (!opts->_headless) {
+			// Write something just to unlock the listening select().
+			const ssize_t written = write(exit_pipe[1], &s_exit, sizeof(s_exit));
+			CE_UNUSED(written);
+		}
+		return ec;
+	}
+
 	int run(DeviceOptions *opts)
 	{
+		_options = opts;
+		if (opts->_headless) {
+			Thread main_thread;
+			main_thread.start(run_runtime, opts);
+			main_thread.stop();
+			return main_thread.exit_code();
+		}
+
 		int init_ret = -1;
 		const char *display = NULL;
 
@@ -1868,24 +1891,13 @@ struct LinuxDevice
 		if (init_ret != 0)
 			return EXIT_FAILURE;
 
-		_options = opts;
-
 		int err = pipe(exit_pipe);
 		CE_ASSERT(err != -1, "pipe: errno = %d", errno);
 		CE_UNUSED(err);
 
 		// Start main thread
 		Thread main_thread;
-		main_thread.start([](void *user_data) {
-				int ec = crown::main_runtime(*((DeviceOptions *)user_data));
-				s_exit = true;
-				// Write something just to unlock the listening select().
-				const ssize_t written = write(exit_pipe[1], &s_exit, sizeof(s_exit));
-				CE_UNUSED(written);
-				return ec;
-			}
-			, opts
-			);
+		main_thread.start(run_runtime, opts);
 
 		_joypad.open();
 

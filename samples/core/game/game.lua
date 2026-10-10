@@ -57,7 +57,7 @@ function GameBase.update(dt)
 
 	if TEST then
 		-- Stop the engine when the 'ESC' key is released.
-		if Keyboard.released(Keyboard.button_id("escape")) then
+		if Keyboard and Keyboard.released(Keyboard.button_id("escape")) then
 			Device.quit()
 		end
 	end

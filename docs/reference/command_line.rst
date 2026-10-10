@@ -155,6 +155,13 @@ Runtime Options
 ``--keep-above``
 	Keep the main window above other windows.
 
+.. _cli-headless:
+
+``--headless``
+	Render offscreen without creating a window.
+
+	The window, display, and all user input systems are unavailable in this mode.
+
 ``--display-server <server>``
 	Set the display server backend.
 	Possible values for <server> are:

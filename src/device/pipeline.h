@@ -76,6 +76,11 @@ struct View
 
 namespace crown
 {
+struct PipelineOutput
+{
+	enum Enum { WINDOW, OFFSCREEN };
+};
+
 /// Render pipeline.
 ///
 /// @ingroup Device
@@ -83,6 +88,8 @@ struct Pipeline
 {
 	ShaderManager *_shader_manager;
 	RenderSettings _render_settings;
+	PipelineOutput::Enum _output;
+	bgfx::TextureHandle _screenshot_texture;
 
 	// Main output color/depth handles.
 	bgfx::FrameBufferHandle _color_sdr;
@@ -189,13 +196,16 @@ struct Pipeline
 	bool selection_enabled() const;
 
 	///
-	void create(u16 width, u16 height, const RenderSettings &render_settings);
+	void create(u16 width, u16 height, const RenderSettings &render_settings, PipelineOutput::Enum output);
 
 	///
 	void destroy();
 
 	///
 	void reset(u16 width, u16 height);
+
+	/// Queues a copy of the SDR output and returns its readback completion frame.
+	bool readback(u32 &ready_frame, void *data, u16 width, u16 height);
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);

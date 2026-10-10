@@ -9,12 +9,15 @@
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "core/types.h"
+#include "device/log.h"
 #include "device/pipeline.h"
 #include "world/shader_manager.h"
 #include "core/math/matrix4x4.inl"
 #include <bx/math.h>
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
+
+LOG_SYSTEM(PIPELINE, "pipeline")
 
 namespace crown
 {
@@ -143,6 +146,8 @@ static void lookup_default_shaders(Pipeline &pl)
 
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
+	, _output(PipelineOutput::WINDOW)
+	, _screenshot_texture(BGFX_INVALID_HANDLE)
 	, _color_sdr(BGFX_INVALID_HANDLE)
 	, _depth_texture(BGFX_INVALID_HANDLE)
 	, _color_map(BGFX_INVALID_HANDLE)
@@ -206,9 +211,10 @@ bool Pipeline::selection_enabled() const
 		;
 }
 
-void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings)
+void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings, PipelineOutput::Enum output)
 {
 	_render_settings = render_settings;
+	_output = output;
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 
@@ -333,6 +339,10 @@ void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settin
 
 void Pipeline::destroy()
 {
+	if (bgfx::isValid(_screenshot_texture))
+		bgfx::destroy(_screenshot_texture);
+	_screenshot_texture = BGFX_INVALID_HANDLE;
+
 	// Unbind all views that may still point to our framebuffers.
 	for (u32 id = 0; id < View::COUNT; ++id)
 		bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
@@ -552,6 +562,10 @@ void Pipeline::bind_bones_data(u32 row)
 
 void Pipeline::reset(u16 width, u16 height)
 {
+	if (bgfx::isValid(_screenshot_texture))
+		bgfx::destroy(_screenshot_texture);
+	_screenshot_texture = BGFX_INVALID_HANDLE;
+
 	u64 depth_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
@@ -774,6 +788,8 @@ void Pipeline::reset(u16 width, u16 height)
 			}
 		} else if (id == View::LIGHTS) {
 			view_name = "lights_data";
+			if (_output == PipelineOutput::OFFSCREEN)
+				bgfx::setViewFrameBuffer(id, _colors[0]);
 		} else if (id == View::MESH) {
 			view_name = "mesh";
 			bgfx::setViewRect(id, 0, 0, width, height);
@@ -868,7 +884,12 @@ void Pipeline::reset(u16 width, u16 height)
 		} else if (id == View::BLIT) {
 			view_name = "blit";
 			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
-			bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+			if (_output == PipelineOutput::OFFSCREEN) {
+				// Switching away from SDR resolves its MSAA color before readback.
+				bgfx::setViewFrameBuffer(id, _colors[0]);
+			} else {
+				bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
+			}
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewTransform(id, NULL, ortho);
 		} else if (id == View::IMGUI) {
@@ -949,6 +970,30 @@ void Pipeline::draw_local_lights_stencil(u16 tile_size, u16 tile_cols)
 	}
 }
 
+bool Pipeline::readback(u32 &ready_frame, void *data, u16 width, u16 height)
+{
+	const u64 required_caps = BGFX_CAPS_TEXTURE_BLIT | BGFX_CAPS_TEXTURE_READ_BACK;
+	const u64 flags = BGFX_TEXTURE_BLIT_DST | BGFX_TEXTURE_READ_BACK;
+	if ((bgfx::getCaps()->supported & required_caps) != required_caps
+		|| !bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::RGBA8, flags)) {
+		loge(PIPELINE, "Screenshot readback is not supported by this renderer");
+		return false;
+	}
+
+	if (!bgfx::isValid(_screenshot_texture)) {
+		_screenshot_texture = bgfx::createTexture2D(width, height, false, 1, bgfx::TextureFormat::RGBA8, flags);
+		if (!bgfx::isValid(_screenshot_texture)) {
+			loge(PIPELINE, "Failed to create screenshot readback texture");
+			return false;
+		}
+	}
+
+	bgfx::touch(View::BLIT);
+	bgfx::blit(View::BLIT, _screenshot_texture, 0, 0, bgfx::getTexture(_color_sdr));
+	ready_frame = bgfx::readTexture(_screenshot_texture, data);
+	return true;
+}
+
 void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
 {
 	ScopedProfileScope scope("Pipeline::render");
@@ -1014,7 +1059,8 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		} else if (id == View::GRAPH) {
 			bgfx::touch(id);
 		} else if (id == View::BLIT) {
-			bgfx::touch(id);
+			if (_output == PipelineOutput::WINDOW)
+				bgfx::touch(id);
 		}
 	}
 
@@ -1138,10 +1184,12 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	}
 
 	// Blit to backbuffer.
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
-	screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-	bgfx::setState(_blit_shader.state);
-	bgfx::submit(View::BLIT, _blit_shader.program);
+	if (_output == PipelineOutput::WINDOW) {
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
+		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_shader.state);
+		bgfx::submit(View::BLIT, _blit_shader.program);
+	}
 }
 
 void Pipeline::begin_light_cookie_atlas()

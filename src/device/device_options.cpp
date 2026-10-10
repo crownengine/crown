@@ -50,6 +50,7 @@ static void help(const char *msg = NULL)
 		"  --pumped                        Do not advance the renderer unless explicitly requested via console.\n"
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --keep-above                    Keep the main window above other windows.\n"
+		"  --headless                      Render offscreen without creating a window.\n"
 		"  --display-server <server>       Set the display server backend.\n"
 		"      wayland\n"
 		"      x11\n"
@@ -92,6 +93,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _pumped(false)
 	, _hidden(false)
 	, _keep_above(false)
+	, _headless(false)
 	, _parent_window(0)
 	, _console_port(0)
 	, _window_x(0)
@@ -176,6 +178,13 @@ int DeviceOptions::parse(bool *quit)
 	_pumped = cl.has_option("pumped");
 	_hidden = cl.has_option("hidden");
 	_keep_above = cl.has_option("keep-above");
+	_headless = cl.has_option("headless");
+#if CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
+	if (_headless) {
+		help("--headless is not supported on this platform.");
+		return EXIT_FAILURE;
+	}
+#endif
 
 	if (cl.has_option("render-config")) {
 		_render_config = cl.get_parameter(0, "render-config");
