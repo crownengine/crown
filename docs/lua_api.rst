@@ -182,6 +182,9 @@ Display
 
 Interface to access the graphical display.
 
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
+
 **modes** () : table
 	Returns an array of `DisplayMode`_ tables.
 
@@ -263,6 +266,9 @@ Input
 
 A singleton that exposes the full list of input events in each frame.
 
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
+
 **events** () : table
 	Returns an array of `InputEvent`_ tables.
 
@@ -279,6 +285,9 @@ InputEvent is a lua table with 4 fields:
 InputEventType
 --------------
 
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
+
 * ``BUTTON_PRESSED``: A button has been pressed.
 * ``BUTTON_RELEASED``: A button has been released.
 * ``AXIS_CHANGED``: An axis changed its value.
@@ -287,6 +296,9 @@ Keyboard
 ========
 
 Singleton that represents the default system keyboard.
+
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
 
 **name** () : string
 	Returns the name of keyboard.
@@ -344,6 +356,9 @@ Mouse
 =====
 
 Singleton that represents the default system mouse.
+
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
 
 **name** () : string
 	Returns the name of the mouse.
@@ -406,6 +421,9 @@ Touch
 
 Singleton that represents the default system touchscreen.
 
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
+
 **name** () : string
 	Returns the name of the touch.
 
@@ -454,6 +472,9 @@ Pad1, Pad2, Pad3, Pad4
 ======================
 
 Singleton that represents the connected gamepad(s).
+
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
 
 **name** () : string
 	Returns the name of the pad.
@@ -1791,6 +1812,9 @@ Window
 ======
 
 Represents the application window.
+
+.. note::
+	Unavailable in :ref:`headless mode <cli-headless>`.
 
 **show** ()
 	Shows the window.

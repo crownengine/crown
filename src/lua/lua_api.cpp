@@ -1767,129 +1767,131 @@ void load_api(LuaEnvironment &env)
 		return input_device_ ## name(L, *device()->_input_manager->joypad(index)); \
 	}
 
-	env.add_module_function("Keyboard", "name",         KEYBOARD(name));
-	env.add_module_function("Keyboard", "connected",    KEYBOARD(connected));
-	env.add_module_function("Keyboard", "num_buttons",  KEYBOARD(num_buttons));
-	env.add_module_function("Keyboard", "num_axes",     KEYBOARD(num_axes));
-	env.add_module_function("Keyboard", "pressed",      KEYBOARD(pressed));
-	env.add_module_function("Keyboard", "released",     KEYBOARD(released));
-	env.add_module_function("Keyboard", "any_pressed",  KEYBOARD(any_pressed));
-	env.add_module_function("Keyboard", "any_released", KEYBOARD(any_released));
-	env.add_module_function("Keyboard", "button",       KEYBOARD(button));
-	env.add_module_function("Keyboard", "button_name",  KEYBOARD(button_name));
-	env.add_module_function("Keyboard", "button_id",    KEYBOARD(button_id));
-	lua_getglobal(env.L, "Keyboard");
-	device()->_input_manager->keyboard()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+	if (device()->_input_manager != NULL) {
+		env.add_module_function("Keyboard", "name",         KEYBOARD(name));
+		env.add_module_function("Keyboard", "connected",    KEYBOARD(connected));
+		env.add_module_function("Keyboard", "num_buttons",  KEYBOARD(num_buttons));
+		env.add_module_function("Keyboard", "num_axes",     KEYBOARD(num_axes));
+		env.add_module_function("Keyboard", "pressed",      KEYBOARD(pressed));
+		env.add_module_function("Keyboard", "released",     KEYBOARD(released));
+		env.add_module_function("Keyboard", "any_pressed",  KEYBOARD(any_pressed));
+		env.add_module_function("Keyboard", "any_released", KEYBOARD(any_released));
+		env.add_module_function("Keyboard", "button",       KEYBOARD(button));
+		env.add_module_function("Keyboard", "button_name",  KEYBOARD(button_name));
+		env.add_module_function("Keyboard", "button_id",    KEYBOARD(button_id));
+		lua_getglobal(env.L, "Keyboard");
+		device()->_input_manager->keyboard()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Mouse", "name",         MOUSE(name));
-	env.add_module_function("Mouse", "connected",    MOUSE(connected));
-	env.add_module_function("Mouse", "num_buttons",  MOUSE(num_buttons));
-	env.add_module_function("Mouse", "num_axes",     MOUSE(num_axes));
-	env.add_module_function("Mouse", "pressed",      MOUSE(pressed));
-	env.add_module_function("Mouse", "released",     MOUSE(released));
-	env.add_module_function("Mouse", "any_pressed",  MOUSE(any_pressed));
-	env.add_module_function("Mouse", "any_released", MOUSE(any_released));
-	env.add_module_function("Mouse", "button",       MOUSE(button));
-	env.add_module_function("Mouse", "axis",         MOUSE(axis));
-	env.add_module_function("Mouse", "button_name",  MOUSE(button_name));
-	env.add_module_function("Mouse", "axis_name",    MOUSE(axis_name));
-	env.add_module_function("Mouse", "button_id",    MOUSE(button_id));
-	env.add_module_function("Mouse", "axis_id",      MOUSE(axis_id));
-	lua_getglobal(env.L, "Mouse");
-	device()->_input_manager->mouse()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Mouse", "name",         MOUSE(name));
+		env.add_module_function("Mouse", "connected",    MOUSE(connected));
+		env.add_module_function("Mouse", "num_buttons",  MOUSE(num_buttons));
+		env.add_module_function("Mouse", "num_axes",     MOUSE(num_axes));
+		env.add_module_function("Mouse", "pressed",      MOUSE(pressed));
+		env.add_module_function("Mouse", "released",     MOUSE(released));
+		env.add_module_function("Mouse", "any_pressed",  MOUSE(any_pressed));
+		env.add_module_function("Mouse", "any_released", MOUSE(any_released));
+		env.add_module_function("Mouse", "button",       MOUSE(button));
+		env.add_module_function("Mouse", "axis",         MOUSE(axis));
+		env.add_module_function("Mouse", "button_name",  MOUSE(button_name));
+		env.add_module_function("Mouse", "axis_name",    MOUSE(axis_name));
+		env.add_module_function("Mouse", "button_id",    MOUSE(button_id));
+		env.add_module_function("Mouse", "axis_id",      MOUSE(axis_id));
+		lua_getglobal(env.L, "Mouse");
+		device()->_input_manager->mouse()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Touch", "name",         TOUCH(name));
-	env.add_module_function("Touch", "connected",    TOUCH(connected));
-	env.add_module_function("Touch", "num_buttons",  TOUCH(num_buttons));
-	env.add_module_function("Touch", "num_axes",     TOUCH(num_axes));
-	env.add_module_function("Touch", "pressed",      TOUCH(pressed));
-	env.add_module_function("Touch", "released",     TOUCH(released));
-	env.add_module_function("Touch", "any_pressed",  TOUCH(any_pressed));
-	env.add_module_function("Touch", "any_released", TOUCH(any_released));
-	env.add_module_function("Touch", "button",       TOUCH(button));
-	env.add_module_function("Touch", "axis",         TOUCH(axis));
-	env.add_module_function("Touch", "button_name",  TOUCH(button_name));
-	env.add_module_function("Touch", "axis_name",    TOUCH(axis_name));
-	env.add_module_function("Touch", "button_id",    TOUCH(button_id));
-	env.add_module_function("Touch", "axis_id",      TOUCH(axis_id));
-	lua_getglobal(env.L, "Touch");
-	device()->_input_manager->touch()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Touch", "name",         TOUCH(name));
+		env.add_module_function("Touch", "connected",    TOUCH(connected));
+		env.add_module_function("Touch", "num_buttons",  TOUCH(num_buttons));
+		env.add_module_function("Touch", "num_axes",     TOUCH(num_axes));
+		env.add_module_function("Touch", "pressed",      TOUCH(pressed));
+		env.add_module_function("Touch", "released",     TOUCH(released));
+		env.add_module_function("Touch", "any_pressed",  TOUCH(any_pressed));
+		env.add_module_function("Touch", "any_released", TOUCH(any_released));
+		env.add_module_function("Touch", "button",       TOUCH(button));
+		env.add_module_function("Touch", "axis",         TOUCH(axis));
+		env.add_module_function("Touch", "button_name",  TOUCH(button_name));
+		env.add_module_function("Touch", "axis_name",    TOUCH(axis_name));
+		env.add_module_function("Touch", "button_id",    TOUCH(button_id));
+		env.add_module_function("Touch", "axis_id",      TOUCH(axis_id));
+		lua_getglobal(env.L, "Touch");
+		device()->_input_manager->touch()->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Pad1", "name",         PAD(0, name));
-	env.add_module_function("Pad1", "connected",    PAD(0, connected));
-	env.add_module_function("Pad1", "num_buttons",  PAD(0, num_buttons));
-	env.add_module_function("Pad1", "num_axes",     PAD(0, num_axes));
-	env.add_module_function("Pad1", "pressed",      PAD(0, pressed));
-	env.add_module_function("Pad1", "released",     PAD(0, released));
-	env.add_module_function("Pad1", "any_pressed",  PAD(0, any_pressed));
-	env.add_module_function("Pad1", "any_released", PAD(0, any_released));
-	env.add_module_function("Pad1", "button",       PAD(0, button));
-	env.add_module_function("Pad1", "axis",         PAD(0, axis));
-	env.add_module_function("Pad1", "button_name",  PAD(0, button_name));
-	env.add_module_function("Pad1", "axis_name",    PAD(0, axis_name));
-	env.add_module_function("Pad1", "button_id",    PAD(0, button_id));
-	env.add_module_function("Pad1", "axis_id",      PAD(0, axis_id));
-	env.add_module_function("Pad1", "deadzone",     PAD(0, deadzone));
-	env.add_module_function("Pad1", "set_deadzone", PAD(0, set_deadzone));
-	lua_getglobal(env.L, "Pad1");
-	device()->_input_manager->joypad(0)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Pad1", "name",         PAD(0, name));
+		env.add_module_function("Pad1", "connected",    PAD(0, connected));
+		env.add_module_function("Pad1", "num_buttons",  PAD(0, num_buttons));
+		env.add_module_function("Pad1", "num_axes",     PAD(0, num_axes));
+		env.add_module_function("Pad1", "pressed",      PAD(0, pressed));
+		env.add_module_function("Pad1", "released",     PAD(0, released));
+		env.add_module_function("Pad1", "any_pressed",  PAD(0, any_pressed));
+		env.add_module_function("Pad1", "any_released", PAD(0, any_released));
+		env.add_module_function("Pad1", "button",       PAD(0, button));
+		env.add_module_function("Pad1", "axis",         PAD(0, axis));
+		env.add_module_function("Pad1", "button_name",  PAD(0, button_name));
+		env.add_module_function("Pad1", "axis_name",    PAD(0, axis_name));
+		env.add_module_function("Pad1", "button_id",    PAD(0, button_id));
+		env.add_module_function("Pad1", "axis_id",      PAD(0, axis_id));
+		env.add_module_function("Pad1", "deadzone",     PAD(0, deadzone));
+		env.add_module_function("Pad1", "set_deadzone", PAD(0, set_deadzone));
+		lua_getglobal(env.L, "Pad1");
+		device()->_input_manager->joypad(0)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Pad2", "name",         PAD(1, name));
-	env.add_module_function("Pad2", "connected",    PAD(1, connected));
-	env.add_module_function("Pad2", "num_buttons",  PAD(1, num_buttons));
-	env.add_module_function("Pad2", "num_axes",     PAD(1, num_axes));
-	env.add_module_function("Pad2", "pressed",      PAD(1, pressed));
-	env.add_module_function("Pad2", "released",     PAD(1, released));
-	env.add_module_function("Pad2", "any_pressed",  PAD(1, any_pressed));
-	env.add_module_function("Pad2", "any_released", PAD(1, any_released));
-	env.add_module_function("Pad2", "button",       PAD(1, button));
-	env.add_module_function("Pad2", "axis",         PAD(1, axis));
-	env.add_module_function("Pad2", "button_name",  PAD(1, button_name));
-	env.add_module_function("Pad2", "axis_name",    PAD(1, axis_name));
-	env.add_module_function("Pad2", "button_id",    PAD(1, button_id));
-	env.add_module_function("Pad2", "axis_id",      PAD(1, axis_id));
-	env.add_module_function("Pad2", "deadzone",     PAD(1, deadzone));
-	env.add_module_function("Pad2", "set_deadzone", PAD(1, set_deadzone));
-	lua_getglobal(env.L, "Pad2");
-	device()->_input_manager->joypad(1)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Pad2", "name",         PAD(1, name));
+		env.add_module_function("Pad2", "connected",    PAD(1, connected));
+		env.add_module_function("Pad2", "num_buttons",  PAD(1, num_buttons));
+		env.add_module_function("Pad2", "num_axes",     PAD(1, num_axes));
+		env.add_module_function("Pad2", "pressed",      PAD(1, pressed));
+		env.add_module_function("Pad2", "released",     PAD(1, released));
+		env.add_module_function("Pad2", "any_pressed",  PAD(1, any_pressed));
+		env.add_module_function("Pad2", "any_released", PAD(1, any_released));
+		env.add_module_function("Pad2", "button",       PAD(1, button));
+		env.add_module_function("Pad2", "axis",         PAD(1, axis));
+		env.add_module_function("Pad2", "button_name",  PAD(1, button_name));
+		env.add_module_function("Pad2", "axis_name",    PAD(1, axis_name));
+		env.add_module_function("Pad2", "button_id",    PAD(1, button_id));
+		env.add_module_function("Pad2", "axis_id",      PAD(1, axis_id));
+		env.add_module_function("Pad2", "deadzone",     PAD(1, deadzone));
+		env.add_module_function("Pad2", "set_deadzone", PAD(1, set_deadzone));
+		lua_getglobal(env.L, "Pad2");
+		device()->_input_manager->joypad(1)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Pad3", "name",         PAD(2, name));
-	env.add_module_function("Pad3", "connected",    PAD(2, connected));
-	env.add_module_function("Pad3", "num_buttons",  PAD(2, num_buttons));
-	env.add_module_function("Pad3", "num_axes",     PAD(2, num_axes));
-	env.add_module_function("Pad3", "pressed",      PAD(2, pressed));
-	env.add_module_function("Pad3", "released",     PAD(2, released));
-	env.add_module_function("Pad3", "any_pressed",  PAD(2, any_pressed));
-	env.add_module_function("Pad3", "any_released", PAD(2, any_released));
-	env.add_module_function("Pad3", "button",       PAD(2, button));
-	env.add_module_function("Pad3", "axis",         PAD(2, axis));
-	env.add_module_function("Pad3", "button_name",  PAD(2, button_name));
-	env.add_module_function("Pad3", "axis_name",    PAD(2, axis_name));
-	env.add_module_function("Pad3", "button_id",    PAD(2, button_id));
-	env.add_module_function("Pad3", "axis_id",      PAD(2, axis_id));
-	env.add_module_function("Pad3", "deadzone",     PAD(2, deadzone));
-	env.add_module_function("Pad3", "set_deadzone", PAD(2, set_deadzone));
-	lua_getglobal(env.L, "Pad3");
-	device()->_input_manager->joypad(2)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Pad3", "name",         PAD(2, name));
+		env.add_module_function("Pad3", "connected",    PAD(2, connected));
+		env.add_module_function("Pad3", "num_buttons",  PAD(2, num_buttons));
+		env.add_module_function("Pad3", "num_axes",     PAD(2, num_axes));
+		env.add_module_function("Pad3", "pressed",      PAD(2, pressed));
+		env.add_module_function("Pad3", "released",     PAD(2, released));
+		env.add_module_function("Pad3", "any_pressed",  PAD(2, any_pressed));
+		env.add_module_function("Pad3", "any_released", PAD(2, any_released));
+		env.add_module_function("Pad3", "button",       PAD(2, button));
+		env.add_module_function("Pad3", "axis",         PAD(2, axis));
+		env.add_module_function("Pad3", "button_name",  PAD(2, button_name));
+		env.add_module_function("Pad3", "axis_name",    PAD(2, axis_name));
+		env.add_module_function("Pad3", "button_id",    PAD(2, button_id));
+		env.add_module_function("Pad3", "axis_id",      PAD(2, axis_id));
+		env.add_module_function("Pad3", "deadzone",     PAD(2, deadzone));
+		env.add_module_function("Pad3", "set_deadzone", PAD(2, set_deadzone));
+		lua_getglobal(env.L, "Pad3");
+		device()->_input_manager->joypad(2)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
 
-	env.add_module_function("Pad4", "name",         PAD(3, name));
-	env.add_module_function("Pad4", "connected",    PAD(3, connected));
-	env.add_module_function("Pad4", "num_buttons",  PAD(3, num_buttons));
-	env.add_module_function("Pad4", "num_axes",     PAD(3, num_axes));
-	env.add_module_function("Pad4", "pressed",      PAD(3, pressed));
-	env.add_module_function("Pad4", "released",     PAD(3, released));
-	env.add_module_function("Pad4", "any_pressed",  PAD(3, any_pressed));
-	env.add_module_function("Pad4", "any_released", PAD(3, any_released));
-	env.add_module_function("Pad4", "button",       PAD(3, button));
-	env.add_module_function("Pad4", "axis",         PAD(3, axis));
-	env.add_module_function("Pad4", "button_name",  PAD(3, button_name));
-	env.add_module_function("Pad4", "axis_name",    PAD(3, axis_name));
-	env.add_module_function("Pad4", "button_id",    PAD(3, button_id));
-	env.add_module_function("Pad4", "axis_id",      PAD(3, axis_id));
-	env.add_module_function("Pad4", "deadzone",     PAD(3, deadzone));
-	env.add_module_function("Pad4", "set_deadzone", PAD(3, set_deadzone));
-	lua_getglobal(env.L, "Pad4");
-	device()->_input_manager->joypad(3)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+		env.add_module_function("Pad4", "name",         PAD(3, name));
+		env.add_module_function("Pad4", "connected",    PAD(3, connected));
+		env.add_module_function("Pad4", "num_buttons",  PAD(3, num_buttons));
+		env.add_module_function("Pad4", "num_axes",     PAD(3, num_axes));
+		env.add_module_function("Pad4", "pressed",      PAD(3, pressed));
+		env.add_module_function("Pad4", "released",     PAD(3, released));
+		env.add_module_function("Pad4", "any_pressed",  PAD(3, any_pressed));
+		env.add_module_function("Pad4", "any_released", PAD(3, any_released));
+		env.add_module_function("Pad4", "button",       PAD(3, button));
+		env.add_module_function("Pad4", "axis",         PAD(3, axis));
+		env.add_module_function("Pad4", "button_name",  PAD(3, button_name));
+		env.add_module_function("Pad4", "axis_name",    PAD(3, axis_name));
+		env.add_module_function("Pad4", "button_id",    PAD(3, button_id));
+		env.add_module_function("Pad4", "axis_id",      PAD(3, axis_id));
+		env.add_module_function("Pad4", "deadzone",     PAD(3, deadzone));
+		env.add_module_function("Pad4", "set_deadzone", PAD(3, set_deadzone));
+		lua_getglobal(env.L, "Pad4");
+		device()->_input_manager->joypad(3)->_lua_object = luaL_ref(env.L, LUA_REGISTRYINDEX);
+	}
 
 #undef PAD
 #undef TOUCH
@@ -4568,144 +4570,151 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 
-	env.add_module_function("Display", "modes", [](lua_State *L) {
-			LuaStack stack(L, +1);
-			TempAllocator1024 ta;
-			Array<DisplayMode> modes(ta);
-			device()->_display->modes(modes);
-			stack.push_table(array::size(modes));
-			for (u32 i = 0; i < array::size(modes); ++i) {
-				stack.push_key_begin(i + 1);
-				stack.push_table(3);
-				{
-					stack.push_key_begin("id");
-					stack.push_int(modes[i].id);
-					stack.push_key_end();
+	if (device()->_display != NULL) {
+		env.add_module_function("Display", "modes", [](lua_State *L) {
+				LuaStack stack(L, +1);
+				TempAllocator1024 ta;
+				Array<DisplayMode> modes(ta);
+				device()->_display->modes(modes);
+				stack.push_table(array::size(modes));
+				for (u32 i = 0; i < array::size(modes); ++i) {
+					stack.push_key_begin(i + 1);
+					stack.push_table(3);
+					{
+						stack.push_key_begin("id");
+						stack.push_int(modes[i].id);
+						stack.push_key_end();
 
-					stack.push_key_begin("width");
-					stack.push_int(modes[i].width);
-					stack.push_key_end();
+						stack.push_key_begin("width");
+						stack.push_int(modes[i].width);
+						stack.push_key_end();
 
-					stack.push_key_begin("height");
-					stack.push_int(modes[i].height);
-					stack.push_key_end();
-				}
-				stack.push_key_end();
-			}
-			return 1;
-		});
-	env.add_module_function("Display", "set_mode", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_display->set_mode(stack.get_int(1));
-			return 0;
-		});
-
-	env.add_module_function("Window", "show", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->show();
-			return 0;
-		});
-	env.add_module_function("Window", "hide", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->hide();
-			return 0;
-		});
-	env.add_module_function("Window", "resize", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->resize(stack.get_int(1), stack.get_int(2));
-			return 0;
-		});
-	env.add_module_function("Window", "move", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->move(stack.get_int(1), stack.get_int(2));
-			return 0;
-		});
-	env.add_module_function("Window", "minimize", [](lua_State * /*L*/) {
-			device()->_window->minimize();
-			return 0;
-		});
-	env.add_module_function("Window", "maximize", [](lua_State * /*L*/) {
-			device()->_window->maximize();
-			return 0;
-		});
-	env.add_module_function("Window", "restore", [](lua_State * /*L*/) {
-			device()->_window->restore();
-			return 0;
-		});
-	env.add_module_function("Window", "title", [](lua_State *L) {
-			LuaStack stack(L, +1);
-			stack.push_string(device()->_window->title());
-			return 1;
-		});
-	env.add_module_function("Window", "set_title", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->set_title(stack.get_string(1));
-			return 0;
-		});
-	env.add_module_function("Window", "show_cursor", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->show_cursor(stack.get_bool(1));
-			return 0;
-		});
-	env.add_module_function("Window", "is_fullscreen", window_is_fullscreen);
-	env.add_module_function("Window", "set_fullscreen", [](lua_State *L) {
-			LuaStack stack(L);
-			device()->_window->set_fullscreen(stack.get_bool(1));
-			return 0;
-		});
-	env.add_module_function("Window", "set_cursor", [](lua_State *L) {
-			LuaStack stack(L);
-			const char *name = stack.get_string(1);
-			const MouseCursor::Enum mc = name_to_mouse_cursor(name);
-			LUA_ASSERT(mc != MouseCursor::COUNT, stack, "Unknown mouse cursor: '%s'", name);
-			device()->_window->set_cursor(mc);
-			return 0;
-		});
-	env.add_module_function("Window", "set_cursor_mode", [](lua_State *L) {
-			LuaStack stack(L, +1);
-			const char *name = stack.get_string(1);
-			const CursorMode::Enum cm = name_to_cursor_mode(name);
-			LUA_ASSERT(cm != CursorMode::COUNT, stack, "Unknown cursor mode: '%s'", name);
-			stack.push_bool(device()->_window->set_cursor_mode(cm));
-			return 1;
-		});
-
-	env.add_module_function("Input", "events", [](lua_State *L) {
-			LuaStack stack(L, +1);
-			InputEvent *events = array::begin(device()->_input_manager->_events);
-			u32 num_events = array::size(device()->_input_manager->_events);
-
-			stack.push_table(num_events);
-			for (u32 i = 0; i < num_events; ++i) {
-				stack.push_key_begin(i + 1);
-				stack.push_table(4);
-				{
-					stack.push_key_begin("id");
-					stack.push_int(events[i].id);
-					stack.push_key_end();
-
-					stack.push_key_begin("type");
-					stack.push_int(events[i].type);
-					stack.push_key_end();
-
-					if (events[i].type == InputEventType::AXIS_CHANGED) {
-						stack.push_key_begin("value");
-						stack.push_vector3(events[i].value);
+						stack.push_key_begin("height");
+						stack.push_int(modes[i].height);
 						stack.push_key_end();
 					}
-
-					stack.push_key_begin("device");
-					lua_rawgeti(L, LUA_REGISTRYINDEX, events[i].device->_lua_object);
 					stack.push_key_end();
 				}
-				stack.push_key_end();
-			}
-			return 1;
-		});
+				return 1;
+			});
+		env.add_module_function("Display", "set_mode", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_display->set_mode(stack.get_int(1));
+				return 0;
+			});
+	}
 
-	env.set_module_number("InputEventType", "BUTTON_PRESSED", InputEventType::BUTTON_PRESSED);
-	env.set_module_number("InputEventType", "BUTTON_RELEASED", InputEventType::BUTTON_RELEASED);
-	env.set_module_number("InputEventType", "AXIS_CHANGED", InputEventType::AXIS_CHANGED);
+	if (device()->_window != NULL) {
+		env.add_module_function("Window", "show", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->show();
+				return 0;
+			});
+		env.add_module_function("Window", "hide", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->hide();
+				return 0;
+			});
+		env.add_module_function("Window", "resize", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->resize(stack.get_int(1), stack.get_int(2));
+				return 0;
+			});
+		env.add_module_function("Window", "move", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->move(stack.get_int(1), stack.get_int(2));
+				return 0;
+			});
+		env.add_module_function("Window", "minimize", [](lua_State * /*L*/) {
+				device()->_window->minimize();
+				return 0;
+			});
+		env.add_module_function("Window", "maximize", [](lua_State * /*L*/) {
+				device()->_window->maximize();
+				return 0;
+			});
+		env.add_module_function("Window", "restore", [](lua_State * /*L*/) {
+				device()->_window->restore();
+				return 0;
+			});
+		env.add_module_function("Window", "title", [](lua_State *L) {
+				LuaStack stack(L, +1);
+				stack.push_string(device()->_window->title());
+				return 1;
+			});
+		env.add_module_function("Window", "set_title", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->set_title(stack.get_string(1));
+				return 0;
+			});
+		env.add_module_function("Window", "show_cursor", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->show_cursor(stack.get_bool(1));
+				return 0;
+			});
+		env.add_module_function("Window", "is_fullscreen", window_is_fullscreen);
+		env.add_module_function("Window", "set_fullscreen", [](lua_State *L) {
+				LuaStack stack(L);
+				device()->_window->set_fullscreen(stack.get_bool(1));
+				return 0;
+			});
+		env.add_module_function("Window", "set_cursor", [](lua_State *L) {
+				LuaStack stack(L);
+				const char *name = stack.get_string(1);
+				const MouseCursor::Enum mc = name_to_mouse_cursor(name);
+				LUA_ASSERT(mc != MouseCursor::COUNT, stack, "Unknown mouse cursor: '%s'", name);
+				device()->_window->set_cursor(mc);
+				return 0;
+			});
+		env.add_module_function("Window", "set_cursor_mode", [](lua_State *L) {
+				LuaStack stack(L, +1);
+				const char *name = stack.get_string(1);
+				const CursorMode::Enum cm = name_to_cursor_mode(name);
+				LUA_ASSERT(cm != CursorMode::COUNT, stack, "Unknown cursor mode: '%s'", name);
+				stack.push_bool(device()->_window->set_cursor_mode(cm));
+				return 1;
+			});
+	}
+
+	if (device()->_input_manager != NULL) {
+		env.add_module_function("Input", "events", [](lua_State *L) {
+				LuaStack stack(L, +1);
+				InputEvent *events = array::begin(device()->_input_manager->_events);
+				u32 num_events = array::size(device()->_input_manager->_events);
+
+				stack.push_table(num_events);
+				for (u32 i = 0; i < num_events; ++i) {
+					stack.push_key_begin(i + 1);
+					stack.push_table(4);
+					{
+						stack.push_key_begin("id");
+						stack.push_int(events[i].id);
+						stack.push_key_end();
+
+						stack.push_key_begin("type");
+						stack.push_int(events[i].type);
+						stack.push_key_end();
+
+						if (events[i].type == InputEventType::AXIS_CHANGED) {
+							stack.push_key_begin("value");
+							stack.push_vector3(events[i].value);
+							stack.push_key_end();
+						}
+
+						stack.push_key_begin("device");
+						lua_rawgeti(L, LUA_REGISTRYINDEX, events[i].device->_lua_object);
+						stack.push_key_end();
+					}
+					stack.push_key_end();
+				}
+				return 1;
+			});
+
+		env.set_module_number("InputEventType", "BUTTON_PRESSED", InputEventType::BUTTON_PRESSED);
+		env.set_module_number("InputEventType", "BUTTON_RELEASED", InputEventType::BUTTON_RELEASED);
+		env.set_module_number("InputEventType", "AXIS_CHANGED", InputEventType::AXIS_CHANGED);
+	}
+
 	env.set_module_number("JointType", "FIXED", JointType::FIXED);
 	env.set_module_number("JointType", "HINGE", JointType::HINGE);
 	env.set_module_number("JointType", "SPHERICAL", JointType::SPHERICAL);

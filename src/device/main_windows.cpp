@@ -352,10 +352,12 @@ struct WindowsDevice
 	func_name = (PROTO_ ## func_name)os::library_symbol(_xinput_lib, # func_name); \
 	CE_ENSURE(func_name != NULL);
 
-		for (u32 i = 0; i < countof(s_xinput_dll_names); ++i) {
-			if ((_xinput_lib = os::library_open(s_xinput_dll_names[i])) != NULL) {
-				XINPUT_IMPORT();
-				break;
+		if (!_options->_headless) {
+			for (u32 i = 0; i < countof(s_xinput_dll_names); ++i) {
+				if ((_xinput_lib = os::library_open(s_xinput_dll_names[i])) != NULL) {
+					XINPUT_IMPORT();
+					break;
+				}
 			}
 		}
 
@@ -368,8 +370,35 @@ struct WindowsDevice
 			os::library_close(_xinput_lib);
 	}
 
+	static s32 run_runtime(void *user_data)
+	{
+		WindowsDevice *win = (WindowsDevice *)user_data;
+		int ec = crown::main_runtime(*win->_options);
+		s_exit = true;
+		if (!win->_options->_headless)
+			PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
+		return ec;
+	}
+
+	static s32 update_joypads(void *user_data)
+	{
+		WindowsDevice *win = (WindowsDevice *)user_data;
+		while (!s_exit) {
+			win->_joypad.update(win->_queue);
+			os::sleep(4);
+		}
+		return EXIT_SUCCESS;
+	}
+
 	int run()
 	{
+		if (_options->_headless) {
+			Thread main_thread;
+			main_thread.start(run_runtime, this);
+			main_thread.stop();
+			return main_thread.exit_code();
+		}
+
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 		WNDCLASSEX wnd;
 		memset(&wnd, 0, sizeof(wnd));
@@ -441,27 +470,10 @@ struct WindowsDevice
 		_win_cursors[MouseCursor::WAIT]                = LoadCursorA(NULL, IDC_WAIT);
 
 		Thread main_thread;
-		main_thread.start([](void *user_data) {
-				WindowsDevice *win = (WindowsDevice *)user_data;
-				int ec = crown::main_runtime(*win->_options);
-				s_exit = true;
-				PostMessageA(win->_hwnd, WM_USER + 1, 0, 0);
-				return ec;
-			}
-			, this
-			);
+		main_thread.start(run_runtime, this);
 
 		Thread joypad_thread;
-		joypad_thread.start([](void *user_data) {
-				WindowsDevice *win = (WindowsDevice *)user_data;
-				while (!s_exit) {
-					win->_joypad.update(win->_queue);
-					os::sleep(4);
-				}
-				return EXIT_SUCCESS;
-			}
-			, this
-			);
+		joypad_thread.start(update_joypads, this);
 
 		// Windows event loop.
 		MSG msg;

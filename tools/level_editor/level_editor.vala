@@ -1874,7 +1874,6 @@ public class LevelEditorApplication : Gtk.Application
 		{
 			ENGINE_EXE,
 #if CROWN_PLATFORM_LINUX
-			"--display-server", "x11",
 			"--renderer", "gl", // Much faster than vk at spawning many vertex/index buffers.
 #else
 			_preferences_dialog._editor_renderer.value != "default" ? "--renderer" : "",
@@ -1888,7 +1887,7 @@ public class LevelEditorApplication : Gtk.Application
 			port_file,
 			"--wait-console",
 			"--pumped",
-			"--hidden"
+			"--headless"
 		};
 
 		try {
