@@ -8,31 +8,17 @@
 #include <stdint.h>
 #include <string.h>
 
+#if defined(_WIN32)
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#elif defined(__linux__)
+#   include <errno.h>
+#   include <dlfcn.h>
 #if defined(CROWN_GTK3)
-#if defined(_WIN32)
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#elif defined(__linux__)
-#   include <errno.h>
-#   include <dlfcn.h>
 #   include <gdk/gdkx.h>
-#   include <linux/input-event-codes.h>
-#   include <poll.h>
-#   include <sys/eventfd.h>
-#   include <unistd.h>
-#   include <X11/X.h>
-#   include <X11/Xlib.h>
-#   include <X11/extensions/XInput2.h>
-#   include <X11/extensions/Xfixes.h>
-#endif /* if defined(_WIN32) */
 #else
-#if defined(_WIN32)
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#elif defined(__linux__)
-#   include <errno.h>
-#   include <dlfcn.h>
 #   include <gdk/x11/gdkx.h>
+#endif
 #   include <linux/input-event-codes.h>
 #   include <poll.h>
 #   include <sys/eventfd.h>
@@ -42,7 +28,6 @@
 #   include <X11/extensions/XInput2.h>
 #   include <X11/extensions/Xfixes.h>
 #endif /* if defined(_WIN32) */
-#endif /* if defined(CROWN_GTK3) */
 
 #if defined(__linux__)
 #include <wayland-client-core.h>
@@ -60,7 +45,7 @@
 	X(wl_proxy_create_wrapper)           \
 	X(wl_proxy_set_queue)                \
 	X(wl_proxy_wrapper_destroy)          \
-	X(wl_proxy_add_listener)             \
+	X(wl_proxy_add_dispatcher)           \
 	X(wl_proxy_destroy)                  \
 	X(wl_proxy_get_version)              \
 	X(wl_proxy_marshal_flags)
@@ -81,7 +66,7 @@ WAYLAND_CLIENT_FUNCTIONS(DECLARE_WAYLAND_FUNCTION)
 #define wl_proxy_create_wrapper (*crown_wl_proxy_create_wrapper)
 #define wl_proxy_set_queue (*crown_wl_proxy_set_queue)
 #define wl_proxy_wrapper_destroy (*crown_wl_proxy_wrapper_destroy)
-#define wl_proxy_add_listener (*crown_wl_proxy_add_listener)
+#define wl_proxy_add_dispatcher (*crown_wl_proxy_add_dispatcher)
 #define wl_proxy_destroy (*crown_wl_proxy_destroy)
 #define wl_proxy_get_version (*crown_wl_proxy_get_version)
 #define wl_proxy_marshal_flags (*crown_wl_proxy_marshal_flags)
@@ -141,7 +126,6 @@ static gboolean load_wayland_client(void)
 
 #define XFIXES_FUNCTIONS(X) \
 	X(XFixesHideCursor)     \
-	X(XFixesQueryExtension) \
 	X(XFixesQueryVersion)   \
 	X(XFixesShowCursor)
 
@@ -167,7 +151,6 @@ XFIXES_FUNCTIONS(DECLARE_X11_FUNCTION)
 #define XIQueryVersion (*crown_XIQueryVersion)
 #define XISelectEvents (*crown_XISelectEvents)
 #define XFixesHideCursor (*crown_XFixesHideCursor)
-#define XFixesQueryExtension (*crown_XFixesQueryExtension)
 #define XFixesQueryVersion (*crown_XFixesQueryVersion)
 #define XFixesShowCursor (*crown_XFixesShowCursor)
 
@@ -255,7 +238,6 @@ struct CrownInfiniteDragSampler
 	gint windows_absolute_x;
 	gint windows_absolute_y;
 	gboolean windows_absolute_initialized;
-	gboolean windows_cursor_hidden;
 #elif defined(__linux__)
 	enum CrownInfiniteDragBackend backend;
 	Window x11_window;
@@ -305,9 +287,6 @@ static void store_wheel(struct CrownInfiniteDragSampler *sampler, gdouble wheel_
 #define WINDOWS_KERNEL_FUNCTIONS(X) \
 	X(CloseHandle)                  \
 	X(CreateEventW)                 \
-	X(GetLastError)                 \
-	X(GetModuleHandleW)             \
-	X(MulDiv)                       \
 	X(SetEvent)
 
 #define WINDOWS_USER_FUNCTIONS(X) \
@@ -315,13 +294,11 @@ static void store_wheel(struct CrownInfiniteDragSampler *sampler, gdouble wheel_
 	X(CreateWindowExW)            \
 	X(DefWindowProcW)             \
 	X(DestroyWindow)              \
-	X(DispatchMessageW)           \
 	X(GetCursorPos)               \
 	X(GetRawInputData)            \
 	X(GetSystemMetrics)           \
 	X(MsgWaitForMultipleObjects)  \
 	X(PeekMessageW)               \
-	X(RegisterClassExW)           \
 	X(RegisterRawInputDevices)    \
 	X(SetCursorPos)               \
 	X(ShowCursor)
@@ -331,37 +308,25 @@ WINDOWS_KERNEL_FUNCTIONS(DECLARE_WINDOWS_FUNCTION)
 WINDOWS_USER_FUNCTIONS(DECLARE_WINDOWS_FUNCTION)
 #undef DECLARE_WINDOWS_FUNCTION
 
-static LONG_PTR (WINAPI *crown_GetWindowLongPtrW)(HWND, int);
-static LONG_PTR (WINAPI *crown_SetWindowLongPtrW)(HWND, int, LONG_PTR);
-
 #define CloseHandle (*crown_CloseHandle)
 #define CreateEventW (*crown_CreateEventW)
-#define GetLastError (*crown_GetLastError)
-#define GetModuleHandleW (*crown_GetModuleHandleW)
-#define MulDiv (*crown_MulDiv)
 #define SetEvent (*crown_SetEvent)
 #define ClipCursor (*crown_ClipCursor)
 #define CreateWindowExW (*crown_CreateWindowExW)
 #define DefWindowProcW (*crown_DefWindowProcW)
 #define DestroyWindow (*crown_DestroyWindow)
-#define DispatchMessageW (*crown_DispatchMessageW)
 #define GetCursorPos (*crown_GetCursorPos)
 #define GetRawInputData (*crown_GetRawInputData)
 #define GetSystemMetrics (*crown_GetSystemMetrics)
 #define MsgWaitForMultipleObjects (*crown_MsgWaitForMultipleObjects)
 #define PeekMessageW (*crown_PeekMessageW)
-#define RegisterClassExW (*crown_RegisterClassExW)
 #define RegisterRawInputDevices (*crown_RegisterRawInputDevices)
 #define SetCursorPos (*crown_SetCursorPos)
 #define ShowCursor (*crown_ShowCursor)
-#undef GetWindowLongPtrW
-#undef SetWindowLongPtrW
-#define GetWindowLongPtrW (*crown_GetWindowLongPtrW)
-#define SetWindowLongPtrW (*crown_SetWindowLongPtrW)
 
 static gboolean load_windows_clients(void)
 {
-	/* Callbacks and worker threads keep these functions for the process lifetime. */
+	/* The resolved functions stay valid for every later Windows drag. */
 	static gsize initialized = 0;
 	if (g_once_init_enter(&initialized)) {
 		HMODULE kernel32 = LoadLibraryW(L"kernel32.dll");
@@ -378,19 +343,6 @@ static gboolean load_windows_clients(void)
 			WINDOWS_USER_FUNCTIONS(LOAD_USER_FUNCTION)
 #undef LOAD_USER_FUNCTION
 #undef LOAD_KERNEL_FUNCTION
-#if defined(_WIN64)
-			const char *get_window_long = "GetWindowLongPtrW";
-			const char *set_window_long = "SetWindowLongPtrW";
-#else
-			const char *get_window_long = "GetWindowLongW";
-			const char *set_window_long = "SetWindowLongW";
-#endif
-			crown_GetWindowLongPtrW = (LONG_PTR (WINAPI *)(HWND, int))GetProcAddress(user32
-				, get_window_long);
-			crown_SetWindowLongPtrW = (LONG_PTR (WINAPI *)(HWND, int, LONG_PTR))GetProcAddress(user32
-				, set_window_long);
-			if (crown_GetWindowLongPtrW == NULL || crown_SetWindowLongPtrW == NULL)
-				loaded = FALSE;
 		}
 		if (!loaded) {
 			if (user32 != NULL)
@@ -402,8 +354,6 @@ static gboolean load_windows_clients(void)
 	}
 	return initialized == 1;
 }
-
-static const wchar_t WINDOWS_RAW_INPUT_CLASS_NAME[] = L"CrownInfiniteDragRawInput";
 
 /* Event-driven only: do not replace with cursor-position polling or repeated SetCursorPos calls. */
 
@@ -418,10 +368,12 @@ static gboolean register_windows_raw_input(HWND target, gboolean preserve_legacy
 			: RIDEV_REMOVE,
 		.hwndTarget = target,
 	};
-	if (RegisterRawInputDevices(&mouse, 1, sizeof(mouse)))
-		return TRUE;
+	return RegisterRawInputDevices(&mouse, 1, sizeof(mouse)) != FALSE;
+}
 
-	return FALSE;
+static gint scale_windows_absolute_coordinate(LONG coordinate, gint size)
+{
+	return ((int64_t)coordinate * MAX(size - 1, 1) + 32767)/65535;
 }
 
 static void process_windows_raw_mouse(struct CrownInfiniteDragSampler *sampler, const RAWMOUSE *mouse)
@@ -434,8 +386,8 @@ static void process_windows_raw_mouse(struct CrownInfiniteDragSampler *sampler, 
 		gint screen_y = virtual_desktop ? GetSystemMetrics(SM_YVIRTUALSCREEN) : 0;
 		gint screen_width = virtual_desktop ? GetSystemMetrics(SM_CXVIRTUALSCREEN) : GetSystemMetrics(SM_CXSCREEN);
 		gint screen_height = virtual_desktop ? GetSystemMetrics(SM_CYVIRTUALSCREEN) : GetSystemMetrics(SM_CYSCREEN);
-		gint absolute_x = screen_x + MulDiv(mouse->lLastX, MAX(screen_width - 1, 1), 65535);
-		gint absolute_y = screen_y + MulDiv(mouse->lLastY, MAX(screen_height - 1, 1), 65535);
+		gint absolute_x = screen_x + scale_windows_absolute_coordinate(mouse->lLastX, screen_width);
+		gint absolute_y = screen_y + scale_windows_absolute_coordinate(mouse->lLastY, screen_height);
 		if (sampler->windows_absolute_initialized) {
 			delta_x = absolute_x - sampler->windows_absolute_x;
 			delta_y = absolute_y - sampler->windows_absolute_y;
@@ -478,7 +430,6 @@ static void process_windows_raw_mouse(struct CrownInfiniteDragSampler *sampler, 
 	if (cancel_button_down != 0 && (mouse->usButtonFlags & cancel_button_down) != 0) {
 		g_atomic_int_set(&sampler->cancel_requested, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
-		SetEvent(sampler->windows_stop_event);
 		return;
 	}
 
@@ -497,23 +448,16 @@ static void process_windows_raw_mouse(struct CrownInfiniteDragSampler *sampler, 
 	if (trigger_button_up != 0 && (mouse->usButtonFlags & trigger_button_up) != 0) {
 		g_atomic_int_set(&sampler->released, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
-		SetEvent(sampler->windows_stop_event);
 	}
 }
 
-static LRESULT CALLBACK windows_raw_input_window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
+static void drain_windows_raw_input_messages(struct CrownInfiniteDragSampler *sampler)
 {
-	if (message == WM_NCCREATE) {
-		CREATESTRUCTW *create = (CREATESTRUCTW *)lparam;
-		SetWindowLongPtrW(window, GWLP_USERDATA, (LONG_PTR)create->lpCreateParams);
-		return TRUE;
-	}
-
-	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)GetWindowLongPtrW(window, GWLP_USERDATA);
-	if (message == WM_INPUT && sampler != NULL) {
+	MSG message;
+	while (PeekMessageW(&message, NULL, WM_INPUT, WM_INPUT, PM_REMOVE)) {
 		RAWINPUT input;
 		UINT input_size = sizeof(input);
-		UINT result = GetRawInputData((HRAWINPUT)lparam
+		UINT result = GetRawInputData((HRAWINPUT)message.lParam
 			, RID_INPUT
 			, &input
 			, &input_size
@@ -522,27 +466,17 @@ static LRESULT CALLBACK windows_raw_input_window_proc(HWND window, UINT message,
 		if (result != (UINT)-1 && input.header.dwType == RIM_TYPEMOUSE) {
 			process_windows_raw_mouse(sampler, &input.data.mouse);
 		}
+		/* Release the raw input handle after reading it. */
+		DefWindowProcW(message.hwnd, message.message, message.wParam, message.lParam);
 	}
-
-	return DefWindowProcW(window, message, wparam, lparam);
 }
 
-static HWND create_windows_raw_input_window(struct CrownInfiniteDragSampler *sampler)
+static gpointer sample_pointer_windows(gpointer data)
 {
-	HINSTANCE instance = GetModuleHandleW(NULL);
-	WNDCLASSEXW window_class =
-	{
-		.cbSize = sizeof(window_class),
-		.lpfnWndProc = windows_raw_input_window_proc,
-		.hInstance = instance,
-		.lpszClassName = WINDOWS_RAW_INPUT_CLASS_NAME,
-	};
-	if (RegisterClassExW(&window_class) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
-		return NULL;
-	}
-
+	struct CrownInfiniteDragSampler *sampler = data;
+	/* Only a raw input target is needed; the worker reads WM_INPUT directly. */
 	HWND window = CreateWindowExW(0
-		, WINDOWS_RAW_INPUT_CLASS_NAME
+		, L"STATIC"
 		, L""
 		, 0
 		, 0
@@ -551,23 +485,9 @@ static HWND create_windows_raw_input_window(struct CrownInfiniteDragSampler *sam
 		, 0
 		, HWND_MESSAGE
 		, NULL
-		, instance
-		, sampler
+		, NULL
+		, NULL
 		);
-	return window;
-}
-
-static void drain_windows_raw_input_messages(void)
-{
-	MSG message;
-	while (PeekMessageW(&message, NULL, WM_INPUT, WM_INPUT, PM_REMOVE))
-		DispatchMessageW(&message);
-}
-
-static gpointer sample_pointer_windows(gpointer data)
-{
-	struct CrownInfiniteDragSampler *sampler = data;
-	HWND window = create_windows_raw_input_window(sampler);
 	gboolean registered = FALSE;
 	if (window == NULL)
 		goto setup_failed;
@@ -600,11 +520,11 @@ static gpointer sample_pointer_windows(gpointer data)
 			break;
 		}
 
-		drain_windows_raw_input_messages();
+		drain_windows_raw_input_messages(sampler);
 	}
 
 	/* GTK may observe the release just before this worker does. */
-	drain_windows_raw_input_messages();
+	drain_windows_raw_input_messages(sampler);
 
 	/* Restore and unconfine before the GTK thread reveals the cursor after joining. */
 	SetCursorPos(sampler->anchor_x, sampler->anchor_y);
@@ -624,9 +544,19 @@ setup_failed:
 }
 
 #elif defined(__linux__)
-static void wayland_registry_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
+static int wayland_registry_event(const void *data, void *proxy, uint32_t opcode
+	, const struct wl_message *message, union wl_argument *args)
 {
-	struct CrownInfiniteDragSampler *sampler = data;
+	(void)opcode;
+	if (strcmp(message->name, "global") != 0)
+		return 0;
+
+	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)data;
+	struct wl_registry *registry = proxy;
+	/* wl_registry.global(name, interface, version). */
+	uint32_t name = args[0].u;
+	const char *interface = args[1].s;
+	uint32_t version = args[2].u;
 	if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
 		sampler->pointer_constraints = wl_registry_bind(registry, name
 			, &zwp_pointer_constraints_v1_interface, MIN(version, 1u));
@@ -634,20 +564,8 @@ static void wayland_registry_global(void *data, struct wl_registry *registry, ui
 		sampler->relative_pointer_manager = wl_registry_bind(registry, name
 			, &zwp_relative_pointer_manager_v1_interface, MIN(version, 1u));
 	}
+	return 0;
 }
-
-static void wayland_registry_global_remove(void *data, struct wl_registry *registry, uint32_t name)
-{
-	(void)data;
-	(void)registry;
-	(void)name;
-}
-
-static const struct wl_registry_listener wayland_registry_listener =
-{
-	.global = wayland_registry_global,
-	.global_remove = wayland_registry_global_remove,
-};
 
 static gint gdk_button_from_wayland(uint32_t button)
 {
@@ -663,42 +581,19 @@ static gint gdk_button_from_wayland(uint32_t button)
 	}
 }
 
-static void wayland_pointer_enter(void *data, struct wl_pointer *pointer, uint32_t serial
-	, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y)
+static int wayland_pointer_event(const void *data, void *proxy, uint32_t opcode
+	, const struct wl_message *message, union wl_argument *args)
 {
-	(void)data;
-	(void)pointer;
-	(void)serial;
-	(void)surface;
-	(void)x;
-	(void)y;
-}
+	(void)proxy;
+	(void)opcode;
+	/* GTK handles the other pointer events, including scrolling. */
+	if (strcmp(message->name, "button") != 0)
+		return 0;
 
-static void wayland_pointer_leave(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface)
-{
-	(void)data;
-	(void)pointer;
-	(void)serial;
-	(void)surface;
-}
-
-static void wayland_pointer_motion(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y)
-{
-	(void)data;
-	(void)pointer;
-	(void)time;
-	(void)x;
-	(void)y;
-}
-
-static void wayland_pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial
-	, uint32_t time, uint32_t button, uint32_t state)
-{
-	struct CrownInfiniteDragSampler *sampler = data;
-	(void)pointer;
-	(void)serial;
-	(void)time;
-	gint gdk_button = gdk_button_from_wayland(button);
+	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)data;
+	/* wl_pointer.button(serial, time, button, state). */
+	gint gdk_button = gdk_button_from_wayland(args[2].u);
+	uint32_t state = args[3].u;
 	if (state == WL_POINTER_BUTTON_STATE_PRESSED
 		&& sampler->cancel_button != 0
 		&& gdk_button == sampler->cancel_button
@@ -709,149 +604,42 @@ static void wayland_pointer_button(void *data, struct wl_pointer *pointer, uint3
 		g_atomic_int_set(&sampler->released, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
 	}
+	return 0;
 }
 
-static void wayland_pointer_axis(void *data, struct wl_pointer *pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
+static int wayland_relative_pointer_event(const void *data, void *proxy, uint32_t opcode
+	, const struct wl_message *message, union wl_argument *args)
 {
-	/* GTK still receives scroll events on its own pointer object. */
-	(void)data;
-	(void)pointer;
-	(void)time;
-	(void)axis;
-	(void)value;
-}
-
-static void wayland_pointer_frame(void *data, struct wl_pointer *pointer)
-{
-	(void)data;
-	(void)pointer;
-}
-
-static void wayland_pointer_axis_source(void *data, struct wl_pointer *pointer, uint32_t source)
-{
-	(void)data;
-	(void)pointer;
-	(void)source;
-}
-
-static void wayland_pointer_axis_stop(void *data, struct wl_pointer *pointer, uint32_t time, uint32_t axis)
-{
-	(void)data;
-	(void)pointer;
-	(void)time;
-	(void)axis;
-}
-
-static void wayland_pointer_axis_discrete(void *data, struct wl_pointer *pointer, uint32_t axis, int32_t discrete)
-{
-	(void)data;
-	(void)pointer;
-	(void)axis;
-	(void)discrete;
-}
-
-static void wayland_pointer_axis_value120(void *data, struct wl_pointer *pointer, uint32_t axis, int32_t value120)
-{
-	(void)data;
-	(void)pointer;
-	(void)axis;
-	(void)value120;
-}
-
-static void wayland_pointer_axis_relative_direction(void *data, struct wl_pointer *pointer, uint32_t axis, uint32_t direction)
-{
-	(void)data;
-	(void)pointer;
-	(void)axis;
-	(void)direction;
-}
-
-/* The bundled protocol can dispatch these events even with older system headers. */
-static const struct
-{
-	struct wl_pointer_listener base;
-#if !defined(WL_POINTER_AXIS_VALUE120_SINCE_VERSION)
-	void (*axis_value120)(void *, struct wl_pointer *, uint32_t, int32_t);
-#endif
-#if !defined(WL_POINTER_AXIS_RELATIVE_DIRECTION_SINCE_VERSION)
-	void (*axis_relative_direction)(void *, struct wl_pointer *, uint32_t, uint32_t);
-#endif
-} wayland_pointer_listener =
-{
-	.base =
-	{
-		.enter = wayland_pointer_enter,
-		.leave = wayland_pointer_leave,
-		.motion = wayland_pointer_motion,
-		.button = wayland_pointer_button,
-		.axis = wayland_pointer_axis,
-		.frame = wayland_pointer_frame,
-		.axis_source = wayland_pointer_axis_source,
-		.axis_stop = wayland_pointer_axis_stop,
-		.axis_discrete = wayland_pointer_axis_discrete,
-#if defined(WL_POINTER_AXIS_VALUE120_SINCE_VERSION)
-		.axis_value120 = wayland_pointer_axis_value120,
-#endif
-#if defined(WL_POINTER_AXIS_RELATIVE_DIRECTION_SINCE_VERSION)
-		.axis_relative_direction = wayland_pointer_axis_relative_direction,
-#endif
-	},
-#if !defined(WL_POINTER_AXIS_VALUE120_SINCE_VERSION)
-	.axis_value120 = wayland_pointer_axis_value120,
-#endif
-#if !defined(WL_POINTER_AXIS_RELATIVE_DIRECTION_SINCE_VERSION)
-	.axis_relative_direction = wayland_pointer_axis_relative_direction,
-#endif
-};
-
-static void wayland_relative_motion(void *data
-	, struct zwp_relative_pointer_v1 *relative_pointer
-	, uint32_t time_hi
-	, uint32_t time_lo
-	, wl_fixed_t dx
-	, wl_fixed_t dy
-	, wl_fixed_t dx_unaccelerated
-	, wl_fixed_t dy_unaccelerated
-	)
-{
-	struct CrownInfiniteDragSampler *sampler = data;
-	(void)relative_pointer;
-	(void)time_hi;
-	(void)time_lo;
-	(void)dx_unaccelerated;
-	(void)dy_unaccelerated;
+	(void)proxy;
+	(void)opcode;
+	(void)message;
+	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)data;
+	/* relative_motion(time_hi, time_lo, dx, dy, dx_unaccelerated, dy_unaccelerated). */
+	wl_fixed_t dx = args[2].f;
+	wl_fixed_t dy = args[3].f;
 	if (g_atomic_int_get(&sampler->wayland_locked)) {
 		store_delta(sampler, wl_fixed_to_double(dx), wl_fixed_to_double(dy));
 		store_sample(sampler);
 	}
+	return 0;
 }
 
-static const struct zwp_relative_pointer_v1_listener wayland_relative_pointer_listener =
+static int wayland_locked_pointer_event(const void *data, void *proxy, uint32_t opcode
+	, const struct wl_message *message, union wl_argument *args)
 {
-	.relative_motion = wayland_relative_motion,
-};
-
-static void wayland_pointer_locked(void *data, struct zwp_locked_pointer_v1 *locked_pointer)
-{
-	struct CrownInfiniteDragSampler *sampler = data;
-	(void)locked_pointer;
-	g_atomic_int_set(&sampler->wayland_locked, TRUE);
+	(void)proxy;
+	(void)opcode;
+	(void)args;
+	struct CrownInfiniteDragSampler *sampler = (struct CrownInfiniteDragSampler *)data;
+	if (strcmp(message->name, "locked") == 0) {
+		g_atomic_int_set(&sampler->wayland_locked, TRUE);
+	} else if (strcmp(message->name, "unlocked") == 0) {
+		g_atomic_int_set(&sampler->wayland_locked, FALSE);
+		g_atomic_int_set(&sampler->cancel_requested, TRUE);
+		g_atomic_int_set(&sampler->running, FALSE);
+	}
+	return 0;
 }
-
-static void wayland_pointer_unlocked(void *data, struct zwp_locked_pointer_v1 *locked_pointer)
-{
-	struct CrownInfiniteDragSampler *sampler = data;
-	(void)locked_pointer;
-	g_atomic_int_set(&sampler->wayland_locked, FALSE);
-	g_atomic_int_set(&sampler->cancel_requested, TRUE);
-	g_atomic_int_set(&sampler->running, FALSE);
-}
-
-static const struct zwp_locked_pointer_v1_listener wayland_locked_pointer_listener =
-{
-	.locked = wayland_pointer_locked,
-	.unlocked = wayland_pointer_unlocked,
-};
 
 static gboolean create_wayland_pointer_lock(struct CrownInfiniteDragSampler *sampler
 	, GdkDisplay *display
@@ -878,7 +666,8 @@ static gboolean create_wayland_pointer_lock(struct CrownInfiniteDragSampler *sam
 	wl_proxy_wrapper_destroy(wrapped_display);
 	if (sampler->wayland_registry == NULL)
 		return FALSE;
-	wl_registry_add_listener(sampler->wayland_registry, &wayland_registry_listener, sampler);
+	wl_proxy_add_dispatcher((struct wl_proxy *)sampler->wayland_registry
+		, wayland_registry_event, sampler, NULL);
 	if (wl_display_roundtrip_queue(sampler->wayland_display, sampler->wayland_queue) < 0
 		|| sampler->pointer_constraints == NULL
 		|| sampler->relative_pointer_manager == NULL
@@ -893,7 +682,8 @@ static gboolean create_wayland_pointer_lock(struct CrownInfiniteDragSampler *sam
 	wl_proxy_wrapper_destroy(wrapped_seat);
 	if (sampler->wayland_pointer == NULL)
 		return FALSE;
-	wl_pointer_add_listener(sampler->wayland_pointer, &wayland_pointer_listener.base, sampler);
+	wl_proxy_add_dispatcher((struct wl_proxy *)sampler->wayland_pointer
+		, wayland_pointer_event, sampler, NULL);
 
 	sampler->locked_pointer = zwp_pointer_constraints_v1_lock_pointer(sampler->pointer_constraints
 		, surface
@@ -905,8 +695,10 @@ static gboolean create_wayland_pointer_lock(struct CrownInfiniteDragSampler *sam
 	if (sampler->locked_pointer == NULL || sampler->relative_pointer == NULL)
 		return FALSE;
 
-	zwp_locked_pointer_v1_add_listener(sampler->locked_pointer, &wayland_locked_pointer_listener, sampler);
-	zwp_relative_pointer_v1_add_listener(sampler->relative_pointer, &wayland_relative_pointer_listener, sampler);
+	wl_proxy_add_dispatcher((struct wl_proxy *)sampler->locked_pointer
+		, wayland_locked_pointer_event, sampler, NULL);
+	wl_proxy_add_dispatcher((struct wl_proxy *)sampler->relative_pointer
+		, wayland_relative_pointer_event, sampler, NULL);
 	if (wl_display_flush(sampler->wayland_display) < 0 && errno != EAGAIN)
 		return FALSE;
 	return TRUE;
@@ -938,34 +730,33 @@ static void destroy_wayland_pointer_lock(struct CrownInfiniteDragSampler *sample
 
 #if defined(CROWN_GTK3)
 static void hide_wayland_cursor(struct CrownInfiniteDragSampler *sampler, GdkDisplay *display, GdkWindow *surface)
-{
-	GdkCursor *hidden_cursor = gdk_cursor_new_from_name(display, "none");
-	if (hidden_cursor == NULL)
-		return;
-	sampler->wayland_surface = g_object_ref(surface);
-	sampler->wayland_original_cursor = gdk_window_get_cursor(surface);
-	if (sampler->wayland_original_cursor != NULL)
-		g_object_ref(sampler->wayland_original_cursor);
-	gdk_window_set_cursor(surface, hidden_cursor);
-	g_object_unref(hidden_cursor);
-}
-
 #else
 static void hide_wayland_cursor(struct CrownInfiniteDragSampler *sampler, GdkDisplay *display, GdkSurface *surface)
+#endif
 {
+#if defined(CROWN_GTK3)
+	GdkCursor *hidden_cursor = gdk_cursor_new_from_name(display, "none");
+#else
 	(void)display;
 	GdkCursor *hidden_cursor = gdk_cursor_new_from_name("none", NULL);
+#endif
 	if (hidden_cursor == NULL)
 		return;
 	sampler->wayland_surface = g_object_ref(surface);
+#if defined(CROWN_GTK3)
+	sampler->wayland_original_cursor = gdk_window_get_cursor(surface);
+#else
 	sampler->wayland_original_cursor = gdk_surface_get_cursor(surface);
+#endif
 	if (sampler->wayland_original_cursor != NULL)
 		g_object_ref(sampler->wayland_original_cursor);
+#if defined(CROWN_GTK3)
+	gdk_window_set_cursor(surface, hidden_cursor);
+#else
 	gdk_surface_set_cursor(surface, hidden_cursor);
+#endif
 	g_object_unref(hidden_cursor);
 }
-
-#endif /* if defined(CROWN_GTK3) */
 
 static void restore_wayland_cursor(struct CrownInfiniteDragSampler *sampler)
 {
@@ -1041,27 +832,17 @@ dispatch_failed:
 	return NULL;
 }
 
-struct CrownInfiniteDragX11Grab
-{
-	Window window;
-	Window root;
-	gint anchor_x;
-	gint anchor_y;
-	gboolean cursor_hidden;
-	gboolean active;
-};
-
 /* Keep grab+XFixes-hide+XI2-raw-motion together: this combination is what activates Xwayland's relative-pointer device. */
-static gboolean warp_x11_pointer_to_anchor(Display *display, struct CrownInfiniteDragX11Grab *grab)
+static gboolean warp_x11_pointer_to_anchor(Display *display, Window root, struct CrownInfiniteDragSampler *sampler)
 {
 	int window_x;
 	int window_y;
 	Window child;
 	if (!XTranslateCoordinates(display
-		, grab->root
-		, grab->window
-		, grab->anchor_x
-		, grab->anchor_y
+		, root
+		, sampler->x11_window
+		, sampler->anchor_x
+		, sampler->anchor_y
 		, &window_x
 		, &window_y
 		, &child
@@ -1071,7 +852,7 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, struct CrownInfinit
 
 	XWarpPointer(display
 		, None
-		, grab->window
+		, sampler->x11_window
 		, 0
 		, 0
 		, 0
@@ -1083,62 +864,16 @@ static gboolean warp_x11_pointer_to_anchor(Display *display, struct CrownInfinit
 	return TRUE;
 }
 
-static void destroy_x11_pointer_grab(Display *display, struct CrownInfiniteDragX11Grab *grab)
+static void destroy_x11_pointer_grab(Display *display, Window root, struct CrownInfiniteDragSampler *sampler)
 {
-	if (grab->active) {
-		/* Commit the original position hint before revealing the pointer. */
-		warp_x11_pointer_to_anchor(display, grab);
+	/* Commit the original position hint before revealing the pointer. */
+	warp_x11_pointer_to_anchor(display, root, sampler);
 
-		/* Ungrab while hidden or Xwayland may discard the position hint. */
-		XUngrabPointer(display, CurrentTime);
-		XSync(display, False);
-		grab->active = FALSE;
-	}
-	if (grab->cursor_hidden) {
-		XFixesShowCursor(display, grab->window);
-		XSync(display, False);
-		grab->cursor_hidden = FALSE;
-	}
-}
-
-static gboolean create_x11_pointer_grab(Display *display
-	, Window root
-	, Window window
-	, gint anchor_x
-	, gint anchor_y
-	, struct CrownInfiniteDragX11Grab *grab
-	)
-{
-	grab->window = window;
-	grab->root = root;
-	grab->anchor_x = anchor_x;
-	grab->anchor_y = anchor_y;
-	int status = XGrabPointer(display
-		, window
-		, False
-		, ButtonReleaseMask
-		, GrabModeAsync
-		, GrabModeAsync
-		, window
-		, None
-		, CurrentTime
-		);
-	if (status != GrabSuccess) {
-		destroy_x11_pointer_grab(display, grab);
-		return FALSE;
-	}
-	grab->active = TRUE;
-
-	XFixesHideCursor(display, window);
+	/* Ungrab while hidden or Xwayland may discard the position hint. */
+	XUngrabPointer(display, CurrentTime);
 	XSync(display, False);
-	grab->cursor_hidden = TRUE;
-
-	/* A single warp; repeated warps would be reported as synthetic raw motion. */
-	if (!warp_x11_pointer_to_anchor(display, grab)) {
-		destroy_x11_pointer_grab(display, grab);
-		return FALSE;
-	}
-	return TRUE;
+	XFixesShowCursor(display, sampler->x11_window);
+	XSync(display, False);
 }
 
 static gpointer x11_sampler_failed(struct CrownInfiniteDragSampler *sampler, Display *display)
@@ -1176,12 +911,9 @@ static gpointer sample_pointer_x11(gpointer data)
 		return x11_sampler_failed(sampler, display);
 	}
 
-	int xfixes_event;
-	int xfixes_error;
 	int xfixes_major = 4;
 	int xfixes_minor = 0;
-	if (!XFixesQueryExtension(display, &xfixes_event, &xfixes_error)
-		|| !XFixesQueryVersion(display, &xfixes_major, &xfixes_minor)
+	if (!XFixesQueryVersion(display, &xfixes_major, &xfixes_minor)
 		|| xfixes_major < 4
 		) {
 		return x11_sampler_failed(sampler, display);
@@ -1202,14 +934,24 @@ static gpointer sample_pointer_x11(gpointer data)
 	}
 	XSync(display, False);
 
-	struct CrownInfiniteDragX11Grab pointer_grab = { 0 };
-	if (!create_x11_pointer_grab(display
-		, root
+	if (XGrabPointer(display
 		, sampler->x11_window
-		, sampler->anchor_x
-		, sampler->anchor_y
-		, &pointer_grab
-		)) {
+		, False
+		, ButtonReleaseMask
+		, GrabModeAsync
+		, GrabModeAsync
+		, sampler->x11_window
+		, None
+		, CurrentTime
+		) != GrabSuccess) {
+		return x11_sampler_failed(sampler, display);
+	}
+	XFixesHideCursor(display, sampler->x11_window);
+	XSync(display, False);
+
+	/* A single warp; repeated warps would be reported as synthetic raw motion. */
+	if (!warp_x11_pointer_to_anchor(display, root, sampler)) {
+		destroy_x11_pointer_grab(display, root, sampler);
 		return x11_sampler_failed(sampler, display);
 	}
 
@@ -1241,18 +983,14 @@ static gpointer sample_pointer_x11(gpointer data)
 						store_wheel(sampler, 1.0, 0.0);
 					}
 				} else if (event.xcookie.evtype == XI_RawMotion) {
-					int value_index = 0;
 					gdouble delta_x = 0.0;
 					gdouble delta_y = 0.0;
-					for (int axis = 0; axis < raw->valuators.mask_len * 8; ++axis) {
-						if (!XIMaskIsSet(raw->valuators.mask, axis))
-							continue;
-						gdouble value = raw->valuators.values[value_index];
-						if (axis == 0)
-							delta_x = value;
-						else if (axis == 1)
-							delta_y = value;
-						value_index += 1;
+					if (raw->valuators.mask_len > 0) {
+						int value_index = 0;
+						if (XIMaskIsSet(raw->valuators.mask, 0))
+							delta_x = raw->valuators.values[value_index++];
+						if (XIMaskIsSet(raw->valuators.mask, 1))
+							delta_y = raw->valuators.values[value_index];
 					}
 					store_delta(sampler, delta_x, delta_y);
 					store_sample(sampler);
@@ -1276,11 +1014,6 @@ static gpointer sample_pointer_x11(gpointer data)
 		if (poll_result < 0) {
 			break;
 		}
-		if ((descriptors[1].revents & POLLIN) != 0) {
-			uint64_t wake_value;
-			while (read(sampler->wake_fd, &wake_value, sizeof(wake_value)) < 0 && errno == EINTR) {
-			}
-		}
 		if ((descriptors[0].revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) {
 			break;
 		}
@@ -1290,7 +1023,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		g_atomic_int_set(&sampler->cancel_requested, TRUE);
 		g_atomic_int_set(&sampler->running, FALSE);
 	}
-	destroy_x11_pointer_grab(display, &pointer_grab);
+	destroy_x11_pointer_grab(display, root, sampler);
 	XCloseDisplay(display);
 	return NULL;
 }
@@ -1320,68 +1053,58 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 	g_mutex_init(&sampler->mutex);
 #if defined(__linux__)
 	sampler->wake_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
-	if (sampler->wake_fd < 0) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
+	if (sampler->wake_fd < 0)
+		goto setup_failed;
 #endif
 	g_atomic_int_set(&sampler->running, TRUE);
 	sampler->trigger_button = trigger_button;
 	sampler->cancel_button = cancel_button;
 	sampler->preserve_legacy_events = preserve_legacy_events;
 #if defined(_WIN32)
-	if (!load_windows_clients()) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
-#endif
-#if defined(CROWN_GTK3)
-#if defined(_WIN32)
 	(void)display;
+#if defined(CROWN_GTK3)
 	(void)window;
+#else
+	(void)surface;
+#endif
 	(void)device;
+	if (!load_windows_clients())
+		goto setup_failed;
+
 	POINT cursor_position;
-	if (!GetCursorPos(&cursor_position)) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
+	if (!GetCursorPos(&cursor_position))
+		goto setup_failed;
 	sampler->anchor_x = cursor_position.x;
 	sampler->anchor_y = cursor_position.y;
 	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
-	if (sampler->windows_stop_event == NULL) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
+	if (sampler->windows_stop_event == NULL)
+		goto setup_failed;
 	/* ShowCursor's counter is thread-local, so change it on GTK's UI thread. */
 	ShowCursor(FALSE);
-	sampler->windows_cursor_hidden = TRUE;
 #elif defined(__linux__)
-	GdkWindow *toplevel = gdk_window_get_toplevel(window);
+#if defined(CROWN_GTK3)
+	GdkWindow *surface = gdk_window_get_toplevel(window);
+#endif
 	if (GDK_IS_WAYLAND_DISPLAY(display)) {
 		sampler->backend = CROWN_INFINITE_DRAG_WAYLAND;
-		struct wl_surface *wl_surface = gdk_wayland_window_get_wl_surface(toplevel);
+#if defined(CROWN_GTK3)
+		struct wl_surface *wl_surface = gdk_wayland_window_get_wl_surface(surface);
+#else
+		struct wl_surface *wl_surface = gdk_wayland_surface_get_wl_surface(surface);
+#endif
 		struct wl_seat *wl_seat = gdk_wayland_device_get_wl_seat(device);
-		if (!create_wayland_pointer_lock(sampler, display, wl_surface, wl_seat)) {
-			destroy_wayland_pointer_lock(sampler);
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
-		}
-		hide_wayland_cursor(sampler, display, toplevel);
+		if (!create_wayland_pointer_lock(sampler, display, wl_surface, wl_seat))
+			goto setup_failed;
+		hide_wayland_cursor(sampler, display, surface);
 	} else {
 		sampler->backend = CROWN_INFINITE_DRAG_X11;
-		if (!load_x11_clients()) {
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
-		}
-		sampler->x11_window = gdk_x11_window_get_xid(toplevel);
+		if (!load_x11_clients())
+			goto setup_failed;
+#if defined(CROWN_GTK3)
+		sampler->x11_window = gdk_x11_window_get_xid(surface);
+#else
+		sampler->x11_window = gdk_x11_surface_get_xid(surface);
+#endif
 		Display *xdisplay = gdk_x11_display_get_xdisplay(display);
 		Window query_root;
 		Window query_child;
@@ -1398,99 +1121,42 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 			, &window_y
 			, &mask
 			)) {
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
+			goto setup_failed;
 		}
+#if defined(CROWN_GTK3)
 		GdkSeat *seat = gdk_device_get_seat(device);
 		if (seat != NULL) {
 			gdk_seat_ungrab(seat);
 			gdk_display_sync(display);
 		}
-	}
 #else
-	(void)display;
-	(void)window;
-	(void)device;
-#endif /* if defined(_WIN32) */
-#else
-#if defined(_WIN32)
-	(void)display;
-	(void)surface;
-	(void)device;
-	POINT cursor_position;
-	if (!GetCursorPos(&cursor_position)) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
-	sampler->anchor_x = cursor_position.x;
-	sampler->anchor_y = cursor_position.y;
-	sampler->windows_stop_event = CreateEventW(NULL, TRUE, FALSE, NULL);
-	if (sampler->windows_stop_event == NULL) {
-		g_mutex_clear(&sampler->mutex);
-		g_free(sampler);
-		return NULL;
-	}
-	/* ShowCursor's counter is thread-local, so change it on GTK's UI thread. */
-	ShowCursor(FALSE);
-	sampler->windows_cursor_hidden = TRUE;
-#elif defined(__linux__)
-	if (GDK_IS_WAYLAND_DISPLAY(display)) {
-		sampler->backend = CROWN_INFINITE_DRAG_WAYLAND;
-		struct wl_surface *wl_surface = gdk_wayland_surface_get_wl_surface(surface);
-		struct wl_seat *wl_seat = gdk_wayland_device_get_wl_seat(device);
-		if (!create_wayland_pointer_lock(sampler, display, wl_surface, wl_seat)) {
-			destroy_wayland_pointer_lock(sampler);
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
-		}
-		hide_wayland_cursor(sampler, display, surface);
-	} else {
-		sampler->backend = CROWN_INFINITE_DRAG_X11;
-		if (!load_x11_clients()) {
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
-		}
-		sampler->x11_window = gdk_x11_surface_get_xid(surface);
-		Display *xdisplay = gdk_x11_display_get_xdisplay(display);
-		Window query_root;
-		Window query_child;
-		int window_x;
-		int window_y;
-		unsigned int mask;
-		if (!XQueryPointer(xdisplay
-			, sampler->x11_window
-			, &query_root
-			, &query_child
-			, &sampler->anchor_x
-			, &sampler->anchor_y
-			, &window_x
-			, &window_y
-			, &mask
-			)) {
-			close(sampler->wake_fd);
-			g_mutex_clear(&sampler->mutex);
-			g_free(sampler);
-			return NULL;
-		}
 		/* GTK4's button press owns an implicit X grab; release it before the sampler grabs. */
 		XUngrabPointer(xdisplay, CurrentTime);
 		XSync(xdisplay, False);
+#endif
 	}
 #else
 	(void)display;
+#if defined(CROWN_GTK3)
+	(void)window;
+#else
 	(void)surface;
+#endif
 	(void)device;
 #endif /* if defined(_WIN32) */
-#endif /* if defined(CROWN_GTK3) */
 	sampler->thread = g_thread_new("infinite-drag", sample_pointer, sampler);
 	return sampler;
+
+setup_failed:
+#if defined(__linux__)
+	if (sampler->backend == CROWN_INFINITE_DRAG_WAYLAND)
+		destroy_wayland_pointer_lock(sampler);
+	if (sampler->wake_fd >= 0)
+		close(sampler->wake_fd);
+#endif
+	g_mutex_clear(&sampler->mutex);
+	g_free(sampler);
+	return NULL;
 }
 
 void crown_infinite_drag_sampler_drain(void *data, gdouble *delta_x, gdouble *delta_y, gdouble *wheel_dx, gdouble *wheel_dy, gint *samples)
@@ -1537,10 +1203,7 @@ void crown_infinite_drag_sampler_stop(void *data, gdouble *delta_x, gdouble *del
 #endif
 	g_thread_join(sampler->thread);
 #if defined(_WIN32)
-	if (sampler->windows_cursor_hidden) {
-		ShowCursor(TRUE);
-		sampler->windows_cursor_hidden = FALSE;
-	}
+	ShowCursor(TRUE);
 #endif
 	crown_infinite_drag_sampler_drain(sampler, delta_x, delta_y, wheel_dx, wheel_dy, samples);
 #if defined(_WIN32)
