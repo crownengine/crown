@@ -128,6 +128,7 @@ project "crown-editor"
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/ufbx") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/stb") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/bimg/3rdparty") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "src") .. '"',
 	}
 
 	files {
@@ -139,6 +140,7 @@ project "crown-editor"
 		CROWN_DIR .. "3rdparty/cgltf/cgltf.c",
 		CROWN_DIR .. "3rdparty/ufbx/ufbx.c",
 		CROWN_DIR .. "scripts/win32/app.rc",
+		CROWN_DIR .. "src/device/export_transport.c",
 	}
 
 	configuration { "linux" }
