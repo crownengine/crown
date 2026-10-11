@@ -108,7 +108,7 @@ public class InputDouble : InputField
 		_drag_widget = event_box;
 		_entry.get_style_context().add_class("label-button");
 #else
-		_drag_widget = _entry;
+		_drag_widget = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		_entry.add_css_class("label-button");
 #endif
 		_drag = new InfiniteDragController(_drag_widget);
@@ -160,6 +160,7 @@ public class InputDouble : InputField
 		((Gtk.GestureClick)_gesture_click).cancel.connect(on_gesture_cancelled);
 		_drag_widget.add_controller(_gesture_click);
 #endif
+		_gesture_click.set_button(Gdk.BUTTON_PRIMARY);
 
 #if CROWN_GTK3
 		_controller_key = new Gtk.EventControllerKey(_entry);

@@ -912,6 +912,11 @@ public class PropertyGrid : Gtk.Grid
 #endif
 					if (click.get_current_button() != Gdk.BUTTON_SECONDARY)
 						return;
+#if !CROWN_GTK3
+					// Do not open a modal popover for the drag-cancel press.
+					if ((click.get_current_event_state() & Gdk.ModifierType.BUTTON1_MASK) != 0)
+						return;
+#endif
 
 					GLib.Menu menu = new GLib.Menu();
 					GLib.MenuItem mi;
@@ -928,6 +933,7 @@ public class PropertyGrid : Gtk.Grid
 						popover.set_relative_to(p);
 #else
 						Gtk.PopoverMenu popover = new Gtk.PopoverMenu.from_model(menu);
+						popover.set_parent(p);
 #endif
 						popover.set_position(Gtk.PositionType.BOTTOM);
 						popover.popup();

@@ -20,6 +20,7 @@ project "crown-editor"
 			"-lX11",
 			"-lXi",
 			"-lXfixes",
+			"-ldl",
 		}
 
 	configuration { "windows" }
@@ -147,6 +148,9 @@ project "crown-editor"
 	}
 
 	configuration { "linux" }
+		buildoptions {
+			'-I"' .. path.join(CROWN_DIR, "3rdparty/wayland/include/wayland") .. '"',
+		}
 		removefiles {
 			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerquartz.c",
 			CROWN_DIR .. "tools/widgets/gtk/gtkcolorpickerwin32.c",
