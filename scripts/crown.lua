@@ -146,6 +146,11 @@ function crown_project(_name, _kind, _defines)
 				"shell32",
 			}
 
+		configuration { "mingw*" }
+			links {
+				"dxguid",
+			}
+
 		configuration { "linux-* or mingw* or vs*" }
 			includedirs {
 				CROWN_DIR .. "3rdparty/cgltf",

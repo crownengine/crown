@@ -388,6 +388,12 @@ namespace bgfx
 		return rci->getInternal(_handle);
 	}
 
+	uint32_t exportTexture(ExternalTextureInfo& _info, TextureHandle _handle)
+	{
+		BGFX_CHECK_API_THREAD();
+		return s_ctx->exportTexture(_handle, &_info);
+	}
+
 	void setGraphicsDebuggerPresent(bool _present)
 	{
 		BX_TRACE("Graphics debugger is %spresent.", _present ? "" : "not ");
@@ -1545,6 +1551,7 @@ namespace bgfx
 		CAPS_FLAGS(BGFX_CAPS_VERTEX_ATTRIB_UINT10),
 		CAPS_FLAGS(BGFX_CAPS_VERTEX_ID),
 		CAPS_FLAGS(BGFX_CAPS_VIEWPORT_LAYER_ARRAY),
+		CAPS_FLAGS(BGFX_CAPS_TEXTURE_EXPORT),
 #undef CAPS_FLAGS
 	};
 
@@ -3287,6 +3294,19 @@ namespace bgfx
 					_cmdbuf.read(mip);
 
 					m_renderCtx->readTexture(handle, data, mip);
+				}
+				break;
+
+			case CommandBuffer::ExportTexture:
+				{
+					BGFX_PROFILER_SCOPE("ExportTexture", 0xff2040ff);
+
+					TextureHandle handle;
+					_cmdbuf.read(handle);
+
+					ExternalTextureInfo* info;
+					_cmdbuf.read(info);
+					m_renderCtx->exportTexture(*info, handle);
 				}
 				break;
 

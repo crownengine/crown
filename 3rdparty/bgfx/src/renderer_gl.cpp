@@ -3522,6 +3522,10 @@ namespace bgfx { namespace gl
 			return uintptr_t(m_textures[_handle.idx].m_id);
 		}
 
+		void exportTexture(ExternalTextureInfo& /*_info*/, TextureHandle /*_handle*/) override
+		{
+		}
+
 		void destroyTexture(TextureHandle _handle) override
 		{
 			m_textures[_handle.idx].destroy();

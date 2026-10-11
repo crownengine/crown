@@ -109,6 +109,7 @@
 			/* VK_KHR_get_physical_device_properties2 */                               \
 			VK_IMPORT_INSTANCE_FUNC(true,  vkGetPhysicalDeviceFeatures2KHR);           \
 			VK_IMPORT_INSTANCE_FUNC(true,  vkGetPhysicalDeviceMemoryProperties2KHR);   \
+			VK_IMPORT_INSTANCE_FUNC(true,  vkGetPhysicalDeviceFormatProperties2KHR);   \
 			/* VK_EXT_debug_report */                                                  \
 			VK_IMPORT_INSTANCE_FUNC(true,  vkCreateDebugReportCallbackEXT);            \
 			VK_IMPORT_INSTANCE_FUNC(true,  vkDestroyDebugReportCallbackEXT);           \
@@ -225,6 +226,10 @@
 			VK_IMPORT_DEVICE_FUNC(true,  vkCmdDrawIndexedIndirectCountKHR);           \
 			/* VK_KHR_fragment_shading_rate */                                        \
 			VK_IMPORT_DEVICE_FUNC(true, vkCmdSetFragmentShadingRateKHR);              \
+			/* VK_KHR_external_memory_fd */                                           \
+			VK_IMPORT_DEVICE_FUNC(true,  vkGetMemoryFdKHR);                           \
+			/* VK_EXT_image_drm_format_modifier */                                    \
+			VK_IMPORT_DEVICE_FUNC(true,  vkGetImageDrmFormatModifierPropertiesEXT);   \
 
 #define VK_DESTROY                                \
 			VK_DESTROY_FUNC(Buffer);              \

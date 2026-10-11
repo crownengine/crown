@@ -17,6 +17,11 @@
 #	import <Metal/Metal.h>
 #endif // BX_PLATFORM_OSX
 
+#if BX_PLATFORM_LINUX
+#	include <drm/drm_fourcc.h>
+#	include <unistd.h>
+#endif
+
 namespace bgfx { namespace vk
 {
 	static char s_viewName[BGFX_CONFIG_MAX_VIEWS][BGFX_CONFIG_MAX_VIEW_NAME];
@@ -391,6 +396,8 @@ VK_IMPORT_DEVICE
 			KHR_wayland_surface,
 			KHR_xlib_surface,
 			KHR_xcb_surface,
+			KHR_external_memory_fd,
+			EXT_image_drm_format_modifier,
 #	elif BX_PLATFORM_WINDOWS
 			KHR_win32_surface,
 #	elif BX_PLATFORM_OSX
@@ -430,6 +437,8 @@ VK_IMPORT_DEVICE
 		{ VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,    1, false, false, true,                                                          Layer::Count },
 		{ VK_KHR_XLIB_SURFACE_EXTENSION_NAME,       1, false, false, true,                                                          Layer::Count },
 		{ VK_KHR_XCB_SURFACE_EXTENSION_NAME,        1, false, false, true,                                                          Layer::Count },
+		{ "VK_KHR_external_memory_fd",              1, false, false, true,                                                          Layer::Count },
+		{ "VK_EXT_image_drm_format_modifier",      2, false, false, true,                                                          Layer::Count },
 #	elif BX_PLATFORM_WINDOWS
 		{ VK_KHR_WIN32_SURFACE_EXTENSION_NAME,      1, false, false, true,                                                          Layer::Count },
 #	elif BX_PLATFORM_OSX
@@ -1709,6 +1718,13 @@ VK_IMPORT_INSTANCE
 					| (s_extension[Extension::EXT_shader_viewport_index_layer].m_supported ? BGFX_CAPS_VIEWPORT_LAYER_ARRAY : 0)
 					| (s_extension[Extension::KHR_draw_indirect_count        ].m_supported && indirectDrawSupport ? BGFX_CAPS_DRAW_INDIRECT_COUNT : 0)
 					| (s_extension[Extension::KHR_fragment_shading_rate      ].m_supported ? BGFX_CAPS_VARIABLE_RATE_SHADING : 0)
+#if BX_PLATFORM_LINUX
+					| (s_extension[Extension::KHR_external_memory_fd].m_supported
+						&& s_extension[Extension::EXT_image_drm_format_modifier].m_supported
+						? BGFX_CAPS_TEXTURE_EXPORT
+						: 0
+						)
+#endif
 					;
 
 				m_variableRateShadingSupported = s_extension[Extension::KHR_fragment_shading_rate].m_supported;
@@ -2482,6 +2498,73 @@ VK_IMPORT_DEVICE
 		uintptr_t getInternal(TextureHandle /*_handle*/) override
 		{
 			return 0;
+		}
+
+		void exportTexture(ExternalTextureInfo& _info, TextureHandle _handle) override
+		{
+#if BX_PLATFORM_LINUX
+			if (!s_extension[Extension::KHR_external_memory_fd].m_supported)
+			{
+				return;
+			}
+			if (!s_extension[Extension::EXT_image_drm_format_modifier].m_supported
+			||  NULL == vkGetMemoryFdKHR
+			||  NULL == vkGetImageDrmFormatModifierPropertiesEXT
+			   )
+			{
+				return;
+			}
+
+			TextureVK& texture = m_textures[_handle.idx];
+			if (0 == (texture.m_flags & BGFX_TEXTURE_EXPORT) )
+			{
+				return;
+			}
+
+			// The compositor may read the exported allocation immediately after
+			// receiving its FD. Complete the blit before making it available.
+			kick(true);
+
+			VkMemoryGetFdInfoKHR fdInfo;
+			fdInfo.sType      = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR;
+			fdInfo.pNext      = NULL;
+			fdInfo.memory     = texture.m_textureDeviceMem.mem;
+			fdInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT;
+			int memFd = -1;
+
+			if (VK_SUCCESS != vkGetMemoryFdKHR(m_device, &fdInfo, &memFd) )
+			{
+				return;
+			}
+
+			VkImageDrmFormatModifierPropertiesEXT props;
+			props.sType = VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT;
+			props.pNext = NULL;
+			if (VK_SUCCESS != vkGetImageDrmFormatModifierPropertiesEXT(m_device, texture.m_textureImage, &props) )
+			{
+				close(memFd);
+				return;
+			}
+
+			VkImageSubresource subresource;
+			subresource.aspectMask = VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT;
+			subresource.mipLevel   = 0;
+			subresource.arrayLayer = 0;
+
+			VkSubresourceLayout layout;
+			vkGetImageSubresourceLayout(m_device, texture.m_textureImage, &subresource, &layout);
+
+			_info.width    = texture.m_width;
+			_info.height   = texture.m_height;
+			_info.stride   = layout.rowPitch;
+			_info.offset   = layout.offset;
+			_info.size     = layout.size;
+			_info.fourcc   = DRM_FORMAT_ABGR8888;
+			_info.modifier = props.drmFormatModifier;
+			_info.handle   = (void*)uintptr_t(memFd);
+#else
+			BX_UNUSED(_info, _handle);
+#endif
 		}
 
 		void destroyTexture(TextureHandle _handle) override
@@ -6321,7 +6404,6 @@ retry:
 
 		const VkAllocationCallbacks* allocatorCb = s_renderVK->m_allocatorCb;
 		const VkDevice device = s_renderVK->m_device;
-
 		if (m_sampler.Count > 1)
 		{
 			BX_ASSERT(VK_IMAGE_VIEW_TYPE_3D != m_type, "Can't create multisample 3D image.");
@@ -6371,6 +6453,67 @@ retry:
 			: VK_IMAGE_TYPE_2D
 			;
 		ici.tiling        = VK_IMAGE_TILING_OPTIMAL;
+
+#if BX_PLATFORM_LINUX
+		const bool exportTextureSupported = s_extension[Extension::KHR_external_memory_fd].m_supported
+			&& s_extension[Extension::EXT_image_drm_format_modifier].m_supported
+			&& NULL != vkGetImageDrmFormatModifierPropertiesEXT
+			;
+		uint64_t* drmModifiers;
+		VkDrmFormatModifierPropertiesEXT* drmFmtModifiers;
+		VkImageDrmFormatModifierListCreateInfoEXT drmModListCi;
+		VkExternalMemoryImageCreateInfo extMemIci;
+
+		if (exportTextureSupported
+		&&  0 != (m_flags & BGFX_TEXTURE_EXPORT)
+		   )
+		{
+			ici.tiling = VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
+			const VkPhysicalDevice physicalDevice = s_renderVK->m_physicalDevice;
+			VkDrmFormatModifierPropertiesListEXT drmFmtModPList = {};
+			drmFmtModPList.sType = VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT;
+			drmFmtModPList.pNext = NULL;
+			drmFmtModPList.drmFormatModifierCount = 0;
+			drmFmtModPList.pDrmFormatModifierProperties = NULL;
+
+			VkFormatProperties2 fmt2 = {};
+			fmt2.sType = VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2;
+			fmt2.pNext = &drmFmtModPList;
+
+			vkGetPhysicalDeviceFormatProperties2KHR(physicalDevice, ici.format, &fmt2);
+			drmFmtModifiers = (VkDrmFormatModifierPropertiesEXT*)BX_STACK_ALLOC(
+				sizeof(*drmFmtModifiers) * drmFmtModPList.drmFormatModifierCount
+				);
+			drmFmtModPList.pDrmFormatModifierProperties = drmFmtModifiers;
+			drmModifiers = (uint64_t*)BX_STACK_ALLOC(sizeof(*drmModifiers) * drmFmtModPList.drmFormatModifierCount);
+			vkGetPhysicalDeviceFormatProperties2KHR(physicalDevice, m_format, &fmt2);
+
+			BX_TRACE("DRM modifiers (%d):", drmFmtModPList.drmFormatModifierCount);
+			for (uint32_t i = 0; i < drmFmtModPList.drmFormatModifierCount; ++i)
+			{
+				drmModifiers[i] = drmFmtModifiers[i].drmFormatModifier;
+				BX_TRACE("\t%.16" PRIx64, drmModifiers[i]);
+			}
+
+			drmModListCi.sType                  = VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT;
+			drmModListCi.pNext                  = NULL;
+			drmModListCi.drmFormatModifierCount = drmFmtModPList.drmFormatModifierCount;
+			drmModListCi.pDrmFormatModifiers   = drmModifiers;
+
+			extMemIci.sType       = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
+			extMemIci.pNext       = &drmModListCi;
+			extMemIci.handleTypes = 0
+#if BX_PLATFORM_WINDOWS
+				| VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
+#elif BX_PLATFORM_LINUX
+				| VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT
+				| VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT
+#endif
+				;
+
+			ici.pNext = &extMemIci;
+		}
+#endif
 
 		result = vkCreateImage(device, &ici, allocatorCb, &m_textureImage);
 		if (VK_SUCCESS != result)

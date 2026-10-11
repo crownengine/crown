@@ -24,6 +24,9 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4005) // warning C4005: '' : macro redefinitio
 #define D3D11_NO_HELPERS
 #if BX_PLATFORM_LINUX || BX_PLATFORM_WINDOWS
 #   include <d3d11_3.h>
+#   if BX_PLATFORM_WINDOWS
+#       include <d3d11_4.h>
+#   endif
 #elif BX_PLATFORM_WINRT
 #   define __D3D10_1SHADER_H__ // BK - not used keep quiet!
 #   include <d3d11_3.h>
@@ -281,6 +284,10 @@ namespace bgfx { namespace d3d11
 			, m_srv(NULL)
 			, m_uav(NULL)
 			, m_numMips(0)
+#if BX_PLATFORM_WINDOWS
+			, m_exportHandle(NULL)
+			, m_exportMutex(NULL)
+#endif
 		{
 		}
 
@@ -310,6 +317,10 @@ namespace bgfx { namespace d3d11
 
 		ID3D11ShaderResourceView*  m_srv;
 		ID3D11UnorderedAccessView* m_uav;
+#if BX_PLATFORM_WINDOWS
+		HANDLE                     m_exportHandle;
+		IDXGIKeyedMutex*            m_exportMutex;
+#endif
 		uint64_t m_flags;
 		uint32_t m_width;
 		uint32_t m_height;

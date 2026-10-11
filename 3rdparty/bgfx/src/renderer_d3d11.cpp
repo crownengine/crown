@@ -689,6 +689,11 @@ namespace bgfx { namespace d3d11
 			, m_numWindows(0)
 			, m_device(NULL)
 			, m_deviceCtx(NULL)
+#if BX_PLATFORM_WINDOWS
+			, m_exportFence(NULL)
+			, m_exportFenceHandle(NULL)
+			, m_exportFenceValue(0)
+#endif
 			, m_annotation(NULL)
 			, m_infoQueue(NULL)
 			, m_backBufferColor(NULL)
@@ -1252,6 +1257,20 @@ namespace bgfx { namespace d3d11
 						: 0)
 					);
 
+#if BX_PLATFORM_WINDOWS
+				ID3D11Device5* exportDevice = NULL;
+				ID3D11DeviceContext4* exportContext = NULL;
+				if (SUCCEEDED(m_device->QueryInterface(IID_ID3D11Device5, (void**)&exportDevice) )
+				&&  SUCCEEDED(m_deviceCtx->QueryInterface(IID_ID3D11DeviceContext4, (void**)&exportContext) ) )
+				{
+					g_caps.supported |= BGFX_CAPS_TEXTURE_EXPORT;
+				}
+				if (exportContext != NULL)
+					exportContext->Release();
+				if (exportDevice != NULL)
+					exportDevice->Release();
+#endif
+
 				m_timerQuerySupport   = m_featureLevel >= D3D_FEATURE_LEVEL_10_0;
 				m_directAccessSupport = 0 != (g_caps.supported & BGFX_CAPS_TEXTURE_DIRECT_ACCESS);
 
@@ -1724,6 +1743,11 @@ namespace bgfx { namespace d3d11
 			m_dxgi.removeSwapChain(m_scd);
 
 			DX_RELEASE(m_swapChain, 0);
+#if BX_PLATFORM_WINDOWS
+			if (m_exportFenceHandle != NULL)
+				CloseHandle(m_exportFenceHandle);
+			DX_RELEASE_I(m_exportFence);
+#endif
 			DX_RELEASE(m_deviceCtx, 0);
 			DX_RELEASE(m_device, 0);
 
@@ -1917,6 +1941,67 @@ namespace bgfx { namespace d3d11
 			// Disabling ref. count check once texture is overridden.
 			setGraphicsDebuggerPresent(true);
 			return uintptr_t(m_textures[_handle.idx].m_ptr);
+		}
+
+		void exportTexture(ExternalTextureInfo& _info, TextureHandle _handle) override
+		{
+#if BX_PLATFORM_WINDOWS
+			TextureD3D11& texture = m_textures[_handle.idx];
+			if (0 == (texture.m_flags & BGFX_TEXTURE_EXPORT) || texture.m_ptr == NULL)
+				return;
+			if (texture.m_exportHandle == NULL)
+			{
+				IDXGIResource1* resource = NULL;
+				if (FAILED(texture.m_ptr->QueryInterface(IID_IDXGIResource1, (void**)&resource) ) )
+					return;
+				HANDLE handle = NULL;
+				HRESULT hr = resource->CreateSharedHandle(NULL
+					, DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE
+					, NULL
+					, &handle
+					);
+				resource->Release();
+				if (FAILED(hr) )
+					return;
+				texture.m_exportHandle = handle;
+			}
+			if (m_exportFence == NULL)
+			{
+				ID3D11Device5* device = NULL;
+				if (FAILED(m_device->QueryInterface(IID_ID3D11Device5, (void**)&device) ) )
+					return;
+				HRESULT hr = device->CreateFence(0
+					, D3D11_FENCE_FLAG_SHARED
+					, IID_ID3D11Fence
+					, (void**)&m_exportFence
+					);
+				device->Release();
+				if (FAILED(hr) )
+					return;
+				HANDLE handle = NULL;
+				hr = m_exportFence->CreateSharedHandle(NULL, GENERIC_ALL, NULL, &handle);
+				if (FAILED(hr) )
+				{
+					DX_RELEASE_I(m_exportFence);
+					return;
+				}
+				m_exportFenceHandle = handle;
+			}
+			ID3D11DeviceContext4* context = NULL;
+			if (FAILED(m_deviceCtx->QueryInterface(IID_ID3D11DeviceContext4, (void**)&context) ) )
+				return;
+			HRESULT hr = context->Signal(m_exportFence, ++m_exportFenceValue);
+			context->Release();
+			if (FAILED(hr) )
+				return;
+			_info.width = uint16_t(texture.m_width);
+			_info.height = uint16_t(texture.m_height);
+			_info.handle = texture.m_exportHandle;
+			_info.fenceHandle = m_exportFenceHandle;
+			_info.fenceValue = m_exportFenceValue;
+#else
+			BX_UNUSED(_info, _handle);
+#endif
 		}
 
 		void destroyTexture(TextureHandle _handle) override
@@ -3590,6 +3675,11 @@ namespace bgfx { namespace d3d11
 
 		ID3D11Device*              m_device;
 		ID3D11DeviceContext*       m_deviceCtx;
+#if BX_PLATFORM_WINDOWS
+		ID3D11Fence*               m_exportFence;
+		HANDLE                      m_exportFenceHandle;
+		uint64_t                    m_exportFenceValue;
+#endif
 		ID3DUserDefinedAnnotation* m_annotation;
 		ID3D11InfoQueue*           m_infoQueue;
 
@@ -4569,6 +4659,11 @@ namespace bgfx { namespace d3d11
 					desc.BindFlags  = writeOnly ? 0 : D3D11_BIND_SHADER_RESOURCE;
 					desc.CPUAccessFlags = 0;
 					desc.MiscFlags      = 0;
+#if BX_PLATFORM_WINDOWS
+					if (0 != (m_flags & BGFX_TEXTURE_EXPORT) )
+						desc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED_NTHANDLE
+							| D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
+#endif
 
 					if (bimg::isDepth(bimg::TextureFormat::Enum(m_textureFormat) ) )
 					{
@@ -4657,6 +4752,10 @@ namespace bgfx { namespace d3d11
 					{
 						DX_CHECK(s_renderD3D11->m_device->CreateTexture2D(&desc, kk == 0 ? NULL : srd, &m_texture2d) );
 					}
+#if BX_PLATFORM_WINDOWS
+					if (0 != (m_flags & BGFX_TEXTURE_EXPORT) )
+						DX_CHECK(m_texture2d->QueryInterface(IID_IDXGIKeyedMutex, (void**)&m_exportMutex) );
+#endif
 				}
 				break;
 
@@ -4739,6 +4838,14 @@ namespace bgfx { namespace d3d11
 
 	void TextureD3D11::destroy()
 	{
+#if BX_PLATFORM_WINDOWS
+		DX_RELEASE(m_exportMutex, 0);
+		if (m_exportHandle != NULL)
+		{
+			CloseHandle(m_exportHandle);
+			m_exportHandle = NULL;
+		}
+#endif
 		m_dar.destroy();
 
 		s_renderD3D11->m_srvUavLru.invalidateWithParent(getHandle().idx);
@@ -5542,6 +5649,17 @@ namespace bgfx { namespace d3d11
 
 			const TextureD3D11& src = m_textures[blit.m_src.idx];
 			const TextureD3D11& dst = m_textures[blit.m_dst.idx];
+#if BX_PLATFORM_WINDOWS
+			bool exportAcquired = false;
+			if (dst.m_exportMutex != NULL)
+			{
+				const HRESULT hr = dst.m_exportMutex->AcquireSync(0, INFINITE);
+				exportAcquired = S_OK == hr;
+				BX_WARN(exportAcquired, "Failed to acquire exported texture keyed mutex (HRESULT 0x%08x).", hr);
+				if (!exportAcquired)
+					continue;
+			}
+#endif
 
 			if (TextureD3D11::Texture3D == src.m_type)
 			{
@@ -5592,6 +5710,10 @@ namespace bgfx { namespace d3d11
 					, depthStencil ? NULL : &box
 					);
 			}
+#if BX_PLATFORM_WINDOWS
+			if (exportAcquired)
+				DX_CHECK(dst.m_exportMutex->ReleaseSync(0) );
+#endif
 		}
 	}
 
