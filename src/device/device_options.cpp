@@ -51,6 +51,7 @@ static void help(const char *msg = NULL)
 		"  --hidden                        Make the main window initially invisible.\n"
 		"  --keep-above                    Keep the main window above other windows.\n"
 		"  --headless                      Render offscreen without creating a window.\n"
+		"  --export <path>                 Export backbuffer textures to <path>.\n"
 		"  --display-server <server>       Set the display server backend.\n"
 		"      wayland\n"
 		"      x11\n"
@@ -81,6 +82,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _data_dir(DynamicString(a))
 	, _bundle_dir(DynamicString(a))
 	, _port_file(DynamicString(a))
+	, _export_path(DynamicString(a))
 	, _boot_dir(NULL)
 	, _render_config(NULL)
 	, _platform(NULL)
@@ -185,6 +187,14 @@ int DeviceOptions::parse(bool *quit)
 		return EXIT_FAILURE;
 	}
 #endif
+	if (cl.has_option("export")) {
+		const char *export_path = cl.get_parameter(0, "export");
+		if (export_path == NULL || export_path[0] == '\0' || export_path[0] == '-') {
+			help("--export requires an export path.");
+			return EXIT_FAILURE;
+		}
+		_export_path = export_path;
+	}
 
 	if (cl.has_option("render-config")) {
 		_render_config = cl.get_parameter(0, "render-config");

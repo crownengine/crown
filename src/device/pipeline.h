@@ -11,6 +11,7 @@
 #include "resource/shader_resource.h"
 #include "world/types.h"
 #include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
 
 struct stbrp_context;
 struct stbrp_node;
@@ -81,6 +82,16 @@ struct PipelineOutput
 	enum Enum { WINDOW, OFFSCREEN };
 };
 
+struct ExportBuffer
+{
+	enum State { FREE, LEASED, RETIRED };
+	bgfx::TextureHandle texture;
+	bgfx::ExternalTextureInfo info;
+	u32 generation;
+	u32 id;
+	State state;
+};
+
 /// Render pipeline.
 ///
 /// @ingroup Device
@@ -89,6 +100,13 @@ struct Pipeline
 	ShaderManager *_shader_manager;
 	RenderSettings _render_settings;
 	PipelineOutput::Enum _output;
+	const char *_export_path;
+	Array<ExportBuffer *> _export_buffers;
+	ExportBuffer *_pending_export;
+	u32 _export_generation;
+	u32 _next_export_id;
+	bool _export_error_sent;
+	bool _export_waiting_for_buffer;
 	bgfx::TextureHandle _screenshot_texture;
 
 	// Main output color/depth handles.
@@ -196,16 +214,28 @@ struct Pipeline
 	bool selection_enabled() const;
 
 	///
-	void create(u16 width, u16 height, const RenderSettings &render_settings, PipelineOutput::Enum output);
+	void create(u16 width
+		, u16 height
+		, const RenderSettings &render_settings
+		, const char *export_path
+		, PipelineOutput::Enum output
+		);
 
 	///
 	void destroy();
+	void retire_exports();
+	void destroy_exports();
 
 	///
 	void reset(u16 width, u16 height);
 
 	/// Queues a copy of the SDR output and returns its readback completion frame.
 	bool readback(u32 &ready_frame, void *data, u16 width, u16 height);
+
+	///
+	bool export_pending() const;
+	void finish_export();
+	bool release_export_buffer(u32 generation, u32 id);
 
 	///
 	void render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj);

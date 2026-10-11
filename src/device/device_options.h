@@ -36,6 +36,7 @@ struct DeviceOptions
 	DynamicString _data_dir;
 	DynamicString _bundle_dir;
 	DynamicString _port_file;
+	DynamicString _export_path;
 	const char *_boot_dir;
 	const char *_render_config;
 	const char *_platform;

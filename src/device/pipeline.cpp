@@ -4,23 +4,35 @@
  */
 
 #include "core/containers/array.inl"
+#include "core/math/matrix4x4.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
+#include "core/memory/memory.inl"
 #include "core/profiler.inl"
 #include "core/strings/string_id.inl"
 #include "core/types.h"
+#include "device/export_transport.h"
 #include "device/log.h"
 #include "device/pipeline.h"
 #include "world/shader_manager.h"
-#include "core/math/matrix4x4.inl"
+#include <bgfx/platform.h>
 #include <bx/math.h>
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
+#include <stdint.h>
+#if CROWN_PLATFORM_LINUX
+#include <unistd.h>
+#endif
 
 LOG_SYSTEM(PIPELINE, "pipeline")
 
 namespace crown
 {
+// GSK's GPU renderer may keep four frames in flight. Keep one additional
+// buffer available to the producer so GTK can submit the frame that retires
+// the oldest texture lease.
+static const u32 EXPORT_BUFFER_COUNT = 5;
+
 /*
  * Copyright 2011-2017 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
@@ -147,6 +159,13 @@ static void lookup_default_shaders(Pipeline &pl)
 Pipeline::Pipeline(ShaderManager &sm)
 	: _shader_manager(&sm)
 	, _output(PipelineOutput::WINDOW)
+	, _export_path(NULL)
+	, _export_buffers(default_allocator())
+	, _pending_export(NULL)
+	, _export_generation(0)
+	, _next_export_id(0)
+	, _export_error_sent(false)
+	, _export_waiting_for_buffer(false)
 	, _screenshot_texture(BGFX_INVALID_HANDLE)
 	, _color_sdr(BGFX_INVALID_HANDLE)
 	, _depth_texture(BGFX_INVALID_HANDLE)
@@ -211,10 +230,16 @@ bool Pipeline::selection_enabled() const
 		;
 }
 
-void Pipeline::create(u16 width, u16 height, const RenderSettings &render_settings, PipelineOutput::Enum output)
+void Pipeline::create(u16 width
+	, u16 height
+	, const RenderSettings &render_settings
+	, const char *export_path
+	, PipelineOutput::Enum output
+	)
 {
 	_render_settings = render_settings;
 	_output = output;
+	_export_path = export_path;
 
 	_color_map = bgfx::createUniform("s_color_map", bgfx::UniformType::Sampler);
 
@@ -342,6 +367,9 @@ void Pipeline::destroy()
 	if (bgfx::isValid(_screenshot_texture))
 		bgfx::destroy(_screenshot_texture);
 	_screenshot_texture = BGFX_INVALID_HANDLE;
+
+	retire_exports();
+	_pending_export = NULL;
 
 	// Unbind all views that may still point to our framebuffers.
 	for (u32 id = 0; id < View::COUNT; ++id)
@@ -482,6 +510,32 @@ void Pipeline::destroy()
 	}
 }
 
+void Pipeline::retire_exports()
+{
+	for (u32 i = 0; i < array::size(_export_buffers);) {
+		ExportBuffer *buffer = _export_buffers[i];
+		if (buffer->state == ExportBuffer::LEASED || buffer->state == ExportBuffer::RETIRED) {
+			buffer->state = ExportBuffer::RETIRED;
+			++i;
+		} else {
+			bgfx::destroy(buffer->texture);
+			CE_DELETE(default_allocator(), buffer);
+			_export_buffers[i] = array::back(_export_buffers);
+			array::pop_back(_export_buffers);
+		}
+	}
+}
+
+void Pipeline::destroy_exports()
+{
+	for (u32 i = 0; i < array::size(_export_buffers); ++i) {
+		ExportBuffer *buffer = _export_buffers[i];
+		bgfx::destroy(buffer->texture);
+		CE_DELETE(default_allocator(), buffer);
+	}
+	array::clear(_export_buffers);
+}
+
 void Pipeline::begin_frame()
 {
 	array::clear(*_lights_cpu);
@@ -566,6 +620,39 @@ void Pipeline::reset(u16 width, u16 height)
 		bgfx::destroy(_screenshot_texture);
 	_screenshot_texture = BGFX_INVALID_HANDLE;
 
+	if (_export_path != NULL) {
+		++_export_generation;
+		_export_error_sent = false;
+		_export_waiting_for_buffer = false;
+		retire_exports();
+		const u64 required_caps = BGFX_CAPS_TEXTURE_BLIT | BGFX_CAPS_TEXTURE_EXPORT;
+		if ((bgfx::getCaps()->supported & required_caps) == required_caps) {
+			for (u32 i = 0; i < EXPORT_BUFFER_COUNT; ++i) {
+				ExportBuffer *buffer = CE_NEW(default_allocator(), ExportBuffer)();
+				buffer->texture = bgfx::createTexture2D(width
+					, height
+					, false
+					, 1
+					, bgfx::TextureFormat::RGBA8
+					, BGFX_TEXTURE_EXPORT | BGFX_TEXTURE_BLIT_DST
+					);
+				buffer->info = {};
+				buffer->info.handle = (void *)(intptr_t)-1;
+				buffer->generation = _export_generation;
+				buffer->id = ++_next_export_id;
+				buffer->state = ExportBuffer::FREE;
+				array::push_back(_export_buffers, buffer);
+			}
+		} else {
+			CrownExportPacket packet = {};
+			packet.magic = CROWN_EXPORT_MAGIC;
+			packet.version = CROWN_EXPORT_VERSION;
+			packet.kind = CROWN_EXPORT_ERROR;
+			packet.error = CROWN_EXPORT_UNSUPPORTED;
+			export_send(_export_path, &packet, -1);
+			_export_error_sent = true;
+		}
+	}
 	u64 depth_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	u64 color_texture_flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
 	if ((_render_settings.flags & RenderSettingsFlags::MSAA) != 0) {
@@ -885,7 +972,7 @@ void Pipeline::reset(u16 width, u16 height)
 			view_name = "blit";
 			bgfx::setViewMode(id, bgfx::ViewMode::Sequential);
 			if (_output == PipelineOutput::OFFSCREEN) {
-				// Switching away from SDR resolves its MSAA color before readback.
+				// Switching away from SDR resolves its MSAA color before copying.
 				bgfx::setViewFrameBuffer(id, _colors[0]);
 			} else {
 				bgfx::setViewFrameBuffer(id, BGFX_INVALID_HANDLE);
@@ -992,6 +1079,90 @@ bool Pipeline::readback(u32 &ready_frame, void *data, u16 width, u16 height)
 	bgfx::blit(View::BLIT, _screenshot_texture, 0, 0, bgfx::getTexture(_color_sdr));
 	ready_frame = bgfx::readTexture(_screenshot_texture, data);
 	return true;
+}
+
+bool Pipeline::export_pending() const
+{
+	return _pending_export != NULL;
+}
+
+void Pipeline::finish_export()
+{
+	ExportBuffer *buffer = _pending_export;
+	if (buffer == NULL)
+		return;
+	_pending_export = NULL;
+	int fd = -1;
+#if CROWN_PLATFORM_LINUX
+	fd = (int)(intptr_t)buffer->info.handle;
+#endif
+	CrownExportPacket packet = {};
+	packet.magic = CROWN_EXPORT_MAGIC;
+	packet.version = CROWN_EXPORT_VERSION;
+	packet.generation = buffer->generation;
+	packet.buffer_id = buffer->id;
+	const bool invalid_handle =
+#if CROWN_PLATFORM_WINDOWS
+		buffer->info.handle == NULL || buffer->info.fenceHandle == NULL || buffer->info.fenceValue == 0;
+#else
+		fd < 0;
+#endif
+	if (invalid_handle || buffer->info.width == 0 || buffer->info.height == 0) {
+#if CROWN_PLATFORM_LINUX
+		if (fd >= 0)
+			close(fd);
+#endif
+		buffer->state = ExportBuffer::FREE;
+		if (!_export_error_sent) {
+			packet.kind = CROWN_EXPORT_ERROR;
+			packet.error = CROWN_EXPORT_FAILED;
+			export_send(_export_path, &packet, -1);
+			_export_error_sent = true;
+		}
+		return;
+	}
+	packet.kind = CROWN_EXPORT_FRAME;
+	packet.width = buffer->info.width;
+	packet.height = buffer->info.height;
+	packet.stride = buffer->info.stride;
+	packet.offset = buffer->info.offset;
+	packet.size = buffer->info.size;
+	packet.fourcc = buffer->info.fourcc;
+	packet.modifier = buffer->info.modifier;
+#if CROWN_PLATFORM_WINDOWS
+	packet.resource_handle = (u64)(uintptr_t)buffer->info.handle;
+	packet.fence_handle = (u64)(uintptr_t)buffer->info.fenceHandle;
+	packet.fence_value = buffer->info.fenceValue;
+#endif
+	if (export_send(_export_path, &packet, fd) == 0)
+		buffer->state = ExportBuffer::LEASED;
+	else
+		buffer->state = ExportBuffer::FREE;
+#if CROWN_PLATFORM_LINUX
+	close(fd);
+#endif
+}
+
+bool Pipeline::release_export_buffer(u32 generation, u32 id)
+{
+	for (u32 i = 0; i < array::size(_export_buffers); ++i) {
+		ExportBuffer *buffer = _export_buffers[i];
+		if (buffer->generation != generation || buffer->id != id)
+			continue;
+		if (buffer->state == ExportBuffer::RETIRED) {
+			bgfx::destroy(buffer->texture);
+			CE_DELETE(default_allocator(), buffer);
+			_export_buffers[i] = array::back(_export_buffers);
+			array::pop_back(_export_buffers);
+		} else if (buffer->state == ExportBuffer::LEASED) {
+			buffer->state = ExportBuffer::FREE;
+		}
+		const bool redraw = _export_waiting_for_buffer && generation == _export_generation;
+		if (redraw)
+			_export_waiting_for_buffer = false;
+		return redraw;
+	}
+	return false;
 }
 
 void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix4x4 &proj)
@@ -1184,6 +1355,22 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 	}
 
 	// Blit to backbuffer.
+	if (_export_path != NULL && _pending_export == NULL) {
+		for (u32 i = 0; i < array::size(_export_buffers); ++i) {
+			ExportBuffer *buffer = _export_buffers[i];
+			if (buffer->state != ExportBuffer::FREE)
+				continue;
+			buffer->info = {};
+			buffer->info.handle = (void *)(intptr_t)-1;
+			_pending_export = buffer;
+			bgfx::touch(View::BLIT);
+			bgfx::blit(View::BLIT, buffer->texture, 0, 0, bgfx::getTexture(_color_sdr));
+			bgfx::exportTexture(buffer->info, buffer->texture);
+			break;
+		}
+		_export_waiting_for_buffer = _pending_export == NULL && array::size(_export_buffers) != 0;
+	}
+
 	if (_output == PipelineOutput::WINDOW) {
 		bgfx::setTexture(0, _color_map, bgfx::getTexture(_color_sdr), samplerFlags);
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
