@@ -120,11 +120,107 @@ static gboolean load_wayland_client(void)
 	return initialized == 1;
 }
 
+#define X11_FUNCTIONS(X)               \
+	X(XCloseDisplay)                 \
+	X(XFreeEventData)                \
+	X(XGetEventData)                 \
+	X(XGrabPointer)                  \
+	X(XNextEvent)                    \
+	X(XOpenDisplay)                  \
+	X(XPending)                      \
+	X(XQueryExtension)               \
+	X(XQueryPointer)                 \
+	X(XSync)                         \
+	X(XTranslateCoordinates)         \
+	X(XUngrabPointer)                \
+	X(XWarpPointer)
+
+#define XINPUT_FUNCTIONS(X)            \
+	X(XIQueryVersion)                \
+	X(XISelectEvents)
+
+#define XFIXES_FUNCTIONS(X)            \
+	X(XFixesHideCursor)              \
+	X(XFixesQueryExtension)          \
+	X(XFixesQueryVersion)            \
+	X(XFixesShowCursor)
+
+#define DECLARE_X11_FUNCTION(name) static __typeof__(&name) crown_##name;
+X11_FUNCTIONS(DECLARE_X11_FUNCTION)
+XINPUT_FUNCTIONS(DECLARE_X11_FUNCTION)
+XFIXES_FUNCTIONS(DECLARE_X11_FUNCTION)
+#undef DECLARE_X11_FUNCTION
+
+#define XCloseDisplay (*crown_XCloseDisplay)
+#define XFreeEventData (*crown_XFreeEventData)
+#define XGetEventData (*crown_XGetEventData)
+#define XGrabPointer (*crown_XGrabPointer)
+#define XNextEvent (*crown_XNextEvent)
+#define XOpenDisplay (*crown_XOpenDisplay)
+#define XPending (*crown_XPending)
+#define XQueryExtension (*crown_XQueryExtension)
+#define XQueryPointer (*crown_XQueryPointer)
+#define XSync (*crown_XSync)
+#define XTranslateCoordinates (*crown_XTranslateCoordinates)
+#define XUngrabPointer (*crown_XUngrabPointer)
+#define XWarpPointer (*crown_XWarpPointer)
+#define XIQueryVersion (*crown_XIQueryVersion)
+#define XISelectEvents (*crown_XISelectEvents)
+#define XFixesHideCursor (*crown_XFixesHideCursor)
+#define XFixesQueryExtension (*crown_XFixesQueryExtension)
+#define XFixesQueryVersion (*crown_XFixesQueryVersion)
+#define XFixesShowCursor (*crown_XFixesShowCursor)
+
+static gboolean load_x11_clients(void)
+{
+	static gsize initialized = 0;
+	if (g_once_init_enter(&initialized)) {
+		void *x11 = dlopen("libX11.so.6", RTLD_NOW | RTLD_LOCAL);
+		void *xinput = x11 != NULL ? dlopen("libXi.so.6", RTLD_NOW | RTLD_LOCAL) : NULL;
+		void *xfixes = xinput != NULL ? dlopen("libXfixes.so.3", RTLD_NOW | RTLD_LOCAL) : NULL;
+		gboolean loaded = xfixes != NULL;
+		if (loaded) {
+#define LOAD_X11_FUNCTION(name) \
+			crown_##name = (__typeof__(crown_##name))dlsym(x11, #name); \
+			if (crown_##name == NULL) loaded = FALSE;
+#define LOAD_XINPUT_FUNCTION(name) \
+			crown_##name = (__typeof__(crown_##name))dlsym(xinput, #name); \
+			if (crown_##name == NULL) loaded = FALSE;
+#define LOAD_XFIXES_FUNCTION(name) \
+			crown_##name = (__typeof__(crown_##name))dlsym(xfixes, #name); \
+			if (crown_##name == NULL) loaded = FALSE;
+			X11_FUNCTIONS(LOAD_X11_FUNCTION)
+			XINPUT_FUNCTIONS(LOAD_XINPUT_FUNCTION)
+			XFIXES_FUNCTIONS(LOAD_XFIXES_FUNCTION)
+#undef LOAD_XFIXES_FUNCTION
+#undef LOAD_XINPUT_FUNCTION
+#undef LOAD_X11_FUNCTION
+		}
+		if (!loaded) {
+			if (xfixes != NULL)
+				dlclose(xfixes);
+			if (xinput != NULL)
+				dlclose(xinput);
+			if (x11 != NULL)
+				dlclose(x11);
+		}
+		g_once_init_leave(&initialized, loaded ? 1 : 2);
+	}
+	return initialized == 1;
+}
+
 static void initialize_xlib_threads(void) __attribute__((constructor));
 
 static void initialize_xlib_threads(void)
 {
-	XInitThreads();
+	/* XInitThreads must run before GTK opens its X11 display. */
+	void *main_program = dlopen(NULL, RTLD_NOW);
+	if (main_program != NULL) {
+		__typeof__(&XInitThreads) init_threads = (__typeof__(&XInitThreads))dlsym(main_program, "XInitThreads");
+		if (init_threads != NULL)
+			init_threads();
+		dlclose(main_program);
+	}
 }
 
 #endif /* if defined(__linux__) */
@@ -1171,6 +1267,12 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 		hide_wayland_cursor(sampler, display, toplevel);
 	} else {
 		sampler->backend = CROWN_INFINITE_DRAG_X11;
+		if (!load_x11_clients()) {
+			close(sampler->wake_fd);
+			g_mutex_clear(&sampler->mutex);
+			g_free(sampler);
+			return NULL;
+		}
 		sampler->x11_window = gdk_x11_window_get_xid(toplevel);
 		Display *xdisplay = gdk_x11_display_get_xdisplay(display);
 		Window query_root;
@@ -1241,6 +1343,12 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 		hide_wayland_cursor(sampler, display, surface);
 	} else {
 		sampler->backend = CROWN_INFINITE_DRAG_X11;
+		if (!load_x11_clients()) {
+			close(sampler->wake_fd);
+			g_mutex_clear(&sampler->mutex);
+			g_free(sampler);
+			return NULL;
+		}
 		sampler->x11_window = gdk_x11_surface_get_xid(surface);
 		Display *xdisplay = gdk_x11_display_get_xdisplay(display);
 		Window query_root;
