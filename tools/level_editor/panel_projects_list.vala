@@ -391,6 +391,7 @@ public class ProjectsList : Gtk.Box
 #if CROWN_GTK3
 		this.add(_clamp);
 #else
+		_clamp.vexpand = true;
 		this.append(_clamp);
 #endif
 
