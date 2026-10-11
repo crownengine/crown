@@ -423,13 +423,21 @@ static gboolean create_x11_pointer_grab(Display *display
 	return TRUE;
 }
 
+static gpointer x11_sampler_failed(struct CrownInfiniteDragSampler *sampler, Display *display)
+{
+	if (display != NULL)
+		XCloseDisplay(display);
+	g_atomic_int_set(&sampler->cancel_requested, TRUE);
+	g_atomic_int_set(&sampler->running, FALSE);
+	return NULL;
+}
+
 static gpointer sample_pointer_x11(gpointer data)
 {
 	struct CrownInfiniteDragSampler *sampler = data;
 	Display *display = XOpenDisplay(NULL);
-	if (display == NULL) {
-		return NULL;
-	}
+	if (display == NULL)
+		return x11_sampler_failed(sampler, NULL);
 	int screen_number = DefaultScreen(display);
 	Window root = RootWindow(display, screen_number);
 
@@ -437,8 +445,7 @@ static gpointer sample_pointer_x11(gpointer data)
 	int xinput_event;
 	int xinput_error;
 	if (!XQueryExtension(display, "XInputExtension", &xinput_opcode, &xinput_event, &xinput_error)) {
-		XCloseDisplay(display);
-		return NULL;
+		return x11_sampler_failed(sampler, display);
 	}
 
 	int xinput_major = 2;
@@ -448,8 +455,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		|| xinput_major < 2
 		|| (xinput_major == 2 && xinput_minor < 1)
 		) {
-		XCloseDisplay(display);
-		return NULL;
+		return x11_sampler_failed(sampler, display);
 	}
 
 	int xfixes_event;
@@ -460,8 +466,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		|| !XFixesQueryVersion(display, &xfixes_major, &xfixes_minor)
 		|| xfixes_major < 4
 		) {
-		XCloseDisplay(display);
-		return NULL;
+		return x11_sampler_failed(sampler, display);
 	}
 
 	unsigned char mask[XIMaskLen(XI_RawMotion)] = { 0 };
@@ -475,8 +480,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		.mask = mask,
 	};
 	if (XISelectEvents(display, root, &event_mask, 1) != Success) {
-		XCloseDisplay(display);
-		return NULL;
+		return x11_sampler_failed(sampler, display);
 	}
 	XSync(display, False);
 
@@ -488,8 +492,7 @@ static gpointer sample_pointer_x11(gpointer data)
 		, sampler->anchor_y
 		, &pointer_grab
 		)) {
-		XCloseDisplay(display);
-		return NULL;
+		return x11_sampler_failed(sampler, display);
 	}
 
 	while (g_atomic_int_get(&sampler->running)) {
@@ -565,6 +568,10 @@ static gpointer sample_pointer_x11(gpointer data)
 		}
 	}
 
+	if (g_atomic_int_get(&sampler->running)) {
+		g_atomic_int_set(&sampler->cancel_requested, TRUE);
+		g_atomic_int_set(&sampler->running, FALSE);
+	}
 	destroy_x11_pointer_grab(display, &pointer_grab);
 	XCloseDisplay(display);
 	return NULL;
@@ -710,6 +717,9 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 		g_free(sampler);
 		return NULL;
 	}
+	/* GTK4's button press owns an implicit X grab; release it before the sampler grabs. */
+	XUngrabPointer(xdisplay, CurrentTime);
+	XSync(xdisplay, False);
 #else
 	(void)display;
 	(void)surface;
