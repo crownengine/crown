@@ -302,6 +302,107 @@ static void store_wheel(struct CrownInfiniteDragSampler *sampler, gdouble wheel_
 }
 
 #if defined(_WIN32)
+#define WINDOWS_KERNEL_FUNCTIONS(X)   \
+	X(CloseHandle)                 \
+	X(CreateEventW)               \
+	X(GetLastError)               \
+	X(GetModuleHandleW)           \
+	X(MulDiv)                     \
+	X(SetEvent)
+
+#define WINDOWS_USER_FUNCTIONS(X)     \
+	X(ClipCursor)                 \
+	X(CreateWindowExW)            \
+	X(DefWindowProcW)             \
+	X(DestroyWindow)              \
+	X(DispatchMessageW)           \
+	X(GetCursorPos)               \
+	X(GetRawInputData)            \
+	X(GetSystemMetrics)           \
+	X(MsgWaitForMultipleObjects)  \
+	X(PeekMessageW)               \
+	X(RegisterClassExW)           \
+	X(RegisterRawInputDevices)    \
+	X(SetCursorPos)               \
+	X(ShowCursor)
+
+#define DECLARE_WINDOWS_FUNCTION(name) static __typeof__(&name) crown_##name;
+WINDOWS_KERNEL_FUNCTIONS(DECLARE_WINDOWS_FUNCTION)
+WINDOWS_USER_FUNCTIONS(DECLARE_WINDOWS_FUNCTION)
+#undef DECLARE_WINDOWS_FUNCTION
+
+static LONG_PTR (WINAPI *crown_GetWindowLongPtrW)(HWND, int);
+static LONG_PTR (WINAPI *crown_SetWindowLongPtrW)(HWND, int, LONG_PTR);
+
+#define CloseHandle (*crown_CloseHandle)
+#define CreateEventW (*crown_CreateEventW)
+#define GetLastError (*crown_GetLastError)
+#define GetModuleHandleW (*crown_GetModuleHandleW)
+#define MulDiv (*crown_MulDiv)
+#define SetEvent (*crown_SetEvent)
+#define ClipCursor (*crown_ClipCursor)
+#define CreateWindowExW (*crown_CreateWindowExW)
+#define DefWindowProcW (*crown_DefWindowProcW)
+#define DestroyWindow (*crown_DestroyWindow)
+#define DispatchMessageW (*crown_DispatchMessageW)
+#define GetCursorPos (*crown_GetCursorPos)
+#define GetRawInputData (*crown_GetRawInputData)
+#define GetSystemMetrics (*crown_GetSystemMetrics)
+#define MsgWaitForMultipleObjects (*crown_MsgWaitForMultipleObjects)
+#define PeekMessageW (*crown_PeekMessageW)
+#define RegisterClassExW (*crown_RegisterClassExW)
+#define RegisterRawInputDevices (*crown_RegisterRawInputDevices)
+#define SetCursorPos (*crown_SetCursorPos)
+#define ShowCursor (*crown_ShowCursor)
+#undef GetWindowLongPtrW
+#undef SetWindowLongPtrW
+#define GetWindowLongPtrW (*crown_GetWindowLongPtrW)
+#define SetWindowLongPtrW (*crown_SetWindowLongPtrW)
+
+static gboolean load_windows_clients(void)
+{
+	/* Callbacks and worker threads keep these functions for the process lifetime. */
+	static gsize initialized = 0;
+	if (g_once_init_enter(&initialized)) {
+		HMODULE kernel32 = LoadLibraryW(L"kernel32.dll");
+		HMODULE user32 = kernel32 != NULL ? LoadLibraryW(L"user32.dll") : NULL;
+		gboolean loaded = user32 != NULL;
+		if (loaded) {
+#define LOAD_KERNEL_FUNCTION(name) \
+			crown_##name = (__typeof__(crown_##name))GetProcAddress(kernel32, #name); \
+			if (crown_##name == NULL) loaded = FALSE;
+#define LOAD_USER_FUNCTION(name) \
+			crown_##name = (__typeof__(crown_##name))GetProcAddress(user32, #name); \
+			if (crown_##name == NULL) loaded = FALSE;
+			WINDOWS_KERNEL_FUNCTIONS(LOAD_KERNEL_FUNCTION)
+			WINDOWS_USER_FUNCTIONS(LOAD_USER_FUNCTION)
+#undef LOAD_USER_FUNCTION
+#undef LOAD_KERNEL_FUNCTION
+#if defined(_WIN64)
+			const char *get_window_long = "GetWindowLongPtrW";
+			const char *set_window_long = "SetWindowLongPtrW";
+#else
+			const char *get_window_long = "GetWindowLongW";
+			const char *set_window_long = "SetWindowLongW";
+#endif
+			crown_GetWindowLongPtrW = (LONG_PTR (WINAPI *)(HWND, int))GetProcAddress(user32
+				, get_window_long);
+			crown_SetWindowLongPtrW = (LONG_PTR (WINAPI *)(HWND, int, LONG_PTR))GetProcAddress(user32
+				, set_window_long);
+			if (crown_GetWindowLongPtrW == NULL || crown_SetWindowLongPtrW == NULL)
+				loaded = FALSE;
+		}
+		if (!loaded) {
+			if (user32 != NULL)
+				FreeLibrary(user32);
+			if (kernel32 != NULL)
+				FreeLibrary(kernel32);
+		}
+		g_once_init_leave(&initialized, loaded ? 1 : 2);
+	}
+	return initialized == 1;
+}
+
 static const wchar_t WINDOWS_RAW_INPUT_CLASS_NAME[] = L"CrownInfiniteDragRawInput";
 
 /* Event-driven only: do not replace with cursor-position polling or repeated SetCursorPos calls. */
@@ -1229,6 +1330,13 @@ void *crown_infinite_drag_sampler_start(GdkDisplay *display, GdkSurface *surface
 	sampler->trigger_button = trigger_button;
 	sampler->cancel_button = cancel_button;
 	sampler->preserve_legacy_events = preserve_legacy_events;
+#if defined(_WIN32)
+	if (!load_windows_clients()) {
+		g_mutex_clear(&sampler->mutex);
+		g_free(sampler);
+		return NULL;
+	}
+#endif
 #if defined(CROWN_GTK3)
 #if defined(_WIN32)
 	(void)display;
