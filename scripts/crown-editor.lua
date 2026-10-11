@@ -17,9 +17,6 @@ project "crown-editor"
 			"CROWN_PLATFORM_LINUX"
 		}
 		linkoptions {
-			"-lX11",
-			"-lXi",
-			"-lXfixes",
 			"-ldl",
 		}
 
@@ -34,9 +31,6 @@ project "crown-editor"
 		targetdir (CROWN_BUILD_DIR .. "linux64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "linux64" .. "/obj")
 		buildoptions_vala { "--pkg posix" }
-		if _OPTIONS["with-gtk4"] then
-			links { "gtk4-x11" }
-		end
 
 	configuration { "mingw*" }
 		targetdir (CROWN_BUILD_DIR .. "mingw64" .. "/bin")
