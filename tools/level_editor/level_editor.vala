@@ -971,7 +971,6 @@ public class LevelEditorApplication : Gtk.Application
 #if CROWN_GTK3
 		_projects_list.set_visible(true); // To make Gtk.Stack work...
 #else
-		_projects_list.halign = Gtk.Align.CENTER;
 		_projects_list.hexpand = true;
 #endif
 
