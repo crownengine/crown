@@ -47,22 +47,22 @@
 #if defined(__linux__)
 #include <wayland-client-core.h>
 
-#define WAYLAND_CLIENT_FUNCTIONS(X)               \
-	X(wl_display_create_queue)                    \
-	X(wl_display_roundtrip_queue)                 \
-	X(wl_display_flush)                           \
-	X(wl_display_prepare_read_queue)              \
-	X(wl_display_dispatch_queue_pending)          \
-	X(wl_display_cancel_read)                     \
-	X(wl_display_get_fd)                          \
-	X(wl_display_read_events)                     \
-	X(wl_event_queue_destroy)                     \
-	X(wl_proxy_create_wrapper)                    \
-	X(wl_proxy_set_queue)                         \
-	X(wl_proxy_wrapper_destroy)                   \
-	X(wl_proxy_add_listener)                      \
-	X(wl_proxy_destroy)                           \
-	X(wl_proxy_get_version)                       \
+#define WAYLAND_CLIENT_FUNCTIONS(X)      \
+	X(wl_display_create_queue)           \
+	X(wl_display_roundtrip_queue)        \
+	X(wl_display_flush)                  \
+	X(wl_display_prepare_read_queue)     \
+	X(wl_display_dispatch_queue_pending) \
+	X(wl_display_cancel_read)            \
+	X(wl_display_get_fd)                 \
+	X(wl_display_read_events)            \
+	X(wl_event_queue_destroy)            \
+	X(wl_proxy_create_wrapper)           \
+	X(wl_proxy_set_queue)                \
+	X(wl_proxy_wrapper_destroy)          \
+	X(wl_proxy_add_listener)             \
+	X(wl_proxy_destroy)                  \
+	X(wl_proxy_get_version)              \
 	X(wl_proxy_marshal_flags)
 
 #define DECLARE_WAYLAND_FUNCTION(name) static __typeof__(&name) crown_##name;
@@ -107,7 +107,7 @@ static gboolean load_wayland_client(void)
 		void *library = dlopen("libwayland-client.so.0", RTLD_NOW | RTLD_LOCAL);
 		gboolean loaded = library != NULL;
 		if (loaded) {
-#define LOAD_WAYLAND_FUNCTION(name) \
+#define LOAD_WAYLAND_FUNCTION(name)                                         \
 			crown_##name = (__typeof__(crown_##name))dlsym(library, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
 			WAYLAND_CLIENT_FUNCTIONS(LOAD_WAYLAND_FUNCTION)
@@ -120,29 +120,29 @@ static gboolean load_wayland_client(void)
 	return initialized == 1;
 }
 
-#define X11_FUNCTIONS(X)               \
-	X(XCloseDisplay)                 \
-	X(XFreeEventData)                \
-	X(XGetEventData)                 \
-	X(XGrabPointer)                  \
-	X(XNextEvent)                    \
-	X(XOpenDisplay)                  \
-	X(XPending)                      \
-	X(XQueryExtension)               \
-	X(XQueryPointer)                 \
-	X(XSync)                         \
-	X(XTranslateCoordinates)         \
-	X(XUngrabPointer)                \
+#define X11_FUNCTIONS(X)     \
+	X(XCloseDisplay)         \
+	X(XFreeEventData)        \
+	X(XGetEventData)         \
+	X(XGrabPointer)          \
+	X(XNextEvent)            \
+	X(XOpenDisplay)          \
+	X(XPending)              \
+	X(XQueryExtension)       \
+	X(XQueryPointer)         \
+	X(XSync)                 \
+	X(XTranslateCoordinates) \
+	X(XUngrabPointer)        \
 	X(XWarpPointer)
 
-#define XINPUT_FUNCTIONS(X)            \
-	X(XIQueryVersion)                \
+#define XINPUT_FUNCTIONS(X) \
+	X(XIQueryVersion)       \
 	X(XISelectEvents)
 
-#define XFIXES_FUNCTIONS(X)            \
-	X(XFixesHideCursor)              \
-	X(XFixesQueryExtension)          \
-	X(XFixesQueryVersion)            \
+#define XFIXES_FUNCTIONS(X) \
+	X(XFixesHideCursor)     \
+	X(XFixesQueryExtension) \
+	X(XFixesQueryVersion)   \
 	X(XFixesShowCursor)
 
 #define DECLARE_X11_FUNCTION(name) static __typeof__(&name) crown_##name;
@@ -180,13 +180,13 @@ static gboolean load_x11_clients(void)
 		void *xfixes = xinput != NULL ? dlopen("libXfixes.so.3", RTLD_NOW | RTLD_LOCAL) : NULL;
 		gboolean loaded = xfixes != NULL;
 		if (loaded) {
-#define LOAD_X11_FUNCTION(name) \
+#define LOAD_X11_FUNCTION(name)                                         \
 			crown_##name = (__typeof__(crown_##name))dlsym(x11, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
-#define LOAD_XINPUT_FUNCTION(name) \
+#define LOAD_XINPUT_FUNCTION(name)                                         \
 			crown_##name = (__typeof__(crown_##name))dlsym(xinput, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
-#define LOAD_XFIXES_FUNCTION(name) \
+#define LOAD_XFIXES_FUNCTION(name)                                         \
 			crown_##name = (__typeof__(crown_##name))dlsym(xfixes, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
 			X11_FUNCTIONS(LOAD_X11_FUNCTION)
@@ -302,15 +302,15 @@ static void store_wheel(struct CrownInfiniteDragSampler *sampler, gdouble wheel_
 }
 
 #if defined(_WIN32)
-#define WINDOWS_KERNEL_FUNCTIONS(X)   \
-	X(CloseHandle)                 \
-	X(CreateEventW)               \
-	X(GetLastError)               \
-	X(GetModuleHandleW)           \
-	X(MulDiv)                     \
+#define WINDOWS_KERNEL_FUNCTIONS(X) \
+	X(CloseHandle)                  \
+	X(CreateEventW)                 \
+	X(GetLastError)                 \
+	X(GetModuleHandleW)             \
+	X(MulDiv)                       \
 	X(SetEvent)
 
-#define WINDOWS_USER_FUNCTIONS(X)     \
+#define WINDOWS_USER_FUNCTIONS(X) \
 	X(ClipCursor)                 \
 	X(CreateWindowExW)            \
 	X(DefWindowProcW)             \
@@ -368,10 +368,10 @@ static gboolean load_windows_clients(void)
 		HMODULE user32 = kernel32 != NULL ? LoadLibraryW(L"user32.dll") : NULL;
 		gboolean loaded = user32 != NULL;
 		if (loaded) {
-#define LOAD_KERNEL_FUNCTION(name) \
+#define LOAD_KERNEL_FUNCTION(name)                                                    \
 			crown_##name = (__typeof__(crown_##name))GetProcAddress(kernel32, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
-#define LOAD_USER_FUNCTION(name) \
+#define LOAD_USER_FUNCTION(name)                                                    \
 			crown_##name = (__typeof__(crown_##name))GetProcAddress(user32, #name); \
 			if (crown_##name == NULL) loaded = FALSE;
 			WINDOWS_KERNEL_FUNCTIONS(LOAD_KERNEL_FUNCTION)
