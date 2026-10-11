@@ -198,6 +198,10 @@ namespace bgfx { namespace noop
 			return 0;
 		}
 
+		void exportTexture(ExternalTextureInfo& /*_info*/, TextureHandle /*_handle*/) override
+		{
+		}
+
 		void destroyTexture(TextureHandle /*_handle*/) override
 		{
 		}
