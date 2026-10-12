@@ -44,8 +44,11 @@ namespace mesh_skeleton_resource_internal
 		opts.write(asr._pad);
 		opts.write(asr.mesh_resource);
 
-		for (u32 i = 0; i < asr.num_bones; ++i)
-			opts.write(s.local_transforms[i]);
+		for (u32 i = 0; i < asr.num_bones; ++i) {
+			opts.write(s.local_transforms[i].position);
+			opts.write(s.local_transforms[i].rotation);
+			opts.write(s.local_transforms[i].scale);
+		}
 
 		for (u32 i = 0; i < asr.num_bones; ++i)
 			opts.write(s.parents[i]);

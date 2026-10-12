@@ -125,7 +125,7 @@ namespace level_resource_internal
 			opts.write(sounds[i].range);
 			opts.write(sounds[i].loop);
 			opts.write(sounds[i].group);
-			opts.write(sounds[i]._pad);
+			opts.write(sounds[i]._pad, sizeof(sounds[i]._pad));
 		}
 
 		// Write unit names
