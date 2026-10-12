@@ -360,11 +360,7 @@ public class UnitEditor : Gtk.ApplicationWindow
 				}
 				srd.destroy();
 			});
-#if CROWN_GTK3
-		srd.show_all();
-#else
 		srd.show();
-#endif
 	}
 
 	public void save(owned UnitEditorSaveCallback? on_save_success = null)

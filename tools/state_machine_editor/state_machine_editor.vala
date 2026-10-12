@@ -361,11 +361,7 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 				}
 				srd.destroy();
 			});
-#if CROWN_GTK3
-		srd.show_all();
-#else
 		srd.show();
-#endif
 	}
 
 	public void save(owned StateMachineEditorSaveCallback? on_save_success = null)
