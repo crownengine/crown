@@ -23,7 +23,7 @@ Material::Material(Allocator &a)
 	CE_UNUSED(a);
 }
 
-void Material::bind(u8 view, u32 depth) const
+void Material::bind_parameters(const ShaderData &shader) const
 {
 	using namespace material_resource;
 
@@ -31,8 +31,8 @@ void Material::bind(u8 view, u32 depth) const
 
 	// Keep every sampler declared by the shader bound. Some backends cannot
 	// leave it unbound even when the shader skips the texture access at runtime.
-	for (u32 si = 0; si < _shader.num_samplers; ++si) {
-		const ShaderResource::Sampler &sampler = _shader.samplers[si];
+	for (u32 si = 0; si < shader.num_samplers; ++si) {
+		const ShaderResource::Sampler &sampler = shader.samplers[si];
 		if (sampler.stage >= MATERIAL_MAX_TEXTURE_SLOTS)
 			continue;
 
@@ -69,7 +69,15 @@ void Material::bind(u8 view, u32 depth) const
 		buh.idx = uh->uniform_handle;
 		bgfx::setUniform(buh, (char *)uh + sizeof(uh->uniform_handle));
 	}
+}
 
+void Material::bind(u16 view, u32 depth) const
+{
+	if (view == UINT16_MAX) {
+		bgfx::discard();
+		return;
+	}
+	bind_parameters(_shader);
 	bgfx::setState(_shader.state | BGFX_STATE_MSAA);
 	bgfx::setStencil(_shader.stencil_front, _shader.stencil_back);
 	bgfx::submit(view, _shader.program, depth);

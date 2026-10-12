@@ -40,10 +40,10 @@ struct GuiBuffer
 	bool allocate(u32 num_vertices, u32 num_indices);
 
 	///
-	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u8 view, u32 depth);
+	void submit(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, ShaderData &shader, u16 view, u32 depth);
 
 	///
-	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u8 view, u32 depth, Material *material);
+	void submit_with_material(u32 num_vertices, u32 num_indices, const Matrix4x4 &world, u16 view, u32 depth, Material *material);
 };
 
 /// Immediate mode Gui.
@@ -71,7 +71,9 @@ struct Gui
 	MaterialManager *_material_manager;
 	Matrix4x4 _world;
 	ShaderData *_gui_shader;
-	u8 _view;
+	u16 _view;
+	Pipeline *_pipeline;
+	StringId32 _layer;
 	ListNode _node;
 
 	///
@@ -80,8 +82,11 @@ struct Gui
 		, ShaderManager &sm
 		, MaterialManager &mm
 		, ShaderData *shader
-		, u8 view
+		, u16 view
 		);
+
+	/// Resolves the logical layer after pipeline hot reloads.
+	u16 view_id() const;
 
 	///
 	~Gui();
@@ -136,6 +141,7 @@ namespace gui
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
 		, ShaderData *shader
+		, Pipeline &pipeline
 		);
 
 	Gui *create_world_gui(Allocator &allocator
@@ -144,6 +150,7 @@ namespace gui
 		, ShaderManager &shader_manager
 		, MaterialManager &material_manager
 		, ShaderData *shader
+		, Pipeline &pipeline
 		);
 
 } // namespace gui

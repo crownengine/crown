@@ -672,7 +672,7 @@ void World::update(f32 dt)
 
 void World::render(const Matrix4x4 &view, const Matrix4x4 &cull_proj, const Matrix4x4 &persp, const Vector4 &viewport)
 {
-	_render_world->render(_dt, view, cull_proj, persp, viewport, _skydome_unit, *_lines);
+	_render_world->prepare(_dt, view, cull_proj, persp, viewport, _skydome_unit, *_lines);
 
 	_physics_world->debug_draw();
 	_render_world->debug_draw(*_lines);
@@ -969,6 +969,7 @@ Gui *World::create_screen_gui()
 		, *_shader_manager
 		, *_material_manager
 		, &_pipeline->_gui_shader
+		, *_pipeline
 		);
 
 	list::add(gui->_node, _guis);
@@ -983,6 +984,7 @@ Gui *World::create_world_gui()
 		, *_shader_manager
 		, *_material_manager
 		, &_pipeline->_gui_3d_shader
+		, *_pipeline
 		);
 
 	list::add(gui->_node, _guis);
