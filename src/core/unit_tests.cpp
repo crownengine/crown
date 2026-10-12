@@ -12,6 +12,7 @@
 #include "core/containers/hash_set.inl"
 #include "core/containers/vector.inl"
 #include "core/filesystem/file.h"
+#include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/file_monitor.h"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
@@ -2567,6 +2568,18 @@ static void test_filesystem()
 {
 	memory_globals::init();
 	guid_globals::init();
+	{
+		Buffer bytes(default_allocator());
+		FileBuffer file(bytes);
+		ENSURE(file.write("abcdef", 6) == 6);
+		file.seek(2);
+		ENSURE(file.write("XY", 2) == 2);
+		ENSURE(file.size() == 6 && memcmp(array::begin(bytes), "abXYef", 6) == 0);
+		file.seek(5);
+		ENSURE(file.write("123", 3) == 3);
+		ENSURE(file.size() == 8 && memcmp(array::begin(bytes), "abXYe123", 8) == 0);
+		ENSURE(file.write(NULL, 0) == 0 && file.size() == 8);
+	}
 	{
 		TempAllocator256 ta;
 		DynamicString dir(ta);
