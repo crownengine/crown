@@ -7,6 +7,7 @@
 
 #if CROWN_CAN_COMPILE
 #include "core/containers/array.inl"
+#include "core/filesystem/file.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/constants.h"
@@ -25,17 +26,8 @@ namespace crown
 {
 namespace mesh_skeleton_resource_internal
 {
-	s32 write(AnimationSkeleton &s, CompileOptions &opts)
+	static void write_header(CompileOptions &opts, const MeshSkeletonResource &asr)
 	{
-		MeshSkeletonResource asr;
-		asr.version = RESOURCE_VERSION_MESH_SKELETON;
-		asr.num_bones = array::size(s.local_transforms);
-		asr.local_transforms_offset = sizeof(asr);
-		asr.parents_offset = asr.local_transforms_offset + sizeof(BoneTransform) * asr.num_bones;
-		asr.binding_matrices_offset = asr.parents_offset + sizeof(u32) * asr.num_bones;
-		asr._pad = 0u;
-		asr.mesh_resource = StringId64(s.mesh_resource_name.c_str());
-
 		opts.write(asr.version);
 		opts.write(asr.num_bones);
 		opts.write(asr.local_transforms_offset);
@@ -43,18 +35,39 @@ namespace mesh_skeleton_resource_internal
 		opts.write(asr.binding_matrices_offset);
 		opts.write(asr._pad);
 		opts.write(asr.mesh_resource);
+	}
 
+	s32 write(AnimationSkeleton &s, CompileOptions &opts)
+	{
+		MeshSkeletonResource asr = {};
+		asr.version = RESOURCE_VERSION_MESH_SKELETON;
+		asr.num_bones = array::size(s.local_transforms);
+		asr._pad = 0u;
+		asr.mesh_resource = StringId64(s.mesh_resource_name.c_str());
+
+		write_header(opts, asr);
+
+		opts.align(alignof(BoneTransform));
+		asr.local_transforms_offset = opts._output.position();
 		for (u32 i = 0; i < asr.num_bones; ++i) {
 			opts.write(s.local_transforms[i].position);
 			opts.write(s.local_transforms[i].rotation);
 			opts.write(s.local_transforms[i].scale);
 		}
 
-		for (u32 i = 0; i < asr.num_bones; ++i)
-			opts.write(s.parents[i]);
+		opts.align(alignof(u32));
+		asr.parents_offset = opts._output.position();
+		opts.write(s.parents);
 
+		opts.align(alignof(Matrix4x4));
+		asr.binding_matrices_offset = opts._output.position();
 		for (u32 i = 0; i < asr.num_bones; ++i)
 			opts.write(s.binding_matrices[i]);
+
+		const u32 end = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, asr);
+		opts._output.seek(end);
 
 		return 0;
 	}

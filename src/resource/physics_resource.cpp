@@ -320,6 +320,14 @@ namespace physics_resource_internal
 		return 0;
 	}
 
+	static void write_collider_header(BinaryWriter &bw, const ColliderResource &cr)
+	{
+		bw.write(cr.num_colliders);
+		bw.write(cr.indices_offset);
+		bw.write(cr.entries_offset);
+		bw.write(cr.colliders_offset);
+	}
+
 	s32 finalize_collider(Buffer &data, u32 num, CompileOptions &opts)
 	{
 		Array<UniqueCollider> colliders(default_allocator());
@@ -371,32 +379,34 @@ namespace physics_resource_internal
 			, "Invalid collider data"
 			);
 
-		ColliderResource cr;
+		ColliderResource cr = {};
 		cr.num_colliders = array::size(colliders);
-		cr.indices_offset = sizeof(ColliderResource);
-		cr.entries_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(cr.indices_offset + sizeof(u32)*num), alignof(ColliderResourceEntry));
-		cr.colliders_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(cr.entries_offset + sizeof(ColliderResourceEntry)*cr.num_colliders), 16);
 
 		Buffer output(default_allocator());
 		FileBuffer fb(output);
 		BinaryWriter bw(fb);
 
-		bw.write(cr.num_colliders);
-		bw.write(cr.indices_offset);
-		bw.write(cr.entries_offset);
-		bw.write(cr.colliders_offset);
+		write_collider_header(bw, cr);
 
-		for (u32 i = 0; i < array::size(collider_indices); ++i)
-			bw.write(collider_indices[i]);
+		bw.align(alignof(u32));
+		cr.indices_offset = fb.position();
+		bw.write(collider_indices);
 
 		bw.align(alignof(ColliderResourceEntry));
+		cr.entries_offset = fb.position();
 		for (u32 i = 0; i < array::size(colliders); ++i) {
 			bw.write(colliders[i].offset);
 			bw.write(colliders[i].hash);
 		}
 
 		bw.align(16);
+		cr.colliders_offset = fb.position();
 		bw.write(collider_data);
+
+		const u32 output_end = fb.position();
+		fb.seek(0);
+		write_collider_header(bw, cr);
+		fb.seek(output_end);
 
 		data = output;
 		return 0;
@@ -763,6 +773,18 @@ namespace physics_resource_internal
 
 namespace physics_config_resource_internal
 {
+	static void write_header(CompileOptions &opts, const PhysicsConfigResource &pcr)
+	{
+		opts.write(pcr.version);
+		opts.write(pcr.num_materials);
+		opts.write(pcr.materials_offset);
+		opts.write(pcr.num_actors);
+		opts.write(pcr.actors_offset);
+		opts.write(pcr.num_filters);
+		opts.write(pcr.filters_offset);
+		opts.write(pcr.gravity);
+	}
+
 	s32 parse_materials(const char *json, Array<PhysicsMaterial> &objects, CompileOptions &opts)
 	{
 		TempAllocator4096 ta;
@@ -999,7 +1021,7 @@ namespace physics_config_resource_internal
 		Array<PhysicsMaterial> materials(default_allocator());
 		Array<PhysicsActor> actors(default_allocator());
 		CollisionFilterCompiler cfc(opts);
-		PhysicsConfigResource pcr;
+		PhysicsConfigResource pcr = {};
 		pcr.gravity = { 0.0f, 0.0f, -10.0f };
 
 		s32 err = 0;
@@ -1034,28 +1056,14 @@ namespace physics_config_resource_internal
 		pcr.num_actors    = array::size(actors);
 		pcr.num_filters   = array::size(cfc._filters);
 
-		u32 offt = sizeof(PhysicsConfigResource);
-		pcr.materials_offset = offt;
-		offt += sizeof(PhysicsMaterial) * pcr.num_materials;
-
-		pcr.actors_offset = offt;
-		offt += sizeof(PhysicsActor) * pcr.num_actors;
-
-		pcr.filters_offset = offt;
-
 		// Write all
-		opts.write(pcr.version);
-		opts.write(pcr.num_materials);
-		opts.write(pcr.materials_offset);
-		opts.write(pcr.num_actors);
-		opts.write(pcr.actors_offset);
-		opts.write(pcr.num_filters);
-		opts.write(pcr.filters_offset);
-		opts.write(pcr.gravity);
+		write_header(opts, pcr);
 
 		// Write materials
+		opts.align(alignof(PhysicsMaterial));
+		pcr.materials_offset = opts._output.position();
 		for (u32 i = 0; i < pcr.num_materials; ++i) {
-			opts.write(materials[i].name._id);
+			opts.write(materials[i].name);
 			opts.write(materials[i].friction);
 			opts.write(materials[i].rolling_friction);
 			opts.write(materials[i].spinning_friction);
@@ -1063,19 +1071,28 @@ namespace physics_config_resource_internal
 		}
 
 		// Write actors
+		opts.align(alignof(PhysicsActor));
+		pcr.actors_offset = opts._output.position();
 		for (u32 i = 0; i < pcr.num_actors; ++i) {
-			opts.write(actors[i].name._id);
+			opts.write(actors[i].name);
 			opts.write(actors[i].linear_damping);
 			opts.write(actors[i].angular_damping);
 			opts.write(actors[i].flags);
 		}
 
 		// Write collision filters
+		opts.align(alignof(PhysicsCollisionFilter));
+		pcr.filters_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(cfc._filters); ++i) {
-			opts.write(cfc._filters[i].name._id);
+			opts.write(cfc._filters[i].name);
 			opts.write(cfc._filters[i].me);
 			opts.write(cfc._filters[i].mask);
 		}
+
+		const u32 end_position = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, pcr);
+		opts._output.seek(end_position);
 
 		return 0;
 	}

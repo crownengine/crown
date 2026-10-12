@@ -53,35 +53,25 @@ namespace state_machine_resource_internal
 		return TransitionMode::COUNT;
 	}
 
-	struct OffsetAccumulator
+	struct TransitionPatch
 	{
-		u32 _offset;
-
-		OffsetAccumulator()
-			: _offset(sizeof(StateMachineResource))
-		{
-		}
-
-		void align(u32 align)
-		{
-			_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)_offset, align);
-		}
-
-		// Returns the offset of
-		u32 offset(u32 num_animations, u32 num_transitions)
-		{
-			const u32 offt = _offset;
-			align(alignof(State));
-			_offset += sizeof(State);
-			align(alignof(Transition));
-			_offset += sizeof(Transition) * num_transitions;
-			align(alignof(AnimationArray));
-			_offset += sizeof(AnimationArray);
-			align(alignof(Animation));
-			_offset += sizeof(Animation) * num_animations;
-			return offt;
-		}
+		u32 offset;
+		Guid state;
 	};
+
+	static void write_header(CompileOptions &opts, const StateMachineResource &smr)
+	{
+		opts.write(smr.version);
+		opts.write(smr.initial_state_offset);
+		opts.write(smr.num_variables);
+		opts.write(smr.variables_offset);
+		opts.write(smr.bytecode_size);
+		opts.write(smr.bytecode_offset);
+		opts.write(smr.animation_type);
+		opts.write(smr.skeleton_name);
+		opts.write(smr.num_animations);
+		opts.write(smr.animations_offset);
+	}
 
 	struct AnimationInfo
 	{
@@ -143,7 +133,6 @@ namespace state_machine_resource_internal
 		CompileOptions &_opts;
 		Guid _initial_state;
 		HashMap<Guid, StateInfo> _states;
-		OffsetAccumulator _offset_accumulator;
 		HashMap<Guid, u32> _offsets;
 		Vector<VariableInfo> _variables;
 		Array<u32> _byte_code;
@@ -276,7 +265,7 @@ namespace state_machine_resource_internal
 			return 0;
 		}
 
-		s32 compute_state_offsets()
+		s32 compile_expressions()
 		{
 			// Limit byte code to 4K
 			array::resize(_byte_code, 1024);
@@ -303,11 +292,7 @@ namespace state_machine_resource_internal
 			for (; cur != end; ++cur) {
 				HASH_MAP_SKIP_HOLE(_states, cur);
 
-				const Guid &guid    = cur->first;
 				const StateInfo &si = cur->second;
-
-				const u32 offset = _offset_accumulator.offset(vector::size(si.animations), vector::size(si.transitions));
-				hash_map::set(_offsets, guid, offset);
 
 				for (u32 i = 0; i < vector::size(si.animations); ++i) {
 					const u32 num = expression_language::compile(si.animations[i].weight.c_str()
@@ -404,7 +389,7 @@ namespace state_machine_resource_internal
 				array::resize(_animation_names, (u32)(names_end - array::begin(_animation_names)));
 			}
 
-			err = compute_state_offsets();
+			err = compile_expressions();
 			ENSURE_OR_RETURN(STATE_MACHINE_RESOURCE, err == 0, _opts);
 
 			return 0;
@@ -412,27 +397,15 @@ namespace state_machine_resource_internal
 
 		s32 write()
 		{
-			StateMachineResource smr;
+			StateMachineResource smr = {};
 			smr.version = RESOURCE_HEADER(RESOURCE_VERSION_STATE_MACHINE);
-			smr.initial_state_offset = hash_map::get(_offsets, _initial_state, UINT32_MAX);
 			smr.num_variables = vector::size(_variables);
-			smr.variables_offset = _offset_accumulator._offset; // Offset of last state + 1
 			smr.bytecode_size = array::size(_byte_code)*4;
-			smr.bytecode_offset = smr.variables_offset + smr.num_variables*4*2;
 			smr.animation_type = StringId64(_animation_type.c_str());
 			smr.skeleton_name = _skeleton_name;
 			smr.num_animations = array::size(_animation_names);
-			smr.animations_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(smr.bytecode_offset + smr.bytecode_size), alignof(StringId64));
-			_opts.write(smr.version);
-			_opts.write(smr.initial_state_offset);
-			_opts.write(smr.num_variables);
-			_opts.write(smr.variables_offset);
-			_opts.write(smr.bytecode_size);
-			_opts.write(smr.bytecode_offset);
-			_opts.write(smr.animation_type);
-			_opts.write(smr.skeleton_name);
-			_opts.write(smr.num_animations);
-			_opts.write(smr.animations_offset);
+			write_header(_opts, smr);
+			Array<TransitionPatch> transition_patches(default_allocator());
 
 			// Write states
 			auto cur = hash_map::begin(_states);
@@ -443,6 +416,9 @@ namespace state_machine_resource_internal
 				const StateInfo &si = cur->second;
 				const u32 num_animations  = vector::size(si.animations);
 				const u32 num_transitions = vector::size(si.transitions);
+
+				_opts.align(alignof(State));
+				hash_map::set(_offsets, cur->first, _opts._output.position());
 
 				// Write speed
 				_opts.write(si.speed_bytecode);
@@ -456,9 +432,9 @@ namespace state_machine_resource_internal
 				_opts.write(ta.num);
 				for (u32 i = 0; i < num_transitions; ++i) {
 					Transition t = si.transitions[i].transition;
-					t.state_offset = hash_map::get(_offsets, si.transitions[i].state, UINT32_MAX);
-
 					_opts.write(t.event);
+					const TransitionPatch patch = { _opts._output.position(), si.transitions[i].state };
+					array::push_back(transition_patches, patch);
 					_opts.write(t.state_offset);
 					_opts.write(t.mode);
 				}
@@ -467,6 +443,7 @@ namespace state_machine_resource_internal
 				AnimationArray aa;
 				aa.num = num_animations;
 				_opts.write(aa.num);
+				_opts.align(alignof(Animation));
 				for (u32 i = 0; i < num_animations; ++i) {
 					Animation a;
 					a.name = si.animations[i].name;
@@ -480,18 +457,33 @@ namespace state_machine_resource_internal
 			}
 
 			// Write variables
+			_opts.align(alignof(StringId32));
+			smr.variables_offset = _opts._output.position();
 			for (u32 i = 0; i < vector::size(_variables); ++i)
 				_opts.write(_variables[i].name);
 			for (u32 i = 0; i < vector::size(_variables); ++i)
 				_opts.write(_variables[i].value);
 
 			// Write bytecode
-			for (u32 i = 0; i < array::size(_byte_code); ++i)
-				_opts.write(_byte_code[i]);
+			_opts.align(alignof(u32));
+			smr.bytecode_offset = _opts._output.position();
+			_opts.write(_byte_code);
 
 			_opts.align(alignof(StringId64));
+			smr.animations_offset = _opts._output.position();
 			for (u32 i = 0; i < array::size(_animation_names); ++i)
 				_opts.write(_animation_names[i]);
+
+			const u32 end_position = _opts._output.position();
+			for (u32 i = 0; i < array::size(transition_patches); ++i) {
+				const TransitionPatch &patch = transition_patches[i];
+				_opts._output.seek(patch.offset);
+				_opts.write(hash_map::get(_offsets, patch.state, UINT32_MAX));
+			}
+			smr.initial_state_offset = hash_map::get(_offsets, _initial_state, UINT32_MAX);
+			_opts._output.seek(0);
+			write_header(_opts, smr);
+			_opts._output.seek(end_position);
 
 			return 0;
 		}

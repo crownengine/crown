@@ -7,6 +7,7 @@
 
 #if CROWN_CAN_COMPILE
 #   include "core/containers/array.inl"
+#   include "core/filesystem/file.h"
 #   include "core/filesystem/filesystem.h"
 #   include "core/json/json_object.inl"
 #   include "core/json/sjson.h"
@@ -26,18 +27,8 @@ namespace crown
 {
 namespace sound
 {
-	s32 write(Sound &s, CompileOptions &opts)
+	static void write_header(CompileOptions &opts, const SoundResource &sr)
 	{
-		SoundResource sr;
-		sr.version              = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
-		sr.sample_rate          = s._sample_rate;
-		sr.channels             = s._channels;
-		sr.bit_depth            = s._bit_depth;
-		sr.stream_format        = s._stream_format;
-		sr.stream_metadata_size = array::size(s._stream_metadata);
-		sr.pcm_offset           = sizeof(sr) + sr.stream_metadata_size;
-		sr.pcm_size             = array::size(s._samples) * s._bit_depth / 8;
-
 		opts.write(sr.version);
 		opts.write(sr.sample_rate);
 		opts.write(sr.channels);
@@ -47,8 +38,23 @@ namespace sound
 		opts.write(sr.pcm_offset);
 		opts.write(sr.pcm_size);
 		opts.write(sr._pad, sizeof(sr._pad));
+	}
 
-		opts.write(array::begin(s._stream_metadata), array::size(s._stream_metadata));
+	s32 write(Sound &s, CompileOptions &opts)
+	{
+		SoundResource sr = {};
+		sr.version              = RESOURCE_HEADER(RESOURCE_VERSION_SOUND);
+		sr.sample_rate          = s._sample_rate;
+		sr.channels             = s._channels;
+		sr.bit_depth            = s._bit_depth;
+		sr.stream_format        = s._stream_format;
+		sr.stream_metadata_size = array::size(s._stream_metadata);
+		sr.pcm_size             = array::size(s._samples) * s._bit_depth / 8;
+
+		write_header(opts, sr);
+
+		opts.write(s._stream_metadata);
+		sr.pcm_offset = opts._output.position();
 
 		// Convert samples.
 		if (sr.bit_depth == 8) {
@@ -68,6 +74,11 @@ namespace sound
 		} else {
 			RETURN_IF_FALSE(SOUND, false, opts, "Unsupported bit depth");
 		}
+
+		const u32 end = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, sr);
+		opts._output.seek(end);
 
 		return 0;
 	}
