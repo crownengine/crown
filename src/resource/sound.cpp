@@ -46,7 +46,7 @@ namespace sound
 		opts.write(sr.stream_metadata_size);
 		opts.write(sr.pcm_offset);
 		opts.write(sr.pcm_size);
-		opts.write(sr._pad);
+		opts.write(sr._pad, sizeof(sr._pad));
 
 		opts.write(array::begin(s._stream_metadata), array::size(s._stream_metadata));
 

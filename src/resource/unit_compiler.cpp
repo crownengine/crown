@@ -326,7 +326,7 @@ static s32 compile_sprite_renderer(Buffer &output, UnitCompiler &compiler, Compi
 	bw.write(srd.layer);
 	bw.write(srd.depth);
 	bw.write(srd.flags);
-	bw.write(srd._pad);
+	bw.write(srd._pad, sizeof(srd._pad));
 	return 0;
 }
 
@@ -514,7 +514,7 @@ static s32 compile_script(Buffer &output, UnitCompiler &compiler, CompilerObject
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(sd.script_resource);
-	bw.write(sd.script_resource_name);
+	bw.write(sd.script_resource_name, sizeof(sd.script_resource_name));
 	return 0;
 }
 
@@ -615,7 +615,7 @@ static s32 compile_bloom(Buffer &output, UnitCompiler &compiler, CompilerObject 
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(desc.enabled);
-	bw.write(desc._pad);
+	bw.write(desc._pad, sizeof(desc._pad));
 	bw.write(desc.threshold);
 	bw.write(desc.weight);
 	bw.write(desc.intensity);
@@ -646,7 +646,7 @@ static s32 compile_tonemap(Buffer &output, UnitCompiler &compiler, CompilerObjec
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(desc.type);
-	bw.write(desc.unused);
+	bw.write(desc.unused, sizeof(desc.unused));
 	return 0;
 }
 
@@ -693,13 +693,13 @@ static s32 compile_vignette(Buffer &output, UnitCompiler &compiler, CompilerObje
 	FileBuffer fb(output);
 	BinaryWriter bw(fb);
 	bw.write(desc.enabled);
-	bw.write(desc._pad);
+	bw.write(desc._pad, sizeof(desc._pad));
 	bw.write(desc.radius);
 	bw.write(desc.softness);
 	bw.write(desc.roundness);
 	bw.write(desc.color);
 	bw.write(desc.center);
-	bw.write(desc._pad2);
+	bw.write(desc._pad2, sizeof(desc._pad2));
 	return 0;
 }
 

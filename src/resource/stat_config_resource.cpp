@@ -223,9 +223,31 @@ namespace stat_config_resource_internal
 			}
 			);
 
-		opts.write(config);
-		for (u32 i = 0; i < config.num_panels; ++i)
-			opts.write(panels[i].panel);
+		opts.write(config.version);
+		opts.write(config.num_panels);
+		for (u32 i = 0; i < config.num_panels; ++i) {
+			const StatPanel &panel = panels[i].panel;
+			opts.write(panel.font);
+			opts.write(panel.material);
+			opts.write(panel.font_size);
+			opts.write(panel.layout.margin_left);
+			opts.write(panel.layout.margin_right);
+			opts.write(panel.layout.margin_bottom);
+			opts.write(panel.layout.margin_top);
+			opts.write(panel.layout.padding_left);
+			opts.write(panel.layout.padding_right);
+			opts.write(panel.layout.padding_bottom);
+			opts.write(panel.layout.padding_top);
+			opts.write(panel.num_counters);
+			for (u32 j = 0; j < countof(panel.counters); ++j) {
+				const StatCounter &counter = panel.counters[j];
+				opts.write(counter.label, sizeof(counter.label));
+				opts.write(counter.num_counters);
+				opts.write(counter.counters, sizeof(counter.counters));
+			}
+			opts.write(panel.label, sizeof(panel.label));
+			opts.write(panel.name, sizeof(panel.name));
+		}
 
 		return 0;
 	}

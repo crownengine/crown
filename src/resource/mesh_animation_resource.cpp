@@ -425,8 +425,17 @@ namespace mesh_animation_resource_internal
 		opts.write(mar.geometry_names_offset);
 		opts.write(mar.bounds_offset);
 
-		for (u32 i = 0; i < array::size(ma.sorted_keys); ++i)
-			opts.write(ma.sorted_keys[i]);
+		for (u32 i = 0; i < array::size(ma.sorted_keys); ++i) {
+			const AnimationKey &key = ma.sorted_keys[i];
+			const u32 key_header = key.h.type | (key.h.track_id << 1) | (key.h.time << 11);
+			opts.write(key_header);
+			if (key.h.type == AnimationKeyHeader::POSITION) {
+				opts.write(key.p.value);
+				opts.write(u32(0)); // Pad to AnimationKey size.
+			} else {
+				opts.write(key.r.value);
+			}
+		}
 
 		for (u32 i = 0; i < array::size(ma.bone_ids); ++i)
 			opts.write(ma.bone_ids[i]);
@@ -443,8 +452,11 @@ namespace mesh_animation_resource_internal
 			opts.write(ma.bounds[i].geometry_name);
 
 		opts.align(alignof(MeshAnimationBounds));
-		for (u32 i = 0; i < array::size(ma.bounds); ++i)
-			opts.write(ma.bounds[i].bounds);
+		for (u32 i = 0; i < array::size(ma.bounds); ++i) {
+			const MeshAnimationBounds &bounds = ma.bounds[i].bounds;
+			opts.write(bounds.obb);
+			opts.write(bounds.sphere);
+		}
 
 		return 0;
 	}
