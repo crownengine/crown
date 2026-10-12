@@ -5,15 +5,9 @@
 
 namespace Crown
 {
-#if CROWN_GTK3
-public class SaveResourceDialog : Gtk.FileChooserDialog
-#else
-public class SaveResourceDialog : Gtk.Dialog
-#endif
+public class SaveResourceDialog : GLib.Object
 {
-#if !CROWN_GTK3
-	public Gtk.FileChooserWidget _file_chooser;
-#endif
+	public Gtk.FileChooserDialog _dialog;
 	public Project _project;
 	public string _resource_type;
 
@@ -21,68 +15,55 @@ public class SaveResourceDialog : Gtk.Dialog
 
 	public SaveResourceDialog(string? title, Gtk.Window? parent, string resource_type, string resource_name, Project p)
 	{
-		if (title != null)
-			this.title = title;
-
-		if (parent != null)
-			this.set_transient_for(parent);
-
-#if CROWN_GTK3
-		this.set_action(Gtk.FileChooserAction.SAVE);
-#else
-		this.set_modal(true);
-#endif
-		this.add_button(_("Cancel"), Gtk.ResponseType.CANCEL);
-		this.add_button(_("Save"), Gtk.ResponseType.ACCEPT);
-#if !CROWN_GTK3
-		this.response.connect(on_response);
-
-		_file_chooser = new Gtk.FileChooserWidget(Gtk.FileChooserAction.SAVE);
-#endif
+		_dialog = new Gtk.FileChooserDialog(title
+			, parent
+			, Gtk.FileChooserAction.SAVE
+			, _("Cancel")
+			, Gtk.ResponseType.CANCEL
+			, _("Save")
+			, Gtk.ResponseType.ACCEPT
+			);
+		_dialog.set_modal(true);
+		_dialog.response.connect(on_response);
 		try {
 #if CROWN_GTK3
-			this.set_current_folder_file(GLib.File.new_for_path(p.source_dir()));
+			_dialog.set_current_folder_file(GLib.File.new_for_path(p.source_dir()));
 #else
-			_file_chooser.set_current_folder(GLib.File.new_for_path(p.source_dir()));
+			_dialog.set_current_folder(GLib.File.new_for_path(p.source_dir()));
 #endif
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}
-#if CROWN_GTK3
-		this.set_current_name(resource_name);
-		this.set_modal(true);
-		this.response.connect(on_response);
-#else
-		_file_chooser.set_current_name(resource_name);
-#endif
+		_dialog.set_current_name(resource_name);
 
 		Gtk.FileFilter ff = new Gtk.FileFilter();
 		ff.set_filter_name("%s (*.%s)".printf(resource_type, resource_type));
 		ff.add_pattern("*.%s".printf(resource_type));
-#if CROWN_GTK3
-		this.add_filter(ff);
-#else
-		_file_chooser.add_filter(ff);
-
-		this.get_content_area().append(_file_chooser);
-#endif
+		_dialog.add_filter(ff);
 
 		_project = p;
 		_resource_type = resource_type;
 	}
 
+	public void show()
+	{
+		_dialog.show();
+	}
+
+	public void destroy()
+	{
+		_dialog.destroy();
+	}
+
+	public void present()
+	{
+		_dialog.present();
+	}
+
 	public void on_response(int response_id)
 	{
-#if CROWN_GTK3
-		GLib.File? file = this.get_file();
-		if (file == null)
-			return;
-
-		string? path = file.get_path();
-#else
-		GLib.File? file = _file_chooser.get_file();
+		GLib.File? file = _dialog.get_file();
 		string? path = file == null ? null : file.get_path();
-#endif
 
 		if (response_id == Gtk.ResponseType.ACCEPT && path != null) {
 			if (!path.has_suffix("." + _resource_type))
@@ -91,7 +72,7 @@ public class SaveResourceDialog : Gtk.Dialog
 			// If the path is outside the source dir, show a warning
 			// and point the file chooser back to the source dir.
 			if (!_project.path_is_within_source_dir(path)) {
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				Gtk.MessageDialog md = new Gtk.MessageDialog(_dialog
 					, Gtk.DialogFlags.MODAL
 					, Gtk.MessageType.WARNING
 					, Gtk.ButtonsType.OK
@@ -101,9 +82,9 @@ public class SaveResourceDialog : Gtk.Dialog
 				md.response.connect(() => {
 						try {
 #if CROWN_GTK3
-							this.set_current_folder_file(GLib.File.new_for_path(_project.source_dir()));
+							_dialog.set_current_folder_file(GLib.File.new_for_path(_project.source_dir()));
 #else
-							_file_chooser.set_current_folder(GLib.File.new_for_path(_project.source_dir()));
+							_dialog.set_current_folder(GLib.File.new_for_path(_project.source_dir()));
 #endif
 						} catch (GLib.Error e) {
 							loge(e.message);
@@ -120,7 +101,7 @@ public class SaveResourceDialog : Gtk.Dialog
 
 			// If the path already exits, ask if it should be overwritten.
 			if (GLib.FileUtils.test(path, FileTest.EXISTS)) {
-				Gtk.MessageDialog md = new Gtk.MessageDialog(this
+				Gtk.MessageDialog md = new Gtk.MessageDialog(_dialog
 					, Gtk.DialogFlags.MODAL
 					, Gtk.MessageType.QUESTION
 					, Gtk.ButtonsType.NONE

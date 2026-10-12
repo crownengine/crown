@@ -232,11 +232,7 @@ public class ObjectEditor : Gtk.ApplicationWindow
 				}
 				srd.destroy();
 			});
-#if CROWN_GTK3
-		srd.show_all();
-#else
 		srd.show();
-#endif
 	}
 
 	public void save(owned ObjectEditorSaveCallback? on_save_success = null)

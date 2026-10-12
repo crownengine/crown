@@ -2110,11 +2110,7 @@ public class LevelEditorApplication : Gtk.Application
 					}
 					srd.destroy();
 				});
-#if CROWN_GTK3
-			srd.show_all();
-#else
 			srd.show();
-#endif
 		}
 	}
 
@@ -4374,11 +4370,7 @@ public class LevelEditorApplication : Gtk.Application
 
 				srd.destroy();
 			});
-#if CROWN_GTK3
-		srd.show_all();
-#else
 		srd.show();
-#endif
 		srd.present();
 	}
 
