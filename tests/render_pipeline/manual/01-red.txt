@@ -1,4 +1,0 @@
-shaders = []
-layers = [
-    { name = "red" clear = { color = true rgba = "ff0000ff" } touch = true }
-]

@@ -1,2 +1,0 @@
-pipeline = "core/renderer/default"
-shader_layers = [ { shader = "mesh" context = "color" layer = "does_not_exist" } ]
