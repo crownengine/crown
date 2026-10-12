@@ -7,6 +7,7 @@
 
 #include "core/containers/array.inl"
 #include "core/filesystem/file.h"
+#include <string.h> // memmove
 
 namespace crown
 {
@@ -88,8 +89,16 @@ struct FileBuffer : public File
 
 	virtual u32 write(const void *data, u32 size) override
 	{
-		_buffer->_size = _position;
-		array::push(*_buffer, (char *)data, size);
+		if (size == 0)
+			return 0;
+		if (size > UINT32_MAX - _position)
+			return 0;
+		const u32 end = _position + size;
+		if (end > array::size(*_buffer)) {
+			array::reserve(*_buffer, end);
+			array::resize(*_buffer, end);
+		}
+		memmove(array::begin(*_buffer) + _position, data, size);
 		_position += size;
 		return size;
 	}
