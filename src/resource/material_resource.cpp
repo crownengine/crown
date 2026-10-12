@@ -472,6 +472,22 @@ namespace material_resource_internal
 		}
 	}
 
+	static void write_header(CompileOptions &opts, const MaterialResource &mr)
+	{
+		opts.write(mr.version);
+		opts.write(mr.shader);
+		opts.write(mr.num_textures);
+		opts.write(mr.texture_data_offset);
+		opts.write(mr.num_uniforms);
+		opts.write(mr.uniform_data_offset);
+		opts.write(mr.names_data_size);
+		opts.write(mr.names_data_offset);
+		opts.write(mr.dynamic_data_size);
+		opts.write(mr.dynamic_data_offset);
+		opts.write(mr.shader_code_size);
+		opts.write(mr.shader_code_offset);
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
@@ -566,57 +582,53 @@ namespace material_resource_internal
 
 		data.alloc_blob();
 
-		MaterialResource mr;
+		MaterialResource mr = {};
 		mr.version             = RESOURCE_HEADER(RESOURCE_VERSION_MATERIAL);
 		mr.shader              = shader_id;
 		mr.num_textures        = array::size(data.textures);
-		mr.texture_data_offset = sizeof(mr);
 		mr.num_uniforms        = array::size(data.uniforms);
-		mr.uniform_data_offset = mr.texture_data_offset + sizeof(TextureData)*array::size(data.textures);
 		mr.names_data_size     = array::size(data.names);
-		mr.names_data_offset   = mr.uniform_data_offset + sizeof(UniformData)*array::size(data.uniforms);
 		mr.dynamic_data_size   = array::size(data.dynamic);
-		mr.dynamic_data_offset = mr.names_data_offset + mr.names_data_size;
 		mr.shader_code_size    = has_code ? array::size(shader_code) + 8 /* version + num */ : 0;
-		mr.shader_code_offset  = has_code ? (u32)(uintptr_t)memory::align_top((void *)uintptr_t(mr.dynamic_data_offset + mr.dynamic_data_size), 4) : 0;
 
 		// Write
-		opts.write(mr.version);
-		opts.write(mr.shader);
-		opts.write(mr.num_textures);
-		opts.write(mr.texture_data_offset);
-		opts.write(mr.num_uniforms);
-		opts.write(mr.uniform_data_offset);
-		opts.write(mr.names_data_size);
-		opts.write(mr.names_data_offset);
-		opts.write(mr.dynamic_data_size);
-		opts.write(mr.dynamic_data_offset);
-		opts.write(mr.shader_code_size);
-		opts.write(mr.shader_code_offset);
+		write_header(opts, mr);
 
-		for (u32 i = 0; i < array::size(data.textures); i++) {
+		opts.align(alignof(TextureData));
+		mr.texture_data_offset = opts._output.position();
+		for (u32 i = 0; i < array::size(data.textures); ++i) {
 			opts.write(data.textures[i].sampler_name_offset);
-			opts.write(data.textures[i].name._id);
+			opts.write(data.textures[i].name);
 			opts.write(data.textures[i].id);
 			opts.write(data.textures[i].data_offset);
 			opts.write(data.textures[i]._pad1);
 		}
 
-		for (u32 i = 0; i < array::size(data.uniforms); i++) {
+		opts.align(alignof(UniformData));
+		mr.uniform_data_offset = opts._output.position();
+		for (u32 i = 0; i < array::size(data.uniforms); ++i) {
 			opts.write(data.uniforms[i].type);
 			opts.write(data.uniforms[i].name);
 			opts.write(data.uniforms[i].name_offset);
 			opts.write(data.uniforms[i].data_offset);
 		}
 
+		mr.names_data_offset = opts._output.position();
 		opts.write(data.names);
+		mr.dynamic_data_offset = opts._output.position();
 		opts.write(data.dynamic);
 		opts.align(4);
 		if (has_code) {
+			mr.shader_code_offset = opts._output.position();
 			opts.write(RESOURCE_HEADER(RESOURCE_VERSION_SHADER));
 			opts.write(u32(1)); // num
 			opts.write(shader_code);
 		}
+
+		const u32 end = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, mr);
+		opts._output.seek(end);
 
 		return 0;
 	}

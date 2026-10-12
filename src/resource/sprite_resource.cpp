@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "core/containers/array.inl"
+#include "core/filesystem/file.h"
 #include "core/filesystem/reader_writer.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -192,6 +193,16 @@ struct SpriteAnimationEvent
 
 namespace sprite_animation_resource_internal
 {
+	static void write_header(CompileOptions &opts, const SpriteAnimationResource &sar)
+	{
+		opts.write(sar.version);
+		opts.write(sar.num_frames);
+		opts.write(sar.total_time);
+		opts.write(sar.num_events);
+		opts.write(sar.event_times_offset);
+		opts.write(sar.event_names_offset);
+	}
+
 	s32 compile(CompileOptions &opts)
 	{
 		Buffer buf = opts.read();
@@ -268,30 +279,31 @@ namespace sprite_animation_resource_internal
 		}
 
 		// Write
-		SpriteAnimationResource sar;
+		SpriteAnimationResource sar = {};
 		sar.version = RESOURCE_HEADER(RESOURCE_VERSION_SPRITE_ANIMATION);
 		sar.num_frames = array::size(frames);
 		sar.total_time = total_time;
 		sar.num_events = array::size(events);
-		sar.event_times_offset = sizeof(sar) + sar.num_frames * sizeof(u32);
-		sar.event_names_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(sar.event_times_offset + sar.num_events * sizeof(u16)), sizeof(u32));
 
-		opts.write(sar.version);
-		opts.write(sar.num_frames);
-		opts.write(sar.total_time);
-		opts.write(sar.num_events);
-		opts.write(sar.event_times_offset);
-		opts.write(sar.event_names_offset);
+		write_header(opts, sar);
 
 		for (u32 i = 0; i < array::size(frames); i++)
 			opts.write(frames[i].frame);
 
+		opts.align(alignof(u16));
+		sar.event_times_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(events); ++i)
 			opts.write(u16(events[i].time * 1000.0f));
 
-		opts.align(sizeof(u32));
+		opts.align(alignof(StringId32));
+		sar.event_names_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(events); ++i)
 			opts.write(events[i].name);
+
+		const u32 end = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, sar);
+		opts._output.seek(end);
 
 		return 0;
 	}

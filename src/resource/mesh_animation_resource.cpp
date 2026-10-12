@@ -9,6 +9,7 @@
 #include "resource/mesh_animation_resource.inl"
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
+#include "core/filesystem/file.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
 #include "core/math/aabb.inl"
@@ -390,25 +391,8 @@ namespace mesh_animation_resource_internal
 		return 0;
 	}
 
-	static s32 write(MeshAnimation &ma, CompileOptions &opts)
+	static void write_header(CompileOptions &opts, const MeshAnimationResource &mar)
 	{
-		MeshAnimationResource mar;
-		mar.version = RESOURCE_VERSION_MESH_ANIMATION;
-		mar.num_tracks = hash_map::size(ma.track_ids);
-		mar.total_time = ma.total_time;
-		mar.num_keys = array::size(ma.sorted_keys);
-		mar.keys_offset = sizeof(mar);
-		mar._pad0 = 0u;
-		mar.target_skeleton = ma.target_skeleton_id;
-		mar.num_bones = array::size(ma.bone_ids);
-		mar.bone_ids_offset = mar.keys_offset + mar.num_keys * sizeof(AnimationKey);
-		mar.num_events = array::size(ma.events);
-		mar.event_times_offset = mar.bone_ids_offset + mar.num_bones * sizeof(u16);
-		mar.event_names_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(mar.event_times_offset + mar.num_events * sizeof(u16)), sizeof(u32));
-		mar.num_bounds = array::size(ma.bounds);
-		mar.geometry_names_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(mar.event_names_offset + mar.num_events * sizeof(StringId32)), alignof(StringId32));
-		mar.bounds_offset = (u32)(uintptr_t)memory::align_top((void *)(uintptr_t)(mar.geometry_names_offset + mar.num_bounds * sizeof(StringId32)), alignof(MeshAnimationBounds));
-
 		opts.write(mar.version);
 		opts.write(mar.num_tracks);
 		opts.write(mar.total_time);
@@ -424,7 +408,25 @@ namespace mesh_animation_resource_internal
 		opts.write(mar.num_bounds);
 		opts.write(mar.geometry_names_offset);
 		opts.write(mar.bounds_offset);
+	}
 
+	static s32 write(MeshAnimation &ma, CompileOptions &opts)
+	{
+		MeshAnimationResource mar = {};
+		mar.version = RESOURCE_VERSION_MESH_ANIMATION;
+		mar.num_tracks = hash_map::size(ma.track_ids);
+		mar.total_time = ma.total_time;
+		mar.num_keys = array::size(ma.sorted_keys);
+		mar._pad0 = 0u;
+		mar.target_skeleton = ma.target_skeleton_id;
+		mar.num_bones = array::size(ma.bone_ids);
+		mar.num_events = array::size(ma.events);
+		mar.num_bounds = array::size(ma.bounds);
+
+		write_header(opts, mar);
+
+		opts.align(alignof(AnimationKey));
+		mar.keys_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(ma.sorted_keys); ++i) {
 			const AnimationKey &key = ma.sorted_keys[i];
 			const u32 key_header = key.h.type | (key.h.track_id << 1) | (key.h.time << 11);
@@ -437,26 +439,37 @@ namespace mesh_animation_resource_internal
 			}
 		}
 
-		for (u32 i = 0; i < array::size(ma.bone_ids); ++i)
-			opts.write(ma.bone_ids[i]);
+		opts.align(alignof(u16));
+		mar.bone_ids_offset = opts._output.position();
+		opts.write(ma.bone_ids);
 
+		opts.align(alignof(u16));
+		mar.event_times_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(ma.events); ++i)
 			opts.write(u16(ma.events[i].time * 1000.0f));
 
-		opts.align(sizeof(u32));
+		opts.align(alignof(StringId32));
+		mar.event_names_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(ma.events); ++i)
 			opts.write(ma.events[i].name);
 
 		opts.align(alignof(StringId32));
+		mar.geometry_names_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(ma.bounds); ++i)
 			opts.write(ma.bounds[i].geometry_name);
 
 		opts.align(alignof(MeshAnimationBounds));
+		mar.bounds_offset = opts._output.position();
 		for (u32 i = 0; i < array::size(ma.bounds); ++i) {
 			const MeshAnimationBounds &bounds = ma.bounds[i].bounds;
 			opts.write(bounds.obb);
 			opts.write(bounds.sphere);
 		}
+
+		const u32 end = opts._output.position();
+		opts._output.seek(0);
+		write_header(opts, mar);
+		opts._output.seek(end);
 
 		return 0;
 	}
