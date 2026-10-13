@@ -52,6 +52,14 @@
 
 namespace crown
 {
+static int material_set_texture(lua_State *L)
+{
+	LuaStack stack(L);
+	const StringId64 texture = stack.is_nil(3) ? StringId64() : stack.get_resource_name(3);
+	stack.get_material(1)->set_texture(stack.get_string_id_32(2), texture);
+	return 0;
+}
+
 struct LightInfo
 {
 	const char *name;
@@ -4425,11 +4433,7 @@ void load_api(LuaEnvironment &env)
 			stack.get_material(1)->set_matrix4x4(stack.get_string_id_32(2), stack.get_matrix4x4(3));
 			return 0;
 		});
-	env.add_module_function("Material", "set_texture", [](lua_State *L) {
-			LuaStack stack(L);
-			stack.get_material(1)->set_texture(stack.get_string_id_32(2), stack.get_resource_name(3));
-			return 0;
-		});
+	env.add_module_function("Material", "set_texture", material_set_texture);
 
 	env.add_module_function("Gui", "move", [](lua_State *L) {
 			LuaStack stack(L);

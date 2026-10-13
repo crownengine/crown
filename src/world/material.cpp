@@ -111,14 +111,17 @@ void Material::set_matrix4x4(StringId32 name, const Matrix4x4 &value)
 
 void Material::set_texture(StringId32 sampler_name, ResourceId texture_resource)
 {
-	const TextureResource *tr = (TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, texture_resource);
-	TextureData *td = material_resource::texture_data_array(_resource);
+	const TextureData *td = material_resource::texture_data_array(_resource);
 	u32 idx = material_resource::texture_data_index(_resource, td, sampler_name);
-	TextureHandle *th = (TextureHandle *)material_resource::texture_handle(td, idx, _data);
-	th->texture_handle = tr->handle.idx;
+	TextureHandle *th = material_resource::texture_handle(td, idx, _data);
+	TextureResource *tr = NULL;
+	th->texture_handle = _material_manager->_default_texture.idx;
+	if (texture_resource != StringId64()) {
+		tr = (TextureResource *)_resource_manager->get(RESOURCE_TYPE_TEXTURE, texture_resource);
+		th->texture_handle = tr->handle.idx;
+	}
 #if CROWN_CAN_RELOAD
-	u32 index = material_resource::texture_data_index(_resource, td, sampler_name);
-	_texture_resources[index] = (TextureResource *)tr;
+	_texture_resources[idx] = tr;
 #endif
 }
 
