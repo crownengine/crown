@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
+* Runtime: fixed material memory leaks at shutdown.
 
 .. _v0.65.2:
 
