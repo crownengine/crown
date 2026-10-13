@@ -650,6 +650,20 @@ namespace material_resource_internal
 		write_header(opts, mr);
 		opts._output.seek(end);
 
+		Vector<ShaderDefinitionMetadata> shaders(default_allocator());
+		ShaderVariantMetadata vm(default_allocator());
+		vm.shader = shader_name;
+		for (u32 i = 0; i < vector::size(defines); ++i) {
+			DynamicString define(default_allocator());
+			define = defines[i];
+			vector::push_back(vm.defines, define);
+		}
+		vm.uniforms = data.uniforms_meta;
+		vm.samplers = samplers_meta;
+		Vector<ShaderVariantMetadata> variants(default_allocator());
+		vector::push_back(variants, vm);
+		shader_compiler::metadata_json(opts._metadata, RESOURCE_VERSION_MATERIAL, opts.source_path(), opts._new_dependencies, shader_library, shaders, variants);
+
 		return 0;
 	}
 
