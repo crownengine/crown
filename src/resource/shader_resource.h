@@ -11,6 +11,7 @@
 #include "core/math/types.h"
 #include "core/memory/types.h"
 #include "core/strings/string_id.h"
+#include "core/strings/dynamic_string.h"
 #include "core/strings/types.h"
 #include "core/types.h"
 #include "resource/types.h"
@@ -32,12 +33,6 @@ struct UniformType
 	};
 };
 
-struct UniformMetadata
-{
-	UniformType::Enum type;
-	char name[128];
-	Vector4 val;
-};
 
 struct ShaderBackend
 {
@@ -78,6 +73,18 @@ struct ShaderData
 };
 
 #if CROWN_CAN_COMPILE
+struct UniformMetadata
+{
+	ALLOCATOR_AWARE;
+	UniformType::Enum type;
+	char name[128];
+	Vector4 val;
+	DynamicString label;
+	DynamicString tooltip;
+
+	explicit UniformMetadata(Allocator &a);
+};
+
 struct SamplerMetadata
 {
 	u32 name;

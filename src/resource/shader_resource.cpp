@@ -56,6 +56,15 @@ namespace shader_resource_internal
 } // namespace shader_resource_internal
 
 #if CROWN_CAN_COMPILE
+UniformMetadata::UniformMetadata(Allocator &a)
+	: type(UniformType::COUNT)
+	, val(VECTOR4_ZERO)
+	, label(a)
+	, tooltip(a)
+{
+	name[0] = '\0';
+}
+
 namespace shader_resource_internal
 {
 	static const char *shaderc_paths[] =
@@ -1026,6 +1035,26 @@ namespace shader_resource_internal
 		"SAMPLERCUBEARRAY",
 		"SAMPLERCUBESHADOW"
 	};
+
+	static s32 parse_descriptions(DynamicString &label, DynamicString &tooltip, const JsonObject &object)
+	{
+		if (json_object::has(object, "label")) {
+			RETURN_IF_ERROR(sjson::parse_string(label, object["label"]));
+		}
+		if (json_object::has(object, "tooltip")) {
+			RETURN_IF_ERROR(sjson::parse_string(tooltip, object["tooltip"]));
+		}
+		return 0;
+	}
+
+	static s32 merge_description(DynamicString &value, const DynamicString &incoming, const char *field, const char *name, CompileOptions &opts)
+	{
+		RETURN_IF_FALSE(SHADER_RESOURCE, value.empty() || incoming.empty() || value == incoming
+			, opts, "Conflicting %s for '%s'", field, name);
+		if (value.empty())
+			value = incoming;
+		return 0;
+	}
 
 	static s32 inject_sampler_stage_comments(StringStream &ss, const char *src, CompileOptions &opts)
 	{
@@ -2493,6 +2522,7 @@ namespace shader_resource_internal
 			}
 
 			RETURN_IF_ERROR(sjson::parse(meta, meta_str.c_str()));
+			RETURN_IF_ERROR(parse_descriptions(um.label, um.tooltip, meta));
 
 			auto cur = json_object::begin(meta);
 			auto end = json_object::end(meta);
@@ -2569,7 +2599,7 @@ namespace shader_resource_internal
 			while (!lr.eof()) {
 				TempAllocator1024 ta;
 				DynamicString str(ta);
-				UniformMetadata um;
+				UniformMetadata um(default_allocator());
 
 				lr.read_line(str);
 				str.ltrim();
@@ -2594,6 +2624,10 @@ namespace shader_resource_internal
 					RETURN_IF_FALSE(SHADER_RESOURCE
 						, meta[i].type == um.type && memcmp(&meta[i].val, &um.val, sizeof(um.val)) == 0
 						, opts, "Conflicting metadata for uniform '%s'", um.name);
+					err = merge_description(meta[i].label, um.label, "label", um.name, opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
+					err = merge_description(meta[i].tooltip, um.tooltip, "tooltip", um.name, opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 				}
 			}
 
