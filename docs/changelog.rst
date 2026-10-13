@@ -23,6 +23,7 @@ Changelog
 * Runtime: fixed material memory leaks at shutdown.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
+* Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
 
 .. _v0.65.0:
 
