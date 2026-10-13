@@ -66,6 +66,13 @@ UniformMetadata::UniformMetadata(Allocator &a)
 	name[0] = '\0';
 }
 
+ShaderDefineMetadata::ShaderDefineMetadata(Allocator &a)
+	: name(a)
+	, label(a)
+	, tooltip(a)
+{
+}
+
 namespace shader_resource_internal
 {
 	static const char *shaderc_paths[] =
@@ -1438,10 +1445,12 @@ namespace shader_resource_internal
 
 		DynamicString _bgfx_shader;
 		DynamicString _render_state;
+		Vector<ShaderDefineMetadata> _defines;
 
 		explicit ShaderPermutation(Allocator &a)
 			: _bgfx_shader(a)
 			, _render_state(a)
+			, _defines(a)
 		{
 		}
 	};
@@ -2280,6 +2289,23 @@ namespace shader_resource_internal
 				ShaderPermutation shader(default_allocator());
 				RETURN_IF_ERROR(sjson::parse_string(shader._bgfx_shader, obj["bgfx_shader"]));
 				RETURN_IF_ERROR(sjson::parse_string(shader._render_state, obj["render_state"]));
+				if (json_object::has(obj, "defines")) {
+					RETURN_IF_FALSE(SHADER_RESOURCE, sjson::type(obj["defines"]) == JsonValueType::OBJECT
+						, _opts, "Shader defines must be objects keyed by macro name; replace the declaration array with defines = { NAME = { label = ... tooltip = ... } }");
+					JsonObject defines(ta);
+					RETURN_IF_ERROR(sjson::parse_object(defines, obj["defines"]));
+					auto define_cur = json_object::begin(defines);
+					const auto define_end = json_object::end(defines);
+					for (; define_cur != define_end; ++define_cur) {
+						JSON_OBJECT_SKIP_HOLE(defines, define_cur);
+						ShaderDefineMetadata define(default_allocator());
+						define.name = define_cur->first;
+						JsonObject description(ta);
+						RETURN_IF_ERROR(sjson::parse_object(description, define_cur->second));
+						RETURN_IF_ERROR(parse_descriptions(define.label, define.tooltip, description));
+						vector::push_back(shader._defines, define);
+					}
+				}
 
 				DynamicString key(ta);
 				key = cur->first;

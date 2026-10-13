@@ -97,6 +97,16 @@ struct UniformMetadata
 	explicit UniformMetadata(Allocator &a);
 };
 
+struct ShaderDefineMetadata
+{
+	ALLOCATOR_AWARE;
+	DynamicString name;
+	DynamicString label;
+	DynamicString tooltip;
+
+	explicit ShaderDefineMetadata(Allocator &a);
+};
+
 struct SamplerMetadata
 {
 	u32 name;
