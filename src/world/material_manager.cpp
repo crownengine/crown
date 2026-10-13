@@ -45,7 +45,7 @@ MaterialManager::~MaterialManager()
 	for (; cur != end; ++cur) {
 		HASH_MAP_SKIP_HOLE(_materials, cur);
 
-		_allocator->deallocate(cur->second);
+		CE_DELETE(*_allocator, cur->second);
 	}
 
 	for (u32 i = 0; i < countof(_default_samplers); ++i)
