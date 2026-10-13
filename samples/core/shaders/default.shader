@@ -135,7 +135,7 @@ bgfx_shaders = {
 
 		fs_code = """
 		#if defined(DIFFUSE_MAP)
-			SAMPLER2D(u_albedo_map, 0);
+			SAMPLER2D(u_albedo_map, 0); // { label="Albedo Map" tooltip="Texture supplying the surface base color." }
 		#endif
 
 			void main()
@@ -181,7 +181,7 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-			SAMPLER2D(u_albedo_map, 0);
+			SAMPLER2D(u_albedo_map, 0); // { label="Albedo Map" tooltip="Texture supplying the sprite color." }
 			uniform vec4 u_color;
 
 			void main()
@@ -352,12 +352,12 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-			SAMPLER2D(u_albedo_map, 0);
-			SAMPLER2D(u_normal_map, 1);
-			SAMPLER2D(u_metallic_map, 2);
-			SAMPLER2D(u_roughness_map, 3);
-			SAMPLER2D(u_ao_map, 4);
-			SAMPLER2D(u_emission_map, 5);
+			SAMPLER2D(u_albedo_map, 0); // { label="Albedo Map" tooltip="Texture supplying the surface base color." }
+			SAMPLER2D(u_normal_map, 1); // { label="Normal Map" tooltip="Texture supplying tangent-space surface normals." }
+			SAMPLER2D(u_metallic_map, 2); // { label="Metallic Map" tooltip="Texture supplying the surface metallic factor." }
+			SAMPLER2D(u_roughness_map, 3); // { label="Roughness Map" tooltip="Texture supplying the surface roughness." }
+			SAMPLER2D(u_ao_map, 4); // { label="Ambient Occlusion Map" tooltip="Texture supplying ambient occlusion." }
+			SAMPLER2D(u_emission_map, 5); // { label="Emission Map" tooltip="Texture supplying the emitted surface color." }
 
 			uniform vec4 u_albedo;
 			uniform vec4 u_metallic;
@@ -502,7 +502,7 @@ bgfx_shaders = {
 		"""
 
 		fs_code = """
-			SAMPLER2D(u_skydome_map, 0);
+			SAMPLER2D(u_skydome_map, 0); // { label="Skydome Map" tooltip="Texture supplying the sky color." }
 			uniform vec4 u_skydome_intensity;
 
 			void main()
