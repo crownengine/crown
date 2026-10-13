@@ -78,6 +78,14 @@ struct ShaderData
 };
 
 #if CROWN_CAN_COMPILE
+struct SamplerMetadata
+{
+	u32 name;
+	u32 state;
+	u32 stage;
+	char uniform_name[128];
+};
+
 namespace shader_compiler
 {
 	/// Clears cached shader metadata used by material compilation.
@@ -94,7 +102,7 @@ namespace shader_compiler
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
-		, Vector<ShaderResource::Sampler> *sampler_meta = NULL
+		, Vector<SamplerMetadata> *sampler_meta = NULL
 		);
 
 } // namespace shader_compiler

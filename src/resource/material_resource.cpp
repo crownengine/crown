@@ -497,7 +497,7 @@ namespace material_resource_internal
 
 		Data data(default_allocator());
 		Vector<StringView> defines(default_allocator());
-		Vector<ShaderResource::Sampler> samplers_meta(default_allocator());
+		Vector<SamplerMetadata> samplers_meta(default_allocator());
 		Buffer shader_code(default_allocator());
 		FileBuffer shader_fb(shader_code);
 		StringView shader_name;

@@ -1244,7 +1244,7 @@ namespace shader_resource_internal
 		DynamicString shader_library;
 		Vector<DynamicString> dependencies;
 		Vector<UniformMetadata> uniform_meta;
-		Vector<ShaderResource::Sampler> sampler_meta;
+		Vector<SamplerMetadata> sampler_meta;
 
 		explicit MetadataCacheEntry(Allocator &a)
 			: shader_library(a)
@@ -1300,7 +1300,7 @@ namespace shader_resource_internal
 		, CompileOptions &opts
 		, DynamicString &shader_library
 		, Vector<UniformMetadata> *uniform_meta
-		, Vector<ShaderResource::Sampler> *sampler_meta
+		, Vector<SamplerMetadata> *sampler_meta
 		)
 	{
 		MetadataCacheEntry entry(default_allocator());
@@ -1332,7 +1332,7 @@ namespace shader_resource_internal
 		, const DynamicString &shader_library
 		, const HashSet<DynamicString> &dependencies
 		, const Vector<UniformMetadata> *uniform_meta
-		, const Vector<ShaderResource::Sampler> *sampler_meta
+		, const Vector<SamplerMetadata> *sampler_meta
 		)
 	{
 		MetadataCacheEntry entry(default_allocator());
@@ -2365,7 +2365,7 @@ namespace shader_resource_internal
 
 		s32 compile_variant(FileBuffer &fb
 			, Vector<UniformMetadata> *meta
-			, Vector<ShaderResource::Sampler> *sampler_meta
+			, Vector<SamplerMetadata> *sampler_meta
 			, const DynamicString &shader
 			, const Vector<DynamicString> &defines
 			, bool metadata_only
@@ -2602,7 +2602,7 @@ namespace shader_resource_internal
 
 		s32 compile_bgfx_shader(FileBuffer &fb
 			, Vector<UniformMetadata> *meta
-			, Vector<ShaderResource::Sampler> *sampler_meta
+			, Vector<SamplerMetadata> *sampler_meta
 			, const DynamicString &shader_name
 			, const DynamicString &bgfx_shader
 			, const Vector<DynamicString> &defines
@@ -2865,8 +2865,8 @@ namespace shader_resource_internal
 				}
 			}
 
-			Vector<ShaderResource::Sampler> local_samplers(default_allocator());
-			Vector<ShaderResource::Sampler> &samplers = sampler_meta != NULL ? *sampler_meta : local_samplers;
+			Vector<SamplerMetadata> local_samplers(default_allocator());
+			Vector<SamplerMetadata> &samplers = sampler_meta != NULL ? *sampler_meta : local_samplers;
 			vector::clear(samplers);
 
 			auto cur = hash_map::begin(shader._samplers);
@@ -2882,7 +2882,9 @@ namespace shader_resource_internal
 				const SamplerState ss_default;
 				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
 
-				ShaderResource::Sampler sampler;
+				SamplerMetadata sampler;
+				RETURN_IF_FALSE(SHADER_RESOURCE, name.length() < sizeof(sampler.uniform_name), _opts, "Sampler name too long");
+				strcpy(sampler.uniform_name, name.c_str());
 				sampler.name = name.to_string_id()._id;
 				sampler.state = ss.encode();
 				sampler.stage = hash_map::get(sampler_stages, name, 0u);
@@ -3147,7 +3149,7 @@ namespace shader_compiler
 		, StringView &shader
 		, Vector<StringView> &defines
 		, CompileOptions &opts
-		, Vector<ShaderResource::Sampler> *sampler_meta
+		, Vector<SamplerMetadata> *sampler_meta
 		)
 	{
 		ScopedProfileScope scope("shader_compiler::compile_variant");
