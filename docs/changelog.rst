@@ -9,6 +9,7 @@ Changelog
 **New Features and Improvements**
 
 * Tools: color inputs now support editing alpha and previewing transparency.
+* Tools: added a shader library property to materials.
 * HTML5: added support to wasm64.
 
 **Fixes**

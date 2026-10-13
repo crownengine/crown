@@ -506,6 +506,9 @@ namespace material_resource_internal
 		DynamicString shader(ta);
 		bool has_code;
 
+		if (json_object::has(obj, "shader_library") && sjson::type(obj["shader_library"]) != JsonValueType::NIL) {
+			RETURN_IF_ERROR(sjson::parse_string(shader_library, obj["shader_library"]));
+		}
 		RETURN_IF_ERROR(sjson::parse_string(shader, obj["shader"]));
 		shader_name_defines(shader_name, defines, shader.c_str());
 

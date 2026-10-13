@@ -2194,6 +2194,13 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.RESOURCE,
+			resource_type = "shader",
+			name = "shader_library",
+			deffault = "core/shaders/default",
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.OBJECTS_SET,
 			object_type = STRING_ID_64(OBJECT_TYPE_TEXTURE_SAMPLER, 0x703635aedd770877),
 			name = "textures",
