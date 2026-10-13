@@ -117,7 +117,7 @@ public class InputString : InputField
 	{
 		_entry.select_region(0, 0);
 		_entry.set_position(-1);
-		set_value_safe(_entry.text);
+		commit_value(_entry.text);
 	}
 
 #if CROWN_GTK3
@@ -152,12 +152,12 @@ public class InputString : InputField
 
 		if (_inconsistent) {
 			if (_entry.text != "") {
-				set_value_safe(_entry.text);
+				commit_value(_entry.text);
 			} else {
 				_entry.text = INCONSISTENT_LABEL;
 			}
 		} else {
-			set_value_safe(_entry.text);
+			commit_value(_entry.text);
 		}
 
 		_entry.select_region(0, 0);
@@ -168,8 +168,13 @@ public class InputString : InputField
 
 	public virtual void set_value_safe(string text)
 	{
+		assert((void *)text != (void *)_entry.text);
 		_entry.text = text;
+		commit_value(text);
+	}
 
+	protected virtual void commit_value(string text)
+	{
 		_inconsistent = false;
 
 		// Notify value changed.

@@ -13,7 +13,7 @@ public class InputResourceBasename : InputString
 		set_value_safe(basename);
 	}
 
-	public override void set_value_safe(string val)
+	protected override void commit_value(string val)
 	{
 		if (val.length == 0
 			|| val.has_prefix(" ")
@@ -34,7 +34,7 @@ public class InputResourceBasename : InputString
 			return;
 		}
 
-		base.set_value_safe(val);
+		base.commit_value(val);
 	}
 }
 
