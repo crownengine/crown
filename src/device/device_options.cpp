@@ -53,6 +53,7 @@ static void help(const char *msg = NULL)
 		"  --display-server <server>       Set the display server backend.\n"
 		"      wayland\n"
 		"      x11\n"
+		"  --render-config <resource>      Override the boot config's render config.\n"
 		"  --renderer <renderer>           Set the renderer backend.\n"
 		"      auto\n"
 		"      d3d11\n"
@@ -80,6 +81,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _bundle_dir(DynamicString(a))
 	, _port_file(DynamicString(a))
 	, _boot_dir(NULL)
+	, _render_config(NULL)
 	, _platform(NULL)
 	, _lua_string(DynamicString(a))
 	, _wait_console(false)
@@ -174,6 +176,14 @@ int DeviceOptions::parse(bool *quit)
 	_pumped = cl.has_option("pumped");
 	_hidden = cl.has_option("hidden");
 	_keep_above = cl.has_option("keep-above");
+
+	if (cl.has_option("render-config")) {
+		_render_config = cl.get_parameter(0, "render-config");
+		if (_render_config == NULL || _render_config[0] == '\0') {
+			help("Render config must be specified.");
+			return EXIT_FAILURE;
+		}
+	}
 
 	if (cl.has_option("renderer")) {
 		const char *renderer = cl.get_parameter(0, "renderer");

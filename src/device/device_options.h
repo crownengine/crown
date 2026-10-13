@@ -37,6 +37,7 @@ struct DeviceOptions
 	DynamicString _bundle_dir;
 	DynamicString _port_file;
 	const char *_boot_dir;
+	const char *_render_config;
 	const char *_platform;
 	DynamicString _lua_string;
 	bool _wait_console;

@@ -162,6 +162,9 @@ Runtime Options
 	* ``wayland``
 	* ``x11``
 
+``--render-config <resource>``
+	Override the boot config's render config.
+
 ``--renderer <renderer>``
 	Set the renderer backend.
 	Possible values for <renderer> are:

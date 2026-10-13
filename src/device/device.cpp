@@ -849,6 +849,9 @@ int Device::main_loop()
 	boot_package->flush();
 
 	// Load render config package.
+	if (_options._render_config != NULL)
+		_boot_config.render_config_name = StringId64(_options._render_config);
+
 	ResourcePackage *render_config_package = create_resource_package(_boot_config.render_config_name);
 	render_config_package->load();
 	render_config_package->flush();
