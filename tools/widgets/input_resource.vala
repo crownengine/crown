@@ -58,10 +58,17 @@ public class InputResource : InputField
 		}
 		set
 		{
+			assert(value == null || (void *)value != (void *)_name.text);
+			bool changed = (_name_unset ? null : _name.text) != value;
+			// GTK4 emits changed for both deleting and inserting the entry text.
+			_name.changed.disconnect(on_name_value_changed);
 			_name_unset = value == null;
 			_name.text = value != null ? value : UNSET_RESOURCE;
 			_revealer.sensitive = value != null;
 			update_thumbnail();
+			_name.changed.connect(on_name_value_changed);
+			if (changed)
+				value_changed(this);
 		}
 	}
 
