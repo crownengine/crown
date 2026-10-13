@@ -181,6 +181,11 @@ namespace DeviceApi
 		return "{\"type\":\"refresh\",\"list\":[%s]}".printf(sb.str);
 	}
 
+	public string release_export_buffer(uint32 generation, uint32 buffer_id)
+	{
+		return "{\"type\":\"release_export_buffer\",\"generation\":%u,\"buffer_id\":%u}".printf(generation, buffer_id);
+	}
+
 } /* namespace DeviceApi */
 
 namespace LevelEditorApi

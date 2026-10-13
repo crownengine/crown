@@ -569,7 +569,11 @@ public static GLib.SubprocessFlags subprocess_flags()
 {
 	GLib.SubprocessFlags flags = SubprocessFlags.NONE;
 #if !CROWN_DEBUG
+#if CROWN_GTK3
 	flags |= SubprocessFlags.STDOUT_SILENCE | SubprocessFlags.STDERR_SILENCE;
+#else
+	flags |= SubprocessFlags.STDERR_SILENCE;
+#endif
 #endif
 	return flags;
 }
