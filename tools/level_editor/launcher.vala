@@ -366,6 +366,7 @@ public class RuntimeInstance
 	public signal void disconnected(RuntimeInstance ri);
 	public signal void disconnected_unexpected(RuntimeInstance ri);
 	public signal void message_received(RuntimeInstance ri, ConsoleClient client, uint8[] json);
+	public signal void refreshed(RuntimeInstance ri, bool success);
 
 	public RuntimeInstance(string name, DataCompiler? dc)
 	{
@@ -517,9 +518,11 @@ public class RuntimeInstance
 			if (_refresh_success)
 				_revision = compiler_revision;
 
+			refreshed(this, _refresh_success);
 			return _refresh_success;
 		}
 
+		refreshed(this, true);
 		return true;
 	}
 
