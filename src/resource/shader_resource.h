@@ -109,10 +109,15 @@ struct ShaderDefineMetadata
 
 struct SamplerMetadata
 {
+	ALLOCATOR_AWARE;
 	u32 name;
 	u32 state;
 	u32 stage;
 	char uniform_name[128];
+	DynamicString label;
+	DynamicString tooltip;
+
+	explicit SamplerMetadata(Allocator &a);
 };
 
 namespace shader_compiler

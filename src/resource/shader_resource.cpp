@@ -73,6 +73,16 @@ ShaderDefineMetadata::ShaderDefineMetadata(Allocator &a)
 {
 }
 
+SamplerMetadata::SamplerMetadata(Allocator &a)
+	: name(0)
+	, state(0)
+	, stage(0)
+	, label(a)
+	, tooltip(a)
+{
+	uniform_name[0] = '\0';
+}
+
 namespace shader_resource_internal
 {
 	static const char *shaderc_paths[] =
@@ -1207,7 +1217,22 @@ namespace shader_resource_internal
 						array::push(ss, identifier, u32(q + 1 - identifier));
 						ss << " /* " << CROWN_SAMPLER_STAGE_MARKER << " ";
 						array::push(ss, name, name_len);
-						ss << " " << stage << " */";
+						ss << " " << stage;
+						const char *comment = q + 1;
+						while (*comment == ' ' || *comment == '\t') ++comment;
+						if (*comment == ';') ++comment;
+						while (*comment == ' ' || *comment == '\t') ++comment;
+						if (comment[0] == '/' && comment[1] == '/') {
+							const char *annotation = comment + 2;
+							while (*annotation == ' ' || *annotation == '\t') ++annotation;
+							if (*annotation == '{') {
+								ss << ' ';
+								const char *end = annotation;
+								while (*end && *end != '\n' && *end != '\r') ++end;
+								array::push(ss, annotation, u32(end - annotation));
+								}
+						}
+						ss << " */";
 						p = q + 1;
 						line_start = false;
 						continue;
@@ -1230,7 +1255,7 @@ namespace shader_resource_internal
 		return 0;
 	}
 
-	static s32 parse_sampler_stage_markers(HashMap<DynamicString, u32> &stages, const Buffer &pp, CompileOptions &opts)
+	static s32 parse_sampler_stage_markers(HashMap<DynamicString, SamplerMetadata> &stages, const Buffer &pp, CompileOptions &opts)
 	{
 		const char *p = array::begin(pp);
 		const u32 prefix_len = strlen32(CROWN_SAMPLER_STAGE_MARKER);
@@ -1250,25 +1275,39 @@ namespace shader_resource_internal
 			RETURN_IF_FALSE(SHADER_RESOURCE, stage64 <= UINT32_MAX, opts, "Sampler stage out of range");
 			const u32 stage = u32(stage64);
 
-			TempAllocator256 ta;
+			TempAllocator1024 ta;
 			DynamicString key(ta);
 			key.set(name_begin, u32(name_end - name_begin));
+			SamplerMetadata metadata(default_allocator());
+			metadata.stage = stage;
+			const char *marker_end = strstr(stage_end, "*/");
+			RETURN_IF_FALSE(SHADER_RESOURCE, marker_end != NULL, opts, "Malformed sampler stage marker");
+			const char *annotation = skip_spaces(stage_end);
+			if (annotation != marker_end) {
+				JsonObject object(ta);
+				RETURN_IF_ERROR(sjson::parse_object(object, annotation));
+				RETURN_IF_FALSE(SHADER_RESOURCE, skip_spaces(object._end) == marker_end, opts, "Malformed sampler annotation marker");
+				RETURN_IF_ERROR(parse_descriptions(metadata.label, metadata.tooltip, object));
+			}
 
 			if (hash_map::has(stages, key)) {
-				const u32 existing = hash_map::get(stages, key, UINT32_MAX);
-				RETURN_IF_FALSE(SHADER_RESOURCE, existing == stage
+				const SamplerMetadata deffault(default_allocator());
+				SamplerMetadata existing = hash_map::get(stages, key, deffault);
+				RETURN_IF_FALSE(SHADER_RESOURCE, existing.stage == stage
 					, opts
 					, "Sampler '%s' declared with conflicting texture stages: %u and %u"
 					, key.c_str()
-					, existing
+					, existing.stage
 					, stage
 					);
-			} else {
-				hash_map::set(stages, key, stage);
-				// logi(SHADER_RESOURCE, "Sampler '%s' texture stage: %u", key.c_str(), stage);
+				s32 err = merge_description(metadata.label, existing.label, "label", key.c_str(), opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
+				err = merge_description(metadata.tooltip, existing.tooltip, "tooltip", key.c_str(), opts);
+				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 			}
+			hash_map::set(stages, key, metadata);
 
-			p += prefix_len;
+			p = marker_end + 2;
 		}
 
 		return 0;
@@ -2823,7 +2862,7 @@ namespace shader_resource_internal
 			}
 
 			const ShadercTarget &metadata_target = default_shaderc_target[_opts._platform];
-			HashMap<DynamicString, u32> sampler_stages(default_allocator());
+			HashMap<DynamicString, SamplerMetadata> sampler_stages(default_allocator());
 			Vector<UniformMetadata> cached_uniform_meta(default_allocator());
 			const bool collect_uniform_metadata = meta != NULL || cache_static_metadata;
 
@@ -2961,12 +3000,12 @@ namespace shader_resource_internal
 				const SamplerState ss_default;
 				const SamplerState &ss = hash_map::get(_sampler_states, sampler_state, ss_default);
 
-				SamplerMetadata sampler;
+				const SamplerMetadata sampler_default(default_allocator());
+				SamplerMetadata sampler = hash_map::get(sampler_stages, name, sampler_default);
 				RETURN_IF_FALSE(SHADER_RESOURCE, name.length() < sizeof(sampler.uniform_name), _opts, "Sampler name too long");
 				strcpy(sampler.uniform_name, name.c_str());
 				sampler.name = name.to_string_id()._id;
 				sampler.state = ss.encode();
-				sampler.stage = hash_map::get(sampler_stages, name, 0u);
 				vector::push_back(samplers, sampler);
 			}
 
