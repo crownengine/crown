@@ -73,6 +73,17 @@ struct ShaderData
 };
 
 #if CROWN_CAN_COMPILE
+struct UniformEditor
+{
+	enum Enum
+	{
+		DEFAULT,
+		COLOR,
+		BOOL,
+		COUNT
+	};
+};
+
 struct UniformMetadata
 {
 	ALLOCATOR_AWARE;
@@ -81,6 +92,7 @@ struct UniformMetadata
 	Vector4 val;
 	DynamicString label;
 	DynamicString tooltip;
+	UniformEditor::Enum editor;
 
 	explicit UniformMetadata(Allocator &a);
 };

@@ -61,6 +61,7 @@ UniformMetadata::UniformMetadata(Allocator &a)
 	, val(VECTOR4_ZERO)
 	, label(a)
 	, tooltip(a)
+	, editor(UniformEditor::COUNT)
 {
 	name[0] = '\0';
 }
@@ -2523,6 +2524,16 @@ namespace shader_resource_internal
 
 			RETURN_IF_ERROR(sjson::parse(meta, meta_str.c_str()));
 			RETURN_IF_ERROR(parse_descriptions(um.label, um.tooltip, meta));
+			if (json_object::has(meta, "editor")) {
+				DynamicString editor(ta);
+				RETURN_IF_ERROR(sjson::parse_string(editor, meta["editor"]));
+				if (editor == "default") um.editor = UniformEditor::DEFAULT;
+				else if (editor == "color") um.editor = UniformEditor::COLOR;
+				else if (editor == "bool") um.editor = UniformEditor::BOOL;
+				else {
+					RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "Unknown uniform editor '%s' for '%s'", editor.c_str(), um.name);
+				}
+			}
 
 			auto cur = json_object::begin(meta);
 			auto end = json_object::end(meta);
@@ -2555,6 +2566,10 @@ namespace shader_resource_internal
 				}
 			}
 
+			RETURN_IF_FALSE(SHADER_RESOURCE, um.editor != UniformEditor::COLOR || um.type == UniformType::VECTOR3 || um.type == UniformType::VECTOR4
+				, opts, "Color editor requires a vector3 or vector4 default for '%s'", um.name);
+			RETURN_IF_FALSE(SHADER_RESOURCE, um.editor != UniformEditor::BOOL || um.type == UniformType::FLOAT
+				, opts, "Bool editor requires a scalar default for '%s'", um.name);
 			return 0;
 		}
 
@@ -2628,6 +2643,10 @@ namespace shader_resource_internal
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 					err = merge_description(meta[i].tooltip, um.tooltip, "tooltip", um.name, opts);
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
+					RETURN_IF_FALSE(SHADER_RESOURCE, meta[i].editor == UniformEditor::COUNT || um.editor == UniformEditor::COUNT || meta[i].editor == um.editor
+						, opts, "Conflicting editor for uniform '%s'", um.name);
+					if (meta[i].editor == UniformEditor::COUNT)
+						meta[i].editor = um.editor;
 				}
 			}
 
