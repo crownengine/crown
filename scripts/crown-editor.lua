@@ -40,6 +40,12 @@ project "crown-editor"
 		linkoptions {
 			"-lgdi32", -- gtkcolorpickerwin32.c
 		}
+		if _OPTIONS["with-gtk4"] then
+			linkoptions {
+				"-ld3d12",
+				"-ldxguid",
+			}
+		end
 
 	configuration {}
 
@@ -130,6 +136,7 @@ project "crown-editor"
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/cgltf") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/ufbx") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/stb") .. '"',
+		'-I"' .. path.join(CROWN_DIR, "tools/core") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/bimg/3rdparty") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "src") .. '"',
 	}

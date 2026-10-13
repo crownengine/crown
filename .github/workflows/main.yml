@@ -231,6 +231,10 @@ jobs:
       GTK3_ROOT: /opt/gtk-3.24.52
       GTK3_GDRIVE_FILE_ID: 1F5OyK1IUkHsI33-2iaCjPslC5SFc7MaU
       GTK3_SHA256_GDRIVE_FILE_ID: 1-FSyTMH_giMJqhVZ7GsDtPd81sKjf6ux
+      GTK4_VERSION: 4.22.5
+      GTK4_ROOT: /opt/gtk-4.22.5
+      GTK4_GDRIVE_FILE_ID: ${{ vars.GTK4_GDRIVE_FILE_ID }}
+      GTK4_SHA256_GDRIVE_FILE_ID: ${{ vars.GTK4_SHA256_GDRIVE_FILE_ID }}
     steps:
     - uses: actions/checkout@v6
     - name: prepare
@@ -238,17 +242,12 @@ jobs:
         sudo add-apt-repository ppa:vala-team -y
         sudo apt-get update
         sudo apt-get install -y valac sassc libxml2-utils gettext
-        if [[ "${{ matrix.toolkit }}" == gtk3 ]]; then
-          sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libxtst-dev libjbig0 \
-            libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
-            libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
-            libxcb1-dev libxcb-shm0-dev libxcb-render0-dev libxcb-xkb-dev \
-            libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev
-        else
-          sudo apt-get install -y libgtk-4-dev
-        fi
+        sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libxtst-dev libjbig0 libdrm-dev \
+          libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
+          libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
+          libxcb1-dev libxcb-shm0-dev libxcb-render0-dev libxcb-xkb-dev \
+          libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev
     - name: install-gcc16
-      if: matrix.toolkit == 'gtk3'
       run: |
         set -euo pipefail
         archive="gcc-16.2.0-ubuntu22.04-amd64.tar.xz"
@@ -285,6 +284,29 @@ jobs:
         test "$(pkg-config --variable=prefix gtk+-3.0)" = "$GTK3_ROOT"
         echo "${GTK3_ROOT}/bin" >> "$GITHUB_PATH"
         for variable in PKG_CONFIG_PATH LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS GDK_PIXBUF_MODULEDIR GDK_PIXBUF_MODULE_FILE; do
+          printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
+        done
+    - name: install-gtk4
+      if: matrix.toolkit == 'gtk4'
+      run: |
+        set -euo pipefail
+        : "${GTK4_GDRIVE_FILE_ID:?Set the GTK4_GDRIVE_FILE_ID repository variable}"
+        : "${GTK4_SHA256_GDRIVE_FILE_ID:?Set the GTK4_SHA256_GDRIVE_FILE_ID repository variable}"
+        archive="gtk-${GTK4_VERSION}-ubuntu22.04-amd64.tar.xz"
+        cd "${RUNNER_TEMP}"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK4_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK4_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive.sha256"
+        sha256sum --check "$archive.sha256"
+        sudo tar -xJf "$archive" -C /
+        source "${GTK4_ROOT}/activate.sh"
+        test "$(pkg-config --modversion gtk4)" = "$GTK4_VERSION"
+        test "$(pkg-config --variable=prefix gtk4)" = "$GTK4_ROOT"
+        echo "${GTK4_ROOT}/bin" >> "$GITHUB_PATH"
+        for variable in PKG_CONFIG_PATH LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS; do
           printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
         done
     - name: linux-make-crown-editor-debug64
