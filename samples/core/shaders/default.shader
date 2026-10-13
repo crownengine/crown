@@ -609,11 +609,18 @@ bgfx_shaders = {
 
 shaders = {
 	debug_line = {
+		defines = {
+			DEPTH_ENABLED = { label="Depth Test" tooltip="Test debug lines against scene depth." }
+		}
 		bgfx_shader = "debug_line"
 		render_state = "debug_line"
 	}
 
 	gui = {
+		defines = {
+			DIFFUSE_MAP = { label="Texture" tooltip="Sample the GUI albedo texture." }
+			DEPTH_ENABLED = { label="Depth Test" tooltip="Test GUI geometry against scene depth." }
+		}
 		bgfx_shader = "gui"
 		render_state = "gui"
 	}
@@ -624,6 +631,14 @@ shaders = {
 	}
 
 	mesh = {
+		defines = {
+			MASKED = { label="Masked" tooltip="Discard fragments with low opacity." }
+			SKINNING = { label="Skinning" tooltip="Apply skeletal animation to the mesh." }
+			NO_LIGHT = { label="Unlit" tooltip="Render without scene lighting." }
+			NO_FOG = { label="Disable Fog" tooltip="Render without scene fog." }
+			TRIPLANAR = { label="Triplanar" tooltip="Project textures along three axes instead of using mesh UVs." }
+			TRIPLANAR_LOCAL = { label="Local Triplanar" tooltip="Use local coordinates for triplanar projection when Triplanar is enabled." }
+		}
 		bgfx_shader = "mesh"
 		render_state = "mesh"
 	}
