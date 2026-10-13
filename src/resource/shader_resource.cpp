@@ -2482,8 +2482,20 @@ namespace shader_resource_internal
 				// "uniform <type> <name>; // { val=... min=... }"
 				s32 err = parse_uniform_decl(um, str.c_str(), opts);
 				ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
-				if (um.type != UniformType::COUNT)
+				if (um.type == UniformType::COUNT)
+					continue;
+				u32 i = 0;
+				for (; i < vector::size(meta); ++i) {
+					if (strcmp(meta[i].name, um.name) == 0)
+						break;
+				}
+				if (i == vector::size(meta)) {
 					vector::push_back(meta, um);
+				} else {
+					RETURN_IF_FALSE(SHADER_RESOURCE
+						, meta[i].type == um.type && memcmp(&meta[i].val, &um.val, sizeof(um.val)) == 0
+						, opts, "Conflicting metadata for uniform '%s'", um.name);
+				}
 			}
 
 			return 0;

@@ -11,6 +11,7 @@ Changelog
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
 * Runtime: fixed material memory leaks at shutdown.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
+* Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.
 
 .. _v0.65.2:
 
