@@ -182,7 +182,7 @@ bgfx_shaders = {
 
 		fs_code = """
 			SAMPLER2D(u_albedo_map, 0); // { label="Albedo Map" tooltip="Texture supplying the sprite color." }
-			uniform vec4 u_color;
+			uniform vec4 u_color; // { val=[1 1 1 1] label="Color" tooltip="Color and opacity multiplied with the sprite texture." editor="color" }
 
 			void main()
 			{
@@ -273,9 +273,9 @@ bgfx_shaders = {
 		"""
 
 		vs_code = """
-			uniform vec4 u_use_normal_map;
-			uniform vec4 u_uv_scale;  // { val=[1 1 1] min=[0 0 0] }
-			uniform vec4 u_uv_offset; // { val=[0 0 0] min=[0 0 0] }
+			uniform vec4 u_use_normal_map; // { val=0 label="Use Normal Map" tooltip="Enable the normal texture." editor="bool" }
+			uniform vec4 u_uv_scale;  // { val=[1 1 1] min=[0 0 0] label="UV Scale" tooltip="Scale applied to texture coordinates." }
+			uniform vec4 u_uv_offset; // { val=[0 0 0] min=[0 0 0] label="UV Offset" tooltip="Offset applied to texture coordinates." }
 
 			void main()
 			{
@@ -359,20 +359,20 @@ bgfx_shaders = {
 			SAMPLER2D(u_ao_map, 4); // { label="Ambient Occlusion Map" tooltip="Texture supplying ambient occlusion." }
 			SAMPLER2D(u_emission_map, 5); // { label="Emission Map" tooltip="Texture supplying the emitted surface color." }
 
-			uniform vec4 u_albedo;
-			uniform vec4 u_metallic;
-			uniform vec4 u_roughness;
-			uniform vec4 u_emission_color;
-			uniform vec4 u_emission_intensity;
-			uniform vec4 u_use_albedo_map;
-			uniform vec4 u_use_normal_map;
-			uniform vec4 u_use_metallic_map;
-			uniform vec4 u_use_roughness_map;
-			uniform vec4 u_use_ao_map;
-			uniform vec4 u_use_emission_map;
-			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 }
+			uniform vec4 u_albedo; // { val=[1 1 1] label="Albedo" tooltip="Surface base color multiplied with the albedo texture." editor="color" }
+			uniform vec4 u_metallic; // { val=0 label="Metallic" tooltip="Metallic factor from zero for dielectrics to one for metals." }
+			uniform vec4 u_roughness; // { val=1 label="Roughness" tooltip="Surface roughness from zero for smooth to one for rough." }
+			uniform vec4 u_emission_color; // { val=[0 0 0] label="Emission Color" tooltip="Color emitted by the surface." editor="color" }
+			uniform vec4 u_emission_intensity; // { val=1 label="Emission Intensity" tooltip="Multiplier applied to the emitted color." }
+			uniform vec4 u_use_albedo_map; // { val=0 label="Use Albedo Map" tooltip="Enable the albedo texture." editor="bool" }
+			uniform vec4 u_use_normal_map; // { val=0 label="Use Normal Map" tooltip="Enable the normal texture." editor="bool" }
+			uniform vec4 u_use_metallic_map; // { val=0 label="Use Metallic Map" tooltip="Enable the metallic texture." editor="bool" }
+			uniform vec4 u_use_roughness_map; // { val=0 label="Use Roughness Map" tooltip="Enable the roughness texture." editor="bool" }
+			uniform vec4 u_use_ao_map; // { val=0 label="Use Ambient Occlusion Map" tooltip="Enable the ambient occlusion texture." editor="bool" }
+			uniform vec4 u_use_emission_map; // { val=0 label="Use Emission Map" tooltip="Enable the emission texture." editor="bool" }
+			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 label="Use Opacity Map" tooltip="Use the albedo texture alpha as surface opacity." editor="bool" }
 		#if defined(TRIPLANAR)
-			uniform vec4 u_uv_blend; // { val=4 min=1 }
+			uniform vec4 u_uv_blend; // { val=4 min=1 label="Triplanar Blend" tooltip="Controls the sharpness of triplanar projection transitions." }
 
 			vec3 triplanar_weights(vec3 n, float power)
 			{
