@@ -3195,7 +3195,8 @@ namespace shader_compiler
 		} else {
 			shader_library_path = shader_library;
 			shader_library_path += ".shader";
-			sc.parse(shader_library_path.c_str(), false);
+			s32 err = sc.parse(shader_library_path.c_str(), false);
+			ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 		}
 
 		// Check whether the shader library contains the variant in static_compile.
