@@ -2448,6 +2448,7 @@ namespace shader_resource_internal
 
 				const char *name_end = name;
 				while (name_end != semicol && !isspace(*name_end)) ++name_end;
+				RETURN_IF_FALSE(SHADER_RESOURCE, u32(name_end - name) < sizeof(um.name), opts, "Uniform name too long");
 				strncpy(um.name, name, name_end - name);
 				um.name[name_end - name] = '\0';
 			}

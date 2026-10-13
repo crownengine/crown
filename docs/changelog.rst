@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
 * Runtime: fixed material memory leaks at shutdown.
+* Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
 
 .. _v0.65.2:
 
