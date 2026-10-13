@@ -497,6 +497,49 @@ public struct CommandLineOptions
 	}
 }
 
+#if CROWN_PLATFORM_WINDOWS && !CROWN_GTK3
+static void enable_gtk_direct_composition()
+{
+	// GTK 4.24 made DirectComposition an opt-in GDK debug flag. Keep any
+	// existing flags while making sure dcomp is enabled. With "all", listed
+	// flags are exclusions, so remove dcomp instead of appending it.
+	if (Gtk.get_minor_version() >= 24) {
+		string? gdk_debug = GLib.Environment.get_variable("GDK_DEBUG");
+		if (gdk_debug == null || gdk_debug == "") {
+			GLib.Environment.set_variable("GDK_DEBUG", "dcomp", true);
+			return;
+		}
+
+		string[] flags = gdk_debug.split_set(":;, \t");
+		bool all = false;
+		bool dcomp = false;
+		foreach (string flag in flags) {
+			string normalized = flag.down();
+			all |= normalized == "all";
+			dcomp |= normalized == "dcomp";
+		}
+
+		if (!all && !dcomp) {
+			GLib.Environment.set_variable("GDK_DEBUG", gdk_debug + ":dcomp", true);
+		} else if (all && dcomp) {
+			GLib.StringBuilder enabled = new GLib.StringBuilder();
+			foreach (string flag in flags) {
+				if (flag == "" || flag.down() == "dcomp")
+					continue;
+				if (enabled.len > 0)
+					enabled.append_c(':');
+				enabled.append(flag);
+			}
+			GLib.Environment.set_variable("GDK_DEBUG", enabled.str, true);
+		}
+		return;
+	}
+
+	// Older MSYS2 GTK builds use this private compatibility switch.
+	GLib.Environment.set_variable("GDK_WIN32_FORCE_DCOMP", "1", false);
+}
+#endif /* if CROWN_PLATFORM_WINDOWS && !CROWN_GTK3 */
+
 public static int main(string[] args)
 {
 	// If args does not contain --child, spawn the launcher.
@@ -554,7 +597,7 @@ public static int main(string[] args)
 				if (field.key == "MESSAGE") {
 					switch (log_level) {
 					case LEVEL_DEBUG:
-#if CROWN_DEBUG
+#if CROWN_DEBUG && CROWN_GTK3
 						logi((string)field.value);
 #endif
 						break;
@@ -854,8 +897,15 @@ public static int main(string[] args)
 	if (ii == po_paths.length)
 		_po_dir = File.new_for_path(".");
 
-#if CROWN_PLATFORM_LINUX
+#if CROWN_PLATFORM_LINUX && CROWN_GTK3
 	Gdk.set_allowed_backends("x11");
+#endif
+
+#if CROWN_PLATFORM_WINDOWS && !CROWN_GTK3
+	// The GPU renderers require DirectComposition on Windows. Prefer Vulkan so
+	// imported D3D12 textures stay on the GPU instead of using a readback path.
+	enable_gtk_direct_composition();
+	GLib.Environment.set_variable("GSK_RENDERER", "vulkan", false);
 #endif
 
 	// Use fontconfig backend.

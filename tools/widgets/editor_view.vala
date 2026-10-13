@@ -9,8 +9,108 @@ extern uint gdk_x11_window_get_xid(Gdk.Window window);
 extern uint gdk_win32_window_get_handle(Gdk.Window window);
 #endif
 
+#if !CROWN_GTK3
+[CCode (cname = "CrownExportPacket", cheader_filename = "device/export_protocol.h", has_type_id = false)]
+public struct ExportPacket
+{
+	uint32 magic;
+	uint32 version;
+	uint32 kind;
+	uint32 generation;
+	uint32 buffer_id;
+	uint16 width;
+	uint16 height;
+	uint32 stride;
+	uint32 offset;
+	uint32 size;
+	uint32 fourcc;
+	uint64 modifier;
+	uint32 error;
+	uint32 reserved;
+	uint64 resource_handle;
+	uint64 fence_handle;
+	uint64 fence_value;
+}
+
+[CCode (cname = "export_bind", cheader_filename = "device/export_transport.h")]
+extern void* export_bind(string path);
+[CCode (cname = "export_is_open", cheader_filename = "device/export_transport.h")]
+extern bool export_is_open(void* receiver);
+[CCode (cname = "export_receive", cheader_filename = "device/export_transport.h")]
+extern int export_receive(out ExportPacket packet, void* source, void* receiver);
+[CCode (cname = "export_close", cheader_filename = "device/export_transport.h")]
+extern void export_close(void* receiver, string? path);
+#if CROWN_PLATFORM_WINDOWS
+[CCode (cname = "export_d3d12_texture_import", cheader_filename = "export_texture_win32.h")]
+extern Gdk.Texture? export_d3d12_texture_import(uint32 producer_pid
+	, uint64 resource_handle
+	, uint64 fence_handle
+	, uint64 fence_value
+	, GLib.DestroyNotify destroy
+	, void* data
+	) throws GLib.Error;
+#endif /* if CROWN_PLATFORM_WINDOWS */
+#endif /* if !CROWN_GTK3 */
+
 namespace Crown
 {
+#if !CROWN_GTK3
+public struct ExportFrame
+{
+	public ExportPacket packet;
+#if CROWN_PLATFORM_LINUX
+	public int fd;
+#elif CROWN_PLATFORM_WINDOWS
+	public uint32 producer_pid;
+#endif
+}
+
+public class ExportLease : GLib.Object
+{
+	public RuntimeInstance runtime;
+	public uint32 generation;
+	public uint32 buffer_id;
+	public bool active;
+#if CROWN_PLATFORM_LINUX
+	public int fd;
+#endif
+
+	public ExportLease(RuntimeInstance runtime, ExportFrame frame)
+	{
+		this.runtime = runtime;
+		this.generation = frame.packet.generation;
+		this.buffer_id = frame.packet.buffer_id;
+		this.active = true;
+#if CROWN_PLATFORM_LINUX
+		this.fd = frame.fd;
+#endif
+	}
+
+	public void release()
+	{
+		if (!active)
+			return;
+		active = false;
+#if CROWN_PLATFORM_LINUX
+		if (fd >= 0)
+			Posix.close(fd);
+		fd = -1;
+#endif
+		// Texture destroy notifications can arrive while a native drag operation
+		// keeps the main loop busy at the default priority. Returning the buffer at
+		// idle priority can then starve the export pool and stop the frame stream.
+		GLib.Idle.add_full(GLib.Priority.DEFAULT, on_release_idle);
+	}
+
+	public bool on_release_idle()
+	{
+		if (runtime.is_connected())
+			runtime.send(DeviceApi.release_export_buffer(generation, buffer_id));
+		return GLib.Source.REMOVE;
+	}
+}
+#endif /* if !CROWN_GTK3 */
+
 #if CROWN_GTK3
 public class EditorView : Gtk.EventBox
 #else
@@ -37,8 +137,17 @@ public class EditorView : Gtk.Box
 	public double _flythrough_mouse_x;
 	public double _flythrough_mouse_y;
 
+#if CROWN_GTK3
 	public uint _window_id;
 	public uint _last_window_id;
+#else
+	public Gtk.Picture? _picture;
+	public Gtk.GraphicsOffload _graphics_offload;
+	public string? _export_path;
+	public uint _export_source_id;
+	public uint32 _export_generation;
+	public void* _export_receiver;
+#endif /* if CROWN_GTK3 */
 
 	public GLib.HashTable<uint, bool> _keys;
 	public bool _input_enabled;
@@ -64,6 +173,10 @@ public class EditorView : Gtk.Box
 
 	// Signals
 	public signal void native_window_ready(uint window_id, int width, int height);
+#if !CROWN_GTK3
+	public signal void export_error(string message);
+	public signal void export_ready();
+#endif
 
 	public string key_to_string(uint k)
 	{
@@ -115,8 +228,27 @@ public class EditorView : Gtk.Box
 		_flythrough_mouse_x = 0.0;
 		_flythrough_mouse_y = 0.0;
 
+#if CROWN_GTK3
 		_window_id = 0;
 		_last_window_id = 0;
+#else
+		_picture = new Gtk.Picture();
+		_picture.set_content_fit(Gtk.ContentFit.FILL);
+		_picture.can_shrink = true;
+		_picture.hexpand = true;
+		_picture.vexpand = true;
+		_graphics_offload = new Gtk.GraphicsOffload(_picture);
+		_graphics_offload.hexpand = true;
+		_graphics_offload.vexpand = true;
+		_export_path = null;
+		_export_source_id = 0;
+		_export_generation = 0;
+#if CROWN_PLATFORM_LINUX
+		_export_receiver = (void*)(intptr)(-1);
+#elif CROWN_PLATFORM_WINDOWS
+		_export_receiver = null;
+#endif
+#endif /* if CROWN_GTK3 */
 
 		_keys = new GLib.HashTable<uint, bool>(GLib.direct_hash, GLib.direct_equal);
 		_keys[Gdk.Key.w] = false;
@@ -233,9 +365,9 @@ public class EditorView : Gtk.Box
 		_drop_target.drop.connect(on_drag_drop);
 		_drop_target.leave.connect(on_drag_leave);
 		this.add_controller(_drop_target);
-		Gtk.Label placeholder = new Gtk.Label("EditorView");
-		placeholder.hexpand = true;
-		this.append(placeholder);
+		_graphics_offload.hexpand = true;
+		_graphics_offload.vexpand = true;
+		this.append(_graphics_offload);
 #endif /* if CROWN_GTK3 */
 	}
 
@@ -853,6 +985,239 @@ public class EditorView : Gtk.Box
 #endif
 	}
 #endif
+
+#if !CROWN_GTK3
+	public bool prepare_export()
+	{
+		close_export();
+#if CROWN_PLATFORM_LINUX
+		string runtime_dir = GLib.Environment.get_user_runtime_dir();
+		_export_path = "%s/crown-view-%u-%s.sock".printf(runtime_dir
+			, (uint)Posix.getpid()
+			, GLib.Uuid.string_random().substring(0, 12)
+			);
+		_export_receiver = export_bind(_export_path);
+		if (!export_is_open(_export_receiver)) {
+			export_error(_("Cannot create viewport export socket."));
+			_export_path = null;
+			return false;
+		}
+		GLib.IOChannel channel = new GLib.IOChannel.unix_new((int)(intptr)_export_receiver);
+		channel.set_close_on_unref(false);
+		_export_source_id = channel.add_watch(GLib.IOCondition.IN | GLib.IOCondition.HUP | GLib.IOCondition.ERR
+			, on_export_socket_readable
+			);
+#elif CROWN_PLATFORM_WINDOWS
+		_export_path = "\\\\.\\pipe\\crown-view-%s".printf(GLib.Uuid.string_random());
+		_export_receiver = export_bind(_export_path);
+		if (!export_is_open(_export_receiver)) {
+			export_error(_("Cannot create viewport export pipe."));
+			_export_path = null;
+			return false;
+		}
+		_export_source_id = GLib.Timeout.add(8, on_export_frames);
+#else
+		return false;
+#endif /* if CROWN_PLATFORM_LINUX */
+		return true;
+	}
+
+	public void close_export()
+	{
+		_picture.set_paintable(null);
+		if (_export_source_id != 0) {
+			GLib.Source.remove(_export_source_id);
+			_export_source_id = 0;
+		}
+		if (export_is_open(_export_receiver) || _export_path != null)
+			export_close(_export_receiver, _export_path);
+#if CROWN_PLATFORM_LINUX
+		_export_receiver = (void*)(intptr)(-1);
+#else
+		_export_receiver = null;
+#endif
+		_export_path = null;
+		_export_generation = 0;
+	}
+
+	private static void on_texture_destroy(void* data)
+	{
+		unowned ExportLease lease = (ExportLease)data;
+		lease.release();
+		lease.unref();
+	}
+
+#if CROWN_PLATFORM_LINUX
+	public bool on_export_socket_readable(GLib.IOChannel channel, GLib.IOCondition condition)
+	{
+		if ((condition & (GLib.IOCondition.HUP | GLib.IOCondition.ERR)) != 0) {
+			export_error(_("Viewport export connection failed."));
+			_export_source_id = 0;
+			return GLib.Source.REMOVE;
+		}
+		return on_export_frames();
+	}
+#endif
+
+	public int receive_export_frame(out ExportFrame frame)
+	{
+		frame = ExportFrame();
+#if CROWN_PLATFORM_LINUX
+		return export_receive(out frame.packet, &frame.fd, _export_receiver);
+#elif CROWN_PLATFORM_WINDOWS
+		return export_receive(out frame.packet, &frame.producer_pid, _export_receiver);
+#else
+		return -1;
+#endif
+	}
+
+	public void discard_export_frame(ExportFrame frame)
+	{
+#if CROWN_PLATFORM_LINUX
+		if (frame.fd >= 0)
+			Posix.close(frame.fd);
+#elif CROWN_PLATFORM_WINDOWS
+		if (frame.packet.kind == 1)
+			_runtime.send(DeviceApi.release_export_buffer(frame.packet.generation, frame.packet.buffer_id));
+#endif
+	}
+
+	public void release_export_frame(ExportFrame frame)
+	{
+#if CROWN_PLATFORM_LINUX
+		if (frame.fd >= 0)
+			Posix.close(frame.fd);
+#endif
+		_runtime.send(DeviceApi.release_export_buffer(frame.packet.generation, frame.packet.buffer_id));
+	}
+
+	public Gdk.Texture? import_export_texture(ExportFrame frame, ExportLease lease) throws GLib.Error
+	{
+#if CROWN_PLATFORM_LINUX
+		ExportPacket packet = frame.packet;
+		Gdk.DmabufTextureBuilder builder = new Gdk.DmabufTextureBuilder();
+		builder.set_display(Gdk.Display.get_default());
+		builder.set_width(packet.width);
+		builder.set_height(packet.height);
+		builder.set_fourcc(packet.fourcc);
+		builder.set_modifier(packet.modifier);
+		builder.set_n_planes(1);
+		builder.set_stride(0, packet.stride);
+		builder.set_offset(0, packet.offset);
+		builder.set_fd(0, frame.fd);
+		return builder.build(on_texture_destroy, lease);
+#elif CROWN_PLATFORM_WINDOWS
+		return export_d3d12_texture_import(frame.producer_pid
+			, frame.packet.resource_handle
+			, frame.packet.fence_handle
+			, frame.packet.fence_value
+			, on_texture_destroy
+			, lease
+			);
+#else
+		return null;
+#endif /* if CROWN_PLATFORM_LINUX */
+	}
+
+	public void process_export_frame(ExportFrame frame)
+	{
+		ExportPacket packet = frame.packet;
+		if (packet.kind == 2) {
+#if CROWN_PLATFORM_LINUX
+			export_error(packet.error == 1
+				? _("The selected renderer cannot export a DMA-BUF viewport.")
+				: _("The renderer could not export a DMA-BUF viewport.")
+				);
+#elif CROWN_PLATFORM_WINDOWS
+			export_error(packet.error == 1
+				? _("The selected renderer does not support Windows viewport export.")
+				: _("The renderer could not export a Windows viewport.")
+				);
+#endif
+			discard_export_frame(frame);
+			return;
+		}
+		bool invalid_handle =
+#if CROWN_PLATFORM_LINUX
+			frame.fd < 0;
+#elif CROWN_PLATFORM_WINDOWS
+			frame.producer_pid == 0 || packet.resource_handle == 0 || packet.fence_handle == 0 || packet.fence_value == 0;
+#else
+			true;
+#endif
+		if (packet.kind != 1 || packet.width == 0 || packet.height == 0 || invalid_handle) {
+			discard_export_frame(frame);
+			export_error(_("Invalid viewport frame."));
+			return;
+		}
+		if (packet.generation < _export_generation) {
+			release_export_frame(frame);
+			return;
+		}
+		_export_generation = packet.generation;
+#if CROWN_PLATFORM_LINUX
+		if (!Gdk.Display.get_default().get_dmabuf_formats().contains(packet.fourcc, packet.modifier)) {
+			release_export_frame(frame);
+			export_error(_("The viewport DMA-BUF format or modifier is unsupported by GTK."));
+			return;
+		}
+#endif
+		ExportLease lease = new ExportLease(_runtime, frame);
+		lease.ref();
+		try {
+			Gdk.Texture? texture = import_export_texture(frame, lease);
+			if (texture == null) {
+				lease.release();
+				lease.unref();
+#if CROWN_PLATFORM_LINUX
+				export_error(_("GTK could not import the viewport DMA-BUF."));
+#elif CROWN_PLATFORM_WINDOWS
+				export_error(_("GTK could not import the viewport D3D12 texture."));
+#endif
+				return;
+			}
+#if CROWN_PLATFORM_WINDOWS
+			if (texture.get_width() != packet.width || texture.get_height() != packet.height) {
+				texture = null;
+				export_error(_("Viewport texture size does not match frame packet."));
+				return;
+			}
+#endif
+			_picture.set_paintable(texture);
+			export_ready();
+		} catch (GLib.Error e) {
+			lease.release();
+			lease.unref();
+#if CROWN_PLATFORM_LINUX
+			export_error(_("Could not import viewport DMA-BUF: %s").printf(e.message));
+#elif CROWN_PLATFORM_WINDOWS
+			export_error(_("Could not import viewport D3D12 texture: %s").printf(e.message));
+#endif
+		}
+	}
+
+	public bool on_export_frames()
+	{
+		while (true) {
+			ExportFrame frame;
+			int result = receive_export_frame(out frame);
+			if (result == 0)
+				break;
+			if (result < 0) {
+				export_error(_("Invalid viewport export packet."));
+#if CROWN_PLATFORM_WINDOWS
+				_export_source_id = 0;
+				close_export();
+				return GLib.Source.REMOVE;
+#else
+				break;
+#endif
+			}
+			process_export_frame(frame);
+		}
+		return GLib.Source.CONTINUE;
+	}
+#endif /* if !CROWN_GTK3 */
 
 	public void on_enter(double x, double y)
 	{
