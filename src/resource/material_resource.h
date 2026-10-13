@@ -35,7 +35,7 @@ struct TextureData
 {
 	u32 sampler_name_offset; // Sampler uniform name
 	StringId32 name;         // Sampler name
-	StringId64 id;           // Resource name
+	StringId64 id; // Zero binds the default texture.           // Resource name
 	u32 data_offset;         // Offset into dynamic blob
 	u32 _pad1;
 };

@@ -137,6 +137,22 @@ namespace material_resource_internal
 			}
 		}
 
+		void add_shader_textures(const Vector<SamplerMetadata> &samplers)
+		{
+			for (u32 i = 0; i < vector::size(samplers); ++i) {
+				const SamplerMetadata &sampler = samplers[i];
+				if (sampler.stage >= MATERIAL_MAX_TEXTURE_SLOTS)
+					continue;
+				u32 ti = 0;
+				for (; ti < array::size(textures); ++ti) {
+					if (textures[ti].name._id == sampler.name)
+						break;
+				}
+				if (ti == array::size(textures))
+					add_texture(StringView(sampler.uniform_name), StringId64());
+			}
+		}
+
 		u32 add_name(const StringView &name)
 		{
 			const u32 offset = array::size(names);
@@ -536,6 +552,7 @@ namespace material_resource_internal
 				err = parse_textures(data, obj["textures"], opts);
 			ENSURE_OR_RETURN(MATERIAL_RESOURCE, err == 0, opts);
 		}
+		data.add_shader_textures(samplers_meta);
 		RETURN_IF_FALSE(MATERIAL_RESOURCE
 			, array::size(data.textures) <= MATERIAL_MAX_TEXTURE_SLOTS
 			, opts
