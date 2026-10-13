@@ -2439,6 +2439,11 @@ struct CompileResourceItem
 	CompileResourcesArgs *args;
 };
 
+static bool has_editor_metadata(const char *type)
+{
+	return strcmp(type, "shader") == 0 || strcmp(type, "material") == 0;
+}
+
 static bool write_metadata(FilesystemDisk &fs, const DynamicString &dest, const Buffer &metadata)
 {
 	DynamicString temporary(default_allocator());
@@ -2748,12 +2753,16 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
 			bool source_dependency_changed       = dependency_changed(path, id, mtime);
 			bool data_version_dependency_changed = version_changed(path, id);
+			DynamicString metadata_dest(default_allocator());
+			metadata_destination_path(metadata_dest, id);
+			bool metadata_missing                = has_editor_metadata(type_str) && !data_fs.exists(metadata_dest.c_str());
 			bool compile_always                  = data_version(StringId64(type_str)) == 0u;
 
 			if (source_never_compiled_before
 				|| source_dependency_changed
 				|| data_version_dependency_changed
 				|| compile_always
+				|| metadata_missing
 				) {
 				if (path.has_suffix(".package"))
 					vector::push_back(packages_to_compile, path);
