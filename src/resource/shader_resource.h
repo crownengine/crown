@@ -33,7 +33,6 @@ struct UniformType
 	};
 };
 
-
 struct ShaderBackend
 {
 	enum Enum
@@ -107,6 +106,15 @@ struct ShaderDefineMetadata
 	explicit ShaderDefineMetadata(Allocator &a);
 };
 
+struct ShaderDefinitionMetadata
+{
+	ALLOCATOR_AWARE;
+	DynamicString name;
+	Vector<ShaderDefineMetadata> defines;
+
+	explicit ShaderDefinitionMetadata(Allocator &a);
+};
+
 struct SamplerMetadata
 {
 	ALLOCATOR_AWARE;
@@ -120,8 +128,28 @@ struct SamplerMetadata
 	explicit SamplerMetadata(Allocator &a);
 };
 
+struct ShaderVariantMetadata
+{
+	ALLOCATOR_AWARE;
+	DynamicString shader;
+	Vector<DynamicString> defines;
+	Vector<UniformMetadata> uniforms;
+	Vector<SamplerMetadata> samplers;
+
+	explicit ShaderVariantMetadata(Allocator &a);
+};
+
 namespace shader_compiler
 {
+	/// Serializes editor metadata separately from runtime resources.
+	void metadata_json(Buffer &output
+		, u32 resource_version
+		, const char *source_path
+		, const HashMap<DynamicString, u32> &dependencies
+		, const DynamicString &library
+		, const Vector<ShaderDefinitionMetadata> &shaders
+		, const Vector<ShaderVariantMetadata> &variants
+		);
 	/// Clears cached shader metadata used by material compilation.
 	void clear_metadata_cache();
 

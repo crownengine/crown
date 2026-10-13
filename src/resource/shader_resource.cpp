@@ -73,6 +73,12 @@ ShaderDefineMetadata::ShaderDefineMetadata(Allocator &a)
 {
 }
 
+ShaderDefinitionMetadata::ShaderDefinitionMetadata(Allocator &a)
+	: name(a)
+	, defines(a)
+{
+}
+
 SamplerMetadata::SamplerMetadata(Allocator &a)
 	: name(0)
 	, state(0)
@@ -81,6 +87,14 @@ SamplerMetadata::SamplerMetadata(Allocator &a)
 	, tooltip(a)
 {
 	uniform_name[0] = '\0';
+}
+
+ShaderVariantMetadata::ShaderVariantMetadata(Allocator &a)
+	: shader(a)
+	, defines(a)
+	, uniforms(a)
+	, samplers(a)
+{
 }
 
 namespace shader_resource_internal
@@ -1566,6 +1580,7 @@ namespace shader_resource_internal
 	{
 		ShaderCompiler *compiler;
 		Buffer *variant;
+		ShaderVariantMetadata *metadata;
 		s32 *error;
 		u32 index;
 	};
@@ -2508,6 +2523,7 @@ namespace shader_resource_internal
 		{
 			ScopedProfileScope scope("ShaderCompiler::compile");
 			Vector<Buffer> variants(default_allocator());
+			Vector<ShaderVariantMetadata> metadata(default_allocator());
 			Array<s32> errors(default_allocator());
 			const u32 count = vector::size(_static_compile);
 			array::resize(errors, count);
@@ -2532,6 +2548,10 @@ namespace shader_resource_internal
 
 				Buffer variant(default_allocator());
 				vector::push_back(variants, variant);
+				ShaderVariantMetadata vm(default_allocator());
+				vm.shader = sc._shader;
+				vm.defines = sc._defines;
+				vector::push_back(metadata, vm);
 			}
 
 			// Leave slots for the resource task and parallel_for root.
@@ -2539,7 +2559,7 @@ namespace shader_resource_internal
 				const u32 batch = min(30u, count - first);
 				StaticCompileItem items[30];
 				for (u32 i = 0; i < batch; ++i)
-					items[i] = { this, &variants[first + i], &errors[first + i], first + i };
+					items[i] = { this, &variants[first + i], &metadata[first + i], &errors[first + i], first + i };
 				const u32 root = parallel_for(items, sizeof(items[0]), batch, batch, static_compile_items);
 				task_manager().wait(root);
 			}
@@ -2552,6 +2572,18 @@ namespace shader_resource_internal
 				write_variant(bw, variants[ii]);
 			}
 			_opts.write(serialized_variants);
+
+			Vector<ShaderDefinitionMetadata> shaders(default_allocator());
+			auto shader_cur = hash_map::begin(_shaders);
+			const auto shader_end = hash_map::end(_shaders);
+			for (; shader_cur != shader_end; ++shader_cur) {
+				HASH_MAP_SKIP_HOLE(_shaders, shader_cur);
+				ShaderDefinitionMetadata definition(default_allocator());
+				definition.name = shader_cur->first;
+				definition.defines = shader_cur->second._defines;
+				vector::push_back(shaders, definition);
+			}
+			shader_compiler::metadata_json(_opts._metadata, RESOURCE_VERSION_SHADER, _opts.source_path(), _opts._new_dependencies, _shader_library, shaders, metadata);
 
 			return 0;
 		}
@@ -2703,7 +2735,10 @@ namespace shader_resource_internal
 				} else {
 					RETURN_IF_FALSE(SHADER_RESOURCE
 						, meta[i].type == um.type && memcmp(&meta[i].val, &um.val, sizeof(um.val)) == 0
-						, opts, "Conflicting metadata for uniform '%s'", um.name);
+						, opts
+						, "Conflicting metadata for uniform '%s'"
+						, um.name
+						);
 					err = merge_description(meta[i].label, um.label, "label", um.name, opts);
 					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
 					err = merge_description(meta[i].tooltip, um.tooltip, "tooltip", um.name, opts);
@@ -2736,8 +2771,6 @@ namespace shader_resource_internal
 			const bool has_sampler_metadata = hash_map::size(shader._samplers) > 0;
 			// Full static compiles can seed metadata for later material-only compiles.
 			const bool cache_static_metadata = !metadata_only
-				&& meta == NULL
-				&& has_sampler_metadata
 				&& !_shader_library.empty()
 				;
 
@@ -2759,7 +2792,7 @@ namespace shader_resource_internal
 			fs_code << shader._fs_input_output.string_view();
 			fs_code << string_stream::c_str(code);
 			fs_code << shader._fs_code.string_view();
-			const bool need_preprocess = meta != NULL || has_sampler_metadata;
+			const bool need_preprocess = meta != NULL || has_sampler_metadata || cache_static_metadata;
 
 			if (need_preprocess) {
 				StringStream vs_source(default_allocator());
@@ -3093,7 +3126,7 @@ namespace shader_resource_internal
 				// Reuse metadata parsed during static compiles when compiling matching materials.
 				DynamicString cache_key(default_allocator());
 				metadata_cache_key(cache_key, _opts._platform, _shader_library, shader_name, defines);
-				store_metadata_cache(cache_key, _shader_library, _parsed_includes, &cached_uniform_meta, &samplers);
+				store_metadata_cache(cache_key, _shader_library, _parsed_includes, meta != NULL ? meta : &cached_uniform_meta, &samplers);
 			}
 
 			files.delete_temp_files(vs_bin_paths, fs_bin_paths, targets.count);
@@ -3224,7 +3257,7 @@ namespace shader_resource_internal
 			StaticCompileItem &job = jobs[i];
 			const StaticCompile &sc = job.compiler->_static_compile[job.index];
 			FileBuffer fb(*job.variant);
-			*job.error = job.compiler->compile_variant(fb, NULL, NULL, sc._shader, sc._defines, false);
+			*job.error = job.compiler->compile_variant(fb, &job.metadata->uniforms, &job.metadata->samplers, sc._shader, sc._defines, false);
 		}
 		sjson::set_error_callback(previous_error_callback, previous_error_user_data);
 	}
@@ -3244,6 +3277,129 @@ namespace shader_resource_internal
 namespace shader_compiler
 {
 	using namespace shader_resource_internal;
+
+	static void metadata_string(StringStream &ss, const char *str)
+	{
+		ss << '"';
+		for (const char *c = str; *c; ++c) {
+			switch (*c) {
+			case '"': case '\\': ss << '\\' << *c; break;
+			case '\b': ss << "\\b"; break;
+			case '\f': ss << "\\f"; break;
+			case '\n': ss << "\\n"; break;
+			case '\r': ss << "\\r"; break;
+			case '\t': ss << "\\t"; break;
+			default:
+				if ((u8)*c < 32u) {
+					const char hex[] = "0123456789abcdef";
+					ss << "\\u00" << hex[(u8)*c >> 4] << hex[(u8)*c & 15];
+				} else {
+					ss << *c;
+				}
+				break;
+			}
+		}
+		ss << '"';
+	}
+
+	void metadata_json(Buffer &output
+		, u32 resource_version
+		, const char *source_path
+		, const HashMap<DynamicString, u32> &dependencies
+		, const DynamicString &library
+		, const Vector<ShaderDefinitionMetadata> &shaders
+		, const Vector<ShaderVariantMetadata> &variants
+		)
+	{
+		StringStream ss(default_allocator());
+		ss << "{\"version\":" << resource_version << ",\"resource\":";
+		metadata_string(ss, source_path);
+		ss << ",\"library\":";
+		metadata_string(ss, library.c_str());
+		Vector<DynamicString> dependency_paths(default_allocator());
+		auto dependency_cur = hash_map::begin(dependencies);
+		const auto dependency_end = hash_map::end(dependencies);
+		for (; dependency_cur != dependency_end; ++dependency_cur) {
+			HASH_MAP_SKIP_HOLE(dependencies, dependency_cur);
+			vector::push_back(dependency_paths, dependency_cur->first);
+		}
+		ss << ",\"dependencies\":[";
+		for (u32 i = 0; i < vector::size(dependency_paths); ++i) {
+			if (i != 0) ss << ',';
+			metadata_string(ss, dependency_paths[i].c_str());
+		}
+		ss << "]";
+		ss << ",\"shaders\":[";
+		for (u32 i = 0; i < vector::size(shaders); ++i) {
+			if (i != 0) ss << ',';
+			ss << "{\"name\":";
+			metadata_string(ss, shaders[i].name.c_str());
+			ss << ",\"defines\":[";
+			for (u32 di = 0; di < vector::size(shaders[i].defines); ++di) {
+				if (di != 0) ss << ',';
+				const ShaderDefineMetadata &define = shaders[i].defines[di];
+				ss << "{\"name\":";
+				metadata_string(ss, define.name.c_str());
+				ss << ",\"label\":";
+				metadata_string(ss, define.label.empty() ? define.name.c_str() : define.label.c_str());
+				ss << ",\"tooltip\":";
+				metadata_string(ss, define.tooltip.c_str());
+				ss << '}';
+			}
+			ss << "]}";
+		}
+		ss << "],\"variants\":[";
+		for (u32 i = 0; i < vector::size(variants); ++i) {
+			const ShaderVariantMetadata &vm = variants[i];
+			if (i != 0) ss << ',';
+			ss << "{\"shader\":";
+			metadata_string(ss, vm.shader.c_str());
+			const Vector<DynamicString> &defines = vm.defines;
+			ss << ",\"defines\":[";
+			for (u32 di = 0; di < vector::size(defines); ++di) {
+				if (di != 0) ss << ',';
+				metadata_string(ss, defines[di].c_str());
+			}
+			ss << "],\"uniforms\":[";
+			const char *types[] = { "float", "vector2", "vector3", "vector4" };
+			bool first = true;
+			for (u32 ui = 0; ui < vector::size(vm.uniforms); ++ui) {
+				const UniformMetadata &um = vm.uniforms[ui];
+				if (um.type >= UniformType::MATRIX4X4)
+					continue;
+				if (!first) ss << ',';
+				first = false;
+				ss << "{\"name\":";
+				metadata_string(ss, um.name);
+				ss << ",\"label\":";
+				metadata_string(ss, um.label.empty() ? um.name : um.label.c_str());
+				ss << ",\"tooltip\":";
+				metadata_string(ss, um.tooltip.c_str());
+				ss << ",\"editor\":";
+				const char *editors[] = { "default", "color", "bool" };
+				metadata_string(ss, editors[um.editor == UniformEditor::COUNT ? UniformEditor::DEFAULT : um.editor]);
+				ss << ",\"type\":";
+				metadata_string(ss, types[um.type]);
+				ss << ",\"default\":[" << um.val.x << ',' << um.val.y << ',' << um.val.z << ',' << um.val.w << "]}";
+			}
+			ss << "],\"samplers\":[";
+			for (u32 si = 0; si < vector::size(vm.samplers); ++si) {
+				if (si != 0) ss << ',';
+				const SamplerMetadata &sampler = vm.samplers[si];
+				ss << "{\"name\":";
+				metadata_string(ss, sampler.uniform_name);
+				ss << ",\"label\":";
+				metadata_string(ss, sampler.label.empty() ? sampler.uniform_name : sampler.label.c_str());
+				ss << ",\"tooltip\":";
+				metadata_string(ss, sampler.tooltip.c_str());
+				ss << ",\"stage\":" << sampler.stage << '}';
+			}
+			ss << "]}";
+		}
+		ss << "]}\n";
+		array::clear(output);
+		array::push(output, string_stream::c_str(ss), strlen32(string_stream::c_str(ss)));
+	}
 
 	void clear_metadata_cache()
 	{
