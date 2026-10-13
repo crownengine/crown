@@ -62,6 +62,7 @@ CompileOptions::CompileOptions(File &output
 	: _output(output)
 	, _stream_output(stream_output)
 	, _binary_writer(_output)
+	, _metadata(default_allocator())
 	, _new_dependencies(new_dependencies)
 	, _new_requirements(new_requirements)
 	, _new_requirement_globs(default_allocator())

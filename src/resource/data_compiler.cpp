@@ -1726,6 +1726,12 @@ static void read_data_versions(HashMap<StringId64, u32> &versions
 	parse_data_versions(versions, json);
 }
 
+static void metadata_destination_path(DynamicString &path, ResourceId id)
+{
+	destination_path(path, id);
+	path += ".meta";
+}
+
 static void parse_data_index(HashMap<StringId64, DynamicString> &index
 	, const SourceIndex &sources
 	, Buffer &json
@@ -2433,6 +2439,20 @@ struct CompileResourceItem
 	CompileResourcesArgs *args;
 };
 
+static bool write_metadata(FilesystemDisk &fs, const DynamicString &dest, const Buffer &metadata)
+{
+	DynamicString temporary(default_allocator());
+	File *file = fs.open_temporary(temporary);
+	const u32 size = array::size(metadata);
+	bool success = file->is_open() && file->write(array::begin(metadata), size) == size;
+	fs.close(*file);
+	if (success)
+		success = fs.rename(temporary.c_str(), dest.c_str()).error == RenameResult::SUCCESS;
+	if (!success)
+		fs.delete_file(temporary.c_str());
+	return success;
+}
+
 static void compile_resources_worker(void *items, u32 num_items)
 {
 	CompileResourceItem *resources = (CompileResourceItem *)items;
@@ -2493,6 +2513,10 @@ static void compile_resources_worker(void *items, u32 num_items)
 			, false
 			);
 
+		DynamicString metadata_dest(default_allocator());
+		metadata_destination_path(metadata_dest, id);
+		data_fs.delete_file(metadata_dest.c_str());
+
 		bool resource_success = rtd.compiler(opts) == 0;
 
 		if (resource_success) {
@@ -2547,6 +2571,12 @@ static void compile_resources_worker(void *items, u32 num_items)
 					resource_success = rr.error == RenameResult::SUCCESS;
 				}
 			}
+		}
+
+		if (resource_success && array::size(opts._metadata) != 0) {
+			resource_success = write_metadata(data_fs, metadata_dest, opts._metadata);
+			if (!resource_success)
+				loge(DATA_COMPILER, "Failed to write editor metadata");
 		}
 
 		if (resource_success) {

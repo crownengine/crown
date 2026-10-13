@@ -37,6 +37,7 @@ struct CompileOptions
 	File &_output;
 	File &_stream_output;
 	BinaryWriter _binary_writer;
+	Buffer _metadata;
 	HashMap<DynamicString, u32> &_new_dependencies;
 	HashMap<DynamicString, u32> &_new_requirements;
 	Vector<DynamicString> _new_requirement_globs;
