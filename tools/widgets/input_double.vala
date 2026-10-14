@@ -93,7 +93,7 @@ public class InputDouble : InputField
 		_entry.editable = false;
 		_entry.activate.connect(on_activate);
 #if CROWN_GTK3
-		_entry.notify["has-focus"].connect(on_focus_changed);
+		_entry.notify["is-focus"].connect(on_focus_changed);
 #else
 		_controller_focus = new Gtk.EventControllerFocus();
 		_controller_focus.enter.connect(on_focus_in);
@@ -424,15 +424,17 @@ public class InputDouble : InputField
 		clear_focus();
 	}
 
+#if CROWN_GTK3
 	public void on_focus_changed(GLib.ParamSpec pspec)
 	{
-		if (!_entry.has_focus) {
+		if (!_entry.is_focus) {
 			on_focus_out();
 			return;
 		}
 
 		on_focus_in();
 	}
+#endif
 
 	public void on_focus_in()
 	{

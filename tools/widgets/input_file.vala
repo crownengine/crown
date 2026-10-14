@@ -95,8 +95,7 @@ public class InputFile : InputField
 		_name.hexpand = true;
 #if CROWN_GTK3
 		_name.activate.connect(on_name_activate);
-		_name.focus_in_event.connect(on_name_focus_in);
-		_name.focus_out_event.connect(on_name_focus_out);
+		_name.notify["is-focus"].connect(on_name_focus_changed);
 		_box.pack_start(_name, true, true);
 
 		_gesture_click = new Gtk.GestureMultiPress(_name);
@@ -192,27 +191,35 @@ public class InputFile : InputField
 #endif
 
 #if CROWN_GTK3
-	public bool on_name_focus_in(Gdk.EventFocus ev)
+	public void on_name_focus_changed(GLib.ParamSpec pspec)
+	{
+		if (!_name.is_focus) {
+			on_name_focus_out();
+			return;
+		}
+
+		on_name_focus_in();
+	}
+#endif
+
+#if CROWN_GTK3
+	public void on_name_focus_in()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_name);
 
 		_name.set_position(-1);
 		_name.select_region(0, -1);
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 #endif /* if CROWN_GTK3 */
 
 #if CROWN_GTK3
-	public bool on_name_focus_out(Gdk.EventFocus ev)
+	public void on_name_focus_out()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_name);
 
 		_name.select_region(0, 0);
-
-		return Gdk.EVENT_PROPAGATE;
 	}
 #endif
 
