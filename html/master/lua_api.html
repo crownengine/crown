@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-13T22:32:46+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-10-10T16:21:19+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -418,6 +418,10 @@ a previous average AVGp:</p>
 <section id="display">
 <h2>Display<a class="headerlink" href="#display" title="Permalink to this headline">¶</a></h2>
 <p>Interface to access the graphical display.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>modes</strong> ()<span class="classifier">table</span></dt><dd><p>Returns an array of <a class="reference internal" href="#displaymode">DisplayMode</a> tables.</p>
 </dd>
@@ -486,6 +490,10 @@ relative to the text position.</p>
 <section id="input">
 <h2>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h2>
 <p>A singleton that exposes the full list of input events in each frame.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>events</strong> ()<span class="classifier">table</span></dt><dd><p>Returns an array of <a class="reference internal" href="#inputevent">InputEvent</a> tables.</p>
 </dd>
@@ -502,6 +510,10 @@ relative to the text position.</p>
 </section>
 <section id="inputeventtype">
 <h3>InputEventType<a class="headerlink" href="#inputeventtype" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BUTTON_PRESSED</span></code>: A button has been pressed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BUTTON_RELEASED</span></code>: A button has been released.</p></li>
@@ -512,6 +524,10 @@ relative to the text position.</p>
 <section id="keyboard">
 <h2>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this headline">¶</a></h2>
 <p>Singleton that represents the default system keyboard.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of keyboard.</p>
 </dd>
@@ -559,6 +575,10 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 <section id="mouse">
 <h2>Mouse<a class="headerlink" href="#mouse" title="Permalink to this headline">¶</a></h2>
 <p>Singleton that represents the default system mouse.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the mouse.</p>
 </dd>
@@ -607,6 +627,10 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 <section id="touch">
 <h2>Touch<a class="headerlink" href="#touch" title="Permalink to this headline">¶</a></h2>
 <p>Singleton that represents the default system touchscreen.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the touch.</p>
 </dd>
@@ -643,6 +667,10 @@ or <code class="docutils literal notranslate"><span class="pre">nil</span></code
 <section id="pad1-pad2-pad3-pad4">
 <h2>Pad1, Pad2, Pad3, Pad4<a class="headerlink" href="#pad1-pad2-pad3-pad4" title="Permalink to this headline">¶</a></h2>
 <p>Singleton that represents the connected gamepad(s).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>name</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the name of the pad.</p>
 </dd>
@@ -1724,6 +1752,10 @@ that world.</p>
 <section id="window">
 <h2>Window<a class="headerlink" href="#window" title="Permalink to this headline">¶</a></h2>
 <p>Represents the application window.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unavailable in <a class="reference internal" href="reference/command_line.html#cli-headless"><span class="std std-ref">headless mode</span></a>.</p>
+</div>
 <dl class="simple">
 <dt><strong>show</strong> ()</dt><dd><p>Shows the window.</p>
 </dd>
@@ -1896,7 +1928,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 13, 2026.
+      <span class="lastupdated">Last updated on Oct 10, 2026.
       </span></p>
   </div>
 
