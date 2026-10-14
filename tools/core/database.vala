@@ -23,7 +23,8 @@ public enum PropertyEditorType
 	ENUM,     ///< A string selected from a list.
 	RESOURCE, ///< A resource name selected from a project.
 	ANGLE,    ///< An angle value displayed in degrees.
-	COLOR,    ///< An RGB color from a color picker.
+	COLOR,    ///< A color from a color picker.
+	VECTOR,   ///< Raw quaternion components displayed as numeric inputs.
 }
 
 public enum InputDoubleFlags
@@ -2555,8 +2556,14 @@ public class Database
 			case PropertyType.QUATERNION:
 				if (def.deffault == null)
 					def.deffault = QUATERNION_IDENTITY;
+				if (def.min == null)
+					def.min = Quaternion(-double.MAX, -double.MAX, -double.MAX, -double.MAX);
+				if (def.max == null)
+					def.max = Quaternion(double.MAX, double.MAX, double.MAX, double.MAX);
 
 				assert(def.deffault.holds(typeof(Quaternion)));
+				assert(def.min.holds(typeof(Quaternion)));
+				assert(def.max.holds(typeof(Quaternion)));
 				break;
 			case PropertyType.RESOURCE:
 				if (def.deffault == null)

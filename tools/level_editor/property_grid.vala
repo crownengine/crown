@@ -551,7 +551,10 @@ public class PropertyGrid : Gtk.Grid
 		PropertyDefinition? def = _definitions[field];
 		if (def.type == PropertyType.VECTOR3 && def.editor == PropertyEditorType.COLOR)
 			field.set_union_value(Vector4.from_vector3((Vector3)def.deffault));
-		else
+		else if (def.type == PropertyType.QUATERNION && (def.editor == PropertyEditorType.COLOR || def.editor == PropertyEditorType.VECTOR)) {
+			Quaternion value = (Quaternion)def.deffault;
+			field.set_union_value(Vector4(value.x, value.y, value.z, value.w));
+		} else
 			field.set_union_value(def.deffault);
 	}
 
@@ -869,7 +872,19 @@ public class PropertyGrid : Gtk.Grid
 					p = new InputVector3((Vector3)def.deffault, (Vector3)def.min, (Vector3)def.max);
 				break;
 			case PropertyType.QUATERNION:
-				p = new InputQuaternion();
+				if (def.editor == PropertyEditorType.COLOR)
+					p = new InputColor4(InputColorChannels.RGBA);
+				else if (def.editor == PropertyEditorType.VECTOR) {
+					Quaternion value = (Quaternion)def.deffault;
+					Quaternion min = (Quaternion)def.min;
+					Quaternion max = (Quaternion)def.max;
+					p = new InputVector4(Vector4(value.x, value.y, value.z, value.w)
+						, Vector4(min.x, min.y, min.z, min.w)
+						, Vector4(max.x, max.y, max.z, max.w)
+						, InputDouble.DEFAULT_PREVIEW_DECIMALS
+						);
+				} else
+					p = new InputQuaternion();
 				break;
 			case PropertyType.RESOURCE:
 				p = new InputResource(def.resource_type);
@@ -1096,17 +1111,24 @@ public class PropertyGrid : Gtk.Grid
 				}
 			}
 		} else if (def.type == PropertyType.QUATERNION) {
-			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
-				Unit u = Unit(_db, _id);
-				if (Quaternion.equal_func(u.get_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)def.deffault), (Quaternion)new_value) == false) {
-					u.set_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)new_value);
-					changed = true;
-				}
+			bool component = _db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f);
+			uint32 property = _db.property_index(component ? _component_id : _id, StringId64(def.name));
+			Quaternion value;
+			if (def.editor == PropertyEditorType.COLOR || def.editor == PropertyEditorType.VECTOR) {
+				Vector4 input = (Vector4)new_value;
+				value = Quaternion(input.x, input.y, input.z, input.w);
 			} else {
-				if (Quaternion.equal_func(_db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault), (Quaternion)new_value) == false) {
-					_db.set_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)new_value);
-					changed = true;
-				}
+				value = (Quaternion)new_value;
+			}
+			Quaternion old = component
+				? Unit(_db, _id).get_component_quaternion(_component_id, property, (Quaternion)def.deffault)
+				: _db.get_quaternion(_id, property, (Quaternion)def.deffault);
+			if (!Quaternion.equal_func(old, value)) {
+				if (component)
+					Unit(_db, _id).set_component_quaternion(_component_id, property, value);
+				else
+					_db.set_quaternion(_id, property, value);
+				changed = true;
 			}
 		} else if (def.type == PropertyType.RESOURCE) {
 			if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
@@ -1243,12 +1265,15 @@ public class PropertyGrid : Gtk.Grid
 					else
 						p.set_union_value(value);
 				} else if (def.type == PropertyType.QUATERNION) {
-					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
-						Unit u = Unit(_db, _id);
-						p.set_union_value(u.get_component_quaternion(_component_id, u._db.property_index(_component_id, StringId64(def.name)), (Quaternion)def.deffault));
-					} else {
-						p.set_union_value(_db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault));
-					}
+					Quaternion value;
+					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f))
+						value = Unit(_db, _id).get_component_quaternion(_component_id, _db.property_index(_component_id, StringId64(def.name)), (Quaternion)def.deffault);
+					else
+						value = _db.get_quaternion(_id, _db.property_index(_id, StringId64(def.name)), (Quaternion)def.deffault);
+					if (def.editor == PropertyEditorType.COLOR || def.editor == PropertyEditorType.VECTOR)
+						p.set_union_value(Vector4(value.x, value.y, value.z, value.w));
+					else
+						p.set_union_value(value);
 				} else if (def.type == PropertyType.RESOURCE) {
 					if (_db.object_type(_id) == STRING_ID_64(OBJECT_TYPE_UNIT, 0xe0a48d0be9a7453f)) {
 						Unit u = Unit(_db, _id);
