@@ -475,8 +475,7 @@ public class InputDouble : InputField
 		} else {
 			if (_entry.text != format_value(buffer, _value, _edit_decimals))
 				set_value_safe(string_to_double(_entry.text, _value));
-			else
-				_entry.text = format_value(buffer, _value, _edit_decimals);
+			_entry.text = format_value(buffer, _value, _edit_decimals);
 		}
 
 		_entry.select_region(0, 0);

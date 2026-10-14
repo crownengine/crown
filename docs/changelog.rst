@@ -20,6 +20,7 @@ Changelog
 * Tools: texture settings now expose ``mip_skip_largest`` to skip the largest mip levels.
 * Tools: improved loading performance for large resource files.
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
+* Tools: fixed numeric inputs displaying unclamped values after leaving edit mode.
 * Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.
