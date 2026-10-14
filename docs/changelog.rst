@@ -22,6 +22,7 @@ Changelog
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
 * Tools: fixed numeric inputs displaying unclamped values after leaving edit mode.
 * Tools: fixed input widgets clearing text selections when opening their context menus.
+* Tools: fixed Escape closing the color picker when cancelling a numeric edit.
 * Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.
