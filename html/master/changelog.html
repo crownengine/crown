@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-09T20:22:43+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-10-13T22:32:46+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
-<meta property="og:description" content="0.66.0 — DD MMM YYYY: New Features and Improvements Tools: color inputs now support editing alpha and previewing transparency., HTML5: added support to wasm64.. Fixes Tools: texture settings now expose mip_skip_largest to skip the largest mip levels., Tools: improved loading p..." />
+<meta property="og:description" content="0.66.0 — DD MMM YYYY: New Features and Improvements Tools: color inputs now support editing alpha and previewing transparency., Tools: added a shader library property to materials., HTML5: added support to wasm64., Runtime: added--render-config to override the boot config’s re..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.66.0 Manual" />
-<meta name="description" content="0.66.0 — DD MMM YYYY: New Features and Improvements Tools: color inputs now support editing alpha and previewing transparency., HTML5: added support to wasm64.. Fixes Tools: texture settings now expose mip_skip_largest to skip the largest mip levels., Tools: improved loading p..." />
+<meta name="description" content="0.66.0 — DD MMM YYYY: New Features and Improvements Tools: color inputs now support editing alpha and previewing transparency., Tools: added a shader library property to materials., HTML5: added support to wasm64., Runtime: added--render-config to override the boot config’s re..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -209,7 +209,10 @@
 <p><strong>New Features and Improvements</strong></p>
 <ul class="simple">
 <li><p>Tools: color inputs now support editing alpha and previewing transparency.</p></li>
+<li><p>Tools: added a shader library property to materials.</p></li>
 <li><p>HTML5: added support to wasm64.</p></li>
+<li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">--render-config</span></code> to override the boot config’s render configuration.</p></li>
+<li><p>Lua: <code class="docutils literal notranslate"><span class="pre">Material.set_texture()</span></code> now accepts <code class="docutils literal notranslate"><span class="pre">nil</span></code> to bind the default texture.</p></li>
 </ul>
 <p><strong>Fixes</strong></p>
 <ul class="simple">
@@ -220,8 +223,12 @@
 <li><p>Runtime: fixed <code class="docutils literal notranslate"><span class="pre">Gui</span></code> drawing depth not being honored in some cases.</p></li>
 <li><p>Runtime: Linux: fix a Window-related race at shutdown.</p></li>
 <li><p>Runtime: fixed lighting artifacts.</p></li>
+<li><p>Runtime: fixed material memory leaks at shutdown.</p></li>
 <li><p>Data Compiler: texture <code class="docutils literal notranslate"><span class="pre">mip_skip_largest</span></code> now skips the largest mip levels; unused <code class="docutils literal notranslate"><span class="pre">mip_skip_smallest</span></code> settings produce a warning.</p></li>
 <li><p>Data Compiler: fixed a crash when restoring projects with large dependency lists.</p></li>
+<li><p>Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.</p></li>
+<li><p>Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.</p></li>
+<li><p>Data Compiler: fixed shader compilation continuing after shader library parsing errors.</p></li>
 </ul>
 </section>
 <section id="sep-2026">
@@ -1368,7 +1375,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 09, 2026.
+      <span class="lastupdated">Last updated on Oct 13, 2026.
       </span></p>
   </div>
 

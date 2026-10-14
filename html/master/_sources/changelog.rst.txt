@@ -9,7 +9,10 @@ Changelog
 **New Features and Improvements**
 
 * Tools: color inputs now support editing alpha and previewing transparency.
+* Tools: added a shader library property to materials.
 * HTML5: added support to wasm64.
+* Runtime: added ``--render-config`` to override the boot config's render configuration.
+* Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 
 **Fixes**
 
@@ -20,8 +23,12 @@ Changelog
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.
 * Runtime: fixed lighting artifacts.
+* Runtime: fixed material memory leaks at shutdown.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
+* Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
+* Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.
+* Data Compiler: fixed shader compilation continuing after shader library parsing errors.
 
 .. _v0.65.0:
 

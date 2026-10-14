@@ -543,7 +543,7 @@ Interface to manipulate a rendering material.
 	Sets the *value* of the variable *name*.
 
 **set_texture** (material, sampler_name, texture_name)
-	Sets the *texture_resource* of the sampler *sampler_name*.
+	Sets the *texture_resource* of the sampler *sampler_name*. Passing nil binds the default texture.
 
 Vector3
 =======
