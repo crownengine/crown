@@ -76,8 +76,7 @@ public class InputString : InputField
 #endif
 
 #if CROWN_GTK3
-		_entry.focus_in_event.connect(on_focus_in);
-		_entry.focus_out_event.connect(on_focus_out);
+		_entry.notify["is-focus"].connect(on_focus_changed);
 
 		this.add(_entry);
 #else
@@ -121,10 +120,18 @@ public class InputString : InputField
 	}
 
 #if CROWN_GTK3
-	public bool on_focus_in(Gdk.EventFocus ev)
-#else
-	public void on_focus_enter()
+	public void on_focus_changed(GLib.ParamSpec pspec)
+	{
+		if (!_entry.is_focus) {
+			on_focus_leave();
+			return;
+		}
+
+		on_focus_enter();
+	}
 #endif
+
+	public void on_focus_enter()
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_in(_entry);
@@ -136,16 +143,9 @@ public class InputString : InputField
 
 		_entry.set_position(-1);
 		_entry.select_region(0, -1);
-#if CROWN_GTK3
-		return Gdk.EVENT_PROPAGATE;
-#endif
 	}
 
-#if CROWN_GTK3
-	public bool on_focus_out(Gdk.EventFocus ef)
-#else
 	public void on_focus_leave()
-#endif
 	{
 		var app = (LevelEditorApplication)GLib.Application.get_default();
 		app.entry_any_focus_out(_entry);
@@ -161,9 +161,6 @@ public class InputString : InputField
 		}
 
 		_entry.select_region(0, 0);
-#if CROWN_GTK3
-		return Gdk.EVENT_PROPAGATE;
-#endif
 	}
 
 	public virtual void set_value_safe(string text)

@@ -90,8 +90,7 @@ public class InputResource : InputField
 		_name.has_tooltip = true;
 		_name.query_tooltip.connect(on_name_query_tooltip);
 #if CROWN_GTK3
-		_name.focus_in_event.connect(on_name_focus_in);
-		_name.focus_out_event.connect(on_name_focus_out);
+		_name.notify["is-focus"].connect(on_name_focus_changed);
 		_box.pack_start(_name, true, true);
 #else
 		_controller_focus = new Gtk.EventControllerFocus();
@@ -320,18 +319,14 @@ public class InputResource : InputField
 	}
 
 #if CROWN_GTK3
-	public bool on_name_focus_in(Gdk.EventFocus ev)
+	public void on_name_focus_changed(GLib.ParamSpec pspec)
 	{
-		name_focus_in();
-		return Gdk.EVENT_PROPAGATE;
-	}
-#endif
+		if (!_name.is_focus) {
+			name_focus_out();
+			return;
+		}
 
-#if CROWN_GTK3
-	public bool on_name_focus_out(Gdk.EventFocus ev)
-	{
-		name_focus_out();
-		return Gdk.EVENT_PROPAGATE;
+		name_focus_in();
 	}
 #endif
 
