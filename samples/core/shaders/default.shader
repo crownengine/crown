@@ -360,10 +360,10 @@ bgfx_shaders = {
 			SAMPLER2D(u_emission_map, 5); // { label="Emission Map" tooltip="Texture supplying the emitted surface color." }
 
 			uniform vec4 u_albedo; // { val=[1 1 1] label="Albedo" tooltip="Surface base color multiplied with the albedo texture." editor="color" }
-			uniform vec4 u_metallic; // { val=0 label="Metallic" tooltip="Metallic factor from zero for dielectrics to one for metals." }
-			uniform vec4 u_roughness; // { val=1 label="Roughness" tooltip="Surface roughness from zero for smooth to one for rough." }
+			uniform vec4 u_metallic; // { val=0 min=0 max=1 label="Metallic" tooltip="Metallic factor from zero for dielectrics to one for metals." }
+			uniform vec4 u_roughness; // { val=1 min=0 max=1 label="Roughness" tooltip="Surface roughness from zero for smooth to one for rough." }
 			uniform vec4 u_emission_color; // { val=[0 0 0] label="Emission Color" tooltip="Color emitted by the surface." editor="color" }
-			uniform vec4 u_emission_intensity; // { val=1 label="Emission Intensity" tooltip="Multiplier applied to the emitted color." }
+			uniform vec4 u_emission_intensity; // { val=1 min=0 label="Emission Intensity" tooltip="Multiplier applied to the emitted color." }
 			uniform vec4 u_use_albedo_map; // { val=0 label="Use Albedo Map" tooltip="Enable the albedo texture." editor="bool" }
 			uniform vec4 u_use_normal_map; // { val=0 label="Use Normal Map" tooltip="Enable the normal texture." editor="bool" }
 			uniform vec4 u_use_metallic_map; // { val=0 label="Use Metallic Map" tooltip="Enable the metallic texture." editor="bool" }
