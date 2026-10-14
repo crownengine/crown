@@ -1062,8 +1062,9 @@ public class Database
 			convert_material(json);
 			if (db_key == "" && !json.contains("shader_library"))
 				set_local(id, property_index(id, STRING_ID_64("shader_library", 0xe5ee32a477239a93)), null);
-		} else if (type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893))
+		} else if (type == STRING_ID_64(OBJECT_TYPE_MESH_RENDERER, 0x345b95f8df017893)) {
 			convert_mesh_renderer(id, json);
+		}
 
 		unowned ObjectTypeInfo? info = type_info(type);
 		if (info != null)

@@ -1244,7 +1244,7 @@ namespace shader_resource_internal
 								const char *end = annotation;
 								while (*end && *end != '\n' && *end != '\r') ++end;
 								array::push(ss, annotation, u32(end - annotation));
-								}
+							}
 						}
 						ss << " */";
 						p = q + 1;
@@ -2624,10 +2624,13 @@ namespace shader_resource_internal
 			if (json_object::has(meta, "editor")) {
 				DynamicString editor(ta);
 				RETURN_IF_ERROR(sjson::parse_string(editor, meta["editor"]));
-				if (editor == "default") um.editor = UniformEditor::DEFAULT;
-				else if (editor == "color") um.editor = UniformEditor::COLOR;
-				else if (editor == "bool") um.editor = UniformEditor::BOOL;
-				else {
+				if (editor == "default") {
+					um.editor = UniformEditor::DEFAULT;
+				} else if (editor == "color") {
+					um.editor = UniformEditor::COLOR;
+				} else if (editor == "bool") {
+					um.editor = UniformEditor::BOOL;
+				} else {
 					RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "Unknown uniform editor '%s' for '%s'", editor.c_str(), um.name);
 				}
 			}

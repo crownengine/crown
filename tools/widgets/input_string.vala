@@ -168,7 +168,7 @@ public class InputString : InputField
 
 	public virtual void set_value_safe(string text)
 	{
-		assert((void *)text != (void *)_entry.text);
+		assert((void*)text != (void*)_entry.text);
 		_entry.text = text;
 		commit_value(text);
 	}
