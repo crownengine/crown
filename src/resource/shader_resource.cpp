@@ -2781,8 +2781,8 @@ namespace shader_resource_internal
 				} else {
 					RETURN_IF_FALSE(SHADER_RESOURCE
 						, meta[i].type == um.type && memcmp(&meta[i].val, &um.val, sizeof(um.val)) == 0
-							&& memcmp(&meta[i].min, &um.min, sizeof(um.min)) == 0
-							&& memcmp(&meta[i].max, &um.max, sizeof(um.max)) == 0
+						&& memcmp(&meta[i].min, &um.min, sizeof(um.min)) == 0
+						&& memcmp(&meta[i].max, &um.max, sizeof(um.max)) == 0
 						, opts
 						, "Conflicting metadata for uniform '%s'"
 						, um.name
