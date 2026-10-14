@@ -48,6 +48,7 @@ public class InputVector4 : InputField
 			_z.value = val.z;
 			_w.value = val.w;
 			_stop_emit = false;
+			value_changed(this);
 		}
 	}
 
