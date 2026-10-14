@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
+* Tools: fixed numeric inputs displaying unclamped values after leaving edit mode.
 * Runtime: fixed material memory leaks at shutdown.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
 * Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.
