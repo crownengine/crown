@@ -66,6 +66,7 @@ public class EditorViewport : Gtk.Box
 	public DatabaseEditor _database_editor;
 	public Project _project;
 	public string _boot_dir;
+	public string? _render_config;
 	public string _console_address;
 	public uint16 _console_port;
 	public PreferencesDialog _preferences;
@@ -139,7 +140,7 @@ public class EditorViewport : Gtk.Box
 		if (!create_port_file_path(out port_file))
 			return;
 
-		string args[] =
+		string[] args =
 		{
 			ENGINE_EXE,
 			_preferences._editor_renderer.value != "default" ? "--renderer" : "",
@@ -159,6 +160,11 @@ public class EditorViewport : Gtk.Box
 			_render_mode == ViewportRenderMode.PUMPED ? "--pumped" : "",
 			"--window-rect", "0", "0", width.to_string(), height.to_string(),
 		};
+
+		if (_render_config != null) {
+			args += "--render-config";
+			args += _render_config;
+		}
 
 		try {
 			_runtime._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
