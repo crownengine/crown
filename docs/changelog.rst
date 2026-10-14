@@ -11,6 +11,7 @@ Changelog
 * Tools: fixed object properties showing ``General`` instead of the object's type name.
 * Tools: fixed numeric inputs displaying unclamped values after leaving edit mode.
 * Tools: fixed input widgets clearing text selections when opening their context menus.
+* Tools: fixed Escape closing the color picker when cancelling a numeric edit.
 * Runtime: fixed material memory leaks at shutdown.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
 * Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.

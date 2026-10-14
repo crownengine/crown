@@ -514,6 +514,7 @@ public class InputColor3 : InputField
 #if CROWN_GTK3
 		_popover = new Gtk.Popover(null);
 		_popover.add(_input_box);
+		_popover.key_press_event.connect(on_popover_key_pressed);
 		// _popover.has_arrow = false;
 		_input_box.show_all();
 #else
@@ -879,6 +880,21 @@ public class InputColor3 : InputField
 #endif
 		on_hs_circle_changed(hs_from_xy({ x, y }));
 	}
+
+#if CROWN_GTK3
+	public bool on_popover_key_pressed(Gdk.EventKey ev)
+	{
+		if (ev.keyval != Gdk.Key.Escape)
+			return Gdk.EVENT_PROPAGATE;
+
+		var window = _popover.get_toplevel() as Gtk.Window;
+		Gtk.Widget? focus = window != null ? window.get_focus() : null;
+		if (focus == null || !focus.is_ancestor(_popover))
+			return Gdk.EVENT_PROPAGATE;
+
+		return focus.event(ev);
+	}
+#endif
 
 	public void on_color_picked(GLib.Object? object, GLib.AsyncResult result)
 	{
