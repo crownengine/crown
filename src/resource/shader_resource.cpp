@@ -83,6 +83,7 @@ SamplerMetadata::SamplerMetadata(Allocator &a)
 	: name(0)
 	, state(0)
 	, stage(0)
+	, has_metadata(false)
 	, label(a)
 	, tooltip(a)
 {
@@ -1298,6 +1299,7 @@ namespace shader_resource_internal
 			RETURN_IF_FALSE(SHADER_RESOURCE, marker_end != NULL, opts, "Malformed sampler stage marker");
 			const char *annotation = skip_spaces(stage_end);
 			if (annotation != marker_end) {
+				metadata.has_metadata = true;
 				JsonObject object(ta);
 				RETURN_IF_ERROR(sjson::parse_object(object, annotation));
 				RETURN_IF_FALSE(SHADER_RESOURCE, skip_spaces(object._end) == marker_end, opts, "Malformed sampler annotation marker");
@@ -1307,6 +1309,7 @@ namespace shader_resource_internal
 			if (hash_map::has(stages, key)) {
 				const SamplerMetadata deffault(default_allocator());
 				SamplerMetadata existing = hash_map::get(stages, key, deffault);
+				metadata.has_metadata = metadata.has_metadata || existing.has_metadata;
 				RETURN_IF_FALSE(SHADER_RESOURCE, existing.stage == stage
 					, opts
 					, "Sampler '%s' declared with conflicting texture stages: %u and %u"
@@ -3386,16 +3389,20 @@ namespace shader_compiler
 				ss << ",\"default\":[" << um.val.x << ',' << um.val.y << ',' << um.val.z << ',' << um.val.w << "]}";
 			}
 			ss << "],\"samplers\":[";
+			first = true;
 			for (u32 si = 0; si < vector::size(vm.samplers); ++si) {
-				if (si != 0) ss << ',';
 				const SamplerMetadata &sampler = vm.samplers[si];
+				if (!sampler.has_metadata)
+					continue;
+				if (!first) ss << ',';
+				first = false;
 				ss << "{\"name\":";
 				metadata_string(ss, sampler.uniform_name);
 				ss << ",\"label\":";
 				metadata_string(ss, sampler.label.empty() ? sampler.uniform_name : sampler.label.c_str());
 				ss << ",\"tooltip\":";
 				metadata_string(ss, sampler.tooltip.c_str());
-				ss << ",\"stage\":" << sampler.stage << '}';
+				ss << '}';
 			}
 			ss << "]}";
 		}

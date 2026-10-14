@@ -122,6 +122,7 @@ struct SamplerMetadata
 	u32 state;
 	u32 stage;
 	char uniform_name[128];
+	bool has_metadata;
 	DynamicString label;
 	DynamicString tooltip;
 
