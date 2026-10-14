@@ -89,6 +89,8 @@ struct UniformMetadata
 	UniformType::Enum type;
 	char name[128];
 	Vector4 val;
+	Vector4 min;
+	Vector4 max;
 	DynamicString label;
 	DynamicString tooltip;
 	UniformEditor::Enum editor;

@@ -35,6 +35,7 @@
 #include "world/shader_manager.h"
 #include <algorithm> // std::sort
 #include <ctype.h>   // isalnum, isalpha, isdigit
+#include <float.h>   // FLT_MAX
 #include <stdlib.h>  // strtoull
 
 LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
@@ -59,6 +60,8 @@ namespace shader_resource_internal
 UniformMetadata::UniformMetadata(Allocator &a)
 	: type(UniformType::COUNT)
 	, val(VECTOR4_ZERO)
+	, min({ -FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX })
+	, max({ FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX })
 	, label(a)
 	, tooltip(a)
 	, editor(UniformEditor::COUNT)
@@ -2605,6 +2608,27 @@ namespace shader_resource_internal
 			return 0;
 		}
 
+		s32 parse_uniform_range(Vector4 &range, const char *json, u32 num_components, const char *key, CompileOptions &opts)
+		{
+			if (json::type(json) == JsonValueType::ARRAY) {
+				TempAllocator256 ta;
+				JsonArray arr(ta);
+				RETURN_IF_ERROR(sjson::parse_array(arr, json));
+				RETURN_IF_FALSE(SHADER_RESOURCE, array::size(arr) == num_components
+					, opts, "Invalid '%s' array size", key);
+				for (u32 i = 0; i < num_components; ++i) {
+					*(&range.x + i) = RETURN_IF_ERROR(sjson::parse_float(arr[i]));
+				}
+			} else if (json::type(json) == JsonValueType::NUMBER) {
+				const f32 value = RETURN_IF_ERROR(sjson::parse_float(json));
+				for (u32 i = 0; i < num_components; ++i)
+					*(&range.x + i) = value;
+			} else {
+				RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "'%s' must be either an array of numbers or a number", key);
+			}
+			return 0;
+		}
+
 		// Parse uniform/sampler declaration comment.
 		s32 parse_decl_comment(UniformMetadata &um, const char *comment, CompileOptions &opts)
 		{
@@ -2666,6 +2690,22 @@ namespace shader_resource_internal
 					} else {
 						RETURN_IF_FALSE(SHADER_RESOURCE, false, opts, "'val' must be either an array of numbers or a number");
 					}
+				}
+			}
+
+			if (um.type < UniformType::MATRIX4X4) {
+				const u32 num_components = um.type + 1;
+				if (json_object::has(meta, "min")) {
+					s32 err = parse_uniform_range(um.min, meta["min"], num_components, "min", opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
+				}
+				if (json_object::has(meta, "max")) {
+					s32 err = parse_uniform_range(um.max, meta["max"], num_components, "max", opts);
+					ENSURE_OR_RETURN(SHADER_RESOURCE, err == 0, opts);
+				}
+				for (u32 i = 0; i < num_components; ++i) {
+					RETURN_IF_FALSE(SHADER_RESOURCE, *(&um.min.x + i) <= *(&um.max.x + i)
+						, opts, "Invalid range for uniform '%s'", um.name);
 				}
 			}
 
@@ -2741,6 +2781,8 @@ namespace shader_resource_internal
 				} else {
 					RETURN_IF_FALSE(SHADER_RESOURCE
 						, meta[i].type == um.type && memcmp(&meta[i].val, &um.val, sizeof(um.val)) == 0
+							&& memcmp(&meta[i].min, &um.min, sizeof(um.min)) == 0
+							&& memcmp(&meta[i].max, &um.max, sizeof(um.max)) == 0
 						, opts
 						, "Conflicting metadata for uniform '%s'"
 						, um.name
@@ -3386,7 +3428,9 @@ namespace shader_compiler
 				metadata_string(ss, editors[um.editor == UniformEditor::COUNT ? UniformEditor::DEFAULT : um.editor]);
 				ss << ",\"type\":";
 				metadata_string(ss, types[um.type]);
-				ss << ",\"default\":[" << um.val.x << ',' << um.val.y << ',' << um.val.z << ',' << um.val.w << "]}";
+				ss << ",\"default\":[" << um.val.x << ',' << um.val.y << ',' << um.val.z << ',' << um.val.w << ']';
+				ss << ",\"min\":[" << um.min.x << ',' << um.min.y << ',' << um.min.z << ',' << um.min.w << ']';
+				ss << ",\"max\":[" << um.max.x << ',' << um.max.y << ',' << um.max.z << ',' << um.max.w << "]}";
 			}
 			ss << "],\"samplers\":[";
 			first = true;
