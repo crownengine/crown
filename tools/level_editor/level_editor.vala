@@ -501,10 +501,10 @@ public class LevelEditorApplication : Gtk.Application
 	public Gtk.Paned _content_pane;
 	public Gtk.Paned _inspector_pane;
 	public Gtk.Paned _main_pane;
+	public CommandBar _command_bar;
 	public Statusbar _statusbar;
 	public Gtk.Box _main_vbox;
 	public Gtk.FileFilter _file_filter;
-	public Gtk.MenuButton _console_runtime_button;
 	public GLib.SimpleAction _console_runtime_action;
 	public NewProject _new_project;
 	public ProjectsList _projects_list;
@@ -776,32 +776,14 @@ public class LevelEditorApplication : Gtk.Application
 		_project_store = new ProjectStore(_project);
 
 		// Widgets
-		_console_runtime_button = new Gtk.MenuButton();
-		_console_runtime_button.set_tooltip_text(_("Runtime that will receive the message."));
-		_console_runtime_button.set_label(_("Editor"));
-		_console_runtime_button.set_size_request(50, -1);
 		_console_runtime_action = new GLib.SimpleAction.stateful("console-runtime"
 			, new GLib.VariantType("i")
 			, new GLib.Variant.int32((int)ConsoleRuntime.EDITOR)
 			);
-		_console_runtime_action.activate.connect((target) => {
-			_console_runtime_action.set_state(target);
-			_console_runtime_button.set_label((ConsoleRuntime)target.get_int32() == ConsoleRuntime.EDITOR ? _("Editor") : _("Game"));
-		});
+		_console_runtime_action.activate.connect(on_console_runtime);
 		this.add_action(_console_runtime_action);
-		GLib.Menu runtime_menu = new GLib.Menu();
-		GLib.MenuItem editor_item = new GLib.MenuItem(_("Editor"), null);
-		editor_item.set_action_and_target_value("app.console-runtime", new GLib.Variant.int32((int)ConsoleRuntime.EDITOR));
-		runtime_menu.append_item(editor_item);
-		GLib.MenuItem game_item = new GLib.MenuItem(_("Game"), null);
-		game_item.set_action_and_target_value("app.console-runtime", new GLib.Variant.int32((int)ConsoleRuntime.GAME));
-		runtime_menu.append_item(game_item);
-#if CROWN_GTK3
-		_console_runtime_button.set_use_popover(true);
-#endif
-		_console_runtime_button.set_menu_model(runtime_menu);
 
-		_console_view = new ConsoleView(_project, _console_runtime_button, _preferences_dialog);
+		_console_view = new ConsoleView(_project, _preferences_dialog);
 		_project_browser = new ProjectBrowser(_project_store, _thumbnail_cache, _database);
 
 		_level_treeview = new ObjectTree(_database_editor);
@@ -945,7 +927,12 @@ public class LevelEditorApplication : Gtk.Application
 		_main_pane.vexpand = true;
 #endif
 
-		_statusbar = new Statusbar();
+		_command_bar = new CommandBar();
+		_statusbar = new Statusbar(_command_bar, _editor_stack);
+		_editor_pane.notify["position"].connect(_statusbar.queue_allocate);
+		_main_pane.notify["position"].connect(_statusbar.queue_allocate);
+		_project_notebook.notify["visible"].connect(_statusbar.queue_allocate);
+		_inspector_stack.notify["visible"].connect(_statusbar.queue_allocate);
 
 		_main_vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 #if CROWN_GTK3
@@ -1107,7 +1094,7 @@ public class LevelEditorApplication : Gtk.Application
 		}
 
 		_user.load(_user_file.get_path());
-		_console_view._entry_history.load(_console_history_file.get_path());
+		_command_bar._entry_history.load(_console_history_file.get_path());
 
 		_check_version_trimer_id = GLib.Timeout.add(5000, on_check_version);
 
@@ -1252,6 +1239,13 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		this.activate();
 		return 0;
+	}
+
+	public void on_console_runtime(GLib.Variant? target)
+	{
+		_console_runtime_action.set_state(target);
+		_command_bar._runtime_button.set_label((ConsoleRuntime)target.get_int32() == ConsoleRuntime.EDITOR ? _("Editor") : _("Game"));
+		_command_bar.reset_lua_suggestions_state();
 	}
 
 	public RuntimeInstance? current_selected_runtime()
@@ -1555,7 +1549,7 @@ public class LevelEditorApplication : Gtk.Application
 		} else if (msg_type == "expr_suggestions") {
 			uint request_id = (uint)(double)msg["id"];
 			uint replace_start = (uint)(double)msg["replace_start"];
-			_console_view.set_lua_suggestions(request_id, replace_start, (GLib.GenericArray<Value?>)msg["items"]);
+			_command_bar.set_lua_suggestions(request_id, replace_start, (GLib.GenericArray<Value?>)msg["items"]);
 		} else {
 			loge("Unknown message type: " + msg_type);
 		}
@@ -2152,7 +2146,7 @@ public class LevelEditorApplication : Gtk.Application
 		} catch (JsonWriteError e) {
 			loge(e.message);
 		}
-		_console_view._entry_history.save(_console_history_file.get_path());
+		_command_bar._entry_history.save(_console_history_file.get_path());
 
 		if (_preferences_dialog != null)
 			_preferences_dialog.destroy();
@@ -3090,17 +3084,19 @@ public class LevelEditorApplication : Gtk.Application
 	public void on_console(GLib.SimpleAction action, GLib.Variant? param)
 	{
 		if (_console_notebook.is_visible()) {
-			if (_console_view._entry.has_focus)
+			if (_command_bar.has_entry_focus()) {
 				_console_notebook.hide();
-			else
-				_console_view._entry.grab_focus_without_selecting();
+				_editor_viewport.grab_focus();
+			} else {
+				_command_bar._entry.grab_focus_without_selecting();
+			}
 		} else {
 #if CROWN_GTK3
 			_console_notebook.show_all();
 #else
 			_console_notebook.show();
 #endif
-			_console_view._entry.grab_focus_without_selecting();
+			_command_bar._entry.grab_focus_without_selecting();
 		}
 	}
 

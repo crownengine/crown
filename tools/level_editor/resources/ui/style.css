@@ -35,7 +35,7 @@ notebook > header tab {
 	padding: 0px;
 }
 
-.console-view textview, .console-view entry {
+.console-view textview, .command-bar entry {
 	font: 12px "Monospace";
 }
 
