@@ -14,7 +14,6 @@ public class ObjectEditor : Gtk.ApplicationWindow
 	public ObjectTree _objects_tree;
 	public ObjectProperties _objects_properties;
 	public Gtk.Paned _paned;
-	public Statusbar _statusbar;
 
 	public Gtk.Button _save;
 	public Gtk.HeaderBar _header_bar;
@@ -38,8 +37,6 @@ public class ObjectEditor : Gtk.ApplicationWindow
 
 		_database = new Database(project);
 		_database_editor = new DatabaseEditor(undo_redo_size, _database);
-		_database_editor.undo.connect(on_undo);
-		_database_editor.redo.connect(on_redo);
 		this.insert_action_group("database", _database_editor._action_group);
 
 		_database.objects_created.connect(on_objects_created);
@@ -55,8 +52,6 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_objects_properties.set_max_subobject_depth(0);
 
 		_database_editor.load_types();
-
-		_statusbar = new Statusbar();
 
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
 #if CROWN_GTK3
@@ -124,14 +119,12 @@ public class ObjectEditor : Gtk.ApplicationWindow
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 #if CROWN_GTK3
 		_box.pack_start(_paned);
-		_box.pack_start(_statusbar, false);
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 #else
 		_box.append(menubar);
 		_box.append(_paned);
-		_box.append(_statusbar);
 
 		this.close_request.connect(on_close_request);
 		this.set_child(_box);
@@ -326,16 +319,6 @@ public class ObjectEditor : Gtk.ApplicationWindow
 	public void on_objects_tree_selection_changed(Guid?[] objects)
 	{
 		_database_editor.selection_read(objects);
-	}
-
-	public void on_undo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[action_id])));
-	}
-
-	public void on_redo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[action_id])));
 	}
 
 	public void close_and_unload()

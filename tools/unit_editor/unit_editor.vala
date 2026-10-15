@@ -17,7 +17,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 	public ObjectTree _objects_tree;
 	public ObjectProperties _properties_view;
 	public Level _level;
-	public Statusbar _statusbar;
 	public PreferencesDialog _preferences;
 
 	public Gtk.Paned _paned_object;
@@ -48,8 +47,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 
 		_database = new Database(project);
 		_database_editor = new DatabaseEditor((uint32)preferences._undo_redo_max_size.value * 1024 * 1024, _database);
-		_database_editor.undo.connect(on_undo);
-		_database_editor.redo.connect(on_redo);
 		_database_editor.selection_changed.connect(on_selection_changed);
 		this.insert_action_group("database", _database_editor._action_group);
 
@@ -88,8 +85,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_runtime.message_received.connect(on_message_received);
 
 		_level = new Level(_database, _runtime);
-
-		_statusbar = new Statusbar();
 
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
 #if CROWN_GTK3
@@ -175,14 +170,12 @@ public class UnitEditor : Gtk.ApplicationWindow
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 #if CROWN_GTK3
 		_box.pack_start(_paned_object);
-		_box.pack_start(_statusbar, false);
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 #else
 		_box.append(menubar);
 		_box.append(_paned_object);
-		_box.append(_statusbar);
 
 		this.close_request.connect(on_close_request);
 		this.set_child(_box);
@@ -524,16 +517,6 @@ public class UnitEditor : Gtk.ApplicationWindow
 			dlg.show();
 #endif
 		}
-	}
-
-	public void on_undo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[action_id])));
-	}
-
-	public void on_redo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[action_id])));
 	}
 
 	public Guid?[] runtime_selection(Guid?[] selection)

@@ -17,7 +17,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 	public ObjectTree _objects_tree;
 	public ObjectProperties _objects_properties;
 	public Gtk.Paned _inspector_paned;
-	public Statusbar _statusbar;
 
 	public Gtk.Paned _paned;
 	public Gtk.Button _save;
@@ -65,8 +64,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_preferences = preferences;
 		_database = new Database(project);
 		_database_editor = new DatabaseEditor((uint32)preferences._undo_redo_max_size.value * 1024 * 1024, _database);
-		_database_editor.undo.connect(on_undo);
-		_database_editor.redo.connect(on_redo);
 		this.insert_action_group("database", _database_editor._action_group);
 
 		_database.objects_created.connect(on_objects_created);
@@ -99,8 +96,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_runtime.disconnected.connect(on_editor_disconnected);
 		_runtime.disconnected_unexpected.connect(on_editor_disconnected_unexpected);
 		_runtime.message_received.connect(on_message_received);
-
-		_statusbar = new Statusbar();
 
 		_save = new Gtk.Button.with_label(_("Save & Reload"));
 #if CROWN_GTK3
@@ -185,14 +180,12 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 		_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 #if CROWN_GTK3
 		_box.pack_start(_paned);
-		_box.pack_start(_statusbar, false);
 
 		this.delete_event.connect(on_close_request);
 		this.add(_box);
 #else
 		_box.append(menubar);
 		_box.append(_paned);
-		_box.append(_statusbar);
 
 		this.close_request.connect(on_close_request);
 		this.set_child(_box);
@@ -459,16 +452,6 @@ public class StateMachineEditor : Gtk.ApplicationWindow
 			dlg.show();
 #endif
 		}
-	}
-
-	public void on_undo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Undo: %s").printf(_(ActionNames[action_id])));
-	}
-
-	public void on_redo(int action_id)
-	{
-		_statusbar.set_temporary_message(_("Redo: %s").printf(_(ActionNames[action_id])));
 	}
 
 	public void close_and_unload()
