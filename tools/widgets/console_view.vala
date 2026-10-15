@@ -571,15 +571,26 @@ public class ConsoleView : Gtk.Box
 
 		int suggestions_count = 0;
 		for (int i = 0; i < items.length; ++i) {
-			string s = (string)items[i];
+			var item = (GLib.HashTable<string, Value?>)items[i];
+			string s = (string)item["name"];
 
 			Gtk.ListBoxRow row = new Gtk.ListBoxRow();
+			Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
 			Gtk.Label label = new Gtk.Label(s);
 			label.set_xalign(0.0f);
+			label.hexpand = true;
+			Gtk.Label type_label = new Gtk.Label((string)item["type"]);
+			type_label.set_xalign(1.0f);
 #if CROWN_GTK3
-			row.add(label);
+			type_label.get_style_context().add_class(Gtk.STYLE_CLASS_DIM_LABEL);
+			box.pack_start(label);
+			box.pack_start(type_label, false, false, 0);
+			row.add(box);
 #else
-			row.set_child(label);
+			type_label.add_css_class("dim-label");
+			box.append(label);
+			box.append(type_label);
+			row.set_child(box);
 #endif
 			row.set_data("suggestion", s);
 #if CROWN_GTK3

@@ -722,18 +722,19 @@ static bool is_lua_identifier_char(char ch)
 		;
 }
 
-static void append_suggestion_item(StringStream &ss, bool &first, const char *table_prefix, const char *key, const char *child_key)
+static void append_suggestion_item(StringStream &ss, bool &first, lua_State *L, const char *table_prefix, const char *key, const char *child_key)
 {
+	LuaStack stack(L);
 	if (!first)
 		ss << ",";
-	ss << "\"";
+	ss << "{\"name\":\"";
 	ss << table_prefix;
 	ss << key;
 	if (child_key != NULL) {
 		ss << ".";
 		ss << child_key;
 	}
-	ss << "\"";
+	ss << "\",\"type\":\"" << stack.type_name(-1) << "\"}";
 	first = false;
 }
 
@@ -863,7 +864,7 @@ static void console_command_suggest(ConsoleServer &cs, u32 client_id, const char
 		}
 
 		if (!lua_istable(L, -1)) {
-			append_suggestion_item(ss, first, table_prefix.c_str(), key, NULL);
+			append_suggestion_item(ss, first, L, table_prefix.c_str(), key, NULL);
 			++emitted;
 			lua_pop(L, 1);
 			continue;
@@ -886,14 +887,14 @@ static void console_command_suggest(ConsoleServer &cs, u32 client_id, const char
 				continue;
 			}
 
-			append_suggestion_item(ss, first, table_prefix.c_str(), key, child_key);
+			append_suggestion_item(ss, first, L, table_prefix.c_str(), key, child_key);
 			++emitted;
 			lua_pop(L, 1);
 		}
 
 		// If table is empty, keep the table symbol itself.
 		if (!has_any_key && emitted < max_emitted) {
-			append_suggestion_item(ss, first, table_prefix.c_str(), key, NULL);
+			append_suggestion_item(ss, first, L, table_prefix.c_str(), key, NULL);
 			++emitted;
 		}
 
