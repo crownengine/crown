@@ -47,6 +47,41 @@ bool LuaStack::is_matrix4x4(int i)
 	return device()->_lua_environment->is_matrix4x4((Matrix4x4 *)lua_touserdata(L, i));
 }
 
+const char *LuaStack::type_name(int i)
+{
+	if (lua_islightuserdata(L, i)) {
+		if (is_vector3(i))
+			return "Vector3";
+		if (is_quaternion(i))
+			return "Quaternion";
+		if (is_matrix4x4(i))
+			return "Matrix4x4";
+
+		const void *ptr = lua_touserdata(L, i);
+		if (ptr != NULL && is_unit(i))
+			return "UnitId";
+		if (ptr != NULL && is_pointer(i)) {
+			switch (*(const u32 *)ptr) {
+			case DEBUG_LINE_MARKER:              return "DebugLine";
+			case DEBUG_GUI_MARKER:               return "DebugGui";
+			case LEVEL_MARKER:                   return "Level";
+			case RENDER_WORLD_MARKER:            return "RenderWorld";
+			case RESOURCE_PACKAGE_MARKER:        return "ResourcePackage";
+			case SCENE_GRAPH_MARKER:             return "SceneGraph";
+			case WORLD_MARKER:                   return "World";
+			case SCRIPT_WORLD_MARKER:            return "ScriptWorld";
+			case SOUND_WORLD_MARKER:             return "SoundWorld";
+			case PHYSICS_WORLD_MARKER:           return "PhysicsWorld";
+			case ANIMATION_STATE_MACHINE_MARKER: return "AnimationStateMachine";
+			default: break;
+			}
+		}
+		return "lightuserdata";
+	}
+
+	return lua_typename(L, lua_type(L, i));
+}
+
 #if CROWN_DEBUG
 Vector3 *LuaStack::check_temporary(int i, const Vector3 *ptr)
 {

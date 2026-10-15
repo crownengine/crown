@@ -1697,48 +1697,23 @@ void load_api(LuaEnvironment &env)
 		});
 	env.add_module_metafunction("Lightuserdata_mt", "__tostring", [](lua_State *L) {
 			LuaStack stack(L, +1);
+			const char *type_name = stack.type_name(1);
 			if (stack.is_vector3(1)) {
 				char buf[256];
 				to_string(buf, sizeof(buf), stack.get_vector3(1));
-				stack.push_fstring("Vector3: %s", buf);
+				stack.push_fstring("%s: %s", type_name, buf);
 			} else if (stack.is_quaternion(1)) {
 				char buf[256];
 				to_string(buf, sizeof(buf), stack.get_quaternion(1));
-				stack.push_fstring("Quaternion: %s", buf);
+				stack.push_fstring("%s: %s", type_name, buf);
 			} else if (stack.is_matrix4x4(1)) {
 				char buf[1024];
 				to_string(buf, sizeof(buf), stack.get_matrix4x4(1));
-				stack.push_fstring("Matrix4x4: %s", buf);
+				stack.push_fstring("%s: %s", type_name, buf);
 			} else if (stack.is_unit(1)) {
-				stack.push_fstring("UnitId: %u", stack.get_unit(1)._idx);
+				stack.push_fstring("%s: %u", type_name, stack.get_unit(1)._idx);
 			} else {
-				const void *ptr = stack.get_pointer(1);
-				const u32 marker = *(u32 *)ptr;
-
-				if (marker == DEBUG_LINE_MARKER)
-					stack.push_fstring("DebugLine: %p", ptr);
-				else if (marker == DEBUG_GUI_MARKER)
-					stack.push_fstring("DebugGui: %p", ptr);
-				else if (marker == LEVEL_MARKER)
-					stack.push_fstring("Level: %p", ptr);
-				else if (marker == RENDER_WORLD_MARKER)
-					stack.push_fstring("RenderWorld: %p", ptr);
-				else if (marker == RESOURCE_PACKAGE_MARKER)
-					stack.push_fstring("ResourcePackage: %p", ptr);
-				else if (marker == SCENE_GRAPH_MARKER)
-					stack.push_fstring("SceneGraph: %p", ptr);
-				else if (marker == WORLD_MARKER)
-					stack.push_fstring("World: %p", ptr);
-				else if (marker == SCRIPT_WORLD_MARKER)
-					stack.push_fstring("ScriptWorld: %p", ptr);
-				else if (marker == SOUND_WORLD_MARKER)
-					stack.push_fstring("SoundWorld: %p", ptr);
-				else if (marker == PHYSICS_WORLD_MARKER)
-					stack.push_fstring("PhysicsWorld: %p", ptr);
-				else if (marker == ANIMATION_STATE_MACHINE_MARKER)
-					stack.push_fstring("AnimationStateMachine: %p", ptr);
-				else
-					stack.push_fstring("lightuserdata: %p", ptr);
+				stack.push_fstring("%s: %p", type_name, stack.get_pointer(1));
 			}
 			return 1;
 		});

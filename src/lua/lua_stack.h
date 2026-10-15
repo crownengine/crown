@@ -148,6 +148,9 @@ struct LuaStack
 	/// Wraps lua_type.
 	int value_type(int i);
 
+	/// Returns the Lua or Crown type name.
+	const char *type_name(int i);
+
 	///
 	bool get_bool(int i);
 
