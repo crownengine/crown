@@ -324,11 +324,6 @@ public class ConsoleView : Gtk.Box
 		_entry_suggestions_popover.set_child(_entry_suggestions_scroller);
 #endif
 		_entry_suggestions_popover.popdown();
-#if CROWN_GTK3
-		_entry_hbox.size_allocate.connect((allocation) => {
-				_entry_suggestions_popover.set_size_request(allocation.width, -1);
-			});
-#endif
 
 		Gtk.Box hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 #if CROWN_GTK3
@@ -626,8 +621,6 @@ public class ConsoleView : Gtk.Box
 				_completion_updating_entry = false;
 			}
 
-			Gtk.Allocation bar_alloc;
-			_entry_hbox.get_allocation(out bar_alloc);
 			int list_min_h = 0;
 			int list_nat_h = 0;
 #if CROWN_GTK3
@@ -649,7 +642,28 @@ public class ConsoleView : Gtk.Box
 				desired_h = max_h;
 			_entry_suggestions_scroller.set_max_content_height(max_h);
 			_entry_suggestions_scroller.set_min_content_height(desired_h);
-			_entry_suggestions_popover.set_size_request(bar_alloc.width, desired_h);
+			_entry_suggestions_popover.set_size_request(-1, desired_h);
+			Gdk.Rectangle cursor_rect;
+#if CROWN_GTK3
+			Pango.Rectangle strong;
+			Pango.Rectangle weak;
+			int layout_index = _entry.text_index_to_layout_index(_entry.text.index_of_nth_char(prefix_len));
+			_entry.get_layout().get_cursor_pos(layout_index, out strong, out weak);
+			int layout_x;
+			int layout_y;
+			_entry.get_layout_offsets(out layout_x, out layout_y);
+			cursor_rect = { layout_x + strong.x / Pango.SCALE, layout_y + strong.y / Pango.SCALE, 1, strong.height / Pango.SCALE };
+#else
+			Gtk.Text entry_text = (Gtk.Text)_entry.get_delegate();
+			Graphene.Rect strong;
+			Graphene.Rect weak;
+			entry_text.compute_cursor_extents(prefix_len, out strong, out weak);
+			double cursor_x;
+			double cursor_y;
+			entry_text.translate_coordinates(_entry, strong.origin.x, strong.origin.y, out cursor_x, out cursor_y);
+			cursor_rect = { (int)cursor_x, (int)cursor_y, 1, (int)strong.size.height };
+#endif /* if CROWN_GTK3 */
+			_entry_suggestions_popover.set_pointing_to(cursor_rect);
 			_entry_suggestions_popover.popup();
 			if (first_row != null)
 				_entry_suggestions_list.select_row(first_row);
