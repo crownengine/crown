@@ -2,8 +2,10 @@ name: dist
 
 on:
   push:
+    # Keep this list in sync with the folder mapping in the unstable step.
     branches:
       - master
+      - gtk4
     tags:
       - '*'
 
@@ -82,6 +84,10 @@ jobs:
       GCC16_ROOT: /opt/gcc-16.2.0
       GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
       GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
+      GTK4_VERSION: 4.22.5
+      GTK4_ROOT: /opt/gtk-4.22.5
+      GTK4_GDRIVE_FILE_ID: ${{ vars.GTK4_GDRIVE_FILE_ID }}
+      GTK4_SHA256_GDRIVE_FILE_ID: ${{ vars.GTK4_SHA256_GDRIVE_FILE_ID }}
     steps:
       - name: prepare
         uses: actions/checkout@v6
@@ -116,7 +122,12 @@ jobs:
             linux)
               sudo add-apt-repository ppa:vala-team -y
               sudo apt-get update
-              sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext python3-sphinx valac libxml2-utils
+              sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext python3-sphinx valac libxml2-utils sassc
+              sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libdrm-dev \
+                libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
+                libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
+                libxcb1-dev libxcb-shm0-dev libxcb-render0-dev libxcb-xkb-dev \
+                libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev
               ;;
           esac
       - name: install-gcc16
@@ -152,6 +163,33 @@ jobs:
 
           test "$(readlink -f /usr/bin/gcc)" = "${GCC16_ROOT}/bin/gcc"
           test "$(readlink -f /usr/bin/g++)" = "${GCC16_ROOT}/bin/g++"
+
+          export LD_LIBRARY_PATH="${GCC16_ROOT}/lib64:${GCC16_ROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+      - name: install-gtk4
+        if: matrix.platform == 'linux' && env.BRANCH == 'gtk4'
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${GTK4_GDRIVE_FILE_ID:?Set the GTK4_GDRIVE_FILE_ID repository variable}"
+          : "${GTK4_SHA256_GDRIVE_FILE_ID:?Set the GTK4_SHA256_GDRIVE_FILE_ID repository variable}"
+          archive="gtk-${GTK4_VERSION}-ubuntu22.04-amd64.tar.xz"
+          cd "${RUNNER_TEMP}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GTK4_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "$archive"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GTK4_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "$archive.sha256"
+          sha256sum --check "$archive.sha256"
+          sudo tar -xJf "$archive" -C /
+          source "${GTK4_ROOT}/activate.sh"
+          test "$(pkg-config --modversion gtk4)" = "$GTK4_VERSION"
+          test "$(pkg-config --variable=prefix gtk4)" = "$GTK4_ROOT"
+          echo "${GTK4_ROOT}/bin" >> "$GITHUB_PATH"
+          for variable in PKG_CONFIG_PATH LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS; do
+            printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
+          done
       - name: package
         shell: bash
         run: |
@@ -165,10 +203,14 @@ jobs:
               export EMSCRIPTEN=$GITHUB_WORKSPACE/emsdk/upstream/emscripten
               ;;
           esac
+          ARGS=()
+          if [ "${BRANCH}" = "gtk4" ]; then
+            ARGS+=(--gtk4)
+          fi
           if [ "$IS_TAG" = "true" ]; then
-            ./scripts/dist/package.sh ${{ matrix.platform }} ${{ matrix.arch }} --noconfirm
+            ./scripts/dist/package.sh ${{ matrix.platform }} ${{ matrix.arch }} "${ARGS[@]}" --noconfirm
           else
-            ./scripts/dist/package.sh ${{ matrix.platform }} ${{ matrix.arch }} --branch "${BRANCH}" --noconfirm
+            ./scripts/dist/package.sh ${{ matrix.platform }} ${{ matrix.arch }} "${ARGS[@]}" --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
         uses: actions/upload-artifact@v6
@@ -219,7 +261,12 @@ jobs:
           set -euo pipefail
           case "${{ matrix.arch }}" in
             x64)
-              pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gtk3 mingw-w64-x86_64-vala gettext git mingw-w64-x86_64-python-sphinx
+              if [ "${BRANCH}" = "gtk4" ]; then
+                GTK_PACKAGE=mingw-w64-x86_64-gtk4
+              else
+                GTK_PACKAGE=mingw-w64-x86_64-gtk3
+              fi
+              pacman --noconfirm -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf "${GTK_PACKAGE}" mingw-w64-x86_64-vala mingw-w64-x86_64-sassc gettext git mingw-w64-x86_64-python-sphinx
               ;;
             x32)
               pacman --noconfirm -S make mingw-w64-i686-gcc mingw-w64-i686-pkgconf git
@@ -229,10 +276,14 @@ jobs:
         shell: msys2 {0}
         run: |
           set -euo pipefail
+          ARGS=()
+          if [ "${BRANCH}" = "gtk4" ]; then
+            ARGS+=(--gtk4)
+          fi
           if [ "$IS_TAG" = "true" ]; then
-            ./scripts/dist/package.sh windows ${{ matrix.arch }} --noconfirm
+            ./scripts/dist/package.sh windows ${{ matrix.arch }} "${ARGS[@]}" --noconfirm
           else
-            ./scripts/dist/package.sh windows ${{ matrix.arch }} --branch "${BRANCH}" --noconfirm
+            ./scripts/dist/package.sh windows ${{ matrix.arch }} "${ARGS[@]}" --branch "${BRANCH}" --noconfirm
           fi
       - name: upload-dist
         uses: actions/upload-artifact@v6
@@ -327,15 +378,30 @@ jobs:
         env:
           GDRIVE_KEY: ${{ secrets.GDRIVE_KEY }}
           GDRIVE_PARENT_FOLDER_ID: ${{ secrets.GDRIVE_PARENT_FOLDER_ID }}
+          GDRIVE_GTK4_PARENT_FOLDER_ID: ${{ secrets.GDRIVE_GTK4_PARENT_FOLDER_ID }}
         run: |
           set -euo pipefail
+          case "${BRANCH}" in
+            master)
+              GDRIVE_FOLDER_ID="${GDRIVE_PARENT_FOLDER_ID}"
+              ;;
+            gtk4)
+              GDRIVE_FOLDER_ID="${GDRIVE_GTK4_PARENT_FOLDER_ID}"
+              ;;
+            *)
+              echo "No Google Drive folder configured for branch '${BRANCH}'." >&2
+              exit 1
+              ;;
+          esac
+          : "${GDRIVE_FOLDER_ID:?Google Drive folder ID is not configured for branch ${BRANCH}}"
+
           CREDENTIALS="${RUNNER_TEMP}/gdrive.json"
           trap 'rm -f "${CREDENTIALS}"' EXIT
           umask 077
           printf '%s' "${GDRIVE_KEY}" > "${CREDENTIALS}"
 
           export RCLONE_CONFIG_GDRIVE_TYPE=drive
-          export RCLONE_CONFIG_GDRIVE_ROOT_FOLDER_ID="${GDRIVE_PARENT_FOLDER_ID}"
+          export RCLONE_CONFIG_GDRIVE_ROOT_FOLDER_ID="${GDRIVE_FOLDER_ID}"
           export RCLONE_CONFIG_GDRIVE_SERVICE_ACCOUNT_FILE="${CREDENTIALS}"
 
           rclone copy "${DIST_DIR}/" "gdrive:${VERSIONNAME}/" --checksum
@@ -430,7 +496,7 @@ jobs:
 
   aur-binary:
     needs: finalize
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref_type == 'tag' || github.ref == 'refs/heads/master')
     continue-on-error: true
     runs-on: ubuntu-22.04
     container: archlinux:base-devel

@@ -220,19 +220,75 @@ jobs:
       matrix:
         include:
         - toolkit: gtk3
-          package: libgtk-3-dev
           target_suffix: ""
         - toolkit: gtk4
-          package: libgtk-4-dev
           target_suffix: -gtk4
+    env:
+      GCC16_ROOT: /opt/gcc-16.2.0
+      GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
+      GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
+      GTK4_VERSION: 4.22.5
+      GTK4_ROOT: /opt/gtk-4.22.5
+      GTK4_GDRIVE_FILE_ID: ${{ vars.GTK4_GDRIVE_FILE_ID }}
+      GTK4_SHA256_GDRIVE_FILE_ID: ${{ vars.GTK4_SHA256_GDRIVE_FILE_ID }}
     steps:
     - uses: actions/checkout@v6
     - name: prepare
       run: |
+        sudo add-apt-repository ppa:vala-team -y
         sudo apt-get update
-        sudo apt-get install ${{ matrix.package }}
-        sudo add-apt-repository ppa:vala-team
-        sudo apt-get install valac sassc libxml2-utils gettext
+        sudo apt-get install -y valac sassc libxml2-utils gettext
+        if [[ "${{ matrix.toolkit }}" == gtk3 ]]; then
+          sudo apt-get install -y libgtk-3-dev
+        else
+          sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libdrm-dev \
+            libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
+            libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
+            libxcb1-dev libxcb-shm0-dev libxcb-render0-dev libxcb-xkb-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev
+        fi
+    - name: install-gcc16
+      if: matrix.toolkit == 'gtk4'
+      run: |
+        set -euo pipefail
+        archive="gcc-16.2.0-ubuntu22.04-amd64.tar.xz"
+        cd "${RUNNER_TEMP}"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GCC16_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GCC16_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive.sha256"
+        sha256sum --check "$archive.sha256"
+        sudo tar -xJf "$archive" -C /
+        export LD_LIBRARY_PATH="${GCC16_ROOT}/lib64:${GCC16_ROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        "${GCC16_ROOT}/bin/gcc" --version
+        "${GCC16_ROOT}/bin/g++" --version
+        echo "${GCC16_ROOT}/bin" >> "$GITHUB_PATH"
+        echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+    - name: install-gtk4
+      if: matrix.toolkit == 'gtk4'
+      run: |
+        set -euo pipefail
+        : "${GTK4_GDRIVE_FILE_ID:?Set the GTK4_GDRIVE_FILE_ID repository variable}"
+        : "${GTK4_SHA256_GDRIVE_FILE_ID:?Set the GTK4_SHA256_GDRIVE_FILE_ID repository variable}"
+        archive="gtk-${GTK4_VERSION}-ubuntu22.04-amd64.tar.xz"
+        cd "${RUNNER_TEMP}"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK4_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK4_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive.sha256"
+        sha256sum --check "$archive.sha256"
+        sudo tar -xJf "$archive" -C /
+        source "${GTK4_ROOT}/activate.sh"
+        test "$(pkg-config --modversion gtk4)" = "$GTK4_VERSION"
+        test "$(pkg-config --variable=prefix gtk4)" = "$GTK4_ROOT"
+        echo "${GTK4_ROOT}/bin" >> "$GITHUB_PATH"
+        for variable in PKG_CONFIG_PATH LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS; do
+          printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
+        done
     - name: linux-make-crown-editor-debug64
       run: |
         make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
