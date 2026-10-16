@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.4 --- DD MMM YYYY <v0.65.4>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: HTML5: fixed shutdown callbacks and resource cleanup when quitting.
+
 .. _v0.65.3:
 
 :ref:`0.65.3 --- 15 Oct 2026 <v0.65.3>`

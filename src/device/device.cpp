@@ -400,6 +400,9 @@ Device::Device(const DeviceOptions &opts, ConsoleServer &cs)
 	, _window(NULL)
 	, _timestep_policy(TimestepPolicy::VARIABLE)
 	, _render_config_resource(NULL)
+	, _boot_package(NULL)
+	, _render_config_package(NULL)
+	, _stat_config_package(NULL)
 	, _width(CROWN_DEFAULT_WINDOW_WIDTH)
 	, _height(CROWN_DEFAULT_WINDOW_HEIGHT)
 	, _exit_code(EXIT_SUCCESS)
@@ -604,6 +607,17 @@ bool Device::frame()
 
 	return false;
 }
+
+#if CROWN_PLATFORM_EMSCRIPTEN
+static void device_frame(void *user_data)
+{
+	Device *dev = (Device *)user_data;
+	if (dev->frame()) {
+		emscripten_cancel_main_loop();
+		dev->shutdown();
+	}
+}
+#endif
 
 int Device::main_loop()
 {
@@ -837,20 +851,20 @@ int Device::main_loop()
 	sound_world::init();
 
 	// Load boot package.
-	ResourcePackage *boot_package = create_resource_package(_boot_config.boot_package_name);
-	boot_package->load();
-	boot_package->flush();
+	_boot_package = create_resource_package(_boot_config.boot_package_name);
+	_boot_package->load();
+	_boot_package->flush();
 
 	// Load render config package.
-	ResourcePackage *render_config_package = create_resource_package(_boot_config.render_config_name);
-	render_config_package->load();
-	render_config_package->flush();
+	_render_config_package = create_resource_package(_boot_config.render_config_name);
+	_render_config_package->load();
+	_render_config_package->flush();
 
 	_render_config_resource = (RenderConfigResource *)_resource_manager->get(RESOURCE_TYPE_RENDER_CONFIG, _boot_config.render_config_name);
 
-	ResourcePackage *stat_config_package = create_resource_package(_boot_config.stat_config_name);
-	stat_config_package->load();
-	stat_config_package->flush();
+	_stat_config_package = create_resource_package(_boot_config.stat_config_name);
+	_stat_config_package->load();
+	_stat_config_package->flush();
 
 	const StatConfigResource *stat_config_resource = (const StatConfigResource *)_resource_manager->get(RESOURCE_TYPE_STAT_CONFIG, _boot_config.stat_config_name);
 
@@ -883,23 +897,29 @@ int Device::main_loop()
 	_last_time = time::now();
 
 #if CROWN_PLATFORM_EMSCRIPTEN
-	emscripten_set_main_loop_arg([](void *thiz) { ((Device *)thiz)->frame(); }, this, 0, -1);
+	emscripten_set_main_loop_arg(device_frame, this, 0, true);
 #else
 	while (!frame()) { }
 #endif
 
+	shutdown();
+	return _exit_code;
+}
+
+void Device::shutdown()
+{
 	_lua_environment->call_global("shutdown");
 
 	stat_globals::shutdown();
 
-	stat_config_package->unload();
-	destroy_resource_package(*stat_config_package);
+	_stat_config_package->unload();
+	destroy_resource_package(*_stat_config_package);
 
-	render_config_package->unload();
-	destroy_resource_package(*render_config_package);
+	_render_config_package->unload();
+	destroy_resource_package(*_render_config_package);
 
-	boot_package->unload();
-	destroy_resource_package(*boot_package);
+	_boot_package->unload();
+	destroy_resource_package(*_boot_package);
 
 	physics_globals::shutdown(_allocator, default_allocator());
 	sound_world::shutdown();
@@ -927,7 +947,6 @@ int Device::main_loop()
 	CE_DELETE(_allocator, _data_filesystem);
 
 	_allocator.clear();
-	return _exit_code;
 }
 
 void Device::quit(int exit_code)
