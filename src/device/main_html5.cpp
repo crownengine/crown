@@ -30,6 +30,8 @@
 #include <stb_sprintf.h>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
+#include <emscripten/proxying.h>
+#include <emscripten/threading.h>
 
 #ifndef CROWN_HTML5_CANVAS_NAME
 	#define CROWN_HTML5_CANVAS_NAME "canvas"
@@ -41,25 +43,34 @@
 
 namespace crown
 {
+static void crown_js_request_pointer_lock()
+{
+	MAIN_THREAD_EM_ASM({
+			if (Module.canvas.requestPointerLock) {
+				Module.canvas.requestPointerLock({ unadjustedMovement: true });
+			}
+		});
+}
+
+static void crown_js_request_pointer_lock_fallback()
+{
+	MAIN_THREAD_EM_ASM({
+			if (Module.canvas.requestPointerLock) {
+				Module.canvas.requestPointerLock({ unadjustedMovement: false });
+			}
+		});
+}
+
+static void crown_js_exit_pointer_lock()
+{
+	MAIN_THREAD_EM_ASM({
+			if (document.exitPointerLock) {
+				document.exitPointerLock();
+			}
+		});
+}
+
 // code-format off
-EM_JS(void, crown_js_request_pointer_lock, (void), {
-	if (Module.canvas.requestPointerLock) {
-		Module.canvas.requestPointerLock({ unadjustedMovement: true });
-	}
-});
-
-EM_JS(void, crown_js_request_pointer_lock_fallback, (void), {
-	if (Module.canvas.requestPointerLock) {
-		Module.canvas.requestPointerLock({ unadjustedMovement: false });
-	}
-});
-
-EM_JS(void, crown_js_exit_pointer_lock, (void), {
-	if (document.exitPointerLock) {
-		document.exitPointerLock();
-	}
-});
-
 EM_JS(int, crown_js_is_firefox, (void), {
 	if (typeof navigator === 'undefined' || !navigator.userAgent) {
 		return 0;
@@ -68,6 +79,12 @@ EM_JS(int, crown_js_is_firefox, (void), {
 });
 
 // code-format on
+
+static void remove_event_listeners(void *user_data)
+{
+	CE_UNUSED(user_data);
+	emscripten_html5_remove_all_event_listeners();
+}
 
 void open_uri(const char *uri)
 {
@@ -89,6 +106,13 @@ struct WindowEmscripten : public Window
 
 	void close() override
 	{
+		const bool success = emscripten_proxy_sync(emscripten_proxy_get_system_queue()
+			, emscripten_main_runtime_thread_id()
+			, remove_event_listeners
+			, NULL
+			);
+		CE_ENSURE(success);
+		CE_UNUSED(success);
 	}
 
 	void show() override

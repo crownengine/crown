@@ -4,7 +4,6 @@
  */
 
 #include "core/containers/array.inl"
-#include "core/os.h"
 #include "core/strings/string_id.inl"
 #include "resource/package_resource.inl"
 #include "resource/resource_id.inl"
@@ -54,9 +53,6 @@ void ResourcePackage::flush()
 {
 	while (!has_loaded()) {
 		_resource_manager->complete_requests();
-#if CROWN_PLATFORM_EMSCRIPTEN
-		os::sleep(16);
-#endif
 	}
 }
 
