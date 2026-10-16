@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Runtime: HTML5: fixed shutdown callbacks and resource cleanup when quitting.
+* Runtime: HTML5: fixed blocking the browser's main thread during initialization and shutdown.
 
 .. _v0.65.3:
 

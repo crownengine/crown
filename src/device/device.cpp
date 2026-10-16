@@ -724,9 +724,6 @@ int Device::main_loop()
 		_resource_manager->load(NULL, RESOURCE_TYPE_CONFIG, config_name, 0);
 		while (!_resource_manager->can_get(RESOURCE_TYPE_CONFIG, config_name)) {
 			_resource_manager->complete_requests();
-#if CROWN_PLATFORM_EMSCRIPTEN
-			os::sleep(1);
-#endif
 		}
 
 		_boot_config.parse((char *)_resource_manager->get(RESOURCE_TYPE_CONFIG, config_name));

@@ -282,14 +282,9 @@ void ResourceManager::complete_requests()
 
 			if (rr.online_order > pkg_data.online_sequence_num) {
 				// Cannot process this resource yet; we need to wait for all its requirements to be
-				// put online() first. Put the request back into the loaded queue and stop processing
-				// until the next call.
+				// put online() first. Put the request back into the loaded queue and retry.
 				_resource_loader->add_loaded(rr);
-#if CROWN_PLATFORM_EMSCRIPTEN
-				break;
-#else
 				continue;
-#endif
 			}
 
 			++pkg_data.online_sequence_num;
