@@ -695,6 +695,7 @@ static void device_frame(void *user_data)
 	if (dev->frame()) {
 		emscripten_cancel_main_loop();
 		dev->shutdown();
+		emscripten_force_exit(dev->_exit_code);
 	}
 }
 #endif
