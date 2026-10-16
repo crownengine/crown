@@ -63,6 +63,9 @@ struct Device
 	TimestepPolicy::Enum _timestep_policy;
 	DeltaTimeFilter _delta_time_filter;
 	const RenderConfigResource *_render_config_resource;
+	ResourcePackage *_boot_package;
+	ResourcePackage *_render_config_package;
+	ResourcePackage *_stat_config_package;
 
 	u16 _width;
 	u16 _height;
@@ -79,6 +82,9 @@ struct Device
 
 	///
 	bool process_events();
+
+	/// Shuts down a fully initialized device.
+	void shutdown();
 
 	///
 	Device(const DeviceOptions &opts, ConsoleServer &cs);
