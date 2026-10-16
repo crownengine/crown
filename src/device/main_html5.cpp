@@ -22,6 +22,7 @@
 #include "device/display.h"
 #include "device/types.h"
 #include "device/window.h"
+#include <pthread.h>
 #include <stdlib.h> // EXIT_SUCCESS etc.
 #include <string.h> // memset, strcmp
 #define STB_SPRINTF_IMPLEMENTATION
@@ -30,6 +31,7 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 #include <emscripten/proxying.h>
+#include <emscripten/stack.h>
 #include <emscripten/threading.h>
 
 #ifndef CROWN_HTML5_CANVAS_NAME
@@ -914,19 +916,8 @@ struct InitGlobals
 	}
 };
 
-} // namespace crown
-
-int main(int argc, char **argv)
+static int run(int argc, char **argv)
 {
-	using namespace crown;
-
-#if CROWN_BUILD_UNIT_TESTS
-	CommandLine cl(argc, (const char **)argv);
-	if (cl.has_option("run-unit-tests")) {
-		return main_unit_tests();
-	}
-#endif
-
 	InitGlobals m;
 	CE_UNUSED(m);
 
@@ -944,6 +935,48 @@ int main(int argc, char **argv)
 	}
 
 	return ec;
+}
+
+struct MainArgs
+{
+	int argc;
+	char **argv;
+};
+
+static void *main_thread(void *user_data)
+{
+	MainArgs *args = (MainArgs *)user_data;
+	const int ec = run(args->argc, args->argv);
+	emscripten_force_exit(ec);
+	return NULL;
+}
+
+} // namespace crown
+
+int main(int argc, char **argv)
+{
+	using namespace crown;
+
+#if CROWN_BUILD_UNIT_TESTS
+	CommandLine cl(argc, (const char **)argv);
+	if (cl.has_option("run-unit-tests")) {
+		return main_unit_tests();
+	}
+#endif
+
+	static MainArgs args = { argc, argv };
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_attr_setstacksize(&attr, emscripten_stack_get_base() - emscripten_stack_get_end());
+	emscripten_pthread_attr_settransferredcanvases(&attr, "#" CROWN_HTML5_CANVAS_NAME);
+	pthread_t thread;
+	const int err = pthread_create(&thread, &attr, main_thread, &args);
+	pthread_attr_destroy(&attr);
+	if (err != 0)
+		return err;
+
+	emscripten_exit_with_live_runtime();
 }
 
 #endif // if CROWN_PLATFORM_LINUX
