@@ -119,7 +119,7 @@ function crown_project(_name, _kind, _defines)
 				"-lidbfs.js",
 				"-lopenal",
 				"-s ABORTING_MALLOC=0",
-				"-s PTHREAD_POOL_SIZE=8",
+				"-s PTHREAD_POOL_SIZE=navigator.hardwareConcurrency",
 				"-s PROXY_TO_PTHREAD=1",
 				"-s OFFSCREENCANVAS_SUPPORT=1",
 				"-s ALLOW_BLOCKING_ON_MAIN_THREAD=0",

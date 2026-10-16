@@ -15,6 +15,7 @@ Changelog
 * HTML5: added support to wasm64.
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.
+* Runtime: HTML5: worker pool size now matches the number of logical processors reported by the browser.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 
 **Fixes**
