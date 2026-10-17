@@ -320,6 +320,19 @@ struct Joypad
 
 static std::atomic<bool> s_exit;
 static HCURSOR _win_cursors[MouseCursor::COUNT];
+static const LPCSTR s_cursor_name[MouseCursor::COUNT] =
+{
+	IDC_ARROW,
+	IDC_HAND,
+	IDC_IBEAM,
+	IDC_SIZENESW,
+	IDC_SIZENWSE,
+	IDC_SIZENWSE,
+	IDC_SIZENESW,
+	IDC_SIZEWE,
+	IDC_SIZENS,
+	IDC_WAIT
+};
 static bool push_event(const OsEvent &ev);
 
 struct WindowsDevice
@@ -455,19 +468,8 @@ struct WindowsDevice
 		rid.hwndTarget = _hwnd;
 		RegisterRawInputDevices(&rid, 1, sizeof(rid));
 
-		_hcursor = LoadCursorA(NULL, IDC_ARROW);
-
-		// Create standard cursors
-		_win_cursors[MouseCursor::ARROW]               = LoadCursorA(NULL, IDC_ARROW);
-		_win_cursors[MouseCursor::HAND]                = LoadCursorA(NULL, IDC_HAND);
-		_win_cursors[MouseCursor::TEXT_INPUT]          = LoadCursorA(NULL, IDC_IBEAM);
-		_win_cursors[MouseCursor::CORNER_TOP_LEFT]     = LoadCursorA(NULL, IDC_SIZENESW);
-		_win_cursors[MouseCursor::CORNER_TOP_RIGHT]    = LoadCursorA(NULL, IDC_SIZENWSE);
-		_win_cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = LoadCursorA(NULL, IDC_SIZENWSE);
-		_win_cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = LoadCursorA(NULL, IDC_SIZENESW);
-		_win_cursors[MouseCursor::SIZE_HORIZONTAL]     = LoadCursorA(NULL, IDC_SIZEWE);
-		_win_cursors[MouseCursor::SIZE_VERTICAL]       = LoadCursorA(NULL, IDC_SIZENS);
-		_win_cursors[MouseCursor::WAIT]                = LoadCursorA(NULL, IDC_WAIT);
+		_hcursor = wnd.hCursor;
+		_win_cursors[MouseCursor::ARROW] = _hcursor;
 
 		Thread main_thread;
 		main_thread.start(run_runtime, this);
@@ -485,18 +487,6 @@ struct WindowsDevice
 
 		joypad_thread.stop();
 		main_thread.stop();
-
-		// Destroy standard cursors
-		DestroyIcon((HICON)_win_cursors[MouseCursor::WAIT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::SIZE_VERTICAL]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::SIZE_HORIZONTAL]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_BOTTOM_RIGHT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_BOTTOM_LEFT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_TOP_RIGHT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::CORNER_TOP_LEFT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::TEXT_INPUT]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::HAND]);
-		DestroyIcon((HICON)_win_cursors[MouseCursor::ARROW]);
 
 		DestroyWindow(_hwnd);
 
@@ -948,6 +938,8 @@ struct WindowWin : public Window
 
 	void set_cursor(MouseCursor::Enum cursor) override
 	{
+		if (_win_cursors[cursor] == NULL)
+			_win_cursors[cursor] = LoadCursorA(NULL, s_cursor_name[cursor]);
 		s_windows_device->_hcursor = _win_cursors[cursor];
 		SetCursor(s_windows_device->_hcursor);
 	}
