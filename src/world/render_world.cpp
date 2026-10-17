@@ -1991,6 +1991,7 @@ void RenderWorld::render(f32 dt
 
 		// CSMs are only computed for the brightest directional light (index = 0) in the scene.
 		if (render_shadow) {
+			_pipeline->create_sun_shadow_map();
 			Matrix4x4 light_proj;
 			Matrix4x4 light_view;
 			Frustum splits[MAX_NUM_CASCADES];
@@ -2203,8 +2204,10 @@ void RenderWorld::render(f32 dt
 
 		const u32 tile_cols = bx::nextPow2((u32)fceil(fsqrt(f32(max(num_shadow_casters, 1u)))));
 		const u32 tile_size = u32(_pipeline->_render_settings.local_lights_shadow_map_size.x) / tile_cols;
-		if (local_shadows)
+		if (local_shadows && num_shadow_casters != 0) {
+			_pipeline->create_local_lights_shadow_map();
 			_pipeline->draw_local_lights_stencil((u16)tile_size, (u16)tile_cols);
+		}
 
 		u32 num_tiles = 0;
 		u32 cur_tile;
