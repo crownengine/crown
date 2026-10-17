@@ -270,6 +270,20 @@ static u8 s_button[] =
 	JoypadButton::RIGHT
 };
 
+static const unsigned int s_cursor_shape[MouseCursor::COUNT] =
+{
+	XC_top_left_arrow,
+	XC_hand2,
+	XC_xterm,
+	XC_top_left_corner,
+	XC_top_right_corner,
+	XC_bottom_left_corner,
+	XC_bottom_right_corner,
+	XC_sb_h_double_arrow,
+	XC_sb_v_double_arrow,
+	XC_watch
+};
+
 struct JoypadEvent
 {
 	u32 time;  /* event timestamp in milliseconds */
@@ -642,6 +656,7 @@ struct SystemWayland : public System
 	bool pointer_inside_window;
 	bool pointer_inside_content;
 	bool cursor_visible;
+	Mutex cursor_mutex;
 	std::atomic_bool fullscreen;
 	MouseCursor::Enum cursor;
 	CursorMode::Enum cursor_mode;
@@ -769,11 +784,6 @@ struct SystemWayland : public System
 		CE_ENSURE(seat != NULL);
 		CE_ENSURE(wm_base != NULL);
 
-		if (wl_cursor_lib && shm != NULL) {
-			cursor_theme = wl_cursor_theme_load(NULL, 24, shm);
-			cursor_surface = wl_compositor_create_surface(compositor);
-		}
-
 		return 0;
 	}
 
@@ -894,6 +904,11 @@ static void wayland_apply_cursor(SystemWayland *wl)
 		return;
 	}
 
+	ScopedMutex sm(wl->cursor_mutex);
+	if (wl->cursor_theme == NULL && wl->wl_cursor_lib != NULL && wl->shm != NULL) {
+		wl->cursor_theme = wl_cursor_theme_load(NULL, 24, wl->shm);
+		wl->cursor_surface = wl_compositor_create_surface(wl->compositor);
+	}
 	if (wl->cursor_theme == NULL || wl->cursor_surface == NULL)
 		return;
 
@@ -1459,6 +1474,7 @@ struct SystemX11 : public System
 		, fullscreen(false)
 		, queue(event_queue)
 	{
+		memset(cursors, 0, sizeof(cursors));
 	}
 
 	virtual ~SystemX11()
@@ -1542,26 +1558,16 @@ struct SystemX11 : public System
 		bitmap = XCreateBitmapFromData(display, root_window, data, 8, 8);
 		hidden_cursor = XCreatePixmapCursor(display, bitmap, bitmap, &dummy, &dummy, 0, 0);
 
-		// Create standard cursors
-		cursors[MouseCursor::ARROW]               = XCreateFontCursor(display, XC_top_left_arrow);
-		cursors[MouseCursor::HAND]                = XCreateFontCursor(display, XC_hand2);
-		cursors[MouseCursor::TEXT_INPUT]          = XCreateFontCursor(display, XC_xterm);
-		cursors[MouseCursor::CORNER_TOP_LEFT]     = XCreateFontCursor(display, XC_top_left_corner);
-		cursors[MouseCursor::CORNER_TOP_RIGHT]    = XCreateFontCursor(display, XC_top_right_corner);
-		cursors[MouseCursor::CORNER_BOTTOM_LEFT]  = XCreateFontCursor(display, XC_bottom_left_corner);
-		cursors[MouseCursor::CORNER_BOTTOM_RIGHT] = XCreateFontCursor(display, XC_bottom_right_corner);
-		cursors[MouseCursor::SIZE_HORIZONTAL]     = XCreateFontCursor(display, XC_sb_h_double_arrow);
-		cursors[MouseCursor::SIZE_VERTICAL]       = XCreateFontCursor(display, XC_sb_v_double_arrow);
-		cursors[MouseCursor::WAIT]                = XCreateFontCursor(display, XC_watch);
-
 		return 0;
 	}
 
 	void shutdown() override
 	{
 		// Free standard cursors.
-		for (u32 i = 0; i < countof(cursors); ++i)
-			XFreeCursor(display, cursors[i]);
+		for (u32 i = 0; i < countof(cursors); ++i) {
+			if (cursors[i] != None)
+				XFreeCursor(display, cursors[i]);
+		}
 
 		// Free hidden cursor.
 		XFreeCursor(display, hidden_cursor);
@@ -2111,6 +2117,8 @@ struct WindowX11 : public Window
 
 	void set_cursor(MouseCursor::Enum cursor) override
 	{
+		if (_x11->cursors[cursor] == None)
+			_x11->cursors[cursor] = XCreateFontCursor(_x11->display, s_cursor_shape[cursor]);
 		XDefineCursor(_x11->display, _x11->window, _x11->cursors[cursor]);
 	}
 
