@@ -111,7 +111,7 @@ function GameBase.draw_help(controls, title)
 	local title_color = Color4(220, 220, 220, 255)
 	local paragraph_color = Color4(200, 200, 200, 255)
 
-	Gui.rect(GameBase.screen_gui, Vector2(0, 0), Vector2(window_w, window_h), background_color)
+	Gui.rect(GameBase.screen_gui, Vector3(0, 0, 1), Vector2(window_w, window_h), background_color)
 	Gui.text(GameBase.screen_gui, Vector2(key_x, line_y), title_size, title, font, material, title_color)
 	line_y = line_y - title_margin
 
