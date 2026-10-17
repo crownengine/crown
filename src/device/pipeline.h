@@ -253,6 +253,9 @@ struct Pipeline
 	/// Binds a previously added palette.
 	void bind_bones_data(u32 row);
 
+	void create_sun_shadow_map();
+	void create_local_lights_shadow_map();
+
 	///
 	void draw_local_lights_stencil(u16 tile_size, u16 tile_cols);
 
