@@ -2015,6 +2015,7 @@ struct WindowX11 : public Window
 				, &xev
 				);
 		}
+		XFlush(_x11->display);
 	}
 
 	void hide() override
@@ -2267,6 +2268,7 @@ struct WindowWayland : public Window
 	void show() override
 	{
 		map_frame();
+		wl_display_flush(_wl->display);
 	}
 
 	void hide() override
