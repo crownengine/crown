@@ -25,20 +25,12 @@ void *GetSymbol(void *handle, const char *name)
 
 void *LoadLib(const char *name)
 {
-    dlerror();
-    void *handle{dlopen(name, RTLD_NOW)};
-    const char *err{dlerror()};
-    if(err) handle = nullptr;
-    return handle;
+    return dlopen(name, RTLD_NOW);
 }
 void CloseLib(void *handle)
 { dlclose(handle); }
 void *GetSymbol(void *handle, const char *name)
 {
-    dlerror();
-    void *sym{dlsym(handle, name)};
-    const char *err{dlerror()};
-    if(err) sym = nullptr;
-    return sym;
+    return dlsym(handle, name);
 }
 #endif
