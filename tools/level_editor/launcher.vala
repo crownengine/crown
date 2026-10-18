@@ -349,7 +349,7 @@ public class PortPipe : Object
 			return null;
 		}
 		return new PortPipe(path, new UnixInputStream(fd, true));
-#endif
+#endif /* if CROWN_PLATFORM_WINDOWS */
 	}
 
 	public async uint16 read_async(int timeout_ms)

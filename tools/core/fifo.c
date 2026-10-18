@@ -85,4 +85,4 @@ gboolean crown_fifo_input_stream_connect_finish(GAsyncResult *result, GError **e
 	return g_task_propagate_boolean(G_TASK(result), error);
 }
 
-#endif
+#endif /* ifdef _WIN32 */
