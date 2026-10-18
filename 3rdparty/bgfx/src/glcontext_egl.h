@@ -45,6 +45,10 @@ namespace bgfx { namespace gl
 #if BX_PLATFORM_LINUX
 			, m_waylandEglDll(NULL)
 			, m_eglWindow(NULL)
+			, m_eglCreateImageKHR(NULL)
+			, m_eglDestroyImageKHR(NULL)
+			, m_eglExportDMABUFImageQueryMESA(NULL)
+			, m_eglExportDMABUFImageMESA(NULL)
 #endif
 			, m_msaaContext(false)
 		{
@@ -62,6 +66,12 @@ namespace bgfx { namespace gl
 
 		void import();
 
+#if BX_PLATFORM_LINUX
+		EGLImageKHR createImage(uint32_t _texture);
+		void destroyImage(EGLImageKHR _image);
+		bool exportImage(ExternalTextureInfo& _info, EGLImageKHR _image);
+#endif
+
 		bool isValid() const
 		{
 			return NULL != m_context;
@@ -77,6 +87,10 @@ namespace bgfx { namespace gl
 #if BX_PLATFORM_LINUX
 		void*  m_waylandEglDll;
 		struct wl_egl_window *m_eglWindow;
+		PFNEGLCREATEIMAGEKHRPROC m_eglCreateImageKHR;
+		PFNEGLDESTROYIMAGEKHRPROC m_eglDestroyImageKHR;
+		PFNEGLEXPORTDMABUFIMAGEQUERYMESAPROC m_eglExportDMABUFImageQueryMESA;
+		PFNEGLEXPORTDMABUFIMAGEMESAPROC m_eglExportDMABUFImageMESA;
 #endif
 
 		// true when MSAA is handled by the context instead of using MSAA FBO
