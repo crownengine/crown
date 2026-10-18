@@ -2266,6 +2266,7 @@ namespace bgfx { namespace gl
 			, m_clearQuadDepth(BGFX_INVALID_HANDLE)
 		{
 			bx::memSet(m_msaaBackBufferRbos, 0, sizeof(m_msaaBackBufferRbos) );
+			bx::memSet(m_exportFbos, 0, sizeof(m_exportFbos) );
 		}
 
 		~RendererContextGL()
@@ -3258,6 +3259,12 @@ namespace bgfx { namespace gl
 				m_occlusionQuery.destroy();
 			}
 
+			if (0 != m_exportFbos[0])
+			{
+				GL_CHECK(glDeleteFramebuffers(BX_COUNTOF(m_exportFbos), m_exportFbos) );
+				bx::memSet(m_exportFbos, 0, sizeof(m_exportFbos) );
+			}
+
 			destroyMsaaFbo();
 			m_glctx.destroy();
 
@@ -3522,8 +3529,33 @@ namespace bgfx { namespace gl
 			return uintptr_t(m_textures[_handle.idx].m_id);
 		}
 
-		void exportTexture(ExternalTextureInfo& /*_info*/, TextureHandle /*_handle*/) override
+		void exportTexture(ExternalTextureInfo& _info, TextureHandle _handle) override
 		{
+#if BGFX_USE_EGL && BX_PLATFORM_LINUX
+			TextureGL& texture = m_textures[_handle.idx];
+			if (0 == (m_glctx.getCaps() & BGFX_CAPS_TEXTURE_EXPORT)
+			||  0 == (texture.m_flags & BGFX_TEXTURE_EXPORT)
+			||  0 == texture.m_id
+			||  GL_TEXTURE_2D != texture.m_target)
+			{
+				return;
+			}
+
+			m_glctx.makeCurrent(NULL);
+			if (EGL_NO_IMAGE_KHR == texture.m_exportImage)
+			{
+				texture.m_exportImage = m_glctx.createImage(texture.m_id);
+			}
+
+			if (EGL_NO_IMAGE_KHR != texture.m_exportImage
+			&&  m_glctx.exportImage(_info, texture.m_exportImage) )
+			{
+				_info.width  = uint16_t(texture.m_width);
+				_info.height = uint16_t(texture.m_height);
+			}
+#else
+			BX_UNUSED(_info, _handle);
+#endif
 		}
 
 		void destroyTexture(TextureHandle _handle) override
@@ -3690,6 +3722,7 @@ namespace bgfx { namespace gl
 		}
 
 		void submitBlit(BlitState& _bs, uint16_t _view);
+		bool blitExport(const BlitItem& _item);
 
 		void submitUniformCache(UniformCacheState& _ucs, uint16_t _view);
 
@@ -4832,6 +4865,7 @@ namespace bgfx { namespace gl
 
 		GLenum m_readPixelsFmt;
 		GLuint m_backBufferFbo;
+		GLuint m_exportFbos[2];
 		GLuint m_msaaBackBufferFbo;
 		union
 		{
@@ -5964,6 +5998,14 @@ namespace bgfx { namespace gl
 
 	void TextureGL::destroy()
 	{
+#if BGFX_USE_EGL && BX_PLATFORM_LINUX
+		if (EGL_NO_IMAGE_KHR != m_exportImage)
+		{
+			s_renderGL->m_glctx.destroyImage(m_exportImage);
+			m_exportImage = EGL_NO_IMAGE_KHR;
+		}
+#endif
+
 		if (0 == (m_flags & BGFX_SAMPLER_INTERNAL_SHARED)
 		&&  0 != m_id)
 		{
@@ -7420,6 +7462,62 @@ namespace bgfx { namespace gl
 		}
 	}
 
+	bool RendererContextGL::blitExport(const BlitItem& _item)
+	{
+		const TextureGL& src = m_textures[_item.m_src.idx];
+		const TextureGL& dst = m_textures[_item.m_dst.idx];
+		if (0 == (dst.m_flags & BGFX_TEXTURE_EXPORT)
+		||  !g_caps.originBottomLeft
+		||  NULL == glBlitFramebuffer
+		||  GL_TEXTURE_2D != src.m_target
+		||  GL_TEXTURE_2D != dst.m_target)
+		{
+			return false;
+		}
+
+		BX_ASSERT(0 == _item.m_srcZ && 0 == _item.m_dstZ && 1 >= _item.m_depth
+			, "Export blits require a single 2D image.");
+
+		if (0 == m_exportFbos[0])
+		{
+			GL_CHECK(glGenFramebuffers(BX_COUNTOF(m_exportFbos), m_exportFbos) );
+		}
+
+		const GLuint readFbo = glGet(GL_READ_FRAMEBUFFER_BINDING);
+		const GLuint drawFbo = glGet(GL_DRAW_FRAMEBUFFER_BINDING);
+		const bool scissorEnabled = 0 != glGet(GL_SCISSOR_TEST);
+		GL_CHECK(glDisable(GL_SCISSOR_TEST) );
+		GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_exportFbos[0]) );
+		GL_CHECK(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0
+			, GL_TEXTURE_2D, src.m_id, _item.m_srcMip) );
+		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_exportFbos[1]) );
+		GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0
+			, GL_TEXTURE_2D, dst.m_id, _item.m_dstMip) );
+
+		BX_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_READ_FRAMEBUFFER)
+			, "Export blit source framebuffer is incomplete.");
+		BX_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER)
+			, "Export blit destination framebuffer is incomplete.");
+
+		// Fold the top-left export orientation into the existing texture copy.
+		const GLint dstHeight = bx::max<uint32_t>(1, dst.m_height >> _item.m_dstMip);
+		GL_CHECK(glBlitFramebuffer(_item.m_srcX, _item.m_srcY
+			, _item.m_srcX + _item.m_width, _item.m_srcY + _item.m_height
+			, _item.m_dstX, dstHeight - _item.m_dstY
+			, _item.m_dstX + _item.m_width, dstHeight - _item.m_dstY - _item.m_height
+			, GL_COLOR_BUFFER_BIT, GL_NEAREST) );
+
+		GL_CHECK(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0) );
+		GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0) );
+		GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo) );
+		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo) );
+		if (scissorEnabled)
+		{
+			GL_CHECK(glEnable(GL_SCISSOR_TEST) );
+		}
+		return true;
+	}
+
 	void RendererContextGL::submitBlit(BlitState& _bs, uint16_t _view)
 	{
 		if (m_blitSupported)
@@ -7427,6 +7525,10 @@ namespace bgfx { namespace gl
 			while (_bs.hasItem(_view) )
 			{
 				const BlitItem& bi = _bs.advance();
+				if (blitExport(bi) )
+				{
+					continue;
+				}
 
 				const TextureGL& src = m_textures[bi.m_src.idx];
 				const TextureGL& dst = m_textures[bi.m_dst.idx];
@@ -7454,6 +7556,10 @@ namespace bgfx { namespace gl
 			while (_bs.hasItem(_view) )
 			{
 				const BlitItem& bi = _bs.advance();
+				if (blitExport(bi) )
+				{
+					continue;
+				}
 
 				const TextureGL& src = m_textures[bi.m_src.idx];
 				const TextureGL& dst = m_textures[bi.m_dst.idx];

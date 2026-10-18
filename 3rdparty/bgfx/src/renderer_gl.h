@@ -6,13 +6,13 @@
 #ifndef BGFX_RENDERER_GL_H_HEADER_GUARD
 #define BGFX_RENDERER_GL_H_HEADER_GUARD
 
-#define BGFX_USE_EGL ( (BGFX_CONFIG_RENDERER_OPENGL || BGFX_CONFIG_RENDERER_OPENGLES) && (0 \
+#define BGFX_USE_EGL ( ( (BGFX_CONFIG_RENDERER_OPENGL || BGFX_CONFIG_RENDERER_OPENGLES) && (0 \
 	|| BX_PLATFORM_ANDROID                                                                  \
 	|| BX_PLATFORM_LINUX                                                                    \
 	|| BX_PLATFORM_NX                                                                       \
 	|| BX_PLATFORM_RPI                                                                      \
 	) )                                                                                     \
-	|| (BGFX_CONFIG_RENDERER_OPENGLES && BX_PLATFORM_WINDOWS)
+	|| (BGFX_CONFIG_RENDERER_OPENGLES && BX_PLATFORM_WINDOWS) )
 
 #define BGFX_USE_HTML5 (BGFX_CONFIG_RENDERER_OPENGLES && (0 \
 	|| BX_PLATFORM_EMSCRIPTEN                               \
@@ -729,6 +729,14 @@ typedef uint64_t GLuint64;
 #	define GL_DRAW_FRAMEBUFFER 0x8CA9
 #endif // GL_DRAW_FRAMEBUFFER
 
+#ifndef GL_READ_FRAMEBUFFER_BINDING
+#	define GL_READ_FRAMEBUFFER_BINDING 0x8CAA
+#endif // GL_READ_FRAMEBUFFER_BINDING
+
+#ifndef GL_DRAW_FRAMEBUFFER_BINDING
+#	define GL_DRAW_FRAMEBUFFER_BINDING 0x8CA6
+#endif // GL_DRAW_FRAMEBUFFER_BINDING
+
 #ifndef GL_TIME_ELAPSED
 #	define GL_TIME_ELAPSED 0x88BF
 #endif // GL_TIME_ELAPSED
@@ -1441,6 +1449,9 @@ namespace bgfx { namespace gl
 	{
 		TextureGL()
 			: m_id(0)
+#if BGFX_USE_EGL && BX_PLATFORM_LINUX
+			, m_exportImage(EGL_NO_IMAGE_KHR)
+#endif
 			, m_rbo(0)
 			, m_target(GL_TEXTURE_2D)
 			, m_fmt(GL_ZERO)
@@ -1469,6 +1480,10 @@ namespace bgfx { namespace gl
 		}
 
 		GLuint m_id;
+#if BGFX_USE_EGL && BX_PLATFORM_LINUX
+		// Keep the EGLImage alive while its source texture is reused for export.
+		EGLImageKHR m_exportImage;
+#endif
 		GLuint m_rbo;
 		GLenum m_target;
 		GLenum m_fmt;

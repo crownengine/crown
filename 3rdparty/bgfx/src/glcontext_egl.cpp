@@ -10,6 +10,10 @@
 
 #	if BGFX_USE_EGL
 
+#		if BX_PLATFORM_LINUX
+#			include <unistd.h>
+#		endif
+
 #		if BX_PLATFORM_RPI
 #			include <X11/Xlib.h>
 #			include <bcm_host.h>
@@ -617,6 +621,21 @@ WL_EGL_IMPORT
 
 		import();
 
+#	if BX_PLATFORM_LINUX
+		const char* extensions = eglQueryString(m_display, EGL_EXTENSIONS);
+		if (NULL != extensions
+		&&  (!bx::findIdentifierMatch(extensions, "EGL_KHR_image_base").isEmpty()
+		  || !bx::findIdentifierMatch(extensions, "EGL_KHR_image").isEmpty() )
+		&&  !bx::findIdentifierMatch(extensions, "EGL_KHR_gl_texture_2D_image").isEmpty()
+		&&  !bx::findIdentifierMatch(extensions, "EGL_MESA_image_dma_buf_export").isEmpty() )
+		{
+			m_eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+			m_eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+			m_eglExportDMABUFImageQueryMESA = (PFNEGLEXPORTDMABUFIMAGEQUERYMESAPROC)eglGetProcAddress("eglExportDMABUFImageQueryMESA");
+			m_eglExportDMABUFImageMESA = (PFNEGLEXPORTDMABUFIMAGEMESAPROC)eglGetProcAddress("eglExportDMABUFImageMESA");
+		}
+#	endif
+
 		g_internalData.context = m_context;
 	}
 
@@ -645,6 +664,13 @@ WL_EGL_IMPORT
 		EGL_CHECK(eglReleaseThread() );
 		eglClose(m_eglDll);
 		m_eglDll = NULL;
+
+#	if BX_PLATFORM_LINUX
+		m_eglCreateImageKHR = NULL;
+		m_eglDestroyImageKHR = NULL;
+		m_eglExportDMABUFImageQueryMESA = NULL;
+		m_eglExportDMABUFImageMESA = NULL;
+#	endif
 
 #	if BX_PLATFORM_RPI
 		bcm_host_deinit();
@@ -704,7 +730,7 @@ WL_EGL_IMPORT
 
 	uint64_t GlContext::getCaps() const
 	{
-		return BX_ENABLED(0
+		uint64_t caps = BX_ENABLED(0
 			| BX_PLATFORM_LINUX
 			| BX_PLATFORM_WINDOWS
 			| BX_PLATFORM_ANDROID
@@ -712,7 +738,82 @@ WL_EGL_IMPORT
 			? BGFX_CAPS_SWAP_CHAIN
 			: 0
 			;
+#	if BX_PLATFORM_LINUX
+		if (NULL != m_eglCreateImageKHR
+		&&  NULL != m_eglDestroyImageKHR
+		&&  NULL != m_eglExportDMABUFImageQueryMESA
+		&&  NULL != m_eglExportDMABUFImageMESA
+		&&  NULL != glBlitFramebuffer)
+		{
+			caps |= BGFX_CAPS_TEXTURE_EXPORT;
+		}
+#	endif
+		return caps;
 	}
+
+#	if BX_PLATFORM_LINUX
+	EGLImageKHR GlContext::createImage(uint32_t _texture)
+	{
+		const EGLint attrs[] =
+		{
+			EGL_GL_TEXTURE_LEVEL_KHR, 0,
+			EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
+			EGL_NONE,
+		};
+		return m_eglCreateImageKHR(m_display, m_context, EGL_GL_TEXTURE_2D_KHR
+			, (EGLClientBuffer)uintptr_t(_texture), attrs);
+	}
+
+	void GlContext::destroyImage(EGLImageKHR _image)
+	{
+		EGL_CHECK(m_eglDestroyImageKHR(m_display, _image) );
+	}
+
+	bool GlContext::exportImage(ExternalTextureInfo& _info, EGLImageKHR _image)
+	{
+		int fourcc = 0;
+		int numPlanes = 0;
+		EGLuint64KHR modifiers[4] = {};
+		if (!m_eglExportDMABUFImageQueryMESA(m_display, _image, &fourcc, &numPlanes, modifiers)
+		||  1 != numPlanes)
+		{
+			// ExternalTextureInfo can describe only a single memory plane.
+			return false;
+		}
+
+		// The consumer may read the allocation as soon as it receives the FD.
+		GL_CHECK(glFinish() );
+
+		int fd = -1;
+		EGLint stride = 0;
+		EGLint offset = 0;
+		const EGLBoolean exported = m_eglExportDMABUFImageMESA(m_display, _image, &fd, &stride, &offset);
+		if (!exported || fd < 0 || stride <= 0 || offset < 0)
+		{
+			if (fd >= 0)
+			{
+				close(fd);
+			}
+			return false;
+		}
+
+		const off_t size = lseek(fd, 0, SEEK_END);
+		if (size <= offset || uint64_t(size) > UINT32_MAX)
+		{
+			close(fd);
+			return false;
+		}
+		lseek(fd, 0, SEEK_SET);
+
+		_info.stride   = uint32_t(stride);
+		_info.offset   = uint32_t(offset);
+		_info.size     = uint32_t(size);
+		_info.fourcc   = uint32_t(fourcc);
+		_info.modifier = modifiers[0];
+		_info.handle   = (void*)uintptr_t(fd);
+		return true;
+	}
+#	endif
 
 	SwapChainGL* GlContext::createSwapChain(void* _nwh, int32_t _width, int32_t _height)
 	{
