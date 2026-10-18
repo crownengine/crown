@@ -172,13 +172,18 @@ public class ShaderVariantMetadata
 		return separator == -1 ? variant : variant.substring(0, separator);
 	}
 
+	private static int compare_defines(string a, string b)
+	{
+		return GLib.strcmp(a, b);
+	}
+
 	public static string variant_key(string variant)
 	{
 		string[] parts = variant.split("+");
 		if (parts.length <= 1)
 			return variant;
 		string[] defines = parts[1 : parts.length];
-		GLib.qsort_with_data<string>(defines, sizeof(string), Posix.strcmp);
+		GLib.qsort_with_data<string>(defines, sizeof(string), compare_defines);
 		return parts[0] + "+" + string.joinv("+", defines);
 	}
 }
