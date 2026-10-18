@@ -1670,8 +1670,8 @@ public class LevelEditorApplication : Gtk.Application
 	{
 		yield stop_backend();
 
-		string port_file;
-		if (!create_port_file_path(out port_file))
+		PortPipe? port_pipe = PortPipe.create();
+		if (port_pipe == null)
 			return false;
 
 		// Spawn the data compiler.
@@ -1686,7 +1686,7 @@ public class LevelEditorApplication : Gtk.Application
 			"core",
 			_project.toolchain_dir(),
 			"--port-file",
-			port_file,
+			port_pipe._path,
 			"--server",
 			"--wait-console"
 		};
@@ -1695,30 +1695,27 @@ public class LevelEditorApplication : Gtk.Application
 			_compiler._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 		} catch (Error e) {
 			loge(e.message);
+			return false;
 		}
 
 		_project_stack.set_visible_child_name(COMPILER_CONNECTING);
 		_editor_stack.set_visible_child_name(COMPILER_CONNECTING);
 		_inspector_stack.set_visible_child_name(COMPILER_CONNECTING);
 
-		uint16 data_compiler_port = 0;
-		bool has_port = wait_port_file(out data_compiler_port
-			, port_file
-			, DATA_COMPILER_CONNECTION_TRIES
-			, DATA_COMPILER_CONNECTION_INTERVAL
-			);
-		cleanup_port_file_path(port_file);
-		if (!has_port) {
+		uint32 compiler_process_id = _compiler._process_id;
+		uint16 data_compiler_port = yield port_pipe.read_async(DATA_COMPILER_PORT_TIMEOUT_MS);
+		port_pipe = null;
+		if (_compiler._process_id != compiler_process_id)
+			return false;
+		if (data_compiler_port == 0) {
 			loge("Cannot read data_compiler port");
 			return false;
 		}
 
-		int tries = yield _compiler.connect_async(DATA_COMPILER_ADDRESS
-			, data_compiler_port
-			, DATA_COMPILER_CONNECTION_TRIES
-			, DATA_COMPILER_CONNECTION_INTERVAL
-			);
-		if (tries == DATA_COMPILER_CONNECTION_TRIES) {
+		bool connected = yield _compiler.connect_async(DATA_COMPILER_ADDRESS, data_compiler_port);
+		if (_compiler._process_id != compiler_process_id)
+			return false;
+		if (!connected) {
 			loge("Cannot connect to data_compiler");
 			return false;
 		}
@@ -1810,8 +1807,8 @@ public class LevelEditorApplication : Gtk.Application
 			return;
 		}
 
-		string port_file;
-		if (!create_port_file_path(out port_file))
+		PortPipe? port_pipe = PortPipe.create();
+		if (port_pipe == null)
 			return;
 
 		// Spawn the game.
@@ -1821,7 +1818,7 @@ public class LevelEditorApplication : Gtk.Application
 			"--data-dir",
 			_project.data_dir(),
 			"--port-file",
-			port_file,
+			port_pipe._path,
 			"--wait-console",
 			"--lua-string",
 			sg == StartGame.TEST ? "TEST=true" : "",
@@ -1832,36 +1829,33 @@ public class LevelEditorApplication : Gtk.Application
 			_game._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 		} catch (Error e) {
 			loge(e.message);
+			port_pipe = null;
+			on_game_disconnected(_game);
+			return;
 		}
 
-		uint16 game_port = 0;
-		bool has_port = wait_port_file(out game_port
-			, port_file
-			, GAME_CONNECTION_TRIES
-			, GAME_CONNECTION_INTERVAL
-			);
-		cleanup_port_file_path(port_file);
-		if (!has_port) {
+		uint32 game_process_id = _game._process_id;
+		uint16 game_port = yield port_pipe.read_async(GAME_PORT_TIMEOUT_MS);
+		port_pipe = null;
+		if (_game._process_id != game_process_id)
+			return;
+		if (game_port == 0) {
 			loge("Cannot read game port");
+			yield _game.stop();
 			return;
 		}
 
-		// Try to connect to the game.
-		int tries = yield _game.connect_async(GAME_ADDRESS
-			, game_port
-			, GAME_CONNECTION_TRIES
-			, GAME_CONNECTION_INTERVAL
-			);
-		if (tries == GAME_CONNECTION_TRIES) {
+		bool connected = yield _game.connect_async(GAME_ADDRESS, game_port);
+		if (_game._process_id == game_process_id && !connected) {
 			loge("Cannot connect to game");
-			return;
+			yield _game.stop();
 		}
 	}
 
 	public async void start_thumbnail()
 	{
-		string port_file;
-		if (!create_port_file_path(out port_file))
+		PortPipe? port_pipe = PortPipe.create();
+		if (port_pipe == null)
 			return;
 
 		string args[] =
@@ -1878,7 +1872,7 @@ public class LevelEditorApplication : Gtk.Application
 			"--boot-dir",
 			THUMBNAIL_BOOT_DIR,
 			"--port-file",
-			port_file,
+			port_pipe._path,
 			"--wait-console",
 			"--pumped",
 			"--headless"
@@ -1888,27 +1882,23 @@ public class LevelEditorApplication : Gtk.Application
 			_thumbnail._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 		} catch (Error e) {
 			loge(e.message);
+			return;
 		}
 
-		uint16 thumbnail_port = 0;
-		bool has_port = wait_port_file(out thumbnail_port
-			, port_file
-			, THUMBNAIL_CONNECTION_TRIES
-			, THUMBNAIL_CONNECTION_INTERVAL
-			);
-		cleanup_port_file_path(port_file);
-		if (!has_port) {
+		uint32 thumbnail_process_id = _thumbnail._process_id;
+		uint16 thumbnail_port = yield port_pipe.read_async(THUMBNAIL_PORT_TIMEOUT_MS);
+		port_pipe = null;
+		if (_thumbnail._process_id != thumbnail_process_id)
+			return;
+		if (thumbnail_port == 0) {
 			loge("Cannot read thumbnail port");
 			return;
 		}
 
-		// Try to connect to the game.
-		int tries = yield _thumbnail.connect_async(THUMBNAIL_ADDRESS
-			, thumbnail_port
-			, THUMBNAIL_CONNECTION_TRIES
-			, THUMBNAIL_CONNECTION_INTERVAL
-			);
-		if (tries == THUMBNAIL_CONNECTION_TRIES) {
+		bool connected = yield _thumbnail.connect_async(THUMBNAIL_ADDRESS, thumbnail_port);
+		if (_thumbnail._process_id != thumbnail_process_id)
+			return;
+		if (!connected) {
 			loge("Cannot connect to thumbnail");
 			return;
 		}

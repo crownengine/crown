@@ -136,8 +136,8 @@ public class EditorViewport : Gtk.Box
 			return;
 
 		// Spawn the level editor.
-		string port_file;
-		if (!create_port_file_path(out port_file))
+		PortPipe? port_pipe = PortPipe.create();
+		if (port_pipe == null)
 			return;
 
 		string[] args =
@@ -155,7 +155,7 @@ public class EditorViewport : Gtk.Box
 			"--parent-window",
 			window_xid.to_string(),
 			"--port-file",
-			port_file,
+			port_pipe._path,
 			"--wait-console",
 			_render_mode == ViewportRenderMode.PUMPED ? "--pumped" : "",
 			"--window-rect", "0", "0", width.to_string(), height.to_string(),
@@ -170,27 +170,23 @@ public class EditorViewport : Gtk.Box
 			_runtime._process_id = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 		} catch (Error e) {
 			loge(e.message);
+			return;
 		}
 
-		uint16 console_port = 0;
-		bool has_port = wait_port_file(out console_port
-			, port_file
-			, EDITOR_CONNECTION_TRIES
-			, EDITOR_CONNECTION_INTERVAL
-			);
-		cleanup_port_file_path(port_file);
-		if (!has_port) {
+		uint32 process_id = _runtime._process_id;
+		uint16 console_port = yield port_pipe.read_async(EDITOR_PORT_TIMEOUT_MS);
+		port_pipe = null;
+		if (_runtime._process_id != process_id)
+			return;
+		if (console_port == 0) {
 			loge("Cannot read console port for %s".printf(_runtime._name));
 			return;
 		}
 
-		// Try to connect to the level editor.
-		int tries = yield _runtime.connect_async(_console_address
-			, console_port
-			, EDITOR_CONNECTION_TRIES
-			, EDITOR_CONNECTION_INTERVAL
-			);
-		if (tries == EDITOR_CONNECTION_TRIES) {
+		bool connected = yield _runtime.connect_async(_console_address, console_port);
+		if (_runtime._process_id != process_id)
+			return;
+		if (!connected) {
 			loge("Cannot connect to %s".printf(_runtime._name));
 			return;
 		}

@@ -20,17 +20,21 @@ public class ConsoleClient : GLib.Object
 		_connection = null;
 	}
 
-	public new void connect(string address, int port)
+	public async bool connect_async(string address, int port, Cancellable cancellable)
 	{
 		try {
 			GLib.SocketClient client = new GLib.SocketClient();
-			_connection = client.connect(new InetSocketAddress.from_string(address, port), null);
-			if (_connection != null) {
-				connected(address, port);
-				receive_async.begin();
+			SocketConnection connection = yield client.connect_async(new InetSocketAddress.from_string(address, port), cancellable);
+			if (cancellable.is_cancelled()) {
+				connection.close();
+				return false;
 			}
+			_connection = connection;
+			connected(address, port);
+			receive_async.begin();
+			return true;
 		} catch (Error e) {
-			// Ignore
+			return false;
 		}
 	}
 

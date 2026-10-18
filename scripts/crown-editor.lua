@@ -31,8 +31,10 @@ project "crown-editor"
 		targetdir (CROWN_BUILD_DIR .. "linux64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "linux64" .. "/obj")
 		buildoptions_vala { "--pkg posix" }
+		links { "gio-unix-2.0" }
 
 	configuration { "mingw*" }
+		links { "gio-windows-2.0" }
 		targetdir (CROWN_BUILD_DIR .. "mingw64" .. "/bin")
 		objdir (CROWN_BUILD_DIR .. "mingw64" .. "/obj")
 		linkoptions {
@@ -122,6 +124,7 @@ project "crown-editor"
 	}
 
 	buildoptions {
+		'-I"' .. CROWN_DIR .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/tinyexpr") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/md5") .. '"',
 		'-I"' .. path.join(CROWN_DIR, "3rdparty/cgltf") .. '"',

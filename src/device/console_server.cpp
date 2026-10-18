@@ -7,6 +7,7 @@
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
 #include "core/containers/vector.inl"
+#include "core/fifo.h"
 #include "core/filesystem/file_buffer.inl"
 #include "core/filesystem/filesystem_disk.h"
 #include "core/filesystem/path.h"
@@ -24,6 +25,7 @@
 #include "core/thread/scoped_mutex.inl"
 #include "device/console_server.h"
 #include "device/log.h"
+#include <stb_sprintf.h>
 
 LOG_SYSTEM(CONSOLE_SERVER, "console_server")
 
@@ -254,8 +256,9 @@ bool ConsoleServer::listen(u16 port, bool wait, const char *port_file, u16 defau
 	TempAllocator1024 ta;
 	FilesystemDisk fs(ta);
 	const char *file = NULL;
+	const bool is_pipe = port_file != NULL && Fifo::is_fifo(port_file);
 
-	if (port_file != NULL) {
+	if (port_file != NULL && !is_pipe) {
 		const StringView parent = path::parent_dir(port_file);
 		CE_ASSERT(parent.length() > 0, "Port file path must include a parent directory");
 
@@ -306,6 +309,17 @@ bool ConsoleServer::listen(u16 port, bool wait, const char *port_file, u16 defau
 	_port = chosen_port;
 	_server.listen(5);
 
+	if (is_pipe) {
+		Fifo fifo;
+		char data[8];
+		const int size = stbsp_snprintf(data, sizeof(data), "%u\n", unsigned(_port));
+		if (fifo.open(port_file) != 0 || fifo.write(data, size) != size || fifo.flush() != 0) {
+			loge(CONSOLE_SERVER, "Could not write console port to pipe `%s`", port_file);
+			_server.close();
+			_port = UINT16_MAX;
+			return false;
+		}
+	}
 	if (file != NULL && !console_server_internal::write_port_file(fs, file, _port)) {
 		_server.close();
 		_port = UINT16_MAX;

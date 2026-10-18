@@ -286,65 +286,107 @@ public static int launcher_main(string[] args)
 	return 0;
 }
 
-public bool parse_port_from_string(out uint16 port, string str)
+public class PortPipe : Object
 {
-	port = 0;
+	public string _path;
+	private InputStream? _input;
 
-	string trimmed = str.strip();
-	if (trimmed == "")
-		return false;
+#if CROWN_PLATFORM_WINDOWS
+	[CCode (cname = "crown_fifo_input_stream_new", cheader_filename = "tools/core/fifo.h")]
+	private static extern InputStream create_receiver(string path) throws Error;
+	[CCode (cname = "crown_fifo_input_stream_connect_async", finish_name = "crown_fifo_input_stream_connect_finish", cheader_filename = "tools/core/fifo.h")]
+	private static extern async bool connect_receiver(InputStream stream, int priority, Cancellable cancellable) throws Error;
+#endif
 
-	for (int i = 0; i < trimmed.length; ++i) {
-		if (trimmed[i] < '0' || trimmed[i] > '9')
-			return false;
+	private PortPipe(string path, InputStream input)
+	{
+		_path = path;
+		_input = input;
 	}
 
-	int parsed = int.parse(trimmed);
-	if (parsed < 1 || parsed > 65535)
-		return false;
+	~PortPipe()
+	{
+		close();
+	}
 
-	port = (uint16)parsed;
-	return true;
-}
-
-public bool wait_port_file(out uint16 port, string file_path, int num_tries, int interval)
-{
-	port = 0;
-	for (int tries = 0; tries < num_tries; ++tries) {
+	private void close()
+	{
+		if (_input == null)
+			return;
 		try {
-			string contents = null;
-			GLib.FileUtils.get_contents(file_path, out contents);
-			if (parse_port_from_string(out port, contents))
-				return true;
-		} catch (FileError e) {
+			_input.close();
+		} catch (Error e) {
+			loge(e.message);
 		}
-
-		GLib.Thread.usleep(interval*1000);
+		_input = null;
+#if !CROWN_PLATFORM_WINDOWS
+		GLib.FileUtils.unlink(_path);
+#endif
 	}
 
-	return false;
-}
-
-public bool create_port_file_path(out string file_path)
-{
-	file_path = "";
-
-	try {
-		GLib.FileIOStream io;
-		file_path = GLib.File.new_tmp("crown_port_file_XXXXXX", out io).get_path();
-		return true;
-	} catch (Error e) {
-		loge(e.message);
-		return false;
+	public static PortPipe? create()
+	{
+#if CROWN_PLATFORM_WINDOWS
+		string path = "\\\\.\\pipe\\crown-port-" + GLib.Uuid.string_random();
+		try {
+			return new PortPipe(path, create_receiver(path));
+		} catch (Error e) {
+			loge("Cannot create console port pipe %s: %s".printf(path, e.message));
+			return null;
+		}
+#else
+		string path = GLib.Path.build_filename(GLib.Environment.get_tmp_dir()
+			, "crown-port-" + GLib.Uuid.string_random()
+			);
+		if (Posix.mkfifo(path, 0600) != 0) {
+			loge("Cannot create console port pipe %s".printf(path));
+			return null;
+		}
+		int fd = Posix.open(path, Posix.O_RDWR | Posix.O_NONBLOCK | Posix.O_CLOEXEC);
+		if (fd < 0) {
+			GLib.FileUtils.unlink(path);
+			loge("Cannot open console port pipe %s".printf(path));
+			return null;
+		}
+		return new PortPipe(path, new UnixInputStream(fd, true));
+#endif
 	}
-}
 
-public void cleanup_port_file_path(string file_path)
-{
-	try {
-		GLib.File.new_for_path(file_path).delete();
-	} catch (Error e) {
-		// Ignore.
+	public async uint16 read_async(int timeout_ms)
+	{
+		Cancellable cancellable = new Cancellable();
+		uint timeout = GLib.Timeout.add((uint)int.max(timeout_ms, 0), () => {
+				cancellable.cancel();
+				return GLib.Source.REMOVE;
+			});
+		try {
+#if CROWN_PLATFORM_WINDOWS
+			yield connect_receiver(_input, Priority.DEFAULT, cancellable);
+#endif
+			uint port = 0;
+			uint digits = 0;
+			for (;;) {
+				uint8 data[6];
+				ssize_t count = yield _input.read_async(data, Priority.DEFAULT, cancellable);
+				if (count <= 0)
+					return 0;
+				for (int i = 0; i < count; ++i) {
+					if (data[i] == '\n' && digits > 0)
+						return (uint16)port;
+					if (data[i] < '0' || data[i] > '9' || ++digits > 5)
+						return 0;
+					port = port * 10 + (uint)(data[i] - '0');
+					if (port > uint16.MAX)
+						return 0;
+				}
+			}
+		} catch (Error e) {
+			return 0;
+		} finally {
+			if (!cancellable.is_cancelled())
+				GLib.Source.remove(timeout);
+			close();
+		}
 	}
 }
 
@@ -360,6 +402,7 @@ public class RuntimeInstance
 	public GLib.SourceFunc _refresh_callback;
 	public bool _refresh_success;
 	public ConsoleClient _client;
+	private GLib.Cancellable _connect_cancellable;
 	public DataCompiler? _data_compiler;
 
 	public signal void connected(RuntimeInstance ri, string address, int port);
@@ -378,6 +421,7 @@ public class RuntimeInstance
 		_refresh_callback = null;
 		_refresh_success = false;
 		_client = new ConsoleClient();
+		_connect_cancellable = new GLib.Cancellable();
 		_client.connected.connect(on_client_connected);
 		_client.message_received.connect(on_client_message_received);
 		_data_compiler = dc;
@@ -418,28 +462,20 @@ public class RuntimeInstance
 		message_received(this, client, json);
 	}
 
-	// Tries to connect to the @a client. Return the number of tries after
-	// it succeeded or @a num_tries if failed.
-	public async int connect_async(string address, int port, int num_tries, int interval)
+	public async bool connect_async(string address, int port)
 	{
 		// It is an error if the client disconnects after here.
 		_client.disconnected.disconnect(on_client_disconnected);
 		_client.disconnected.connect(on_client_disconnected_unexpected);
 
-		// Try to connect to the client.
-		int tries;
-		for (tries = 0; tries < num_tries; ++tries) {
-			_client.connect(address, port);
-			if (_client.is_connected())
-				break;
-
-			GLib.Thread.usleep(interval*1000);
-		}
-		return tries;
+		_connect_cancellable = new GLib.Cancellable();
+		return yield _client.connect_async(address, port, _connect_cancellable);
 	}
 
 	public async void stop()
 	{
+		_connect_cancellable.cancel();
+		bool was_connected = is_connected();
 		if (_client != null) {
 			// Reset "disconnected" signal.
 			_client.disconnected.disconnect(on_client_disconnected);
@@ -473,11 +509,15 @@ public class RuntimeInstance
 					_subprocess_launcher.kill(_process_id);
 					_stuck = false;
 					logw("Process %u took more than %d ms to quit: killed".printf(_process_id, QUIT_TIMEOUT_MS));
+				} else if (!was_connected) {
+					_subprocess_launcher.kill(_process_id);
 				}
 
 				_subprocess_launcher.wait(_process_id);
+				_process_id = uint32.MAX;
+				if (!was_connected)
+					disconnected(this);
 			}
-			_process_id = uint32.MAX;
 		} catch (GLib.Error e) {
 			loge(e.message);
 		}

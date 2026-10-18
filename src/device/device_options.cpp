@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "core/command_line.h"
+#include "core/fifo.h"
 #include "core/filesystem/path.h"
 #include "core/option.inl"
 #include "core/strings/dynamic_string.inl"
@@ -43,7 +44,7 @@ static void help(const char *msg = NULL)
 		"      windows\n"
 		"  --continue                      Run the engine after the data has been compiled.\n"
 		"  --console-port <port>           Set port of the console server.\n"
-		"  --port-file <path>              Write selected console port to <path>.\n"
+		"  --port-file <path>              Write selected console port to <path> (regular file or FIFO/named pipe).\n"
 		"  --wait-console                  Wait for a console connection before booting the engine.\n"
 		"  --parent-window <handle>        Set the parent window <handle> of the main window.\n"
 		"  --server                        Run the engine in server mode.\n"
@@ -297,8 +298,12 @@ int DeviceOptions::parse(bool *quit)
 	}
 
 	const char *port_file = cl.get_parameter(0, "port-file");
-	if (port_file)
-		path::reduce(_port_file, port_file);
+	if (port_file) {
+		if (Fifo::is_fifo(port_file))
+			_port_file = port_file;
+		else
+			path::reduce(_port_file, port_file);
+	}
 
 	const char *ls = cl.get_parameter(0, "lua-string");
 	if (ls)

@@ -132,6 +132,7 @@ Runtime Options
 ``--port-file <path>``
 	Write selected console port to <path>.
 	The file is written after the console server has bound a port if any.
+	<path> can be a regular file or a FIFO/named pipe.
 
 ``--wait-console``
 	Wait for a console connection before booting the engine.

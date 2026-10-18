@@ -12,6 +12,7 @@ Changelog
 * Tools: added a shader library property to materials.
 * Tools: Lua suggestions in the Command Bar now show their types.
 * Tools: moved the Command Bar to the statusbar.
+* Tools: removed delays when connecting to runtime and data compiler.
 * HTML5: added support to wasm64.
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.
