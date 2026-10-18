@@ -4545,7 +4545,7 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 
-	if (device()->_display != NULL) {
+	if (!device()->_options._headless) {
 		env.add_module_function("Display", "modes", [](lua_State *L) {
 				LuaStack stack(L, +1);
 				TempAllocator1024 ta;
@@ -4579,7 +4579,7 @@ void load_api(LuaEnvironment &env)
 			});
 	}
 
-	if (device()->_window != NULL) {
+	if (!device()->_options._headless) {
 		env.add_module_function("Window", "show", [](lua_State *L) {
 				LuaStack stack(L);
 				device()->_window->show();
