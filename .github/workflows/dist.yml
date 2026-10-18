@@ -247,6 +247,7 @@ jobs:
       commit: ${{ steps.version.outputs.commit }}
       revision: ${{ steps.version.outputs.revision }}
       gdrive_file_id: ${{ steps.nightly.outputs.gdrive_file_id }}
+      unstable_release: ${{ steps.nightly.outputs.unstable_release }}
     needs:
       - package-ubuntu
       - package-windows
@@ -327,6 +328,7 @@ jobs:
         env:
           GDRIVE_KEY: ${{ secrets.GDRIVE_KEY }}
           GDRIVE_PARENT_FOLDER_ID: ${{ secrets.GDRIVE_PARENT_FOLDER_ID }}
+          CROWN_VERSION: ${{ steps.version.outputs.crown_version }}
         run: |
           set -euo pipefail
           CREDENTIALS="${RUNNER_TEMP}/gdrive.json"
@@ -339,11 +341,29 @@ jobs:
           export RCLONE_CONFIG_GDRIVE_SERVICE_ACCOUNT_FILE="${CREDENTIALS}"
 
           rclone copy "${DIST_DIR}/" "gdrive:${VERSIONNAME}/" --checksum
-          GDRIVE_FILE_ID=$(rclone lsf "gdrive:${VERSIONNAME}" \
-            --files-only \
-            --include "${VERSIONNAME}-linux-x64.tar.gz" \
-            --format i)
+          GDRIVE_FILES=$(rclone lsjson "gdrive:${VERSIONNAME}" --files-only)
+          GDRIVE_FILE_ID=$(jq -er --arg name "${VERSIONNAME}-linux-x64.tar.gz" \
+            '.[] | select(.Name == $name) | .ID' <<< "${GDRIVE_FILES}")
           echo "gdrive_file_id=${GDRIVE_FILE_ID}" >> $GITHUB_OUTPUT
+          COMMIT=$(git rev-parse HEAD)
+          UNSTABLE_RELEASE=$(jq -c --arg branch "${BRANCH}" --arg tag_name "${VERSIONNAME#crown-}" \
+              --arg version "${CROWN_VERSION}" --arg commit "${COMMIT}" '{
+              branch: $branch,
+              tag_name: $tag_name,
+              assets: map(
+                ((.Name | capture("-(?<os>[^-]+)-(?<architecture>[^.-]+)\\.(?:tar\\.gz|zip)$")) // {}) as $target
+                | {
+                  name: .Name,
+                  version: $version,
+                  commit: $commit,
+                  os: $target.os,
+                  architecture: $target.architecture,
+                  size: .Size,
+                  browser_download_url: ("https://drive.google.com/uc?export=download&id=" + .ID)
+                }
+              )
+            }' <<< "${GDRIVE_FILES}")
+          echo "unstable_release=${UNSTABLE_RELEASE}" >> $GITHUB_OUTPUT
       - name: stable
         if: github.event_name == 'push' && env.IS_TAG == 'true'
         uses: softprops/action-gh-release@v2
@@ -354,7 +374,7 @@ jobs:
 
   update-website:
     needs: finalize
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    if: github.event_name == 'push'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -366,12 +386,33 @@ jobs:
           ref: master
           token: ${{ secrets.WEBSITE_TOKEN }}
       - name: update-download
+        env:
+          IS_TAG: ${{ github.ref_type == 'tag' }}
+          BRANCH: ${{ github.ref_name }}
+          UNSTABLE_RELEASE: ${{ needs.finalize.outputs.unstable_release }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          ./update-download.sh
-          git push origin master
+          if [ "${IS_TAG}" = "true" ]; then
+            ./update-download.sh
+          else
+            BRANCH_FILENAME=$(jq -rn --arg branch "${BRANCH}" '$branch | @uri')
+            UNSTABLE_JSON="src/data/download/unstable-${BRANCH_FILENAME}.json"
+            printf '%s\n' "${UNSTABLE_RELEASE}" | jq -e . > "${UNSTABLE_JSON}"
+            git add "${UNSTABLE_JSON}"
+            if ! git diff --cached --quiet; then
+              git commit -m "download: update unstable-${BRANCH_FILENAME}.json"
+            fi
+          fi
+          for ATTEMPT in 1 2 3; do
+            echo "Website push attempt ${ATTEMPT}/3"
+            git pull --rebase origin master
+            if git push origin master; then
+              exit 0
+            fi
+          done
+          exit 1
 
   aur-source:
     needs: finalize
