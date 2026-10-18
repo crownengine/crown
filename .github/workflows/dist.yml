@@ -247,7 +247,6 @@ jobs:
       commit: ${{ steps.version.outputs.commit }}
       revision: ${{ steps.version.outputs.revision }}
       gdrive_file_id: ${{ steps.nightly.outputs.gdrive_file_id }}
-      unstable_release: ${{ steps.nightly.outputs.unstable_release }}
     needs:
       - package-ubuntu
       - package-windows
@@ -346,7 +345,7 @@ jobs:
             '.[] | select(.Name == $name) | .ID' <<< "${GDRIVE_FILES}")
           echo "gdrive_file_id=${GDRIVE_FILE_ID}" >> $GITHUB_OUTPUT
           COMMIT=$(git rev-parse HEAD)
-          UNSTABLE_RELEASE=$(jq -c --arg branch "${BRANCH}" --arg tag_name "${VERSIONNAME#crown-}" \
+          jq -e --arg branch "${BRANCH}" --arg tag_name "${VERSIONNAME#crown-}" \
               --arg version "${CROWN_VERSION}" --arg commit "${COMMIT}" '{
               branch: $branch,
               tag_name: $tag_name,
@@ -362,8 +361,15 @@ jobs:
                   browser_download_url: ("https://drive.google.com/uc?export=download&id=" + .ID)
                 }
               )
-            }' <<< "${GDRIVE_FILES}")
-          echo "unstable_release=${UNSTABLE_RELEASE}" >> $GITHUB_OUTPUT
+            }' <<< "${GDRIVE_FILES}" > "${RUNNER_TEMP}/unstable.json"
+      - name: upload-unstable-release
+        if: github.event_name == 'push' && env.IS_TAG == 'false'
+        uses: actions/upload-artifact@v6
+        with:
+          name: unstable-release
+          path: ${{ runner.temp }}/unstable.json
+          if-no-files-found: error
+          retention-days: 1
       - name: stable
         if: github.event_name == 'push' && env.IS_TAG == 'true'
         uses: softprops/action-gh-release@v2
@@ -385,11 +391,16 @@ jobs:
           repository: crownengine/crown-website
           ref: master
           token: ${{ secrets.WEBSITE_TOKEN }}
+      - name: download-unstable-release
+        if: github.ref_type != 'tag'
+        uses: actions/download-artifact@v8
+        with:
+          name: unstable-release
+          path: ${{ runner.temp }}/unstable-release
       - name: update-download
         env:
           IS_TAG: ${{ github.ref_type == 'tag' }}
           BRANCH: ${{ github.ref_name }}
-          UNSTABLE_RELEASE: ${{ needs.finalize.outputs.unstable_release }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -399,7 +410,10 @@ jobs:
           else
             BRANCH_FILENAME=$(jq -rn --arg branch "${BRANCH}" '$branch | @uri')
             UNSTABLE_JSON="src/data/download/unstable-${BRANCH_FILENAME}.json"
-            printf '%s\n' "${UNSTABLE_RELEASE}" | jq -e . > "${UNSTABLE_JSON}"
+            jq -es --arg branch "${BRANCH}" \
+              'length == 1 and (.[0].branch == $branch) and (.[0].assets | type == "array" and length > 0)' \
+              "${RUNNER_TEMP}/unstable-release/unstable.json" > /dev/null
+            cp "${RUNNER_TEMP}/unstable-release/unstable.json" "${UNSTABLE_JSON}"
             git add "${UNSTABLE_JSON}"
             if ! git diff --cached --quiet; then
               git commit -m "download: update unstable-${BRANCH_FILENAME}.json"
