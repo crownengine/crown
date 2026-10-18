@@ -1,0 +1,16 @@
+lua = [
+	"core/editors/material_editor/boot"
+]
+
+physics_config = [
+	"global"
+]
+
+unit = [
+	"core/units/camera"
+	"core/units/light"
+]
+
+shader = [
+	"core/shaders/default"
+]

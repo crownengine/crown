@@ -925,4 +925,25 @@ namespace StateMachineEditorApi
 
 } /* namespace StateMachineEditorApi */
 
+namespace MaterialEditorApi
+{
+	public string set_material(string name, string library, string unit_name)
+	{
+		return "LevelEditor:set_material(\"%s\",\"%s\",\"%s\")".printf(name, library, unit_name);
+	}
+
+	public string set_uniform(string name, Quaternion value)
+	{
+		return "LevelEditor:set_uniform(\"%s\",%s)".printf(name, Lua.quaternion_elements(value));
+	}
+
+	public string set_texture(string name, string? texture)
+	{
+		return "LevelEditor:set_texture(\"%s\",%s)".printf(name
+			, texture == null ? "nil" : "\"%s\"".printf(texture)
+			);
+	}
+
+} /* namespace MaterialEditorApi */
+
 } /* namespace Crown */

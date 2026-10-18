@@ -483,6 +483,7 @@ public class LevelEditorApplication : Gtk.Application
 	public UnitEditor _unit_editor_dialog;
 	public StateMachineEditor _state_machine_editor;
 	public ObjectEditor _object_editor;
+	public MaterialEditor _material_editor;
 	public ThumbnailCache _thumbnail_cache;
 
 	public Gtk.Stack _project_stack;
@@ -2566,6 +2567,33 @@ public class LevelEditorApplication : Gtk.Application
 		string resource_type = (string)param.get_child_value(0);
 		string resource_name = (string)param.get_child_value(1);
 
+		if (resource_type == OBJECT_TYPE_MATERIAL) {
+			if (_material_editor == null) {
+				_material_editor = new MaterialEditor(this
+					, _preferences_dialog
+					, _data_compiler
+					, _project
+					, "core/editors/material_editor"
+					, "127.0.0.1"
+					, 0
+					);
+				_material_editor.set_transient_for(_level_editor_window);
+				_material_editor.saved.connect(on_material_saved);
+				_runtimes.add(_material_editor._runtime);
+				this.add_window(_material_editor);
+			}
+			_material_editor.set_material(resource_name);
+#if CROWN_GTK3
+			_material_editor.show_all();
+			_material_editor.refresh_view();
+			_material_editor.send();
+#else
+			_material_editor.show();
+#endif
+			_material_editor.present();
+			return;
+		}
+
 		if (_object_editor == null) {
 			_object_editor = new ObjectEditor(this
 				, _project
@@ -2585,6 +2613,11 @@ public class LevelEditorApplication : Gtk.Application
 #endif
 		_object_editor.present();
 		_object_editor.set_object(resource_type, resource_name);
+	}
+
+	private void on_material_saved()
+	{
+		compile_and_reload.begin();
 	}
 
 	public void on_reveal(GLib.SimpleAction action, GLib.Variant? param)
@@ -2631,12 +2664,14 @@ public class LevelEditorApplication : Gtk.Application
 			_state_machine_editor.close_and_unload();
 		if (_object_editor != null)
 			_object_editor.close_and_unload();
+		if (_material_editor != null)
+			_material_editor.close_and_unload();
 
 		_database_editor.clear_selection();
 		_level.reset();
 		_project.reset();
 
-		this.active_window.title = CROWN_EDITOR_NAME;
+		_level_editor_window.title = CROWN_EDITOR_NAME;
 	}
 
 	public async void destroy_editors()
@@ -2652,6 +2687,12 @@ public class LevelEditorApplication : Gtk.Application
 			_runtimes.remove(_state_machine_editor._runtime);
 			_state_machine_editor.destroy();
 			_state_machine_editor = null;
+		}
+		if (_material_editor != null) {
+			yield _material_editor.stop_runtime();
+			_runtimes.remove(_material_editor._runtime);
+			_material_editor.destroy();
+			_material_editor = null;
 		}
 		if (_object_editor != null) {
 			_object_editor.destroy();
