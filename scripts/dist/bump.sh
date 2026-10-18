@@ -86,4 +86,4 @@ git add src/config.h
 git add tools/config.vala
 git add docs/conf.py
 git add docs/changelog.rst
-git commit -m "Bump Crown v${VERSION_NEXT}"
+git commit -m "Bump Crown v${VERSION_NEXT}" -m "[ci skip]"
