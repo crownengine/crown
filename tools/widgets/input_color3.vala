@@ -888,7 +888,7 @@ public class InputColor3 : InputField
 			return Gdk.EVENT_PROPAGATE;
 
 		var window = _popover.get_toplevel() as Gtk.Window;
-		Gtk.Widget? focus = window != null ? window.get_focus() : null;
+		Gtk.Widget? focus = window != null? window.get_focus() : null;
 		if (focus == null || !focus.is_ancestor(_popover))
 			return Gdk.EVENT_PROPAGATE;
 
