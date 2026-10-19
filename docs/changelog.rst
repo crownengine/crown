@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.5 --- DD MMM YYYY <v0.65.5>`
 ---------------------------------------
 
+**Fixes**
+
+* Tools: fixed angle inputs returning unclamped values.
+
 .. _v0.65.4:
 
 :ref:`0.65.4 --- 18 Oct 2026 <v0.65.4>`
