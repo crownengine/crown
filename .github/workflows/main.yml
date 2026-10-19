@@ -220,19 +220,73 @@ jobs:
       matrix:
         include:
         - toolkit: gtk3
-          package: libgtk-3-dev
           target_suffix: ""
         - toolkit: gtk4
-          package: libgtk-4-dev
           target_suffix: -gtk4
+    env:
+      GCC16_ROOT: /opt/gcc-16.2.0
+      GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
+      GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
+      GTK3_VERSION: 3.24.52
+      GTK3_ROOT: /opt/gtk-3.24.52
+      GTK3_GDRIVE_FILE_ID: 1F5OyK1IUkHsI33-2iaCjPslC5SFc7MaU
+      GTK3_SHA256_GDRIVE_FILE_ID: 1-FSyTMH_giMJqhVZ7GsDtPd81sKjf6ux
     steps:
     - uses: actions/checkout@v6
     - name: prepare
       run: |
+        sudo add-apt-repository ppa:vala-team -y
         sudo apt-get update
-        sudo apt-get install ${{ matrix.package }}
-        sudo add-apt-repository ppa:vala-team
-        sudo apt-get install valac sassc libxml2-utils gettext
+        sudo apt-get install -y valac sassc libxml2-utils gettext
+        if [[ "${{ matrix.toolkit }}" == gtk3 ]]; then
+          sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libxtst-dev libjbig0 \
+            libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
+            libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
+            libxcb1-dev libxcb-shm0-dev libxcb-render0-dev libxcb-xkb-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev
+        else
+          sudo apt-get install -y libgtk-4-dev
+        fi
+    - name: install-gcc16
+      if: matrix.toolkit == 'gtk3'
+      run: |
+        set -euo pipefail
+        archive="gcc-16.2.0-ubuntu22.04-amd64.tar.xz"
+        cd "${RUNNER_TEMP}"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GCC16_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GCC16_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive.sha256"
+        sha256sum --check "$archive.sha256"
+        sudo tar -xJf "$archive" -C /
+        export LD_LIBRARY_PATH="${GCC16_ROOT}/lib64:${GCC16_ROOT}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        "${GCC16_ROOT}/bin/gcc" --version
+        "${GCC16_ROOT}/bin/g++" --version
+        echo "${GCC16_ROOT}/bin" >> "$GITHUB_PATH"
+        echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+    - name: install-gtk3
+      if: matrix.toolkit == 'gtk3'
+      run: |
+        set -euo pipefail
+        archive="gtk-${GTK3_VERSION}-ubuntu22.04-amd64.tar.xz"
+        cd "${RUNNER_TEMP}"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK3_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive"
+        curl --fail --location --retry 5 --retry-all-errors \
+          "https://drive.usercontent.google.com/download?id=${GTK3_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+          --output "$archive.sha256"
+        sha256sum --check "$archive.sha256"
+        sudo tar -xJf "$archive" -C /
+        source "${GTK3_ROOT}/activate.sh"
+        test "$(pkg-config --modversion gtk+-3.0)" = "$GTK3_VERSION"
+        test "$(pkg-config --variable=prefix gtk+-3.0)" = "$GTK3_ROOT"
+        echo "${GTK3_ROOT}/bin" >> "$GITHUB_PATH"
+        for variable in PKG_CONFIG_PATH LD_LIBRARY_PATH GI_TYPELIB_PATH XDG_DATA_DIRS GDK_PIXBUF_MODULEDIR GDK_PIXBUF_MODULE_FILE; do
+          printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
+        done
     - name: linux-make-crown-editor-debug64
       run: |
         make MAKE_JOBS=4 crown-editor-theme${{ matrix.target_suffix }}
