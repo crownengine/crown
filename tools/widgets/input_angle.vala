@@ -37,11 +37,10 @@ public class InputAngle : InputField
 		}
 		set
 		{
-			_radians = value;
-
-			// Convert to radians for displaying.
+			// Convert to degrees for displaying, then read back the clamped value.
 			_degrees.value_changed.disconnect(on_value_changed);
-			_degrees.value = MathUtils.deg(_radians);
+			_degrees.value = MathUtils.deg(value);
+			_radians = MathUtils.rad(_degrees.value);
 			_degrees.value_changed.connect(on_value_changed);
 			value_changed(this);
 		}
