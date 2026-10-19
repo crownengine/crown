@@ -120,7 +120,7 @@ jobs:
             linux)
               sudo add-apt-repository ppa:vala-team -y
               sudo apt-get update
-              sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 gettext python3-sphinx valac libxml2-utils sassc
+              sudo apt-get install -y mesa-common-dev libgl1-mesa-dev libpulse-dev libxkbcommon-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 gettext python3-sphinx valac libxml2-utils sassc
               sudo apt-get install -y libmount-dev libselinux1-dev libdbus-1-dev libxtst-dev libjbig0 \
                 libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev libxinerama-dev \
                 libxfixes-dev libxcursor-dev libxdamage-dev libxcomposite-dev \
