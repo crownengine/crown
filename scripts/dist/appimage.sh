@@ -5,11 +5,21 @@
 set -euo pipefail
 shopt -s nullglob
 
+GTK_PACKAGE=gtk+-3.0
+GTK_ROOT=${GTK3_ROOT:-}
+SCHEMA_PREFIX=org.gtk.Settings
+if [ "${1:-}" = --gtk4 ]; then
+	GTK_PACKAGE=gtk4
+	GTK_ROOT=${GTK4_ROOT:-}
+	SCHEMA_PREFIX=org.gtk.gtk4
+	shift
+fi
+
 if [ $# -ne 1 ] || [ "$1" = "--help" ]; then
-	echo "Usage: $0 <crown-linux-x64.tar.gz>"
+	echo "Usage: $0 [--gtk4] <crown-linux-x64.tar.gz>"
 	echo "Create an AppImage beside the finalized Linux SDK archive."
 	echo "Build on Ubuntu 22.04; set CXX to the compiler used to build the SDK."
-	echo "Set GTK3_ROOT to activate and package a custom GTK3 SDK."
+	echo "Set GTK3_ROOT or GTK4_ROOT to activate and package a custom GTK SDK."
 	exit 0
 fi
 
@@ -22,21 +32,21 @@ esac
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 OUTPUT_DIR=$(dirname "${ARCHIVE}")
-if [ -n "${GTK3_ROOT:-}" ]; then
-	GTK3_ROOT=$(realpath "${GTK3_ROOT}")
+if [ -n "${GTK_ROOT}" ]; then
+	GTK_ROOT=$(realpath "${GTK_ROOT}")
 	# shellcheck source=/dev/null
-	. "${GTK3_ROOT}/activate.sh"
+	. "${GTK_ROOT}/activate.sh"
 else
-	GTK3_ROOT=$(realpath "$(pkg-config --variable=prefix gtk+-3.0)")
+	GTK_ROOT=$(realpath "$(pkg-config --variable=prefix "${GTK_PACKAGE}")")
 fi
-for package in gtk+-3.0 gdk-pixbuf-2.0 gio-2.0; do
-	if [ "$(realpath "$(pkg-config --variable=prefix "${package}")")" != "${GTK3_ROOT}" ]; then
-		echo "${package} must come from ${GTK3_ROOT}." >&2
+for package in "${GTK_PACKAGE}" gdk-pixbuf-2.0 gio-2.0; do
+	if [ "$(realpath "$(pkg-config --variable=prefix "${package}")")" != "${GTK_ROOT}" ]; then
+		echo "${package} must come from ${GTK_ROOT}." >&2
 		exit 1
 	fi
 done
-GTK_LIBDIR=$(pkg-config --variable=libdir gtk+-3.0)
-export PATH="${GTK3_ROOT}/bin:${PATH}"
+GTK_LIBDIR=$(pkg-config --variable=libdir "${GTK_PACKAGE}")
+export PATH="${GTK_ROOT}/bin:${PATH}"
 TOOLS_DIR=${XDG_CACHE_HOME:-${HOME}/.cache}/crown/appimage
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf "${WORK_DIR}"' EXIT
@@ -138,6 +148,7 @@ EXCLUDED_LIBRARIES=(
 	'libutil.so.1*'
 	'libuuid.so*'
 	'libuuid.so.1*'
+	'libvulkan.so*'
 	'libwayland*.so*'
 	'libwayland-client.so.0*'
 	'libxcb*.so*'
@@ -161,38 +172,46 @@ for lib in libstdc++.so.6 libgcc_s.so.1; do
 	test -f "${path}"
 	cp -L "${path}" "${APPDIR}/usr/lib/${lib}"
 done
-export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${GTK_LIBDIR}:${GTK3_ROOT}/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${GTK_LIBDIR}:${GTK_ROOT}/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 mkdir -p "${APPDIR}/usr/share/icons"
-cp -a "${GTK3_ROOT}/share/icons/." "${APPDIR}/usr/share/icons"
+cp -a "${GTK_ROOT}/share/icons/." "${APPDIR}/usr/share/icons"
 
-# GTK loads input methods and image loaders dynamically. Stage them explicitly
+# GTK3 loads input methods dynamically. Stage them and the image loaders
 # so their dependencies are collected alongside the SDK executables.
-GTK_BINARY_VERSION=$(pkg-config --variable=gtk_binary_version gtk+-3.0)
-GTK_MODULEDIR=${APPDIR}/usr/lib/gtk-3.0/${GTK_BINARY_VERSION}
+QUERY_TOOLS=(gdk-pixbuf-query-loaders)
+if [ "${GTK_PACKAGE}" = gtk4 ]; then
+	mkdir -p "${APPDIR}/usr/share/gtk-4.0"
+	cp -a "${GTK_ROOT}/share/gtk-4.0/emoji" "${APPDIR}/usr/share/gtk-4.0"
+else
+	GTK_BINARY_VERSION=$(pkg-config --variable=gtk_binary_version "${GTK_PACKAGE}")
+	GTK_MODULEDIR=${APPDIR}/usr/lib/gtk-3.0/${GTK_BINARY_VERSION}
+	mkdir -p "${GTK_MODULEDIR}"
+	cp -a "${GTK_LIBDIR}/gtk-3.0/${GTK_BINARY_VERSION}/immodules" "${GTK_MODULEDIR}"
+	QUERY_TOOLS+=(gtk-query-immodules-3.0)
+fi
 PIXBUF_MODULEDIR=${APPDIR}/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders
-mkdir -p "${GTK_MODULEDIR}" "${PIXBUF_MODULEDIR}"
-cp -a "${GTK_LIBDIR}/gtk-3.0/${GTK_BINARY_VERSION}/immodules" "${GTK_MODULEDIR}"
+mkdir -p "${PIXBUF_MODULEDIR}"
 PIXBUF_LOADERS=("$(pkg-config --variable=gdk_pixbuf_moduledir gdk-pixbuf-2.0)/"*.so)
 if [ ${#PIXBUF_LOADERS[@]} -gt 0 ]; then
 	cp -a "${PIXBUF_LOADERS[@]}" "${PIXBUF_MODULEDIR}"
 fi
 SVG_LOADERS=("${PIXBUF_MODULEDIR}"/libpixbufloader[-_]svg.so)
 if [ ${#SVG_LOADERS[@]} -eq 0 ]; then
-	echo "Missing SVG image loader in ${GTK3_ROOT}." >&2
+	echo "Missing SVG image loader in ${GTK_ROOT}." >&2
 	exit 1
 fi
 
 SCHEMAS_DIR=$(pkg-config --variable=datadir gio-2.0)/glib-2.0/schemas
 mkdir -p "${APPDIR}/usr/share/glib-2.0/schemas"
-cp "${SCHEMAS_DIR}"/org.gtk.Settings.*.gschema.xml "${APPDIR}/usr/share/glib-2.0/schemas"
-"${GTK3_ROOT}/bin/glib-compile-schemas" --strict "${APPDIR}/usr/share/glib-2.0/schemas"
+cp "${SCHEMAS_DIR}/${SCHEMA_PREFIX}".*.gschema.xml "${APPDIR}/usr/share/glib-2.0/schemas"
+"${GTK_ROOT}/bin/glib-compile-schemas" --strict "${APPDIR}/usr/share/glib-2.0/schemas"
 
 # Query loaders at launch to produce caches containing the current mount path.
-for tool in gdk-pixbuf-query-loaders gtk-query-immodules-3.0; do
-	path=$(find "${GTK3_ROOT}/bin" "${GTK_LIBDIR}" -name "${tool}" -type f -print -quit)
+for tool in "${QUERY_TOOLS[@]}"; do
+	path=$(find "${GTK_ROOT}/bin" "${GTK_LIBDIR}" -name "${tool}" -type f -print -quit)
 	if [ -z "${path}" ]; then
-		echo "Missing ${tool} in ${GTK3_ROOT}." >&2
+		echo "Missing ${tool} in ${GTK_ROOT}." >&2
 		exit 1
 	fi
 	cp -L "${path}" "${APPDIR}/usr/bin"
@@ -230,8 +249,8 @@ collect_dependencies () {
 		fi
 		if [ ! -f "${APPDIR}/usr/lib/${library}" ]; then
 			path=$(realpath "${path}")
-			if [[ "${GTK3_ROOT}" != /usr && "${path}" != "${GTK3_ROOT}/"* ]]; then
-				printf 'Dependency %s resolved outside %s: %s\n' "${library}" "${GTK3_ROOT}" "${path}" >&2
+			if [[ "${GTK_ROOT}" != /usr && "${path}" != "${GTK_ROOT}/"* ]]; then
+				printf 'Dependency %s resolved outside %s: %s\n' "${library}" "${GTK_ROOT}" "${path}" >&2
 				return 1
 			fi
 			cp -L "${path}" "${APPDIR}/usr/lib/${library}"

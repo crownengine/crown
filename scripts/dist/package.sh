@@ -8,6 +8,7 @@ set -eu
 
 NOCONFIRM=0
 BRANCH=""
+TARGET_SUFFIX=""
 ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -17,6 +18,7 @@ while [ $# -gt 0 ]; do
 		echo ""
 		echo "Options:"
 		echo "  --noconfirm  Skip any user confirmations."
+		echo "  --gtk4       Build the editor with GTK4."
 		echo ""
 		echo "Examples:"
 		echo "$0 android arm64    # Create android-arm64 package. Version is inferred from config.h."
@@ -31,6 +33,10 @@ while [ $# -gt 0 ]; do
 	--branch)
 		BRANCH="$2"
 		shift 2
+		;;
+	--gtk4)
+		TARGET_SUFFIX="-gtk4"
+		shift
 		;;
 	-*)
 		echo "Unknown option $1"
@@ -108,10 +114,11 @@ elif [ "${PLATFORM}" = "html5" ]; then
 elif [ "${PLATFORM}" = "linux" ]; then
 	make docs
 	make linux-development32 MAKE_JOBS="${BUILD_JOBS}"
-	make tools-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
+	make "crown-editor-theme${TARGET_SUFFIX}"
+	make "tools-linux-release64${TARGET_SUFFIX}" MAKE_JOBS="${BUILD_JOBS}"
 	if [ "${BRANCH}" != "" ]; then
 		make linux-debug32 MAKE_JOBS="${BUILD_JOBS}"
-		make tools-linux-debug64 MAKE_JOBS="${BUILD_JOBS}"
+		make "tools-linux-debug64${TARGET_SUFFIX}" MAKE_JOBS="${BUILD_JOBS}"
 	fi
 	make crown-launcher-linux-release64 MAKE_JOBS="${BUILD_JOBS}"
 	make linux-release64 MAKE_JOBS="${BUILD_JOBS}"
@@ -120,7 +127,8 @@ elif [ "${PLATFORM}" = "windows" ]; then
 		make docs
 		export MINGW=/mingw64
 		export PATH="${MINGW}/bin:${PATH}"
-		make tools-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
+		make "crown-editor-theme${TARGET_SUFFIX}"
+		make "tools-mingw-release64${TARGET_SUFFIX}" MAKE_JOBS="${BUILD_JOBS}"
 		make crown-launcher-mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 		make mingw-release64 MAKE_JOBS="${BUILD_JOBS}"
 
@@ -140,7 +148,9 @@ elif [ "${PLATFORM}" = "windows" ]; then
 		cp /mingw64/bin/gdk-pixbuf-query-loaders.exe    build/mingw64/bin
 		cp /mingw64/bin/gspawn-win64-helper-console.exe build/mingw64/bin
 		cp /mingw64/bin/gspawn-win64-helper.exe         build/mingw64/bin
-		cp /mingw64/bin/gtk-query-immodules-3.0.exe     build/mingw64/bin
+		if [ "${TARGET_SUFFIX}" = "" ]; then
+			cp /mingw64/bin/gtk-query-immodules-3.0.exe build/mingw64/bin
+		fi
 		cp /mingw64/bin/gtk-update-icon-cache.exe       build/mingw64/bin
 
 		# Copy additional DLLs.
