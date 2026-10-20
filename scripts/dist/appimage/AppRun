@@ -1,0 +1,33 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2012-2026 Daniele Bartolini et al.
+
+set -eo pipefail
+shopt -s nullglob
+
+APPDIR=$(cd -- "$(dirname -- "$0")" && pwd)
+export APPDIR
+export LD_LIBRARY_PATH="${APPDIR}/usr/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
+export XDG_DATA_DIRS="${APPDIR}/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export GSETTINGS_SCHEMA_DIR="${APPDIR}/usr/share/glib-2.0/schemas"
+export GTK_DATA_PREFIX="${APPDIR}/usr"
+export GTK_EXE_PREFIX="${APPDIR}/usr"
+export GTK_PATH="${APPDIR}/usr/lib/gtk-3.0"
+
+CACHE_DIR=${XDG_CACHE_HOME:-${HOME}/.cache}/crown/appimage
+mkdir -p "${CACHE_DIR}"
+RUNTIME_DIR=$(mktemp -d "${CACHE_DIR}/loaders.XXXXXX")
+trap 'rm -rf "${RUNTIME_DIR}"' EXIT
+
+export GDK_PIXBUF_MODULEDIR="${APPDIR}/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders"
+"${APPDIR}/usr/bin/gdk-pixbuf-query-loaders" "${GDK_PIXBUF_MODULEDIR}"/*.so > "${RUNTIME_DIR}/loaders.cache"
+export GDK_PIXBUF_MODULE_FILE="${RUNTIME_DIR}/loaders.cache"
+if [ -x "${APPDIR}/usr/bin/gtk-query-immodules-3.0" ]; then
+	"${APPDIR}/usr/bin/gtk-query-immodules-3.0" "${APPDIR}/usr/lib/gtk-3.0/3.0.0/immodules"/*.so > "${RUNTIME_DIR}/immodules.cache"
+	export GTK_IM_MODULE_FILE="${RUNTIME_DIR}/immodules.cache"
+fi
+
+# Wait for the launcher so its children retain their mounted resources and
+# loader caches until Crown exits, including its subprocess launcher.
+"${APPDIR}/opt/crown/crown-launcher" "$@"

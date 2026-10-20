@@ -14,6 +14,15 @@ concurrency:
   group: crown-package-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  GCC16_ROOT: /opt/gcc-16.2.0
+  GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
+  GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
+  GTK3_VERSION: 3.24.52
+  GTK3_ROOT: /opt/gtk-3.24.52
+  GTK3_GDRIVE_FILE_ID: 1F5OyK1IUkHsI33-2iaCjPslC5SFc7MaU
+  GTK3_SHA256_GDRIVE_FILE_ID: 1-FSyTMH_giMJqhVZ7GsDtPd81sKjf6ux
+
 jobs:
   detect:
     runs-on: ubuntu-22.04
@@ -79,13 +88,6 @@ jobs:
       IS_TAG: ${{ needs.detect.outputs.is_tag }}
       VERSION: ${{ needs.detect.outputs.version }}
       BRANCH: ${{ needs.detect.outputs.branch }}
-      GCC16_ROOT: /opt/gcc-16.2.0
-      GCC16_GDRIVE_FILE_ID: 1QsuKc06WHJj6FNuohwyG99L5f5rUww1p
-      GCC16_SHA256_GDRIVE_FILE_ID: 1mn6bUGPKPcAkhUlrHhieRH89as0Eqa5y
-      GTK3_VERSION: 3.24.52
-      GTK3_ROOT: /opt/gtk-3.24.52
-      GTK3_GDRIVE_FILE_ID: 1F5OyK1IUkHsI33-2iaCjPslC5SFc7MaU
-      GTK3_SHA256_GDRIVE_FILE_ID: 1-FSyTMH_giMJqhVZ7GsDtPd81sKjf6ux
     steps:
       - name: prepare
         uses: actions/checkout@v6
@@ -346,6 +348,58 @@ jobs:
         run: |
           set -euo pipefail
           "$GITHUB_WORKSPACE/scripts/dist/finalize.sh" "${DIST_DIR}"
+      - name: install-appimage-deps
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y file desktop-file-utils libgtk-3-dev
+
+          cd "${RUNNER_TEMP}"
+          GCC16_ARCHIVE="gcc-16.2.0-ubuntu22.04-amd64.tar.xz"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GCC16_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GCC16_ARCHIVE}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GCC16_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GCC16_ARCHIVE}.sha256"
+          sha256sum -c "${GCC16_ARCHIVE}.sha256"
+          sudo tar -xJf "${GCC16_ARCHIVE}" -C /
+
+          GTK3_ARCHIVE="gtk-${GTK3_VERSION}-ubuntu22.04-amd64.tar.xz"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GTK3_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GTK3_ARCHIVE}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            "https://drive.usercontent.google.com/download?id=${GTK3_SHA256_GDRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "${GTK3_ARCHIVE}.sha256"
+          sha256sum -c "${GTK3_ARCHIVE}.sha256"
+          sudo tar -xJf "${GTK3_ARCHIVE}" -C /
+      - name: appimage
+        run: |
+          set -euo pipefail
+          export CXX="${GCC16_ROOT}/bin/g++"
+          ./scripts/dist/appimage.sh "${DIST_DIR}/${VERSIONNAME}-linux-x64.tar.gz"
+          "${DIST_DIR}/${VERSIONNAME}-linux-x64.AppImage" --appimage-extract-and-run editor --version
+      - name: test-appimage
+        run: |
+          set -euo pipefail
+          for image in ubuntu:22.04 ubuntu:24.04; do
+            docker run --rm -v "${GITHUB_WORKSPACE}/${DIST_DIR}:/dist:ro" \
+              -e APPIMAGE_NAME="${VERSIONNAME}-linux-x64.AppImage" "$image" bash -c '
+                set -eu
+                apt-get update
+                apt-get install -y --no-install-recommends libgtk-3-0 libc6-i386 lib32gcc-s1
+                cd /tmp
+                "/dist/${APPIMAGE_NAME}" --appimage-extract > /dev/null
+                ./squashfs-root/AppRun editor --version
+                ./squashfs-root/AppRun runtime --version
+                sdk=/tmp/squashfs-root/opt/crown
+                echo "return 0" > /tmp/test.lua
+                "${sdk}/platforms/linux32/bin/luac" -o /tmp/test.luac /tmp/test.lua
+                cd "${sdk}/platforms/linux64/bin"
+                "${sdk}/platforms/linux32/bin/luajit" -b /tmp/test.lua /tmp/test.luajit
+              '
+          done
       - name: sums
         run: |
           set -euo pipefail
@@ -384,7 +438,7 @@ jobs:
               branch: $branch,
               tag_name: $tag_name,
               assets: map(
-                ((.Name | capture("-(?<os>[^-]+)-(?<architecture>[^.-]+)\\.(?:tar\\.gz|zip)$")) // {}) as $target
+                ((.Name | capture("-(?<os>[^-]+)-(?<architecture>[^.-]+)\\.(?:tar\\.gz|zip|AppImage)$")) // {}) as $target
                 | {
                   name: .Name,
                   version: $version,
