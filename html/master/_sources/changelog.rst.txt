@@ -18,7 +18,9 @@ Changelog
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.
 * Runtime: HTML5: worker pool size now matches the number of logical processors reported by the browser.
+* Runtime: reduced frame rate while the main window is unfocused.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
+* Lua: added ``Window.has_focus()``.
 
 **Fixes**
 
