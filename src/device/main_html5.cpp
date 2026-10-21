@@ -72,6 +72,13 @@ static void crown_js_exit_pointer_lock()
 		});
 }
 
+static bool crown_js_has_focus()
+{
+	return MAIN_THREAD_EM_ASM_INT({
+			return document.hasFocus() && !document.hidden;
+		}) != 0;
+}
+
 // code-format off
 EM_JS(int, crown_js_is_firefox, (void), {
 	if (typeof navigator === 'undefined' || !navigator.userAgent) {
@@ -165,6 +172,8 @@ struct WindowEmscripten : public Window
 	}
 
 	bool is_fullscreen() override;
+
+	bool has_focus() override;
 
 	void set_fullscreen(bool fullscreen) override
 	{
@@ -583,6 +592,7 @@ struct EmscriptenDevice
 	DeviceEventQueue _queue;
 	bool _pointer_locked;
 	bool _fullscreen;
+	bool _focused;
 	bool _is_firefox;
 	bool _joypad_polled;
 	Joypad _joypad;
@@ -592,6 +602,7 @@ struct EmscriptenDevice
 		, _queue(push_event)
 		, _pointer_locked(false)
 		, _fullscreen(false)
+		, _focused(false)
 		, _is_firefox(crown_js_is_firefox() != 0)
 		, _joypad_polled(false)
 		, _joypad(_queue, *this)
@@ -780,6 +791,22 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
+	static EM_BOOL focus_callback(int event_type, const EmscriptenFocusEvent *event, void *user_data)
+	{
+		CE_UNUSED_2(event_type, event);
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+		ed->_focused = crown_js_has_focus();
+		return EM_EVENT_PROPAGATE;
+	}
+
+	static EM_BOOL visibilitychange_callback(int event_type, const EmscriptenVisibilityChangeEvent *event, void *user_data)
+	{
+		CE_UNUSED_2(event_type, event);
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+		ed->_focused = crown_js_has_focus();
+		return EM_EVENT_PROPAGATE;
+	}
+
 	static EM_BOOL pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
@@ -828,6 +855,11 @@ struct EmscriptenDevice
 
 	int run(DeviceOptions *opts)
 	{
+		emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::focus_callback);
+		emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::focus_callback);
+		emscripten_set_visibilitychange_callback(this, true, EmscriptenDevice::visibilitychange_callback);
+		_focused = crown_js_has_focus();
+
 		emscripten_set_keypress_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::key_callback);
 		emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::key_callback);
 		emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::key_callback);
@@ -879,6 +911,11 @@ static EmscriptenDevice *s_emscripten_device;
 bool WindowEmscripten::is_fullscreen()
 {
 	return s_emscripten_device->_fullscreen;
+}
+
+bool WindowEmscripten::has_focus()
+{
+	return s_emscripten_device->_focused;
 }
 
 static bool push_event(const OsEvent &ev)

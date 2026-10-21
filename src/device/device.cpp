@@ -685,6 +685,12 @@ bool Device::frame()
 	if (_needs_draw-- == 1)
 		_needs_draw = (int)!_options._pumped;
 
+	if (_window != NULL && !_window->has_focus()) {
+		const f64 frame_ms = 1000.0*time::seconds(time::now() - time);
+		if (frame_ms < 250.0)
+			os::sleep(u32(250.0 - frame_ms));
+	}
+
 	return false;
 }
 

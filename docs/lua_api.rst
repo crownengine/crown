@@ -1849,6 +1849,9 @@ Represents the application window.
 **is_fullscreen** () : bool
 	Returns whether the window is fullscreen.
 
+**has_focus** () : bool
+	Returns whether the window has focus.
+
 **set_fullscreen** (fullscreen)
 	Sets whether the window is *fullscreen*.
 

@@ -658,6 +658,7 @@ struct SystemWayland : public System
 	bool cursor_visible;
 	Mutex cursor_mutex;
 	std::atomic_bool fullscreen;
+	std::atomic_bool focused;
 	MouseCursor::Enum cursor;
 	CursorMode::Enum cursor_mode;
 	DeviceEventQueue *queue;
@@ -703,6 +704,7 @@ struct SystemWayland : public System
 		, pointer_inside_content(false)
 		, cursor_visible(true)
 		, fullscreen(false)
+		, focused(false)
 		, cursor(MouseCursor::ARROW)
 		, cursor_mode(CursorMode::NORMAL)
 		, queue(&event_queue)
@@ -1394,13 +1396,14 @@ static void xdg_toplevel_handle_configure(void *user_data
 	CE_UNUSED(toplevel);
 
 	wl->fullscreen = false;
+	wl->focused = false;
 	const uint32_t *state = (const uint32_t *)states->data;
 	const uint32_t num_states = states->size / sizeof(*state);
 	for (uint32_t ii = 0; ii < num_states; ++ii) {
-		if (state[ii] == XDG_TOPLEVEL_STATE_FULLSCREEN) {
+		if (state[ii] == XDG_TOPLEVEL_STATE_FULLSCREEN)
 			wl->fullscreen = true;
-			break;
-		}
+		else if (state[ii] == XDG_TOPLEVEL_STATE_ACTIVATED)
+			wl->focused = true;
 	}
 
 	if (width > 0 && height > 0) {
@@ -1448,6 +1451,7 @@ struct SystemX11 : public System
 	bool cursor_inside_window;
 	bool motion_received;
 	std::atomic_bool fullscreen;
+	std::atomic_bool focused;
 	DeviceEventQueue &queue;
 
 	explicit SystemX11(DeviceEventQueue &event_queue)
@@ -1472,6 +1476,7 @@ struct SystemX11 : public System
 		, cursor_inside_window(false)
 		, motion_received(false)
 		, fullscreen(false)
+		, focused(false)
 		, queue(event_queue)
 	{
 		memset(cursors, 0, sizeof(cursors));
@@ -1607,6 +1612,21 @@ struct SystemX11 : public System
 			XNextEvent(display, &event);
 
 			switch (event.type) {
+			case FocusIn:
+			case FocusOut:
+				// Ignore focus changes caused by grabs or pointer crossings.
+				if (event.xfocus.mode == NotifyGrab
+					|| event.xfocus.mode == NotifyUngrab
+					|| event.xfocus.detail == NotifyPointer
+					)
+					break;
+				focused = event.type == FocusIn;
+				break;
+
+			case UnmapNotify:
+				focused = false;
+				break;
+
 			case EnterNotify:
 				if (xwayland && !motion_received) {
 					// XWayland sends spurious EnterNotify events when the pointer is outside the
@@ -2102,6 +2122,11 @@ struct WindowX11 : public Window
 		return _x11->fullscreen;
 	}
 
+	bool has_focus() override
+	{
+		return _x11->focused;
+	}
+
 	void set_fullscreen(bool full) override
 	{
 		XEvent xev;
@@ -2381,6 +2406,11 @@ struct WindowWayland : public Window
 		return _wl->fullscreen;
 	}
 
+	bool has_focus() override
+	{
+		return _wl->focused;
+	}
+
 	void set_fullscreen(bool full) override
 	{
 		if (frame != NULL) {
@@ -2509,6 +2539,7 @@ struct WindowWayland : public Window
 		}
 		xdg_surface = NULL;
 		_wl->fullscreen = false;
+		_wl->focused = false;
 	}
 
 	void apply_pending_state()
@@ -2529,8 +2560,10 @@ static void handle_configure(libdecor_frame *frame
 	DeviceEventQueue &queue = *_wl->queue;
 	int width, height;
 	enum libdecor_window_state window_state;
-	if (libdecor_configuration_get_window_state(configuration, &window_state))
+	if (libdecor_configuration_get_window_state(configuration, &window_state)) {
 		_wl->fullscreen = (window_state & LIBDECOR_WINDOW_STATE_FULLSCREEN) != 0;
+		_wl->focused = (window_state & LIBDECOR_WINDOW_STATE_ACTIVE) != 0;
+	}
 
 	if (!libdecor_configuration_get_content_size(configuration, frame, &width, &height)) {
 		width  = window->requested_width;

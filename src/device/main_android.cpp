@@ -301,6 +301,7 @@ struct AndroidDevice
 	android_app *_app;
 	DeviceOptions *_opts;
 	ANativeWindow *_window;
+	std::atomic_bool _focused;
 	CursorMode::Enum _cursor_mode;
 	s32 _mouse_button_state;
 	JavaVM *_jni_vm;
@@ -314,6 +315,7 @@ struct AndroidDevice
 		, _queue(push_event)
 		, _app(NULL)
 		, _opts(NULL)
+		, _focused(false)
 		, _cursor_mode(CursorMode::NORMAL)
 		, _mouse_button_state(0)
 		, _jni_vm(NULL)
@@ -561,6 +563,7 @@ struct AndroidDevice
 
 		case APP_CMD_TERM_WINDOW:
 			// The window is being hidden or closed, clean it up.
+			_focused = false;
 			break;
 
 		case APP_CMD_WINDOW_RESIZED:
@@ -568,9 +571,11 @@ struct AndroidDevice
 			break;
 
 		case APP_CMD_GAINED_FOCUS:
+			_focused = true;
 			break;
 
 		case APP_CMD_LOST_FOCUS:
+			_focused = false;
 			break;
 
 		case APP_CMD_DESTROY:
@@ -974,6 +979,11 @@ struct WindowAndroid : public Window
 	bool is_fullscreen() override
 	{
 		return true;
+	}
+
+	bool has_focus() override
+	{
+		return s_android_device->_focused;
 	}
 
 	void set_fullscreen(bool fullscreen) override

@@ -95,6 +95,9 @@ struct Window
 	/// Returns whether the window is fullscreen.
 	virtual bool is_fullscreen() = 0;
 
+	/// Returns whether the window has focus.
+	virtual bool has_focus() = 0;
+
 	/// Sets whether the window is @a fullscreen.
 	virtual void set_fullscreen(bool fullscreen) = 0;
 

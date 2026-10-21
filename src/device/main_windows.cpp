@@ -346,6 +346,7 @@ struct WindowsDevice
 	s16 _mouse_last_y;
 	CursorMode::Enum _cursor_mode;
 	std::atomic_bool _fullscreen;
+	std::atomic_bool _focused;
 	DeviceOptions *_options;
 	void *_xinput_lib;
 
@@ -358,6 +359,7 @@ struct WindowsDevice
 		, _mouse_last_y(INT16_MAX)
 		, _cursor_mode(CursorMode::NORMAL)
 		, _fullscreen(false)
+		, _focused(false)
 		, _options(&opts)
 		, _xinput_lib(NULL)
 	{
@@ -505,6 +507,10 @@ struct WindowsDevice
 			s_exit = true;
 			_queue.push_exit_event();
 			return 0;
+
+		case WM_ACTIVATE:
+			_focused = LOWORD(wparam) != WA_INACTIVE && HIWORD(wparam) == 0;
+			break;
 
 		case WM_STYLECHANGED:
 			if ((int)wparam == GWL_STYLE && _options->_parent_window == 0) {
@@ -892,6 +898,11 @@ struct WindowWin : public Window
 	bool is_fullscreen() override
 	{
 		return s_windows_device->_fullscreen;
+	}
+
+	bool has_focus() override
+	{
+		return s_windows_device->_focused;
 	}
 
 	void set_fullscreen(bool fullscreen) override
