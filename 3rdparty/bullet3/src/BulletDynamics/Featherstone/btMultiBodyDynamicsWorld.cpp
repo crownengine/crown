@@ -311,7 +311,7 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
     
     btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
     
-    m_solverMultiBodyIslandCallback->setup(&solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
+    m_solverMultiBodyIslandCallback->setup(&solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), m_debugDrawer);
     m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
     
 #ifndef BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
@@ -673,7 +673,7 @@ void btMultiBodyDynamicsWorld::removeMultiBodyConstraint(btMultiBodyConstraint* 
 
 void btMultiBodyDynamicsWorld::debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint)
 {
-	constraint->debugDraw(getDebugDrawer());
+	constraint->debugDraw(m_debugDrawer);
 }
 
 void btMultiBodyDynamicsWorld::debugDrawWorld()
@@ -683,9 +683,9 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 	btDiscreteDynamicsWorld::debugDrawWorld();
 
 	bool drawConstraints = false;
-	if (getDebugDrawer())
+	if (m_debugDrawer)
 	{
-		int mode = getDebugDrawer()->getDebugMode();
+		int mode = m_debugDrawer->getDebugMode();
 		if (mode & (btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits))
 		{
 			drawConstraints = true;
@@ -708,7 +708,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 
 				if (mode & btIDebugDraw::DBG_DrawFrames)
 				{
-					getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
+					m_debugDrawer->drawTransform(bod->getBaseWorldTransform(), 0.1);
 				}
 
 				for (int m = 0; m < bod->getNumLinks(); m++)
@@ -716,7 +716,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 					if (mode & btIDebugDraw::DBG_DrawFrames)
 					{
-						getDebugDrawer()->drawTransform(tr, 0.1);
+						m_debugDrawer->drawTransform(tr, 0.1);
 					}
 					//draw the joint axis
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eRevolute)
@@ -726,7 +726,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						getDebugDrawer()->drawLine(from, to, color);
+						m_debugDrawer->drawLine(from, to, color);
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eFixed)
 					{
@@ -735,7 +735,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						getDebugDrawer()->drawLine(from, to, color);
+						m_debugDrawer->drawLine(from, to, color);
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::ePrismatic)
 					{
@@ -744,7 +744,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
 						btVector3 to = tr.m_origin - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
-						getDebugDrawer()->drawLine(from, to, color);
+						m_debugDrawer->drawLine(from, to, color);
 					}
 				}
 			}

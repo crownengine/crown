@@ -272,9 +272,9 @@ void btDiscreteDynamicsWorld::debugDrawWorld()
 	btCollisionWorld::debugDrawWorld();
 
 	bool drawConstraints = false;
-	if (getDebugDrawer())
+	if (m_debugDrawer)
 	{
-		int mode = getDebugDrawer()->getDebugMode();
+		int mode = m_debugDrawer->getDebugMode();
 		if (mode & (btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits))
 		{
 			drawConstraints = true;
@@ -289,11 +289,11 @@ void btDiscreteDynamicsWorld::debugDrawWorld()
 		}
 	}
 
-	if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals)))
+	if (m_debugDrawer && (m_debugDrawer->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals)))
 	{
 		int i;
 
-		if (getDebugDrawer() && getDebugDrawer()->getDebugMode())
+		if (m_debugDrawer && m_debugDrawer->getDebugMode())
 		{
 			for (i = 0; i < m_actions.size(); i++)
 			{
@@ -301,8 +301,8 @@ void btDiscreteDynamicsWorld::debugDrawWorld()
 			}
 		}
 	}
-	if (getDebugDrawer())
-		getDebugDrawer()->flushLines();
+	if (m_debugDrawer)
+		m_debugDrawer->flushLines();
 }
 
 void btDiscreteDynamicsWorld::clearForces()
@@ -414,9 +414,9 @@ int btDiscreteDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, 
 	}
 
 	//process some debugging flags
-	if (getDebugDrawer())
+	if (m_debugDrawer)
 	{
-		btIDebugDraw* debugDrawer = getDebugDrawer();
+		btIDebugDraw* debugDrawer = m_debugDrawer;
 		gDisableDeactivation = (debugDrawer->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
 	}
 	if (numSimulationSubSteps)
@@ -464,7 +464,7 @@ void btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
-	dispatchInfo.m_debugDraw = getDebugDrawer();
+	dispatchInfo.m_debugDraw = m_debugDrawer;
 
 	createPredictiveContacts(timeStep);
 
@@ -694,7 +694,7 @@ void btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
 
-	m_solverIslandCallback->setup(&solverInfo, constraintsPtr, m_sortedConstraints.size(), getDebugDrawer());
+	m_solverIslandCallback->setup(&solverInfo, constraintsPtr, m_sortedConstraints.size(), m_debugDrawer);
 	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
 
 	/// solve all the constraints for this island
@@ -1115,9 +1115,9 @@ void btDiscreteDynamicsWorld::startProfiling(btScalar timeStep)
 
 void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 {
-	bool drawFrames = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawConstraints) != 0;
-	bool drawLimits = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawConstraintLimits) != 0;
-	btScalar dbgDrawSize = constraint->getDbgDrawSize() * getDebugDrawer()->constraintDebugDrawScale();
+	bool drawFrames = (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawConstraints) != 0;
+	bool drawLimits = (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawConstraintLimits) != 0;
+	btScalar dbgDrawSize = constraint->getDbgDrawSize() * m_debugDrawer->constraintDebugDrawScale();
 	if (dbgDrawSize <= btScalar(0.f))
 	{
 		return;
@@ -1133,21 +1133,21 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 			btVector3 pivot = p2pC->getPivotInA();
 			pivot = p2pC->getRigidBodyA().getCenterOfMassTransform() * pivot;
 			tr.m_origin = (pivot);
-			getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			// that ideally should draw the same frame
 			pivot = p2pC->getPivotInB();
 			pivot = p2pC->getRigidBodyB().getCenterOfMassTransform() * pivot;
 			tr.m_origin = (pivot);
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 		}
 		break;
 		case HINGE_CONSTRAINT_TYPE:
 		{
 			btHingeConstraint* pHinge = (btHingeConstraint*)constraint;
 			btTransform tr = pHinge->getRigidBodyA().getCenterOfMassTransform() * pHinge->getAFrame();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			tr = pHinge->getRigidBodyB().getCenterOfMassTransform() * pHinge->getBFrame();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			btScalar minAng = pHinge->getLowerLimit();
 			btScalar maxAng = pHinge->getUpperLimit();
 			if (minAng == maxAng)
@@ -1166,7 +1166,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				btVector3& center = tr.m_origin;
 				btVector3 normal = tr.m_basis.getColumn(2);
 				btVector3 axis = tr.m_basis.getColumn(0);
-				getDebugDrawer()->drawArc(center, normal, axis, dbgDrawSize, dbgDrawSize, minAng, maxAng, btVector3(0, 0, 0), drawSect);
+				m_debugDrawer->drawArc(center, normal, axis, dbgDrawSize, dbgDrawSize, minAng, maxAng, btVector3(0, 0, 0), drawSect);
 			}
 		}
 		break;
@@ -1174,9 +1174,9 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 		{
 			btConeTwistConstraint* pCT = (btConeTwistConstraint*)constraint;
 			btTransform tr = pCT->getRigidBodyA().getCenterOfMassTransform() * pCT->getAFrame();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			tr = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			if (drawLimits)
 			{
 				//const btScalar length = btScalar(5);
@@ -1190,10 +1190,10 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					fAngleInRadians = btScalar(2. * 3.1415926) * (btScalar)i / btScalar(nSegments);
 					btVector3 pCur = pCT->GetPointForAngle(fAngleInRadians, length);
 					pCur = tr * pCur;
-					getDebugDrawer()->drawLine(pPrev, pCur, btVector3(0, 0, 0));
+					m_debugDrawer->drawLine(pPrev, pCur, btVector3(0, 0, 0));
 
 					if (i % (nSegments / 8) == 0)
-						getDebugDrawer()->drawLine(tr.m_origin, pCur, btVector3(0, 0, 0));
+						m_debugDrawer->drawLine(tr.m_origin, pCur, btVector3(0, 0, 0));
 
 					pPrev = pCur;
 				}
@@ -1211,7 +1211,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				btVector3 pivot = tr.m_origin;
 				btVector3 normal = tr.m_basis.getColumn(0);
 				btVector3 axis1 = tr.m_basis.getColumn(1);
-				getDebugDrawer()->drawArc(pivot, normal, axis1, dbgDrawSize, dbgDrawSize, -twa - tws, -twa + tws, btVector3(0, 0, 0), true);
+				m_debugDrawer->drawArc(pivot, normal, axis1, dbgDrawSize, dbgDrawSize, -twa - tws, -twa + tws, btVector3(0, 0, 0), true);
 			}
 		}
 		break;
@@ -1220,9 +1220,9 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 			{
 				btGeneric6DofSpring2Constraint* p6DOF = (btGeneric6DofSpring2Constraint*)constraint;
 				btTransform tr = p6DOF->getCalculatedTransformA();
-				if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+				if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 				tr = p6DOF->getCalculatedTransformB();
-				if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+				if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 				if (drawLimits)
 				{
 					tr = p6DOF->getCalculatedTransformA();
@@ -1235,7 +1235,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					{
 						btScalar minPs = p6DOF->getRotationalLimitMotor(2)->m_loLimit;
 						btScalar maxPs = p6DOF->getRotationalLimitMotor(2)->m_hiLimit;
-						getDebugDrawer()->drawSpherePatch(center, up, axis, dbgDrawSize * btScalar(.9f), minTh, maxTh, minPs, maxPs, btVector3(0, 0, 0));
+						m_debugDrawer->drawSpherePatch(center, up, axis, dbgDrawSize * btScalar(.9f), minTh, maxTh, minPs, maxPs, btVector3(0, 0, 0));
 					}
 					axis = tr.m_basis.getColumn(1);
 					btScalar ay = p6DOF->getAngle(1);
@@ -1254,16 +1254,16 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					btScalar maxFi = p6DOF->getRotationalLimitMotor(0)->m_hiLimit;
 					if (minFi > maxFi)
 					{
-						getDebugDrawer()->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, -SIMD_PI, SIMD_PI, btVector3(0, 0, 0), false);
+						m_debugDrawer->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, -SIMD_PI, SIMD_PI, btVector3(0, 0, 0), false);
 					}
 					else if (minFi < maxFi)
 					{
-						getDebugDrawer()->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, minFi, maxFi, btVector3(0, 0, 0), true);
+						m_debugDrawer->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, minFi, maxFi, btVector3(0, 0, 0), true);
 					}
 					tr = p6DOF->getCalculatedTransformA();
 					btVector3 bbMin = p6DOF->getTranslationalLimitMotor()->m_lowerLimit;
 					btVector3 bbMax = p6DOF->getTranslationalLimitMotor()->m_upperLimit;
-					getDebugDrawer()->drawBox(bbMin, bbMax, tr, btVector3(0, 0, 0));
+					m_debugDrawer->drawBox(bbMin, bbMax, tr, btVector3(0, 0, 0));
 				}
 			}
 			break;
@@ -1272,21 +1272,21 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 		{
 			btSliderConstraint* pSlider = (btSliderConstraint*)constraint;
 			btTransform tr = pSlider->getCalculatedTransformA();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			tr = pSlider->getCalculatedTransformB();
-			if (drawFrames) getDebugDrawer()->drawTransform(tr, dbgDrawSize);
+			if (drawFrames) m_debugDrawer->drawTransform(tr, dbgDrawSize);
 			if (drawLimits)
 			{
 				btTransform tr = pSlider->getUseLinearReferenceFrameA() ? pSlider->getCalculatedTransformA() : pSlider->getCalculatedTransformB();
 				btVector3 li_min = tr * btVector3(pSlider->getLowerLinLimit(), 0.f, 0.f);
 				btVector3 li_max = tr * btVector3(pSlider->getUpperLinLimit(), 0.f, 0.f);
-				getDebugDrawer()->drawLine(li_min, li_max, btVector3(0, 0, 0));
+				m_debugDrawer->drawLine(li_min, li_max, btVector3(0, 0, 0));
 				btVector3 normal = tr.m_basis.getColumn(0);
 				btVector3 axis = tr.m_basis.getColumn(1);
 				btScalar a_min = pSlider->getLowerAngLimit();
 				btScalar a_max = pSlider->getUpperAngLimit();
 				const btVector3& center = pSlider->getCalculatedTransformB().m_origin;
-				getDebugDrawer()->drawArc(center, normal, axis, dbgDrawSize, dbgDrawSize, a_min, a_max, btVector3(0, 0, 0), true);
+				m_debugDrawer->drawArc(center, normal, axis, dbgDrawSize, dbgDrawSize, a_min, a_max, btVector3(0, 0, 0), true);
 			}
 		}
 		break;

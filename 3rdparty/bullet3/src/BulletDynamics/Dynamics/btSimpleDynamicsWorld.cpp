@@ -57,7 +57,7 @@ int btSimpleDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, bt
 	btDispatcherInfo& dispatchInfo = getDispatchInfo();
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
-	dispatchInfo.m_debugDraw = getDebugDrawer();
+	dispatchInfo.m_debugDraw = m_debugDrawer;
 
 	///perform collision detection
 	performDiscreteCollisionDetection();

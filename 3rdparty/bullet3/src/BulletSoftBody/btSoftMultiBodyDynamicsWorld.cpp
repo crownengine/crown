@@ -155,13 +155,13 @@ void btSoftMultiBodyDynamicsWorld::debugDrawWorld()
 {
 	btMultiBodyDynamicsWorld::debugDrawWorld();
 
-	if (getDebugDrawer())
+	if (m_debugDrawer)
 	{
 		int i;
 		for (i = 0; i < this->m_softBodies.size(); i++)
 		{
 			btSoftBody* psb = (btSoftBody*)this->m_softBodies[i];
-			if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
 			{
 				btSoftBodyHelpers::DrawFrame(psb, m_debugDrawer);
 				btSoftBodyHelpers::Draw(psb, m_debugDrawer, m_drawFlags);

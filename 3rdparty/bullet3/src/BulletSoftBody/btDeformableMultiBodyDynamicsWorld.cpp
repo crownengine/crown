@@ -340,7 +340,7 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
 		// setup the solver callback
 		btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
 		btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
-		m_solverDeformableBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
+		m_solverDeformableBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), m_debugDrawer);
 
 		// build islands
 		m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
@@ -458,7 +458,7 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 	btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
-	dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::getDebugDrawer();
+	dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::m_debugDrawer;
 	btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
 	if (m_useProjection)
 	{
@@ -482,8 +482,8 @@ void btDeformableMultiBodyDynamicsWorld::debugDrawWorld()
 	{
 		btSoftBody* psb = (btSoftBody*)getSoftBodyArray()[i];
 		{
-			btSoftBodyHelpers::DrawFrame(psb, getDebugDrawer());
-			btSoftBodyHelpers::Draw(psb, getDebugDrawer(), getDrawFlags());
+			btSoftBodyHelpers::DrawFrame(psb, m_debugDrawer);
+			btSoftBodyHelpers::Draw(psb, m_debugDrawer, getDrawFlags());
 		}
 	}
 }
@@ -712,9 +712,9 @@ int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int ma
 	}
 
 	//process some debugging flags
-	if (getDebugDrawer())
+	if (m_debugDrawer)
 	{
-		btIDebugDraw* debugDrawer = getDebugDrawer();
+		btIDebugDraw* debugDrawer = m_debugDrawer;
 		gDisableDeactivation = (debugDrawer->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
 	}
 	if (numSimulationSubSteps)
