@@ -842,6 +842,7 @@ struct RenderWorld
 		Array<u32> _directional_lights; // Indices to directional lights sorted by intensity.
 		Array<u32> _local_lights_omni;  // Indices to spot lights that will be rendered this frame.
 		Array<u32> _local_lights_spot;  // Indices to omni lights that will be rendered this frame.
+		Array<f32> _sort_keys;
 
 		///
 		explicit LightManager(Allocator &a, RenderWorld *rw)
@@ -852,6 +853,7 @@ struct RenderWorld
 			, _directional_lights(a)
 			, _local_lights_omni(a)
 			, _local_lights_spot(a)
+			, _sort_keys(a)
 		{
 			memset(&_data, 0, sizeof(_data));
 		}

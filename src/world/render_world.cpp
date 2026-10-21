@@ -46,6 +46,16 @@ namespace crown
 {
 CE_STATIC_ASSERT(sizeof(RenderWorld::LightManager::ShaderData) == LIGHT_SIZE * sizeof(Vector4));
 
+struct LightSort
+{
+	const f32 *keys;
+
+	bool operator()(const u32 &in_a, const u32 &in_b) const
+	{
+		return keys[in_a] < keys[in_b];
+	}
+};
+
 static const struct
 {
 	f32 depth_bias;
@@ -1951,20 +1961,21 @@ void RenderWorld::render(f32 dt
 	array::clear(lm._directional_lights);
 	array::clear(lm._local_lights_spot);
 	array::clear(lm._local_lights_omni);
+	array::resize(lm._sort_keys, max(lid.size, array::size(_cullable_lights.id)));
 	u32 num_lights = 0; // Total lights to render this frame.
 
 	// Collect indices to all directional lights.
 	for (u32 i = 0; i < lid.size; ++i) {
-		if (lid.type[i] == LightType::DIRECTIONAL)
+		if (lid.type[i] == LightType::DIRECTIONAL) {
 			array::push_back(lm._directional_lights, i);
+			lm._sort_keys[i] = -lid.shader[i].intensity;
+		}
 	}
 
 	// Sort directional lights by intensity.
 	std::sort(array::begin(lm._directional_lights)
 		, array::end(lm._directional_lights)
-		, [lm](const u32 &in_a, const u32 &in_b) {
-			return lm._data.shader[in_a].intensity > lm._data.shader[in_b].intensity;
-		});
+		, LightSort{ array::begin(lm._sort_keys) });
 
 	const bool lights_cookie_enabled = (_pipeline->_render_settings.flags & RenderSettingsFlags::LIGHTS_COOKIE) != 0;
 
@@ -2168,15 +2179,14 @@ void RenderWorld::render(f32 dt
 
 		// Sort culled lights by distance to camera, retaining the culling-set
 		// index so the bounds computed during culling can be reused below.
+		for (u32 i = 0; i < array::size(_cullable_lights.render); ++i) {
+			const u32 cull_index = _cullable_lights.render[i];
+			const u32 light_id = _cullable_lights.id[cull_index];
+			lm._sort_keys[cull_index] = distance_squared(camera_pos, lid.shader[light_id].position);
+		}
 		std::sort(array::begin(_cullable_lights.render)
 			, array::end(_cullable_lights.render)
-			, [this, camera_pos](const u32 &in_a, const u32 &in_b) {
-				const u32 light_a = _cullable_lights.id[in_a];
-				const u32 light_b = _cullable_lights.id[in_b];
-				const f32 dist_a = distance_squared(camera_pos, _light_manager._data.shader[light_a].position);
-				const f32 dist_b = distance_squared(camera_pos, _light_manager._data.shader[light_b].position);
-				return dist_a < dist_b;
-			});
+			, LightSort{ array::begin(lm._sort_keys) });
 
 		const bool local_shadows = (_pipeline->_render_settings.flags & RenderSettingsFlags::LOCAL_LIGHTS_SHADOWS) != 0;
 		const u32 num_local_lights = min(array::size(_cullable_lights.render), MAX_NUM_LIGHTS - num_lights);
