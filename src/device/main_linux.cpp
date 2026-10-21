@@ -493,8 +493,10 @@ static bool push_event(const OsEvent &ev);
 	DL_IMPORT_FUNC(XOpenDisplay,               ::Display *, (_Xconst char *));                                                                                                                                \
 	DL_IMPORT_FUNC(XOpenIM,                    XIM,         (::Display *, struct _XrmHashBucketRec *, char *, char *));                                                                                       \
 	DL_IMPORT_FUNC(XQueryExtension,            Bool,        (::Display *, char *, int *, int *, int *));                                                                                                      \
+	DL_IMPORT_FUNC(XQueryTree,                 Status,      (::Display *, ::Window, ::Window *, ::Window *, ::Window **, unsigned int *));                                                                     \
 	DL_IMPORT_FUNC(XRefreshKeyboardMapping,    int,         (XMappingEvent *));                                                                                                                               \
 	DL_IMPORT_FUNC(XResizeWindow,              int,         (::Display *, ::Window, unsigned int, unsigned int));                                                                                             \
+	DL_IMPORT_FUNC(XSelectInput,               int,         (::Display *, ::Window, long));                                                                                                                   \
 	DL_IMPORT_FUNC(XSendEvent,                 Status,      (::Display *, ::Window, Bool, long, XEvent *));                                                                                                   \
 	DL_IMPORT_FUNC(XSetWMProtocols,            Status,      (::Display *, ::Window, Atom *, int));                                                                                                            \
 	DL_IMPORT_FUNC(XStoreName,                 int,         (::Display *, ::Window, _Xconst char *));                                                                                                         \
@@ -1427,6 +1429,7 @@ struct SystemX11 : public System
 	::Display *display;
 	int display_fd;
 	Atom wm_delete_window;
+	Atom net_active_window;
 	Atom net_wm_state;
 	Atom net_wm_state_maximized_horz;
 	Atom net_wm_state_maximized_vert;
@@ -1437,6 +1440,7 @@ struct SystemX11 : public System
 	bool detectable_autorepeat;
 	XRRScreenConfiguration *screen_config;
 	::Window window;
+	::Window parent_toplevel;
 	Mutex window_mutex;
 	Pixmap bitmap;
 	XIM im;
@@ -1460,6 +1464,7 @@ struct SystemX11 : public System
 		, display(NULL)
 		, display_fd(-1)
 		, wm_delete_window(None)
+		, net_active_window(None)
 		, net_wm_state(None)
 		, net_wm_state_maximized_horz(None)
 		, net_wm_state_maximized_vert(None)
@@ -1469,6 +1474,7 @@ struct SystemX11 : public System
 		, detectable_autorepeat(false)
 		, screen_config(NULL)
 		, window(None)
+		, parent_toplevel(None)
 		, mouse_last_x(INT16_MAX)
 		, mouse_last_y(INT16_MAX)
 		, cursor_mode(CursorMode::NORMAL)
@@ -1532,6 +1538,7 @@ struct SystemX11 : public System
 		detectable_autorepeat = (bool)XkbSetDetectableAutoRepeat(display, true, &detectable);
 
 		wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", False);
+		net_active_window = XInternAtom(display, "_NET_ACTIVE_WINDOW", False);
 		net_wm_state = XInternAtom(display, "_NET_WM_STATE", False);
 		net_wm_state_maximized_horz = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
 		net_wm_state_maximized_vert = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
@@ -1602,6 +1609,52 @@ struct SystemX11 : public System
 		os::library_close(x11_lib);
 	}
 
+	::Window parent_window(::Window w)
+	{
+		::Window root;
+		::Window parent;
+		::Window *children = NULL;
+		unsigned int num_children;
+		if (!XQueryTree(display, w, &root, &parent, &children, &num_children))
+			return None;
+		if (children != NULL)
+			XFree(children);
+		return parent == root ? None : parent;
+	}
+
+	void update_parent_focus()
+	{
+		Atom type;
+		int format;
+		unsigned long num_items;
+		unsigned long bytes_after;
+		unsigned char *data = NULL;
+		const int result = XGetWindowProperty(display
+			, root_window
+			, net_active_window
+			, 0
+			, 1
+			, False
+			, XA_WINDOW
+			, &type
+			, &format
+			, &num_items
+			, &bytes_after
+			, &data
+			);
+		XWindowAttributes attributes;
+		focused = result == Success
+			&& type == XA_WINDOW
+			&& format == 32
+			&& num_items == 1
+			&& *(const ::Window *)data == parent_toplevel
+			&& XGetWindowAttributes(display, window, &attributes)
+			&& attributes.map_state == IsViewable
+			;
+		if (data != NULL)
+			XFree(data);
+	}
+
 	void handle_events(fd_set *fdset) override
 	{
 		if (!FD_ISSET(display_fd, fdset))
@@ -1613,15 +1666,27 @@ struct SystemX11 : public System
 
 			switch (event.type) {
 			case FocusIn:
-			case FocusOut:
+			case FocusOut: {
+				ScopedMutex sm(window_mutex);
+				if (window == None)
+					break;
 				// Ignore focus changes caused by grabs or pointer crossings.
 				if (event.xfocus.mode == NotifyGrab
 					|| event.xfocus.mode == NotifyUngrab
 					|| event.xfocus.detail == NotifyPointer
 					)
 					break;
-				focused = event.type == FocusIn;
+				if (device()->_options._parent_window == 0)
+					focused = event.type == FocusIn;
 				break;
+			}
+
+			case MapNotify: {
+				ScopedMutex sm(window_mutex);
+				if (window != None && device()->_options._parent_window != 0)
+					update_parent_focus();
+				break;
+			}
 
 			case UnmapNotify:
 				focused = false;
@@ -1656,13 +1721,22 @@ struct SystemX11 : public System
 					queue.push_exit_event();
 				break;
 
-			case ConfigureNotify:
-				queue.push_resolution_event(event.xconfigure.width
-					, event.xconfigure.height
-					);
+			case ConfigureNotify: {
+				ScopedMutex sm(window_mutex);
+				if (event.xconfigure.window == window)
+					queue.push_resolution_event(event.xconfigure.width
+						, event.xconfigure.height
+						);
 				break;
+			}
 
 			case PropertyNotify: {
+				if (event.xproperty.window == root_window && event.xproperty.atom == net_active_window) {
+					ScopedMutex sm(window_mutex);
+					if (window != None && device()->_options._parent_window != 0)
+						update_parent_focus();
+					break;
+				}
 				if (event.xproperty.atom != net_wm_state)
 					break;
 
@@ -2009,6 +2083,38 @@ struct WindowX11 : public Window
 			, &win_attribs
 			);
 		CE_ASSERT(_x11->window != None, "XCreateWindow: error");
+		if (parent != 0) {
+			const Atom wm_state = XInternAtom(_x11->display, "WM_STATE", False);
+			for (::Window w = parent_window; w != None; w = _x11->parent_window(w)) {
+				_x11->parent_toplevel = w;
+				XSelectInput(_x11->display, w, StructureNotifyMask);
+
+				// Stop at the client window, before the window manager's frame.
+				Atom type;
+				int format;
+				unsigned long num_items;
+				unsigned long bytes_after;
+				unsigned char *data = NULL;
+				const int result = XGetWindowProperty(_x11->display
+					, w
+					, wm_state
+					, 0
+					, 0
+					, False
+					, AnyPropertyType
+					, &type
+					, &format
+					, &num_items
+					, &bytes_after
+					, &data
+					);
+				if (data != NULL)
+					XFree(data);
+				if (result == Success && type != None)
+					break;
+			}
+			XSelectInput(_x11->display, root_window, PropertyChangeMask);
+		}
 
 		XSetWMProtocols(_x11->display, _x11->window, &_x11->wm_delete_window, 1);
 	}

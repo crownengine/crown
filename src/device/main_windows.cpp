@@ -473,6 +473,41 @@ struct WindowsDevice
 		_hcursor = wnd.hCursor;
 		_win_cursors[MouseCursor::ARROW] = _hcursor;
 
+		HWINEVENTHOOK focus_hook = NULL;
+		HWINEVENTHOOK minimize_hook = NULL;
+		HWINEVENTHOOK visibility_hook = NULL;
+		if (_options->_parent_window != 0) {
+			DWORD parent_process = 0;
+			GetWindowThreadProcessId(GetAncestor(_hwnd, GA_ROOT), &parent_process);
+			CE_ENSURE(parent_process != 0);
+			focus_hook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND
+				, EVENT_SYSTEM_FOREGROUND
+				, NULL
+				, parent_state_changed
+				, 0
+				, 0
+				, WINEVENT_OUTOFCONTEXT
+				);
+			minimize_hook = SetWinEventHook(EVENT_SYSTEM_MINIMIZESTART
+				, EVENT_SYSTEM_MINIMIZEEND
+				, NULL
+				, parent_state_changed
+				, parent_process
+				, 0
+				, WINEVENT_OUTOFCONTEXT
+				);
+			visibility_hook = SetWinEventHook(EVENT_OBJECT_SHOW
+				, EVENT_OBJECT_HIDE
+				, NULL
+				, parent_state_changed
+				, parent_process
+				, 0
+				, WINEVENT_OUTOFCONTEXT
+				);
+			CE_ENSURE(focus_hook != NULL && minimize_hook != NULL && visibility_hook != NULL);
+			update_parent_focus();
+		}
+
 		Thread main_thread;
 		main_thread.start(run_runtime, this);
 
@@ -487,12 +522,29 @@ struct WindowsDevice
 			DispatchMessage(&msg);
 		}
 
+		if (focus_hook != NULL)
+			UnhookWinEvent(focus_hook);
+		if (minimize_hook != NULL)
+			UnhookWinEvent(minimize_hook);
+		if (visibility_hook != NULL)
+			UnhookWinEvent(visibility_hook);
+
 		joypad_thread.stop();
 		main_thread.stop();
 
 		DestroyWindow(_hwnd);
 
 		return main_thread.exit_code();
+	}
+
+	void update_parent_focus()
+	{
+		HWND parent = GetAncestor(_hwnd, GA_ROOT);
+		_focused = IsWindowVisible(_hwnd)
+			&& !IsIconic(_hwnd)
+			&& !IsIconic(parent)
+			&& GetAncestor(GetForegroundWindow(), GA_ROOT) == parent
+			;
 	}
 
 	LRESULT pump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
@@ -509,7 +561,8 @@ struct WindowsDevice
 			return 0;
 
 		case WM_ACTIVATE:
-			_focused = LOWORD(wparam) != WA_INACTIVE && HIWORD(wparam) == 0;
+			if (_options->_parent_window == 0)
+				_focused = LOWORD(wparam) != WA_INACTIVE && HIWORD(wparam) == 0;
 			break;
 
 		case WM_STYLECHANGED:
@@ -518,6 +571,13 @@ struct WindowsDevice
 				_fullscreen = (style->styleNew & WS_OVERLAPPEDWINDOW) == 0;
 			}
 			return 0;
+
+		case WM_WINDOWPOSCHANGED:
+			if (_options->_parent_window != 0
+				&& (((const WINDOWPOS *)lparam)->flags & (SWP_SHOWWINDOW | SWP_HIDEWINDOW))
+				)
+				update_parent_focus();
+			break;
 
 		case WM_SIZE: {
 			u32 width  = GET_X_LPARAM(lparam);
@@ -528,6 +588,8 @@ struct WindowsDevice
 				ClipCursor(&clipRect);
 			}
 			_queue.push_resolution_event(width, height);
+			if (_options->_parent_window != 0)
+				update_parent_focus();
 			break;
 		}
 
@@ -781,6 +843,7 @@ struct WindowsDevice
 	}
 
 	static LRESULT CALLBACK window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam);
+	static void CALLBACK parent_state_changed(HWINEVENTHOOK hook, DWORD event, HWND hwnd, LONG object, LONG child, DWORD thread, DWORD time);
 };
 
 static WindowsDevice *s_windows_device;
@@ -788,6 +851,18 @@ static WindowsDevice *s_windows_device;
 LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
 	return s_windows_device->pump_events(hwnd, id, wparam, lparam);
+}
+
+void CALLBACK WindowsDevice::parent_state_changed(HWINEVENTHOOK /*hook*/, DWORD event, HWND hwnd, LONG object, LONG /*child*/, DWORD /*thread*/, DWORD /*time*/)
+{
+	if ((event == EVENT_OBJECT_SHOW || event == EVENT_OBJECT_HIDE)
+		&& object != OBJID_WINDOW
+		)
+		return;
+	if (event == EVENT_SYSTEM_FOREGROUND
+		|| GetAncestor(hwnd, GA_ROOT) == GetAncestor(s_windows_device->_hwnd, GA_ROOT)
+		)
+		s_windows_device->update_parent_focus();
 }
 
 struct WindowWin : public Window
