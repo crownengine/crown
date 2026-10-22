@@ -36,9 +36,9 @@ btCollisionDispatcher::btCollisionDispatcher(btCollisionConfiguration* collision
 
 	setNearCallback(defaultNearCallback);
 
-	m_collisionAlgorithmPoolAllocator = collisionConfiguration->getCollisionAlgorithmPool();
+	m_collisionAlgorithmPoolAllocator = collisionConfiguration->m_collisionAlgorithmPool;
 
-	m_persistentManifoldPoolAllocator = collisionConfiguration->getPersistentManifoldPool();
+	m_persistentManifoldPoolAllocator = collisionConfiguration->m_persistentManifoldPool;
 
 	for (i = 0; i < MAX_BROADPHASE_COLLISION_TYPES; i++)
 	{

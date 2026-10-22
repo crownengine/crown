@@ -26,14 +26,12 @@ class btPoolAllocator;
 class btCollisionConfiguration
 {
 public:
+	btPoolAllocator* m_persistentManifoldPool;
+	btPoolAllocator* m_collisionAlgorithmPool;
+
 	virtual ~btCollisionConfiguration()
 	{
 	}
-
-	///memory pools
-	virtual btPoolAllocator* getPersistentManifoldPool() = 0;
-
-	virtual btPoolAllocator* getCollisionAlgorithmPool() = 0;
 
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1) = 0;
 

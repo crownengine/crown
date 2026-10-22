@@ -48,10 +48,8 @@ class btDefaultCollisionConfiguration : public btCollisionConfiguration
 protected:
 	int m_persistentManifoldPoolSize;
 
-	btPoolAllocator* m_persistentManifoldPool;
 	bool m_ownsPersistentManifoldPool;
 
-	btPoolAllocator* m_collisionAlgorithmPool;
 	bool m_ownsCollisionAlgorithmPool;
 
 	//default penetration depth solver
@@ -80,17 +78,6 @@ public:
 	btDefaultCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo());
 
 	virtual ~btDefaultCollisionConfiguration();
-
-	///memory pools
-	virtual btPoolAllocator* getPersistentManifoldPool()
-	{
-		return m_persistentManifoldPool;
-	}
-
-	virtual btPoolAllocator* getCollisionAlgorithmPool()
-	{
-		return m_collisionAlgorithmPool;
-	}
 
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1);
 
