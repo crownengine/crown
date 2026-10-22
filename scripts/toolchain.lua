@@ -210,6 +210,11 @@ function toolchain(build_dir, lib_dir)
 			"-gsource-map" -- See: https://emscripten.org/docs/porting/exceptions.html?highlight=gsource%20map#stack-traces
 		}
 
+	configuration { "release", "wasm or wasm64" }
+		linkoptions {
+			"-O3", -- Enable JS minification.
+		}
+
 	configuration { "linux-gcc or android-arm" }
 		buildoptions {
 			"-Werror=return-type",
