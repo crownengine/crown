@@ -65,6 +65,8 @@ enum btSerializationFlags
 class btSerializer
 {
 public:
+	int m_serializationFlags;
+
 	virtual ~btSerializer() {}
 
 	virtual const unsigned char* getBufferPointer() const = 0;
@@ -88,10 +90,6 @@ public:
 	virtual void registerNameForPointer(const void* ptr, const char* name) = 0;
 
 	virtual void serializeName(const char* ptr) = 0;
-
-	virtual int getSerializationFlags() const = 0;
-
-	virtual void setSerializationFlags(int flags) = 0;
 
 	virtual int getNumChunks() const = 0;
 
@@ -175,8 +173,6 @@ protected:
 	int m_currentSize;
 	void* m_dna;
 	int m_dnaLength;
-
-	int m_serializationFlags;
 
 	btAlignedObjectArray<btChunk*> m_chunkPtrs;
 
@@ -370,9 +366,9 @@ public:
 		  m_totalSize(totalSize),
 		  m_currentSize(0),
 		  m_dna(0),
-		  m_dnaLength(0),
-		  m_serializationFlags(0)
+		  m_dnaLength(0)
 	{
+		m_serializationFlags = 0;
 		if (buffer == 0)
 		{
 			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc(totalSize, 16) : 0;
@@ -661,15 +657,6 @@ public:
 		}
 	}
 
-	virtual int getSerializationFlags() const
-	{
-		return m_serializationFlags;
-	}
-
-	virtual void setSerializationFlags(int flags)
-	{
-		m_serializationFlags = flags;
-	}
 	int getNumChunks() const
 	{
 		return m_chunkPtrs.size();

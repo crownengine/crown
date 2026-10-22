@@ -1589,7 +1589,7 @@ void btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 
 void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
 {
-	if (serializer->getSerializationFlags() & BT_SERIALIZE_CONTACT_MANIFOLDS)
+	if (serializer->m_serializationFlags & BT_SERIALIZE_CONTACT_MANIFOLDS)
 	{
 		int numManifolds = getDispatcher()->getNumManifolds();
 		for (int i = 0; i < numManifolds; i++)

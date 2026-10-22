@@ -377,7 +377,7 @@ const char* btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 
 	trimeshData->m_collisionMargin = float(m_collisionMargin);
 
-	if (m_bvh && !(serializer->getSerializationFlags() & BT_SERIALIZE_NO_BVH))
+	if (m_bvh && !(serializer->m_serializationFlags & BT_SERIALIZE_NO_BVH))
 	{
 		void* chunk = serializer->findPointer(m_bvh);
 		if (chunk)
@@ -412,7 +412,7 @@ const char* btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 		trimeshData->m_quantizedDoubleBvh = 0;
 	}
 
-	if (m_triangleInfoMap && !(serializer->getSerializationFlags() & BT_SERIALIZE_NO_TRIANGLEINFOMAP))
+	if (m_triangleInfoMap && !(serializer->m_serializationFlags & BT_SERIALIZE_NO_TRIANGLEINFOMAP))
 	{
 		void* chunk = serializer->findPointer(m_triangleInfoMap);
 		if (chunk)
