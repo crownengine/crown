@@ -86,7 +86,7 @@ btCollisionWorld::~btCollisionWorld()
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp, m_dispatcher1);
+			getBroadphase()->m_pairCache->cleanProxyFromPairs(bp, m_dispatcher1);
 			getBroadphase()->destroyProxy(bp, m_dispatcher1);
 			collisionObject->m_broadphaseHandle = (0);
 		}
@@ -228,7 +228,7 @@ void btCollisionWorld::performDiscreteCollisionDetection()
 	{
 		BT_PROFILE("dispatchAllCollisionPairs");
 		if (dispatcher)
-			dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(), dispatchInfo, m_dispatcher1);
+			dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->m_pairCache, dispatchInfo, m_dispatcher1);
 	}
 }
 
@@ -243,7 +243,7 @@ void btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp, m_dispatcher1);
+			getBroadphase()->m_pairCache->cleanProxyFromPairs(bp, m_dispatcher1);
 			getBroadphase()->destroyProxy(bp, m_dispatcher1);
 			collisionObject->m_broadphaseHandle = (0);
 		}

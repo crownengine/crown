@@ -79,7 +79,6 @@ protected:
 		m_numHandles--;
 	}
 
-	btOverlappingPairCache* m_pairCache;
 	bool m_ownsPairCache;
 
 	int m_invalidPair;
@@ -119,14 +118,6 @@ public:
 	virtual void rayTest(const btVector3& rayFrom, const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin = btVector3(0, 0, 0), const btVector3& aabbMax = btVector3(0, 0, 0));
 	virtual void aabbTest(const btVector3& aabbMin, const btVector3& aabbMax, btBroadphaseAabbCallback& callback);
 
-	btOverlappingPairCache* getOverlappingPairCache()
-	{
-		return m_pairCache;
-	}
-	const btOverlappingPairCache* getOverlappingPairCache() const
-	{
-		return m_pairCache;
-	}
 
 	bool testAabbOverlap(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1);
 

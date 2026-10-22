@@ -82,7 +82,6 @@ protected:
 	Edge* m_pEdges[3];  // edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 	void* m_pEdgesRawPtr[3];
 
-	btOverlappingPairCache* m_pairCache;
 
 	///btOverlappingPairCallback is an additional optional user callback for adding/removing overlapping pairs, similar interface to btOverlappingPairCache.
 	btOverlappingPairCallback* m_userPairCallback;
@@ -150,14 +149,6 @@ public:
 
 	bool testAabbOverlap(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1);
 
-	btOverlappingPairCache* getOverlappingPairCache()
-	{
-		return m_pairCache;
-	}
-	const btOverlappingPairCache* getOverlappingPairCache() const
-	{
-		return m_pairCache;
-	}
 
 	void setOverlappingPairUserCallback(btOverlappingPairCallback* pairCallback)
 	{
@@ -331,12 +322,13 @@ template <typename BP_FP_INT_TYPE>
 btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btVector3& worldAabbMin, const btVector3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel, BP_FP_INT_TYPE userMaxHandles, btOverlappingPairCache* pairCache, bool disableRaycastAccelerator)
 	: m_bpHandleMask(handleMask),
 	  m_handleSentinel(handleSentinel),
-	  m_pairCache(pairCache),
 	  m_userPairCallback(0),
 	  m_ownsPairCache(false),
 	  m_invalidPair(0),
 	  m_raycastAccelerator(0)
 {
+	m_pairCache = pairCache;
+
 	BP_FP_INT_TYPE maxHandles = static_cast<BP_FP_INT_TYPE>(userMaxHandles + 1);  //need to add one sentinel handle
 
 	if (!m_pairCache)

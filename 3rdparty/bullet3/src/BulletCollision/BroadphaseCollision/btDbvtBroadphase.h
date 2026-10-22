@@ -71,7 +71,6 @@ struct btDbvtBroadphase : btBroadphaseInterface
 	/* Fields		*/
 	btDbvt m_sets[2];                           // Dbvt sets
 	btDbvtProxy* m_stageRoots[STAGECOUNT + 1];  // Stages list
-	btOverlappingPairCache* m_paircache;        // Pair cache
 	btScalar m_prediction;                      // Velocity prediction
 	int m_stageCurrent;                         // Current stage
 	int m_fupdates;                             // % of fixed updates per frame
@@ -115,8 +114,6 @@ struct btDbvtBroadphase : btBroadphaseInterface
 
 	virtual void getAabb(btBroadphaseProxy* proxy, btVector3& aabbMin, btVector3& aabbMax) const;
 	virtual void calculateOverlappingPairs(btDispatcher* dispatcher);
-	virtual btOverlappingPairCache* getOverlappingPairCache();
-	virtual const btOverlappingPairCache* getOverlappingPairCache() const;
 	virtual void getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax) const;
 	virtual void printStats();
 

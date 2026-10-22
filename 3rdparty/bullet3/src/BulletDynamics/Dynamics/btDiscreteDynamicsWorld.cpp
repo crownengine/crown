@@ -877,9 +877,9 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 						}
 					};
 
-					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->m_pairCache, getDispatcher());
 #else
-					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->m_pairCache, getDispatcher());
 #endif
 					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
@@ -979,9 +979,9 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 						}
 					};
 
-					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					StaticOnlyCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->m_pairCache, getDispatcher());
 #else
-					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->getOverlappingPairCache(), getDispatcher());
+					btClosestNotMeConvexResultCallback sweepResults(body, body->m_worldTransform.m_origin, predictedTrans.m_origin, getBroadphase()->m_pairCache, getDispatcher());
 #endif
 					//btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);
 					btSphereShape tmpSphere(body->m_ccdSweptSphereRadius);  //btConvexShape* convexShape = static_cast<btConvexShape*>(body->m_collisionShape);

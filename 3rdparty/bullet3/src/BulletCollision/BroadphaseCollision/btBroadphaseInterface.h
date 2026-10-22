@@ -49,6 +49,8 @@ protected:
 class btBroadphaseInterface
 {
 public:
+	btOverlappingPairCache* m_pairCache;
+
 	virtual ~btBroadphaseInterface() {}
 
 	virtual btBroadphaseProxy* createProxy(const btVector3& aabbMin, const btVector3& aabbMax, int shapeType, void* userPtr, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher) = 0;
@@ -62,9 +64,6 @@ public:
 
 	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
 	virtual void calculateOverlappingPairs(btDispatcher* dispatcher) = 0;
-
-	virtual btOverlappingPairCache* getOverlappingPairCache() = 0;
-	virtual const btOverlappingPairCache* getOverlappingPairCache() const = 0;
 
 	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
 	///will add some transform later

@@ -36,10 +36,10 @@ void btSimpleBroadphase::validate()
 }
 
 btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* overlappingPairCache)
-	: m_pairCache(overlappingPairCache),
-	  m_ownsPairCache(false),
+	: m_ownsPairCache(false),
 	  m_invalidPair(0)
 {
+	m_pairCache = overlappingPairCache;
 	if (!overlappingPairCache)
 	{
 		void* mem = btAlignedAlloc(sizeof(btHashedOverlappingPairCache), 16);

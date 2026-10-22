@@ -113,7 +113,7 @@ struct btDbvtTreeCollider : btDbvt::ICollide
 			if (pa->m_uniqueId > pb->m_uniqueId)
 				btSwap(pa, pb);
 #endif
-			pbp->m_paircache->addOverlappingPair(pa, pb);
+			pbp->m_pairCache->addOverlappingPair(pa, pb);
 			++pbp->m_newpairs;
 		}
 	}
@@ -143,7 +143,7 @@ btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 	m_updates_call = 0;
 	m_updates_done = 0;
 	m_updates_ratio = 0;
-	m_paircache = paircache ? paircache : new (btAlignedAlloc(sizeof(btHashedOverlappingPairCache), 16)) btHashedOverlappingPairCache();
+	m_pairCache = paircache ? paircache : new (btAlignedAlloc(sizeof(btHashedOverlappingPairCache), 16)) btHashedOverlappingPairCache();
 	m_gid = 0;
 	m_pid = 0;
 	m_cid = 0;
@@ -166,8 +166,8 @@ btDbvtBroadphase::~btDbvtBroadphase()
 {
 	if (m_releasepaircache)
 	{
-		m_paircache->~btOverlappingPairCache();
-		btAlignedFree(m_paircache);
+		m_pairCache->~btOverlappingPairCache();
+		btAlignedFree(m_pairCache);
 	}
 }
 
@@ -211,7 +211,7 @@ void btDbvtBroadphase::destroyProxy(btBroadphaseProxy* absproxy,
 	else
 		m_sets[0].remove(proxy->leaf);
 	listremove(proxy, m_stageRoots[proxy->stage]);
-	m_paircache->removeOverlappingPairsContainingProxy(proxy, dispatcher);
+	m_pairCache->removeOverlappingPairsContainingProxy(proxy, dispatcher);
 	btAlignedFree(proxy);
 	m_needcleanup = true;
 }
@@ -420,7 +420,7 @@ void btDbvtBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 #if DBVT_BP_PROFILE
 	if (0 == (m_pid % DBVT_BP_PROFILING_RATE))
 	{
-		printf("fixed(%u) dynamics(%u) pairs(%u)\r\n", m_sets[1].m_leaves, m_sets[0].m_leaves, m_paircache->getNumOverlappingPairs());
+		printf("fixed(%u) dynamics(%u) pairs(%u)\r\n", m_sets[1].m_leaves, m_sets[0].m_leaves, m_pairCache->getNumOverlappingPairs());
 		unsigned int total = m_profiling.m_total;
 		if (total <= 0) total = 1;
 		printf("ddcollide: %u%% (%uus)\r\n", (50 + m_profiling.m_ddcollide * 100) / total, m_profiling.m_ddcollide / DBVT_BP_PROFILING_RATE);
@@ -442,9 +442,9 @@ void btDbvtBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 
 void btDbvtBroadphase::performDeferredRemoval(btDispatcher* dispatcher)
 {
-	if (m_paircache->hasDeferredRemoval())
+	if (m_pairCache->hasDeferredRemoval())
 	{
-		btBroadphasePairArray& overlappingPairArray = m_paircache->getOverlappingPairArray();
+		btBroadphasePairArray& overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
 		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
 		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
@@ -494,7 +494,7 @@ void btDbvtBroadphase::performDeferredRemoval(btDispatcher* dispatcher)
 
 			if (needsRemoval)
 			{
-				m_paircache->cleanOverlappingPair(pair, dispatcher);
+				m_pairCache->cleanOverlappingPair(pair, dispatcher);
 
 				pair.m_pProxy0 = 0;
 				pair.m_pProxy1 = 0;
@@ -514,13 +514,13 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 	/*printf("---------------------------------------------------------\n");
 	printf("m_sets[0].m_leaves=%d\n",m_sets[0].m_leaves);
 	printf("m_sets[1].m_leaves=%d\n",m_sets[1].m_leaves);
-	printf("numPairs = %d\n",getOverlappingPairCache()->getNumOverlappingPairs());
+	printf("numPairs = %d\n",m_pairCache->getNumOverlappingPairs());
 	{
 		int i;
-		for (i=0;i<getOverlappingPairCache()->getNumOverlappingPairs();i++)
+		for (i=0;i<m_pairCache->getNumOverlappingPairs();i++)
 		{
-			printf("pair[%d]=(%d,%d),",i,getOverlappingPairCache()->getOverlappingPairArray()[i].m_pProxy0->getUid(),
-				getOverlappingPairCache()->getOverlappingPairArray()[i].m_pProxy1->getUid());
+			printf("pair[%d]=(%d,%d),",i,m_pairCache->getOverlappingPairArray()[i].m_pProxy0->getUid(),
+				m_pairCache->getOverlappingPairArray()[i].m_pProxy1->getUid());
 		}
 		printf("\n");
 	}
@@ -549,7 +549,7 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 			listremove(current, m_stageRoots[current->stage]);
 			listappend(current, m_stageRoots[STAGECOUNT]);
 #if DBVT_BP_ACCURATESLEEPING
-			m_paircache->removeOverlappingPairsContainingProxy(current, dispatcher);
+			m_pairCache->removeOverlappingPairsContainingProxy(current, dispatcher);
 			collider.proxy = current;
 			btDbvt::collideTV(m_sets[0].m_root, current->aabb, collider);
 			btDbvt::collideTV(m_sets[1].m_root, current->aabb, collider);
@@ -582,7 +582,7 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 	if (m_needcleanup)
 	{
 		SPC(m_profiling.m_cleanup);
-		btBroadphasePairArray& pairs = m_paircache->getOverlappingPairArray();
+		btBroadphasePairArray& pairs = m_pairCache->getOverlappingPairArray();
 		if (pairs.size() > 0)
 		{
 			int ni = btMin(pairs.size(), btMax<int>(m_newpairs, (pairs.size() * m_cupdates) / 100));
@@ -597,7 +597,7 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 					if (pa->m_uniqueId > pb->m_uniqueId)
 						btSwap(pa, pb);
 #endif
-					m_paircache->removeOverlappingPair(pa, pb, dispatcher);
+					m_pairCache->removeOverlappingPair(pa, pb, dispatcher);
 					--ni;
 					--i;
 				}
@@ -628,18 +628,6 @@ void btDbvtBroadphase::optimize()
 {
 	m_sets[0].optimizeTopDown();
 	m_sets[1].optimizeTopDown();
-}
-
-//
-btOverlappingPairCache* btDbvtBroadphase::getOverlappingPairCache()
-{
-	return (m_paircache);
-}
-
-//
-const btOverlappingPairCache* btDbvtBroadphase::getOverlappingPairCache() const
-{
-	return (m_paircache);
 }
 
 //

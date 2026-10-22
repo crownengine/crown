@@ -128,7 +128,7 @@ public:
 
 	btOverlappingPairCache* getPairCache()
 	{
-		return m_broadphasePairCache->getOverlappingPairCache();
+		return m_broadphasePairCache->m_pairCache;
 	}
 
 	btDispatcher* getDispatcher()
