@@ -508,11 +508,6 @@ void btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	}
 }
 
-btVector3 btDiscreteDynamicsWorld::getGravity() const
-{
-	return m_gravity;
-}
-
 void btDiscreteDynamicsWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
 {
 	btCollisionWorld::addCollisionObject(collisionObject, collisionFilterGroup, collisionFilterMask);

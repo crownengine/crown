@@ -116,11 +116,6 @@ void btSimpleDynamicsWorld::setGravity(const btVector3& gravity)
 	}
 }
 
-btVector3 btSimpleDynamicsWorld::getGravity() const
-{
-	return m_gravity;
-}
-
 void btSimpleDynamicsWorld::removeRigidBody(btRigidBody* body)
 {
 	btCollisionWorld::removeCollisionObject(body);

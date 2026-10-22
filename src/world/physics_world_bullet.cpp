@@ -2099,7 +2099,7 @@ struct PhysicsWorldImpl
 	{
 		btRigidBody *body = _actor[actor.i].body;
 		body->m_rigidbodyFlags = (body->m_rigidbodyFlags & ~BT_DISABLE_WORLD_GRAVITY);
-		body->setGravity(_dynamics_world->getGravity());
+		body->setGravity(_dynamics_world->m_gravity);
 	}
 
 	void actor_disable_gravity(ActorId actor)
@@ -3415,7 +3415,7 @@ struct PhysicsWorldImpl
 
 	Vector3 gravity() const
 	{
-		return to_vector3(_dynamics_world->getGravity());
+		return to_vector3(_dynamics_world->m_gravity);
 	}
 
 	void set_gravity(const Vector3 &g)

@@ -35,9 +35,9 @@ protected:
 
 	void integrateTransforms(btScalar timeStep);
 
+public:
 	btVector3 m_gravity;
 
-public:
 	///this btSimpleDynamicsWorld constructor creates dispatcher, broadphase pairCache and constraintSolver
 	btSimpleDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration);
 
@@ -47,8 +47,6 @@ public:
 	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.));
 
 	virtual void setGravity(const btVector3& gravity);
-
-	virtual btVector3 getGravity() const;
 
 	virtual void addRigidBody(btRigidBody* body);
 

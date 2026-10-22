@@ -48,8 +48,10 @@ protected:
 
 	btAlignedObjectArray<btRigidBody*> m_nonStaticRigidBodies;
 
+public:
 	btVector3 m_gravity;
 
+protected:
 	//for variable timesteps
 	btScalar m_localTime;
 	btScalar m_fixedTimeStep;
@@ -138,8 +140,6 @@ public:
 	}
 
 	virtual void setGravity(const btVector3& gravity);
-
-	virtual btVector3 getGravity() const;
 
 	virtual void addCollisionObject(btCollisionObject * collisionObject, int collisionFilterGroup = btBroadphaseProxy::StaticFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
