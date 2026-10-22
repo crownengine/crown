@@ -6,6 +6,7 @@
 #include "config.h"
 
 #if CROWN_BUILD_UNIT_TESTS
+#include "core/unit_tests.h"
 #include "core/command_line.h"
 #include "core/containers/array.inl"
 #include "core/containers/hash_map.inl"
@@ -60,23 +61,26 @@
 #undef CE_ASSERT
 #undef CE_ENSURE
 #undef CE_FATAL
-#define ENSURE(condition)                                \
-	do                                                   \
-	{                                                    \
-		if (!(condition))                                \
-		{                                                \
-			printf("Assertion failed: '%s' in %s:%d\n\n" \
-				, #condition                             \
-				, __FILE__                               \
-				, __LINE__                               \
-				);                                       \
-			exit(EXIT_FAILURE);                          \
-		}                                                \
-	}                                                    \
+#define ENSURE(condition)                                   \
+	do                                                      \
+	{                                                       \
+		if (!(condition))                                   \
+			unit_test_internal::fail(#condition, __LINE__); \
+	}                                                       \
 	while (0)
 
 namespace crown
 {
+namespace unit_test_internal
+{
+	[[noreturn]] static CE_NO_INLINE void fail(const char *condition, int line)
+	{
+		printf("Assertion failed: '%s' in %s:%d\n\n", condition, __FILE__, line);
+		exit(EXIT_FAILURE);
+	}
+
+} // namespace unit_test_internal
+
 static void test_memory()
 {
 	memory_globals::init();
@@ -2568,50 +2572,56 @@ static void test_frustum()
 	ENSURE(fequal(splits[3].planes[5].d, -100.0f, 0.0001f));
 }
 
-#define RUN_TEST(name)      \
-	do {                    \
-		printf(#name "\n"); \
-		name();             \
-	} while (0)
-
 int main_unit_tests()
 {
-	RUN_TEST(test_memory);
-	RUN_TEST(test_array);
-	RUN_TEST(test_vector);
-	RUN_TEST(test_hash_map);
-	RUN_TEST(test_hash_set);
-	RUN_TEST(test_math);
-	RUN_TEST(test_vector2);
-	RUN_TEST(test_vector3);
-	RUN_TEST(test_vector4);
-	RUN_TEST(test_quaternion);
-	RUN_TEST(test_color4);
-	RUN_TEST(test_matrix3x3);
-	RUN_TEST(test_matrix4x4);
-	RUN_TEST(test_aabb);
-	RUN_TEST(test_sphere);
-	RUN_TEST(test_obb);
-	RUN_TEST(test_murmur);
-	RUN_TEST(test_string_id);
-	RUN_TEST(test_dynamic_string);
-	RUN_TEST(test_string_view);
-	RUN_TEST(test_guid);
-	RUN_TEST(test_json);
-	RUN_TEST(test_sjson);
-	RUN_TEST(test_path);
-	RUN_TEST(test_command_line);
-	RUN_TEST(test_thread);
-	RUN_TEST(test_process);
-	RUN_TEST(test_filesystem);
-	RUN_TEST(test_file_monitor);
-	RUN_TEST(test_option);
-	RUN_TEST(test_lua_resource);
-	RUN_TEST(test_time);
-	RUN_TEST(test_expression_language);
-	RUN_TEST(test_unit_id);
-	RUN_TEST(test_random);
-	RUN_TEST(test_frustum);
+	static const struct
+	{
+		const char *name;
+		void (*run)();
+	} tests[] =
+	{
+		{ "test_memory", test_memory },
+		{ "test_array", test_array },
+		{ "test_vector", test_vector },
+		{ "test_hash_map", test_hash_map },
+		{ "test_hash_set", test_hash_set },
+		{ "test_math", test_math },
+		{ "test_vector2", test_vector2 },
+		{ "test_vector3", test_vector3 },
+		{ "test_vector4", test_vector4 },
+		{ "test_quaternion", test_quaternion },
+		{ "test_color4", test_color4 },
+		{ "test_matrix3x3", test_matrix3x3 },
+		{ "test_matrix4x4", test_matrix4x4 },
+		{ "test_aabb", test_aabb },
+		{ "test_sphere", test_sphere },
+		{ "test_obb", test_obb },
+		{ "test_murmur", test_murmur },
+		{ "test_string_id", test_string_id },
+		{ "test_dynamic_string", test_dynamic_string },
+		{ "test_string_view", test_string_view },
+		{ "test_guid", test_guid },
+		{ "test_json", test_json },
+		{ "test_sjson", test_sjson },
+		{ "test_path", test_path },
+		{ "test_command_line", test_command_line },
+		{ "test_thread", test_thread },
+		{ "test_process", test_process },
+		{ "test_filesystem", test_filesystem },
+		{ "test_file_monitor", test_file_monitor },
+		{ "test_option", test_option },
+		{ "test_lua_resource", test_lua_resource },
+		{ "test_time", test_time },
+		{ "test_expression_language", test_expression_language },
+		{ "test_unit_id", test_unit_id },
+		{ "test_random", test_random },
+		{ "test_frustum", test_frustum },
+	};
+
+	for (u32 i = 0; i < countof(tests); ++i) {
+		printf("%s\n", tests[i].name);
+		tests[i].run();
+	}
 
 	return EXIT_SUCCESS;
 }

@@ -115,12 +115,14 @@ struct StringId64 STRING_ID_64(const char *str, const u64 id);
 #if CROWN_COMPILER_GCC || CROWN_COMPILER_CLANG
 	#define CE_LIKELY(x) __builtin_expect((x), 1)
 	#define CE_UNLIKELY(x) __builtin_expect((x), 0)
+	#define CE_NO_INLINE __attribute__((noinline))
 	#define CE_UNREACHABLE() __builtin_unreachable()
 	#define CE_ALIGN_DECL(align, decl) decl __attribute__ ((aligned(align)))
 	#define CE_THREAD_LOCAL __thread
 #elif CROWN_COMPILER_MSVC
 	#define CE_LIKELY(x) (x)
 	#define CE_UNLIKELY(x) (x)
+	#define CE_NO_INLINE __declspec(noinline)
 	#define CE_UNREACHABLE() __assume(0)
 	#define CE_ALIGN_DECL(align_, decl) __declspec(align(align_)) decl
 	#define CE_THREAD_LOCAL __declspec(thread)
