@@ -1302,11 +1302,6 @@ void btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 	m_solverIslandCallback->m_solver = solver;
 }
 
-btConstraintSolver* btDiscreteDynamicsWorld::getConstraintSolver()
-{
-	return m_constraintSolver;
-}
-
 int btDiscreteDynamicsWorld::getNumConstraints() const
 {
 	return int(m_constraints.size());

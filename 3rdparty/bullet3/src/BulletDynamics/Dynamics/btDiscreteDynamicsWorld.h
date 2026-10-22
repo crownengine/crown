@@ -40,8 +40,10 @@ protected:
 	btAlignedObjectArray<btTypedConstraint*> m_sortedConstraints;
 	InplaceSolverIslandCallback* m_solverIslandCallback;
 
+public:
 	btConstraintSolver* m_constraintSolver;
 
+protected:
 	btSimulationIslandManager* m_islandManager;
 
 	btAlignedObjectArray<btTypedConstraint*> m_constraints;
@@ -157,8 +159,6 @@ public:
 	virtual void debugDrawWorld();
 
 	virtual void setConstraintSolver(btConstraintSolver * solver);
-
-	virtual btConstraintSolver* getConstraintSolver();
 
 	virtual int getNumConstraints() const;
 

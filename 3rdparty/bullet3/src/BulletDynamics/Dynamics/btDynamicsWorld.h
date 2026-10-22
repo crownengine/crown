@@ -92,8 +92,6 @@ public:
 
 	virtual void setConstraintSolver(btConstraintSolver* solver) = 0;
 
-	virtual btConstraintSolver* getConstraintSolver() = 0;
-
 	virtual int getNumConstraints() const { return 0; }
 
 	virtual btTypedConstraint* getConstraint(int index)

@@ -26,9 +26,10 @@ class btConstraintSolver;
 ///Please use btDiscreteDynamicsWorld instead
 class btSimpleDynamicsWorld : public btDynamicsWorld
 {
-protected:
+public:
 	btConstraintSolver* m_constraintSolver;
 
+protected:
 	bool m_ownsConstraintSolver;
 
 	void predictUnconstraintMotion(btScalar timeStep);
@@ -68,8 +69,6 @@ public:
 	virtual void synchronizeMotionStates();
 
 	virtual void setConstraintSolver(btConstraintSolver* solver);
-
-	virtual btConstraintSolver* getConstraintSolver();
 
 	virtual btDynamicsWorldType getWorldType() const
 	{
