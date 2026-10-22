@@ -50,8 +50,10 @@ protected:
 
 	btPoolAllocator* m_collisionAlgorithmPoolAllocator;
 
+public:
 	btPoolAllocator* m_persistentManifoldPoolAllocator;
 
+protected:
 	btCollisionAlgorithmCreateFunc* m_doubleDispatchContactPoints[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
 
 	btCollisionAlgorithmCreateFunc* m_doubleDispatchClosestPoints[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
@@ -155,15 +157,6 @@ public:
 		m_collisionConfiguration = config;
 	}
 
-	virtual btPoolAllocator* getInternalManifoldPool()
-	{
-		return m_persistentManifoldPoolAllocator;
-	}
-
-	virtual const btPoolAllocator* getInternalManifoldPool() const
-	{
-		return m_persistentManifoldPoolAllocator;
-	}
 };
 
 #endif  //BT_COLLISION__DISPATCHER_H
