@@ -21,8 +21,7 @@ subject to the following restrictions:
 
 #include <stdio.h>
 
-btHashedOverlappingPairCache::btHashedOverlappingPairCache() : m_overlapFilterCallback(0),
-															   m_ghostPairCallback(0)
+btHashedOverlappingPairCache::btHashedOverlappingPairCache() : m_overlapFilterCallback(0)
 {
 	int initialAllocatedSize = 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);
@@ -528,8 +527,7 @@ void btSortedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 
 btSortedOverlappingPairCache::btSortedOverlappingPairCache() : m_blockedForChanges(false),
 															   m_hasDeferredRemoval(true),
-															   m_overlapFilterCallback(0),
-															   m_ghostPairCallback(0)
+															   m_overlapFilterCallback(0)
 {
 	int initialAllocatedSize = 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);

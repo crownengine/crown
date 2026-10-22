@@ -50,6 +50,8 @@ const int BT_NULL_PAIR = 0xffffffff;
 class btOverlappingPairCache : public btOverlappingPairCallback
 {
 public:
+	btOverlappingPairCallback* m_ghostPairCallback = 0;
+
 	virtual ~btOverlappingPairCache() {}  // this is needed so we can get to the derived class destructor
 
 	virtual btBroadphasePair* getOverlappingPairArrayPtr() = 0;
@@ -77,8 +79,6 @@ public:
 
 	virtual bool hasDeferredRemoval() = 0;
 
-	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback) = 0;
-
 	virtual void sortOverlappingPairs(btDispatcher* dispatcher) = 0;
 };
 
@@ -93,7 +93,6 @@ btHashedOverlappingPairCache : public btOverlappingPairCache
 protected:
 	btAlignedObjectArray<int> m_hashTable;
 	btAlignedObjectArray<int> m_next;
-	btOverlappingPairCallback* m_ghostPairCallback;
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -245,11 +244,6 @@ private:
 		return false;
 	}
 
-	virtual void setInternalGhostPairCallback(btOverlappingPairCallback * ghostPairCallback)
-	{
-		m_ghostPairCallback = ghostPairCallback;
-	}
-
 	virtual void sortOverlappingPairs(btDispatcher * dispatcher);
 };
 
@@ -270,7 +264,6 @@ protected:
 	//if set, use the callback instead of the built in filter in needBroadphaseCollision
 	btOverlapFilterCallback* m_overlapFilterCallback;
 
-	btOverlappingPairCallback* m_ghostPairCallback;
 
 public:
 	btSortedOverlappingPairCache();
@@ -341,11 +334,6 @@ public:
 		return m_hasDeferredRemoval;
 	}
 
-	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback)
-	{
-		m_ghostPairCallback = ghostPairCallback;
-	}
-
 	virtual void sortOverlappingPairs(btDispatcher* dispatcher);
 };
 
@@ -405,10 +393,6 @@ public:
 	virtual bool hasDeferredRemoval()
 	{
 		return true;
-	}
-
-	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* /* ghostPairCallback */)
-	{
 	}
 
 	virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy* /*proxy0*/, btBroadphaseProxy* /*proxy1*/)
