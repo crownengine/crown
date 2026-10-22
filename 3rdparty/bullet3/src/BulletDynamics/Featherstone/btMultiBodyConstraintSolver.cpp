@@ -1281,7 +1281,7 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 	{
 		btManifoldPoint& cp = manifold->getContactPoint(j);
 
-		if (cp.getDistance() <= manifold->getContactProcessingThreshold())
+		if (cp.getDistance() <= manifold->m_contactProcessingThreshold)
 		{
 			btScalar relaxation;
 

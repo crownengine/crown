@@ -296,7 +296,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		btCapsuleShape* capsuleA = (btCapsuleShape*)min0;
 		btCapsuleShape* capsuleB = (btCapsuleShape*)min1;
 
-		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+		btScalar threshold = m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 
 		btScalar dist = capsuleCapsuleDistance(normalOnB, pointOnBWorld, capsuleA->getHalfHeight(), capsuleA->getRadius(),
 											   capsuleB->getHalfHeight(), capsuleB->getRadius(), capsuleA->getUpAxis(), capsuleB->getUpAxis(),
@@ -318,7 +318,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		btCapsuleShape* capsuleA = (btCapsuleShape*)min0;
 		btSphereShape* capsuleB = (btSphereShape*)min1;
 
-		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+		btScalar threshold = m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 
 		btScalar dist = capsuleCapsuleDistance(normalOnB, pointOnBWorld, capsuleA->getHalfHeight(), capsuleA->getRadius(),
 											   0., capsuleB->getRadius(), capsuleA->getUpAxis(), 1,
@@ -340,7 +340,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		btSphereShape* capsuleA = (btSphereShape*)min0;
 		btCapsuleShape* capsuleB = (btCapsuleShape*)min1;
 
-		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+		btScalar threshold = m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 
 		btScalar dist = capsuleCapsuleDistance(normalOnB, pointOnBWorld, 0., capsuleA->getRadius(),
 											   capsuleB->getHalfHeight(), capsuleB->getRadius(), 1, capsuleB->getUpAxis(),
@@ -386,7 +386,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 			//	input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->m_contactProcessingThreshold;
 			//} else
 			//{
-			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold() + resultOut->m_closestPointDistanceThreshold;
+			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->m_contactBreakingThreshold + resultOut->m_closestPointDistanceThreshold;
 			//		}
 
 			input.m_maximumDistanceSquared *= input.m_maximumDistanceSquared;
@@ -480,7 +480,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 			btPolyhedralConvexShape* polyhedronB = (btPolyhedralConvexShape*)min1;
 			if (polyhedronA->getConvexPolyhedron() && polyhedronB->getConvexPolyhedron())
 			{
-				btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+				btScalar threshold = m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 
 				btScalar minDist = -1e30f;
 				btVector3 sepNormalWorldSpace;
@@ -547,7 +547,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 					//tri->initializePolyhedralFeatures();
 
-					btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+					btScalar threshold = m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 
 					btVector3 sepNormalWorldSpace;
 					btScalar minDist = -1e30f;

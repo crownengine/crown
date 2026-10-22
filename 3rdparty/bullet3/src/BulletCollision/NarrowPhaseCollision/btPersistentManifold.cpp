@@ -191,7 +191,7 @@ int btPersistentManifold::sortCachedPoints(const btManifoldPoint& pt)
 
 int btPersistentManifold::getCacheEntry(const btManifoldPoint& newPoint) const
 {
-	btScalar shortestDist = getContactBreakingThreshold() * getContactBreakingThreshold();
+	btScalar shortestDist = m_contactBreakingThreshold * m_contactBreakingThreshold;
 	int size = getNumContacts();
 	int nearestPoint = -1;
 	for (int i = 0; i < size; i++)
@@ -239,11 +239,6 @@ int btPersistentManifold::addManifoldPoint(const btManifoldPoint& newPoint, bool
 	return insertIndex;
 }
 
-btScalar btPersistentManifold::getContactBreakingThreshold() const
-{
-	return m_contactBreakingThreshold;
-}
-
 void btPersistentManifold::refreshContactPoints(const btTransform& trA, const btTransform& trB)
 {
 	int i;
@@ -284,7 +279,7 @@ void btPersistentManifold::refreshContactPoints(const btTransform& trA, const bt
 			projectedPoint = manifoldPoint.m_positionWorldOnA - manifoldPoint.m_normalWorldOnB * manifoldPoint.m_distance1;
 			projectedDifference = manifoldPoint.m_positionWorldOnB - projectedPoint;
 			distance2d = projectedDifference.dot(projectedDifference);
-			if (distance2d > getContactBreakingThreshold() * getContactBreakingThreshold())
+			if (distance2d > m_contactBreakingThreshold * m_contactBreakingThreshold)
 			{
 				removeContactPoint(i);
 			}
@@ -313,7 +308,7 @@ const char* btPersistentManifold::serialize(const class btPersistentManifold* ma
 
 	dataOut->m_body0 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody0());
 	dataOut->m_body1 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody1());
-	dataOut->m_contactBreakingThreshold = manifold->getContactBreakingThreshold();
+	dataOut->m_contactBreakingThreshold = manifold->m_contactBreakingThreshold;
 	dataOut->m_contactProcessingThreshold = manifold->m_contactProcessingThreshold;
 	dataOut->m_numCachedPoints = manifold->getNumContacts();
 	dataOut->m_companionIdA = manifold->m_companionIdA;

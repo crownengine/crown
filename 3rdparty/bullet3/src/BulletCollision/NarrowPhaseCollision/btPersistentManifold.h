@@ -71,8 +71,12 @@ btPersistentManifold : public btTypedObject
 
 	int m_cachedPoints;
 
+public:
+	///@todo: get this margin from the current physics / collision environment
 	btScalar m_contactBreakingThreshold;
 	btScalar m_contactProcessingThreshold;
+
+private:
 
 	/// sort cached points so most isolated points come first
 	int sortCachedPoints(const btManifoldPoint& pt);
@@ -137,24 +141,6 @@ public:
 	{
 		btAssert(index < m_cachedPoints);
 		return m_pointCache[index];
-	}
-
-	///@todo: get this margin from the current physics / collision environment
-	btScalar getContactBreakingThreshold() const;
-
-	btScalar getContactProcessingThreshold() const
-	{
-		return m_contactProcessingThreshold;
-	}
-
-	void setContactBreakingThreshold(btScalar contactBreakingThreshold)
-	{
-		m_contactBreakingThreshold = contactBreakingThreshold;
-	}
-
-	void setContactProcessingThreshold(btScalar contactProcessingThreshold)
-	{
-		m_contactProcessingThreshold = contactProcessingThreshold;
 	}
 
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
@@ -240,7 +226,7 @@ public:
 
 	bool validContactDistance(const btManifoldPoint& pt) const
 	{
-		return pt.m_distance1 <= getContactBreakingThreshold();
+		return pt.m_distance1 <= m_contactBreakingThreshold;
 	}
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
 	void refreshContactPoints(const btTransform& trA, const btTransform& trB);

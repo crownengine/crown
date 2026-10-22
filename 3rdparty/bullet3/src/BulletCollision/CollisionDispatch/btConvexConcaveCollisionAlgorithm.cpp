@@ -122,7 +122,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle, int partId, 
 			//now check if this is fully on one side of the triangle
 			btScalar proj_distPt = triangle_normal_world.dot(worldPt);
 			btScalar proj_distTr = triangle_normal_world.dot(v0);
-			btScalar contact_threshold = m_manifoldPtr->getContactBreakingThreshold()+ m_resultOut->m_closestPointDistanceThreshold;
+			btScalar contact_threshold = m_manifoldPtr->m_contactBreakingThreshold+ m_resultOut->m_closestPointDistanceThreshold;
 			btScalar dist = proj_distTr - proj_distPt;
 			if (dist > contact_threshold)
 				return;

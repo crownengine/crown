@@ -63,7 +63,7 @@ void btSphereBoxCollisionAlgorithm::processCollision(const btCollisionObjectWrap
 	btVector3 sphereCenter = sphereObjWrap->m_worldTransform.m_origin;
 	const btSphereShape* sphere0 = (const btSphereShape*)sphereObjWrap->m_collisionShape;
 	btScalar radius = sphere0->getRadius();
-	btScalar maxContactDistance = m_manifoldPtr->getContactBreakingThreshold();
+	btScalar maxContactDistance = m_manifoldPtr->m_contactBreakingThreshold;
 
 	resultOut->setPersistentManifold(m_manifoldPtr);
 

@@ -78,7 +78,7 @@ void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& p
 	btVector3 vtxInPlaneProjected = vtxInPlane - distance * planeNormal;
 	btVector3 vtxInPlaneWorld = planeObjWrap->m_worldTransform * vtxInPlaneProjected;
 
-	hasCollision = distance < m_manifoldPtr->getContactBreakingThreshold();
+	hasCollision = distance < m_manifoldPtr->m_contactBreakingThreshold;
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	if (hasCollision)
 	{
@@ -116,7 +116,7 @@ void btConvexPlaneCollisionAlgorithm::processCollision(const btCollisionObjectWr
 	btVector3 vtxInPlaneProjected = vtxInPlane - distance * planeNormal;
 	btVector3 vtxInPlaneWorld = planeObjWrap->m_worldTransform * vtxInPlaneProjected;
 
-	hasCollision = distance < m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
+	hasCollision = distance < m_manifoldPtr->m_contactBreakingThreshold+ resultOut->m_closestPointDistanceThreshold;
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	if (hasCollision)
 	{

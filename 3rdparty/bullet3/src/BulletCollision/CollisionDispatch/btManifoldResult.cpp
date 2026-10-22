@@ -105,7 +105,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	btAssert(m_manifoldPtr);
 	//order in manifold needs to match
 
-	if (depth > m_manifoldPtr->getContactBreakingThreshold())
+	if (depth > m_manifoldPtr->m_contactBreakingThreshold)
 		//	if (depth > m_manifoldPtr->m_contactProcessingThreshold)
 		return;
 

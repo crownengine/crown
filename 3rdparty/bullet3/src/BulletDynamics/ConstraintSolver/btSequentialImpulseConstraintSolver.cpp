@@ -1021,7 +1021,7 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 	{
 		btManifoldPoint& cp = manifold->getContactPoint(j);
 
-		if (cp.getDistance() <= manifold->getContactProcessingThreshold())
+		if (cp.getDistance() <= manifold->m_contactProcessingThreshold)
 		{
 			btVector3 rel_pos1;
 			btVector3 rel_pos2;

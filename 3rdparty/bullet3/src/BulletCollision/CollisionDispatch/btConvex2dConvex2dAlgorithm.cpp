@@ -111,7 +111,7 @@ void btConvex2dConvex2dAlgorithm ::processCollision(const btCollisionObjectWrapp
 		gjkPairDetector.setMinkowskiB(min1);
 
 		{
-			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->m_contactBreakingThreshold;
 			input.m_maximumDistanceSquared *= input.m_maximumDistanceSquared;
 		}
 
