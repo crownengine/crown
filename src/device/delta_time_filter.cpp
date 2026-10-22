@@ -6,7 +6,6 @@
 #include "core/math/math.inl"
 #include "core/time.h"
 #include "device/delta_time_filter.h"
-#include <algorithm> // std::sort
 #include <string.h>  // memset
 
 namespace crown
@@ -69,7 +68,15 @@ f32 DeltaTimeFilter::filter(s64 dt)
 			const u32 c = (_history._head - i - 1) % _history._capacity;
 			_history._sorted[i] = _history._raw[c];
 		}
-		std::sort(_history._sorted, _history._sorted + _history._size);
+		for (u32 i = 1; i < _history._size; ++i) {
+			const s64 value = _history._sorted[i];
+			u32 j = i;
+			while (j > 0 && value < _history._sorted[j - 1]) {
+				_history._sorted[j] = _history._sorted[j - 1];
+				--j;
+			}
+			_history._sorted[j] = value;
+		}
 
 		// Compute average excluding outliers.
 		const s64 *begin = _history._sorted + _num_outliers;
