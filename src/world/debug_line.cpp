@@ -139,71 +139,37 @@ void DebugLine::add_sphere(const Vector3 &center, const f32 radius, const Color4
 	add_circle(center, radius, VECTOR3_ZAXIS, color, segments);
 }
 
+static void add_box_edges(DebugLine &dl, const Vector3 vertices[8], const Color4 &color)
+{
+	static const u8 edges[][2] =
+	{
+		{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
+		{ 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 },
+		{ 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 },
+	};
+	for (u32 i = 0; i < countof(edges); ++i)
+		dl.add_line(vertices[edges[i][0]], vertices[edges[i][1]], color);
+}
+
 void DebugLine::add_frustum(const Frustum &f, const Color4 &color)
 {
-	Vector3 pt[8];
-	frustum::vertices(pt, f);
-
-	add_line(pt[0], pt[1], color);
-	add_line(pt[1], pt[2], color);
-	add_line(pt[2], pt[3], color);
-	add_line(pt[3], pt[0], color);
-	add_line(pt[4], pt[5], color);
-	add_line(pt[5], pt[6], color);
-	add_line(pt[6], pt[7], color);
-	add_line(pt[7], pt[4], color);
-	add_line(pt[0], pt[4], color);
-	add_line(pt[1], pt[5], color);
-	add_line(pt[2], pt[6], color);
-	add_line(pt[3], pt[7], color);
+	Vector3 vertices[8];
+	frustum::vertices(vertices, f);
+	add_box_edges(*this, vertices, color);
 }
 
 void DebugLine::add_aabb(const AABB &aabb, const Color4 &color)
 {
 	Vector3 vertices[8];
 	aabb::to_vertices(vertices, aabb);
-
-	// Bottom face.
-	add_line(vertices[0], vertices[1], color);
-	add_line(vertices[1], vertices[2], color);
-	add_line(vertices[2], vertices[3], color);
-	add_line(vertices[3], vertices[0], color);
-
-	// Top face.
-	add_line(vertices[4], vertices[5], color);
-	add_line(vertices[5], vertices[6], color);
-	add_line(vertices[6], vertices[7], color);
-	add_line(vertices[7], vertices[4], color);
-
-	// Connect faces.
-	add_line(vertices[0], vertices[4], color);
-	add_line(vertices[1], vertices[5], color);
-	add_line(vertices[2], vertices[6], color);
-	add_line(vertices[3], vertices[7], color);
+	add_box_edges(*this, vertices, color);
 }
 
 void DebugLine::add_obb(const Matrix4x4 &tm, const Vector3 &half_extents, const Color4 &color)
 {
 	Vector3 vertices[8];
 	obb::to_vertices(vertices, { tm, half_extents });
-
-	// Bottom face.
-	add_line(vertices[0], vertices[1], color);
-	add_line(vertices[1], vertices[2], color);
-	add_line(vertices[2], vertices[3], color);
-	add_line(vertices[3], vertices[0], color);
-
-	// Top face.
-	add_line(vertices[4], vertices[5], color);
-	add_line(vertices[5], vertices[6], color);
-	add_line(vertices[6], vertices[7], color);
-	add_line(vertices[7], vertices[4], color);
-
-	// Connect faces.
-	add_line(vertices[0], vertices[4], color);
-	add_line(vertices[1], vertices[5], color);
-	add_line(vertices[2], vertices[6], color);
-	add_line(vertices[3], vertices[7], color);
+	add_box_edges(*this, vertices, color);
 }
 
 void DebugLine::add_mesh(const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num, const Color4 &color)
