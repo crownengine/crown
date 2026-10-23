@@ -493,7 +493,7 @@ static bool push_event(const OsEvent &ev);
 	DL_IMPORT_FUNC(XOpenDisplay,               ::Display *, (_Xconst char *));                                                                                                                                \
 	DL_IMPORT_FUNC(XOpenIM,                    XIM,         (::Display *, struct _XrmHashBucketRec *, char *, char *));                                                                                       \
 	DL_IMPORT_FUNC(XQueryExtension,            Bool,        (::Display *, char *, int *, int *, int *));                                                                                                      \
-	DL_IMPORT_FUNC(XQueryTree,                 Status,      (::Display *, ::Window, ::Window *, ::Window *, ::Window **, unsigned int *));                                                                     \
+	DL_IMPORT_FUNC(XQueryTree,                 Status,      (::Display *, ::Window, ::Window *, ::Window *, ::Window **, unsigned int *));                                                                    \
 	DL_IMPORT_FUNC(XRefreshKeyboardMapping,    int,         (XMappingEvent *));                                                                                                                               \
 	DL_IMPORT_FUNC(XResizeWindow,              int,         (::Display *, ::Window, unsigned int, unsigned int));                                                                                             \
 	DL_IMPORT_FUNC(XSelectInput,               int,         (::Display *, ::Window, long));                                                                                                                   \
