@@ -28,5 +28,5 @@ fi
 git add docs/changelog.rst
 git add src/config.h
 git add tools/config.vala
-git commit -m "Crown v${VERSION}" -m "[ci skip]"
+git commit -m "Crown v${VERSION}"
 git tag "v${VERSION}"
