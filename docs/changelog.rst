@@ -10,6 +10,7 @@ Changelog
 
 * Tools: fixed angle inputs returning unclamped values.
 * Runtime: HTML5: reduced deployment size.
+* Runtime: Windows: reduced deployment size.
 
 .. _v0.65.4:
 
