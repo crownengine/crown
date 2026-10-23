@@ -138,5 +138,9 @@ function openal_project(_kind)
 			AL_DIR .. "common/*.cpp",
 		}
 
+		if _kind == "SharedLib" then
+			strip()
+		end
+
 		configuration {}
 end
