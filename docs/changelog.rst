@@ -48,6 +48,7 @@ Changelog
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
 * Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.
 * Data Compiler: fixed shader compilation continuing after shader library parsing errors.
+* Data Compiler: fixed crashes when compiling glTF resources.
 
 .. _v0.65.0:
 
