@@ -349,6 +349,73 @@ jobs:
         with:
           files: ${{ env.DIST_DIR }}/*
 
+  request-stats:
+    needs: finalize
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: check-stats-token
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          test -n "${STATS_TOKEN}" || {
+            echo 'Set STATS_TOKEN with Contents: write access to crownengine/stats.crownengine.org' >&2
+            exit 1
+          }
+      - name: download-unstable-release
+        if: github.ref_type != 'tag'
+        uses: actions/download-artifact@v8
+        with:
+          name: unstable-release
+          path: ${{ runner.temp }}/unstable-release
+      - name: prepare-request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IS_TAG: ${{ github.ref_type == 'tag' }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          METADATA="${RUNNER_TEMP}/stats-release.json"
+          if [ "${IS_TAG}" = "true" ]; then
+            gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${VERSION}" > "${METADATA}"
+            PREFIX='stats: '
+          else
+            cp "${RUNNER_TEMP}/unstable-release/unstable.json" "${METADATA}"
+            PREFIX='stats: unstable '
+          fi
+          jq -er --arg prefix "${PREFIX}" '
+            .tag_name as $release
+            | [.assets[] | select(.name | test("\\.(tar\\.gz|tgz|tar\\.xz|tar\\.bz2|tar|zip|AppImage|appimage)$"))]
+            | sort_by(.name)
+            | if length == 0 then error("No packages to measure")
+              else $prefix + $release + "\n\n" + (map(.browser_download_url) | join("\n"))
+              end
+          ' "${METADATA}" > "${RUNNER_TEMP}/stats-message"
+      - name: prepare
+        uses: actions/checkout@v7
+        with:
+          repository: crownengine/stats.crownengine.org
+          ref: master
+          token: ${{ secrets.STATS_TOKEN }}
+      - name: request-stats
+        run: |
+          set -euo pipefail
+          sh .github/collection-request.sh "${RUNNER_TEMP}/stats-message" "${RUNNER_TEMP}/stats-request"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for ATTEMPT in 1 2 3; do
+            echo "Stats request push attempt ${ATTEMPT}/3"
+            git fetch origin master
+            git switch --detach FETCH_HEAD
+            git commit --allow-empty --file "${RUNNER_TEMP}/stats-message"
+            if git push origin HEAD:master; then
+              exit 0
+            fi
+          done
+          exit 1
+
   update-website:
     needs: finalize
     if: github.event_name == 'push' && github.ref_type == 'tag'
