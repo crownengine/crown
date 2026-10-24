@@ -408,6 +408,9 @@ public class AndroidDeployer
 				dc_platform
 			};
 
+			if (config == TargetConfig.RELEASE)
+				args += "--strip";
+
 			uint32 pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			int exit_status = yield wait_subprocess(pid);
 

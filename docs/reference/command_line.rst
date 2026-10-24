@@ -112,6 +112,9 @@ Runtime Options
 ``--bundle``
 	Generate bundles after the data has been compiled.
 
+``--strip``
+	Strip Lua debug symbols during data compilation.
+
 ``--platform <platform>``
 	Specify the target <platform> for data compilation.
 	Possible values for <platform> are:

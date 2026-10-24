@@ -137,6 +137,9 @@ public class HTML5Deployer
 				dc_platform
 			};
 
+			if (config == TargetConfig.RELEASE)
+				args += "--strip";
+
 			var pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			var exit_status = yield wait_subprocess(pid);
 

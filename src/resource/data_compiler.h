@@ -46,10 +46,15 @@ struct DataCompiler
 
 	struct ResourceTypeData
 	{
+		ALLOCATOR_AWARE;
+
 		u32 version;
 		CompileFunction compiler;
 		const char *type_str;
 		void *user_data;
+		HashMap<StringId32, const char *> option_names;
+
+		explicit ResourceTypeData(Allocator &a);
 	};
 
 	const DeviceOptions *_options;
@@ -63,6 +68,8 @@ struct DataCompiler
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_dependencies;
 	HashMap<StringId64, HashMap<DynamicString, u32>> _data_requirements;
 	HashMap<StringId64, u32> _data_versions;
+	HashMap<StringId64, HashMap<StringId32, bool>> _compile_options;
+	HashMap<StringId64, HashMap<StringId32, bool>> _data_options;
 	Mutex _compiler_mutex;
 	FileMonitor _file_monitor;
 	SourceIndex _source_index;
@@ -111,6 +118,16 @@ struct DataCompiler
 	/// Registers the resource @a compiler for the specified resource @a type and @a version.
 	void register_compiler(const char *type, u32 version, CompileFunction compiler, void *user_data = NULL);
 
+	/// Sets a named compilation option for the resource @a type.
+	/// Option names must have static lifetime.
+	void set_compile_option(StringId64 type, const char *name, bool value);
+
+	/// Returns the named compilation option, or false if it is not set.
+	bool compile_option(StringId64 type, StringId32 name);
+
+	/// Returns whether the saved compilation options differ for @a type.
+	bool compile_options_changed(StringId64 type);
+
 	/// Returns the user data for @a type that has been registered via DataCompiler::register_compiler().
 	void *user_data(StringId64 type);
 
@@ -128,9 +145,9 @@ struct DataCompiler
 	/// since last call to compile().
 	bool dependency_changed(const DynamicString &path, ResourceId id, u64 mtime, u32 flags = 0);
 
-	/// Returns whether the data version for @a path or any of its dependencies
-	/// has changed since last call to compile().
-	bool version_changed(const DynamicString &path, ResourceId id);
+	/// Returns whether the compiler version or options for @a path or any of its dependencies
+	/// have changed since last call to compile().
+	bool compiler_settings_changed(const DynamicString &path, ResourceId id);
 
 	/// Returns whether the @a path should be ignored because
 	/// it matches a pattern from the CROWN_DATAIGNORE file or

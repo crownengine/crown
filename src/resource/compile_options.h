@@ -85,6 +85,9 @@ struct CompileOptions
 	///
 	const char *source_path();
 
+	/// Returns the named compilation option for this resource type.
+	bool option(const char *name);
+
 	///
 	bool file_exists(const char *path);
 
