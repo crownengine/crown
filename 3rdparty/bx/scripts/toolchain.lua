@@ -540,10 +540,12 @@ function toolchain(_buildDir, _libDir)
 			"-Wno-tautological-constant-compare",
 		}
 
-	configuration { "vs*", "not NX32", "not NX64" }
-		flags {
-			"EnableAVX",
-		}
+	configuration { "x64", "vs*", "not NX32", "not NX64" }
+		if not _OPTIONS["with-avx"] then
+			buildoptions {
+				"/arch:SSE4.2",
+			}
+		end
 
 	configuration { "vs*", "not orbis", "not NX32", "not NX64" }
 		includedirs { path.join(bxDir, "include/compat/msvc") }

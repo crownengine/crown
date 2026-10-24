@@ -147,9 +147,10 @@ function toolchain(build_dir, lib_dir)
 			premake.gcc.llvm = true
 			location(build_dir .. "projects/" .. _OPTIONS["compiler"])
 	end
-	elseif _ACTION == "vs2019"
-		or _ACTION == "vs2022"
-		then
+	elseif _ACTION == "vs2019" then
+		print("Visual Studio 2022 17.14 or newer is required. Use vs2022.")
+		os.exit(1)
+	elseif _ACTION == "vs2022" then
 
 		if not os.is("windows") then
 			print("Action not valid in current OS.")
@@ -260,7 +261,7 @@ function toolchain(build_dir, lib_dir)
 			"-Wall",
 			"-Wextra",
 			"-Wundef",
-			"-msse2",
+			"-msse4.2",
 		}
 		links {
 			"dl",
@@ -337,7 +338,7 @@ function toolchain(build_dir, lib_dir)
 		buildoptions {
 			"-fdata-sections",
 			"-ffunction-sections",
-			"-msse2",
+			"-msse4.2",
 			"-Wunused-value",
 			"-Wundef",
 		}
@@ -420,6 +421,9 @@ function toolchain(build_dir, lib_dir)
 	configuration { "x64", "vs*" }
 		defines {
 			"_WIN64",
+		}
+		buildoptions {
+			"/arch:SSE4.2",
 		}
 		targetdir (build_dir .. "windows64" .. "/bin")
 		objdir (build_dir .. "windows64" .. "/obj")

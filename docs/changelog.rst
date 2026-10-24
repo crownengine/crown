@@ -20,6 +20,7 @@ Changelog
 * Runtime: added ``--headless`` mode.
 * Runtime: HTML5: worker pool size now matches the number of logical processors reported by the browser.
 * Runtime: reduced frame rate while the main window is unfocused.
+* Runtime: x86 builds of the runtime and tools now require SSE4.2 support.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

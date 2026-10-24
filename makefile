@@ -60,25 +60,26 @@ build/android-arm64/bin/libluajit.a:
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/linux32/bin/luajit:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m32" CCOPT="-O2 -fomit-frame-pointer -msse4.2" TARGET_SYS=Linux BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit $@
 	-@cp -r 3rdparty/luajit/src/jit build/linux32/bin
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 build/linux64/bin/luajit:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" TARGET_SYS=Linux BUILDMODE=static
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse4.2" TARGET_SYS=Linux BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit $@
 	-@install -m664 -D 3rdparty/luajit/src/libluajit.a build/linux64/bin/libluajit.a
 	-@cp -r 3rdparty/luajit/src/jit build/linux64/bin
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 
 build/mingw64/bin/luajit.exe:
-	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse2" BUILDMODE=static
+	"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src CC="$(MINGW)/bin/x86_64-w64-mingw32-gcc -m64" CCOPT="-O2 -fomit-frame-pointer -msse4.2" BUILDMODE=static
 	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@
 	-@install -m664 -D 3rdparty/luajit/src/libluajit.a build/mingw64/bin/libluajit.a
 	-@cp -r 3rdparty/luajit/src/jit build/mingw64/bin
 	-@"$(MAKE)" -j$(MAKE_JOBS) -R -C 3rdparty/luajit/src clean
 	-@rm -f 3rdparty/luajit/src/libluajit*
 
+build/windows64/bin/luajit.exe: export CL += /arch:SSE4.2
 build/windows64/bin/luajit.exe:
 	cd "3rdparty/luajit/src" && .\\msvcbuild.bat
 	-@install -m775 -D 3rdparty/luajit/src/luajit.exe $@

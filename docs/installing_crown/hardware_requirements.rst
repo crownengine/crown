@@ -2,6 +2,8 @@
 Hardware Requirements
 =====================
 
+On x86, both the runtime and tools require a CPU with SSE4.2 support.
+
 The following requirements are intended as a baseline for a smooth editor
 experience. Hardware requirements for running games built with Crown depend on
 each game's complexity and can often be significantly reduced through careful
