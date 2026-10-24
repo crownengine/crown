@@ -20,7 +20,7 @@ public class WindowsDeployer
 
 		// Create data bundle.
 		try {
-			string args[] =
+			string[] args = new string[]
 			{
 				ENGINE_EXE,
 				"--source-dir",
@@ -35,6 +35,9 @@ public class WindowsDeployer
 				"--platform",
 				"windows"
 			};
+
+			if (config == TargetConfig.RELEASE)
+				args += "--strip";
 
 			uint32 compiler = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			int exit_status = yield wait_subprocess(compiler);

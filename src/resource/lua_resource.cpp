@@ -100,12 +100,7 @@ namespace lua_resource_internal
 		#error "Unsupported platform"
 	#endif
 
-	#if CROWN_DEBUG
-		#define LUAJIT_FLAGS "-bg" // Keep debug info
-	#else
-		#define LUAJIT_FLAGS "-b"
-	#endif
-
+		const bool strip = opts.option("strip");
 		const char *argv[16];
 
 		if (opts._platform == Platform::HTML5 || opts._platform == Platform::HTML5_WASM64) {
@@ -113,18 +108,21 @@ namespace lua_resource_internal
 			if (opts._platform == Platform::HTML5)
 				luac = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luac");
 
-			argv[0] = luac;
-			argv[1] = "-o";
-			argv[2] = lua_out.c_str();
-			argv[3] = lua_src.c_str();
-			argv[4] = NULL;
+			u32 argc = 0;
+			argv[argc++] = luac;
+			argv[argc++] = "-o";
+			argv[argc++] = lua_out.c_str();
+			if (strip)
+				argv[argc++] = "-s";
+			argv[argc++] = lua_src.c_str();
+			argv[argc] = NULL;
 		} else {
 			const char *luajit = EXE_PATH("luajit");
 			if (opts._platform == Platform::ANDROID)
 				luajit = EXE_PATH("../../" CROWN_32BIT_BIN_DIR "/bin/luajit");
 
 			argv[0] = luajit;
-			argv[1] = LUAJIT_FLAGS;
+			argv[1] = strip ? "-b" : "-bg";
 			argv[2] = lua_src.c_str();
 			argv[3] = lua_out.c_str();
 			argv[4] = NULL;

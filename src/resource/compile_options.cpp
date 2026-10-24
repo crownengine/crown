@@ -78,6 +78,11 @@ CompileOptions::CompileOptions(File &output
 	sjson::set_error_callback(sjson_error, this);
 }
 
+bool CompileOptions::option(const char *name)
+{
+	return _data_compiler.compile_option(StringId64(resource_type(_source_path.c_str())), StringId32(name));
+}
+
 void CompileOptions::error(log_internal::System system, const char *msg, va_list args)
 {
 	vloge(system, msg, args);

@@ -45,6 +45,7 @@ struct DeviceOptions
 	bool _do_compile;
 	bool _do_continue;
 	bool _do_bundle;
+	bool _strip;
 	bool _server;
 	bool _pumped;
 	bool _hidden;

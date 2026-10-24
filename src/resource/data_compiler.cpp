@@ -55,6 +55,7 @@
 LOG_SYSTEM(DATA_COMPILER, "data_compiler")
 
 #define CROWN_DATA_VERSIONS "data_versions.sjson"
+#define CROWN_DATA_OPTIONS "data_options.sjson"
 #define CROWN_DATA_INDEX "data_index.sjson"
 #define CROWN_DATA_MTIMES "data_mtimes.sjson"
 #define CROWN_DATA_DEPENDENCIES "data_dependencies.sjson"
@@ -1726,6 +1727,42 @@ static void read_data_versions(HashMap<StringId64, u32> &versions
 	parse_data_versions(versions, json);
 }
 
+static void read_data_options(DataCompiler &dc, FilesystemDisk &data_fs)
+{
+	hash_map::clear(dc._data_options);
+
+	Buffer json(default_allocator());
+	File *file = data_fs.open(CROWN_DATA_OPTIONS, FileOpenMode::READ);
+	if (file->is_open())
+		file->read_all(json);
+	data_fs.close(*file);
+
+	TempAllocator1024 ta;
+	JsonObject types(ta);
+	sjson::parse(types, json);
+	auto cur = json_object::begin(types);
+	auto end = json_object::end(types);
+	for (; cur != end; ++cur) {
+		JSON_OBJECT_SKIP_HOLE(types, cur);
+
+		TempAllocator512 ta;
+		JsonObject object(ta);
+		sjson::parse_object(object, cur->second);
+		HashMap<StringId32, bool> options(default_allocator());
+		auto opt = json_object::begin(object);
+		auto opt_end = json_object::end(object);
+		for (; opt != opt_end; ++opt) {
+			JSON_OBJECT_SKIP_HOLE(object, opt);
+
+			const StringId32 id(opt->first.data(), opt->first.length());
+			hash_map::set(options, id, sjson::parse_bool(opt->second));
+		}
+
+		const StringId64 type(cur->first.data(), cur->first.length());
+		hash_map::set(dc._data_options, type, options);
+	}
+}
+
 static void metadata_destination_path(DynamicString &path, ResourceId id)
 {
 	destination_path(path, id);
@@ -1940,9 +1977,8 @@ static s32 write_data_versions(FilesystemDisk &data_fs
 		for (; cur != end; ++cur) {
 			HASH_MAP_SKIP_HOLE(versions, cur);
 
-			DataCompiler::ResourceTypeData rtd;
-			rtd.type_str = NULL;
-			rtd = hash_map::get(compilers, cur->first, rtd);
+			const DataCompiler::ResourceTypeData deffault(default_allocator());
+			const DataCompiler::ResourceTypeData &rtd = hash_map::get(compilers, cur->first, deffault);
 			if (rtd.type_str != NULL)
 				ss << rtd.type_str << " = " << cur->second << "\n";
 		}
@@ -1956,6 +1992,44 @@ static s32 write_data_versions(FilesystemDisk &data_fs
 	data_fs.close(*file);
 
 	RenameResult rr = data_fs.rename(temp_filename.c_str(), filename);
+	return rr.error == RenameResult::SUCCESS ? 0 : -1;
+}
+
+static s32 write_data_options(FilesystemDisk &data_fs, const DataCompiler &dc)
+{
+	StringStream ss(default_allocator());
+	auto cur = hash_map::begin(dc._data_options);
+	auto end = hash_map::end(dc._data_options);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(dc._data_options, cur);
+		if (!hash_map::has(dc._compilers, cur->first))
+			continue;
+
+		const DataCompiler::ResourceTypeData deffault(default_allocator());
+		const DataCompiler::ResourceTypeData &rtd = hash_map::get(dc._compilers, cur->first, deffault);
+		ss << rtd.type_str << " = {\n";
+		auto opt = hash_map::begin(cur->second);
+		auto opt_end = hash_map::end(cur->second);
+		for (; opt != opt_end; ++opt) {
+			HASH_MAP_SKIP_HOLE(cur->second, opt);
+			const char *name = hash_map::get(rtd.option_names, opt->first, (const char *)NULL);
+			CE_ENSURE(name != NULL);
+			ss << "\t" << name << " = " << (opt->second ? "true" : "false") << "\n";
+		}
+		ss << "}\n";
+	}
+
+	DynamicString temp_filename(default_allocator());
+	File *file = data_fs.open_temporary(temp_filename);
+	const u32 size = strlen32(string_stream::c_str(ss));
+	const bool success = file->is_open() && file->write(string_stream::c_str(ss), size) == size;
+	data_fs.close(*file);
+	if (!success) {
+		data_fs.delete_file(temp_filename.c_str());
+		return -1;
+	}
+
+	RenameResult rr = data_fs.rename(temp_filename.c_str(), CROWN_DATA_OPTIONS);
 	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
@@ -2051,6 +2125,15 @@ static s32 write_data_dependencies(FilesystemDisk &data_fs, const char *filename
 	return rr.error == RenameResult::SUCCESS ? 0 : -1;
 }
 
+DataCompiler::ResourceTypeData::ResourceTypeData(Allocator &a)
+	: version(COMPILER_NOT_FOUND)
+	, compiler(NULL)
+	, type_str(NULL)
+	, user_data(NULL)
+	, option_names(a)
+{
+}
+
 DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	: _options(&opts)
 	, _console_server(&cs)
@@ -2063,6 +2146,8 @@ DataCompiler::DataCompiler(const DeviceOptions &opts, ConsoleServer &cs)
 	, _data_dependencies(default_allocator())
 	, _data_requirements(default_allocator())
 	, _data_versions(default_allocator())
+	, _compile_options(default_allocator())
+	, _data_options(default_allocator())
 	, _file_monitor(default_allocator())
 	, _data_revisions(default_allocator())
 	, _revision(0)
@@ -2364,7 +2449,7 @@ bool DataCompiler::dependency_changed(const DynamicString &path, ResourceId id, 
 	return false;
 }
 
-bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
+bool DataCompiler::compiler_settings_changed(const DynamicString &path, ResourceId id)
 {
 	const StringId64 type(resource_type(path.c_str()));
 	const u32 dv = data_version(type);
@@ -2372,7 +2457,7 @@ bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
 
 	if (dv == UINT32_MAX)
 		return false;
-	else if (dv != ds)
+	else if (dv != ds || compile_options_changed(type))
 		return true;
 
 	const HashMap<DynamicString, u32> deffault(default_allocator());
@@ -2385,7 +2470,7 @@ bool DataCompiler::version_changed(const DynamicString &path, ResourceId id)
 		if (path == cur->first)
 			continue;
 
-		if (version_changed(cur->first, resource_id(cur->first.c_str())))
+		if (compiler_settings_changed(cur->first, resource_id(cur->first.c_str())))
 			return true;
 	}
 
@@ -2491,15 +2576,14 @@ static void compile_resources_worker(void *items, u32 num_items)
 		HashMap<DynamicString, u32> new_dependencies(default_allocator());
 		HashMap<DynamicString, u32> new_requirements(default_allocator());
 
-		DataCompiler::ResourceTypeData rtd;
-		rtd.version = 0;
-		rtd.compiler = NULL;
-		rtd = hash_map::get(dc._compilers, type, rtd);
+		const DataCompiler::ResourceTypeData deffault(default_allocator());
+		const DataCompiler::ResourceTypeData &rtd = hash_map::get(dc._compilers, type, deffault);
 		ScopedProfileScope scope(rtd.type_str);
 		const u32 stored_type_version = dc.data_version_stored(type);
 		const bool type_version_mismatch = stored_type_version != UINT32_MAX
 			&& stored_type_version != rtd.version
 			;
+		const bool type_options_mismatch = dc.compile_options_changed(type);
 
 		Buffer output_buffer(default_allocator());
 		FileBuffer output(output_buffer);
@@ -2608,7 +2692,7 @@ static void compile_resources_worker(void *items, u32 num_items)
 				hash_map::set(dc._data_revisions, id, dc._revision + 1);
 			}
 
-			if (type_version_mismatch)
+			if (type_version_mismatch || type_options_mismatch)
 				array::push_back(*args.potentially_stale_outputs, id);
 		} else {
 			bool report_failure;
@@ -2720,6 +2804,8 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		return false;
 	}
 
+	read_data_options(*this, data_fs);
+
 	// Find the set of resources to be compiled, removed etc.
 	Vector<DynamicString> to_compile(default_allocator());
 	Vector<DynamicString> packages_to_compile(default_allocator());
@@ -2752,7 +2838,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 			bool source_never_compiled_before    = hash_map::has(_data_index, id) == false;
 			bool source_dependency_changed       = dependency_changed(path, id, mtime);
-			bool data_version_dependency_changed = version_changed(path, id);
+			bool settings_dependency_changed     = compiler_settings_changed(path, id);
 			DynamicString metadata_dest(default_allocator());
 			metadata_destination_path(metadata_dest, id);
 			bool metadata_missing                = has_editor_metadata(type_str) && !data_fs.exists(metadata_dest.c_str());
@@ -2760,7 +2846,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 			if (source_never_compiled_before
 				|| source_dependency_changed
-				|| data_version_dependency_changed
+				|| settings_dependency_changed
 				|| compile_always
 				|| metadata_missing
 				) {
@@ -2837,9 +2923,8 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 	}
 
 	if (success) {
-		// Data versions are stored per-type, so, before updating _data_versions, we
-		// need to make sure *all* resource files with that type have been
-		// successfully compiled.
+		// Versions and options describe all resources of a type, so update them
+		// only after every resource has been successfully compiled.
 		auto cur = hash_map::begin(_compilers);
 		auto end = hash_map::end(_compilers);
 		for (; cur != end; ++cur) {
@@ -2847,6 +2932,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 
 			hash_map::set(_data_versions, cur->first, cur->second.version);
 		}
+		_data_options = _compile_options;
 
 		if (num_resources != 0) {
 			_revision++;
@@ -2919,10 +3005,8 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 					);
 
 				// Bundle data.
-				ResourceTypeData rtd;
-				rtd.version = 0;
-				rtd.compiler = NULL;
-				rtd = hash_map::get(_compilers, type, rtd);
+				const ResourceTypeData deffault(default_allocator());
+				const ResourceTypeData &rtd = hash_map::get(_compilers, type, deffault);
 				success = rtd.compiler(opts) == 0;
 
 				if (success) {
@@ -2998,6 +3082,12 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		return false;
 	}
 
+	res = write_data_options(data_fs, *this);
+	if (res != 0) {
+		loge(DATA_COMPILER, "Failed to save: %s", CROWN_DATA_OPTIONS);
+		return false;
+	}
+
 	return success;
 }
 
@@ -3025,20 +3115,62 @@ void DataCompiler::register_compiler(const char *type_str, u32 version, CompileF
 	CE_ASSERT(!hash_map::has(_compilers, type), "Type already registered");
 	CE_ENSURE(NULL != compiler);
 
-	ResourceTypeData rtd;
+	ResourceTypeData rtd(default_allocator());
 	rtd.version = version;
 	rtd.compiler = compiler;
 	rtd.type_str = type_str;
 	rtd.user_data = user_data;
 
 	hash_map::set(_compilers, type, rtd);
+	const HashMap<StringId32, bool> options(default_allocator());
+	hash_map::set(_compile_options, type, options);
+}
+
+void DataCompiler::set_compile_option(StringId64 type, const char *name, bool value)
+{
+	CE_ASSERT(hash_map::has(_compilers, type), "Compiler not registered");
+	const StringId32 id(name);
+	const ResourceTypeData deffault(default_allocator());
+	ResourceTypeData &rtd = hash_map::get(_compilers, type, deffault);
+	hash_map::set(rtd.option_names, id, name);
+
+	const HashMap<StringId32, bool> empty(default_allocator());
+	HashMap<StringId32, bool> &options = hash_map::get(_compile_options, type, empty);
+	hash_map::set(options, id, value);
+}
+
+bool DataCompiler::compile_option(StringId64 type, StringId32 name)
+{
+	const HashMap<StringId32, bool> empty(default_allocator());
+	const HashMap<StringId32, bool> &options = hash_map::get(_compile_options, type, empty);
+	return hash_map::get(options, name, false);
+}
+
+bool DataCompiler::compile_options_changed(StringId64 type)
+{
+	if (!hash_map::has(_data_options, type))
+		return true;
+
+	const HashMap<StringId32, bool> empty(default_allocator());
+	const HashMap<StringId32, bool> &current = hash_map::get(_compile_options, type, empty);
+	const HashMap<StringId32, bool> &stored = hash_map::get(_data_options, type, empty);
+	if (hash_map::size(current) != hash_map::size(stored))
+		return true;
+
+	auto cur = hash_map::begin(current);
+	auto end = hash_map::end(current);
+	for (; cur != end; ++cur) {
+		HASH_MAP_SKIP_HOLE(current, cur);
+		if (!hash_map::has(stored, cur->first)
+			|| hash_map::get(stored, cur->first, false) != cur->second)
+			return true;
+	}
+	return false;
 }
 
 u32 DataCompiler::data_version(StringId64 type)
 {
-	ResourceTypeData rtd;
-	rtd.version = COMPILER_NOT_FOUND;
-	rtd.compiler = NULL;
+	const ResourceTypeData rtd(default_allocator());
 	return hash_map::get(_compilers, type, rtd).version;
 }
 
@@ -3050,9 +3182,7 @@ u32 DataCompiler::data_version_stored(StringId64 type)
 
 void *DataCompiler::user_data(StringId64 type)
 {
-	ResourceTypeData rtd;
-	rtd.version = COMPILER_NOT_FOUND;
-	rtd.compiler = NULL;
+	const ResourceTypeData rtd(default_allocator());
 	return hash_map::get(_compilers, type, rtd).user_data;
 }
 
@@ -3319,6 +3449,7 @@ int main_data_compiler(const DeviceOptions &opts)
 	dc->register_compiler("state_machine",    RESOURCE_VERSION_STATE_MACHINE,    state_machine_resource_internal::compile);
 	dc->register_compiler("texture",          RESOURCE_VERSION_TEXTURE,          texture_resource_internal::compile);
 	dc->register_compiler("unit",             RESOURCE_VERSION_UNIT,             unit_resource_internal::compile);
+	dc->set_compile_option(RESOURCE_TYPE_SCRIPT, "strip", opts._strip);
 
 	s32 err = 0;
 

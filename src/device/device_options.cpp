@@ -37,6 +37,7 @@ static void help(const char *msg = NULL)
 		"  --boot-dir <prefix>             Use <prefix>/boot.config to boot the engine.\n"
 		"  --compile                       Compile the project's source data.\n"
 		"  --bundle                        Generate bundles after the data has been compiled.\n"
+		"  --strip                         Strip Lua debug symbols during data compilation.\n"
 		"  --platform <platform>           Specify the target <platform> for data compilation.\n"
 		"      android\n"
 		"      html5\n"
@@ -92,6 +93,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _do_compile(false)
 	, _do_continue(false)
 	, _do_bundle(false)
+	, _strip(false)
 	, _server(false)
 	, _pumped(false)
 	, _hidden(false)
@@ -143,6 +145,7 @@ int DeviceOptions::parse(bool *quit)
 
 	_do_compile = cl.has_option("compile");
 	_do_bundle = cl.has_option("bundle");
+	_strip = cl.has_option("strip");
 	if (_do_compile || _do_bundle) {
 		_platform = cl.get_parameter(0, "platform");
 
