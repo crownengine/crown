@@ -21,6 +21,7 @@
 #   include "resource/mesh_skeleton_resource.h"
 #   include <cgltf.h>
 #   include <stb_sprintf.h>
+#   include <stddef.h> // max_align_t
 #   include <stdint.h> // SIZE_MAX
 #   include <string.h> // memcpy, memset, strchr, strcmp
 
@@ -34,7 +35,7 @@ namespace gltf
 	{
 		if (size > UINT32_MAX)
 			return NULL;
-		return default_allocator().allocate(size != 0 ? (u32)size : 1u);
+		return default_allocator().allocate(size != 0 ? (u32)size : 1u, alignof(max_align_t));
 	}
 
 	static void memory_deallocate(void *, void *data)

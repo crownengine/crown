@@ -6,6 +6,8 @@ Changelog
 :ref:`0.65.6 --- DD MMM YYYY <v0.65.6>`
 ---------------------------------------
 
+* Data Compiler: fixed crashes when compiling glTF resources.
+
 .. _v0.65.5:
 
 :ref:`0.65.5 --- 23 Oct 2026 <v0.65.5>`
