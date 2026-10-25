@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-24T23:16:00+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-10-24T23:35:54+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -220,6 +220,7 @@
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">--headless</span></code> mode.</p></li>
 <li><p>Runtime: HTML5: worker pool size now matches the number of logical processors reported by the browser.</p></li>
 <li><p>Runtime: reduced frame rate while the main window is unfocused.</p></li>
+<li><p>Runtime: x86 builds of the runtime and tools now require SSE4.2 support.</p></li>
 <li><p>Data Compiler: added <code class="docutils literal notranslate"><span class="pre">--strip</span></code> to remove Lua debug symbols.</p></li>
 <li><p>Lua: <code class="docutils literal notranslate"><span class="pre">Material.set_texture()</span></code> now accepts <code class="docutils literal notranslate"><span class="pre">nil</span></code> to bind the default texture.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Window.has_focus()</span></code>.</p></li>
@@ -248,6 +249,7 @@
 <li><p>Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.</p></li>
 <li><p>Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.</p></li>
 <li><p>Data Compiler: fixed shader compilation continuing after shader library parsing errors.</p></li>
+<li><p>Data Compiler: fixed crashes when compiling glTF resources.</p></li>
 </ul>
 </section>
 <section id="sep-2026">

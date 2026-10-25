@@ -147,7 +147,7 @@ Windows (VS Code)
 Windows (VS 2022)
 -----------------
 
-1. Install Visual Studio 2022:
+1. Install Visual Studio 2022 17.14 or newer:
 
 	* https://visualstudio.microsoft.com/downloads
 
