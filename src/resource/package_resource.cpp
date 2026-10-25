@@ -24,6 +24,7 @@
 #include "resource/resource_id.inl"
 #include "resource/simple_resource.h"
 #include <lz4.h>
+#include <lz4hc.h>
 
 LOG_SYSTEM(PACKAGE_RESOURCE, "package_resource")
 
@@ -303,7 +304,7 @@ namespace package_resource_internal
 		if (opts._bundle) {
 			int max_dst_size = LZ4_compressBound(array::size(bundle_data));
 			array::reserve(compressed_data, u32(max_dst_size));
-			int compressed_data_size = LZ4_compress_default(array::begin(bundle_data), array::begin(compressed_data), array::size(bundle_data), max_dst_size);
+			int compressed_data_size = LZ4_compress_HC(array::begin(bundle_data), array::begin(compressed_data), array::size(bundle_data), max_dst_size, 9);
 			RETURN_IF_FALSE(PACKAGE_RESOURCE, compressed_data_size > 0, opts, "Failed to compress data");
 			array::resize(compressed_data, u32(compressed_data_size));
 		}
