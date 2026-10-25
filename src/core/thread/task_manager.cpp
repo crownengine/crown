@@ -243,7 +243,7 @@ s32 TaskManager::do_work()
 	return 0;
 }
 
-struct ParallelForJob
+struct ParallelForData
 {
 	ParallelForFunction func;
 	void *items;
@@ -251,59 +251,50 @@ struct ParallelForJob
 	u32 num_items;
 	u32 num_jobs;
 	u32 root_id;
+	CE_ALIGN_DECL(16, char data[16]);
 };
+CE_STATIC_ASSERT(sizeof(ParallelForData) <= sizeof(TaskData48::data));
 
 static void parallel_for_job(u32 task_id, void *data)
 {
 	CE_UNUSED(task_id);
-	ParallelForJob &job = *(ParallelForJob *)data;
+	ParallelForData &job = *(ParallelForData *)data;
 	TaskManager &tasks = task_manager();
 	while (job.num_jobs > 1) {
 		const u32 left_jobs = job.num_jobs / 2;
 		const u32 left_items = u32(u64(job.num_items) * left_jobs / job.num_jobs);
-		ParallelForJob right = {
-			job.func
-			, (u8 *)job.items + size_t(left_items) * job.item_size
-			, job.item_size
-			, job.num_items - left_items
-			, job.num_jobs - left_jobs
-			, job.root_id
-		};
-		tasks.begin_add(parallel_for_job, &right, sizeof(right), job.root_id);
+		ParallelForData right = job;
+		right.items = (u8 *)job.items + size_t(left_items) * job.item_size;
+		right.num_items -= left_items;
+		right.num_jobs -= left_jobs;
+		TaskData48 task = { parallel_for_job, {} };
+		memcpy(task.data, &right, sizeof(right));
+		tasks.begin_add(task, job.root_id);
 		job.num_items = left_items;
 		job.num_jobs = left_jobs;
 	}
 	if (job.num_items != 0)
-		job.func(job.items, job.num_items);
+		job.func(job.items, job.num_items, job.data);
 }
-
-CE_STATIC_ASSERT(sizeof(ParallelForJob) <= sizeof(Task::pad));
-CE_STATIC_ASSERT(alignof(ParallelForJob) <= 16);
-
-struct ParallelForRoot
-{
-	ParallelForFunction func;
-	void *items;
-	u32 item_size;
-	u32 num_items;
-	u32 num_jobs;
-};
 
 static void parallel_for_root(u32 task_id, void *data)
 {
-	ParallelForRoot &root = *(ParallelForRoot *)data;
-	ParallelForJob job = { root.func, root.items, root.item_size, root.num_items, root.num_jobs, task_id };
+	ParallelForData &job = *(ParallelForData *)data;
+	job.root_id = task_id;
 	parallel_for_job(task_id, &job);
 }
 
-u32 parallel_for(void *items, u32 item_size, u32 num_items, u32 num_jobs, ParallelForFunction func, u32 dependency_id)
+u32 parallel_for(void *items, u32 item_size, u32 num_items, u32 num_jobs, ParallelForFunction func, TaskData16 data, u32 dependency_id)
 {
 	CE_ASSERT(num_jobs != 0 && num_jobs <= MAX_TASKS - 2u, "Invalid parallel_for job count");
 	CE_ASSERT((items != NULL && item_size != 0) || num_items == 0, "Invalid parallel_for items");
 	CE_ASSERT(func != NULL, "Invalid parallel_for function");
 	TaskManager &tasks = task_manager();
-	ParallelForRoot root_job = { func, items, item_size, num_items, min(num_items, num_jobs) };
-	const u32 root = tasks.begin_add(parallel_for_root, &root_job, sizeof(root_job), 0, dependency_id);
+	ParallelForData job = { func, items, item_size, num_items, min(num_items, num_jobs), 0, {} };
+	memcpy(job.data, data.data, sizeof(job.data));
+	TaskData48 task = { parallel_for_root, {} };
+	memcpy(task.data, &job, sizeof(job));
+	const u32 root = tasks.begin_add(task, 0, dependency_id);
 	tasks.finish_add(root);
 	return root;
 }

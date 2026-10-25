@@ -2543,8 +2543,9 @@ static bool write_metadata(FilesystemDisk &fs, const DynamicString &dest, const 
 	return success;
 }
 
-static void compile_resources_worker(void *items, u32 num_items)
+static void compile_resources_worker(void *items, u32 num_items, void *data)
 {
+	CE_UNUSED(data);
 	CompileResourceItem *resources = (CompileResourceItem *)items;
 	CompileResourcesArgs &args = *resources[0].args;
 	DataCompiler &dc = *args.data_compiler;
@@ -2918,7 +2919,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			);
 		task_manager().wait(root);
 #else
-		compile_resources_worker(array::begin(items), phase_resources);
+		compile_resources_worker(array::begin(items), phase_resources, NULL);
 #endif // if CROWN_DATA_COMPILER_MULTITHREADED
 	}
 

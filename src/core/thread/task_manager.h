@@ -31,7 +31,6 @@ struct Task
 	u16 data_external : 1; // pad contains a pointer instead of copied data.
 	CE_ALIGN_DECL(16, u8 pad[CROWN_CACHE_LINE_SIZE - 16]);
 };
-
 CE_STATIC_ASSERT(sizeof(Task) == CROWN_CACHE_LINE_SIZE);
 CE_STATIC_ASSERT(alignof(Task) == CROWN_CACHE_LINE_SIZE);
 CE_STATIC_ASSERT(sizeof(Task::pad) == CROWN_CACHE_LINE_SIZE - 16);
@@ -155,12 +154,13 @@ struct TaskManager
 	s32 do_work();
 };
 
-typedef void (*ParallelForFunction)(void *items, u32 num_items);
+typedef void (*ParallelForFunction)(void *items, u32 num_items, void *data);
 
 /// Enqueues @a func for up to @a num_jobs ranges and returns a task ID that completes after all
 /// ranges. If @a dependency_id is nonzero, the ranges start after that task completes. The caller
-/// must keep @a items alive until the task completes.
-u32 parallel_for(void *items, u32 item_size, u32 num_items, u32 num_jobs, ParallelForFunction func, u32 dependency_id = 0);
+/// must keep @a items alive until the task completes. The bytes in @a data.data are copied into
+/// each task and passed to @a func.
+u32 parallel_for(void *items, u32 item_size, u32 num_items, u32 num_jobs, ParallelForFunction func, TaskData16 data = {}, u32 dependency_id = 0);
 
 /// Returns the task manager.
 TaskManager &task_manager();

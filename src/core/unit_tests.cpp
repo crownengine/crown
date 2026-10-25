@@ -2476,8 +2476,9 @@ static void test_task_manager()
 			std::atomic_uint *hits;
 			std::atomic_uint *calls;
 
-			static void run(void *items, u32 num_items)
+			static void run(void *items, u32 num_items, void *data)
 			{
+				CE_UNUSED(data);
 				Item *range = (Item *)items;
 				range[0].calls->fetch_add(1);
 				for (u32 i = 0; i < num_items; ++i)
@@ -2513,13 +2514,15 @@ static void test_task_manager()
 			std::atomic_uint *observed;
 			u32 expected;
 
-			static void first(void *items, u32 num_items)
+			static void first(void *items, u32 num_items, void *data)
 			{
+				CE_UNUSED(data);
 				((Item *)items)[0].completed->fetch_add(num_items);
 			}
 
-			static void second(void *items, u32 num_items)
+			static void second(void *items, u32 num_items, void *data)
 			{
+				CE_UNUSED(data);
 				Item &item = ((Item *)items)[0];
 				if (item.completed->load() == item.expected)
 					item.observed->fetch_add(num_items);
@@ -2532,8 +2535,8 @@ static void test_task_manager()
 		for (u32 i = 0; i < countof(items); ++i)
 			items[i] = { &completed, &observed, countof(items) };
 		const u32 gate = tasks.begin_add_empty();
-		const u32 a = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::first, gate);
-		const u32 b = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::second, a);
+		const u32 a = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::first, {}, gate);
+		const u32 b = parallel_for(items, sizeof(items[0]), countof(items), 7, Item::second, {}, a);
 		ENSURE(completed.load() == 0);
 		tasks.finish_add(gate);
 		tasks.wait(b);

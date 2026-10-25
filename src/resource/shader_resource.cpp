@@ -1596,7 +1596,7 @@ namespace shader_resource_internal
 		((CompileOptions *)user_data)->error(SHADER_RESOURCE, "%s", msg);
 	}
 
-	static void static_compile_items(void *items, u32 count);
+	static void static_compile_items(void *items, u32 count, void *data);
 
 	struct ShaderCompiler
 	{
@@ -3294,8 +3294,9 @@ namespace shader_resource_internal
 		}
 	};
 
-	static void static_compile_items(void *items, u32 count)
+	static void static_compile_items(void *items, u32 count, void *data)
 	{
+		CE_UNUSED(data);
 		StaticCompileItem *jobs = (StaticCompileItem *)items;
 		SJsonError previous_error_callback;
 		void *previous_error_user_data;

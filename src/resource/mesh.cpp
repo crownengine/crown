@@ -517,8 +517,9 @@ namespace mesh
 		u32 trial;
 	};
 
-	static void sphere_job(void *items, u32 count)
+	static void sphere_job(void *items, u32 count, void *data)
 	{
+		CE_UNUSED(data);
 		ENTER_PROFILE_SCOPE("mesh::sphere_job");
 		SphereJob *jobs = (SphereJob *)items;
 		Array<u32> indices(default_allocator());
