@@ -24,9 +24,11 @@ Changelog
 * Runtime: joints can now be configured to enable/disable collisions between connected actors.
 * Runtime: HTML5: added support for passing command-line arguments through HTML and URL query parameters.
 * Runtime: HTML5: added keyboard locking with a confirmation fallback when leaving the page.
+* Runtime: added an asynchronous HTTP(S) client.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.
+* Lua: added the ``Http`` API.
 
 **Fixes**
 

@@ -12,7 +12,7 @@
 #include "core/math/constants.h"
 #include "core/math/frustum.inl"
 #include "core/math/intersection.h"
-#include "core/math/math.h"
+#include "core/math/math.inl"
 #include "core/math/matrix4x4.inl"
 #include "core/math/obb.inl"
 #include "core/math/plane3.inl"
@@ -28,6 +28,7 @@
 #include "core/strings/string_stream.inl"
 #include "device/console_server.h"
 #include "device/device.h"
+#include "core/network/http.h"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include "device/save_game.h"
@@ -4158,6 +4159,81 @@ void load_api(LuaEnvironment &env)
 			return 1;
 		});
 
+	env.add_module_function("Http", "get", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const f32 timeout = stack.num_args() > 1 && !stack.is_nil(2) ? stack.get_float(2) : 10.0f;
+			stack.push_id(http::get(stack.get_string(1), (u32)fceil(timeout * 1000.0f)));
+			return 1;
+		});
+	env.add_module_function("Http", "post", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			const char *url = stack.get_string(1);
+			const char *content_type = stack.get_string(2);
+			const f32 timeout = stack.num_args() > 3 && !stack.is_nil(4) ? stack.get_float(4) : 10.0f;
+			size_t size;
+			const char *bytes = luaL_checklstring(L, 3, &size);
+			LUA_ASSERT(size <= UINT32_MAX / 2, stack, "HTTP body is too large");
+
+			stack.push_id(http::post(url
+				, content_type
+				, StringView(bytes, (u32)size)
+				, (u32)fceil(timeout * 1000.0f)
+				));
+			return 1;
+		});
+	env.add_module_function("Http", "close", [](lua_State *L) {
+			LuaStack stack(L);
+			http::close(stack.get_id(1));
+			return 0;
+		});
+	env.add_module_function("Http", "status", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_int(http::status(stack.get_id(1)));
+			return 1;
+		});
+	env.add_module_function("Http", "error", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_string(http::error(stack.get_id(1)));
+			return 1;
+		});
+	env.add_module_function("Http", "response", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			u32 code;
+			StringView reason;
+			const HttpHeader *headers;
+			u32 num_headers;
+			StringView body;
+			if (!http::response(code, reason, headers, num_headers, body, stack.get_id(1))) {
+				stack.push_nil();
+				return 1;
+			}
+
+			stack.push_table(0, 4);
+			stack.push_key_begin("status_code");
+			stack.push_int(code);
+			stack.push_key_end();
+			stack.push_key_begin("reason_phrase");
+			stack.push_lstring(reason.length() == 0 ? "" : reason.data(), reason.length());
+			stack.push_key_end();
+			stack.push_key_begin("headers");
+			stack.push_table(num_headers, 0);
+			for (u32 ii = 0; ii < num_headers; ++ii) {
+				stack.push_key_begin(ii + 1);
+				stack.push_table(0, 2);
+				stack.push_key_begin("name");
+				stack.push_lstring(headers[ii].name.data(), headers[ii].name.length());
+				stack.push_key_end();
+				stack.push_key_begin("value");
+				stack.push_lstring(headers[ii].value.data(), headers[ii].value.length());
+				stack.push_key_end();
+				stack.push_key_end();
+			}
+			stack.push_key_end();
+			stack.push_key_begin("body");
+			stack.push_lstring(body.length() == 0 ? "" : body.data(), body.length());
+			stack.push_key_end();
+			return 1;
+		});
 
 	env.add_module_function("SaveGame", "save", [](lua_State *L) {
 			LuaStack stack(L, +1);
@@ -4715,6 +4791,10 @@ void load_api(LuaEnvironment &env)
 	env.set_module_number("SaveError", "IO_ERROR", SaveError::IO_ERROR);
 	env.set_module_number("SaveError", "CORRUPTED", SaveError::CORRUPTED);
 	env.set_module_number("SaveError", "UNKNOWN", SaveError::UNKNOWN);
+	env.set_module_number("HttpStatus", "FINISHED", HttpStatus::FINISHED);
+	env.set_module_number("HttpStatus", "ERROR", HttpStatus::ERROR);
+	env.set_module_number("HttpStatus", "DOWNLOADING", HttpStatus::DOWNLOADING);
+	env.set_module_number("HttpStatus", "CLOSED", HttpStatus::CLOSED);
 	// code-format on
 }
 

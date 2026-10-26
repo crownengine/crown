@@ -1127,6 +1127,7 @@ void android_main(struct android_app *app)
 	g_platform_data._android_asset_manager = app->activity->assetManager;
 	g_platform_data._android_internal_data_path = (void *)app->activity->internalDataPath;
 	g_platform_data._android_obb_path = (void *)app->activity->obbPath;
+	g_platform_data._android_java_vm = app->activity->vm;
 
 	s_android_device = CE_NEW(default_allocator(), AndroidDevice)(default_allocator());
 	s_android_device->run(app, opts);

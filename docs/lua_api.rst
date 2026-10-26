@@ -1650,6 +1650,46 @@ Represents a collection of resources that can be loaded in group.
 **has_loaded** (package) : bool
 	Returns whether the *package* has been loaded.
 
+Http
+====
+
+Asynchronous HTTP(S) client.
+
+**get** (url, [timeout = 10]) : Id
+	Starts an asynchronous GET. Returns 0 if all request slots are occupied.
+
+**post** (url, content_type, body, [timeout = 10]) : Id
+	Starts an asynchronous POST.
+
+**close** (id)
+	Closes the request *id* and frees its memory. If the request is in progress,
+	it cancels it.
+
+**status** (id) : HttpStatus
+    Returns the current state of request *id*, or ``HttpStatus.CLOSED`` if the
+    id is invalid. See `HttpStatus`_.
+
+**error** (id) : string or nil
+    Returns the error string for a request *id* with ``HttpStatus.ERROR``
+    status, or ``nil`` if the request has no errors.
+
+**response** (id) : table or nil
+    Returns the response for ``HttpStatus.FINISHED`` requests, otherwise
+    ``nil``. The response table has the following fields:
+
+	* ``status_code``: HTTP status code.
+	* ``reason_phrase``: Reason phrase.
+	* ``headers``: Array of tables with ``name`` and ``value`` strings.
+	* ``body``: Response body.
+
+HttpStatus
+----------
+
+* ``FINISHED``: The complete response is available; use ``Http.response()`` to get the data.
+* ``ERROR``: The request failed or timed out; use ``Http.error()`` for details.
+* ``DOWNLOADING``: A request is being processed.
+* ``CLOSED``: The id is invalid or has been closed.
+
 SaveGame
 ========
 

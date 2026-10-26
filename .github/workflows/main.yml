@@ -121,7 +121,7 @@ jobs:
     - name: prepare
       run: |
         sudo apt-get update
-        sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxkbcommon-dev libxrandr-dev libdecor-0-dev
+        sudo apt-get install mesa-common-dev libgl1-mesa-dev libpulse-dev libxkbcommon-dev libxrandr-dev libdecor-0-dev libcurl4-openssl-dev
         sudo apt-get install gcc-multilib g++-multilib libc6-dev-i386
     - name: linux-make-debug64
       run: |
