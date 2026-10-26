@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/strings/types.h"
 #include "core/types.h"
 
 namespace crown

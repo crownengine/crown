@@ -35,6 +35,7 @@
 #include "device/console_server.h"
 #include "device/device.h"
 #include "device/graph.h"
+#include "core/network/http.h"
 #include "device/input_device.h"
 #include "device/input_manager.h"
 #include "device/log.h"
@@ -934,6 +935,7 @@ int Device::main_loop()
 			loge(DEVICE, "Unable to expand save_dir: '%s'", _boot_config.save_dir.c_str());
 		save_game_globals::init(default_allocator(), save_dir.c_str());
 	}
+	http_globals::init(default_allocator());
 
 	if (!_options._headless)
 		_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
@@ -1037,6 +1039,7 @@ void Device::shutdown()
 	bgfx::frame(); // Wait for pending uploads to finish.
 	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
+	http_globals::shutdown();
 	save_game_globals::shutdown();
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
