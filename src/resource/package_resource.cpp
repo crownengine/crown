@@ -17,6 +17,7 @@
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
 #include "core/strings/string_id.inl"
+#include "core/thread/scoped_mutex.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/data_compiler.h"
@@ -283,8 +284,14 @@ namespace package_resource_internal
 				// Copy stream data to bundle dir.
 				File *stream = opts._data_filesystem.open(stream_dest.c_str(), FileOpenMode::READ);
 				if (stream->is_open()) {
+					// Packages can share stream resources in the bundle directory.
+					ScopedMutex sm(opts._data_compiler._compiler_mutex);
 					File *bundle_stream = opts._output_filesystem.open(stream_dest.c_str(), FileOpenMode::WRITE);
-					RETURN_IF_FALSE(PACKAGE_RESOURCE, bundle_stream->is_open(), opts, "Failed to open bundle stream");
+					if (!bundle_stream->is_open()) {
+						opts._output_filesystem.close(*bundle_stream);
+						opts._data_filesystem.close(*stream);
+						RETURN_IF_FALSE(PACKAGE_RESOURCE, false, opts, "Failed to open bundle stream");
+					}
 					file::copy(*bundle_stream, *stream, stream->size());
 					opts._output_filesystem.close(*bundle_stream);
 				}

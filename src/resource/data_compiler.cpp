@@ -40,8 +40,10 @@
 #include "resource/shader_resource.h"
 #include "resource/types.h"
 #include <algorithm>
+#include <atomic>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <string.h> // memcpy
 #if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -2514,7 +2516,7 @@ struct CompileResourcesArgs
 	DataCompiler *data_compiler;
 	FilesystemDisk *data_fs;
 	Array<ResourceId> *potentially_stale_outputs;
-	bool *success;
+	std::atomic_bool *success;
 	Platform::Enum platform;
 };
 
@@ -2552,11 +2554,8 @@ static void compile_resources_worker(void *items, u32 num_items, void *data)
 	FilesystemDisk &data_fs = *args.data_fs;
 
 	for (u32 i = 0; i < num_items; ++i) {
-		{
-			ScopedMutex sm(dc._compiler_mutex);
-			if (!*args.success)
-				break;
-		}
+		if (!args.success->load())
+			break;
 
 		const DynamicString &path = *resources[i].path;
 		const char *type_str = resource_type(path.c_str());
@@ -2696,15 +2695,92 @@ static void compile_resources_worker(void *items, u32 num_items, void *data)
 			if (type_version_mismatch || type_options_mismatch)
 				array::push_back(*args.potentially_stale_outputs, id);
 		} else {
-			bool report_failure;
-			{
-				ScopedMutex sm(dc._compiler_mutex);
-				report_failure = *args.success;
-				*args.success = false;
-			}
-
-			if (report_failure)
+			if (args.success->exchange(false))
 				loge(DATA_COMPILER, "Failed to compile data");
+			break;
+		}
+	}
+}
+
+struct BundleResourcesContext
+{
+	DataCompiler *data_compiler;
+	FilesystemDisk *data_fs;
+	FilesystemDisk *bundle_fs;
+	std::atomic_bool *success;
+	Platform::Enum platform;
+};
+
+static void bundle_resources_worker(void *items, u32 num_items, void *data)
+{
+	DynamicString *resources = (DynamicString *)items;
+	BundleResourcesContext *context;
+	memcpy(&context, data, sizeof(context));
+	DataCompiler &dc = *context->data_compiler;
+	FilesystemDisk &data_fs = *context->data_fs;
+	FilesystemDisk &bundle_fs = *context->bundle_fs;
+
+	for (u32 i = 0; i < num_items; ++i) {
+		if (!context->success->load())
+			break;
+
+		const DynamicString &path = resources[i];
+		logi(DATA_COMPILER, dc._options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
+
+		ResourceId id = resource_id(path.c_str());
+		TempAllocator256 ta;
+		DynamicString dest(ta);
+		destination_path(dest, id);
+
+		const StringId64 type(resource_type(path.c_str()));
+
+		HashMap<DynamicString, u32> new_dependencies(default_allocator());
+		HashMap<DynamicString, u32> new_requirements(default_allocator());
+		Buffer output_buffer(default_allocator());
+		FileBuffer output(output_buffer);
+		Buffer stream_output_buffer(default_allocator());
+		FileBuffer stream_output(stream_output_buffer);
+		CompileOptions opts(output
+			, stream_output
+			, new_dependencies
+			, new_requirements
+			, dc
+			, bundle_fs
+			, data_fs
+			, id
+			, path
+			, context->platform
+			, true
+			);
+
+		// Bundle data.
+		const DataCompiler::ResourceTypeData deffault(default_allocator());
+		const DataCompiler::ResourceTypeData &rtd = hash_map::get(dc._compilers, type, deffault);
+		bool bundle_success = rtd.compiler(opts) == 0;
+
+		if (bundle_success) {
+			// Write data to disk.
+			DynamicString temp_dest(default_allocator());
+			File *outf = bundle_fs.open_temporary(temp_dest);
+			if (outf->is_open()) {
+				u32 size = array::size(output_buffer);
+				u32 written = outf->write(array::begin(output_buffer), size);
+				bundle_success = size == written;
+			} else {
+				loge(DATA_COMPILER, "Failed to write data to disk");
+				bundle_success = false;
+			}
+			bundle_fs.close(*outf);
+
+			if (bundle_success) {
+				RenameResult rr = bundle_fs.rename(temp_dest.c_str(), dest.c_str());
+				bundle_success = rr.error == RenameResult::SUCCESS;
+			}
+		}
+
+		if (!bundle_success) {
+			if (context->success->exchange(false))
+				loge(DATA_COMPILER, "Failed to generate bundle");
 			break;
 		}
 	}
@@ -2891,11 +2967,11 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		data_fs.delete_file(dest.c_str());
 	}
 
-	bool success = true;
+	std::atomic_bool success(true);
 	const u32 num_resources = vector::size(to_compile) + vector::size(packages_to_compile);
 
 	Vector<DynamicString> *phases[] = { &to_compile, &packages_to_compile };
-	for (u32 phase = 0; phase < countof(phases) && success; ++phase) {
+	for (u32 phase = 0; phase < countof(phases) && success.load(); ++phase) {
 		Vector<DynamicString> &resources = *phases[phase];
 		const u32 phase_resources = vector::size(resources);
 		if (phase_resources == 0)
@@ -2923,7 +2999,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 #endif // if CROWN_DATA_COMPILER_MULTITHREADED
 	}
 
-	if (success) {
+	if (success.load()) {
 		// Versions and options describe all resources of a type, so update them
 		// only after every resource has been successfully compiled.
 		auto cur = hash_map::begin(_compilers);
@@ -2959,9 +3035,6 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 					vector::push_back(to_bundle, path);
 			}
 
-			FilesystemDisk data_fs(default_allocator());
-			data_fs.set_prefix(data_dir);
-
 			const char *bundle_dir = _options->_bundle_dir.c_str();
 			// Create the bundle directory on disk.
 			FilesystemDisk bundle_fs(default_allocator());
@@ -2975,68 +3048,28 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 				return false;
 			}
 
-			for (u32 ii = 0; ii < vector::size(to_bundle); ++ii) {
-				const DynamicString &path = to_bundle[ii];
-				logi(DATA_COMPILER, _options->_server ? RESOURCE_ID_FMT_STR : "%s", path.c_str());
-
-				ResourceId id = resource_id(path.c_str());
-				TempAllocator256 ta;
-				DynamicString dest(ta);
-				destination_path(dest, id);
-
-				const StringId64 type(resource_type(path.c_str()));
-
-				HashMap<DynamicString, u32> new_dependencies(default_allocator());
-				HashMap<DynamicString, u32> new_requirements(default_allocator());
-				Buffer ouput_buffer(default_allocator());
-				FileBuffer output(ouput_buffer);
-				Buffer stream_ouput_buffer(default_allocator());
-				FileBuffer stream_output(stream_ouput_buffer);
-				CompileOptions opts(output
-					, stream_output
-					, new_dependencies
-					, new_requirements
-					, *this
-					, bundle_fs
-					, data_fs
-					, id
-					, path
-					, platform
-					, true
+			const u32 bundle_resources = vector::size(to_bundle);
+			if (bundle_resources != 0) {
+				BundleResourcesContext context = { this, &data_fs, &bundle_fs, &success, platform };
+				BundleResourcesContext *context_ptr = &context;
+				TaskData16 task = {};
+				memcpy(task.data, &context_ptr, sizeof(context_ptr));
+#if CROWN_DATA_COMPILER_MULTITHREADED
+				const u32 max_jobs = (MAX_TASKS - 2u) / 32u;
+				const u32 root = parallel_for(vector::begin(to_bundle)
+					, sizeof(to_bundle[0])
+					, bundle_resources
+					, min(max_jobs, bundle_resources)
+					, bundle_resources_worker
+					, task
 					);
-
-				// Bundle data.
-				const ResourceTypeData deffault(default_allocator());
-				const ResourceTypeData &rtd = hash_map::get(_compilers, type, deffault);
-				success = rtd.compiler(opts) == 0;
-
-				if (success) {
-					// Write data to disk.
-					DynamicString temp_dest(default_allocator());
-					File *outf = bundle_fs.open_temporary(temp_dest);
-					if (outf->is_open()) {
-						u32 size = array::size(ouput_buffer);
-						u32 written = outf->write(array::begin(ouput_buffer), size);
-						success = size == written;
-					} else {
-						loge(DATA_COMPILER, "Failed to write data to disk");
-						success = false;
-					}
-					bundle_fs.close(*outf);
-
-					if (success) {
-						RenameResult rr = bundle_fs.rename(temp_dest.c_str(), dest.c_str());
-						success = rr.error == RenameResult::SUCCESS;
-					}
-				}
-
-				if (!success) {
-					loge(DATA_COMPILER, "Failed to generate bundle");
-					break;
-				}
+				task_manager().wait(root);
+#else
+				bundle_resources_worker(vector::begin(to_bundle), bundle_resources, task.data);
+#endif // if CROWN_DATA_COMPILER_MULTITHREADED
 			}
 
-			if (success) {
+			if (success.load()) {
 				if (vector::size(to_bundle)) {
 					logi(DATA_COMPILER, "Bundled data in " TIME_FMT, time::seconds(time::now() - time_start));
 				} else {
@@ -3089,7 +3122,7 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 		return false;
 	}
 
-	return success;
+	return success.load();
 }
 
 bool DataCompiler::compile(const char *data_dir, const char *platform_name)
