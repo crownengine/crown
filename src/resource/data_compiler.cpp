@@ -43,7 +43,6 @@
 #include <atomic>
 #include <inttypes.h>
 #include <stdlib.h>
-#include <string.h> // memcpy
 #if CROWN_PLATFORM_WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -2511,19 +2510,13 @@ void DataCompiler::all_paths_of_type(Vector<DynamicString> &paths, const char *t
 	}
 }
 
-struct CompileResourcesArgs
+struct CompileResourcesContext
 {
 	DataCompiler *data_compiler;
 	FilesystemDisk *data_fs;
 	Array<ResourceId> *potentially_stale_outputs;
 	std::atomic_bool *success;
 	Platform::Enum platform;
-};
-
-struct CompileResourceItem
-{
-	DynamicString *path;
-	CompileResourcesArgs *args;
 };
 
 static bool has_editor_metadata(const char *type)
@@ -2547,17 +2540,16 @@ static bool write_metadata(FilesystemDisk &fs, const DynamicString &dest, const 
 
 static void compile_resources_worker(void *items, u32 num_items, void *data)
 {
-	CE_UNUSED(data);
-	CompileResourceItem *resources = (CompileResourceItem *)items;
-	CompileResourcesArgs &args = *resources[0].args;
-	DataCompiler &dc = *args.data_compiler;
-	FilesystemDisk &data_fs = *args.data_fs;
+	DynamicString *resources = (DynamicString *)items;
+	CompileResourcesContext *context = *(CompileResourcesContext **)data;
+	DataCompiler &dc = *context->data_compiler;
+	FilesystemDisk &data_fs = *context->data_fs;
 
 	for (u32 i = 0; i < num_items; ++i) {
-		if (!args.success->load())
+		if (!context->success->load())
 			break;
 
-		const DynamicString &path = *resources[i].path;
+		const DynamicString &path = resources[i];
 		const char *type_str = resource_type(path.c_str());
 		if (type_str == NULL)
 			continue;
@@ -2598,7 +2590,7 @@ static void compile_resources_worker(void *items, u32 num_items, void *data)
 			, data_fs
 			, id
 			, path
-			, args.platform
+			, context->platform
 			, false
 			);
 
@@ -2693,9 +2685,9 @@ static void compile_resources_worker(void *items, u32 num_items, void *data)
 			}
 
 			if (type_version_mismatch || type_options_mismatch)
-				array::push_back(*args.potentially_stale_outputs, id);
+				array::push_back(*context->potentially_stale_outputs, id);
 		} else {
-			if (args.success->exchange(false))
+			if (context->success->exchange(false))
 				loge(DATA_COMPILER, "Failed to compile data");
 			break;
 		}
@@ -2714,8 +2706,7 @@ struct BundleResourcesContext
 static void bundle_resources_worker(void *items, u32 num_items, void *data)
 {
 	DynamicString *resources = (DynamicString *)items;
-	BundleResourcesContext *context;
-	memcpy(&context, data, sizeof(context));
+	BundleResourcesContext *context = *(BundleResourcesContext **)data;
 	DataCompiler &dc = *context->data_compiler;
 	FilesystemDisk &data_fs = *context->data_fs;
 	FilesystemDisk &bundle_fs = *context->bundle_fs;
@@ -2978,24 +2969,21 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			continue;
 		ScopedProfileScope phase_scope(phase == 0 ? "resources" : "packages");
 
-		CompileResourcesArgs args = { this, &data_fs, &potentially_stale_outputs, &success, platform };
-		Array<CompileResourceItem> items(default_allocator());
-		array::resize(items, phase_resources);
-		for (u32 i = 0; i < phase_resources; ++i) {
-			items[i].path = &resources[i];
-			items[i].args = &args;
-		}
+		CompileResourcesContext context = { this, &data_fs, &potentially_stale_outputs, &success, platform };
+		TaskData16 task = {};
+		*(CompileResourcesContext **)task.data = &context;
 #if CROWN_DATA_COMPILER_MULTITHREADED
 		const u32 max_jobs = (MAX_TASKS - 2u) / 32u;
-		const u32 root = parallel_for(array::begin(items)
-			, sizeof(items[0])
+		const u32 root = parallel_for(vector::begin(resources)
+			, sizeof(resources[0])
 			, phase_resources
 			, min(max_jobs, phase_resources)
 			, compile_resources_worker
+			, task
 			);
 		task_manager().wait(root);
 #else
-		compile_resources_worker(array::begin(items), phase_resources, NULL);
+		compile_resources_worker(vector::begin(resources), phase_resources, task.data);
 #endif // if CROWN_DATA_COMPILER_MULTITHREADED
 	}
 
@@ -3051,9 +3039,8 @@ bool DataCompiler::compile_internal(const char *data_dir, const char *platform_n
 			const u32 bundle_resources = vector::size(to_bundle);
 			if (bundle_resources != 0) {
 				BundleResourcesContext context = { this, &data_fs, &bundle_fs, &success, platform };
-				BundleResourcesContext *context_ptr = &context;
 				TaskData16 task = {};
-				memcpy(task.data, &context_ptr, sizeof(context_ptr));
+				*(BundleResourcesContext **)task.data = &context;
 #if CROWN_DATA_COMPILER_MULTITHREADED
 				const u32 max_jobs = (MAX_TASKS - 2u) / 32u;
 				const u32 root = parallel_for(vector::begin(to_bundle)

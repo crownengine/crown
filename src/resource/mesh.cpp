@@ -508,36 +508,40 @@ namespace mesh
 		return obb;
 	}
 
-	struct SphereJob
+	struct SphereJobContext
 	{
 		const f32 *source_positions;
 		u64 seed;
-		Sphere result;
 		u32 num_positions;
+	};
+
+	struct SphereJob
+	{
+		Sphere result;
 		u32 trial;
 	};
 
 	static void sphere_job(void *items, u32 count, void *data)
 	{
-		CE_UNUSED(data);
 		ENTER_PROFILE_SCOPE("mesh::sphere_job");
 		SphereJob *jobs = (SphereJob *)items;
+		SphereJobContext *context = *(SphereJobContext **)data;
 		Array<u32> indices(default_allocator());
-		array::resize(indices, jobs[0].num_positions);
+		array::resize(indices, context->num_positions);
 		for (u32 i = 0; i < count; ++i) {
 			SphereJob &job = jobs[i];
-			Random random(s32(murmur64(&job.trial, sizeof(job.trial), job.seed) & 0x7fffffff));
-			for (u32 j = 0; j < job.num_positions; ++j)
+			Random random(s32(murmur64(&job.trial, sizeof(job.trial), context->seed) & 0x7fffffff));
+			for (u32 j = 0; j < context->num_positions; ++j)
 				indices[j] = j;
-			for (u32 j = 0; j < job.num_positions; ++j) {
-				const s32 k = random.integer(job.num_positions);
+			for (u32 j = 0; j < context->num_positions; ++j) {
+				const s32 k = random.integer(context->num_positions);
 				exchange(indices[j], indices[k]);
 			}
 			sphere::reset(job.result);
 			sphere::add_points(job.result
-				, job.num_positions
+				, context->num_positions
 				, sizeof(f32) * 3
-				, job.source_positions
+				, context->source_positions
 				, array::begin(indices)
 				);
 		}
@@ -562,14 +566,13 @@ namespace mesh
 				);
 
 			SphereJob jobs[MAX_TRIES];
-			for (u32 i = 0; i < MAX_TRIES; ++i) {
-				jobs[i].source_positions = source_positions;
-				jobs[i].seed = seed;
-				jobs[i].num_positions = num_positions;
+			for (u32 i = 0; i < MAX_TRIES; ++i)
 				jobs[i].trial = i;
-			}
+			SphereJobContext context = { source_positions, seed, num_positions };
+			TaskData16 task = {};
+			*(SphereJobContext **)task.data = &context;
 			const u32 num_jobs = num_positions >= 256 ? 16 : 1;
-			const u32 root = parallel_for(jobs, sizeof(jobs[0]), MAX_TRIES, num_jobs, sphere_job);
+			const u32 root = parallel_for(jobs, sizeof(jobs[0]), MAX_TRIES, num_jobs, sphere_job, task);
 			task_manager().wait(root);
 			for (u32 i = 0; i < MAX_TRIES; ++i) {
 				if (sphere::volume(jobs[i].result) < sphere::volume(sphere) || i == 0)

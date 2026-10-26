@@ -37,6 +37,7 @@
 #include <ctype.h>   // isalnum, isalpha, isdigit
 #include <float.h>   // FLT_MAX
 #include <stdlib.h>  // strtoull
+#include <string.h>
 
 LOG_SYSTEM(SHADER_RESOURCE, "shader_resource")
 
@@ -1582,13 +1583,12 @@ namespace shader_resource_internal
 
 	struct ShaderCompiler;
 
-	struct StaticCompileItem
+	struct StaticCompileContext
 	{
 		ShaderCompiler *compiler;
-		Buffer *variant;
+		Buffer *variants;
 		ShaderVariantMetadata *metadata;
-		s32 *error;
-		u32 index;
+		s32 *errors;
 	};
 
 	static void static_compile_sjson_error(const char *msg, void *user_data)
@@ -2560,13 +2560,20 @@ namespace shader_resource_internal
 				vector::push_back(metadata, vm);
 			}
 
+			StaticCompileContext context = { this, vector::begin(variants), vector::begin(metadata), array::begin(errors) };
+			TaskData16 task = {};
+			*(StaticCompileContext **)task.data = &context;
+
 			// Leave slots for the resource task and parallel_for root.
 			for (u32 first = 0; first < count; first += 30u) {
 				const u32 batch = min(30u, count - first);
-				StaticCompileItem items[30];
-				for (u32 i = 0; i < batch; ++i)
-					items[i] = { this, &variants[first + i], &metadata[first + i], &errors[first + i], first + i };
-				const u32 root = parallel_for(items, sizeof(items[0]), batch, batch, static_compile_items);
+				const u32 root = parallel_for(vector::begin(_static_compile) + first
+					, sizeof(_static_compile[0])
+					, batch
+					, batch
+					, static_compile_items
+					, task
+					);
 				task_manager().wait(root);
 			}
 
@@ -3296,17 +3303,19 @@ namespace shader_resource_internal
 
 	static void static_compile_items(void *items, u32 count, void *data)
 	{
-		CE_UNUSED(data);
-		StaticCompileItem *jobs = (StaticCompileItem *)items;
+		const StaticCompile *jobs = (const StaticCompile *)items;
+		StaticCompileContext *context = *(StaticCompileContext **)data;
+		ShaderCompiler &compiler = *context->compiler;
+		const u32 first = u32(jobs - vector::begin(compiler._static_compile));
 		SJsonError previous_error_callback;
 		void *previous_error_user_data;
 		sjson::get_error_callback(previous_error_callback, previous_error_user_data);
-		sjson::set_error_callback(static_compile_sjson_error, &jobs[0].compiler->_opts);
+		sjson::set_error_callback(static_compile_sjson_error, &compiler._opts);
 		for (u32 i = 0; i < count; ++i) {
-			StaticCompileItem &job = jobs[i];
-			const StaticCompile &sc = job.compiler->_static_compile[job.index];
-			FileBuffer fb(*job.variant);
-			*job.error = job.compiler->compile_variant(fb, &job.metadata->uniforms, &job.metadata->samplers, sc._shader, sc._defines, false);
+			const u32 index = first + i;
+			const StaticCompile &sc = jobs[i];
+			FileBuffer fb(context->variants[index]);
+			context->errors[index] = compiler.compile_variant(fb, &context->metadata[index].uniforms, &context->metadata[index].samplers, sc._shader, sc._defines, false);
 		}
 		sjson::set_error_callback(previous_error_callback, previous_error_user_data);
 	}
