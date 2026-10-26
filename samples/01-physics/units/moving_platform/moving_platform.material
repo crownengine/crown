@@ -1,57 +1,172 @@
 _guid = "64e7015c-49c6-45fe-a502-68d34b220fa6"
 _type = "material"
 shader = "mesh"
-uniforms = {
-	u_albedo = {
-		type = "vector3"
-		value = [
-			1
-			1
-			0
-		]
+textures = [
+]
+uniforms = [
+	{
+		_guid = "0a3e5dd8-8096-4c5c-b4da-8b59b2dfbb9c"
+		_type = "uniform_vector4"
+		name = "u_albedo"
+		value = {
+			w = 0
+			x = 1
+			y = 1
+			z = 0
+		}
 	}
-	u_emission_color = {
-		type = "vector3"
-		value = [
-			0
-			0
-			0
-		]
+	{
+		_guid = "10b0d4ff-de20-4af8-adf7-fe17d9baf36d"
+		_type = "uniform_vector4"
+		name = "u_use_ao_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_emission_intensity = {
-		type = "float"
-		value = 1
+	{
+		_guid = "14ba8d90-136c-416f-a43a-b73a12264fca"
+		_type = "uniform_vector4"
+		name = "u_use_albedo_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_metallic = {
-		type = "float"
-		value = 0
+	{
+		_guid = "29430f48-e6d9-4bb4-aeec-142f8995ff8e"
+		_type = "uniform_vector4"
+		name = "u_uv_blend"
+		value = {
+			w = 0
+			x = 4
+			y = 0
+			z = 0
+		}
 	}
-	u_roughness = {
-		type = "float"
-		value = 1
+	{
+		_guid = "44c15659-6946-4d1d-aa59-684f0f8247c2"
+		_type = "uniform_vector4"
+		name = "u_emission_color"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_use_albedo_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "5ba1b7f9-82b3-4fb1-b8ef-7ba1d800be28"
+		_type = "uniform_vector4"
+		name = "u_emission_intensity"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
 	}
-	u_use_ao_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "608612e3-6366-42e8-a513-41afaab4cf04"
+		_type = "uniform_vector4"
+		name = "u_use_metallic_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_use_emission_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "79084a3f-17c8-44f9-84ff-78145228b83b"
+		_type = "uniform_vector4"
+		name = "u_uv_scale"
+		value = {
+			w = 0
+			x = 1
+			y = 1
+			z = 1
+		}
 	}
-	u_use_metallic_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "90068717-d163-478f-8f12-f0c75164e0ad"
+		_type = "uniform_vector4"
+		name = "u_metallic"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_use_normal_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "95a2d05d-e50f-4d12-b9db-6327ea2f35b0"
+		_type = "uniform_vector4"
+		name = "u_use_normal_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-	u_use_roughness_map = {
-		type = "float"
-		value = 0
+	{
+		_guid = "99e725fa-f91d-40c2-907e-217ac249453c"
+		_type = "uniform_vector4"
+		name = "u_use_roughness_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
 	}
-}
+	{
+		_guid = "9f770258-3acc-40f7-8a87-d20afc1ccae3"
+		_type = "uniform_vector4"
+		name = "u_use_emission_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "aa4220d2-2ca4-4339-bb46-02f669a6f6c6"
+		_type = "uniform_vector4"
+		name = "u_roughness"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "d31a95c9-c1d6-420b-8bdb-0add27c1f191"
+		_type = "uniform_vector4"
+		name = "u_use_opacity_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "dcab9fb2-bf22-418f-ac2b-8f538ef87720"
+		_type = "uniform_vector4"
+		name = "u_uv_offset"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+]
