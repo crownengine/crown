@@ -21,6 +21,7 @@ Changelog
 * Runtime: HTML5: worker pool size now matches the number of logical processors reported by the browser.
 * Runtime: reduced frame rate while the main window is unfocused.
 * Runtime: x86 builds of the runtime and tools now require SSE4.2 support.
+* Runtime: joints can now be configured to enable/disable collisions between connected actors.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.
@@ -44,6 +45,8 @@ Changelog
 * Runtime: HTML5: reduced deployment size.
 * Runtime: Linux: fixed missing audio on some systems.
 * Runtime: Windows: reduced deployment size.
+* Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally.
+* Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.

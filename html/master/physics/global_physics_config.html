@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-07-22T01:17:08+00:00" /><meta property="og:title" content="Global Physics Config" />
+    <meta property="article:modified_time" content="2026-10-27T02:56:07+00:00" /><meta property="og:title" content="Global Physics Config" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/physics/global_physics_config.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -223,13 +223,26 @@ object:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">friction</span> <span class="pre">=</span> <span class="pre">0.8</span></code>: general contact friction; larger values increase
 resistance to sliding.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rolling_friction</span> <span class="pre">=</span> <span class="pre">0.5</span></code>: torsional friction orthogonal to the contact
+<li><p><code class="docutils literal notranslate"><span class="pre">rolling_friction</span> <span class="pre">=</span> <span class="pre">0</span></code>: torsional friction orthogonal to the contact
 normal; helps stop spheres rolling forever.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">spinning_friction</span> <span class="pre">=</span> <span class="pre">0.5</span></code>: torsional friction around the contact normal;
+<li><p><code class="docutils literal notranslate"><span class="pre">spinning_friction</span> <span class="pre">=</span> <span class="pre">0</span></code>: torsional friction around the contact normal;
 useful for grasping.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">restitution</span> <span class="pre">=</span> <span class="pre">0.81</span></code>: coefficient of restitution; 1 = perfectly elastic
 collision, &lt; 1 = inelastic.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Rolling and spinning friction are combined from both contacting materials.
+Use separate materials to apply these effects selectively.</p>
+<p>Give spheres a separate material while keeping shared floor materials at zero
+rolling friction:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">materials</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">sphere</span> <span class="o">=</span> <span class="p">{</span> <span class="n">rolling_friction</span> <span class="o">=</span> <span class="mf">0.03</span> <span class="n">spinning_friction</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="collision-filters">
 <h2>Collision filters<a class="headerlink" href="#collision-filters" title="Permalink to this headline">¶</a></h2>
@@ -296,7 +309,7 @@ generates overlap events.</p></li>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jul 22, 2026.
+      <span class="lastupdated">Last updated on Oct 27, 2026.
       </span></p>
   </div>
 

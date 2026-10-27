@@ -52,12 +52,27 @@ Common material properties:
 
 * ``friction = 0.8``: general contact friction; larger values increase
   resistance to sliding.
-* ``rolling_friction = 0.5``: torsional friction orthogonal to the contact
+* ``rolling_friction = 0``: torsional friction orthogonal to the contact
   normal; helps stop spheres rolling forever.
-* ``spinning_friction = 0.5``: torsional friction around the contact normal;
+* ``spinning_friction = 0``: torsional friction around the contact normal;
   useful for grasping.
 * ``restitution = 0.81``: coefficient of restitution; 1 = perfectly elastic
   collision, < 1 = inelastic.
+
+.. note::
+
+    Rolling and spinning friction are combined from both contacting materials.
+    Use separate materials to apply these effects selectively.
+
+    Give spheres a separate material while keeping shared floor materials at zero
+    rolling friction:
+
+    .. code-block::
+
+        materials = {
+            default = {}
+            sphere = { rolling_friction = 0.03 spinning_friction = 0.01 }
+        }
 
 Collision filters
 =================
