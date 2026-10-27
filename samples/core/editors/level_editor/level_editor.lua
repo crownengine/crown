@@ -1930,6 +1930,7 @@ function LevelEditor:add_joint_component(id
 	, other_actor_unit_id
 	, opx, opy, opz
 	, orx, ory, orz, orw
+	, enable_collisions
 	)
 	local nv, nq, nm = Device.temp_count()
 	local unit_box = self._objects[id]
@@ -1978,6 +1979,7 @@ function LevelEditor:add_joint_component(id
 					, Matrix4x4.identity()
 					, other_actor
 					, Matrix4x4.multiply(Matrix4x4.invert(other_actor_world_pose), actor_world_pose)
+					, enable_collisions
 					)
 			else
 				PhysicsWorld.joint_create(self._pw
@@ -1986,6 +1988,7 @@ function LevelEditor:add_joint_component(id
 					, Matrix4x4.identity()
 					, other_actor
 					, PhysicsWorld.actor_world_pose(self._pw, actor)
+					, enable_collisions
 					)
 			end
 		else
@@ -1995,7 +1998,7 @@ function LevelEditor:add_joint_component(id
 			local other_pose = Matrix4x4.from_quaternion_translation(Quaternion.from_elements(orx, ory, orz, orw)
 				, Vector3(opx, opy, opz)
 				)
-			PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose)
+			PhysicsWorld.joint_create(self._pw, jt, actor, pose, other_actor, other_pose, enable_collisions)
 		end
 	end
 

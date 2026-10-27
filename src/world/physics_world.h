@@ -274,11 +274,13 @@ struct PhysicsWorld
 		);
 
 	/// Creates a new joint between @a actor and @a other_actor.
+	/// Collisions between the actors are disabled unless @a enable_collisions is true.
 	JointId joint_create(JointType::Enum type
 		, ActorId actor
 		, const Matrix4x4 &pose
 		, ActorId other_actor
 		, const Matrix4x4 &other_pose
+		, bool enable_collisions = false
 		);
 
 	/// Returns the ID of the joint owned by @a unit.

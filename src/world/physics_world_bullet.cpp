@@ -2575,6 +2575,7 @@ struct PhysicsWorldImpl
 		, const Matrix4x4 &pose
 		, ActorId other_actor
 		, const Matrix4x4 &other_pose
+		, bool enable_collisions
 		)
 	{
 		CE_ASSERT(is_valid(actor) || is_valid(other_actor), "Joint must have at least one actor");
@@ -2595,6 +2596,8 @@ struct PhysicsWorldImpl
 
 		JointCreateData data = {};
 		data.jd.type_and_flags = (u32(type) << JOINT_TYPE_AND_FLAGS_TYPE_SHIFT);
+		if (enable_collisions)
+			data.jd.type_and_flags |= JointFlags::ENABLE_COLLISIONS;
 		data.jd.other_actor_unit_index = UINT32_MAX;
 		data.jd.pose = pose;
 		data.jd.other_pose = other_pose;
@@ -2901,7 +2904,7 @@ struct PhysicsWorldImpl
 				joint->setUserConstraintType((int)type);
 
 			joint->setUserConstraintPtr((void *)(uintptr_t)owner_unit._idx);
-			_dynamics_world->addConstraint(joint);
+			_dynamics_world->addConstraint(joint, (flags & JointFlags::ENABLE_COLLISIONS) == 0);
 			const u32 last = array::size(_joints);
 			array::push_back(_joints, joint);
 			hash_map::set(_joint_map, owner_unit, last);
@@ -3450,6 +3453,15 @@ struct PhysicsWorldImpl
 			, physics_globals::_settings.max_substeps
 			, 1.0f/physics_globals::_settings.step_frequency
 			);
+
+		// Bullet disables broken constraints but leaves their collision exclusions in place.
+		for (u32 i = 0; i < array::size(_joints); ++i) {
+			btTypedConstraint *joint = _joints[i];
+			if (!joint->isEnabled()) {
+				joint->getRigidBodyA().removeConstraintRef(joint);
+				joint->getRigidBodyB().removeConstraintRef(joint);
+			}
+		}
 
 		const int num = _dynamics_world->getNumCollisionObjects();
 		const btCollisionObjectArray &collision_array = _dynamics_world->getCollisionObjectArray();
@@ -4183,9 +4195,10 @@ JointId PhysicsWorld::joint_create(JointType::Enum type
 	, const Matrix4x4 &pose
 	, ActorId other_actor
 	, const Matrix4x4 &other_pose
+	, bool enable_collisions
 	)
 {
-	return _impl->joint_create(type, actor, pose, other_actor, other_pose);
+	return _impl->joint_create(type, actor, pose, other_actor, other_pose, enable_collisions);
 }
 
 JointId PhysicsWorld::joint_instance(UnitId unit)

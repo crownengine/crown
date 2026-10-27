@@ -777,6 +777,7 @@ public struct Unit
 				, other_actor_unit_id
 				, unit.get_component_vector3(component_id, unit._db.property_index(component_id, STRING_ID_64("data.other_position", 0x6868f507484de351)), VECTOR3_ZERO)
 				, unit.get_component_quaternion(component_id, unit._db.property_index(component_id, STRING_ID_64("data.other_rotation", 0x1a729b41fc11d2c1)), QUATERNION_IDENTITY)
+				, unit.get_component_bool(component_id, unit._db.property_index(component_id, STRING_ID_64("data.enable_collisions", 0x5383c6bfd9f975dc)))
 				));
 		} else if (component_type == STRING_ID_64(OBJECT_TYPE_LOD_GROUP, 0x97993ef522a1a9f0)) {
 			GLib.GenericSet<Guid?> levels = (GLib.GenericSet<Guid?>)unit.get_component_property(component_id, unit._db.property_index(component_id, STRING_ID_64("data.lod_levels", 0xf8b66d06ee19128f)), guid_set_new());

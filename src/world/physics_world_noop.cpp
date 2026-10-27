@@ -330,9 +330,10 @@ struct PhysicsWorldImpl
 		, const Matrix4x4 &pose
 		, ActorId other_actor
 		, const Matrix4x4 &other_pose
+		, bool enable_collisions
 		)
 	{
-		CE_UNUSED_5(type, actor, pose, other_actor, other_pose);
+		CE_UNUSED_6(type, actor, pose, other_actor, other_pose, enable_collisions);
 		return make_joint_instance(UINT32_MAX);
 	}
 
@@ -937,9 +938,10 @@ JointId PhysicsWorld::joint_create(JointType::Enum type
 	, const Matrix4x4 &pose
 	, ActorId other_actor
 	, const Matrix4x4 &other_pose
+	, bool enable_collisions
 	)
 {
-	return _impl->joint_create(type, actor, pose, other_actor, other_pose);
+	return _impl->joint_create(type, actor, pose, other_actor, other_pose, enable_collisions);
 }
 
 void PhysicsWorld::joint_create_instances(const void *components_data, u32 num, const UnitId *unit_lookup, const u32 *unit_index)

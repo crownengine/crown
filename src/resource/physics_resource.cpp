@@ -500,6 +500,11 @@ namespace physics_resource_internal
 		jd.pose = MATRIX4X4_IDENTITY;
 		jd.other_pose = MATRIX4X4_IDENTITY;
 		jd.break_force = RETURN_IF_ERROR(sjson::parse_float(flat_json_object::get(obj, "data.break_force")));
+		if (flat_json_object::has(obj, "data.enable_collisions")) {
+			const bool enable_collisions = RETURN_IF_ERROR(sjson::parse_bool(flat_json_object::get(obj, "data.enable_collisions")));
+			if (enable_collisions)
+				jd.type_and_flags |= JointFlags::ENABLE_COLLISIONS;
+		}
 
 		if (jt != JointType::FIXED) {
 			Vector3 position = RETURN_IF_ERROR(sjson::parse_vector3(flat_json_object::get(obj, "data.position")));

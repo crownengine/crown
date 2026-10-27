@@ -3483,9 +3483,10 @@ void load_api(LuaEnvironment &env)
 			if (!stack.is_nil(5))
 				other_actor = stack.get_actor_instance(5);
 			const Matrix4x4 &other_pose = stack.get_matrix4x4(6);
+			const bool enable_collisions = stack.get_bool(7);
 			LUA_ASSERT(is_valid(actor) || is_valid(other_actor), stack, "Joint must have at least one actor");
 
-			JointId joint = stack.get_physics_world(1)->joint_create(type, actor, pose, other_actor, other_pose);
+			JointId joint = stack.get_physics_world(1)->joint_create(type, actor, pose, other_actor, other_pose, enable_collisions);
 			if (is_valid(joint))
 				stack.push_id(joint.i);
 			else

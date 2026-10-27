@@ -1270,12 +1270,15 @@ Joint
 **joint_destroy** (pw, joint)
 	Destroys the *joint* instance.
 
-**joint_create** (pw, type, actor, pose, other_actor, other_pose) : Id
+**joint_create** (pw, type, actor, pose, other_actor, other_pose [, enable_collisions = false]) : Id
     Creates a new joint between *actor* and *other_actor* and returns its ID.
     *pose* and *other_pose* describe the joint pivot poses in the corresponding
     actor's local space. If *actor* or *other_actor* is ``nil``, the valid actor
     is attached to the world. At least one of *actor* or *other_actor* must be
     non-``nil``. Type must be one of `JointType`_.
+    Set *enable_collisions* to ``true`` to allow collisions between the connected
+    actors, subject to their collision filters. Otherwise collisions are
+    suppressed until the joint breaks or is destroyed.
 
 **joint_set_break_force** (pw, joint, force)
 	Sets the break *force* of the *joint*. Use ``math.huge`` to disable breaking.

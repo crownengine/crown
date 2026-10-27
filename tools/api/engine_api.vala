@@ -532,9 +532,10 @@ namespace LevelEditorApi
 		, Guid other_actor_unit_id = GUID_ZERO
 		, Vector3 other_position = VECTOR3_ZERO
 		, Quaternion other_rotation = QUATERNION_IDENTITY
+		, bool enable_collisions = false
 		)
 	{
-		return "LevelEditor:add_joint_component(\"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s)".printf(id.to_string()
+		return "LevelEditor:add_joint_component(\"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s)".printf(id.to_string()
 			, component_id.to_string()
 			, joint_type
 			, Lua.vector3_elements(position)
@@ -542,6 +543,7 @@ namespace LevelEditorApi
 			, other_actor_unit_id == GUID_ZERO ? "nil" : "\"%s\"".printf(other_actor_unit_id.to_string())
 			, Lua.vector3_elements(other_position)
 			, Lua.quaternion_elements(other_rotation)
+			, enable_collisions ? "true" : "false"
 			);
 	}
 

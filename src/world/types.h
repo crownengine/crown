@@ -631,9 +631,10 @@ struct JointFlags
 {
 	enum Enum
 	{
-		USE_CUSTOM_POSES = u32(1) << 0,
-		HINGE_USE_MOTOR  = u32(1) << 1,
-		HINGE_USE_LIMITS = u32(1) << 2,
+		USE_CUSTOM_POSES  = u32(1) << 0,
+		HINGE_USE_MOTOR   = u32(1) << 1,
+		HINGE_USE_LIMITS  = u32(1) << 2,
+		ENABLE_COLLISIONS = u32(1) << 3,
 	};
 };
 

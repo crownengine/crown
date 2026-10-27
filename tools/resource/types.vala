@@ -1275,6 +1275,12 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "data.break_force",
 			input_double_flags = InputDoubleFlags.INFINITY,
@@ -1321,6 +1327,12 @@ public static void create_object_types(Database database)
 			type = PropertyType.VECTOR3,
 			name = "data.position",
 			tooltip = _("Position in local space."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
 		},
 		PropertyDefinition()
 		{
@@ -1580,6 +1592,12 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "data.break_force",
 			input_double_flags = InputDoubleFlags.INFINITY,
@@ -1707,6 +1725,12 @@ public static void create_object_types(Database database)
 		},
 		PropertyDefinition()
 		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
+		},
+		PropertyDefinition()
+		{
 			type = PropertyType.DOUBLE,
 			name = "data.break_force",
 			input_double_flags = InputDoubleFlags.INFINITY,
@@ -1774,6 +1798,12 @@ public static void create_object_types(Database database)
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
 			tooltip = _("Joint rotation in local space."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
 		},
 		PropertyDefinition()
 		{
@@ -1885,6 +1915,12 @@ public static void create_object_types(Database database)
 			name = "data.rotation",
 			deffault = QUATERNION_IDENTITY,
 			tooltip = _("Joint rotation in local space."),
+		},
+		PropertyDefinition()
+		{
+			type = PropertyType.BOOL,
+			name = "data.enable_collisions",
+			tooltip = _("Enable collisions between the connected actors."),
 		},
 		PropertyDefinition()
 		{
