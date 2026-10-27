@@ -1,6 +1,7 @@
 materials = {
-	default = { friction = 0.8 rolling_friction = 0.5 restitution = 0.81 }
-	bullet = { friction = 0.8 rolling_friction = 0.5 restitution = 0.25 }
+	default = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0.81 }
+	bullet = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0.25 }
+	sphere = { friction = 0.8 rolling_friction = 0.03 spinning_friction = 0.01 restitution = 0.81 }
 }
 
 collision_filters = {

@@ -6,6 +6,9 @@ Changelog
 :ref:`0.65.6 --- DD MMM YYYY <v0.65.6>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally.
 * Data Compiler: fixed crashes when compiling glTF resources.
 
 .. _v0.65.5:

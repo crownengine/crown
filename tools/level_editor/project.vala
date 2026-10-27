@@ -263,7 +263,7 @@ public class Project
 		// Write global.physics_config
 		{
 			string text = "materials = {"
-				+ "\n	default = { friction = 0.8 rolling_friction = 0.5 restitution = 0.81 }"
+				+ "\n	default = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0.81 }"
 				+ "\n}"
 				+ "\n"
 				+ "\ncollision_filters = {"

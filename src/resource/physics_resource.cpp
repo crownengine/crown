@@ -783,8 +783,8 @@ namespace physics_config_resource_internal
 			PhysicsMaterial mat = {};
 			mat.name              = StringId32(key.data(), key.length());
 			mat.friction          = 0.8f;
-			mat.rolling_friction  = 0.5f;
-			mat.spinning_friction = 0.5f;
+			mat.rolling_friction  = 0.0f;
+			mat.spinning_friction = 0.0f;
 			mat.restitution       = 0.81f;
 
 			auto mcur = json_object::begin(material);
