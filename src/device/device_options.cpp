@@ -33,6 +33,7 @@ static void help(const char *msg = NULL)
 		"  --source-dir <path>             Specify the <path> of the project's source data.\n"
 		"  --data-dir <path>               Run with the data located at <path>.\n"
 		"  --bundle-dir <path>             Run with the bundles located at <path>.\n"
+		"  --bundle-url <url>              Run with bundles at an HTTP(S) directory URL.\n"
 		"  --map-source-dir <name> <path>  Mount <path>/<name> at <source-dir>/<name>.\n"
 		"  --boot-dir <prefix>             Use <prefix>/boot.config to boot the engine.\n"
 		"  --compile                       Compile the project's source data.\n"
@@ -83,6 +84,7 @@ DeviceOptions::DeviceOptions(Allocator &a, int argc, const char **argv)
 	, _map_source_dir_prefix(DynamicString(a))
 	, _data_dir(DynamicString(a))
 	, _bundle_dir(DynamicString(a))
+	, _bundle_url(NULL)
 	, _port_file(DynamicString(a))
 	, _export_path(DynamicString(a))
 	, _boot_dir(NULL)
@@ -133,6 +135,7 @@ int DeviceOptions::parse(bool *quit)
 	path::reduce(_source_dir, cl.get_parameter(0, "source-dir"));
 	path::reduce(_data_dir, cl.get_parameter(0, "data-dir"));
 	path::reduce(_bundle_dir, cl.get_parameter(0, "bundle-dir"));
+	_bundle_url = cl.get_parameter(0, "bundle-url");
 
 	_map_source_dir_name = cl.get_parameter(0, "map-source-dir");
 	if (_map_source_dir_name) {

@@ -6,6 +6,7 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_LINUX && !CROWN_HTTP_NOOP
+#include "core/filesystem/http_file.h"
 #include "core/memory/memory.inl"
 #include "core/network/http_internal.h"
 #include "core/os.h"
@@ -72,6 +73,7 @@ struct HttpCurl
 struct HttpCurlRequest
 {
 	HttpRequest request;
+	HttpDownload download;
 	CURL *easy;
 	curl_slist headers;
 	bool added;
@@ -88,8 +90,15 @@ static size_t http_curl_body(char *bytes, size_t size, size_t count, void *user_
 	if (!http_request::active(rr.request))
 		return 0;
 
-	if (!http_request::body(rr.request, bytes, (u32)length)) {
-		http_request::fail(rr.request.id, "HTTP response is too large");
+	if ((rr.request.path != NULL || rr.request.range_size != 0)
+		&& rr.request.response->status_code >= 300 && rr.request.response->status_code < 400)
+		return length;
+	const bool success = rr.request.path != NULL
+		? http_file::write(rr.download, bytes, (u32)length)
+		: http_request::body(rr.request, bytes, (u32)length)
+		;
+	if (!success) {
+		http_request::fail(rr.request.id, rr.request.path != NULL ? "Cannot write HTTP download file" : "HTTP response is too large");
 		return 0;
 	}
 
@@ -110,6 +119,17 @@ static size_t http_curl_header(char *bytes, size_t size, size_t count, void *use
 		)) {
 		http_request::fail(rr.request.id, "Invalid or oversized HTTP response headers");
 		return 0;
+	}
+
+	if (length == 2 && bytes[0] == '\r' && bytes[1] == '\n'
+		&& rr.request.response->status_code >= 200
+		&& !(rr.request.response->status_code >= 300 && rr.request.response->status_code < 400)) {
+		if (!http_request::headers(rr.request))
+			return 0;
+		if (rr.request.path != NULL && !http_file::open(rr.download, *rr.request.allocator, rr.request.path)) {
+			http_request::fail(rr.request.id, "Cannot open HTTP download file");
+			return 0;
+		}
 	}
 
 	return length;
@@ -171,12 +191,15 @@ static s32 http_curl_run(void *user_data)
 			HTTP_CURL_OPTION(CURLOPT_REDIR_PROTOCOLS, (long)(CURLPROTO_HTTP | CURLPROTO_HTTPS));
 			HTTP_CURL_OPTION(CURLOPT_FOLLOWLOCATION, 1L);
 			HTTP_CURL_OPTION(CURLOPT_MAXREDIRS, 20L);
-			HTTP_CURL_OPTION(CURLOPT_ACCEPT_ENCODING, "");
+			HTTP_CURL_OPTION(CURLOPT_ACCEPT_ENCODING, request->range[0] != '\0' ? "identity" : "");
 			HTTP_CURL_OPTION(CURLOPT_WRITEFUNCTION, http_curl_body);
 			HTTP_CURL_OPTION(CURLOPT_WRITEDATA, rr);
 			HTTP_CURL_OPTION(CURLOPT_HEADERFUNCTION, http_curl_header);
 			HTTP_CURL_OPTION(CURLOPT_HEADERDATA, rr);
 			HTTP_CURL_OPTION(CURLOPT_TIMEOUT_MS, (long)timeout);
+			if (request->range[0] != '\0') {
+				HTTP_CURL_OPTION(CURLOPT_RANGE, request->range + sizeof("bytes=") - 1);
+			}
 			if (request->post) {
 				rr->headers.data = (char *)request->content_type_header.data();
 				HTTP_CURL_OPTION(CURLOPT_HTTPHEADER, &rr->headers);
@@ -215,8 +238,10 @@ static s32 http_curl_run(void *user_data)
 			} else if (message->data.result != CURLE_OK) {
 				http_request::fail(rr->request.id, rr->diagnostic[0] != '\0'
 					? rr->diagnostic : curl._curl_easy_strerror(message->data.result));
+			} else if (rr->request.path != NULL && !http_file::finish(rr->download)) {
+				http_request::fail(rr->request.id, "Cannot finish HTTP download file");
 			} else {
-				http_request::complete(rr->request);
+				rr->download.complete = http_request::complete(rr->request);
 			}
 		}
 		for (u32 ii = 0; ii < curl._num_requests;) {
@@ -227,6 +252,7 @@ static s32 http_curl_run(void *user_data)
 				if (rr.easy != NULL)
 					curl._curl_easy_cleanup(rr.easy);
 				curl._requests[ii] = curl._requests[--curl._num_requests];
+				http_file::close(rr.download);
 				http_request::release(&rr.request);
 			} else {
 				++ii;

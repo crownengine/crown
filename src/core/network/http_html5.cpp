@@ -84,7 +84,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int crown_http_headers(HttpRequest *request
 			return false;
 		headers = end;
 	}
-	return true;
+	return http_request::headers(*request);
 }
 
 extern "C" EMSCRIPTEN_KEEPALIVE int crown_http_body(HttpRequest *request, const char *data, u32 size)
@@ -93,19 +93,23 @@ extern "C" EMSCRIPTEN_KEEPALIVE int crown_http_body(HttpRequest *request, const 
 		&& http_request::body(*request, data, size);
 }
 
-extern "C" EMSCRIPTEN_KEEPALIVE void crown_http_done(HttpRequest *request, const char *error)
+extern "C" EMSCRIPTEN_KEEPALIVE int crown_http_done(HttpRequest *request, const char *error)
 {
+	bool complete = false;
 	if (error[0] != '\0')
 		http_request::fail(request->id, error);
 	else if (http_request::expired(*request))
 		http_request::fail(request->id, "Browser HTTP request timed out");
 	else
-		http_request::complete(*request);
+		complete = http_request::complete(*request);
+	return complete;
 }
 
 // code-format off
 EM_JS(void, http_fetch_js, (HttpRequest *request
 	, const char *url
+	, const char *range
+	, const char *path
 	, const char *content_type
 	, const char *upload
 	, u32 upload_size
@@ -115,7 +119,12 @@ EM_JS(void, http_fetch_js, (HttpRequest *request
 	const tasks = Module.crownHttpRequests || (Module.crownHttpRequests = new Map());
 	const controller = new AbortController();
 	const task = { controller, promise: null };
+	const destination = path ? UTF8ToString(Number(path)) : "";
 	const headers = {};
+	const byte_range = UTF8ToString(Number(range));
+	if (byte_range) {
+		headers['Range'] = byte_range;
+	}
 	if (post) {
 		headers['Content-Type'] = UTF8ToString(Number(content_type));
 	}
@@ -128,7 +137,7 @@ EM_JS(void, http_fetch_js, (HttpRequest *request
 	const encoder = Module.crownHttpEncoder || (Module.crownHttpEncoder = new TextEncoder());
 	tasks.set(request, task);
 	task.promise = (async function download() {
-		let buffer = 0, capacity = 0, reader;
+		let buffer = 0, capacity = 0, reader, root, file;
 		let error = "";
 		const timer = timeout_ms ? setTimeout(function timeout() {
 			controller.abort();
@@ -143,13 +152,20 @@ EM_JS(void, http_fetch_js, (HttpRequest *request
 				text += name + ': ' + value + '\n';
 			}
 			const fields = encoder.encode(response.statusText + '\0' + text + '\0');
-			capacity = Math.max(fields.length, 64 * 1024);
+			capacity = Math.max(fields.length, destination ? 1 : 64 * 1024);
 			buffer = _crown_http_allocate(capacity);
 			HEAPU8.set(fields, Number(buffer));
 			if (!_crown_http_headers(request, response.status, buffer)) {
 				throw new Error('Unusable HTTP response');
 			}
-			if (response.body) {
+			if (destination) {
+				root = await navigator.storage.getDirectory();
+				file = await root.getFileHandle(destination, { create: true });
+				await response.body.pipeTo(await file.createWritable(), { signal: controller.signal });
+				if ((await file.getFile()).size > 4294967295) {
+					throw new Error('HTTP download is too large');
+				}
+			} else if (response.body) {
 				reader = response.body.getReader();
 				for (;;) {
 					const chunk = await reader.read();
@@ -192,8 +208,14 @@ EM_JS(void, http_fetch_js, (HttpRequest *request
 			} else {
 				HEAPU8[Number(buffer)] = 0;
 			}
-			_crown_http_done(request, buffer);
+			const complete = _crown_http_done(request, buffer);
 			_crown_http_free(buffer);
+			if (file && !complete) {
+				try {
+					await root.removeEntry(destination);
+				} catch (e) {
+				}
+			}
 			tasks.delete(request);
 			_crown_http_release(request);
 		}
@@ -213,6 +235,8 @@ static void http_fetch_start(void *data)
 	}
 	http_fetch_js(&request
 		, request.url.data()
+		, request.range
+		, request.path
 		, request.content_type.data()
 		, request.upload.data()
 		, request.upload.length()

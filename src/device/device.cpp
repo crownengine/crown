@@ -10,6 +10,7 @@
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/filesystem_apk.h"
 #include "core/filesystem/filesystem_disk.h"
+#include "core/filesystem/filesystem_http.h"
 #include "core/filesystem/path.h"
 #include "core/json/json_object.inl"
 #include "core/json/sjson.h"
@@ -730,12 +731,15 @@ int Device::main_loop()
 		);
 #endif
 
+	http_globals::init(default_allocator());
 	bool is_bundle = true;
+	if (_options._bundle_url != NULL) {
+		_data_filesystem = CE_NEW(_allocator, FilesystemHttp)(default_allocator(), _options._bundle_url);
+	} else {
 #if CROWN_PLATFORM_ANDROID
-	_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), (AAssetManager *)g_platform_data._android_asset_manager);
+		_data_filesystem = CE_NEW(_allocator, FilesystemApk)(default_allocator(), (AAssetManager *)g_platform_data._android_asset_manager);
 #else
-	_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
-	{
+		_data_filesystem = CE_NEW(_allocator, FilesystemDisk)(default_allocator());
 		char cwd[1024];
 		const char *data_dir = NULL;
 
@@ -754,8 +758,8 @@ int Device::main_loop()
 		}
 
 		((FilesystemDisk *)_data_filesystem)->set_prefix(data_dir);
-	}
 #endif // if CROWN_PLATFORM_ANDROID
+	}
 
 	logi(DEVICE, "Crown %s %s %s", CROWN_VERSION, CROWN_PLATFORM_NAME, CROWN_ARCH_NAME);
 
@@ -922,6 +926,7 @@ int Device::main_loop()
 			display::destroy(_allocator, *_display);
 
 		CE_DELETE(_allocator, _data_filesystem);
+		http_globals::shutdown();
 
 		_allocator.clear();
 		return EXIT_FAILURE;
@@ -935,7 +940,6 @@ int Device::main_loop()
 			loge(DEVICE, "Unable to expand save_dir: '%s'", _boot_config.save_dir.c_str());
 		save_game_globals::init(default_allocator(), save_dir.c_str());
 	}
-	http_globals::init(default_allocator());
 
 	if (!_options._headless)
 		_input_manager = CE_NEW(_allocator, InputManager)(default_allocator());
@@ -1039,7 +1043,6 @@ void Device::shutdown()
 	bgfx::frame(); // Wait for pending uploads to finish.
 	CE_DELETE(_allocator, _pipeline);
 	CE_DELETE(_allocator, _lua_environment);
-	http_globals::shutdown();
 	save_game_globals::shutdown();
 	CE_DELETE(_allocator, _unit_manager);
 	CE_DELETE(_allocator, _input_manager);
@@ -1060,6 +1063,7 @@ void Device::shutdown()
 		display::destroy(_allocator, *_display);
 
 	CE_DELETE(_allocator, _data_filesystem);
+	http_globals::shutdown();
 
 	_allocator.clear();
 }

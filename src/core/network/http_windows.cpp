@@ -7,6 +7,7 @@
 
 #if CROWN_PLATFORM_WINDOWS && !CROWN_HTTP_NOOP
 #include "core/containers/array.inl"
+#include "core/filesystem/http_file.h"
 #include "core/memory/temp_allocator.inl"
 #include "core/network/http_internal.h"
 #include "core/strings/string.inl"
@@ -47,6 +48,7 @@ struct HttpWin
 struct HttpWinRequest
 {
 	HttpRequest request;
+	HttpDownload download;
 	HttpWin *backend;
 	HINTERNET connection;
 	HINTERNET handle;
@@ -113,6 +115,7 @@ static void http_win_leave(HttpWinRequest &rr)
 	if (destroy) {
 		if (rr.connection != NULL)
 			WinHttpCloseHandle(rr.connection);
+		http_file::close(rr.download);
 		http_request::release(&rr.request);
 		win._mutex.lock();
 		--win._retiring;
@@ -235,6 +238,20 @@ static void CALLBACK http_win_callback(HINTERNET handle
 				if (!rr->has_content_length && GetLastError() != ERROR_WINHTTP_HEADER_NOT_FOUND)
 					goto headers_failed;
 			}
+
+			if (!http_request::headers(rr->request))
+				goto headers_failed;
+			if (rr->request.path != NULL) {
+				const StringView encoding = http_response::header_value(*rr->request.response, "Content-Encoding");
+				if (encoding == "gzip" || encoding == "deflate")
+					rr->has_content_length = false;
+				else if (encoding.length() != 0 && encoding != StringView("identity"))
+					goto headers_failed;
+				if (!http_file::open(rr->download, *rr->request.allocator, rr->request.path)) {
+					http_request::fail(rr->request.id, "Cannot open HTTP download file");
+					goto headers_failed;
+				}
+			}
 		}
 			http_win_read(*rr);
 			break;
@@ -248,13 +265,19 @@ static void CALLBACK http_win_callback(HINTERNET handle
 				if (http_request::expired(rr->request))
 					http_request::fail(rr->request.id, "HTTP request timed out");
 				else if (rr->has_content_length
-					&& rr->request.response->body_size != rr->content_length)
+					&& rr->request.response->body_size + rr->download.size != rr->content_length)
 					http_request::fail(rr->request.id, "Incomplete HTTP response body");
+				else if (rr->request.path != NULL && !http_file::finish(rr->download))
+					http_request::fail(rr->request.id, "Cannot finish HTTP download file");
 				else
-					http_request::complete(rr->request);
+					rr->download.complete = http_request::complete(rr->request);
 			} else {
-				if (!http_request::body(rr->request, rr->buffer, size))
-					http_request::fail(rr->request.id, "HTTP response is too large");
+				const bool success = rr->request.path != NULL
+					? http_file::write(rr->download, rr->buffer, size)
+					: http_request::body(rr->request, rr->buffer, size)
+					;
+				if (!success)
+					http_request::fail(rr->request.id, rr->request.path != NULL ? "Cannot write HTTP download file" : "HTTP response is too large");
 				else
 					http_win_read(*rr);
 			}
@@ -378,6 +401,22 @@ static void CALLBACK http_win_dispatch(PTP_CALLBACK_INSTANCE instance, void *con
 			}
 
 			rr.callback_installed = true;
+			if (request.path != NULL) {
+				DWORD flags = WINHTTP_DECOMPRESSION_FLAG_GZIP | WINHTTP_DECOMPRESSION_FLAG_DEFLATE;
+				if (!WinHttpSetOption(rr.handle, WINHTTP_OPTION_DECOMPRESSION, &flags, sizeof(flags))) {
+					http_win_error(request.id, GetLastError());
+					goto request_dispatched;
+				}
+			}
+			if (request.range[0] != '\0') {
+				char headers[96];
+				stbsp_snprintf(headers, sizeof(headers), "Range: %s\r\nAccept-Encoding: identity", request.range);
+				if (!http_win_wide(wide, headers)
+					|| !WinHttpAddRequestHeaders(rr.handle, array::begin(wide), (DWORD)-1, WINHTTP_ADDREQ_FLAG_ADD)) {
+					http_win_error(request.id, GetLastError());
+					goto request_dispatched;
+				}
+			}
 			if (request.post) {
 				if (!http_win_wide(wide, request.content_type_header.data())) {
 					http_request::fail(request.id, "Invalid UTF-8 HTTP content type");
