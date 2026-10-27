@@ -1,7 +1,8 @@
 materials = {
 	default = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0.81 }
 	bullet = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0.25 }
-	sphere = { friction = 0.8 rolling_friction = 0.03 spinning_friction = 0.01 restitution = 0.81 }
+	flesh = { friction = 0.7 rolling_friction = 0.05 spinning_friction = 0.05 restitution = 0.02 }
+	rolling = { friction = 0.8 rolling_friction = 0.03 spinning_friction = 0.01 restitution = 0.81 }
 }
 
 collision_filters = {
@@ -17,4 +18,5 @@ actors = {
 	dynamic = { dynamic = true }
 	keyframed = { dynamic = true kinematic = true disable_gravity = true }
 	trigger = { trigger = true }
+	ragdoll = { dynamic = true linear_damping = 0.03 angular_damping = 0.15 }
 }

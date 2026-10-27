@@ -1125,6 +1125,370 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "0f7ffc5c-e593-5071-ba00-158bb29e13ea"
+		_type = "unit"
+		children = [
+			{
+				_guid = "443cb8bd-22ca-50fd-b56a-5f5e1a0de3b4"
+				_type = "unit"
+				children = [
+				]
+				components = [
+					{
+						_guid = "75007131-a7ad-52ae-a526-5045e8d871e2"
+						_type = "hinge_joint"
+						data = {
+							axis = [
+								0
+								0
+								1
+							]
+							bounciness = 0.90000000000000002
+							break_force = 40
+							lower_limit = -1.5707963267948966
+							max_motor_impulse = 0
+							other_actor = "44799a08-ed2a-5d57-95bd-408b5986770f"
+							other_position = [
+								0.5
+								0
+								-0.15833333333333333
+							]
+							other_rotation = [
+								0
+								0
+								0
+								1
+							]
+							position = [
+								-0.5
+								0
+								0
+							]
+							rotation = [
+								0
+								0
+								0
+								1
+							]
+							target_velocity = 0
+							upper_limit = 1.5707963267948966
+							use_limits = true
+							use_motor = false
+						}
+					}
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "hinge_door"
+				}
+				modified_components = {
+					#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+						data = {
+							collider_data = {
+								half_extents = [
+									0.5
+									0.5
+									0.5
+								]
+							}
+							shape = "box"
+							source = "inline"
+						}
+					}
+					#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+						data = {
+							position = [
+								0
+								0
+								2.5499999999999998
+							]
+							rotation = [
+								0
+								0
+								0
+								1
+							]
+							scale = [
+								2.5
+								0.5
+								4
+							]
+						}
+					}
+					#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+						data = {
+							materials = [
+								{
+									_guid = "484231c5-995c-5511-870b-3085280dca6a"
+									_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+									_type = "mesh_material"
+									data = {
+										material = "units/dynamic"
+									}
+								}
+							]
+						}
+					}
+					#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+						data = {
+							class = "dynamic"
+							mass = 5
+						}
+					}
+				}
+				prefab = "core/units/primitives/cube"
+			}
+			{
+				_guid = "44799a08-ed2a-5d57-95bd-408b5986770f"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "hinge_wall_L"
+				}
+				modified_components = {
+					#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+						data = {
+							collider_data = {
+								half_extents = [
+									0.5
+									0.5
+									0.5
+								]
+							}
+							shape = "box"
+							source = "inline"
+						}
+					}
+					#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+						data = {
+							position = [
+								-4.375
+								0
+								3.5
+							]
+							rotation = [
+								0
+								0
+								0
+								1
+							]
+							scale = [
+								6.25
+								1
+								6
+							]
+						}
+					}
+					#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+						data = {
+							materials = [
+								{
+									_guid = "a5c367ef-aee6-5da7-90db-10575e716f81"
+									_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+									_type = "mesh_material"
+									data = {
+										material = "units/grid"
+									}
+								}
+							]
+						}
+					}
+				}
+				prefab = "core/units/primitives/cube"
+			}
+			{
+				_guid = "c1a69bf9-8fc9-59a9-b376-ae015b102137"
+				_type = "unit"
+				children = [
+				]
+				components = [
+					{
+						_guid = "5ebf312c-8790-5988-919e-1832c982e801"
+						_type = "d6_joint"
+						data = {
+							angular_lower_limit = [
+								0
+								0
+								0
+							]
+							angular_max_motor_force = [
+								0
+								0
+								0
+							]
+							angular_motion_x = "free"
+							angular_motion_y = "free"
+							angular_motion_z = "free"
+							angular_motor_x = "off"
+							angular_motor_y = "off"
+							angular_motor_z = "off"
+							angular_target_position = [
+								0
+								0
+								0
+							]
+							angular_target_velocity = [
+								0
+								0
+								0
+							]
+							angular_upper_limit = [
+								0
+								0
+								0
+							]
+							break_force = 30
+							linear_lower_limit = [
+								0
+								0
+								0
+							]
+							linear_max_motor_force = [
+								0
+								0
+								0
+							]
+							linear_motion_x = "locked"
+							linear_motion_y = "locked"
+							linear_motion_z = "locked"
+							linear_motor_x = "off"
+							linear_motor_y = "off"
+							linear_motor_z = "off"
+							linear_target_position = [
+								0
+								0
+								0
+							]
+							linear_target_velocity = [
+								0
+								0
+								0
+							]
+							linear_upper_limit = [
+								0
+								0
+								0
+							]
+							other_actor = "443cb8bd-22ca-50fd-b56a-5f5e1a0de3b4"
+							other_position = [
+								-0.5
+								0
+								0
+							]
+							other_rotation = [
+								0
+								0
+								0
+								1
+							]
+							position = [
+								-0.9
+								0
+								-0.15833333333333333
+							]
+							rotation = [
+								0
+								0
+								0
+								1
+							]
+						}
+					}
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "hinge_wall_R"
+				}
+				modified_components = {
+					#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+						data = {
+							collider_data = {
+								half_extents = [
+									0.5
+									0.5
+									0.5
+								]
+							}
+							shape = "box"
+							source = "inline"
+						}
+					}
+					#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+						data = {
+							position = [
+								4.375
+								0
+								3.5
+							]
+							rotation = [
+								0
+								0
+								0
+								1
+							]
+							scale = [
+								6.25
+								1
+								6
+							]
+						}
+					}
+					#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+						data = {
+							materials = [
+								{
+									_guid = "2a716c14-3c5e-54e0-a84b-16872120c0cb"
+									_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+									_type = "mesh_material"
+									data = {
+										material = "units/grid"
+									}
+								}
+							]
+						}
+					}
+				}
+				prefab = "core/units/primitives/cube"
+			}
+		]
+		components = [
+			{
+				_guid = "530026ba-99a3-5d91-b87d-8e69e27ce490"
+				_type = "transform"
+				data = {
+					name = ""
+					position = [
+						38
+						30
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "hinge_example"
+		}
+		prefab = null
+	}
+	{
 		_guid = "0fb74ebc-3101-4194-9e05-96e1fa3cb45b"
 		_type = "unit"
 		children = [
@@ -1450,6 +1814,40 @@ units = [
 			}
 		}
 		prefab = "units/npc/npc"
+	}
+	{
+		_guid = "174a01e4-dad3-55d1-9cea-6c343c46348a"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_example"
+		}
+		modified_components = {
+			#b52e01bb-7505-5333-bd1c-aa6d3a70e726 = {
+				data = {
+					position = [
+						2.5469369899999998
+						31.927476899999998
+						5.90113354
+					]
+					rotation = [
+						0
+						0
+						0.13388040700000001
+						0.99099749299999995
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "units/ragdoll/ragdoll"
 	}
 	{
 		_guid = "1764a5fa-fd4b-48f2-933e-5656e0e37cca"
@@ -2371,6 +2769,61 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "226e6aed-52ae-563c-ae62-5ca2e324f029"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_cylinder"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						25
+						-2
+						3
+					]
+					rotation = [
+						0.30070580000000002
+						0
+						0
+						0.95371695099999998
+					]
+					scale = [
+						1.5
+						1.5
+						1.5
+					]
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+					material = "rolling"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					materials = [
+						{
+							_guid = "b3d97711-b4a5-5bd0-bc7f-c276f3b0ba72"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
 		_guid = "2292b8e7-583e-4a59-86c4-d6814ce596b7"
 		_type = "unit"
 		children = [
@@ -3255,15 +3708,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						30.3070621
-						27.8795395
+						20
+						16.249961800000001
 						3.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						6.25
@@ -3303,15 +3756,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						51.204612699999998
-						27.8795395
+						56
+						7.7500381999999997
 						3.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						-0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						6.25
@@ -3360,15 +3813,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						26.0570621
-						27.8795395
+						20
+						11.999961799999999
 						3.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						2.5
@@ -4051,6 +4504,79 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "392e5584-4f52-51f9-9932-1bb4881fcb16"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_capsule_0"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						42
+						-10
+						3
+					]
+					rotation = [
+						0.216439614
+						0
+						0
+						0.97629600699999997
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 1
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+					material = "rolling"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Capsule"
+					materials = [
+						{
+							_guid = "229804be-1297-562e-a71a-abf4e52f69ed"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
 		_guid = "39b43630-d5cc-4b27-924e-368075e13abd"
 		_type = "unit"
 		children = [
@@ -4181,6 +4707,40 @@ units = [
 		prefab = "units/rotating_platform/rotating_platform"
 	}
 	{
+		_guid = "3ab5d5e4-132a-4024-bd75-31fa5f1c6534"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_example"
+		}
+		modified_components = {
+			#b52e01bb-7505-5333-bd1c-aa6d3a70e726 = {
+				data = {
+					position = [
+						-3.3932819400000001
+						30.9615002
+						2.8457233899999999
+					]
+					rotation = [
+						0
+						-0.144895673
+						0
+						0.98944693800000005
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "units/ragdoll/ragdoll"
+	}
+	{
 		_guid = "3abacaaf-a98b-4da8-b48b-e3a751dc7d12"
 		_type = "unit"
 		children = [
@@ -4194,15 +4754,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						26.057100299999998
-						27.8795395
+						20
+						12
 						2.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						2.5
@@ -5138,6 +5698,70 @@ units = [
 			}
 		}
 		prefab = "core/units/primitives/cone"
+	}
+	{
+		_guid = "482b90bc-acd7-52bc-ac02-41348dade9cb"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_sphere_1"
+		}
+		modified_components = {
+			#37ac9624-1d8c-4612-85da-d74654f48177 = {
+				data = {
+					collider_data = {
+						radius = 0.5
+					}
+					shape = "sphere"
+					source = "inline"
+				}
+			}
+			#8972a214-327e-4396-b01e-45701189e8c9 = {
+				data = {
+					position = [
+						31.699999999999999
+						-9
+						4
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#b90d4427-bc08-4d40-aaf5-9d0eb80be391 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+					material = "rolling"
+				}
+			}
+			#ce881722-b0da-41ea-b29b-b26b85cf61b5 = {
+				data = {
+					materials = [
+						{
+							_guid = "a4e5bfab-ac2d-53d9-bd32-efb22620dd52"
+							_prefab = "4e881722-b0da-41ea-b29b-b26b85cf61b5"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/sphere"
 	}
 	{
 		_guid = "48c4c8c9-fa8d-4a8f-829c-3ea346cd8e93"
@@ -6216,6 +6840,60 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "5c7089ba-3270-52aa-932f-343b9de49840"
+		_type = "unit"
+		children = [
+		]
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			hidden = false
+			locked = false
+			name = "label_ragdoll"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						3.3295564529999999
+						30.9615002
+						9.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					cast_shadows = false
+					materials = [
+						{
+							_guid = "1a9b2525-930f-5af3-870e-f8cd2bbd1b59"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/grid"
+							}
+						}
+					]
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
 		_guid = "5c90cffb-d0d0-4bb8-a3d8-d70d441bbde0"
 		_type = "unit"
 		children = [
@@ -6436,6 +7114,73 @@ units = [
 							}
 						}
 					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "625908bb-08ea-558f-9800-294c7ad8685d"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_2_0"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						23.300000000000001
+						-10
+						3.7999999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "0d97001f-ef3e-5d98-a9af-672c2a735826"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
 				}
 			}
 		}
@@ -7128,15 +7873,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						21.8070621
-						27.8795395
+						20
+						7.7499618000000003
 						3.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						6.25
@@ -7180,8 +7925,8 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						25.944591500000001
-						27.888225599999998
+						19.991313900000002
+						11.887491199999999
 						6.9713425600000001
 					]
 					rotation = [
@@ -7683,6 +8428,40 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "79bcb956-ff75-4b6c-a487-3c06458c1c68"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_example"
+		}
+		modified_components = {
+			#b52e01bb-7505-5333-bd1c-aa6d3a70e726 = {
+				data = {
+					position = [
+						11.3507032
+						30.9615002
+						2.7489898199999998
+					]
+					rotation = [
+						0.0141493334
+						-0.079595118800000003
+						-0.275762856
+						0.95782005800000003
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		}
+		prefab = "units/ragdoll/ragdoll"
+	}
+	{
 		_guid = "7a61ac00-9090-455b-8e1f-dc7c6dad36aa"
 		_type = "unit"
 		children = [
@@ -7725,6 +8504,73 @@ units = [
 							}
 						}
 					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "7b4db716-8016-5890-a1de-1e9c1988df5c"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_0_0"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						22
+						-10
+						1.2
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "bac47ff4-365b-50d2-a1e5-2396a5939920"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
 				}
 			}
 		}
@@ -8128,15 +8974,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						42.704612699999998
-						27.8795395
+						56
+						16.250038199999999
 						3.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						-0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						6.25
@@ -8305,6 +9151,60 @@ units = [
 			}
 		}
 		prefab = "core/units/primitives/cone"
+	}
+	{
+		_guid = "8278d384-0675-5f93-911e-7819cfb32c40"
+		_type = "unit"
+		children = [
+		]
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			hidden = false
+			locked = false
+			name = "label_hinge_joint"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						38
+						30
+						6.9713425600000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					cast_shadows = false
+					materials = [
+						{
+							_guid = "417f0e65-e78d-5082-a856-ebf7bede7ef5"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/grid"
+							}
+						}
+					]
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
 	}
 	{
 		_guid = "82c902a7-c841-455c-9042-9cd6ed90a35c"
@@ -8745,6 +9645,60 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "896ed348-0eca-5372-a91a-0c84d023a865"
+		_type = "unit"
+		children = [
+		]
+		deleted_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = false
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = false
+		}
+		editor = {
+			hidden = false
+			locked = false
+			name = "label_dynamic_actors"
+		}
+		modified_components = {
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						40
+						-4
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					cast_shadows = false
+					materials = [
+						{
+							_guid = "6907ee21-475c-5601-9d27-9bb610969baa"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/grid"
+							}
+						}
+					]
+					visible = false
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
 		_guid = "89cb990c-6a37-47cc-a001-c9b5ea5965dd"
 		_type = "unit"
 		children = [
@@ -8758,15 +9712,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						48.773925800000001
-						27.663141299999999
+						55.7836018
+						10.1807251
 						2.5272736500000001
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						-0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						0.41285723400000002
@@ -8854,15 +9808,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						46.954650899999997
-						27.8795395
+						56
+						12
 						2.5
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						-0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						2.5
@@ -9519,6 +10473,73 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "9905666c-8102-5cc4-9179-7bedbea3c15f"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_1_1"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						23.949999999999999
+						-10
+						2.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "3245b18a-f71d-54e7-aec2-f44a61bce0b7"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
 		_guid = "9a592fed-bafc-4af8-b626-00c8858e9e28"
 		_type = "unit"
 		children = [
@@ -9948,6 +10969,60 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "a03c5afe-a862-5614-b4d2-a94dd2f4fbc8"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_cone"
+		}
+		modified_components = {
+			#1689686c-99b6-4b8a-90c8-9606bb466096 = {
+				data = {
+					position = [
+						22
+						-2
+						3
+					]
+					rotation = [
+						0.30070580000000002
+						0
+						0
+						0.95371695099999998
+					]
+					scale = [
+						1.5
+						1.5
+						1.5
+					]
+				}
+			}
+			#1862249c-206a-4fdb-9e3f-c37a149e58d8 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+				}
+			}
+			#56078f34-c3b0-4c64-a245-5d305021712b = {
+				data = {
+					materials = [
+						{
+							_guid = "904acb87-5355-5e77-a477-e683b97b78f9"
+							_prefab = "d6078f34-c3b0-4c64-a245-5d305021712b"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cone"
+	}
+	{
 		_guid = "a048fb05-a14b-4193-8916-1943f98a798f"
 		_type = "unit"
 		children = [
@@ -10284,6 +11359,73 @@ units = [
 		prefab = "core/units/primitives/cone"
 	}
 	{
+		_guid = "a3f3895e-64fa-52e2-888b-fc5a5232dbee"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_0_2"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						24.600000000000001
+						-10
+						1.2
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "ec8507ad-7d6c-5614-bea8-c3ef095bec42"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
 		_guid = "a444f1b0-3861-4062-9b33-4e4bc26f838a"
 		_type = "unit"
 		children = [
@@ -10428,6 +11570,70 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "a7595575-1a0c-5a41-9334-daf536dfc64f"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_sphere_0"
+		}
+		modified_components = {
+			#37ac9624-1d8c-4612-85da-d74654f48177 = {
+				data = {
+					collider_data = {
+						radius = 0.5
+					}
+					shape = "sphere"
+					source = "inline"
+				}
+			}
+			#8972a214-327e-4396-b01e-45701189e8c9 = {
+				data = {
+					position = [
+						31.699999999999999
+						-11
+						3
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#b90d4427-bc08-4d40-aaf5-9d0eb80be391 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+					material = "rolling"
+				}
+			}
+			#ce881722-b0da-41ea-b29b-b26b85cf61b5 = {
+				data = {
+					materials = [
+						{
+							_guid = "523c93c0-7be3-56ad-baa5-da46237e6462"
+							_prefab = "4e881722-b0da-41ea-b29b-b26b85cf61b5"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/sphere"
+	}
+	{
 		_guid = "a7ed6d1d-cd91-44e5-b10e-4e8956d4cb1c"
 		_type = "unit"
 		children = [
@@ -10493,8 +11699,8 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						46.7861099
-						27.888225599999998
+						56.008686099999998
+						12.168540999999999
 						6.9713425600000001
 					]
 					rotation = [
@@ -12477,6 +13683,73 @@ units = [
 		prefab = "core/units/primitives/cube"
 	}
 	{
+		_guid = "d0938722-2abf-52e6-a4e4-d3b287885393"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_1_0"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						22.649999999999999
+						-10
+						2.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "9e781a47-4976-50b6-900b-5ad96ea25a60"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
 		_guid = "d13932e9-50d5-49cc-b8cc-1ffa42cc2e50"
 		_type = "unit"
 		children = [
@@ -13381,6 +14654,73 @@ units = [
 							}
 						}
 					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "de823d73-b8d8-5e46-95db-64aecce741d3"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_box_0_1"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						23.300000000000001
+						-10
+						1.2
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1.25
+						1.25
+						1.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "d2d174fa-12ca-5163-8ccb-82df2314079d"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "dynamic"
+					mass = 10
 				}
 			}
 		}
@@ -14552,15 +15892,15 @@ units = [
 			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
 				data = {
 					position = [
-						48.671798699999997
-						27.350269300000001
+						55.470729800000001
+						10.282852200000001
 						1.9429852999999999
 					]
 					rotation = [
 						0
 						0
-						0
-						1
+						-0.70710678118654746
+						0.70710678118654757
 					]
 					scale = [
 						0.41557213700000001
@@ -15073,6 +16413,79 @@ units = [
 			}
 		}
 		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "fb6dfdf9-78e2-5c86-914d-ece0b6b36bd6"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dynamic_capsule_1"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						44.5
+						-10
+						4
+					]
+					rotation = [
+						0.5
+						0
+						0
+						0.86602540400000005
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 1
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "dynamic"
+					mass = 10
+					material = "rolling"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Capsule"
+					materials = [
+						{
+							_guid = "7e16943d-4208-58ff-b2dc-b29adff150ee"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
 	}
 	{
 		_guid = "fbebc25d-4c16-4d29-a82b-5b130dbe4222"

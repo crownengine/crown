@@ -1,0 +1,1708 @@
+_guid = "51682ec9-e32f-5395-ac84-ac1b0964818f"
+_type = "unit"
+children = [
+	{
+		_guid = "03efdd9e-2b31-5b80-871c-905b6c57419a"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "9eec3d5d-cffd-53f4-978c-16e1dc4131eb"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "69141864-a9c1-576d-9307-effa966c466f"
+					other_position = [
+						-0.34375
+						0
+						-0.37499999999999978
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						1.1428571428571426
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 1.0471975511965976
+					swing_y_motion = "limited"
+					swing_z_limit = 0.78539816339744828
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.52359877559829882
+					twist_motion = "limited"
+					twist_upper_limit = 0.52359877559829882
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_thigh"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						-0.27500000000000002
+						0
+						3.0800000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.32000000000000001
+						0.32000000000000001
+						0.35000000000000003
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.28125
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 1.1585000000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "be0b2162-e631-556e-8c3b-48903c1b3cab"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "23cc116c-9735-5200-8b59-8c26e2ffbede"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "619d63cd-f102-521e-b6bc-1abde50fc63c"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "b090f58b-177a-5e3b-9af4-b5af60abdc58"
+					other_position = [
+						-0.5
+						0
+						0.34999999999999998
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0.40000000000000002
+						0
+						1
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 1.5707963267948966
+					swing_y_motion = "limited"
+					swing_z_limit = 1.0471975511965976
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.78539816339744828
+					twist_motion = "limited"
+					twist_upper_limit = 0.78539816339744828
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_upper_arm"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						-0.5
+						0
+						4.4800000000000004
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.25
+						0.25
+						0.20000000000000001
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 1.3999999999999999
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.22342500000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "9c774c75-0159-5eda-8331-618295f6b30d"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "34ec768c-6572-5220-be8b-771b2caab385"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "0c568232-ae0f-5dc4-9201-6dea8d75210e"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "72c5499c-a3f0-58b8-a8a0-0f4513320066"
+					other_position = [
+						0
+						-1.1102230246251565e-16
+						-1.1000000000000003
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0.43999999999999995
+						1.2000000000000011
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.26179938779914941
+					swing_y_motion = "limited"
+					swing_z_limit = 0.26179938779914941
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.43633231299858238
+					twist_motion = "limited"
+					twist_upper_limit = 0.43633231299858238
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_foot"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-0.27500000000000002
+						-0.22
+						1.8999999999999999
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.20000000000000001
+						0.5
+						0.10000000000000001
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "d5c620c2-bb19-5f45-92f6-df7a3070f016"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.13239999999999999
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "3cbe678b-dcf2-5861-b296-d8424b7c1d5d"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "0431e9da-f4ef-5563-ad47-5c8c92dacee0"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "b090f58b-177a-5e3b-9af4-b5af60abdc58"
+					other_position = [
+						0
+						0
+						0.5
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						-0.61111111111111194
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 0.52359877559829882
+					swing_y_motion = "limited"
+					swing_z_limit = 0.52359877559829882
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.78539816339744828
+					twist_motion = "limited"
+					twist_upper_limit = 0.78539816339744828
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_head"
+		}
+		modified_components = {
+			#37ac9624-1d8c-4612-85da-d74654f48177 = {
+				data = {
+					collider_data = {
+						radius = 0.5
+					}
+					shape = "sphere"
+					source = "inline"
+				}
+			}
+			#8972a214-327e-4396-b01e-45701189e8c9 = {
+				data = {
+					position = [
+						0
+						0
+						5.1050000000000004
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.45000000000000001
+						0.45000000000000001
+						0.45000000000000001
+					]
+				}
+			}
+			#b90d4427-bc08-4d40-aaf5-9d0eb80be391 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.57925000000000004
+					material = "flesh"
+				}
+			}
+			#ce881722-b0da-41ea-b29b-b26b85cf61b5 = {
+				data = {
+					materials = [
+						{
+							_guid = "b4fe01f4-9d56-5767-8f1c-8ec1e98bae6c"
+							_prefab = "4e881722-b0da-41ea-b29b-b26b85cf61b5"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/sphere"
+	}
+	{
+		_guid = "60d0dae1-58b9-5ddf-bee3-56e2f1b47714"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "feb3bb4f-e7aa-5e54-b4fa-97d814abf37d"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "d3f48d9c-5b0a-58c8-9e40-5909844c3110"
+					other_position = [
+						0
+						0
+						1.25
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0
+						-1.3
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.17453292519943295
+					swing_y_motion = "limited"
+					swing_z_limit = 0.17453292519943295
+					swing_z_motion = "limited"
+					twist_lower_limit = 0
+					twist_motion = "limited"
+					twist_upper_limit = 2.1991148575128552
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_forearm"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						0.5
+						0
+						5.4550000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.20000000000000001
+						0.20000000000000001
+						0.25
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.75
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.13239999999999999
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "70fa05ab-b23e-5ec6-a89e-88fe0b511e12"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "69141864-a9c1-576d-9307-effa966c466f"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_pelvis"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						0
+						3.6299999999999999
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.80000000000000004
+						0.30000000000000004
+						0.40000000000000002
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "dbdb6d13-9273-53cf-bd9d-1902bb4a0094"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 1.07575
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "7205bef4-71cc-5be1-8dec-897554b15d8e"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "954caaf6-52da-51c1-9129-7afa209da12b"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "b940ffdf-f7f8-5208-a12c-671b7366cb1f"
+					other_position = [
+						0
+						0
+						-1.3999999999999999
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						0.42499999999999999
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 0.52359877559829882
+					swing_y_motion = "limited"
+					swing_z_limit = 0.52359877559829882
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.3490658503988659
+					twist_motion = "limited"
+					twist_upper_limit = 0.3490658503988659
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_hand"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						-0.5
+						0
+						3.4700000000000002
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.14999999999999999
+						0.050000000000000003
+						0.20000000000000001
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "43794fa2-50bd-55f6-9fdb-c9333b8aac87"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.04965
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "72c5499c-a3f0-58b8-a8a0-0f4513320066"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "caba0368-340a-5e0a-b186-7ee8dc126a40"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "03efdd9e-2b31-5b80-871c-905b6c57419a"
+					other_position = [
+						0
+						0
+						-1.1428571428571426
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0
+						1.1000000000000003
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.17453292519943295
+					swing_y_motion = "limited"
+					swing_z_limit = 0.17453292519943295
+					swing_z_motion = "limited"
+					twist_lower_limit = 0
+					twist_motion = "limited"
+					twist_upper_limit = 2.1991148575128552
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_shin"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						-0.27500000000000002
+						0
+						2.3500000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.25
+						0.25
+						0.29999999999999999
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.6000000000000001
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.37237500000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "1af85ad6-1918-5be5-8b9f-3d17d1b92158"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "8b5b726c-a56b-56c1-8f40-4bbead706407"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "890b6fdf-f8ab-59b7-9e32-3f7981b33774"
+				_type = "fixed_joint"
+				data = {
+					break_force = 7
+					other_actor = "acd6f3db-8484-5d5f-9c0f-a428164f55d7"
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_bar"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						0
+						6.0800000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						7
+						0.5
+						0.25
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "32f9769b-eebd-57f7-9552-9cd6391bff56"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/grid"
+							}
+						}
+					]
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "8b8949bf-abe8-5387-b448-e923f4d7b220"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "0abc9d22-e3cc-51a8-a279-8e65453ed8cb"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "69141864-a9c1-576d-9307-effa966c466f"
+					other_position = [
+						0.34375
+						0
+						-0.37499999999999978
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						1.1428571428571426
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 1.0471975511965976
+					swing_y_motion = "limited"
+					swing_z_limit = 0.78539816339744828
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.52359877559829882
+					twist_motion = "limited"
+					twist_upper_limit = 0.52359877559829882
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_thigh"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						0.27500000000000002
+						0
+						3.0800000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.32000000000000001
+						0.32000000000000001
+						0.35000000000000003
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.28125
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 1.1585000000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "26cf6e95-66f2-50fc-8d5c-13995ddb7e6b"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "acd6f3db-8484-5d5f-9c0f-a428164f55d7"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "84abae53-342c-538b-989d-e59d25779daa"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "60d0dae1-58b9-5ddf-bee3-56e2f1b47714"
+					other_position = [
+						0
+						0
+						1.3999999999999999
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						-0.42499999999999999
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 0.52359877559829882
+					swing_y_motion = "limited"
+					swing_z_limit = 0.52359877559829882
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.3490658503988659
+					twist_motion = "limited"
+					twist_upper_limit = 0.3490658503988659
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_hand"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0.5
+						0
+						5.8899999999999997
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.14999999999999999
+						0.050000000000000003
+						0.20000000000000001
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "0927468b-d5df-5431-ab34-786786a25278"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.04965
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "b090f58b-177a-5e3b-9af4-b5af60abdc58"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "5f0b20f0-ab95-5f48-83bf-be0ff76f2a0e"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "69141864-a9c1-576d-9307-effa966c466f"
+					other_position = [
+						0
+						0
+						0.50000000000000044
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						0
+						0
+						-0.5
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 0.44879895051282759
+					swing_y_motion = "limited"
+					swing_z_limit = 0.3490658503988659
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.3490658503988659
+					twist_motion = "limited"
+					twist_upper_limit = 0.3490658503988659
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_torso"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0
+						0
+						4.3300000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.80000000000000004
+						0.30000000000000004
+						1
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "bf523a4f-6b81-50cc-8c54-c5c7bdc83128"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 2.4824999999999999
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "b940ffdf-f7f8-5208-a12c-671b7366cb1f"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "2e3ff190-0523-58f0-b42c-2551395ebfe2"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "23cc116c-9735-5200-8b59-8c26e2ffbede"
+					other_position = [
+						0
+						0
+						-1.25
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0
+						1.3
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.17453292519943295
+					swing_y_motion = "limited"
+					swing_z_limit = 0.17453292519943295
+					swing_z_motion = "limited"
+					twist_lower_limit = -2.1991148575128552
+					twist_motion = "limited"
+					twist_upper_limit = 0
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_left_forearm"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						-0.5
+						0
+						3.9049999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.20000000000000001
+						0.20000000000000001
+						0.25
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.75
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.13239999999999999
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "cc026ebd-7536-5143-9a50-e36914a2da57"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "ce57302f-8764-5d1a-877d-c22431035e86"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "43716e06-ef8e-583e-a38c-011979fcebfb"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "e9c543d9-c5f3-50c9-82bc-8024083e1512"
+					other_position = [
+						0
+						-1.1102230246251565e-16
+						-1.1000000000000003
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0.43999999999999995
+						1.2000000000000011
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.26179938779914941
+					swing_y_motion = "limited"
+					swing_z_limit = 0.26179938779914941
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.43633231299858238
+					twist_motion = "limited"
+					twist_upper_limit = 0.43633231299858238
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_foot"
+		}
+		modified_components = {
+			#08b8b97a-c894-409f-8f57-e7508ff8d3cf = {
+				data = {
+					collider_data = {
+						half_extents = [
+							0.5
+							0.5
+							0.5
+						]
+					}
+					shape = "box"
+					source = "inline"
+				}
+			}
+			#23dbf108-db64-4ca2-9647-8c639ee039ad = {
+				data = {
+					position = [
+						0.27500000000000002
+						-0.22
+						1.8999999999999999
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.20000000000000001
+						0.5
+						0.10000000000000001
+					]
+				}
+			}
+			#49753fff-34ea-4aff-8bcf-5116f1c1519a = {
+				data = {
+					materials = [
+						{
+							_guid = "462b9871-fabc-5847-ab1b-697f76719523"
+							_prefab = "c9753fff-34ea-4aff-8bcf-5116f1c1519a"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+				}
+			}
+			#b15082c5-3aaf-4c9a-8925-e5c958d49171 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.13239999999999999
+					material = "flesh"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cube"
+	}
+	{
+		_guid = "d3f48d9c-5b0a-58c8-9e40-5909844c3110"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "4af545cd-ecba-58a8-8910-20abf107485d"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "b090f58b-177a-5e3b-9af4-b5af60abdc58"
+					other_position = [
+						0.5
+						0
+						0.34999999999999998
+					]
+					other_rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					position = [
+						-0.40000000000000002
+						0
+						-1
+					]
+					rotation = [
+						0
+						0.70710678100000002
+						0
+						0.70710678100000002
+					]
+					swing_y_limit = 1.5707963267948966
+					swing_y_motion = "limited"
+					swing_z_limit = 1.0471975511965976
+					swing_z_motion = "limited"
+					twist_lower_limit = -0.78539816339744828
+					twist_motion = "limited"
+					twist_upper_limit = 0.78539816339744828
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_upper_arm"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						0.5
+						0
+						4.8799999999999999
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.25
+						0.25
+						0.20000000000000001
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 1.3999999999999999
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.22342500000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "189e7a65-59b9-564b-ba14-f470d3c31d57"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+	{
+		_guid = "e9c543d9-c5f3-50c9-82bc-8024083e1512"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "f4bed0ae-7d86-50cc-b7d8-5a3004266c04"
+				_type = "limb_joint"
+				data = {
+					break_force = 3.4028234663852886e+38
+					other_actor = "8b8949bf-abe8-5387-b448-e923f4d7b220"
+					other_position = [
+						0
+						0
+						-1.1428571428571426
+					]
+					other_rotation = [
+						0
+						0
+						0
+						1
+					]
+					position = [
+						0
+						0
+						1.1000000000000003
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					swing_y_limit = 0.17453292519943295
+					swing_y_motion = "limited"
+					swing_z_limit = 0.17453292519943295
+					swing_z_motion = "limited"
+					twist_lower_limit = 0
+					twist_motion = "limited"
+					twist_upper_limit = 2.1991148575128552
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ragdoll_right_shin"
+		}
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				data = {
+					position = [
+						0.27500000000000002
+						0
+						2.3500000000000001
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.25
+						0.25
+						0.29999999999999999
+					]
+				}
+			}
+			#67639086-1c54-4ef8-bf59-1a60d2ca6adb = {
+				data = {
+					collider_data = {
+						height = 2.6000000000000001
+						radius = 0.5
+						rotation = [
+							0.70710678100000002
+							0
+							0
+							0.70710678100000002
+						]
+					}
+					shape = "capsule"
+					source = "inline"
+				}
+			}
+			#f1539903-68cd-4d86-bada-501be048c1c7 = {
+				data = {
+					class = "ragdoll"
+					mass = 0.37237500000000001
+					material = "flesh"
+				}
+			}
+			#fca524d9-aaa4-4db7-b594-c39049e394b4 = {
+				data = {
+					geometry_name = "Limb"
+					materials = [
+						{
+							_guid = "91de85c5-4b98-5724-a5f2-fae1f26fbd85"
+							_prefab = "7ca524d9-aaa4-4db7-b594-c39049e394b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/dynamic"
+							}
+						}
+					]
+					mesh_resource = "units/capsule/capsule"
+				}
+			}
+		}
+		prefab = "core/units/primitives/cylinder"
+	}
+]
+components = [
+	{
+		_guid = "b52e01bb-7505-5333-bd1c-aa6d3a70e726"
+		_type = "transform"
+		data = {
+			name = ""
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+]
+editor = {
+	hidden = false
+	locked = false
+	name = "ragdoll"
+}
+prefab = null

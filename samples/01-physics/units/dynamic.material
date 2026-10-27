@@ -1,0 +1,178 @@
+_guid = "db6abb33-dc7a-5b77-85b0-d65506214069"
+_type = "material"
+shader = "mesh+TRIPLANAR+TRIPLANAR_LOCAL"
+textures = [
+	{
+		_guid = "5f6818ec-4206-5b0b-b225-ef1f9bf68d6b"
+		_type = "texture_sampler"
+		name = "u_albedo_map"
+		texture = "units/grid"
+	}
+]
+uniforms = [
+	{
+		_guid = "9a6baa62-7353-5779-a144-fc62a0fd26aa"
+		_type = "uniform_vector4"
+		name = "u_uv_blend"
+		value = {
+			w = 0
+			x = 10
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "f8693fa8-b2ef-554f-ba8f-b4ea5514a384"
+		_type = "uniform_vector4"
+		name = "u_albedo"
+		value = {
+			w = 0
+			x = 0.15
+			y = 0.5
+			z = 1
+		}
+	}
+	{
+		_guid = "c5ae0524-c28b-5394-921e-253150cd861c"
+		_type = "uniform_vector4"
+		name = "u_emission_color"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "37cf3e0f-8d89-5655-a728-1f44dfd41ae9"
+		_type = "uniform_vector4"
+		name = "u_use_normal_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "3024eca9-e2a6-5f4c-9660-1940b4356334"
+		_type = "uniform_vector4"
+		name = "u_uv_offset"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "cc0e5a9b-0ff8-5f5f-843d-2cbe45105508"
+		_type = "uniform_vector4"
+		name = "u_metallic"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "acf77f22-726a-5864-bcdf-887f1802c79c"
+		_type = "uniform_vector4"
+		name = "u_use_albedo_map"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "3de22fc6-f040-5111-920b-13ff8d722d2b"
+		_type = "uniform_vector4"
+		name = "u_use_ao_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "6d8aa53d-0650-5a74-bac7-f7b36db814dd"
+		_type = "uniform_vector4"
+		name = "u_uv_scale"
+		value = {
+			w = 0
+			x = 1
+			y = 1
+			z = 1
+		}
+	}
+	{
+		_guid = "f85fdb81-6ac8-5381-b4d7-6ef08929cb90"
+		_type = "uniform_vector4"
+		name = "u_use_metallic_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "af432337-67e5-5038-98fc-d454b481318b"
+		_type = "uniform_vector4"
+		name = "u_use_roughness_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "bc405673-1a8f-521b-8f03-cfef32a6cde5"
+		_type = "uniform_vector4"
+		name = "u_emission_intensity"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "9d7e1b29-7686-5c94-ba65-6142cf0c4194"
+		_type = "uniform_vector4"
+		name = "u_use_emission_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "ba920d70-1890-5a40-b559-2d7a9bc6bfe6"
+		_type = "uniform_vector4"
+		name = "u_roughness"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "e34792f9-922f-54ed-a0c0-ba5bc3f350a7"
+		_type = "uniform_vector4"
+		name = "u_use_opacity_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+]

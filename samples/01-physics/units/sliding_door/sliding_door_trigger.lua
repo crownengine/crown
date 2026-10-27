@@ -53,7 +53,8 @@ function SlidingDoorTrigger.trigger_enter(world, trigger_unit, other_unit)
 		local scene_graph = World.scene_graph(world)
 		local door_transform = SceneGraph.instance(scene_graph, door)
 		local door_position = SceneGraph.local_position(scene_graph, door_transform)
-		local new_door_position = door_position - Vector3(2.3, 0, 0)
+		local door_right = Quaternion.right(SceneGraph.local_rotation(scene_graph, door_transform))
+		local new_door_position = door_position - door_right * 2.3
 		SceneGraph.set_local_position(scene_graph, door_transform, new_door_position)
 	end
 end
@@ -66,7 +67,8 @@ function SlidingDoorTrigger.trigger_leave(world, trigger_unit, other_unit)
 		local scene_graph = World.scene_graph(world)
 		local door_transform = SceneGraph.instance(scene_graph, door)
 		local door_position = SceneGraph.local_position(scene_graph, door_transform)
-		local new_door_position = door_position + Vector3(2.3, 0, 0)
+		local door_right = Quaternion.right(SceneGraph.local_rotation(scene_graph, door_transform))
+		local new_door_position = door_position + door_right * 2.3
 		SceneGraph.set_local_position(scene_graph, door_transform, new_door_position)
 	end
 end

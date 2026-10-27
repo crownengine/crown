@@ -183,8 +183,9 @@ function Game.update(dt)
 				local door = World.unit_by_name(GameBase.world, "raycast_door")
 				local door_transform = SceneGraph.instance(Game.scene_graph, door)
 				local door_position = SceneGraph.local_position(Game.scene_graph, door_transform)
+				local door_right = Quaternion.right(SceneGraph.local_rotation(Game.scene_graph, door_transform))
 				local door_dx = 2.3
-				local new_door_position = door_position + Vector3(Game.door_open and door_dx or -door_dx, 0, 0)
+				local new_door_position = door_position + door_right * (Game.door_open and door_dx or -door_dx)
 
 				SceneGraph.set_local_position(Game.scene_graph, door_transform, new_door_position)
 				Game.door_open = not Game.door_open
@@ -216,7 +217,10 @@ function Game.update(dt)
 		, label_moving_platforms = "Moving platforms"
 		, label_rotating_platforms = "Rotating platforms"
 		, label_trigger = "Trigger"
-		, label_raycast = "Raycast" }) do
+		, label_raycast = "Raycast"
+		, label_dynamic_actors = "Dynamic Actors"
+		, label_hinge_joint = "Hinge joint"
+		, label_ragdoll = "Ragdolls" }) do
 		local label_unit = World.unit_by_name(GameBase.world, k)
 
 		if label_unit then
