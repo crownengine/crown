@@ -93,8 +93,9 @@ Physics configurations
 	The number of global solver iterations used for physics constraints.
 	Higher values generally improve stability and joint accuracy at the expense of compute time.
 
-``sleep_threshold = 0.5``
-	The default sleeping threshold applied to rigid bodies.
+``sleep_threshold = 0.01``
+	The linear and angular speed threshold below which rigid bodies can sleep.
+	Lower values let slowly moving bodies settle longer before sleeping.
 
 Other settings
 ~~~~~~~~~~~~~~

@@ -46,6 +46,7 @@ Changelog
 * Runtime: Linux: fixed missing audio on some systems.
 * Runtime: Windows: reduced deployment size.
 * Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally.
+* Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
