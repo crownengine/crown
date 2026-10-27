@@ -9,6 +9,7 @@ Changelog
 **Fixes**
 
 * Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally.
+* Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping.
 * Data Compiler: fixed crashes when compiling glTF resources.
 
 .. _v0.65.5:

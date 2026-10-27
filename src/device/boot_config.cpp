@@ -33,7 +33,7 @@ BootConfig::BootConfig(Allocator &a)
 	, aspect_ratio(-1.0f)
 	, vsync(true)
 	, fullscreen(false)
-	, physics_settings({ 60, 4, 10, 0.5f })
+	, physics_settings({ 60, 4, 10, 0.01f })
 	, render_settings(a)
 {
 }
