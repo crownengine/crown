@@ -41,6 +41,15 @@ namespace http
 	/// Starts an asynchronous GET. Returns 0 if all request slots are occupied.
 	u32 get(const char *url, u32 timeout_ms = 10 *1000);
 
+	/// Starts an asynchronous GET for @a size bytes starting at @a offset.
+	/// @a size must be nonzero. Fails on encoded responses or ignored ranges.
+	u32 get_range(const char *url, u32 offset, u32 size, u32 timeout_ms = 10 *1000);
+
+	/// Downloads a decoded response directly to @a path. The response body is empty.
+	/// Removes incomplete files on failure or cancellation. Overwrites existing files.
+	/// On HTML5, @a path names a file in OPFS.
+	u32 get_to_file(const char *url, const char *path, u32 timeout_ms = 10 *1000);
+
 	/// Starts an asynchronous POST.
 	u32 post(const char *url
 		, const char *content_type

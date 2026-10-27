@@ -226,6 +226,19 @@ namespace http_response
 		return header(response, a, line, (u32)(colon - line), value, (u32)(end - value));
 	}
 
+	StringView header_value(HttpResponse &response, const char *name)
+	{
+		const u32 length = strlen32(name);
+		for (u32 ii = 0; ii < response.num_headers; ++ii) {
+			HeaderOffset h;
+			memcpy(&h, descriptors(response) + ii * sizeof(HttpHeader), sizeof(h));
+			const char *text = data(response) + response.reason_size + h.name;
+			if (h.name_size == length && crown::strncasecmp(text, name, length) == 0)
+				return StringView(text + h.name_size, h.value_size);
+		}
+		return StringView();
+	}
+
 	void finish(HttpResponse &response)
 	{
 		char *bytes = data(response);
@@ -317,8 +330,33 @@ namespace http_request
 			http_error(*slot, message);
 	}
 
+	bool headers(HttpRequest &request)
+	{
+		HttpResponse &response = *request.response;
+		if (request.range_size != 0) {
+			const StringView encoding = http_response::header_value(response, "Content-Encoding");
+			if ((response.status_code != 206 && response.status_code != 416)
+				|| (encoding.length() != 0 && encoding != StringView("identity"))) {
+				fail(request.id, "Server does not support uncompressed byte ranges");
+				return false;
+			}
+			return http_response::reserve(request.response, *request.allocator, response.num_headers
+				, (u64)response.reason_size + response.header_size + request.range_size
+				);
+		}
+		if (request.path != NULL && response.status_code != 200) {
+			fail(request.id, "Cannot download file: expected HTTP 200");
+			return false;
+		}
+		return true;
+	}
+
 	bool body(HttpRequest &request, const char *data, u32 size)
 	{
+		if (request.range_size != 0 && (u64)request.response->body_size + size > request.range_size) {
+			fail(request.id, "HTTP response exceeds requested range");
+			return false;
+		}
 		HttpResponse *&response = request.response;
 		const u64 used = (u64)response->reason_size + response->header_size + response->body_size;
 		if (used + size > response->data_capacity
@@ -329,21 +367,23 @@ namespace http_request
 		return true;
 	}
 
-	void complete(HttpRequest &request)
+	bool complete(HttpRequest &request)
 	{
 		ScopedMutex sm(s_http->_mutex);
 		HttpSlot *slot = s_http->find(request.id);
 		if (slot == NULL || slot->state != HttpStatus::DOWNLOADING)
-			return;
+			return false;
 		http_response::finish(*request.response);
 		slot->response = request.response;
 		slot->state = HttpStatus::FINISHED;
 		request.response = NULL;
+		return true;
 	}
 
 	void release(HttpRequest *request)
 	{
 		const u32 id = request->id;
+		request->allocator->deallocate(request->path);
 		request->allocator->deallocate(request->response);
 		request->allocator->deallocate(request);
 		ScopedMutex sm(s_http->_mutex);
@@ -359,6 +399,9 @@ static u32 http_submit(const char *url
 	, const char *content_type
 	, const StringView *body
 	, u32 timeout_ms
+	, u32 offset = 0
+	, u32 size = 0
+	, const char *path = NULL
 	)
 {
 	const s64 submitted = time::now();
@@ -397,6 +440,14 @@ static u32 http_submit(const char *url
 	}
 
 	if (request != NULL) {
+		if (size != 0)
+			stbsp_snprintf(request->range, sizeof(request->range), "bytes=%u-%u", offset, offset + size - 1);
+		request->range_size = size;
+		if (path != NULL) {
+			const u32 length = strlen32(path) + 1;
+			request->path = (char *)request->allocator->allocate(length);
+			memcpy(request->path, path, length);
+		}
 		request->id = id;
 		request->state = &slot->state;
 		request->timeout_ms = timeout_ms;
@@ -415,6 +466,18 @@ namespace http
 	u32 get(const char *url, u32 timeout_ms)
 	{
 		return http_submit(url, NULL, NULL, timeout_ms);
+	}
+
+	u32 get_range(const char *url, u32 offset, u32 size, u32 timeout_ms)
+	{
+		CE_ASSERT(size != 0 && offset <= UINT32_MAX - (size - 1), "Invalid HTTP byte range");
+		return http_submit(url, NULL, NULL, timeout_ms, offset, size);
+	}
+
+	u32 get_to_file(const char *url, const char *path, u32 timeout_ms)
+	{
+		CE_ENSURE(path != NULL && path[0] != '\0');
+		return http_submit(url, NULL, NULL, timeout_ms, 0, 0, path);
 	}
 
 	u32 post(const char *url, const char *content_type, const StringView &body, u32 timeout_ms)

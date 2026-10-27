@@ -40,6 +40,9 @@ struct HttpRequest
 	StringView content_type_header;
 	StringView content_type;
 	StringView upload;
+	char range[32];
+	u32 range_size;
+	char *path;
 	bool post;
 };
 
@@ -58,6 +61,8 @@ namespace http_response
 		);
 
 	bool header_line(HttpResponse *&response, Allocator &a, const char *line, u32 size);
+
+	StringView header_value(HttpResponse &response, const char *name);
 
 	void finish(HttpResponse &response);
 
@@ -94,9 +99,11 @@ namespace http_request
 
 	void fail(u32 id, const char *message);
 
+	bool headers(HttpRequest &request);
+
 	bool body(HttpRequest &request, const char *data, u32 size);
 
-	void complete(HttpRequest &request);
+	bool complete(HttpRequest &request);
 
 	void release(HttpRequest *request);
 

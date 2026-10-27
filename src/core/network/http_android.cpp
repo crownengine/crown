@@ -6,6 +6,7 @@
 #include "config.h"
 
 #if CROWN_PLATFORM_ANDROID && !CROWN_HTTP_NOOP
+#include "core/filesystem/http_file.h"
 #include "core/memory/memory.inl"
 #include "core/network/http_internal.h"
 #include "core/thread/condition_variable.h"
@@ -48,6 +49,7 @@ struct HttpAndroid
 struct HttpAndroidRequest
 {
 	HttpRequest request;
+	HttpDownload download;
 };
 
 static bool http_android_exception(JNIEnv *env, HttpRequest &request)
@@ -154,6 +156,9 @@ static s32 http_android_run(void *user_data)
 #undef HTTP_JNI_METHOD
 	jstring post = env->NewStringUTF("POST");
 	jstring content_type = env->NewStringUTF("Content-Type");
+	jstring range = env->NewStringUTF("Range");
+	jstring accept_encoding = env->NewStringUTF("Accept-Encoding");
+	jstring identity = env->NewStringUTF("identity");
 	jbyteArray bytes = env->NewByteArray(64 * 1024);
 	CE_ENSURE(!env->ExceptionCheck());
 
@@ -197,6 +202,19 @@ static s32 http_android_run(void *user_data)
 
 			if (!http_android_active(request))
 				goto request_done;
+
+			if (request.range[0] != '\0') {
+				jstring value = env->NewStringUTF(request.range);
+				if (http_android_exception(env, request))
+					goto request_done;
+				env->CallVoidMethod(connection, set_header, range, value);
+				if (http_android_exception(env, request))
+					goto request_done;
+
+				env->CallVoidMethod(connection, set_header, accept_encoding, identity);
+				if (http_android_exception(env, request))
+					goto request_done;
+			}
 
 			if (request.post) {
 				env->CallVoidMethod(connection, set_method, post);
@@ -321,8 +339,19 @@ static s32 http_android_run(void *user_data)
 				env->DeleteLocalRef(value);
 			}
 
-			if (!http_android_active(request))
+			if (!http_android_active(request) || !http_request::headers(request))
 				goto request_done;
+			if (request.path != NULL) {
+				const StringView encoding = http_response::header_value(*response, "Content-Encoding");
+				if (encoding.length() != 0 && encoding != StringView("identity")) {
+					http_request::fail(request.id, "Unsupported HTTP content encoding");
+					goto request_done;
+				}
+				if (!http_file::open(rr->download, *request.allocator, request.path)) {
+					http_request::fail(request.id, "Cannot open HTTP download file");
+					goto request_done;
+				}
+			}
 
 			jobject input = env->CallObjectMethod(connection, code >= 400 ? get_error : get_input);
 			if (http_android_exception(env, request))
@@ -351,8 +380,12 @@ static s32 http_android_run(void *user_data)
 
 					env->GetByteArrayRegion(bytes, 0, count, (jbyte *)buffer);
 
-					if (!http_request::body(request, buffer, (u32)count)) {
-						http_request::fail(request.id, "HTTP response is too large");
+					const bool success = request.path != NULL
+						? http_file::write(rr->download, buffer, (u32)count)
+						: http_request::body(request, buffer, (u32)count)
+						;
+					if (!success) {
+						http_request::fail(request.id, request.path != NULL ? "Cannot write HTTP download file" : "HTTP response is too large");
 						goto request_done;
 					}
 				}
@@ -363,7 +396,10 @@ static s32 http_android_run(void *user_data)
 			}
 
 			if (http_android_active(request)) {
-				http_request::complete(request);
+				if (request.path != NULL && !http_file::finish(rr->download))
+					http_request::fail(request.id, "Cannot finish HTTP download file");
+				else
+					rr->download.complete = http_request::complete(request);
 			}
 		}
 	request_done:
@@ -374,6 +410,7 @@ static s32 http_android_run(void *user_data)
 		if (http_request::active(request))
 			http_request::fail(request.id, "Android HTTP request failed");
 
+		http_file::close(rr->download);
 		http_request::release(&rr->request);
 	}
 

@@ -25,6 +25,7 @@ Changelog
 * Runtime: HTML5: added support for passing command-line arguments through HTML and URL query parameters.
 * Runtime: HTML5: added keyboard locking with a confirmation fallback when leaving the page.
 * Runtime: added an asynchronous HTTP(S) client.
+* Runtime: added ``--bundle-url`` to load bundles over HTTP(S).
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

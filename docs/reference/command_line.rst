@@ -94,6 +94,11 @@ Runtime Options
 
 	The <path> must be absolute.
 
+``--bundle-url <url>``
+	Run with the bundles located at the HTTP(S) directory <url>.
+
+	The <url> must be absolute.
+
 ``--map-source-dir <name> <path>``
 	Mount <path>/<name> at <source-dir>/<name>.
 
