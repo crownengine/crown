@@ -369,6 +369,16 @@ static const EmKeyInfo em_key_info[] =
 	{ "KeyZ",           KeyboardButton::Z               }
 };
 
+static KeyboardButton::Enum keyboard_button_from_code(const char *code)
+{
+	for (u32 ii = 0; ii < countof(em_key_info); ++ii) {
+		if (strcmp(em_key_info[ii].key, code) == 0)
+			return em_key_info[ii].kb;
+	}
+
+	return KeyboardButton::COUNT;
+}
+
 struct EmJoypadButtonInfo
 {
 	u8 gb;
@@ -609,18 +619,38 @@ struct EmscriptenDevice
 	{
 	}
 
+	static EM_BOOL key_prevent_default_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
+	{
+		CE_UNUSED_2(event_type, user_data);
+		return keyboard_button_from_code(key_event->code) == KeyboardButton::COUNT
+			? EM_EVENT_PROPAGATE
+			: EM_EVENT_STOP
+			;
+	}
+
+	static EM_BOOL mouse_prevent_default_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
+	{
+		CE_UNUSED_3(event_type, event, user_data);
+		return EM_EVENT_STOP;
+	}
+
+	static EM_BOOL wheel_prevent_default_callback(int event_type, const EmscriptenWheelEvent *event, void *user_data)
+	{
+		CE_UNUSED_3(event_type, event, user_data);
+		return EM_EVENT_STOP;
+	}
+
+	static EM_BOOL touch_prevent_default_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
+	{
+		CE_UNUSED_3(event_type, event, user_data);
+		return EM_EVENT_STOP;
+	}
+
 	static EM_BOOL key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 
-		KeyboardButton::Enum kb = KeyboardButton::COUNT;
-		for (u32 ii = 0; ii < countof(em_key_info); ++ii) {
-			if (strcmp(em_key_info[ii].key, key_event->code) == 0) {
-				kb = em_key_info[ii].kb;
-				break;
-			}
-		}
-
+		const KeyboardButton::Enum kb = keyboard_button_from_code(key_event->code);
 		if (kb == KeyboardButton::COUNT)
 			return EM_EVENT_PROPAGATE;
 
@@ -855,6 +885,22 @@ struct EmscriptenDevice
 
 	int run(DeviceOptions *opts)
 	{
+		// Browser default actions must be suppressed synchronously on the main thread.
+		emscripten_set_keypress_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, NULL, true, EmscriptenDevice::key_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_keydown_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, NULL, true, EmscriptenDevice::key_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_keyup_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, NULL, true, EmscriptenDevice::key_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+		emscripten_set_mousedown_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::mouse_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_mouseup_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::mouse_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_mousemove_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::mouse_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_wheel_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::wheel_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+		emscripten_set_touchstart_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::touch_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_touchend_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::touch_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_touchmove_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::touch_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+		emscripten_set_touchcancel_callback_on_thread(CROWN_HTML5_CANVAS_NAME, NULL, true, EmscriptenDevice::touch_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+		// Engine-thread callbacks deliver events.
 		emscripten_set_focus_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::focus_callback);
 		emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::focus_callback);
 		emscripten_set_visibilitychange_callback(this, true, EmscriptenDevice::visibilitychange_callback);
