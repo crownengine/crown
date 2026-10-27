@@ -13,7 +13,7 @@ Crown Engine
 
 ## Download
   * [Stable Releases](https://crownengine.org/download)
-  * [Nightly Builds](https://cd.crownengine.org/download/crown-unstable)
+  * [Nightly Builds](https://www.crownengine.org/download/nightly)
   
 ## Development
   * User Manual ([latest](https://docs.crownengine.org/html/latest) or [unstable](https://docs.crownengine.org/html/master))
