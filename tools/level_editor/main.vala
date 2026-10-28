@@ -137,6 +137,7 @@ public struct CommandLineOptions
 			+ "  --key-alias <alias>              Android signing key alias.\n"
 			+ "  --key-pass <password>            Android signing key password.\n"
 			+ "  --index-html <path>              HTML5 index.html file.\n"
+			+ "  --bundle-url <url>               HTML5 bundle base URL.\n"
 			);
 	}
 
@@ -182,6 +183,7 @@ public struct CommandLineOptions
 		string? option_deploy_key_alias = null;
 		string? option_deploy_key_pass = null;
 		string? option_deploy_index_html = null;
+		string? option_deploy_bundle_url = null;
 
 		GLib.OptionEntry[] option_entries =
 		{
@@ -210,6 +212,7 @@ public struct CommandLineOptions
 			{ "key-alias",          0,   0, GLib.OptionArg.STRING,   ref option_deploy_key_alias,          "Android signing key alias.",            "alias"    },
 			{ "key-pass",           0,   0, GLib.OptionArg.STRING,   ref option_deploy_key_pass,           "Android signing key password.",         "password" },
 			{ "index-html",         0,   0, GLib.OptionArg.FILENAME, ref option_deploy_index_html,         "HTML5 index.html file.",                "path"     },
+			{ "bundle-url",         0,   0, GLib.OptionArg.STRING,   ref option_deploy_bundle_url,         "HTML5 bundle base URL.",                "url"      },
 			{ null }
 		};
 
@@ -260,6 +263,7 @@ public struct CommandLineOptions
 			|| option_deploy_key_alias != null
 			|| option_deploy_key_pass != null
 			|| option_deploy_index_html != null
+			|| option_deploy_bundle_url != null
 			;
 
 		int num_commands = (int)do_init
@@ -469,6 +473,8 @@ public struct CommandLineOptions
 				deploy.key_pass = option_deploy_key_pass;
 			if (option_deploy_index_html != null)
 				deploy.index_html = option_deploy_index_html;
+			if (option_deploy_bundle_url != null)
+				deploy.bundle_url = option_deploy_bundle_url;
 
 			return true;
 		}

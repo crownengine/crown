@@ -162,6 +162,7 @@ public class DeployPackage
 				, _app_title
 				, _options.index_html
 				, _exe_name
+				, _options.bundle_url
 				);
 			break;
 		}

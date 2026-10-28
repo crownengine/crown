@@ -280,6 +280,7 @@ public class DeployDialog : Gtk.Window
 	public InputBool _html5_wasm64;
 	public InputString _html5_app_title;
 	public InputFile _html5_index;
+	public InputString _html5_bundle_url;
 	public PropertyGridSet _html5_set;
 	public Gtk.Box _html5_box;
 	public HTML5Deployer _html5;
@@ -645,6 +646,7 @@ public class DeployDialog : Gtk.Window
 					options.arch = archs[ii];
 					options.app_title = app_title;
 					options.index_html = index_html_path;
+					options.bundle_url = _html5_bundle_url.value;
 					deploy(options);
 				}
 			});
@@ -662,6 +664,7 @@ public class DeployDialog : Gtk.Window
 		_html5_index.value_changed.connect(() => {
 				_html5_config.sensitive = _html5_index.value == null;
 			});
+		_html5_bundle_url = new InputString();
 
 #if CROWN_GTK3
 		Gtk.Button html5_index_save = new Gtk.Button.from_icon_name("document-save-as-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
@@ -697,7 +700,7 @@ public class DeployDialog : Gtk.Window
 							if (int.try_parse(_html5_config.value, out config) == false || config < 0 || config >= config_name.length)
 								config = (int)TargetConfig.RELEASE;
 
-							HTML5Deployer.generate_index(dlg.get_file().get_path(), "crown-%s".printf(config_name[config]));
+							HTML5Deployer.generate_index(dlg.get_file().get_path(), "crown-%s".printf(config_name[config]), _html5_bundle_url.value);
 						}
 						dlg.destroy();
 					});
@@ -745,6 +748,7 @@ public class DeployDialog : Gtk.Window
 		html5_index_box.append(html5_index_save);
 #endif
 		cv.add_row(_("Index"), html5_index_box);
+		cv.add_row(_("Bundle URL"), _html5_bundle_url);
 		_html5_set.add_property_grid(cv, _("Application"));
 
 		// Linux page.

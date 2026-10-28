@@ -16,7 +16,7 @@ public class HTML5Deployer
 		check_config();
 	}
 
-	public static int generate_index(string path, string runtime_name)
+	public static int generate_index(string path, string runtime_name, string bundle_url = "")
 	{
 		string index_html = "";
 		index_html += "<!doctype html>";
@@ -46,7 +46,10 @@ public class HTML5Deployer
 		index_html += "\n<canvas class=\"app\" id=\"canvas\" oncontextmenu=\"event.preventDefault()\" tabindex=-1></canvas>";
 		index_html += "\n<script type='text/javascript'>";
 		index_html += "\n  var Module = {";
-		index_html += "\n    arguments: [],";
+		if (bundle_url.length != 0)
+			index_html += "\n    arguments: ['--bundle-url', decodeURIComponent('%s')],".printf(GLib.Uri.escape_string(bundle_url, null, false));
+		else
+			index_html += "\n    arguments: [],";
 		index_html += "\n    preRun: [],";
 		index_html += "\n    postRun: [],";
 		index_html += "\n    canvas: (() => {";
@@ -64,7 +67,8 @@ public class HTML5Deployer
 		index_html += "\n    console.error('onerror: ' + event.message);";
 		index_html += "\n  };";
 		index_html += "\n</script>";
-		index_html += "\n<script async type=\"text/javascript\" src=\"data.js\"></script>";
+		if (bundle_url.length == 0)
+			index_html += "\n<script async type=\"text/javascript\" src=\"data.js\"></script>";
 		index_html += "\n<script async type=\"text/javascript\" src=\"%s.js\"></script>".printf(runtime_name);
 		index_html += "\n</body>";
 		index_html += "\n</html>";
@@ -97,6 +101,7 @@ public class HTML5Deployer
 		, string app_title
 		, string html5_index_path
 		, string exe_name
+		, string bundle_url
 		)
 	{
 		check_config();
@@ -120,7 +125,10 @@ public class HTML5Deployer
 		// Create data bundle.
 		try {
 			string[] args;
-			string tmp_bundle_dir = GLib.DirUtils.make_tmp("XXXXXX");
+			string bundle_dir = bundle_url.length != 0
+				? package_path
+				: GLib.DirUtils.make_tmp("XXXXXX")
+				;
 
 			args = new string[]
 			{
@@ -131,7 +139,7 @@ public class HTML5Deployer
 				"core",
 				project.toolchain_dir(),
 				"--bundle-dir",
-				tmp_bundle_dir,
+				bundle_dir,
 				"--compile",
 				"--bundle",
 				"--platform",
@@ -170,30 +178,32 @@ public class HTML5Deployer
 			dst = File.new_for_path(runtime_name_dst + ".wasm");
 			src.copy(dst, FileCopyFlags.OVERWRITE);
 
-			// Package bundle data with emscripten's file_packager.
-			args = new string[]
-			{
-				Path.build_path(Path.DIR_SEPARATOR_S, _emscripten_sdk_path, "tools", "file_packager"),
-				Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
-				"--preload",
-				"./data",
-				"--js-output=" + Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.js")
-			};
+			if (bundle_url.length == 0) {
+				// Package bundle data with emscripten's file_packager.
+				args = new string[]
+				{
+					Path.build_path(Path.DIR_SEPARATOR_S, _emscripten_sdk_path, "tools", "file_packager"),
+					Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.bin"),
+					"--preload",
+					"./data",
+					"--js-output=" + Path.build_path(Path.DIR_SEPARATOR_S, package_path, "data.js")
+				};
 
-			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, tmp_bundle_dir);
-			exit_status = yield wait_subprocess(pid);
-			project.delete_tree(GLib.File.new_for_path(tmp_bundle_dir));
+				pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, bundle_dir);
+				exit_status = yield wait_subprocess(pid);
+				project.delete_tree(GLib.File.new_for_path(bundle_dir));
 
-			if (exit_status != 0) {
-				loge("Failed to package data.js. exit_status %d".printf(exit_status));
-				return exit_status;
+				if (exit_status != 0) {
+					loge("Failed to package data.js. exit_status %d".printf(exit_status));
+					return exit_status;
+				}
 			}
 
 			// Generate index.html.
 			var index_html_path = Path.build_path(Path.DIR_SEPARATOR_S, package_path, "index.html");
 
 			if (html5_index_path.length == 0) {
-				if (HTML5Deployer.generate_index(index_html_path, runtime_name_src) != 0)
+				if (HTML5Deployer.generate_index(index_html_path, runtime_name_src, bundle_url) != 0)
 					return -1;
 			} else {
 				GLib.File.new_for_path(html5_index_path).copy(GLib.File.new_for_path(index_html_path), GLib.FileCopyFlags.OVERWRITE);

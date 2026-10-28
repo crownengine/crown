@@ -113,6 +113,7 @@ public struct DeployOptions
 	public string key_alias;
 	public string key_pass;
 	public string index_html;
+	public string bundle_url;
 
 	public DeployOptions()
 	{
@@ -133,6 +134,7 @@ public struct DeployOptions
 		key_alias = "androiddebugkey";
 		key_pass = "android";
 		index_html = "";
+		bundle_url = "";
 	}
 }
 
