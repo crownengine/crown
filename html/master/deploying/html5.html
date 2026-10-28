@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-28T14:53:07+00:00" /><meta property="og:title" content="Deploying to HTML5" />
+    <meta property="article:modified_time" content="2026-10-28T20:40:50+00:00" /><meta property="og:title" content="Deploying to HTML5" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/html5.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
-<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Runtime arguments: Set runtime arguments in the Mod..." />
+<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Bundle URL: Set Bundle URL in the deploy dialog, or..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.66.0 Manual" />
-<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Runtime arguments: Set runtime arguments in the Mod..." />
+<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Bundle URL: Set Bundle URL in the deploy dialog, or..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -129,6 +129,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#install-emscripten">Install emscripten</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-generated-output">Running the generated output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bundle-url">Bundle URL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runtime-arguments">Runtime arguments</a></li>
 </ul>
 </li>
@@ -205,6 +206,14 @@
 <span class="o">&lt;</span><span class="n">emsdk</span><span class="o">&gt;/</span><span class="n">upstream</span><span class="o">/</span><span class="n">emscripten</span><span class="o">/</span><span class="n">emrun</span> <span class="n">index</span><span class="o">.</span><span class="n">html</span>
 </pre></div>
 </div>
+</section>
+<section id="bundle-url">
+<h3>Bundle URL<a class="headerlink" href="#bundle-url" title="Permalink to this headline">¶</a></h3>
+<p>Set <strong>Bundle URL</strong> in the deploy dialog, or pass <code class="docutils literal notranslate"><span class="pre">--bundle-url</span> <span class="pre">&lt;url&gt;</span></code> to
+<code class="docutils literal notranslate"><span class="pre">crown-editor</span> <span class="pre">--deploy</span></code>, to load bundle data over HTTP instead of preloading
+<code class="docutils literal notranslate"><span class="pre">data.bin</span></code> into the Emscripten filesystem.</p>
+<p>Deployment exports a <code class="docutils literal notranslate"><span class="pre">data/</span></code> directory alongside the runtime instead of
+<code class="docutils literal notranslate"><span class="pre">data.bin</span></code> and <code class="docutils literal notranslate"><span class="pre">data.js</span></code>. Upload it beneath the specified bundle URL.</p>
 </section>
 <section id="runtime-arguments">
 <h3>Runtime arguments<a class="headerlink" href="#runtime-arguments" title="Permalink to this headline">¶</a></h3>

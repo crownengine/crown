@@ -29,6 +29,16 @@ Use `emrun` to run the generated `index.html`:
 	cd <output_dir>
 	<emsdk>/upstream/emscripten/emrun index.html
 
+Bundle URL
+----------
+
+Set **Bundle URL** in the deploy dialog, or pass ``--bundle-url <url>`` to
+``crown-editor --deploy``, to load bundle data over HTTP instead of preloading
+``data.bin`` into the Emscripten filesystem.
+
+Deployment exports a ``data/`` directory alongside the runtime instead of
+``data.bin`` and ``data.js``. Upload it beneath the specified bundle URL.
+
 Runtime arguments
 -----------------
 
