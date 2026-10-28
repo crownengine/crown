@@ -28,3 +28,15 @@ Use `emrun` to run the generated `index.html`:
 
 	cd <output_dir>
 	<emsdk>/upstream/emscripten/emrun index.html
+
+Runtime arguments
+-----------------
+
+Set runtime arguments in the ``Module`` object in ``index.html``:
+
+.. code-block:: javascript
+
+	arguments: ['--bundle-url', 'https://example.com/game/'],
+
+The URL ``?bundle-url=https://example.com/game/`` passes the same arguments.
+URL options take precedence over HTML options.

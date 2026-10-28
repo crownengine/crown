@@ -46,6 +46,7 @@ public class HTML5Deployer
 		index_html += "\n<canvas class=\"app\" id=\"canvas\" oncontextmenu=\"event.preventDefault()\" tabindex=-1></canvas>";
 		index_html += "\n<script type='text/javascript'>";
 		index_html += "\n  var Module = {";
+		index_html += "\n    arguments: [],";
 		index_html += "\n    preRun: [],";
 		index_html += "\n    postRun: [],";
 		index_html += "\n    canvas: (() => {";

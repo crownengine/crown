@@ -129,6 +129,7 @@ function crown_project(_name, _kind, _defines)
 				"-s ALLOW_MEMORY_GROWTH=1",
 				"-s STACK_SIZE=256KB",
 				"-s GL_ENABLE_GET_PROC_ADDRESS",
+				"--pre-js \"" .. CROWN_DIR .. "scripts/wasm/pre.js\"",
 				-- "-s SAFE_HEAP=1",
 			}
 
