@@ -2904,7 +2904,7 @@ struct PhysicsWorldImpl
 				joint->setUserConstraintType((int)type);
 
 			joint->setUserConstraintPtr((void *)(uintptr_t)owner_unit._idx);
-			_dynamics_world->addConstraint(joint, (flags & JointFlags::ENABLE_COLLISIONS) == 0);
+			_dynamics_world->addConstraint(joint, (flags &JointFlags::ENABLE_COLLISIONS) == 0);
 			const u32 last = array::size(_joints);
 			array::push_back(_joints, joint);
 			hash_map::set(_joint_map, owner_unit, last);
