@@ -304,6 +304,11 @@ windows-release64:        \
 	build/windows64/bin/luajit.exe
 	devenv.com build/projects/vs2022/crown.sln $(ARG_PREFIX)Build "release|x64" $(ARG_PREFIX)Project crown
 
+.PHONY: splash-logo
+splash-logo:
+	scripts/generate-logo.sh tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg splash_logo tools/deploy/splash_logo.c svg
+	scripts/generate-logo.sh tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg splash_logo src/device/splash_logo.c rgba 64 64
+
 .PHONY: crown-editor-theme crown-editor-theme-gtk4
 crown-editor-theme:
 	cd tools/level_editor/resources/theme/Adwaita && ./parse-sass.sh

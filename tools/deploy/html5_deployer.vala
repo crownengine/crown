@@ -5,6 +5,9 @@
 
 namespace Crown
 {
+[CCode (cname = "splash_logo_svg_base64")]
+extern unowned string splash_logo_svg_base64;
+
 public class HTML5Deployer
 {
 	public string? _emscripten_sdk_path;
@@ -23,6 +26,7 @@ public class HTML5Deployer
 		index_html += "\n<html lang=\"en-us\">";
 		index_html += "\n<head>";
 		index_html += "\n<meta charset=\"utf-8\">";
+		index_html += "\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
 		index_html += "\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
 		index_html += "\n<style>";
 		index_html += "\n  body {";
@@ -40,11 +44,58 @@ public class HTML5Deployer
 		index_html += "\n    height: 100%;";
 		index_html += "\n    background-color: black;";
 		index_html += "\n  }";
+		index_html += "\n  #loading {";
+		index_html += "\n    position: absolute;";
+		index_html += "\n    inset: 0;";
+		index_html += "\n    display: flex;";
+		index_html += "\n    flex-direction: column;";
+		index_html += "\n    align-items: center;";
+		index_html += "\n    justify-content: center;";
+		index_html += "\n    gap: 24px;";
+		index_html += "\n    color: #f0f0f0;";
+		index_html += "\n    font: 14px sans-serif;";
+		index_html += "\n    text-align: center;";
+		index_html += "\n  }";
+		index_html += "\n  #loading_progress {";
+		index_html += "\n    width: min(480px, 80vw);";
+		index_html += "\n    height: 2px;";
+		index_html += "\n    background-color: #101010;";
+		index_html += "\n    overflow: hidden;";
+		index_html += "\n  }";
+		index_html += "\n  #loading_progress > div {";
+		index_html += "\n    width: var(--progress, 0%);";
+		index_html += "\n    height: 100%;";
+		index_html += "\n    background-color: #f0f0f0;";
+		index_html += "\n  }";
+		index_html += "\n  #loading_progress:not([aria-valuenow]) > div {";
+		index_html += "\n    width: 2px;";
+		index_html += "\n    animation: loading-pulse 1s ease-in-out infinite alternate;";
+		index_html += "\n  }";
+		index_html += "\n  @keyframes loading-pulse {";
+		index_html += "\n    from { opacity: 0.25; }";
+		index_html += "\n    to { opacity: 1; }";
+		index_html += "\n  }";
 		index_html += "\n</style>";
 		index_html += "\n</head>";
 		index_html += "\n<body>";
 		index_html += "\n<canvas class=\"app\" id=\"canvas\" oncontextmenu=\"event.preventDefault()\" tabindex=-1></canvas>";
+		index_html += "\n<div id=\"loading\">";
+		index_html += "\n  <img width=\"64\" height=\"64\" alt=\"Crown\" src=\"data:image/svg+xml;base64,%s\">".printf(splash_logo_svg_base64);
+		index_html += "\n  <div id=\"loading_status\" role=\"status\">Downloading...</div>";
+		index_html += "\n  <div id=\"loading_progress\" role=\"progressbar\" aria-label=\"Loading\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div></div></div>";
+		index_html += "\n</div>";
 		index_html += "\n<script type='text/javascript'>";
+		index_html += "\n  var loading = document.getElementById('loading');";
+		index_html += "\n  var loadingStatus = document.getElementById('loading_status');";
+		index_html += "\n  var loadingProgress = document.getElementById('loading_progress');";
+		index_html += "\n  var loadingFailed = false;";
+		index_html += "\n  function loadingError(message) {";
+		index_html += "\n    loadingFailed = true;";
+		index_html += "\n    loading.style.display = 'flex';";
+		index_html += "\n    loadingStatus.textContent = 'Failed to load. Please reload the page.';";
+		index_html += "\n    loadingProgress.removeAttribute('aria-valuenow');";
+		index_html += "\n    console.error(message);";
+		index_html += "\n  }";
 		index_html += "\n  var Module = {";
 		if (bundle_url.length != 0)
 			index_html += "\n    arguments: ['--bundle-url', decodeURIComponent('%s')],".printf(GLib.Uri.escape_string(bundle_url, null, false));
@@ -60,12 +111,31 @@ public class HTML5Deployer
 		index_html += "\n      }, false);";
 		index_html += "\n      return canvas;";
 		index_html += "\n    })(),";
-		index_html += "\n    setStatus: (text) => { },";
-		index_html += "\n    monitorRunDependencies: (left) => { }";
+		index_html += "\n    setStatus: (text) => {";
+		index_html += "\n      if (loadingFailed) return;";
+		index_html += "\n      loading.style.display = text ? 'flex' : 'none';";
+		index_html += "\n      loadingStatus.textContent = text;";
+		index_html += "\n      var match = text.match(/\\(([\\d.]+)\\/([\\d.]+)\\)/);";
+		index_html += "\n      if (match && Number(match[2]) > 0) {";
+		index_html += "\n        var progress = Math.min(1, Number(match[1]) / Number(match[2])) * 100;";
+		index_html += "\n        loadingProgress.setAttribute('aria-valuenow', progress);";
+		index_html += "\n        loadingProgress.style.setProperty('--progress', progress + '%');";
+		index_html += "\n      } else {";
+		index_html += "\n        loadingProgress.removeAttribute('aria-valuenow');";
+		index_html += "\n      }";
+		index_html += "\n    },";
+		index_html += "\n    totalDependencies: 0,";
+		index_html += "\n    monitorRunDependencies: (left) => {";
+		index_html += "\n      Module.totalDependencies = Math.max(Module.totalDependencies, left);";
+		index_html += "\n      Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'Preparing...');";
+		index_html += "\n    },";
+		index_html += "\n    onAbort: loadingError";
 		index_html += "\n  };";
-		index_html += "\n  window.onerror = (event) => {";
-		index_html += "\n    console.error('onerror: ' + event.message);";
-		index_html += "\n  };";
+		index_html += "\n  window.onerror = loadingError;";
+		index_html += "\n  window.addEventListener('error', (event) => {";
+		index_html += "\n    if (event.target.tagName === 'SCRIPT')";
+		index_html += "\n      loadingError('Failed to load ' + event.target.src);";
+		index_html += "\n  }, true);";
 		index_html += "\n</script>";
 		if (bundle_url.length == 0)
 			index_html += "\n<script async type=\"text/javascript\" src=\"data.js\"></script>";
