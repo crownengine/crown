@@ -22,6 +22,7 @@ Changelog
 * Runtime: reduced frame rate while the main window is unfocused.
 * Runtime: x86 builds of the runtime and tools now require SSE4.2 support.
 * Runtime: joints can now be configured to enable/disable collisions between connected actors.
+* Runtime: HTML5: added support for passing command-line arguments through HTML and URL query parameters.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

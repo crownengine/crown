@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-08-04T17:15:08+00:00" /><meta property="og:title" content="Deploying to HTML5" />
+    <meta property="article:modified_time" content="2026-10-28T14:53:07+00:00" /><meta property="og:title" content="Deploying to HTML5" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/html5.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
-<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html:" />
+<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Runtime arguments: Set runtime arguments in the Mod..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.66.0 Manual" />
-<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html:" />
+<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Runtime arguments: Set runtime arguments in the Mod..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -129,6 +129,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#install-emscripten">Install emscripten</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-generated-output">Running the generated output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runtime-arguments">Runtime arguments</a></li>
 </ul>
 </li>
 </ul>
@@ -205,6 +206,15 @@
 </pre></div>
 </div>
 </section>
+<section id="runtime-arguments">
+<h3>Runtime arguments<a class="headerlink" href="#runtime-arguments" title="Permalink to this headline">¶</a></h3>
+<p>Set runtime arguments in the <code class="docutils literal notranslate"><span class="pre">Module</span></code> object in <code class="docutils literal notranslate"><span class="pre">index.html</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">arguments</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;--bundle-url&#39;</span><span class="p">,</span> <span class="s1">&#39;https://example.com/game/&#39;</span><span class="p">],</span>
+</pre></div>
+</div>
+<p>The URL <code class="docutils literal notranslate"><span class="pre">?bundle-url=https://example.com/game/</span></code> passes the same arguments.
+URL options take precedence over HTML options.</p>
+</section>
 </section>
 </section>
 
@@ -220,7 +230,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Aug 04, 2026.
+      <span class="lastupdated">Last updated on Oct 28, 2026.
       </span></p>
   </div>
 
