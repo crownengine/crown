@@ -45,38 +45,65 @@
 
 namespace crown
 {
+static void crown_js_request_keyboard_lock()
+{
+	// code-format off
+	MAIN_THREAD_EM_ASM({
+			if (!navigator.keyboard || !navigator.keyboard.lock || Module.crown_keyboard_lock) {
+				return;
+			}
+			function keyboard_locked() {
+				Module.crown_keyboard_lock = 'locked';
+			}
+			function keyboard_lock_failed() {
+				Module.crown_keyboard_lock = null;
+			}
+			Module.crown_keyboard_lock = 'pending';
+			navigator.keyboard.lock().then(keyboard_locked, keyboard_lock_failed);
+		});
+	// code-format on
+}
+
 static void crown_js_request_pointer_lock()
 {
+	// code-format off
 	MAIN_THREAD_EM_ASM({
 			if (Module.canvas.requestPointerLock) {
 				Module.canvas.requestPointerLock({ unadjustedMovement: true });
 			}
 		});
+	// code-format on
 }
 
 static void crown_js_request_pointer_lock_fallback()
 {
+	// code-format off
 	MAIN_THREAD_EM_ASM({
 			if (Module.canvas.requestPointerLock) {
 				Module.canvas.requestPointerLock({ unadjustedMovement: false });
 			}
 		});
+	// code-format on
 }
 
 static void crown_js_exit_pointer_lock()
 {
+	// code-format off
 	MAIN_THREAD_EM_ASM({
 			if (document.exitPointerLock) {
 				document.exitPointerLock();
 			}
 		});
+	// code-format on
 }
 
 static bool crown_js_has_focus()
 {
+	// code-format off
 	return MAIN_THREAD_EM_ASM_INT({
 			return document.hasFocus() && !document.hidden;
 		}) != 0;
+	// code-format on
 }
 
 // code-format off
@@ -97,9 +124,11 @@ static void remove_event_listeners(void *user_data)
 
 void open_uri(const char *uri)
 {
+	// code-format off
 	MAIN_THREAD_EM_ASM({
 			window.open(UTF8ToString($0), "_blank");
 		}, uri);
+	// code-format on
 }
 
 struct WindowEmscripten : public Window
@@ -166,9 +195,11 @@ struct WindowEmscripten : public Window
 
 	void show_cursor(bool show) override
 	{
+		// code-format off
 		MAIN_THREAD_EM_ASM({
 				Module.canvas.style.cursor = $0 ? "" : "none";
 			}, show);
+		// code-format on
 	}
 
 	bool is_fullscreen() override;
@@ -619,9 +650,23 @@ struct EmscriptenDevice
 	{
 	}
 
+	static const char *beforeunload_callback(int event_type, const void *reserved, void *user_data)
+	{
+		CE_UNUSED_3(event_type, reserved, user_data);
+		// code-format off
+		return MAIN_THREAD_EM_ASM_INT({ return Module.crown_keyboard_lock === 'locked'; })
+			? NULL
+			: "Leave the game?"
+			;
+		// code-format on
+	}
+
 	static EM_BOOL key_prevent_default_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
 	{
-		CE_UNUSED_2(event_type, user_data);
+		CE_UNUSED(user_data);
+		if (event_type == EMSCRIPTEN_EVENT_KEYDOWN)
+			crown_js_request_keyboard_lock();
+
 		return keyboard_button_from_code(key_event->code) == KeyboardButton::COUNT
 			? EM_EVENT_PROPAGATE
 			: EM_EVENT_STOP
@@ -630,7 +675,10 @@ struct EmscriptenDevice
 
 	static EM_BOOL mouse_prevent_default_callback(int event_type, const EmscriptenMouseEvent *event, void *user_data)
 	{
-		CE_UNUSED_3(event_type, event, user_data);
+		CE_UNUSED_2(event, user_data);
+		if (event_type == EMSCRIPTEN_EVENT_MOUSEDOWN)
+			crown_js_request_keyboard_lock();
+
 		return EM_EVENT_STOP;
 	}
 
@@ -642,7 +690,10 @@ struct EmscriptenDevice
 
 	static EM_BOOL touch_prevent_default_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
 	{
-		CE_UNUSED_3(event_type, event, user_data);
+		CE_UNUSED_2(event, user_data);
+		if (event_type == EMSCRIPTEN_EVENT_TOUCHEND)
+			crown_js_request_keyboard_lock();
+
 		return EM_EVENT_STOP;
 	}
 
@@ -885,6 +936,8 @@ struct EmscriptenDevice
 
 	int run(DeviceOptions *opts)
 	{
+		emscripten_set_beforeunload_callback(NULL, EmscriptenDevice::beforeunload_callback);
+
 		// Browser default actions must be suppressed synchronously on the main thread.
 		emscripten_set_keypress_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, NULL, true, EmscriptenDevice::key_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 		emscripten_set_keydown_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, NULL, true, EmscriptenDevice::key_prevent_default_callback, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
