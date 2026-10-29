@@ -6,6 +6,7 @@
 #include "config.h"
 #include "core/containers/array.inl"
 #include "core/containers/vector.inl"
+#include "core/error/error.h"
 #include "core/filesystem/filesystem.h"
 #include "core/filesystem/reader_writer.inl"
 #include "core/json/json_object.inl"
@@ -129,12 +130,16 @@ namespace mesh_resource_internal
 			u32 num_inds;
 			br.read(num_inds);
 
+			u32 index_stride;
+			br.read(index_stride);
+			CE_ASSERT(index_stride == sizeof(u16) || index_stride == sizeof(u32), "Invalid mesh index stride");
+
 			const bool is_reference = num_verts == UINT32_MAX;
 			if (is_reference)
 				CE_ASSERT(num_inds == 0 && stride < i, "Invalid shared mesh buffer reference");
 
 			const u32 vsize = is_reference ? 0 : num_verts*stride;
-			const u32 isize = is_reference ? 0 : num_inds*sizeof(u16);
+			const u32 isize = is_reference ? 0 : num_inds*index_stride;
 
 			u32 num_material_ranges;
 			br.read(num_material_ranges);
@@ -155,12 +160,14 @@ namespace mesh_resource_internal
 				mg->layout = owner.layout;
 				mg->vertices = owner.vertices;
 				mg->indices = owner.indices;
+				CE_ASSERT(index_stride == owner.indices.stride, "Invalid shared mesh index stride");
 			} else {
 				mg->layout          = layout;
 				mg->vertices.num    = num_verts;
 				mg->vertices.stride = stride;
 				mg->vertices.data   = (char *)(mg->material_ranges + num_material_ranges);
 				mg->indices.num     = num_inds;
+				mg->indices.stride  = index_stride;
 				mg->indices.data    = mg->vertices.data + vsize;
 				br.read(mg->vertices.data, vsize);
 				br.read(mg->indices.data, isize);
@@ -192,13 +199,22 @@ namespace mesh_resource_internal
 			}
 
 			const u32 vsize = mg.vertices.num * mg.vertices.stride;
-			const u32 isize = mg.indices.num * sizeof(u16);
+			const u32 isize = mg.indices.num * mg.indices.stride;
+
+			const u16 flags = mg.indices.stride == sizeof(u32) ? BGFX_BUFFER_INDEX32 : BGFX_BUFFER_NONE;
+			if ((flags & BGFX_BUFFER_INDEX32) != 0 && (bgfx::getCaps()->supported & BGFX_CAPS_INDEX32) == 0) {
+				char name[STRING_ID64_BUF_LEN];
+				error::abort("Mesh #ID(%s) requires 32-bit indices, unsupported by renderer %s"
+					, id.to_string(name, sizeof(name))
+					, bgfx::getRendererName(bgfx::getRendererType())
+					);
+			}
 
 			const bgfx::Memory *vmem = bgfx::makeRef(mg.vertices.data, vsize);
 			const bgfx::Memory *imem = bgfx::makeRef(mg.indices.data, isize);
 
 			bgfx::VertexBufferHandle vbh = bgfx::createVertexBuffer(vmem, mg.layout);
-			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem);
+			bgfx::IndexBufferHandle ibh  = bgfx::createIndexBuffer(imem, flags);
 			CE_ASSERT(bgfx::isValid(vbh), "Invalid vertex buffer");
 			CE_ASSERT(bgfx::isValid(ibh), "Invalid index buffer");
 

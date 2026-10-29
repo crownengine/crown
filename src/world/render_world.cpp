@@ -816,12 +816,22 @@ f32 RenderWorld::mesh_cast_ray(MeshId mesh, const Vector3 &from, const Vector3 &
 {
 	const u32 mesh_i = _mesh_manager.index(mesh);
 	const MeshGeometry *mg = _mesh_manager._data.geometry[mesh_i];
+	if (mg->indices.stride == sizeof(u32)) {
+		return ray_mesh_intersection(from
+			, dir
+			, _mesh_manager._data.world[mesh_i]
+			, mg->vertices.data
+			, mg->vertices.stride
+			, (const u32 *)mg->indices.data
+			, mg->indices.num
+			);
+	}
 	return ray_mesh_intersection(from
 		, dir
 		, _mesh_manager._data.world[mesh_i]
 		, mg->vertices.data
 		, mg->vertices.stride
-		, (u16 *)mg->indices.data
+		, (const u16 *)mg->indices.data
 		, mg->indices.num
 		);
 }

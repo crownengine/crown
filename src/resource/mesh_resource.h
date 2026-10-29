@@ -27,7 +27,8 @@ struct VertexData
 struct IndexData
 {
 	u32 num;
-	char *data; // size = num*sizeof(u16)
+	u32 stride; // sizeof(u16) or sizeof(u32)
+	char *data; // size = num*stride
 };
 
 struct MeshGeometry

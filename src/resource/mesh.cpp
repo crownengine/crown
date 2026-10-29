@@ -297,10 +297,9 @@ namespace mesh
 		genTangSpaceDefault(&context);
 	}
 
-	static s32 generate_vertex_and_index_buffers(const Geometry &source
+	static void generate_vertex_and_index_buffers(const Geometry &source
 		, const GeometryInfo &geometry
 		, Geometry &output
-		, CompileOptions &opts
 		)
 	{
 		TempAllocator512 ta;
@@ -415,12 +414,6 @@ namespace mesh
 
 			if (index == INVALID_VERTEX_INDEX) {
 				index = array::size(output._vertex_buffer) / vertex_size;
-				RETURN_IF_FALSE(MESH, index <= UINT16_MAX
-					, opts
-					, "Mesh has too many vertices: %u (max %u)"
-					, index + 1
-					, UINT16_MAX + 1u
-					);
 
 				const u32 vertex_offset = array::size(output._vertex_buffer);
 				array::push(output._vertex_buffer, array::begin(vertex), vertex_size);
@@ -428,10 +421,8 @@ namespace mesh
 				hash_map::set(vertex_map, stored_key, index);
 			}
 
-			array::push_back(output._index_buffer, (u16)index);
+			array::push_back(output._index_buffer, index);
 		}
-
-		return 0;
 	}
 
 	static void merge_material_ranges(Geometry &g)
@@ -588,13 +579,14 @@ namespace mesh
 		u64 hash;
 		u32 vertex_size;
 		u32 index_count;
+		u32 index_stride;
 	};
 
 	struct GeometryBufferFingerprintHash
 	{
 		u32 operator()(const GeometryBufferFingerprint &key) const
 		{
-			return u32(key.hash) ^ u32(key.hash >> 32) ^ key.vertex_size ^ key.index_count;
+			return u32(key.hash) ^ u32(key.hash >> 32) ^ key.vertex_size ^ key.index_count ^ key.index_stride;
 		}
 	};
 
@@ -605,6 +597,7 @@ namespace mesh
 			return a.hash == b.hash
 				&& a.vertex_size == b.vertex_size
 				&& a.index_count == b.index_count
+				&& a.index_stride == b.index_stride
 				;
 		}
 	};
@@ -627,6 +620,7 @@ namespace mesh
 		}
 
 		Geometry geo(default_allocator());
+		Array<u16> indices16(default_allocator());
 		HashMap<GeometryBufferFingerprint, u32, GeometryBufferFingerprintHash, GeometryBufferFingerprintEqual> buffer_owners(ta);
 
 		opts.write(RESOURCE_HEADER(RESOURCE_VERSION_MESH));
@@ -672,7 +666,7 @@ namespace mesh
 
 			if (calculate_tangents)
 				generate_tangent_space(m._geometry, geometry_info, geo);
-			ENSURE_OR_RETURN(MESH, mesh::generate_vertex_and_index_buffers(m._geometry, geometry_info, geo, opts) == 0, opts);
+			mesh::generate_vertex_and_index_buffers(m._geometry, geometry_info, geo);
 
 			if (array::empty(geo._material_ranges))
 				array::push_back(geo._material_ranges, { STRING_ID_32("default", UINT32_C(0x5974b5ec)), 0, array::size(geo._index_buffer) });
@@ -691,18 +685,27 @@ namespace mesh
 
 			const u32 vertex_size = array::size(geo._vertex_buffer);
 			const u32 index_count = array::size(geo._index_buffer);
-			const u32 index_size = index_count * sizeof(u16);
+			const u32 index_stride = vertex_size / stride <= UINT16_MAX + 1u ? sizeof(u16) : sizeof(u32);
+			const u32 index_size = index_count * index_stride;
+			const void *index_data = array::begin(geo._index_buffer);
+			if (index_stride == sizeof(u16)) {
+				array::resize(indices16, index_count);
+				for (u32 i = 0; i < index_count; ++i)
+					indices16[i] = (u16)geo._index_buffer[i];
+				index_data = array::begin(indices16);
+			}
 
 			u64 hash = murmur64(&layout_signature, sizeof(layout_signature), 0u);
 			hash = murmur64(&stride, sizeof(stride), hash);
 			hash = murmur64(&vertex_size, sizeof(vertex_size), hash);
 			hash = murmur64(&index_count, sizeof(index_count), hash);
+			hash = murmur64(&index_stride, sizeof(index_stride), hash);
 			if (vertex_size != 0)
 				hash = murmur64(array::begin(geo._vertex_buffer), vertex_size, hash);
 			if (index_size != 0)
-				hash = murmur64(array::begin(geo._index_buffer), index_size, hash);
+				hash = murmur64(index_data, index_size, hash);
 
-			const GeometryBufferFingerprint fingerprint = { hash, vertex_size, index_count };
+			const GeometryBufferFingerprint fingerprint = { hash, vertex_size, index_count, index_stride };
 			const u32 owner_geometry_index = hash_map::get(buffer_owners, fingerprint, UINT32_MAX);
 			const bool is_unique = owner_geometry_index == UINT32_MAX;
 			if (is_unique)
@@ -723,6 +726,7 @@ namespace mesh
 				opts.write(UINT32_C(0));
 			}
 
+			opts.write(index_stride);
 			opts.write(array::size(geo._material_ranges));
 			for (u32 i = 0; i < array::size(geo._material_ranges); ++i) {
 				const MeshMaterialRange &range = geo._material_ranges[i];
@@ -733,7 +737,7 @@ namespace mesh
 
 			if (is_unique) {
 				opts.write(geo._vertex_buffer);
-				opts.write(array::begin(geo._index_buffer), array::size(geo._index_buffer) * sizeof(u16));
+				opts.write(index_data, index_size);
 			}
 
 			++geometry_index;
