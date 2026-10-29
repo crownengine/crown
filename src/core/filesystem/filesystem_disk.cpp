@@ -199,16 +199,12 @@ struct FileDisk : public File
 		CE_ASSERT(is_open(), "File is not open");
 		CE_ASSERT(data != NULL, "Data must be != NULL");
 #if CROWN_PLATFORM_WINDOWS
-		DWORD bytes_written;
-		WriteFile(_file, data, size, &bytes_written, NULL);
-		CE_ASSERT(size == bytes_written
-			, "WriteFile: GetLastError = %d"
-			, GetLastError()
-			);
+		DWORD bytes_written = 0;
+		if (!WriteFile(_file, data, size, &bytes_written, NULL))
+			return 0;
 		return bytes_written;
 #else
 		size_t bytes_written = fwrite(data, 1, size, _file);
-		CE_ASSERT(ferror(_file) == 0, "fwrite error");
 		return (u32)bytes_written;
 #endif
 	}
@@ -217,7 +213,7 @@ struct FileDisk : public File
 	{
 		CE_ASSERT(is_open(), "File is not open");
 #if CROWN_PLATFORM_WINDOWS
-		if (FlushFileBuffers(_file) != 0)
+		if (FlushFileBuffers(_file) == 0)
 			return -1;
 #else
 		if (fflush(_file) != 0)
