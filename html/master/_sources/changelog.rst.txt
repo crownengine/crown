@@ -54,6 +54,7 @@ Changelog
 * Data Compiler: fixed duplicate uniform metadata for uniforms shared across shader stages.
 * Data Compiler: fixed shader compilation continuing after shader library parsing errors.
 * Data Compiler: fixed crashes when compiling glTF resources.
+* Data Compiler: fixed importing meshes and triangle colliders with indices exceeding the 16-bit range.
 
 .. _v0.65.0:
 
