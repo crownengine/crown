@@ -150,7 +150,8 @@ f32 ray_triangle_intersection(const Vector3 &from, const Vector3 &dir, const Vec
 	return ray_mesh_intersection(from, dir, MATRIX4X4_IDENTITY, verts, sizeof(Vector3), inds, 3);
 }
 
-f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num)
+template<typename Index>
+static f32 ray_mesh_intersection_internal(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const Index *indices, u32 num)
 {
 	bool hit = false;
 	f32 tmin = FLT_MAX;
@@ -210,6 +211,16 @@ f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4
 	}
 
 	return hit ? tmin : -1.0f;
+}
+
+f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num)
+{
+	return ray_mesh_intersection_internal(from, dir, tm, vertices, stride, indices, num);
+}
+
+f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u32 *indices, u32 num)
+{
+	return ray_mesh_intersection_internal(from, dir, tm, vertices, stride, indices, num);
 }
 
 bool plane_3_intersection(Vector3 &ip, const Plane3 &a, const Plane3 &b, const Plane3 &c)

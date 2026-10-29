@@ -36,6 +36,9 @@ f32 ray_triangle_intersection(const Vector3 &from, const Vector3 &dir, const Vec
 /// mesh defined by (vertices, stride, indices, num) or -1.0 if no intersection.
 f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u16 *indices, u32 num);
 
+/// See ray_mesh_intersection().
+f32 ray_mesh_intersection(const Vector3 &from, const Vector3 &dir, const Matrix4x4 &tm, const void *vertices, u32 stride, const u32 *indices, u32 num);
+
 /// Returns whether the planes @a a, @a b and @a c intersects and if so fills @a ip with the intersection point.
 bool plane_3_intersection(Vector3 &ip, const Plane3 &a, const Plane3 &b, const Plane3 &c);
 

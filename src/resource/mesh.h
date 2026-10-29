@@ -65,7 +65,7 @@ struct Geometry
 	Array<u32> _uv_indices;
 
 	Array<char> _vertex_buffer;
-	Array<u16> _index_buffer;
+	Array<u32> _index_buffer;
 	Array<MeshMaterialRange> _material_ranges;
 
 	///

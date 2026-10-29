@@ -283,12 +283,22 @@ namespace physics_resource_internal
 			}
 		}
 
+		u32 index_stride = sizeof(u16);
+		if (cd.type == ColliderType::MESH) {
+			for (u32 i = 0; i < array::size(point_indices); ++i) {
+				RETURN_IF_FALSE(PHYSICS_RESOURCE, point_indices[i] < array::size(points), opts, "Mesh collider index is out of bounds");
+				if (point_indices[i] > UINT16_MAX)
+					index_stride = sizeof(u32);
+			}
+		}
+
 		const bool needs_points = cd.type == ColliderType::CONVEX_HULL
 			|| cd.type == ColliderType::MESH;
 		if (needs_points) {
 			cd.size += sizeof(u32) + sizeof(Vector3)*array::size(points);
 			if (cd.type == ColliderType::MESH)
-				cd.size += sizeof(u32) + sizeof(u16)*array::size(point_indices);
+				cd.size += sizeof(u32)*2 + index_stride*array::size(point_indices);
+			cd.size = (cd.size + alignof(ColliderDesc) - 1) & ~(alignof(ColliderDesc) - 1);
 		}
 
 		FileBuffer fb(output);
@@ -313,10 +323,16 @@ namespace physics_resource_internal
 
 			if (cd.type == ColliderType::MESH) {
 				bw.write(array::size(point_indices));
-				for (u32 ii = 0; ii < array::size(point_indices); ++ii)
-					bw.write((u16)point_indices[ii]);
+				bw.write(index_stride);
+				if (index_stride == sizeof(u32)) {
+					bw.write(array::begin(point_indices), array::size(point_indices) * sizeof(u32));
+				} else {
+					for (u32 ii = 0; ii < array::size(point_indices); ++ii)
+						bw.write((u16)point_indices[ii]);
+				}
 			}
 		}
+		bw.align(alignof(ColliderDesc));
 		return 0;
 	}
 

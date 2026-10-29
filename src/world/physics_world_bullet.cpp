@@ -1521,8 +1521,9 @@ struct PhysicsWorldImpl
 		, const void *vertices
 		, u32 num_vertices
 		, u32 vertex_stride
-		, const u16 *indices
+		, const void *indices
 		, u32 num_indices
+		, u32 index_stride
 		)
 	{
 		btIndexedMesh part;
@@ -1530,13 +1531,13 @@ struct PhysicsWorldImpl
 		part.m_vertexStride        = vertex_stride;
 		part.m_numVertices         = num_vertices;
 		part.m_triangleIndexBase   = (const unsigned char *)indices;
-		part.m_triangleIndexStride = sizeof(u16)*3;
+		part.m_triangleIndexStride = index_stride*3;
 		part.m_numTriangles        = num_indices/3;
-		part.m_indexType           = PHY_SHORT;
+		part.m_indexType           = index_stride == sizeof(u32) ? PHY_INTEGER : PHY_SHORT;
 
 		csd.allocator = _allocator;
 		csd.vertex_array = CE_NEW(*csd.allocator, btTriangleIndexVertexArray)();
-		csd.vertex_array->addIndexedMesh(part, PHY_SHORT);
+		csd.vertex_array->addIndexedMesh(part, part.m_indexType);
 
 		const btVector3 aabb_min(-1000.0f, -1000.0f, -1000.0f);
 		const btVector3 aabb_max(1000.0f, 1000.0f, 1000.0f);
@@ -1592,9 +1593,10 @@ struct PhysicsWorldImpl
 			const u32 num_points  = *(u32 *)data;
 			const char *points    = data + sizeof(u32);
 			const u32 num_indices = *(u32 *)(points + num_points*sizeof(Vector3));
-			const char *indices   = points + sizeof(u32) + num_points*sizeof(Vector3);
+			const u32 index_stride = *(u32 *)(points + num_points*sizeof(Vector3) + sizeof(u32));
+			const char *indices   = points + sizeof(u32)*2 + num_points*sizeof(Vector3);
 
-			create_mesh_shape(csd, points, num_points, sizeof(Vector3), (const u16 *)indices, num_indices);
+			create_mesh_shape(csd, points, num_points, sizeof(Vector3), indices, num_indices, index_stride);
 			break;
 		}
 
@@ -1647,8 +1649,9 @@ struct PhysicsWorldImpl
 				, mg->vertices.data
 				, mg->vertices.num
 				, mg->vertices.stride
-				, (const u16 *)mg->indices.data
+				, mg->indices.data
 				, mg->indices.num
+				, mg->indices.stride
 				);
 		}
 
@@ -3531,8 +3534,9 @@ struct PhysicsWorldImpl
 					, mg->vertices.data
 					, mg->vertices.num
 					, mg->vertices.stride
-					, (const u16 *)mg->indices.data
+					, mg->indices.data
 					, mg->indices.num
+					, mg->indices.stride
 					);
 			}
 
