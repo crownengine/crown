@@ -1,6 +1,18 @@
 Changelog
 =========
 
+.. _v0.65.6:
+
+:ref:`0.65.6 --- 29 Oct 2026 <v0.65.6>`
+---------------------------------------
+
+**Fixes**
+
+* Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally.
+* Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping.
+* Data Compiler: fixed crashes when compiling glTF resources.
+* Data Compiler: fixed importing meshes and triangle colliders with indices exceeding the 16-bit range.
+
 .. _v0.65.5:
 
 :ref:`0.65.5 --- 23 Oct 2026 <v0.65.5>`

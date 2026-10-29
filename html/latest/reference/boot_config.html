@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-06-18T22:27:48+00:00" /><meta property="og:title" content="boot.config reference" />
+    <meta property="article:modified_time" content="2026-10-27T03:34:48+00:00" /><meta property="og:title" content="boot.config reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/reference/boot_config.html" />
-<meta property="og:site_name" content="Crown 0.65.5 Manual" />
+<meta property="og:site_name" content="Crown 0.65.6 Manual" />
 <meta property="og:description" content="Path templates: Some settings accept path templates. A path template is a path that may contain variables in the form$VARNAME. Supported variables:$DATE: The local date in YYYY-MM-DD format.,$UTC_DATE: The UTC date in YYYY-MM-DD format.,$TIME: The local time in HH-MM-SS format..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.65.5 Manual" />
+<meta property="og:image:alt" content="Crown 0.65.6 Manual" />
 <meta name="description" content="Path templates: Some settings accept path templates. A path template is a path that may contain variables in the form$VARNAME. Supported variables:$DATE: The local date in YYYY-MM-DD format.,$UTC_DATE: The UTC date in YYYY-MM-DD format.,$TIME: The local time in HH-MM-SS format..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>boot.config reference &mdash; Crown 0.65.5 Manual</title>
+  <title>boot.config reference &mdash; Crown 0.65.6 Manual</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
@@ -162,7 +162,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Crown 0.65.5 Manual</a>
+          <a href="../index.html">Crown 0.65.6 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -260,7 +260,8 @@ If one frame takes longer than <code class="docutils literal notranslate"><span 
 <dt><code class="docutils literal notranslate"><span class="pre">solver_iterations</span> <span class="pre">=</span> <span class="pre">10</span></code></dt><dd><p>The number of global solver iterations used for physics constraints.
 Higher values generally improve stability and joint accuracy at the expense of compute time.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">sleep_threshold</span> <span class="pre">=</span> <span class="pre">0.5</span></code></dt><dd><p>The default sleeping threshold applied to rigid bodies.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">sleep_threshold</span> <span class="pre">=</span> <span class="pre">0.01</span></code></dt><dd><p>The linear and angular speed threshold below which rigid bodies can sleep.
+Lower values let slowly moving bodies settle longer before sleeping.</p>
 </dd>
 </dl>
 </section>
@@ -289,7 +290,7 @@ directory is mandatory if you plan to use the SaveGame system.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Jun 18, 2026.
+      <span class="lastupdated">Last updated on Oct 27, 2026.
       </span></p>
   </div>
 
