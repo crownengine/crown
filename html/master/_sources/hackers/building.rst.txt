@@ -71,7 +71,7 @@ Linux
 		.. code::
 
 			sudo apt install build-essential mesa-common-dev libgl1-mesa-dev \
-			libpulse-dev libxrandr-dev libdecor-0-dev libc6-dev-i386 libgtk-3-dev gettext
+			libpulse-dev libxrandr-dev libdecor-0-dev libcurl4-openssl-dev libc6-dev-i386 libgtk-3-dev gettext
 
 			sudo add-apt-repository ppa:vala-team
 			sudo apt install valac

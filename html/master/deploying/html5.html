@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-28T20:40:50+00:00" /><meta property="og:title" content="Deploying to HTML5" />
+    <meta property="article:modified_time" content="2026-10-27T12:25:40+00:00" /><meta property="og:title" content="Deploying to HTML5" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/deploying/html5.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
-<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Bundle URL: Set Bundle URL in the deploy dialog, or..." />
+<meta property="og:description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Streaming data: HTML5 deployments normally download..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
 <meta property="og:image:alt" content="Crown 0.66.0 Manual" />
-<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Bundle URL: Set Bundle URL in the deploy dialog, or..." />
+<meta name="description" content="Configure HTML5 deployer: Install emscripten: Install emscripten: https://emscripten.org/docs/getting_started/downloads.html. Set environment variables: Running the generated output: Use emrun to run the generated index.html: Streaming data: HTML5 deployments normally download..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
@@ -129,7 +129,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#install-emscripten">Install emscripten</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-environment-variables">Set environment variables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-generated-output">Running the generated output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bundle-url">Bundle URL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#streaming-data">Streaming data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runtime-arguments">Runtime arguments</a></li>
 </ul>
 </li>
@@ -207,13 +207,29 @@
 </pre></div>
 </div>
 </section>
-<section id="bundle-url">
-<h3>Bundle URL<a class="headerlink" href="#bundle-url" title="Permalink to this headline">¶</a></h3>
-<p>Set <strong>Bundle URL</strong> in the deploy dialog, or pass <code class="docutils literal notranslate"><span class="pre">--bundle-url</span> <span class="pre">&lt;url&gt;</span></code> to
-<code class="docutils literal notranslate"><span class="pre">crown-editor</span> <span class="pre">--deploy</span></code>, to load bundle data over HTTP instead of preloading
-<code class="docutils literal notranslate"><span class="pre">data.bin</span></code> into the Emscripten filesystem.</p>
-<p>Deployment exports a <code class="docutils literal notranslate"><span class="pre">data/</span></code> directory alongside the runtime instead of
-<code class="docutils literal notranslate"><span class="pre">data.bin</span></code> and <code class="docutils literal notranslate"><span class="pre">data.js</span></code>. Upload it beneath the specified bundle URL.</p>
+<section id="streaming-data">
+<h3>Streaming data<a class="headerlink" href="#streaming-data" title="Permalink to this headline">¶</a></h3>
+<p>HTML5 deployments normally download all game data up front. This makes
+deployment simple, but players have to wait for the download to finish before
+the game can start.</p>
+<p>Streaming downloads resources as the game needs them, reducing the amount of
+data needed at startup. Music and other streamed resources are read in small
+chunks as they are used, so the whole file does not have to be downloaded first
+or kept entirely in memory.</p>
+<p>Streaming requires configuration in both Crown and the web server. Set <strong>Bundle
+URL</strong> in the HTML5 deploy dialog to the URL where you will host the game data.
+The deployer exports a <code class="docutils literal notranslate"><span class="pre">data/</span></code> directory alongside the runtime instead of
+<code class="docutils literal notranslate"><span class="pre">data.bin</span></code> and <code class="docutils literal notranslate"><span class="pre">data.js</span></code>. For example, with <strong>Bundle URL</strong> set to
+<code class="docutils literal notranslate"><span class="pre">https://example.com/game/</span></code>, upload <code class="docutils literal notranslate"><span class="pre">data/</span></code> to
+<code class="docutils literal notranslate"><span class="pre">https://example.com/game/data/</span></code>.</p>
+<p>On the server hosting <code class="docutils literal notranslate"><span class="pre">data/</span></code>, enable byte-range requests and disable HTTP
+compression. Range requests must return <code class="docutils literal notranslate"><span class="pre">206</span> <span class="pre">Partial</span> <span class="pre">Content</span></code> with a matching
+<code class="docutils literal notranslate"><span class="pre">Content-Range</span></code>. For cross-origin hosting, set <code class="docutils literal notranslate"><span class="pre">Access-Control-Allow-Origin</span></code>
+to the game’s origin and include <code class="docutils literal notranslate"><span class="pre">Content-Range</span></code> and <code class="docutils literal notranslate"><span class="pre">Content-Encoding</span></code> in
+<code class="docutils literal notranslate"><span class="pre">Access-Control-Expose-Headers</span></code>.</p>
+<p>If the server cannot serve uncompressed ranges, Crown downloads each resource in
+full to temporary OPFS storage before opening it. This fallback requires OPFS
+and HTTPS or localhost.</p>
 </section>
 <section id="runtime-arguments">
 <h3>Runtime arguments<a class="headerlink" href="#runtime-arguments" title="Permalink to this headline">¶</a></h3>
@@ -239,7 +255,7 @@ URL options take precedence over HTML options.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="../copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 28, 2026.
+      <span class="lastupdated">Last updated on Oct 27, 2026.
       </span></p>
   </div>
 

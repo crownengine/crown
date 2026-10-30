@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-27T02:40:55+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-10-26T16:44:48+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -206,6 +206,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#resourcepackage">ResourcePackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#http">Http</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#httpstatus">HttpStatus</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#savegame">SaveGame</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#saveerror">SaveError</a></li>
 </ul>
@@ -1618,6 +1622,45 @@ function returns before the resources have been loaded. Call
 </dd>
 </dl>
 </section>
+<section id="http">
+<h2>Http<a class="headerlink" href="#http" title="Permalink to this headline">¶</a></h2>
+<p>Asynchronous HTTP(S) client.</p>
+<dl>
+<dt><strong>get</strong> (url, [timeout = 10])<span class="classifier">Id</span></dt><dd><p>Starts an asynchronous GET. Returns 0 if all request slots are occupied.</p>
+</dd>
+<dt><strong>post</strong> (url, content_type, body, [timeout = 10])<span class="classifier">Id</span></dt><dd><p>Starts an asynchronous POST.</p>
+</dd>
+<dt><strong>close</strong> (id)</dt><dd><p>Closes the request <em>id</em> and frees its memory. If the request is in progress,
+it cancels it.</p>
+</dd>
+<dt><strong>status</strong> (id)<span class="classifier">HttpStatus</span></dt><dd><p>Returns the current state of request <em>id</em>, or <code class="docutils literal notranslate"><span class="pre">HttpStatus.CLOSED</span></code> if the
+id is invalid. See <a class="reference internal" href="#httpstatus">HttpStatus</a>.</p>
+</dd>
+<dt><strong>error</strong> (id)<span class="classifier">string or nil</span></dt><dd><p>Returns the error string for a request <em>id</em> with <code class="docutils literal notranslate"><span class="pre">HttpStatus.ERROR</span></code>
+status, or <code class="docutils literal notranslate"><span class="pre">nil</span></code> if the request has no errors.</p>
+</dd>
+<dt><strong>response</strong> (id)<span class="classifier">table or nil</span></dt><dd><p>Returns the response for <code class="docutils literal notranslate"><span class="pre">HttpStatus.FINISHED</span></code> requests, otherwise
+<code class="docutils literal notranslate"><span class="pre">nil</span></code>. The response table has the following fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">status_code</span></code>: HTTP status code.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reason_phrase</span></code>: Reason phrase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">headers</span></code>: Array of tables with <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code> strings.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">body</span></code>: Response body.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<section id="httpstatus">
+<h3>HttpStatus<a class="headerlink" href="#httpstatus" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FINISHED</span></code>: The complete response is available; use <code class="docutils literal notranslate"><span class="pre">Http.response()</span></code> to get the data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code>: The request failed or timed out; use <code class="docutils literal notranslate"><span class="pre">Http.error()</span></code> for details.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DOWNLOADING</span></code>: A request is being processed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CLOSED</span></code>: The id is invalid or has been closed.</p></li>
+</ul>
+</section>
+</section>
 <section id="savegame">
 <h2>SaveGame<a class="headerlink" href="#savegame" title="Permalink to this headline">¶</a></h2>
 <p>Singleton to save and load savegames.</p>
@@ -1933,7 +1976,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 27, 2026.
+      <span class="lastupdated">Last updated on Oct 26, 2026.
       </span></p>
   </div>
 
