@@ -503,6 +503,18 @@ static bool push_event(const OsEvent &ev);
 	DL_IMPORT_FUNC(XUngrabPointer,             int,         (::Display *, Time));                                                                                                                             \
 	DL_IMPORT_FUNC(XUnmapWindow,               int,         (::Display *, ::Window));                                                                                                                         \
 	DL_IMPORT_FUNC(XWarpPointer,               int,         (::Display *, ::Window, ::Window, int, int, unsigned int, unsigned int, int, int));                                                               \
+	DL_IMPORT_FUNC(XClearArea,                 int,         (::Display *, ::Window, int, int, unsigned int, unsigned int, Bool));                                                                             \
+	DL_IMPORT_FUNC(XCreateGC,                  GC,          (::Display *, Drawable, unsigned long, XGCValues *));                                                                                             \
+	DL_IMPORT_FUNC(XInitImage,                 Status,      (XImage *));                                                                                                                                      \
+	DL_IMPORT_FUNC(XCreatePixmap,              Pixmap,      (::Display *, Drawable, unsigned int, unsigned int, unsigned int));                                                                               \
+	DL_IMPORT_FUNC(XDrawString,                int,         (::Display *, Drawable, GC, int, int, const char *, int));                                                                                        \
+	DL_IMPORT_FUNC(XFillRectangle,             int,         (::Display *, Drawable, GC, int, int, unsigned int, unsigned int));                                                                               \
+	DL_IMPORT_FUNC(XFreeFont,                  int,         (::Display *, XFontStruct *));                                                                                                                    \
+	DL_IMPORT_FUNC(XFreeGC,                    int,         (::Display *, GC));                                                                                                                               \
+	DL_IMPORT_FUNC(XLoadQueryFont,             XFontStruct *, (::Display *, const char *));                                                                                                                   \
+	DL_IMPORT_FUNC(XPutImage,                  int,         (::Display *, Drawable, GC, XImage *, int, int, int, int, unsigned int, unsigned int));                                                           \
+	DL_IMPORT_FUNC(XSetWindowBackgroundPixmap, int,         (::Display *, ::Window, Pixmap));                                                                                                                 \
+	DL_IMPORT_FUNC(XTextWidth,                 int,         (XFontStruct *, const char *, int));                                                                                                              \
 	DL_IMPORT_FUNC(XkbSetDetectableAutoRepeat, Bool,        (::Display *, Bool, Bool *));                                                                                                                     \
 	DL_IMPORT_FUNC(Xutf8LookupString,          int,         (XIC, XKeyPressedEvent *, char *, int, KeySym *, Status *))
 
@@ -1422,6 +1434,157 @@ static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *topl
 	queue.push_exit_event();
 }
 
+extern "C"
+{
+extern const unsigned char *splash_logo_pixels;
+extern const unsigned int splash_logo_width;
+extern const unsigned int splash_logo_height;
+extern const size_t splash_logo_stride;
+}
+
+struct SplashX11
+{
+	::Window window;
+	Pixmap pixmap;
+	GC gc;
+	GC black_gc;
+	GC track_gc;
+	XImage logo;
+	XFontStruct *font;
+	u32 width;
+	u32 height;
+	f32 progress;
+
+	SplashX11()
+		: window(None)
+		, pixmap(None)
+		, gc(NULL)
+		, black_gc(NULL)
+		, track_gc(NULL)
+		, logo()
+		, font(NULL)
+		, width(0)
+		, height(0)
+		, progress(0.0f)
+	{
+	}
+
+	static unsigned long rgb(Visual *visual, u32 r, u32 g, u32 b)
+	{
+		return ((r*visual->red_mask/255) & visual->red_mask)
+			| ((g*visual->green_mask/255) & visual->green_mask)
+			| ((b*visual->blue_mask/255) & visual->blue_mask);
+	}
+
+	void draw(::Display *display)
+	{
+		const int top = (int(height) - 130)/2;
+		const int bar_width = min(480, int(width)*4/5);
+		const int bar_x = (int(width) - bar_width)/2;
+		const int bar_y = top + 128;
+		XFillRectangle(display, pixmap, black_gc, 0, 0, width, height);
+		XPutImage(display, pixmap, gc, &logo, 0, 0, (int(width) - 64)/2, top, 64, 64);
+		if (font != NULL) {
+			const char text[] = "Initializing...";
+			const int text_width = XTextWidth(font, text, sizeof(text) - 1);
+			const int baseline = top + 88 + (16 - font->ascent - font->descent)/2 + font->ascent;
+			XDrawString(display, pixmap, gc, (int(width) - text_width)/2, baseline, text, sizeof(text) - 1);
+		}
+		XFillRectangle(display, pixmap, track_gc, bar_x, bar_y, bar_width, 2);
+		XFillRectangle(display, pixmap, gc, bar_x, bar_y, u32(bar_width*progress), 2);
+		XClearArea(display, window, 0, 0, 0, 0, False);
+	}
+
+	void update_progress(::Display *display, f32 value)
+	{
+		const int bar_width = min(480, int(width)*4/5);
+		const u32 previous = u32(bar_width*progress);
+		progress = value;
+		const u32 filled = u32(bar_width*progress);
+		if (filled == previous)
+			return;
+		const int x = (int(width) - bar_width)/2 + previous;
+		const int y = (int(height) - 130)/2 + 128;
+		XFillRectangle(display, pixmap, gc, x, y, filled - previous, 2);
+		XClearArea(display, window, x, y, filled - previous, 2, False);
+		XFlush(display);
+	}
+
+	void resize(::Display *display, u32 w, u32 h)
+	{
+		if (pixmap != None && width == w && height == h)
+			return;
+		width = w;
+		height = h;
+		const Pixmap previous = pixmap;
+		pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, DefaultScreen(display)));
+		XSetWindowBackgroundPixmap(display, window, pixmap);
+		XResizeWindow(display, window, w, h);
+		draw(display);
+		if (previous != None)
+			XFreePixmap(display, previous);
+	}
+
+	void open(::Display *display, ::Window parent, u32 w, u32 h)
+	{
+		const int screen = DefaultScreen(display);
+		Visual *visual = DefaultVisual(display, screen);
+		if (DefaultDepth(display, screen) != 24
+			|| visual->red_mask != 0xff0000
+			|| visual->green_mask != 0x00ff00
+			|| visual->blue_mask != 0x0000ff)
+			return;
+
+		XSetWindowAttributes attributes = {};
+		attributes.background_pixel = 0;
+		window = XCreateWindow(display, parent, 0, 0, w, h, 0, CopyFromParent, InputOutput, CopyFromParent, CWBackPixel, &attributes);
+		font = XLoadQueryFont(display, "-*-helvetica-medium-r-normal--14-*-*-*-*-*-*-*");
+		if (font == NULL)
+			font = XLoadQueryFont(display, "fixed");
+		XGCValues values = {};
+		if (font != NULL)
+			values.font = font->fid;
+		values.foreground = 0;
+		black_gc = XCreateGC(display, window, GCForeground, &values);
+		values.foreground = rgb(visual, 0x10, 0x10, 0x10);
+		track_gc = XCreateGC(display, window, GCForeground, &values);
+		values.foreground = rgb(visual, 0xf0, 0xf0, 0xf0);
+		gc = XCreateGC(display, window, GCForeground | (font != NULL ? GCFont : 0), &values);
+		logo.width = splash_logo_width;
+		logo.height = splash_logo_height;
+		logo.format = ZPixmap;
+		logo.data = (char *)splash_logo_pixels;
+		logo.byte_order = LSBFirst;
+		logo.bitmap_unit = 32;
+		logo.bitmap_bit_order = LSBFirst;
+		logo.bitmap_pad = 32;
+		logo.depth = 24;
+		logo.bytes_per_line = splash_logo_stride;
+		logo.bits_per_pixel = 32;
+		logo.red_mask = visual->red_mask;
+		logo.green_mask = visual->green_mask;
+		logo.blue_mask = visual->blue_mask;
+		XInitImage(&logo);
+		resize(display, w, h);
+		XMapRaised(display, window);
+	}
+
+	void close(::Display *display)
+	{
+		if (window == None)
+			return;
+		XDestroyWindow(display, window);
+		XFreePixmap(display, pixmap);
+		XFreeGC(display, black_gc);
+		XFreeGC(display, track_gc);
+		XFreeGC(display, gc);
+		if (font != NULL)
+			XFreeFont(display, font);
+		window = None;
+		XFlush(display);
+	}
+};
+
 struct SystemX11 : public System
 {
 	void *x11_lib;
@@ -1457,6 +1620,7 @@ struct SystemX11 : public System
 	std::atomic_bool fullscreen;
 	std::atomic_bool focused;
 	DeviceEventQueue &queue;
+	SplashX11 splash;
 
 	explicit SystemX11(DeviceEventQueue &event_queue)
 		: x11_lib(NULL)
@@ -1575,6 +1739,8 @@ struct SystemX11 : public System
 
 	void shutdown() override
 	{
+		splash.close(display);
+
 		// Free standard cursors.
 		for (u32 i = 0; i < countof(cursors); ++i) {
 			if (cursors[i] != None)
@@ -1723,10 +1889,13 @@ struct SystemX11 : public System
 
 			case ConfigureNotify: {
 				ScopedMutex sm(window_mutex);
-				if (event.xconfigure.window == window)
+				if (event.xconfigure.window == window) {
+					if (splash.window != None)
+						splash.resize(display, event.xconfigure.width, event.xconfigure.height);
 					queue.push_resolution_event(event.xconfigure.width
 						, event.xconfigure.height
 						);
+				}
 				break;
 			}
 
@@ -1912,6 +2081,20 @@ struct SystemX11 : public System
 };
 
 static SystemX11 *_x11;
+
+void splash_progress(u32 completed, u32 total)
+{
+	if (_x11 == NULL)
+		return;
+	ScopedMutex sm(_x11->window_mutex);
+	if (_x11->splash.window == None)
+		return;
+	if (completed == total) {
+		_x11->splash.close(_x11->display);
+	} else {
+		_x11->splash.update_progress(_x11->display, f32(completed)/total);
+	}
+}
 
 struct LinuxDevice
 {
@@ -2117,12 +2300,15 @@ struct WindowX11 : public Window
 		}
 
 		XSetWMProtocols(_x11->display, _x11->window, &_x11->wm_delete_window, 1);
+		if (parent == 0)
+			_x11->splash.open(_x11->display, _x11->window, width, height);
 	}
 
 	void close() override
 	{
 		ScopedMutex sm(_x11->window_mutex);
 		const ::Window window = _x11->window;
+		_x11->splash.close(_x11->display);
 		_x11->window = None;
 		XDestroyWindow(_x11->display, window);
 	}

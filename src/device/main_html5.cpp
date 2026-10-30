@@ -122,6 +122,30 @@ static void remove_event_listeners(void *user_data)
 	emscripten_html5_remove_all_event_listeners();
 }
 
+static void crown_js_splash_progress(u32 completed, u32 total)
+{
+	// code-format off
+	MAIN_THREAD_ASYNC_EM_ASM({
+			if (Module['onSplashProgress'])
+				Module['onSplashProgress']($0, $1);
+		}, completed, total);
+	// code-format on
+}
+
+static void crown_js_splash_complete(void *user_data)
+{
+	CE_UNUSED(user_data);
+	crown_js_splash_progress(1, 1);
+}
+
+void splash_progress(u32 completed, u32 total)
+{
+	if (completed == total)
+		emscripten_async_call(crown_js_splash_complete, NULL, 0);
+	else
+		crown_js_splash_progress(completed, total);
+}
+
 void open_uri(const char *uri)
 {
 	// code-format off
