@@ -1132,12 +1132,11 @@ bool next_event(OsEvent &ev)
 
 struct InitGlobals
 {
-#if !CROWN_DEBUG && !CROWN_DEVELOPMENT
-	FreeConsole();
-#endif
-
 	InitGlobals()
 	{
+#if !CROWN_DEBUG && !CROWN_DEVELOPMENT
+		FreeConsole();
+#endif
 		memory_globals::init();
 		task_manager_globals::init();
 		profiler_globals::init();
