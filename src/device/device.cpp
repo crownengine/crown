@@ -79,6 +79,14 @@ PlatformData g_platform_data;
 
 extern bool next_event(OsEvent &ev);
 extern void open_uri(const char *uri);
+#if CROWN_PLATFORM_EMSCRIPTEN || CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+extern void splash_progress(u32 completed, u32 total);
+#else
+static void splash_progress(u32 completed, u32 total)
+{
+	CE_UNUSED_2(completed, total);
+}
+#endif
 
 static bgfx::RendererType::Enum default_renderer_type()
 {
@@ -670,6 +678,11 @@ bool Device::frame()
 	u32 screenshot_frame;
 	const bool screenshot_pending = _bgfx_callback->submit_screenshot(screenshot_frame, *_pipeline, _prev_width, _prev_height);
 	u32 frame = bgfx::frame();
+#if CROWN_PLATFORM_EMSCRIPTEN || CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+	static u32 num_frames = 0;
+	if (++num_frames == 2)
+		splash_progress(1, 1);
+#endif
 	if (_pipeline->export_pending()) {
 		// The queued export runs after the blit on bgfx's render thread.
 		// Advance twice so the exported frame is ready even in pumped mode.
@@ -711,6 +724,8 @@ static void device_frame(void *user_data)
 int Device::main_loop()
 {
 	s64 run_t0 = time::now();
+	u32 init_step = 0;
+	const u32 num_init_steps = 9; // Includes the first displayed frame.
 
 	_console_server->register_command_name("pause",   "Pause the engine.",  device_command_pause,   this);
 	_console_server->register_command_name("unpause", "Resume the engine.", device_command_unpause, this);
@@ -849,6 +864,8 @@ int Device::main_loop()
 		}
 	}
 
+	splash_progress(++init_step, num_init_steps);
+
 	// Init all remaining subsystems
 	if (!_options._headless)
 		_display = display::create(_allocator);
@@ -872,6 +889,9 @@ int Device::main_loop()
 			, _options._parent_window
 			);
 		_window->set_title(_boot_config.window_title.c_str());
+#if CROWN_PLATFORM_LINUX
+		splash_progress(init_step, num_init_steps);
+#endif
 		if (!_options._hidden)
 			_window->show();
 		_window->set_fullscreen(_boot_config.fullscreen);
@@ -932,6 +952,8 @@ int Device::main_loop()
 		return EXIT_FAILURE;
 	}
 
+	splash_progress(++init_step, num_init_steps);
+
 	{
 		DynamicString save_dir(default_allocator());
 		if (!_boot_config.save_dir.empty()
@@ -948,11 +970,13 @@ int Device::main_loop()
 	_lua_environment->register_console_commands(*_console_server);
 
 	sound_world::init();
+	splash_progress(++init_step, num_init_steps);
 
 	// Load boot package.
 	_boot_package = create_resource_package(_boot_config.boot_package_name);
 	_boot_package->load();
 	_boot_package->flush();
+	splash_progress(++init_step, num_init_steps);
 
 	// Load render config package.
 	if (_options._render_config != NULL)
@@ -969,12 +993,14 @@ int Device::main_loop()
 	_stat_config_package->flush();
 
 	const StatConfigResource *stat_config_resource = (const StatConfigResource *)_resource_manager->get(RESOURCE_TYPE_STAT_CONFIG, _boot_config.stat_config_name);
+	splash_progress(++init_step, num_init_steps);
 
 	physics_globals::init(_allocator, default_allocator(), *_console_server, &_boot_config.physics_settings);
 
 	_lua_environment->load_libs();
 	_lua_environment->require(_boot_config.boot_script_name.c_str());
 	_lua_environment->execute_string(_options._lua_string.c_str());
+	splash_progress(++init_step, num_init_steps);
 
 	_pipeline = CE_NEW(_allocator, Pipeline)(*_shader_manager);
 	_pipeline->create(_width
@@ -994,10 +1020,12 @@ int Device::main_loop()
 		);
 
 	graph_globals::init(_allocator, *_pipeline, *_console_server);
+	splash_progress(++init_step, num_init_steps);
 
 	logi(DEVICE, "Initialized in " TIME_FMT, time::seconds(time::now() - run_t0));
 
 	_lua_environment->call_global("init");
+	splash_progress(++init_step, num_init_steps);
 
 	_prev_width = _width;
 	_prev_height = _height;

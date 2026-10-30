@@ -24,6 +24,7 @@
 #include "device/device.h"
 #include "device/device_event_queue.inl"
 #include "device/display.h"
+#include "device/splash.h"
 #include "device/window.h"
 #include "resource/data_compiler.h"
 #include <fcntl.h>  // O_RDONLY, ...
@@ -503,6 +504,14 @@ static bool push_event(const OsEvent &ev);
 	DL_IMPORT_FUNC(XUngrabPointer,             int,         (::Display *, Time));                                                                                                                             \
 	DL_IMPORT_FUNC(XUnmapWindow,               int,         (::Display *, ::Window));                                                                                                                         \
 	DL_IMPORT_FUNC(XWarpPointer,               int,         (::Display *, ::Window, ::Window, int, int, unsigned int, unsigned int, int, int));                                                               \
+	DL_IMPORT_FUNC(XClearArea,                 int,         (::Display *, ::Window, int, int, unsigned int, unsigned int, Bool));                                                                             \
+	DL_IMPORT_FUNC(XCreateGC,                  GC,          (::Display *, Drawable, unsigned long, XGCValues *));                                                                                             \
+	DL_IMPORT_FUNC(XInitImage,                 Status,      (XImage *));                                                                                                                                      \
+	DL_IMPORT_FUNC(XCreatePixmap,              Pixmap,      (::Display *, Drawable, unsigned int, unsigned int, unsigned int));                                                                               \
+	DL_IMPORT_FUNC(XFillRectangle,             int,         (::Display *, Drawable, GC, int, int, unsigned int, unsigned int));                                                                               \
+	DL_IMPORT_FUNC(XFreeGC,                    int,         (::Display *, GC));                                                                                                                               \
+	DL_IMPORT_FUNC(XPutImage,                  int,         (::Display *, Drawable, GC, XImage *, int, int, int, int, unsigned int, unsigned int));                                                           \
+	DL_IMPORT_FUNC(XSetWindowBackgroundPixmap, int,         (::Display *, ::Window, Pixmap));                                                                                                                 \
 	DL_IMPORT_FUNC(XkbSetDetectableAutoRepeat, Bool,        (::Display *, Bool, Bool *));                                                                                                                     \
 	DL_IMPORT_FUNC(Xutf8LookupString,          int,         (XIC, XKeyPressedEvent *, char *, int, KeySym *, Status *))
 
@@ -635,6 +644,148 @@ struct System
 	virtual int set_fds(fd_set *fdset, int max_fd) = 0;
 };
 
+struct SplashWayland
+{
+	Mutex mutex;
+	wl_display *display;
+	wl_shm *shm;
+	wl_surface *parent;
+	wl_surface *surface;
+	wl_subsurface *subsurface;
+	u32 width;
+	u32 height;
+	f32 progress;
+
+	SplashWayland()
+		: display(NULL)
+		, shm(NULL)
+		, parent(NULL)
+		, surface(NULL)
+		, subsurface(NULL)
+		, width(0)
+		, height(0)
+		, progress(0.0f)
+	{
+	}
+
+	void open(wl_display *d, wl_compositor *compositor, wl_subcompositor *subcompositor, wl_shm *s, wl_surface *p)
+	{
+		ScopedMutex sm(mutex);
+
+		if (s == NULL || subcompositor == NULL)
+			return;
+
+		display = d;
+		shm = s;
+		parent = p;
+		surface = wl_compositor_create_surface(compositor);
+		subsurface = wl_subcompositor_get_subsurface(subcompositor, surface, parent);
+		wl_subsurface_set_desync(subsurface);
+
+		wl_region *input = wl_compositor_create_region(compositor);
+
+		wl_surface_set_input_region(surface, input);
+		wl_region_destroy(input);
+	}
+
+	void update_progress(f32 value)
+	{
+		ScopedMutex sm(mutex);
+
+		progress = value;
+		redraw();
+	}
+
+	void resize(u32 w, u32 h)
+	{
+		ScopedMutex sm(mutex);
+
+		if (width == w && height == h)
+			return;
+
+		width = w;
+		height = h;
+		redraw();
+	}
+
+	static void buffer_release(void *user_data, wl_buffer *buffer)
+	{
+		CE_UNUSED(user_data);
+
+		wl_buffer_destroy(buffer);
+	}
+
+	void redraw()
+	{
+		const size_t image_size = size_t(width)*height*4;
+		const size_t size = image_size + 4;
+
+		if (surface == NULL || width == 0 || height == 0 || size > INT32_MAX)
+			return;
+
+		const int fd = memfd_create("crown-splash", MFD_CLOEXEC);
+
+		if (fd < 0)
+			return;
+
+		if (ftruncate(fd, size) != 0) {
+			::close(fd);
+			return;
+		}
+
+		void *data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+		if (data == MAP_FAILED) {
+			::close(fd);
+			return;
+		}
+
+		wl_shm_pool *pool = wl_shm_create_pool(shm, fd, size);
+
+		::close(fd);
+		splash::draw((u32 *)data, width, height, progress);
+
+		static const wl_buffer_listener listener = { buffer_release };
+		wl_buffer *buffer = wl_shm_pool_create_buffer(pool, 0, width, height, width*4, WL_SHM_FORMAT_XRGB8888);
+
+		wl_buffer_add_listener(buffer, &listener, NULL);
+		wl_surface_attach(surface, buffer, 0, 0);
+		wl_surface_damage(surface, 0, 0, width, height);
+		wl_surface_commit(surface);
+
+		if (parent != NULL) {
+			// Map the parent before bgfx has supplied its first window buffer.
+			wl_buffer *background = wl_shm_pool_create_buffer(pool, image_size, 1, 1, 4, WL_SHM_FORMAT_XRGB8888);
+
+			wl_buffer_add_listener(background, &listener, NULL);
+			wl_surface_attach(parent, background, 0, 0);
+			wl_surface_damage(parent, 0, 0, 1, 1);
+			wl_surface_commit(parent);
+			parent = NULL;
+		}
+
+		wl_shm_pool_destroy(pool);
+		munmap(data, size);
+		wl_display_flush(display);
+	}
+
+	void close()
+	{
+		ScopedMutex sm(mutex);
+
+		if (subsurface != NULL)
+			wl_subsurface_destroy(subsurface);
+		if (surface != NULL)
+			wl_surface_destroy(surface);
+
+		subsurface = NULL;
+		surface = NULL;
+
+		if (display != NULL)
+			wl_display_flush(display);
+	}
+};
+
 struct SystemWayland : public System
 {
 	void *wl_lib;
@@ -642,7 +793,9 @@ struct SystemWayland : public System
 	wl_display *display;
 	wl_registry *registry;
 	wl_compositor *compositor;
+	wl_subcompositor *subcompositor;
 	wl_shm *shm;
+	SplashWayland splash;
 	wl_seat *seat;
 	xdg_wm_base *wm_base;
 	wl_keyboard *keyboard;
@@ -689,6 +842,7 @@ struct SystemWayland : public System
 		, display(NULL)
 		, registry(NULL)
 		, compositor(NULL)
+		, subcompositor(NULL)
 		, shm(NULL)
 		, seat(NULL)
 		, wm_base(NULL)
@@ -793,6 +947,7 @@ struct SystemWayland : public System
 
 	void shutdown()
 	{
+		splash.close();
 		if (decor.lib != NULL) {
 			if (decor.context != NULL) {
 				libdecor_unref(decor.context);
@@ -829,6 +984,8 @@ struct SystemWayland : public System
 			wl_cursor_theme_destroy(cursor_theme);
 		if (compositor)
 			wl_compositor_destroy(compositor);
+		if (subcompositor)
+			wl_subcompositor_destroy(subcompositor);
 		if (shm)
 			wl_shm_destroy(shm);
 		if (registry)
@@ -1338,6 +1495,8 @@ static void registry_handle_global(void *data, wl_registry *registry, uint name,
 
 	if (strcmp(iface, wl_compositor_interface.name) == 0) {
 		wl->compositor = (wl_compositor *)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
+	} else if (strcmp(iface, wl_subcompositor_interface.name) == 0) {
+		wl->subcompositor = (wl_subcompositor *)wl_registry_bind(registry, name, &wl_subcompositor_interface, 1);
 	} else if (strcmp(iface, wl_shm_interface.name) == 0) {
 		wl->shm = (wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
 	} else if (strcmp(iface, wl_seat_interface.name) == 0) {
@@ -1422,6 +1581,168 @@ static void xdg_toplevel_handle_close(void *user_data, struct xdg_toplevel *topl
 	queue.push_exit_event();
 }
 
+struct SplashX11
+{
+	::Window window;
+	Pixmap pixmap;
+	GC gc;
+	GC black_gc;
+	GC track_gc;
+	XImage logo;
+	XImage label;
+	u32 width;
+	u32 height;
+	f32 progress;
+
+	SplashX11()
+		: window(None)
+		, pixmap(None)
+		, gc(NULL)
+		, black_gc(NULL)
+		, track_gc(NULL)
+		, logo()
+		, label()
+		, width(0)
+		, height(0)
+		, progress(0.0f)
+	{
+	}
+
+	struct Painter
+	{
+		SplashX11 &splash;
+		::Display *display;
+
+		void fill_rectangle(int x, int y, u32 w, u32 h, u32 color)
+		{
+			const GC gc = color == splash::BACKGROUND_COLOR ? splash.black_gc
+				: color == splash::TRACK_COLOR ? splash.track_gc
+				: splash.gc
+				;
+
+			XFillRectangle(display, splash.pixmap, gc, x, y, w, h);
+		}
+
+		void put_image(int x, int y, XImage &image)
+		{
+			XPutImage(display, splash.pixmap, splash.gc, &image, 0, 0, x, y, image.width, image.height);
+		}
+	};
+
+	void draw(::Display *display)
+	{
+		Painter painter = { *this, display };
+
+		splash::draw(painter, logo, label, width, height, progress);
+		XClearArea(display, window, 0, 0, 0, 0, False);
+	}
+
+	void update_progress(::Display *display, f32 value)
+	{
+		const splash::Rectangle rect = splash::progress_rectangle(width, height, progress, value);
+
+		progress = value;
+
+		if (rect.width == 0)
+			return;
+
+		Painter painter = { *this, display };
+
+		painter.fill_rectangle(rect.x, rect.y, rect.width, rect.height, rect.color);
+		XClearArea(display, window, rect.x, rect.y, rect.width, rect.height, False);
+		XFlush(display);
+	}
+
+	void resize(::Display *display, u32 w, u32 h)
+	{
+		if (w == 0 || h == 0 || (pixmap != None && width == w && height == h))
+			return;
+
+		width = w;
+		height = h;
+
+		const Pixmap previous = pixmap;
+
+		pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, DefaultScreen(display)));
+		XSetWindowBackgroundPixmap(display, window, pixmap);
+		XResizeWindow(display, window, w, h);
+		draw(display);
+
+		if (previous != None)
+			XFreePixmap(display, previous);
+	}
+
+	static void init_image(XImage &image, const splash::Bitmap &bitmap, Visual *visual)
+	{
+		const bool monochrome = bitmap.bits_per_pixel == 1;
+
+		image.width = bitmap.width;
+		image.height = bitmap.height;
+		image.format = monochrome ? XYBitmap : ZPixmap;
+		image.data = (char *)bitmap.pixels;
+		image.byte_order = LSBFirst;
+		image.bitmap_unit = monochrome ? 8 : 32;
+		image.bitmap_bit_order = monochrome ? MSBFirst : LSBFirst;
+		image.bitmap_pad = 32;
+		image.depth = monochrome ? 1 : 24;
+		image.bytes_per_line = bitmap.stride();
+		image.bits_per_pixel = bitmap.bits_per_pixel;
+		image.red_mask = monochrome ? 0 : visual->red_mask;
+		image.green_mask = monochrome ? 0 : visual->green_mask;
+		image.blue_mask = monochrome ? 0 : visual->blue_mask;
+
+		XInitImage(&image);
+	}
+
+	void open(::Display *display, ::Window parent, u32 w, u32 h)
+	{
+		const int screen = DefaultScreen(display);
+		Visual *visual = DefaultVisual(display, screen);
+
+		if (DefaultDepth(display, screen) != 24
+			|| visual->red_mask != 0xff0000
+			|| visual->green_mask != 0x00ff00
+			|| visual->blue_mask != 0x0000ff)
+			return;
+
+		XSetWindowAttributes attributes = {};
+
+		attributes.background_pixel = 0;
+		window = XCreateWindow(display, parent, 0, 0, w, h, 0, CopyFromParent, InputOutput, CopyFromParent, CWBackPixel, &attributes);
+
+		XGCValues values = {};
+
+		values.foreground = splash::BACKGROUND_COLOR;
+		black_gc = XCreateGC(display, window, GCForeground, &values);
+		values.foreground = splash::TRACK_COLOR;
+		track_gc = XCreateGC(display, window, GCForeground, &values);
+		values.foreground = splash::FOREGROUND_COLOR;
+		values.background = splash::BACKGROUND_COLOR;
+		gc = XCreateGC(display, window, GCForeground | GCBackground, &values);
+
+		init_image(logo, splash::logo, visual);
+		init_image(label, splash::label, visual);
+
+		resize(display, w, h);
+		XMapRaised(display, window);
+	}
+
+	void close(::Display *display)
+	{
+		if (window == None)
+			return;
+
+		XDestroyWindow(display, window);
+		XFreePixmap(display, pixmap);
+		pixmap = None;
+		XFreeGC(display, black_gc);
+		XFreeGC(display, track_gc);
+		XFreeGC(display, gc);
+		window = None;
+		XFlush(display);
+	}
+};
+
 struct SystemX11 : public System
 {
 	void *x11_lib;
@@ -1457,6 +1778,7 @@ struct SystemX11 : public System
 	std::atomic_bool fullscreen;
 	std::atomic_bool focused;
 	DeviceEventQueue &queue;
+	SplashX11 splash;
 
 	explicit SystemX11(DeviceEventQueue &event_queue)
 		: x11_lib(NULL)
@@ -1575,6 +1897,8 @@ struct SystemX11 : public System
 
 	void shutdown() override
 	{
+		splash.close(display);
+
 		// Free standard cursors.
 		for (u32 i = 0; i < countof(cursors); ++i) {
 			if (cursors[i] != None)
@@ -1723,10 +2047,13 @@ struct SystemX11 : public System
 
 			case ConfigureNotify: {
 				ScopedMutex sm(window_mutex);
-				if (event.xconfigure.window == window)
+				if (event.xconfigure.window == window) {
+					if (splash.window != None)
+						splash.resize(display, event.xconfigure.width, event.xconfigure.height);
 					queue.push_resolution_event(event.xconfigure.width
 						, event.xconfigure.height
 						);
+				}
 				break;
 			}
 
@@ -1912,6 +2239,32 @@ struct SystemX11 : public System
 };
 
 static SystemX11 *_x11;
+
+void splash_progress(u32 completed, u32 total)
+{
+	if (_wl != NULL) {
+		if (completed == total)
+			_wl->splash.close();
+		else
+			_wl->splash.update_progress(f32(completed)/total);
+
+		return;
+	}
+
+	if (_x11 == NULL)
+		return;
+
+	ScopedMutex sm(_x11->window_mutex);
+
+	if (_x11->splash.window == None)
+		return;
+
+	if (completed == total) {
+		_x11->splash.close(_x11->display);
+	} else {
+		_x11->splash.update_progress(_x11->display, f32(completed)/total);
+	}
+}
 
 struct LinuxDevice
 {
@@ -2117,12 +2470,15 @@ struct WindowX11 : public Window
 		}
 
 		XSetWMProtocols(_x11->display, _x11->window, &_x11->wm_delete_window, 1);
+		if (parent == 0)
+			_x11->splash.open(_x11->display, _x11->window, width, height);
 	}
 
 	void close() override
 	{
 		ScopedMutex sm(_x11->window_mutex);
 		const ::Window window = _x11->window;
+		_x11->splash.close(_x11->display);
 		_x11->window = None;
 		XDestroyWindow(_x11->display, window);
 	}
@@ -2374,7 +2730,7 @@ struct WindowWayland : public Window
 
 	void open(u16 x, u16 y, u16 width, u16 height, u32 parent) override
 	{
-		CE_UNUSED_3(x, y, parent);
+		CE_UNUSED_2(x, y);
 
 		floating_width  = width;
 		floating_height = height;
@@ -2384,12 +2740,15 @@ struct WindowWayland : public Window
 		surface = wl_compositor_create_surface(_wl->compositor);
 		CE_ENSURE(surface != NULL);
 		_wl->content_surface = surface;
+		if (parent == 0)
+			_wl->splash.open(_wl->display, _wl->compositor, _wl->subcompositor, _wl->shm, surface);
 
 		wl_surface_add_listener(surface, &surface_listener, this);
 	}
 
 	void close() override
 	{
+		_wl->splash.close();
 		destroy_toplevel_objects();
 		wl_surface_destroy(surface);
 		if (_wl->content_surface == surface)
@@ -2448,6 +2807,7 @@ struct WindowWayland : public Window
 
 		accepted_width  = width;
 		accepted_height = height;
+		_wl->splash.resize(width, height);
 
 		if (size_changed)
 			_wl->queue->push_resolution_event(width, height);
@@ -2694,6 +3054,7 @@ static void handle_configure(libdecor_frame *frame
 	window->accepted_height = height;
 
 	window->commit_content_size(width, height, configuration);
+	_wl->splash.resize(width, height);
 	window->apply_pending_state();
 
 	if (size_changed)

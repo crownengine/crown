@@ -307,7 +307,7 @@ windows-release64:        \
 .PHONY: splash-logo
 splash-logo:
 	scripts/generate-logo.sh tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg splash_logo tools/deploy/splash_logo.c svg
-	scripts/generate-logo.sh tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg splash_logo src/device/splash_logo.c rgba 64 64
+	scripts/generate-logo.sh tools/level_editor/resources/icons/hicolor/scalable/apps/org.crownengine.Crown.svg splash_logo src/device/splash_logo.c bgra 64 64 pma
 
 .PHONY: crown-editor-theme crown-editor-theme-gtk4
 crown-editor-theme:

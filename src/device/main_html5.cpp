@@ -172,6 +172,16 @@ static void remove_event_listeners(void *user_data)
 	emscripten_html5_remove_all_event_listeners();
 }
 
+void splash_progress(u32 completed, u32 total)
+{
+	// code-format off
+	MAIN_THREAD_ASYNC_EM_ASM({
+			if (Module['onSplashProgress'])
+				Module['onSplashProgress']($0, $1);
+		}, completed, total);
+	// code-format on
+}
+
 void open_uri(const char *uri)
 {
 	// code-format off

@@ -19,6 +19,7 @@
 #include "core/unit_tests.h"
 #include "device/device.h"
 #include "device/device_event_queue.inl"
+#include "device/splash.h"
 #include "resource/data_compiler.h"
 #include <fcntl.h>    // _O_TEXT
 #include <io.h>       // _open_osfhandle
@@ -335,10 +336,117 @@ static const LPCSTR s_cursor_name[MouseCursor::COUNT] =
 };
 static bool push_event(const OsEvent &ev);
 
+struct SplashWin
+{
+	HWND _hwnd;
+	u32 _width;
+	u32 _height;
+	f32 _progress;
+
+	SplashWin()
+		: _hwnd(NULL)
+		, _width(0)
+		, _height(0)
+		, _progress(0.0f)
+	{
+	}
+
+	struct Painter
+	{
+		HDC dc;
+
+		void fill_rectangle(int x, int y, u32 w, u32 h, u32 color)
+		{
+			if (w == 0 || h == 0)
+				return;
+
+			const RECT rect = { x, y, x + LONG(w), y + LONG(h) };
+
+			SetBkColor(dc, RGB((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff));
+			ExtTextOutA(dc, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
+		}
+
+		void put_image(int x, int y, const splash::Bitmap &bitmap)
+		{
+			struct
+			{
+				BITMAPINFOHEADER header;
+				RGBQUAD colors[2];
+			} info = {};
+
+			info.header.biSize = sizeof(BITMAPINFOHEADER);
+			info.header.biWidth = bitmap.width;
+			info.header.biHeight = -LONG(bitmap.height);
+			info.header.biPlanes = 1;
+			info.header.biBitCount = bitmap.bits_per_pixel;
+			info.header.biCompression = BI_RGB;
+			info.colors[1] = { u8(splash::FOREGROUND_COLOR), u8(splash::FOREGROUND_COLOR >> 8), u8(splash::FOREGROUND_COLOR >> 16), 0 };
+
+			SetDIBitsToDevice(dc, x, y, bitmap.width, bitmap.height
+				, 0, 0, 0, bitmap.height, bitmap.pixels, (BITMAPINFO *)&info, DIB_RGB_COLORS);
+		}
+	};
+
+	void draw(const DRAWITEMSTRUCT &item)
+	{
+		const int saved = SaveDC(item.hDC);
+		Painter painter = { item.hDC };
+
+		splash::draw(painter, splash::logo, splash::label, _width, _height, _progress);
+		RestoreDC(item.hDC, saved);
+	}
+
+	void open(HWND parent)
+	{
+		RECT rect;
+
+		GetClientRect(parent, &rect);
+		_width = rect.right;
+		_height = rect.bottom;
+		_hwnd = CreateWindowExA(0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW
+			, 0, 0, _width, _height, parent, NULL, NULL, NULL);
+	}
+
+	void update_progress(f32 value)
+	{
+		const splash::Rectangle rect = splash::progress_rectangle(_width, _height, _progress, value);
+
+		_progress = value;
+
+		if (rect.width == 0)
+			return;
+
+		HDC dc = GetDC(_hwnd);
+		Painter painter = { dc };
+
+		painter.fill_rectangle(rect.x, rect.y, rect.width, rect.height, rect.color);
+		ReleaseDC(_hwnd, dc);
+	}
+
+	void resize(u32 width, u32 height)
+	{
+		if (_width == width && _height == height)
+			return;
+
+		_width = width;
+		_height = height;
+
+		MoveWindow(_hwnd, 0, 0, width, height, TRUE);
+		RedrawWindow(_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
+
+	void close()
+	{
+		DestroyWindow(_hwnd);
+		_hwnd = NULL;
+	}
+};
+
 struct WindowsDevice
 {
 	HWND _hwnd;
 	HCURSOR _hcursor;
+	SplashWin _splash;
 	MPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
 	Joypad _joypad;
@@ -430,7 +538,7 @@ struct WindowsDevice
 		DWORD style = 0;
 		DWORD exstyle = 0;
 		if (_options->_parent_window == 0) {
-			style |= WS_OVERLAPPEDWINDOW;
+			style |= WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
 		} else {
 			style |= WS_POPUP;
 			exstyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_NOACTIVATE;
@@ -462,6 +570,9 @@ struct WindowsDevice
 
 		if (_options->_parent_window != 0)
 			SetParent(_hwnd, (HWND)(UINT_PTR)_options->_parent_window);
+
+		if (!_options->_hidden && _options->_parent_window == 0)
+			_splash.open(_hwnd);
 
 		RAWINPUTDEVICE rid;
 		rid.usUsagePage = 0x01;
@@ -560,6 +671,24 @@ struct WindowsDevice
 			_queue.push_exit_event();
 			return 0;
 
+		case WM_USER + 2:
+			if (_splash._hwnd != NULL) {
+				if (wparam == (WPARAM)lparam)
+					_splash.close();
+				else
+					_splash.update_progress(f32(wparam)/f32(lparam));
+			}
+			return 0;
+
+		case WM_DRAWITEM: {
+			const DRAWITEMSTRUCT *item = (const DRAWITEMSTRUCT *)lparam;
+			if (item->hwndItem == _splash._hwnd) {
+				_splash.draw(*item);
+				return TRUE;
+			}
+			break;
+		}
+
 		case WM_ACTIVATE:
 			if (_options->_parent_window == 0)
 				_focused = LOWORD(wparam) != WA_INACTIVE && HIWORD(wparam) == 0;
@@ -582,6 +711,8 @@ struct WindowsDevice
 		case WM_SIZE: {
 			u32 width  = GET_X_LPARAM(lparam);
 			u32 height = GET_Y_LPARAM(lparam);
+			if (_splash._hwnd != NULL)
+				_splash.resize(width, height);
 			if (_cursor_mode == CursorMode::DISABLED) {
 				RECT clipRect;
 				GetWindowRect(_hwnd, &clipRect);
@@ -847,6 +978,14 @@ struct WindowsDevice
 };
 
 static WindowsDevice *s_windows_device;
+
+void splash_progress(u32 completed, u32 total)
+{
+	const DeviceOptions &opts = *s_windows_device->_options;
+
+	if (!opts._headless && !opts._hidden && opts._parent_window == 0)
+		PostMessageA(s_windows_device->_hwnd, WM_USER + 2, completed, total);
+}
 
 LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {

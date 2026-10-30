@@ -172,3 +172,7 @@ CE_STATIC_ASSERT(CROWN_CONSOLE_PORT_AUTO_MAX_TRIES > 0, "Invalid console auto-po
 #ifndef CROWN_LOG_TO_CONSOLE
 	#define CROWN_LOG_TO_CONSOLE 1
 #endif
+
+#ifndef CROWN_SPLASH_TEXT
+	#define CROWN_SPLASH_TEXT 0
+#endif
