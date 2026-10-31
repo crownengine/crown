@@ -64,37 +64,87 @@ static void crown_js_request_keyboard_lock()
 	// code-format on
 }
 
-static void crown_js_request_pointer_lock()
+struct PointerLockRequest
 {
-	// code-format off
-	MAIN_THREAD_EM_ASM({
-			if (Module.canvas.requestPointerLock) {
-				Module.canvas.requestPointerLock({ unadjustedMovement: true });
-			}
-		});
-	// code-format on
+	enum State
+	{
+		IDLE,
+		RAW,
+		ADJUSTED
+	};
+
+	State state;
+	bool cancelled;
+};
+
+// Accessed only on the browser thread.
+static PointerLockRequest _pointer_lock_request = { PointerLockRequest::IDLE, false };
+
+// code-format off
+EM_JS(void, crown_js_request_pointer_lock, (int unadjusted_movement), {
+	async function request_pointer_lock() {
+		let unsupported = false;
+		try {
+			await Module.canvas.requestPointerLock({ unadjustedMovement: !!unadjusted_movement });
+		} catch (error) {
+			unsupported = error.name === 'NotSupportedError';
+		}
+		_crown_pointer_lock_done(unsupported);
+	}
+	request_pointer_lock();
+});
+// code-format on
+
+static bool pointer_locked()
+{
+	EmscriptenPointerlockChangeEvent status;
+	return emscripten_get_pointerlock_status(&status) == EMSCRIPTEN_RESULT_SUCCESS
+		&& status.isActive
+		&& strcmp(status.id, CROWN_HTML5_CANVAS_NAME) == 0;
 }
 
-static void crown_js_request_pointer_lock_fallback()
+extern "C" EMSCRIPTEN_KEEPALIVE void crown_pointer_lock_done(int unsupported)
 {
-	// code-format off
-	MAIN_THREAD_EM_ASM({
-			if (Module.canvas.requestPointerLock) {
-				Module.canvas.requestPointerLock({ unadjustedMovement: false });
-			}
-		});
-	// code-format on
+	if (!_pointer_lock_request.cancelled
+		&& _pointer_lock_request.state == PointerLockRequest::RAW
+		&& unsupported
+		) {
+		_pointer_lock_request.state = PointerLockRequest::ADJUSTED;
+		crown_js_request_pointer_lock(false);
+		return;
+	}
+
+	_pointer_lock_request.state = PointerLockRequest::IDLE;
+	if (_pointer_lock_request.cancelled && pointer_locked())
+		emscripten_exit_pointerlock();
 }
 
-static void crown_js_exit_pointer_lock()
+struct CursorModeRequest
 {
-	// code-format off
-	MAIN_THREAD_EM_ASM({
-			if (document.exitPointerLock) {
-				document.exitPointerLock();
-			}
-		});
-	// code-format on
+	CursorMode::Enum mode;
+	bool accepted;
+};
+
+static void set_cursor_mode(void *user_data)
+{
+	CursorModeRequest &request = *(CursorModeRequest *)user_data;
+	if (request.mode == CursorMode::DISABLED) {
+		EmscriptenPointerlockChangeEvent status;
+		request.accepted = emscripten_get_pointerlock_status(&status) == EMSCRIPTEN_RESULT_SUCCESS;
+		if (!request.accepted)
+			return;
+
+		_pointer_lock_request.cancelled = false;
+		if (_pointer_lock_request.state != PointerLockRequest::IDLE || pointer_locked())
+			return;
+
+		_pointer_lock_request.state = PointerLockRequest::RAW;
+		crown_js_request_pointer_lock(true);
+	} else if (request.mode == CursorMode::NORMAL) {
+		_pointer_lock_request.cancelled = true;
+		if (pointer_locked())
+			emscripten_exit_pointerlock();
+	}
 }
 
 static bool crown_js_has_focus()
@@ -221,13 +271,13 @@ struct WindowEmscripten : public Window
 
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
-		if (mode == CursorMode::DISABLED) {
-			crown_js_request_pointer_lock();
-		} else if (mode == CursorMode::NORMAL) {
-			crown_js_exit_pointer_lock();
-		}
-
-		return true;
+		CursorModeRequest request = { mode, true };
+		const bool success = emscripten_proxy_sync(emscripten_proxy_get_system_queue()
+			, emscripten_main_runtime_thread_id()
+			, crown::set_cursor_mode
+			, &request
+			);
+		return success && request.accepted;
 	}
 
 	void *native_handle() override
@@ -912,13 +962,6 @@ struct EmscriptenDevice
 		return EM_EVENT_PROPAGATE;
 	}
 
-	static EM_BOOL pointerlockerror_callback(int event_type, const void *reserved, void *user_data)
-	{
-		CE_UNUSED_3(event_type, reserved, user_data);
-		crown_js_request_pointer_lock_fallback();
-		return EM_EVENT_STOP;
-	}
-
 	static EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
@@ -977,7 +1020,6 @@ struct EmscriptenDevice
 		emscripten_set_gamepaddisconnected_callback(&_joypad, true, Joypad::callback);
 
 		emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockchange_callback);
-		emscripten_set_pointerlockerror_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockerror_callback);
 		emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::fullscreenchange_callback);
 
 		emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::resize_callback);
