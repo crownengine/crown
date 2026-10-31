@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.7 --- DD MMM YYYY <v0.65.7>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable.
+
 .. _v0.65.6:
 
 :ref:`0.65.6 --- 29 Oct 2026 <v0.65.6>`
