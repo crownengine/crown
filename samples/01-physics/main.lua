@@ -99,14 +99,15 @@ function Game.update(dt)
 	if Keyboard.any_pressed() then
 		if Keyboard.pressed(Keyboard.button_id("escape")) then
 			if Game.cursor_disabled then
-				Game.cursor_disabled = not Window.set_cursor_mode("normal")
+				Window.set_cursor_mode("normal")
 			else
 				Device.quit()
 			end
 		else
-			Game.cursor_disabled = Window.set_cursor_mode("disabled")
+			Window.set_cursor_mode("disabled")
 		end
 	end
+	Game.cursor_disabled = Window.cursor_mode() == "disabled"
 
 	-- Recycle used bullets after they expire.
 	local head = Game.bullets_head
