@@ -2253,6 +2253,11 @@ struct WindowX11 : public Window
 		XDefineCursor(_x11->display, _x11->window, _x11->cursors[cursor]);
 	}
 
+	CursorMode::Enum cursor_mode() override
+	{
+		return _x11->cursor_mode;
+	}
+
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == _x11->cursor_mode)
@@ -2536,6 +2541,11 @@ struct WindowWayland : public Window
 	{
 		_wl->cursor = cursor;
 		wayland_apply_cursor(_wl);
+	}
+
+	CursorMode::Enum cursor_mode() override
+	{
+		return _wl->cursor_mode;
 	}
 
 	bool set_cursor_mode(CursorMode::Enum mode) override

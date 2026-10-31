@@ -996,6 +996,11 @@ struct WindowAndroid : public Window
 		CE_UNUSED(cursor);
 	}
 
+	CursorMode::Enum cursor_mode() override
+	{
+		return s_android_device->_cursor_mode;
+	}
+
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == s_android_device->_cursor_mode)

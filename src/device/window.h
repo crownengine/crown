@@ -104,6 +104,9 @@ struct Window
 	/// Sets the mouse @a cursor on this window. Setting the mode to
 	virtual void set_cursor(MouseCursor::Enum cursor) = 0;
 
+	/// Returns the current mouse cursor mode.
+	virtual CursorMode::Enum cursor_mode() = 0;
+
 	/// Sets the mouse cursor @a mode on this window.
 	/// CursorMode::DISABLED hides the cursor and automatically re-centers it
 	/// every time it is moved.

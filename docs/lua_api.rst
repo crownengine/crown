@@ -1904,6 +1904,9 @@ Represents the application window.
 	``corner_bottom_left``, ``corner_bottom_right``, ``size_horizontal``,
 	``size_vertical`` or ``wait``.
 
+**cursor_mode** () : string
+	Returns the current mouse cursor mode, either ``normal`` or ``disabled``.
+
 **set_cursor_mode** (mode) : bool
     Requests the mouse cursor *mode* on this window and returns true if the
     request was accepted.
@@ -1912,6 +1915,7 @@ Represents the application window.
     is moved. On some platforms or backends disabling the cursor is not allowed
     or only possible under specific circumnstances (e.g. when the cursor is
     inside the window rectangle).
+    Use ``cursor_mode()`` to query the current mode.
 
 World
 =====

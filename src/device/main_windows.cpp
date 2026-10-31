@@ -1030,6 +1030,11 @@ struct WindowWin : public Window
 		SetCursor(s_windows_device->_hcursor);
 	}
 
+	CursorMode::Enum cursor_mode() override
+	{
+		return s_windows_device->_cursor_mode;
+	}
+
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		if (mode == s_windows_device->_cursor_mode)

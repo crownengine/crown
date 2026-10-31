@@ -269,6 +269,11 @@ struct WindowEmscripten : public Window
 		CE_UNUSED(cursor);
 	}
 
+	CursorMode::Enum cursor_mode() override
+	{
+		return pointer_locked() ? CursorMode::DISABLED : CursorMode::NORMAL;
+	}
+
 	bool set_cursor_mode(CursorMode::Enum mode) override
 	{
 		CursorModeRequest request = { mode, true };

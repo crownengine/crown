@@ -170,8 +170,8 @@ struct CursorModeInfo
 
 static const CursorModeInfo s_mode[] =
 {
-	{ "disabled", CursorMode::DISABLED },
-	{ "normal", CursorMode::NORMAL }
+	{ "normal", CursorMode::NORMAL },
+	{ "disabled", CursorMode::DISABLED }
 };
 CE_STATIC_ASSERT(countof(s_mode) == CursorMode::COUNT);
 
@@ -4719,6 +4719,11 @@ void load_api(LuaEnvironment &env)
 				LUA_ASSERT(mc != MouseCursor::COUNT, stack, "Unknown mouse cursor: '%s'", name);
 				device()->_window->set_cursor(mc);
 				return 0;
+			});
+		env.add_module_function("Window", "cursor_mode", [](lua_State *L) {
+				LuaStack stack(L, +1);
+				stack.push_string(s_mode[device()->_window->cursor_mode()].name);
+				return 1;
 			});
 		env.add_module_function("Window", "set_cursor_mode", [](lua_State *L) {
 				LuaStack stack(L, +1);
