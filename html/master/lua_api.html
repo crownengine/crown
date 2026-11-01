@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-26T16:44:48+00:00" /><meta property="og:title" content="Lua API reference" />
+    <meta property="article:modified_time" content="2026-10-31T10:46:16+00:00" /><meta property="og:title" content="Lua API reference" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/lua_api.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -1834,12 +1834,16 @@ that world.</p>
 <code class="docutils literal notranslate"><span class="pre">corner_bottom_left</span></code>, <code class="docutils literal notranslate"><span class="pre">corner_bottom_right</span></code>, <code class="docutils literal notranslate"><span class="pre">size_horizontal</span></code>,
 <code class="docutils literal notranslate"><span class="pre">size_vertical</span></code> or <code class="docutils literal notranslate"><span class="pre">wait</span></code>.</p>
 </dd>
-<dt><strong>set_cursor_mode</strong> (mode)<span class="classifier">bool</span></dt><dd><p>Sets the mouse cursor <em>mode</em> on this window and returns true if successful.
+<dt><strong>cursor_mode</strong> ()<span class="classifier">string</span></dt><dd><p>Returns the current mouse cursor mode, either <code class="docutils literal notranslate"><span class="pre">normal</span></code> or <code class="docutils literal notranslate"><span class="pre">disabled</span></code>.</p>
+</dd>
+<dt><strong>set_cursor_mode</strong> (mode)<span class="classifier">bool</span></dt><dd><p>Requests the mouse cursor <em>mode</em> on this window and returns true if the
+request was accepted.
 Mode can be either <code class="docutils literal notranslate"><span class="pre">normal</span></code> or <code class="docutils literal notranslate"><span class="pre">disabled</span></code>.  Setting the mode to
 <code class="docutils literal notranslate"><span class="pre">disabled</span></code> hides the cursor and automatically re-centers it every time it
 is moved. On some platforms or backends disabling the cursor is not allowed
 or only possible under specific circumnstances (e.g. when the cursor is
-inside the window rectangle).</p>
+inside the window rectangle).
+Use <code class="docutils literal notranslate"><span class="pre">cursor_mode()</span></code> to query the current mode.</p>
 </dd>
 </dl>
 </section>
@@ -1976,7 +1980,7 @@ spawned by the level are unspawned.</p>
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 26, 2026.
+      <span class="lastupdated">Last updated on Oct 31, 2026.
       </span></p>
   </div>
 
