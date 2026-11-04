@@ -15,12 +15,12 @@ public class AndroidDeployer
 {
 	public string? _java_home;
 	public string _javac_path;
-	public string _jarsigner_path;
 
 	public string? _sdk_path;
 	public string? _ndk_root_path;
 	public string _d8_path;
 	public string _aapt_path;
+	public string _apksigner_path;
 	public string _zipalign_path;
 
 	public AndroidDeployer()
@@ -66,6 +66,7 @@ public class AndroidDeployer
 		android_manifest += "\n    android:label=\"%s\">".printf(app_title);
 		android_manifest += "\n    <activity";
 		android_manifest += "\n      android:name=\"%s.%s\"".printf(app_identifier, activity_name);
+		android_manifest += "\n      android:exported=\"true\"";
 		android_manifest += "\n      android:configChanges=\"orientation|keyboardHidden\"";
 		android_manifest += "\n      android:label=\"@string/activity_label\"";
 		android_manifest += "\n      android:screenOrientation=\"landscape\"";
@@ -208,12 +209,6 @@ public class AndroidDeployer
 			, "bin"
 			, "javac"
 			);
-
-		_jarsigner_path = Path.build_path(Path.DIR_SEPARATOR_S
-			, _java_home
-			, "bin"
-			, "jarsigner"
-			);
 #elif CROWN_PLATFORM_LINUX
 		if (_java_home != null) {
 			_javac_path = Path.build_path(Path.DIR_SEPARATOR_S
@@ -221,15 +216,8 @@ public class AndroidDeployer
 				, "bin"
 				, "javac"
 				);
-
-			_jarsigner_path = Path.build_path(Path.DIR_SEPARATOR_S
-				, _java_home
-				, "bin"
-				, "jarsigner"
-				);
 		} else {
 			_javac_path = "javac";
-			_jarsigner_path = "jarsigner";
 		}
 #endif /* if CROWN_PLATFORM_WINDOWS */
 
@@ -259,6 +247,11 @@ public class AndroidDeployer
 		_aapt_path = Path.build_path(Path.DIR_SEPARATOR_S
 			, build_tools_path
 			, "aapt"
+			);
+
+		_apksigner_path = Path.build_path(Path.DIR_SEPARATOR_S
+			, build_tools_path
+			, "apksigner"
 			);
 
 		_zipalign_path = Path.build_path(Path.DIR_SEPARATOR_S
@@ -313,7 +306,7 @@ public class AndroidDeployer
 		var android_jar_path = Path.build_path(Path.DIR_SEPARATOR_S, _sdk_path, "platforms", "android-" + target_sdk_version.to_string(), "android.jar");
 		var libcrown_src_name = "libcrown-" + deploy_config_name(config) + ".so";
 		var libcpp_name = "libc++_shared.so";
-		var signed_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".signed.apk");
+		var aligned_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".aligned.apk");
 		var unaligned_apk = Path.build_path(Path.DIR_SEPARATOR_S, bin_path, apk_name + ".unaligned.apk");
 		var final_apk = Path.build_path(Path.DIR_SEPARATOR_S, config_path, apk_name + ".apk");
 
@@ -585,6 +578,22 @@ public class AndroidDeployer
 				return exit_status;
 			}
 
+			args = new string[]
+			{
+				_zipalign_path,
+				"-f",
+				"4",
+				unaligned_apk,
+				aligned_apk
+			};
+
+			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
+			exit_status = yield wait_subprocess(pid);
+			if (exit_status != 0) {
+				loge("Failed align APK. exit_status %d".printf(exit_status));
+				return exit_status;
+			}
+
 			string signing_keystore_path = keystore_path;
 			if (signing_keystore_path.length == 0) {
 				GLib.FileIOStream debug_keystore_stream;
@@ -604,17 +613,19 @@ public class AndroidDeployer
 
 			args = new string[]
 			{
-				_jarsigner_path,
-				"-keystore",
+				_apksigner_path,
+				"sign",
+				"--ks",
 				signing_keystore_path,
-				"-storepass",
-				keystore_pass,
-				"-keypass",
-				key_pass,
-				"-signedjar",
-				signed_apk,
-				unaligned_apk,
-				key_alias
+				"--ks-pass",
+				"pass:" + keystore_pass,
+				"--key-pass",
+				"pass:" + key_pass,
+				"--ks-key-alias",
+				key_alias,
+				"--out",
+				final_apk,
+				aligned_apk
 			};
 
 			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
@@ -634,17 +645,15 @@ public class AndroidDeployer
 
 			args = new string[]
 			{
-				_zipalign_path,
-				"-f",
-				"4",
-				signed_apk,
+				_apksigner_path,
+				"verify",
 				final_apk
 			};
 
 			pid = _subprocess_launcher.spawnv_async(subprocess_flags(), args, ENGINE_DIR);
 			exit_status = yield wait_subprocess(pid);
 			if (exit_status != 0) {
-				loge("Failed align APK. exit_status %d".printf(exit_status));
+				loge("Failed to verify APK. exit_status %d".printf(exit_status));
 				return exit_status;
 			}
 		} catch (Error e) {
