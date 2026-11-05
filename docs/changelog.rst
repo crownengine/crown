@@ -60,6 +60,7 @@ Changelog
 * Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers.
 * Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.
 * Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.
+* Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.

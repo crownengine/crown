@@ -729,6 +729,16 @@ struct EmscriptenDevice
 		return -1;
 	}
 
+	void release_touches()
+	{
+		for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+			if (_touch_pointer_ids[i] == -1)
+				continue;
+			_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
+			_touch_pointer_ids[i] = -1;
+		}
+	}
+
 	static const char *beforeunload_callback(int event_type, const void *reserved, void *user_data)
 	{
 		CE_UNUSED_3(event_type, reserved, user_data);
@@ -868,13 +878,7 @@ struct EmscriptenDevice
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 		if (event_type == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
-			for (int i = 0; i < event->numTouches; ++i) {
-				const s32 index = ed->touch_pointer_index(event->touches[i].identifier);
-				if (index == -1)
-					continue;
-				ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, index, false);
-				ed->_touch_pointer_ids[index] = -1;
-			}
+			ed->release_touches();
 			return EM_EVENT_STOP;
 		}
 
@@ -921,6 +925,8 @@ struct EmscriptenDevice
 		CE_UNUSED_2(event_type, event);
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 		ed->_focused = crown_js_has_focus();
+		if (!ed->_focused)
+			ed->release_touches();
 		return EM_EVENT_PROPAGATE;
 	}
 
@@ -929,6 +935,8 @@ struct EmscriptenDevice
 		CE_UNUSED_2(event_type, event);
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 		ed->_focused = crown_js_has_focus();
+		if (!ed->_focused)
+			ed->release_touches();
 		return EM_EVENT_PROPAGATE;
 	}
 
