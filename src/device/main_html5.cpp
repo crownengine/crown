@@ -668,6 +668,16 @@ struct EmscriptenDevice
 		return -1;
 	}
 
+	void release_touches()
+	{
+		for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+			if (_touch_pointer_ids[i] == -1)
+				continue;
+			_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
+			_touch_pointer_ids[i] = -1;
+		}
+	}
+
 	static EM_BOOL key_callback(int event_type, const EmscriptenKeyboardEvent *key_event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
@@ -767,13 +777,7 @@ struct EmscriptenDevice
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
 		if (event_type == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
-			for (int i = 0; i < event->numTouches; ++i) {
-				const s32 index = ed->touch_pointer_index(event->touches[i].identifier);
-				if (index == -1)
-					continue;
-				ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, index, false);
-				ed->_touch_pointer_ids[index] = -1;
-			}
+			ed->release_touches();
 			return EM_EVENT_STOP;
 		}
 
@@ -813,6 +817,24 @@ struct EmscriptenDevice
 			}
 		}
 		return EM_EVENT_STOP;
+	}
+
+	static EM_BOOL focus_callback(int event_type, const EmscriptenFocusEvent *event, void *user_data)
+	{
+		CE_UNUSED_2(event_type, event);
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+		if (!MAIN_THREAD_EM_ASM_INT({ return document.hasFocus() && !document.hidden; }))
+			ed->release_touches();
+		return EM_EVENT_PROPAGATE;
+	}
+
+	static EM_BOOL visibilitychange_callback(int event_type, const EmscriptenVisibilityChangeEvent *event, void *user_data)
+	{
+		CE_UNUSED_2(event_type, event);
+		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
+		if (!MAIN_THREAD_EM_ASM_INT({ return document.hasFocus() && !document.hidden; }))
+			ed->release_touches();
+		return EM_EVENT_PROPAGATE;
 	}
 
 	static EM_BOOL pointerlockchange_callback(int event_type, const EmscriptenPointerlockChangeEvent *event, void *user_data)
@@ -873,6 +895,8 @@ struct EmscriptenDevice
 		emscripten_set_gamepadconnected_callback(&_joypad, true, Joypad::callback);
 		emscripten_set_gamepaddisconnected_callback(&_joypad, true, Joypad::callback);
 
+		emscripten_set_blur_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, EmscriptenDevice::focus_callback);
+		emscripten_set_visibilitychange_callback(this, true, EmscriptenDevice::visibilitychange_callback);
 		emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::pointerlockchange_callback);
 		emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_DOCUMENT, this, true, EmscriptenDevice::fullscreenchange_callback);
 

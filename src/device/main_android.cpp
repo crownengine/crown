@@ -585,6 +585,7 @@ struct AndroidDevice
 
 		case APP_CMD_TERM_WINDOW:
 			// The window is being hidden or closed, clean it up.
+			release_touches();
 			break;
 
 		case APP_CMD_WINDOW_RESIZED:
@@ -595,6 +596,7 @@ struct AndroidDevice
 			break;
 
 		case APP_CMD_LOST_FOCUS:
+			release_touches();
 			break;
 
 		case APP_CMD_DESTROY:
