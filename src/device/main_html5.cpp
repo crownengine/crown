@@ -758,6 +758,9 @@ struct EmscriptenDevice
 			for (int i = 0; i < event->numTouches; ++i) {
 				const EmscriptenTouchPoint *touch = &event->touches[i];
 
+				if (!touch->isChanged)
+					continue;
+
 				if (touch->identifier < TouchButton::COUNT) {
 					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
 						, 0
@@ -782,6 +785,9 @@ struct EmscriptenDevice
 			for (int i = 0; i < event->numTouches; ++i) {
 				const EmscriptenTouchPoint *touch = &event->touches[i];
 
+				if (!touch->isChanged)
+					continue;
+
 				if (touch->identifier < TouchAxis::COUNT) {
 					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
 						, 0
@@ -805,6 +811,9 @@ struct EmscriptenDevice
 		case EMSCRIPTEN_EVENT_TOUCHMOVE:
 			for (int i = 0; i < event->numTouches; ++i) {
 				const EmscriptenTouchPoint *touch = &event->touches[i];
+
+				if (!touch->isChanged)
+					continue;
 
 				if (touch->identifier < TouchAxis::COUNT) {
 					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
