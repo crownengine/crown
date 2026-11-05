@@ -58,6 +58,7 @@ Changelog
 * Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable.
 * Runtime: HTML5: fixed mouse look remaining active in the physics sample after the browser releases pointer lock.
 * Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers.
+* Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.

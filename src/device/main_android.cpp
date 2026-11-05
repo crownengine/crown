@@ -297,6 +297,7 @@ struct AndroidDevice
 
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
+	s32 _touch_pointer_ids[TouchButton::COUNT];
 	Thread _main_thread;
 	android_app *_app;
 	DeviceOptions *_opts;
@@ -323,6 +324,9 @@ struct AndroidDevice
 		, _request_pointer_capture(NULL)
 		, _release_pointer_capture(NULL)
 	{
+		for (u32 i = 0; i < TouchButton::COUNT; ++i)
+			_touch_pointer_ids[i] = -1;
+
 		for (u8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
 			_joypad.state[ii].device_id = -1;
 			_joypad.state[ii].button_state = 0;
@@ -330,6 +334,17 @@ struct AndroidDevice
 			_joypad.state[ii].hat_y = 0;
 			memset(&_joypad.state[ii].axis, 0, sizeof(_joypad.state[ii].axis));
 		}
+	}
+
+	s32 touch_pointer_index(s32 pointer_id) const
+	{
+		if (pointer_id < 0)
+			return -1;
+		for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+			if (_touch_pointer_ids[i] == pointer_id)
+				return i;
+		}
+		return -1;
 	}
 
 	s8 joypad_id(s32 device_id, bool create)
@@ -815,32 +830,46 @@ struct AndroidDevice
 			switch (action) {
 			case AMOTION_EVENT_ACTION_DOWN:
 			case AMOTION_EVENT_ACTION_POINTER_DOWN:
-				if (pointer_id < TouchButton::COUNT)
-					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, true);
-				if (pointer_id < TouchAxis::COUNT)
-					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, pointer_x, pointer_y, 0);
+				if (pointer_id < 0 || touch_pointer_index(pointer_id) != -1)
+					break;
+				for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+					if (_touch_pointer_ids[i] != -1)
+						continue;
+					_touch_pointer_ids[i] = pointer_id;
+					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, i, pointer_x, pointer_y, 0);
+					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, true);
+					break;
+				}
 				break;
 
 			case AMOTION_EVENT_ACTION_UP:
-			case AMOTION_EVENT_ACTION_POINTER_UP:
-				if (pointer_id < TouchAxis::COUNT)
-					_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, pointer_x, pointer_y, 0);
-				if (pointer_id < TouchButton::COUNT)
-					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
+			case AMOTION_EVENT_ACTION_POINTER_UP: {
+				const s32 i = touch_pointer_index(pointer_id);
+				if (i == -1)
+					break;
+				_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, i, pointer_x, pointer_y, 0);
+				_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
+				_touch_pointer_ids[i] = -1;
 				break;
+			}
 
 			case AMOTION_EVENT_ACTION_OUTSIDE:
-			case AMOTION_EVENT_ACTION_CANCEL:
-				if (pointer_id < TouchButton::COUNT)
-					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, pointer_id, false);
+			case AMOTION_EVENT_ACTION_CANCEL: {
+				const s32 i = touch_pointer_index(pointer_id);
+				if (i != -1) {
+					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
+					_touch_pointer_ids[i] = -1;
+				}
 				break;
+			}
 
 			case AMOTION_EVENT_ACTION_MOVE: {
 				const s32 pointer_count = AMotionEvent_getPointerCount(event);
 				for (s32 index = 0; index < pointer_count; ++index) {
 					const s32 id = AMotionEvent_getPointerId(event, index);
-					if (id < TouchAxis::COUNT)
-						_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, id, AMotionEvent_getX(event, index), AMotionEvent_getY(event, index), 0);
+					const s32 i = touch_pointer_index(id);
+					if (i != -1)
+						_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, i, AMotionEvent_getX(event, index), AMotionEvent_getY(event, index), 0);
 				}
 				break;
 			}

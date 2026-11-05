@@ -696,6 +696,7 @@ struct EmscriptenDevice
 {
 	SPSCQueue<OsEvent, CROWN_MAX_OS_EVENTS> _events;
 	DeviceEventQueue _queue;
+	s32 _touch_pointer_ids[TouchButton::COUNT];
 	bool _pointer_locked;
 	bool _fullscreen;
 	bool _focused;
@@ -713,6 +714,19 @@ struct EmscriptenDevice
 		, _joypad_polled(false)
 		, _joypad(_queue, *this)
 	{
+		for (u32 i = 0; i < TouchButton::COUNT; ++i)
+			_touch_pointer_ids[i] = -1;
+	}
+
+	s32 touch_pointer_index(s32 pointer_id) const
+	{
+		if (pointer_id < 0)
+			return -1;
+		for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+			if (_touch_pointer_ids[i] == pointer_id)
+				return i;
+		}
+		return -1;
 	}
 
 	static const char *beforeunload_callback(int event_type, const void *reserved, void *user_data)
@@ -853,97 +867,53 @@ struct EmscriptenDevice
 	static EM_BOOL touch_callback(int event_type, const EmscriptenTouchEvent *event, void *user_data)
 	{
 		EmscriptenDevice *ed = (EmscriptenDevice *)user_data;
-
-		switch (event_type) {
-		case EMSCRIPTEN_EVENT_TOUCHSTART:
+		if (event_type == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
 			for (int i = 0; i < event->numTouches; ++i) {
-				const EmscriptenTouchPoint *touch = &event->touches[i];
-
-				if (!touch->isChanged)
+				const s32 index = ed->touch_pointer_index(event->touches[i].identifier);
+				if (index == -1)
 					continue;
-
-				if (touch->identifier < TouchButton::COUNT) {
-					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, true
-						);
-				}
-
-				if (touch->identifier < TouchAxis::COUNT) {
-					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, touch->targetX
-						, touch->targetY
-						, 0
-						);
-				}
-			}
-			return EM_EVENT_STOP;
-
-		case EMSCRIPTEN_EVENT_TOUCHEND:
-			for (int i = 0; i < event->numTouches; ++i) {
-				const EmscriptenTouchPoint *touch = &event->touches[i];
-
-				if (!touch->isChanged)
-					continue;
-
-				if (touch->identifier < TouchAxis::COUNT) {
-					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, touch->targetX
-						, touch->targetY
-						, 0
-						);
-				}
-
-				if (touch->identifier < TouchButton::COUNT) {
-					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, false
-						);
-				}
-			}
-			return EM_EVENT_STOP;
-
-		case EMSCRIPTEN_EVENT_TOUCHMOVE:
-			for (int i = 0; i < event->numTouches; ++i) {
-				const EmscriptenTouchPoint *touch = &event->touches[i];
-
-				if (!touch->isChanged)
-					continue;
-
-				if (touch->identifier < TouchAxis::COUNT) {
-					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, touch->targetX
-						, touch->targetY
-						, 0
-						);
-				}
-			}
-			return EM_EVENT_STOP;
-
-		case EMSCRIPTEN_EVENT_TOUCHCANCEL:
-			for (int i = 0; i < event->numTouches; ++i) {
-				const EmscriptenTouchPoint *touch = &event->touches[i];
-
-				if (touch->identifier < TouchButton::COUNT) {
-					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN
-						, 0
-						, touch->identifier
-						, false
-						);
-				}
+				ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, index, false);
+				ed->_touch_pointer_ids[index] = -1;
 			}
 			return EM_EVENT_STOP;
 		}
 
-		return EM_EVENT_PROPAGATE;
+		for (int i = 0; i < event->numTouches; ++i) {
+			const EmscriptenTouchPoint *touch = &event->touches[i];
+			if (!touch->isChanged)
+				continue;
+
+			// targetX/Y and resolution events both use canvas CSS pixels.
+			const s32 index = ed->touch_pointer_index(touch->identifier);
+			switch (event_type) {
+			case EMSCRIPTEN_EVENT_TOUCHSTART:
+				if (touch->identifier < 0 || index != -1)
+					break;
+				for (u32 j = 0; j < TouchButton::COUNT; ++j) {
+					if (ed->_touch_pointer_ids[j] != -1)
+						continue;
+					ed->_touch_pointer_ids[j] = touch->identifier;
+					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, j, touch->targetX, touch->targetY, 0);
+					ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, j, true);
+					break;
+				}
+				break;
+			case EMSCRIPTEN_EVENT_TOUCHEND:
+				if (index == -1)
+					break;
+				ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, index, touch->targetX, touch->targetY, 0);
+				ed->_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, index, false);
+				ed->_touch_pointer_ids[index] = -1;
+				break;
+			case EMSCRIPTEN_EVENT_TOUCHMOVE:
+				if (index != -1)
+					ed->_queue.push_axis_event(InputDeviceType::TOUCHSCREEN, 0, index, touch->targetX, touch->targetY, 0);
+				break;
+			default:
+				return EM_EVENT_PROPAGATE;
+			}
+		}
+		return EM_EVENT_STOP;
 	}
 
 	static EM_BOOL focus_callback(int event_type, const EmscriptenFocusEvent *event, void *user_data)
