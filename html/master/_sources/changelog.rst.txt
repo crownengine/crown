@@ -41,6 +41,7 @@ Changelog
 * Tools: fixed input widgets clearing text selections when opening their context menus.
 * Tools: fixed Escape closing the color picker when cancelling a numeric edit.
 * Tools: fixed angle inputs returning unclamped values.
+* Tools: fixed Android APKs failing to install on newer Android versions.
 * Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.
