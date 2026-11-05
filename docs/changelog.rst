@@ -11,6 +11,7 @@ Changelog
 * Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable.
 * Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers.
 * Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.
+* Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.
 
 * Tools: fixed Android APKs failing to install on newer Android versions.
 
