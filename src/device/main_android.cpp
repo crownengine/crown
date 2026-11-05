@@ -347,6 +347,16 @@ struct AndroidDevice
 		return -1;
 	}
 
+	void release_touches()
+	{
+		for (u32 i = 0; i < TouchButton::COUNT; ++i) {
+			if (_touch_pointer_ids[i] == -1)
+				continue;
+			_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
+			_touch_pointer_ids[i] = -1;
+		}
+	}
+
 	s8 joypad_id(s32 device_id, bool create)
 	{
 		for (s8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
@@ -854,14 +864,9 @@ struct AndroidDevice
 			}
 
 			case AMOTION_EVENT_ACTION_OUTSIDE:
-			case AMOTION_EVENT_ACTION_CANCEL: {
-				const s32 i = touch_pointer_index(pointer_id);
-				if (i != -1) {
-					_queue.push_button_event(InputDeviceType::TOUCHSCREEN, 0, i, false);
-					_touch_pointer_ids[i] = -1;
-				}
+			case AMOTION_EVENT_ACTION_CANCEL:
+				release_touches();
 				break;
-			}
 
 			case AMOTION_EVENT_ACTION_MOVE: {
 				const s32 pointer_count = AMotionEvent_getPointerCount(event);
