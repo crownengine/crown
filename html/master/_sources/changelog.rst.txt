@@ -32,6 +32,7 @@ Changelog
 * Lua: added ``Window.has_focus()``.
 * Lua: added the ``Http`` API.
 * Lua: added ``Window.cursor_mode()``.
+* Samples: added touchscreen controls to the physics and animation samples.
 
 **Fixes**
 
