@@ -1,0 +1,140 @@
+_guid = "5edea9a0-c25c-4088-ad53-42747ae7b780"
+_type = "material"
+shader = "mesh"
+shader_library = "core/shaders/default"
+textures = [
+]
+uniforms = [
+	{
+		_guid = "055a5123-3960-43b2-80e1-b199685b6939"
+		_type = "uniform_vector4"
+		name = "u_use_albedo_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "2e11a1dc-a41b-4137-a4eb-8046bc508cb7"
+		_type = "uniform_vector4"
+		name = "u_use_opacity_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "3c764a79-3c2d-45d2-b1ed-225fa53fa4d5"
+		_type = "uniform_vector4"
+		name = "u_metallic"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "46f4c368-ba63-46c4-ba73-2cabc7aed5fb"
+		_type = "uniform_vector4"
+		name = "u_use_ao_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "5f753262-9992-4917-a8c7-58eb97039394"
+		_type = "uniform_vector4"
+		name = "u_use_emission_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "6f3411d0-ea60-403e-8efe-fbb98013dbbe"
+		_type = "uniform_vector4"
+		name = "u_emission_intensity"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "72a98b4a-d378-44a6-8289-3d9eeee05817"
+		_type = "uniform_vector4"
+		name = "u_emission_color"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "8f907a77-53b7-4622-b97c-b98d049c01ba"
+		_type = "uniform_vector4"
+		name = "u_use_roughness_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "929b0e2e-0c5b-4c78-a989-5f28973db5e8"
+		_type = "uniform_vector4"
+		name = "u_roughness"
+		value = {
+			w = 0
+			x = 0.89999997615814209
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "ccb17131-5f1b-4842-a66d-eb73cbb60c4c"
+		_type = "uniform_vector4"
+		name = "u_albedo"
+		value = {
+			w = 0
+			x = 1
+			y = 1
+			z = 1
+		}
+	}
+	{
+		_guid = "dac1a583-048f-41f8-aba4-fa42a94c64e2"
+		_type = "uniform_vector4"
+		name = "u_use_normal_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "ee7198c4-128f-4d27-aa28-74720db0ddde"
+		_type = "uniform_vector4"
+		name = "u_use_metallic_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+]

@@ -1,0 +1,14 @@
+create_animations_folder = true
+create_colliders = false
+create_materials_folder = true
+create_textures_folder = true
+import_cameras = true
+import_clips = true
+import_lights = true
+import_lods = true
+import_materials = true
+import_textures = true
+new_skeleton = true
+rma_materials = false
+tangents = "calculate"
+target_skeleton = ""

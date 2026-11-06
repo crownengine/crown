@@ -1,0 +1,140 @@
+_guid = "f82c10e7-83b0-4a48-b174-27d344eac8b9"
+_type = "material"
+shader = "mesh"
+shader_library = "core/shaders/default"
+textures = [
+]
+uniforms = [
+	{
+		_guid = "31917564-88a7-4da2-9ce1-e1ff664b4db5"
+		_type = "uniform_vector4"
+		name = "u_use_albedo_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "45cb7db6-801e-4dd5-b82b-e4516060dd35"
+		_type = "uniform_vector4"
+		name = "u_use_roughness_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "4cac5483-9034-4d6c-8e20-0b3765889574"
+		_type = "uniform_vector4"
+		name = "u_emission_intensity"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "69d5e6db-9e0a-4c42-aca1-c7a7a076b611"
+		_type = "uniform_vector4"
+		name = "u_use_ao_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "855bed48-03c5-4367-b964-6349d6f70c1c"
+		_type = "uniform_vector4"
+		name = "u_roughness"
+		value = {
+			w = 0
+			x = 0.31622800230979919
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "86c1895e-25c0-48b3-a409-eb1960d66d72"
+		_type = "uniform_vector4"
+		name = "u_use_normal_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "924fee43-09c9-4a35-b912-e016f52d3e1e"
+		_type = "uniform_vector4"
+		name = "u_use_opacity_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "94f6dc9d-d97a-473b-8382-05ce7888f60a"
+		_type = "uniform_vector4"
+		name = "u_use_metallic_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "a494a35d-6f59-44a0-8467-b75bb4aab9ba"
+		_type = "uniform_vector4"
+		name = "u_emission_color"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "b5badf64-f440-43c4-884a-60a7ffe90621"
+		_type = "uniform_vector4"
+		name = "u_metallic"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "c616afe5-2cc1-42f6-bd23-b9005e501a7c"
+		_type = "uniform_vector4"
+		name = "u_use_emission_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "de8efc28-7a47-45da-88b2-819a245374e9"
+		_type = "uniform_vector4"
+		name = "u_albedo"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+]

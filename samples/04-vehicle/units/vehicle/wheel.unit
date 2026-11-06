@@ -1,0 +1,319 @@
+_guid = "e60fca9f-9681-5ac1-851a-cd9f21b9c8c3"
+_type = "unit"
+components = [
+	{
+		_guid = "e5265eeb-5a26-5c13-b9e4-27141e020b7c"
+		_type = "transform"
+		type = "transform"
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+]
+children = [
+	{
+		_guid = "23b591d3-e88c-5e78-9c3f-8845cd51b146"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "4093beaa-fbcd-5c25-be07-10caa903c4be"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "front_right_rotor"
+					material = "units/vehicle/bmw/materials/rotor"
+					materials = [
+						{
+							_guid = "46c62db1-0cdb-5c25-87c8-2b34b64e9b7b"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/rotor"
+								slot = "rotor"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "4f43f80f-0005-57fb-8244-8771718f075d"
+				_type = "transform"
+				data = {
+					name = "front_right_rotor"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "front_right_rotor"
+		}
+		prefab = null
+	}
+	{
+		_guid = "28d8969a-54ec-5b08-a09b-08af334c0778"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "01ee2e97-fdaf-5b77-9444-222eea156c43"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "front_right_inner_rim"
+					material = "units/vehicle/bmw/materials/inner_rim"
+					materials = [
+						{
+							_guid = "3834ce36-3d25-5c96-a88e-903a7eb69651"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/inner_rim"
+								slot = "inner_rim"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "8f32f803-c7a4-5e9d-901d-23ca1b32cfca"
+				_type = "transform"
+				data = {
+					name = "front_right_inner_rim"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "front_right_inner_rim"
+		}
+		prefab = null
+	}
+	{
+		_guid = "fcdd4a87-262e-594e-84d4-12bfdc0ad13f"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "f6028f8f-c740-5ac7-a2da-b3fb8b43fbab"
+				_type = "transform"
+				data = {
+					name = "front_right_wheel_black"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "12079acc-274f-5053-8e03-3738aa6337e3"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "front_right_wheel_black"
+					material = "units/vehicle/bmw/materials/wheel_black"
+					materials = [
+						{
+							_guid = "20c4f3a6-5cfb-59c0-9251-3cd859736712"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/wheel_black"
+								slot = "wheel_black"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "front_right_wheel_black"
+		}
+		prefab = null
+	}
+	{
+		_guid = "adfae7a2-06ac-5e83-826e-1419ac259472"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "443bb849-fd71-5a52-bec7-4e95711f8db1"
+				_type = "transform"
+				data = {
+					name = "front_right_rim"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "243fb8ba-8a48-5a60-9dcc-279e8d7ccc0c"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "front_right_rim"
+					material = "units/vehicle/bmw/materials/rim"
+					materials = [
+						{
+							_guid = "6efff595-a1b5-5a8c-baae-cbf7dd1819d0"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/rim"
+								slot = "rim"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "front_right_rim"
+		}
+		prefab = null
+	}
+	{
+		_guid = "68cca1d9-b00c-5373-a4c9-5c18a8789c93"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "59b3a037-e09f-5e4d-a267-1afb250d95da"
+				_type = "transform"
+				data = {
+					name = "front_right_tire"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "25a505c0-8340-5756-99d2-a1df58e53d3a"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "front_right_tire"
+					material = "units/vehicle/bmw/materials/tire"
+					materials = [
+						{
+							_guid = "5562d39a-66a5-52f7-9de6-de1ca926293f"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/tire"
+								slot = "tire"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "front_right_tire"
+		}
+		prefab = null
+	}
+]

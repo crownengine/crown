@@ -430,8 +430,12 @@ endif
 03-joypad: $(SAMPLES_OS)-development64
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
 
+.PHONY: 04-vehicle
+04-vehicle: $(SAMPLES_OS)-development64
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --source-dir "$(realpath samples/$@)" --map-source-dir core "$(realpath samples)" --compile --platform $(SAMPLES_PLATFORM)
+
 .PHONY: samples
-samples: 00-empty 01-physics 02-animation 03-joypad
+samples: 00-empty 01-physics 02-animation 03-joypad 04-vehicle
 
 .PHONY: run-00-empty
 run-00-empty: 00-empty
@@ -445,6 +449,9 @@ run-02-animation: 02-animation
 .PHONY: run-03-joypad
 run-03-joypad: 03-joypad
 	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
+.PHONY: run-04-vehicle
+run-04-vehicle: 04-vehicle
+	cd build/$(SAMPLES_OS)64/bin && $(EXE_PREFIX)crown-development$(EXE_SUFFIX) --data-dir "$(realpath samples/$<_$(SAMPLES_PLATFORM))" $(RUN_ARGS)
 
 .PHONY: clean-samples
 clean-samples:
@@ -452,6 +459,7 @@ clean-samples:
 	-@rm -rf samples/01-physics_*
 	-@rm -rf samples/02-animation_*
 	-@rm -rf samples/03-joypad_*
+	-@rm -rf samples/04-vehicle_*
 
 .PHONY: clean-docs
 clean-docs:

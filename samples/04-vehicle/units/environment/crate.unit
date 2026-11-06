@@ -1,0 +1,28 @@
+_guid = "2c5d7792-2e3f-51ec-b82d-fb33cd0a6ab3"
+_type = "unit"
+prefab = "units/environment/box"
+modified_components = {
+	#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+		type = "transform"
+		data = {
+			position = [ 0 0 0.6 ]
+			rotation = [ 0 0 0 1 ]
+			scale = [ 1.2 1.2 1.2 ]
+		}
+	}
+	#7310879f-d1c1-539d-8542-3813a93a1301 = {
+		type = "actor"
+		data = {
+			class = "dynamic"
+			mass = 25
+			collision_filter = "default"
+			material = "default"
+		}
+	}
+	#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+		type = "mesh_renderer"
+		data = {
+			material = "materials/crate"
+		}
+	}
+}

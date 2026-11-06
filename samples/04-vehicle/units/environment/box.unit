@@ -1,0 +1,51 @@
+_guid = "7f74862f-188d-57f0-a869-35874a44788e"
+_type = "unit"
+components = [
+	{
+		_guid = "f90b2d0a-f94a-5103-9143-2ea3ff80dcd7"
+		_type = "transform"
+		type = "transform"
+		data = {
+			position = [ 0 0 0 ]
+			rotation = [ 0 0 0 1 ]
+			scale = [ 1 1 1 ]
+		}
+	}
+	{
+		_guid = "a3d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+		_type = "mesh_renderer"
+		type = "mesh_renderer"
+		data = {
+			mesh_resource = "core/units/primitives/cube"
+			geometry_name = "Cube"
+			material = "materials/ground"
+			visible = true
+			cast_shadows = true
+		}
+	}
+	{
+		_guid = "ab79053f-de7f-563a-93eb-f5609295b217"
+		_type = "collider"
+		type = "collider"
+		data = {
+			shape = "box"
+			source = "inline"
+			collider_data = {
+				half_extents = [ 0.5 0.5 0.5 ]
+				position = [ 0 0 0 ]
+			}
+			material = "default"
+		}
+	}
+	{
+		_guid = "7310879f-d1c1-539d-8542-3813a93a1301"
+		_type = "actor"
+		type = "actor"
+		data = {
+			class = "static"
+			mass = 1
+			collision_filter = "default"
+			material = "default"
+		}
+	}
+]

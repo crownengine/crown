@@ -1,0 +1,189 @@
+_guid = "713aa4eb-27cc-5de0-99f7-194ebbe26600"
+_type = "unit"
+components = [
+	{
+		_guid = "1d5687c9-5839-5696-96a3-9ebe080d26f7"
+		_type = "transform"
+		type = "transform"
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+]
+children = [
+	{
+		_guid = "08197dc9-d60e-5af8-8532-e588f938d62c"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_1"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						-1.875
+						-0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "fc1e4f27-e80b-570c-a7dd-dc14d15ad1d1"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_2"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						-0.625
+						-0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "bb62d570-4ceb-5c6e-80ca-0dff453cc8e6"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_3"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						0.625
+						-0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "7465ae0c-a6be-5791-af98-2eb8cc85c882"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_4"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						1.875
+						-0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "01fa313f-5724-5a06-945a-54ca64df9659"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_5"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						-1.875
+						0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "f4e1f309-e71d-5a85-bf4c-8e96a7a341f1"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_6"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						-0.625
+						0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "a2af1d07-45a5-5208-8813-90586ca67355"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_7"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						0.625
+						0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "c8dfceaf-8b17-5bde-b7cc-0d14acbdb5c5"
+		_type = "unit"
+		editor = {
+			name = "group_barrel_8"
+		}
+		prefab = "units/environment/barrel"
+		modified_components = {
+			#4e97adb8-f875-4cd4-a6e3-59f3fd93c64f = {
+				type = "transform"
+				data = {
+					position = [
+						1.875
+						0.625
+						0.7
+					]
+				}
+			}
+		}
+	}
+]
