@@ -33,6 +33,10 @@ GameBase.game = Game
 GameBase.game_level = "levels/mover"
 GameBase.show_help = true
 GameBase.show_build = true
+GameBase.touch_controls = {
+	axes = { "left", "trigger_left", "right" },
+	buttons = { "a", "b" },
+}
 
 local function k(bind)
 	if Game.last_input_is_pad then
@@ -137,8 +141,10 @@ function Game.update(dt)
 	end
 
 	-- Shoot a bullet when left mouse button is pressed.
+	local touch_pad = GameBase.virtual_joypad
 	local shoot_pressed = Mouse.pressed(Mouse.button_id("left"))
 		or Pad1.pressed(Pad1.button_id("shoulder_right"))
+		or (touch_pad and touch_pad:pressed(touch_pad:button_id("b")))
 	if shoot_pressed then
 		local camera_pose = Game.camera:world_pose()
 		local pos = Matrix4x4.translation(camera_pose)

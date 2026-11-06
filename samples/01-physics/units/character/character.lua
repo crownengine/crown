@@ -47,11 +47,22 @@ function UnitsCharacterCharacter.update(world, dt)
 	move_dy = move_dy + pad_left.y
 	look_dx = look_dx + pad_right.x * PAD_LOOK_SPEED
 	look_dy = look_dy - pad_right.y * PAD_LOOK_SPEED
+	local touch_pad = GameBase.virtual_joypad
+	if touch_pad then
+		local movement = touch_pad:axis(touch_pad:axis_id("left"))
+		move_dx = move_dx + movement.x
+		move_dy = move_dy + movement.y
+		local look = touch_pad:axis(touch_pad:axis_id("right"))
+		look_dx = look_dx + look.x * PAD_LOOK_SPEED
+		look_dy = look_dy - look.y * PAD_LOOK_SPEED
+	end
 
 	local jump_pressed = Keyboard.pressed(Keyboard.button_id("space"))
 		or Pad1.pressed(Pad1.button_id("a"))
+		or (touch_pad and touch_pad:pressed(touch_pad:button_id("a")))
 	local run_pressed = Keyboard.button(Keyboard.button_id("shift_left")) ~= 0
 		or Pad1.button(Pad1.button_id("b")) ~= 0
+		or (touch_pad and touch_pad:axis(touch_pad:axis_id("trigger_left")).z ~= 0)
 	local crouch_pressed = Keyboard.button(Keyboard.button_id("ctrl_left")) ~= 0
 		or Keyboard.button(Keyboard.button_id("ctrl_right")) ~= 0
 		or Pad1.button(Pad1.button_id("shoulder_left")) ~= 0

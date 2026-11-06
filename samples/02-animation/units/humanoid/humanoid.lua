@@ -54,10 +54,20 @@ function Humanoid.update(world, dt)
 	local pad_left = Pad1.axis(Pad1.axis_id("left"))
 	move_dx = move_dx + pad_left.x
 	move_dy = move_dy + pad_left.y
+	local speed_multiplier = 1
+	local touch_pad = GameBase.virtual_joypad
+	if touch_pad then
+		local movement = touch_pad:axis(touch_pad:axis_id("left"))
+		if move_dx == 0 and move_dy == 0 and (movement.x ~= 0 or movement.y ~= 0) then
+			speed_multiplier = 0.5 + 0.5 * touch_pad:axis(touch_pad:axis_id("trigger_left")).z
+		end
+		move_dx = move_dx + movement.x
+		move_dy = move_dy + movement.y
+	end
 
 	for unit, unit_data in pairs(world_data) do
 		if Game.player == unit then
-			unit_data.character:update(dt, move_dx, move_dy)
+			unit_data.character:update(dt, move_dx, move_dy, speed_multiplier)
 		else
 			unit_data.character:update(dt, 0, 0)
 		end

@@ -2,6 +2,7 @@
 -- SPDX-License-Identifier: MIT
 
 require "core/game/camera"
+require "core/game/virtual_joypad"
 
 GameBase = GameBase or {
 	world       = nil, -- Default world
@@ -11,6 +12,8 @@ GameBase = GameBase or {
 	screen_gui  = nil,
 	show_help   = true,
 	show_build  = false,
+	touch_controls = nil,
+	virtual_joypad = nil,
 
 	_test_package = nil,
 }
@@ -49,9 +52,16 @@ function GameBase.init()
 	end
 
 	GameBase.screen_gui = World.create_screen_gui(GameBase.world)
+	if GameBase.touch_controls and Touch then
+		GameBase.virtual_joypad = VirtualJoypad(GameBase.touch_controls)
+	end
 end
 
 function GameBase.update(dt)
+	if GameBase.virtual_joypad and GameBase.virtual_joypad:update() then
+		GameBase.show_help = false
+	end
+
 	-- Update world
 	World.update(GameBase.world, dt)
 
@@ -75,6 +85,9 @@ function GameBase.render(dt)
 	if GameBase.show_build then
 		GameBase.draw_build()
 	end
+	if GameBase.virtual_joypad then
+		GameBase.virtual_joypad:draw(GameBase.screen_gui)
+	end
 
 	Device.render(GameBase.world, GameBase.camera_unit)
 end
@@ -83,6 +96,7 @@ function GameBase.shutdown()
 	if GameBase.game and GameBase.game.shutdown then
 		GameBase.game.shutdown()
 	end
+	GameBase.virtual_joypad = nil
 
 	World.destroy_gui(GameBase.world, GameBase.screen_gui)
 	Device.destroy_world(GameBase.world)

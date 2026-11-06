@@ -37,7 +37,7 @@ function Character:is_moving()
 	return self._moving
 end
 
-function Character:update(dt, move_dx, move_dy)
+function Character:update(dt, move_dx, move_dy, speed_multiplier)
 	local scene_graph = World.scene_graph(self._world)
 	local transform = SceneGraph.instance(scene_graph, self._unit)
 
@@ -46,7 +46,7 @@ function Character:update(dt, move_dx, move_dy)
 		Vector3.normalize(direction)
 	end
 
-	local speed = self._move_speed
+	local speed = self._move_speed * (speed_multiplier or 1)
 	local delta = direction * speed
 
 	local position = SceneGraph.local_position(scene_graph, transform)

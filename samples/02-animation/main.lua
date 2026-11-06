@@ -16,6 +16,9 @@ Game = Game or {
 
 GameBase.game = Game
 GameBase.game_level = "levels/game"
+GameBase.touch_controls = {
+	axes = { "left", "trigger_left" },
+}
 
 function Game.level_loaded()
 	Game.pw = World.physics_world(GameBase.world)
