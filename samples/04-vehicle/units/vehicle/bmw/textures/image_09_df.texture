@@ -1,0 +1,37 @@
+_guid = "7ccc07b4-efb8-48a2-950a-fa19a4886914"
+_type = "texture"
+output = {
+	android = {
+		format = "BC1"
+		generate_mips = true
+		linear = false
+		mip_skip_largest = 0
+		normal_map = false
+		premultiply_alpha = false
+	}
+	html5 = {
+		format = "BC1"
+		generate_mips = true
+		linear = false
+		mip_skip_largest = 0
+		normal_map = false
+		premultiply_alpha = false
+	}
+	linux = {
+		format = "BC1"
+		generate_mips = true
+		linear = false
+		mip_skip_largest = 0
+		normal_map = false
+		premultiply_alpha = false
+	}
+	windows = {
+		format = "BC1"
+		generate_mips = true
+		linear = false
+		mip_skip_largest = 0
+		normal_map = false
+		premultiply_alpha = false
+	}
+}
+source = "units/vehicle/bmw/textures/image_09.png"

@@ -106,19 +106,20 @@ function GameBase.shutdown()
 	end
 end
 
-function GameBase.draw_help(controls, title)
+function GameBase.draw_help(controls, title, scale)
 	if not GameBase.show_help then
 		return
 	end
+	scale = scale or 1
 
 	local window_w, window_h = Device.resolution()
-	local line_y = window_h - 60
-	local key_x = 40
-	local desc_x = key_x + 180
-	local title_size = 32
-	local title_margin = title_size + 15
-	local paragraph_size = 21
-	local paragraph_margin = paragraph_size + 10
+	local line_y = window_h - 60 * scale
+	local key_x = 40 * scale
+	local desc_x = key_x + 180 * scale
+	local title_size = 32 * scale
+	local title_margin = title_size + 15 * scale
+	local paragraph_size = 21 * scale
+	local paragraph_margin = paragraph_size + 10 * scale
 	local font = "core/game/hud/debug"
 	local material = "core/game/hud/debug"
 	local background_color = Color4(0, 0, 0, 200)

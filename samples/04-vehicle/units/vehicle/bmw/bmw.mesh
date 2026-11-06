@@ -1,0 +1,4 @@
+_guid = "5758f1fe-97bd-4ac2-b4e1-fb1c6d21d883"
+_type = "mesh"
+rigid_skinning = false
+source = "units/vehicle/bmw/bmw.glb"

@@ -1,0 +1,1828 @@
+_guid = "0bb352da-f196-5400-8ce4-5e56aa4e4ce9"
+_type = "unit"
+children = [
+	{
+		_guid = "93c201c7-79dd-5607-a781-9ec6949f5c0c"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "430dae7a-4401-54cf-bb56-7f25f2bb2d2e"
+				_type = "transform"
+				data = {
+					name = "paint"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "604b40e2-efb3-5b5d-a014-0f229bfde3cb"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "paint"
+					material = "units/vehicle/bmw/materials/paint"
+					materials = [
+						{
+							_guid = "83ee2204-86af-5737-9e29-5d822f69e938"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/paint"
+								slot = "paint"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "paint"
+		}
+		prefab = null
+	}
+	{
+		_guid = "90426bcb-a7b0-500f-bbf3-983e1fbcef8a"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "e89c68b4-6199-50c2-95bb-fd534edba46a"
+				_type = "transform"
+				data = {
+					name = "underbody"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "f7001186-c3fe-5791-857e-96c7efe71b78"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "underbody"
+					material = "units/vehicle/bmw/materials/underbody"
+					materials = [
+						{
+							_guid = "219be5ae-96f7-53b0-a4eb-4d5d49512792"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/underbody"
+								slot = "underbody"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "underbody"
+		}
+		prefab = null
+	}
+	{
+		_guid = "f400bbf0-0ec8-59a5-8cc5-76632d0dd408"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "e2872757-3a92-56a6-8d78-efe03c885567"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "frame"
+					material = "units/vehicle/bmw/materials/frame"
+					materials = [
+						{
+							_guid = "d818c6f7-fe92-5185-be7c-759104a2e241"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/frame"
+								slot = "frame"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "9e1cefd2-29c3-5dd3-8f1c-7ef0455fb444"
+				_type = "transform"
+				data = {
+					name = "frame"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "frame"
+		}
+		prefab = null
+	}
+	{
+		_guid = "99ed0d9e-5c90-5456-99e5-955f46e8bb7a"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "ff9eecca-e94c-5926-b50b-7658c58888cf"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "matte"
+					material = "units/vehicle/bmw/materials/matte"
+					materials = [
+						{
+							_guid = "cafed4c2-b365-589f-8560-f447cf6f5d1a"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/matte"
+								slot = "matte"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "22616bb1-31ce-5436-8ef6-193806d19285"
+				_type = "transform"
+				data = {
+					name = "matte"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "matte"
+		}
+		prefab = null
+	}
+	{
+		_guid = "5e857092-bffd-5fda-8287-71fbe2083d19"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "2c3a6edb-52ba-5664-a15a-1be88b0a7e96"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "rubber"
+					material = "units/vehicle/bmw/materials/rubber"
+					materials = [
+						{
+							_guid = "13bbdac0-e62f-5ab6-bb78-480a03489c16"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/rubber"
+								slot = "rubber"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "e193dba2-97ab-5cbc-bc96-0c0b2c36bfa9"
+				_type = "transform"
+				data = {
+					name = "rubber"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "rubber"
+		}
+		prefab = null
+	}
+	{
+		_guid = "274a2b88-19e2-517f-8fec-7b54389cb3d5"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "52918a02-8de7-510d-aee2-802a03eb5f30"
+				_type = "transform"
+				data = {
+					name = "grille"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "263a6eb6-6db9-5f74-9496-6bb63529618e"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "grille"
+					material = "units/vehicle/bmw/materials/grille"
+					materials = [
+						{
+							_guid = "d7299d5a-b68b-5d60-be07-7a03fe354e04"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/grille"
+								slot = "grille"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "grille"
+		}
+		prefab = null
+	}
+	{
+		_guid = "0f194ade-213f-5a28-b179-ab5fe9d80460"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "746e13f4-43f2-57e0-8695-b47e8fa2f82e"
+				_type = "transform"
+				data = {
+					name = "chrome"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "3e1c11aa-f4a7-50b0-9f9d-af0a55fef816"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "chrome"
+					material = "units/vehicle/bmw/materials/chrome"
+					materials = [
+						{
+							_guid = "b1e041e6-6759-52a4-8d0f-6dcb546ae61a"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/chrome"
+								slot = "chrome"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "chrome"
+		}
+		prefab = null
+	}
+	{
+		_guid = "95a5965b-a827-59e6-8279-97dda2d9ca80"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "ec4a3ca5-8f08-559e-b510-9d3544e65f40"
+				_type = "transform"
+				data = {
+					name = "dark_glass"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "2e0f2c2a-bab2-57b8-af10-9b059c2d7d22"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "dark_glass"
+					material = "units/vehicle/bmw/materials/dark_glass"
+					materials = [
+						{
+							_guid = "349f8e5d-1bc1-53e7-b670-33ab118ead44"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/dark_glass"
+								slot = "dark_glass"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dark_glass"
+		}
+		prefab = null
+	}
+	{
+		_guid = "7bc8cd29-165e-5641-ae17-0be156ec807a"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "b4b669bc-112b-57f2-82ad-1c20a33bb31b"
+				_type = "transform"
+				data = {
+					name = "glass"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "2737fef0-b62a-5e92-823f-f6e97ea06162"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "glass"
+					material = "units/vehicle/bmw/materials/glass"
+					materials = [
+						{
+							_guid = "1809ecb9-51b2-5af9-bb80-5d6cea20ea26"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/glass"
+								slot = "glass"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "glass"
+		}
+		prefab = null
+	}
+	{
+		_guid = "30bda743-e078-5cae-8e42-5af2e903c591"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "f86734e7-b53c-57e8-9015-37917bb135cf"
+				_type = "transform"
+				data = {
+					name = "details"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "299bc304-45f5-5dc2-b799-7185c7c66853"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "details"
+					material = "units/vehicle/bmw/materials/details"
+					materials = [
+						{
+							_guid = "fd49dc9e-ab86-5126-bb0d-8e5d79bbe1cf"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/details"
+								slot = "details"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "details"
+		}
+		prefab = null
+	}
+	{
+		_guid = "4aa8a0e9-d974-5f00-89ea-012a4dab2b04"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "c7e4485c-0052-5f02-b065-561e2fa976c0"
+				_type = "transform"
+				data = {
+					name = "grille_alpha"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "e3d2103b-6568-5c24-a989-14d94e9ed7f7"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "grille_alpha"
+					material = "units/vehicle/bmw/materials/grille_alpha"
+					materials = [
+						{
+							_guid = "9d6d034a-b001-58b5-8ec6-207b3cf6a1ae"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/grille_alpha"
+								slot = "grille_alpha"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "grille_alpha"
+		}
+		prefab = null
+	}
+	{
+		_guid = "88774270-71bb-5e72-bc65-8d71b1bc69ab"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "8cd8351b-d785-516d-b8f7-3f91359df0be"
+				_type = "transform"
+				data = {
+					name = "light_reflector"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "f5245269-0821-5841-9c17-93442b2a5019"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "light_reflector"
+					material = "units/vehicle/bmw/materials/light_reflector"
+					materials = [
+						{
+							_guid = "234ee17d-fb3e-551a-a2cc-f9b0bd6f06de"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/light_reflector"
+								slot = "light_reflector"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "light_reflector"
+		}
+		prefab = null
+	}
+	{
+		_guid = "afa3e7c2-597d-5154-95f5-12facd7a25e9"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "1410a88c-c4eb-503a-966f-e7660e9fb8b7"
+				_type = "transform"
+				data = {
+					name = "badge"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "db95ff6f-3385-5a6e-935e-3459df6092ee"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "badge"
+					material = "units/vehicle/bmw/materials/badge"
+					materials = [
+						{
+							_guid = "f8566f9a-9eca-51b3-bc7d-f0904783efa6"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/badge"
+								slot = "badge"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "badge"
+		}
+		prefab = null
+	}
+	{
+		_guid = "89f33248-a698-50ac-9ea0-a2c07a9e9672"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "71f42fd5-8277-5188-8d26-c0b788cf03ed"
+				_type = "transform"
+				data = {
+					name = "light_glass"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "6ecd7efa-7ede-58bb-817d-4b2026f13b95"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "light_glass"
+					material = "units/vehicle/bmw/materials/light_glass"
+					materials = [
+						{
+							_guid = "a03a8fa0-d6ff-5f38-87e4-2a5920d7b1a1"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/light_glass"
+								slot = "light_glass"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "light_glass"
+		}
+		prefab = null
+	}
+	{
+		_guid = "990fd5b0-2373-5f15-a383-4c649c769b68"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "401635c2-5303-58c9-8a34-d6309084101f"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "tail_light"
+					material = "units/vehicle/bmw/materials/tail_light"
+					materials = [
+						{
+							_guid = "c384b2b9-6788-5d1c-b1f2-ba44624a9900"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/tail_light"
+								slot = "tail_light"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "3accfb53-6b63-5f28-9f93-7405be768355"
+				_type = "transform"
+				data = {
+					name = "tail_light"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "tail_light"
+		}
+		prefab = null
+	}
+	{
+		_guid = "afed387d-3bdb-5a4f-a662-d0c71eb19f68"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "3bc3aa56-fce2-56d7-b6fd-00b9b86a3fd6"
+				_type = "transform"
+				data = {
+					name = "reverse_light"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "43c4a68e-bab2-5f4d-af79-03cbc2cbd299"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "reverse_light"
+					material = "units/vehicle/bmw/materials/reverse_light"
+					materials = [
+						{
+							_guid = "03feccbe-d2b6-5c41-a83b-8422f75a4020"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/reverse_light"
+								slot = "reverse_light"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "reverse_light"
+		}
+		prefab = null
+	}
+	{
+		_guid = "862c5e20-a6ad-5b09-bd50-a241666379fa"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "d923b5b3-7f6f-5cf5-9540-fa073aaacf9a"
+				_type = "transform"
+				data = {
+					name = "headlight"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "49b00f6a-a079-5c42-ba25-8b3c1e317dc3"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "headlight"
+					material = "units/vehicle/bmw/materials/headlight"
+					materials = [
+						{
+							_guid = "0a5e3b6b-bd7b-5acd-9cac-3b3c289fbb5d"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/headlight"
+								slot = "headlight"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "headlight"
+		}
+		prefab = null
+	}
+	{
+		_guid = "460e402c-280c-52e9-ab0a-10ca8683229f"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "3e168b5e-367f-5e4d-885e-16609959277c"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "reflector"
+					material = "units/vehicle/bmw/materials/reflector"
+					materials = [
+						{
+							_guid = "7bec748b-14d4-5313-b8d8-25c973bf77de"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/reflector"
+								slot = "reflector"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "e5a94ce2-78bc-59c9-b275-57bcf382c7e2"
+				_type = "transform"
+				data = {
+					name = "reflector"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "reflector"
+		}
+		prefab = null
+	}
+	{
+		_guid = "e195fa0d-a5f5-5182-b90b-8a7708f08304"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "7c646c61-2091-5f56-916e-09b0fc534c53"
+				_type = "transform"
+				data = {
+					name = "mirror"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "f6a8b85e-ea46-5985-aa73-d2f92c6a5d24"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "mirror"
+					material = "units/vehicle/bmw/materials/mirror"
+					materials = [
+						{
+							_guid = "4b931452-2ce5-59fb-82a9-aedaf48b7867"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/mirror"
+								slot = "mirror"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "mirror"
+		}
+		prefab = null
+	}
+	{
+		_guid = "75da248f-e461-5d9a-8911-ca8d47e8a0de"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "1808700c-1c53-5cb5-a1a4-fd61e271f7c6"
+				_type = "transform"
+				data = {
+					name = "bumper_frame"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "754aba97-e486-5837-a401-db75d0dbec3d"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "bumper_frame"
+					material = "units/vehicle/bmw/materials/bumper_frame"
+					materials = [
+						{
+							_guid = "06fd77e8-fb1f-5b42-85c9-563d0edebb95"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/bumper_frame"
+								slot = "bumper_frame"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "bumper_frame"
+		}
+		prefab = null
+	}
+	{
+		_guid = "d3adf9dc-7c37-5317-bf8f-c0b6750725c0"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "d591d112-f25d-539f-8609-0a9f2841c292"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "bottom"
+					material = "units/vehicle/bmw/materials/bottom"
+					materials = [
+						{
+							_guid = "4b75a457-aed5-5581-a718-94d1a828636b"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/bottom"
+								slot = "bottom"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "bfe57880-41c9-5a9d-82fe-e0a1d497cd5b"
+				_type = "transform"
+				data = {
+					name = "bottom"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "bottom"
+		}
+		prefab = null
+	}
+	{
+		_guid = "46218429-b277-5e89-8156-7021c9aacf57"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "405c9eae-340b-5a68-a654-05800b6fd573"
+				_type = "transform"
+				data = {
+					name = "carbon_fiber"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "eb68bd7d-7749-5e6a-be30-aabc603d5eac"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "carbon_fiber"
+					material = "units/vehicle/bmw/materials/carbon_fiber"
+					materials = [
+						{
+							_guid = "37d85c79-e14b-5ccb-887e-1049c324ce7a"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/carbon_fiber"
+								slot = "carbon_fiber"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "carbon_fiber"
+		}
+		prefab = null
+	}
+	{
+		_guid = "7d1c466f-21e1-501f-bfb0-e8a5c89494c3"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "1c689f61-163f-57bc-9cd3-4dc14334caf7"
+				_type = "transform"
+				data = {
+					name = "gauge_panel"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "e63894f9-cdd0-5ea4-866d-41b753bb5a1a"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "gauge_panel"
+					material = "units/vehicle/bmw/materials/gauge_panel"
+					materials = [
+						{
+							_guid = "4db7e283-af55-5d40-bd51-2930e4f6492c"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/gauge_panel"
+								slot = "gauge_panel"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "gauge_panel"
+		}
+		prefab = null
+	}
+	{
+		_guid = "a5585f73-e8b5-59c8-ae5f-825e3c550279"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "9d884f08-0b8c-546c-9a5d-f100867534ab"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "plastic"
+					material = "units/vehicle/bmw/materials/plastic"
+					materials = [
+						{
+							_guid = "2e4e4c1a-2bfd-5ffd-bba0-64290954a3b4"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/plastic"
+								slot = "plastic"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "40e39206-6767-5df6-9b7c-c0cfb819db42"
+				_type = "transform"
+				data = {
+					name = "plastic"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "plastic"
+		}
+		prefab = null
+	}
+	{
+		_guid = "0bd6e088-5758-52c6-857e-c8e3c0343493"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "8a0b7604-cc3b-5108-b897-4db41bc6dae7"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "dashboard"
+					material = "units/vehicle/bmw/materials/dashboard"
+					materials = [
+						{
+							_guid = "36283d14-d30e-5de3-a3c0-d2dab6a81f24"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/dashboard"
+								slot = "dashboard"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "97702ea6-6c79-5de7-ad38-bd1807d3e2f8"
+				_type = "transform"
+				data = {
+					name = "dashboard"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "dashboard"
+		}
+		prefab = null
+	}
+	{
+		_guid = "b26b0d20-f2ca-5e39-aff6-9869eeaac5d6"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "e81ee09a-c007-5e41-93e4-291e15add493"
+				_type = "transform"
+				data = {
+					name = "upholstery"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "b468c747-fb6a-55ce-a9be-3a4fe03b6852"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "upholstery"
+					material = "units/vehicle/bmw/materials/upholstery"
+					materials = [
+						{
+							_guid = "ba220433-7019-56d4-bbb7-776246b4f889"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/upholstery"
+								slot = "upholstery"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "upholstery"
+		}
+		prefab = null
+	}
+	{
+		_guid = "314044f9-e956-5c2d-80cd-5e62885651f3"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "0b699a24-0dae-5cf2-8b81-5608b0c7c46f"
+				_type = "transform"
+				data = {
+					name = "seat_fabric"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "96b2c4ec-74d5-5db6-9616-a81a0ffcdb73"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "seat_fabric"
+					material = "units/vehicle/bmw/materials/seat_fabric"
+					materials = [
+						{
+							_guid = "e17a2698-e1ff-59c8-843c-fa196b1d2b75"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/seat_fabric"
+								slot = "seat_fabric"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "seat_fabric"
+		}
+		prefab = null
+	}
+	{
+		_guid = "01363a98-9c02-5afe-a923-5f20a216b769"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "b0ed8ad8-8147-5e18-855f-87ec8da063c4"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "weatherstrip"
+					material = "units/vehicle/bmw/materials/weatherstrip"
+					materials = [
+						{
+							_guid = "aa7c06fd-74ec-57c9-8a29-8ef4db77efd9"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/weatherstrip"
+								slot = "weatherstrip"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "63e35a2a-c264-50f8-930a-5b1424ba824e"
+				_type = "transform"
+				data = {
+					name = "weatherstrip"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "weatherstrip"
+		}
+		prefab = null
+	}
+	{
+		_guid = "3ec95ed3-90dc-5554-9084-ebf4eb87375f"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "80a66563-16e4-57e3-a08f-c24675564103"
+				_type = "transform"
+				data = {
+					name = "windscreen"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+			{
+				_guid = "1042af14-4b26-57e4-a03c-65baa8413efe"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "windscreen"
+					material = "units/vehicle/bmw/materials/windscreen"
+					materials = [
+						{
+							_guid = "31c5ae07-af1e-5bd4-8274-d5da9c8583e0"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/windscreen"
+								slot = "windscreen"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "windscreen"
+		}
+		prefab = null
+	}
+	{
+		_guid = "ea91011e-6f9e-5e1b-bfe8-fc037e4b6b7c"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "442c250a-07dd-5e9b-baef-2088469e8d4b"
+				_type = "mesh_renderer"
+				data = {
+					cast_shadows = true
+					geometry_name = "digits"
+					material = "units/vehicle/bmw/materials/digits"
+					materials = [
+						{
+							_guid = "fe9785ca-7729-54c4-95d1-33d5c56fb723"
+							_type = "mesh_material"
+							data = {
+								material = "units/vehicle/bmw/materials/digits"
+								slot = "digits"
+							}
+						}
+					]
+					mesh_resource = "units/vehicle/bmw/bmw"
+					visible = true
+				}
+			}
+			{
+				_guid = "80b3efe5-3ef5-53fb-b7ac-811a62a200cb"
+				_type = "transform"
+				data = {
+					name = "digits"
+					position = [
+						0
+						0
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "digits"
+		}
+		prefab = null
+	}
+]
+components = [
+	{
+		_guid = "12150e73-f3e2-5329-a574-37d295587368"
+		_type = "actor"
+		data = {
+			class = "vehicle"
+			collision_filter = "default"
+			lock_rotation_x = false
+			lock_rotation_y = false
+			lock_rotation_z = false
+			lock_translation_x = false
+			lock_translation_y = false
+			lock_translation_z = false
+			mass = 800
+			material = "default"
+		}
+	}
+	{
+		_guid = "78f21788-4a68-55cc-a839-43d9e2b5051e"
+		_type = "script"
+		data = {
+			script_resource = "units/vehicle/vehicle"
+		}
+	}
+	{
+		_guid = "b958fb00-9436-5b1a-8c86-4320512f6809"
+		_type = "transform"
+		data = {
+			name = ""
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+	{
+		_guid = "d420d917-7515-5474-8186-085ca074462e"
+		_type = "collider"
+		data = {
+			collider_data = {
+				half_extents = [
+					0.69999999999999996
+					1.7
+					0.23999999999999999
+				]
+				height = 1
+				position = [
+					0
+					0
+					0.12
+				]
+				radius = 0.5
+				rotation = [
+					0
+					0
+					0
+					1
+				]
+			}
+			name = "Noop"
+			scene = "core/components/noop"
+			shape = "box"
+			source = "inline"
+		}
+	}
+]
+editor = {
+	hidden = false
+	locked = false
+	name = "Unnamed"
+}
+prefab = null

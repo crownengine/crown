@@ -1,0 +1,149 @@
+_guid = "e33cf816-5345-5dec-a4f4-12848c4574c0"
+_type = "unit"
+components = [
+	{
+		_guid = "8a910a1b-3cba-5933-aff4-92ae05581790"
+		_type = "transform"
+		type = "transform"
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+]
+children = [
+	{
+		_guid = "419584f3-02e1-5909-8d9a-b29f2dd5aac8"
+		_type = "unit"
+		editor = {
+			name = "row_crate_1"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						-3.05
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "88c5ebec-3643-56cc-a82c-af2d096be73d"
+		_type = "unit"
+		editor = {
+			name = "row_crate_2"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						-1.83
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "c2fd3b36-68e8-5302-a44f-3d18de78d45c"
+		_type = "unit"
+		editor = {
+			name = "row_crate_3"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						-0.61
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "d0b15183-4f69-582b-bef0-3fcf265869fe"
+		_type = "unit"
+		editor = {
+			name = "row_crate_4"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						0.61
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "47a1d070-4d79-517f-ba45-0d6b82d72a80"
+		_type = "unit"
+		editor = {
+			name = "row_crate_5"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						1.83
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+	{
+		_guid = "a8bf6f49-6195-55de-911d-eccb39e45e5d"
+		_type = "unit"
+		editor = {
+			name = "row_crate_6"
+		}
+		prefab = "units/environment/crate"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						3.05
+						0
+						0.6
+					]
+				}
+			}
+		}
+	}
+]

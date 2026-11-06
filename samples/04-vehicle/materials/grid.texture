@@ -1,0 +1,20 @@
+_guid = "b086abd5-4fe6-5686-b7df-e1a6cf34ab14"
+_type = "texture"
+generate_mips = true
+normal_map = false
+output = {
+	android = {
+		format = "BC1"
+	}
+	html5 = {
+		format = "BC1"
+	}
+	linux = {
+		format = "BC1"
+		normal_map = false
+	}
+	windows = {
+		format = "BC1"
+	}
+}
+source = "materials/grid.tga"

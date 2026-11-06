@@ -1,0 +1,16 @@
+lua = [ "boot" ]
+shader = [ "core/shaders/default" ]
+physics_config = [ "global" ]
+unit = [ "core/units/camera" "units/vehicle/wheel" ]
+level = [ "levels/vehicle" ]
+font = [ "core/game/hud/debug" ]
+material = [ "core/game/hud/debug" ]
+sound = [
+	"sfx/engine_1746"
+	"sfx/engine_2616"
+	"sfx/engine_3492"
+	"sfx/engine_4400"
+	"sfx/engine_5232"
+	"sfx/engine_6222"
+	"sfx/engine_6984"
+]

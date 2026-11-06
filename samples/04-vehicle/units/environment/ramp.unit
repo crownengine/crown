@@ -1,0 +1,251 @@
+_guid = "036d8598-cb45-5c5c-9d90-41054d642837"
+_type = "unit"
+components = [
+	{
+		_guid = "5dbb81b1-a268-517f-b2bb-d4ec9a5adeee"
+		_type = "transform"
+		type = "transform"
+		data = {
+			position = [
+				0
+				0
+				0
+			]
+			rotation = [
+				0
+				0
+				0
+				1
+			]
+			scale = [
+				1
+				1
+				1
+			]
+		}
+	}
+]
+children = [
+	{
+		_guid = "0ec248a8-88c9-521b-be4a-a90490a2d459"
+		_type = "unit"
+		editor = {
+			name = "ramp_deck"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						0
+						0
+						2.319310769666351
+					]
+					rotation = [
+						0.10452846326765347
+						0
+						0
+						0.9945218953682733
+					]
+					scale = [
+						12
+						24
+						0.4
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/ramp"
+				}
+			}
+		}
+	}
+	{
+		_guid = "f8e20822-5a9e-5573-9482-41b0d6ee20c1"
+		_type = "unit"
+		editor = {
+			name = "ramp_edge_-1"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						-6.15
+						0
+						2.3893107696663507
+					]
+					rotation = [
+						0.10452846326765347
+						0
+						0
+						0.9945218953682733
+					]
+					scale = [
+						0.3
+						24
+						0.6
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/obstacle"
+				}
+			}
+		}
+	}
+	{
+		_guid = "e8f37dc0-e5f0-5cdd-b495-e8a1d65ac955"
+		_type = "unit"
+		editor = {
+			name = "ramp_leg_-1"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						-5.5
+						10
+						2.120204133696783
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.6
+						1
+						4.240408267393566
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/obstacle"
+				}
+			}
+		}
+	}
+	{
+		_guid = "2e0a4cbd-5c02-5885-aae0-461ff3ab9130"
+		_type = "unit"
+		editor = {
+			name = "ramp_edge_1"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						6.15
+						0
+						2.3893107696663507
+					]
+					rotation = [
+						0.10452846326765347
+						0
+						0
+						0.9945218953682733
+					]
+					scale = [
+						0.3
+						24
+						0.6
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/obstacle"
+				}
+			}
+		}
+	}
+	{
+		_guid = "16675fca-53b4-5f3a-83f8-ae5a6ed53e29"
+		_type = "unit"
+		editor = {
+			name = "ramp_leg_1"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						5.5
+						10
+						2.120204133696783
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						0.6
+						1
+						4.240408267393566
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/obstacle"
+				}
+			}
+		}
+	}
+	{
+		_guid = "b8ab42b1-3383-51cf-bc55-7db34d1298b5"
+		_type = "unit"
+		editor = {
+			name = "ramp_rear_beam"
+		}
+		prefab = "units/environment/box"
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				type = "transform"
+				data = {
+					position = [
+						0
+						10
+						4.0654082673935665
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						11.6
+						1
+						0.35
+					]
+				}
+			}
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				type = "mesh_renderer"
+				data = {
+					material = "materials/obstacle"
+				}
+			}
+		}
+	}
+]

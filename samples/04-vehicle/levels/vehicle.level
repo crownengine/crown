@@ -1,0 +1,3102 @@
+_guid = "e901d912-e53a-5b61-98b9-fe7e8832dda7"
+_type = "level"
+editor = {
+	camera = {
+		orthographic_size = 34.641017900000001
+		position = [
+			-1.2293766699999999
+			-106.48588599999999
+			4.1019940400000001
+		]
+		rotation = [
+			-0.17191351999999999
+			0.013732382099999999
+			-0.078392714299999999
+			0.98189192999999997
+		]
+		target_distance = 7.2909584000000001
+		view_type = 0
+	}
+}
+particles = [
+]
+skydome_unit = "core/units/skydome/skydome"
+sounds = [
+	{
+		_guid = "fc6aaf1c-06a2-5bdf-ae06-f880aff4c917"
+		_type = "sound_source"
+		editor = {
+			hidden = false
+			locked = false
+			name = "background_noise"
+		}
+		group = "music"
+		loop = true
+		name = "sfx/ambient"
+		position = [
+			0
+			0
+			27.387899399999998
+		]
+		range = 1000
+		rotation = [
+			0
+			0
+			0
+			1
+		]
+		volume = 0.01
+	}
+]
+units = [
+	{
+		_guid = "087b3ec7-f894-5864-9dd7-cb9991509e75"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_13"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/ground"
+					materials = [
+						{
+							_guid = "91dbd9b8-eb40-46d2-a3bb-6359f6e56af8"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/ground"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-88
+						76
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						12
+						12
+						12
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "0f41b9bc-4454-5f1f-9b4b-63cbed7ada83"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_2"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						28
+						-92
+						0
+					]
+					rotation = [
+						0
+						0
+						0.13052619222005157
+						0.99144486137381038
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "115ec3ce-ed5a-5a33-9ea7-00c68da45617"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_4"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						55
+						71
+						0
+					]
+					rotation = [
+						0
+						0
+						1
+						6.123233995736766e-17
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "13805cde-5708-52c7-8e56-16c63e60b4c6"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_9"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "a8521b47-4a80-425f-b477-b3cdbee8020d"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						52
+						-62
+						7
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						14
+						14
+						14
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "19eda8b3-d795-55c4-9e77-3b9dbc71ff0b"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_12"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "c2a13060-7acf-4299-b3fc-e4ebc41d618d"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						18
+						104
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						10
+						10
+						10
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "1a3c1a8e-680e-5a53-9028-c9a5d243bd70"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_3"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						55
+						35
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "1b1a1830-7876-5f6b-98b6-4411e547495d"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_11"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-5
+						105
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "1d4a000e-d267-53a8-b047-88d03ed3894a"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_2"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						-55
+						-34
+						0
+					]
+					rotation = [
+						0
+						0
+						1
+						6.123233995736766e-17
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "2bcb13ee-f353-50d6-a331-771a75a479b5"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_1"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-34
+						-90
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "3143e8bf-6919-5398-a8a2-957bb6dcbe8b"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_5"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						-84
+						-92
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.13052619222005157
+						0.99144486137381038
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "35c55352-b82b-5b6b-aaa9-b5cd7c47fcea"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_4"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/ground"
+					materials = [
+						{
+							_guid = "53048907-6400-461f-9685-831e684cd0fd"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/ground"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-12
+						38
+						7
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						14
+						14
+						14
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "37f52371-25d7-5986-88ce-5125bcc934a8"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_16"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/ground"
+					materials = [
+						{
+							_guid = "3e78e6b1-acee-40fa-b6fd-0c5f10c9c842"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/ground"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-30
+						-103
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						10
+						10
+						10
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "3ebc3a48-3554-510b-aefd-7273cafc9574"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_5"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "68e2c8fb-619c-4a8d-ac1e-cb4f89c5fd66"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						3
+						76
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						12
+						12
+						12
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "3ec705d7-0898-54e8-959d-5eec25269253"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_8"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						70
+						102
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "46576274-c69b-54ef-9299-ea99441dd53e"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_6"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						32
+						25
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "47974e25-afbd-5a6f-b8e7-fe36ce011bd7"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_3"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "8ce8a7e0-fa0e-4bb8-861a-e594d5e1cc0a"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						10
+						2
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						10
+						10
+						10
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "4bd43a84-ddc6-57ef-9b3e-91a6f9d276f8"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ground"
+		}
+		modified_components = {
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						0
+						0
+						-0.5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						250
+						250
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "50cdb2d1-3af0-5d40-94fd-19209efecb57"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_7"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-65
+						91
+						0
+					]
+					rotation = [
+						0
+						0
+						0.13052619222005157
+						0.99144486137381038
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "52ae99e9-0a0a-5232-b0b2-b3a935c48c02"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_11"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "a09c03c5-eb03-4487-9bfb-c14208643940"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						76
+						68
+						8
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						16
+						16
+						16
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "5906d603-292f-5ccb-9e31-940e5a356e99"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "shading_environment"
+		}
+		modified_components = {
+			#01669b61-1acb-4c6d-bef5-98ddf699a895 = {
+				data = {
+					density = 0.002
+					enabled = false
+					range_min = 60
+					sun_blend = 1
+				}
+			}
+			#2b4b7c99-8147-43bd-8b5e-ad431055d967 = {
+				data = {
+					enabled = false
+				}
+			}
+			#58d8d3ed-9ec2-4e11-ade6-1a3860335bb6 = {
+				data = {
+					enabled = false
+					weight = 0.050000000000000003
+				}
+			}
+			#6603b89f-a049-4c18-a9de-7fc31368eeb5 = {
+				data = {
+					ambient_color = [
+						0.47546296296296303
+						0.59183501683501671
+						0.7314814814814814
+					]
+					skydome_intensity = 2
+				}
+			}
+			#ae463979-efac-4ea9-959d-a551f81e4fe6 = {
+				data = {
+					enabled = false
+				}
+			}
+			#f7fb0c3b-aaeb-4ea6-a210-0c5130e4352a = {
+				data = {
+					type = "filmic"
+				}
+			}
+		}
+		prefab = "core/renderer/default_shading_environment"
+	}
+	{
+		_guid = "59772407-3600-5637-9e27-2394fb5a884f"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_3"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						-43
+						8
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "59e1c8cc-9d67-5286-b1b4-936ac2ca43cd"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_14"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "abbd3aad-fcb8-4648-913a-648770240702"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						96
+						-72
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						10
+						10
+						10
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "5b2a6135-85f9-59aa-97e8-e3ba83981f09"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrier_x-125"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "7ef1c4db-42d4-42be-b6a1-c30599b09476"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-124.5
+						0
+						0.59999999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						250
+						1.2
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "6440a433-b0c8-5157-8c80-fe641517c3a2"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "vehicle"
+		}
+		modified_components = {
+			#b958fb00-9436-5b1a-8c86-4320512f6809 = {
+				data = {
+					position = [
+						0
+						-100
+						1.05
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/vehicle/vehicle"
+	}
+	{
+		_guid = "64b1cbdc-ec30-57b7-b5ee-ed7f22ca7c65"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_8"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						30
+						96
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.087155742747658166
+						0.99619469809174555
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "6c377e01-ab9f-5780-919e-c48151f86082"
+		_type = "unit"
+		children = [
+			{
+				_guid = "109086ed-e97e-5142-b07a-1420c24842ce"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_7"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "1ce02449-4a0c-5c7d-95b0-c861f07da312"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_1"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "1ee9ecf1-7c65-5cee-92c6-d85f065a35bb"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_3"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "34358e6d-e7ef-53fe-9e78-4cc3d98e8501"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_11"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "4983b1ab-2a91-5340-85d0-d9b1c599d4eb"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_6"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "4baba53d-a5f4-5edd-a7e2-e2a13b4d399d"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_10"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "5cb33040-7a3b-569c-b22f-d31e3f71b08e"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_2"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "62cc2b8b-a3d0-50ee-a24a-e6fa68c92924"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_9"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "83820c93-d78f-5219-8c70-7d7e3f4f9c8e"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_12"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "9e62ec94-9297-5ab1-85a7-feeeed8a5beb"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_13"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "b54e8c45-6426-50b2-9b8f-ceb1d031ec47"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_4"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "c9987252-aee2-5833-9205-d90ab54e908e"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_5"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "e507f9bc-7586-5de4-aaec-1a2c428affd1"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_8"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "eb438df6-d3f0-5a49-9343-51afee497c41"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_3_row_14"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+		]
+		components = [
+			{
+				_guid = "ff8235fb-3471-524a-9454-a2b21bceedcc"
+				_type = "transform"
+				data = {
+					name = ""
+					position = [
+						-51
+						55
+						0
+					]
+					rotation = [
+						0
+						0
+						0.70710678118654746
+						0.70710678118654757
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "jump_pile_3"
+		}
+		prefab = null
+	}
+	{
+		_guid = "6c5e1a9a-c1d9-53e6-898e-d6856c3cad66"
+		_type = "unit"
+		children = [
+			{
+				_guid = "08483606-9243-5926-af5c-fd9f8bedf084"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_6"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "0b1f8358-253c-5c22-85b6-805d4d8f8d7c"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_3"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "10aa7d2c-94fc-5951-a5d6-200fcbd689c2"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_10"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "1483669f-7f30-50ce-8d32-8d482443743e"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_8"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "3b90c6a7-1da8-546d-99db-73a575363819"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_2"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "7c2e985b-1da1-57d6-a63b-ba16d3adadfd"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_4"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "868cddbb-31ed-5757-a814-cb88c3784b4b"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_7"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "871f6244-7578-5d11-b764-19a350b16ba3"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_13"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "a1c34969-4c4c-56d0-bc96-88efa3cf1db7"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_5"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "aba037b5-9d89-5a56-8caa-7eb1f9cb40ff"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_12"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "b188d7d9-dafc-5211-80fc-942c8b923cd8"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_11"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "c3491f98-9cd9-5bda-afb8-7d23c8489037"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_1"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "d13bc080-442e-54d0-93bf-85bbe3cc10e3"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_14"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "f60cfbb4-79c9-5c48-88b6-06a537829ce2"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_2_row_9"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+		]
+		components = [
+			{
+				_guid = "1241e758-1e3e-5d3b-aac0-8de56a980ca8"
+				_type = "transform"
+				data = {
+					name = ""
+					position = [
+						55
+						53
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "jump_pile_2"
+		}
+		prefab = null
+	}
+	{
+		_guid = "77edaefe-54cf-5bd2-9232-da8055d286b8"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_2"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						42
+						-12
+						0
+					]
+					rotation = [
+						0
+						0
+						0.17364817766693033
+						0.98480775301220802
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "91791c9d-824f-5da8-8218-0e1b58d75996"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_10"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						92
+						36
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.17364817766693033
+						0.98480775301220802
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "93571b29-c30f-50e3-b199-b5c29aa0ff8d"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_6"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "a6ca4510-525b-4e7d-81e3-a0c7f236bb58"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-78
+						-58
+						8
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						16
+						16
+						16
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "9b8ebdd8-eb5a-51bc-9e67-32935067f509"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_8"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "a4fc3dfa-2bfa-4dd6-941b-6d10a165eac0"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-28
+						82
+						5
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						10
+						10
+						10
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "9d769879-c1f6-5549-b6d9-da6a4badf2e2"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_12"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						86
+						-102
+						0
+					]
+					rotation = [
+						0
+						0
+						0.17364817766693033
+						0.98480775301220802
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "9e6bfd19-00e9-513c-b4b9-be4110d7b78f"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_1"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						-10
+						-88
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "9fa47114-aa84-573d-899b-215fccd25efe"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_1"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						-55
+						-70
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "a7b3bfbb-ef73-56e3-880c-b1762d8dd0f6"
+		_type = "unit"
+		children = [
+		]
+		components = [
+			{
+				_guid = "29b9f1aa-0411-5d9d-acf0-cec762987f42"
+				_type = "light"
+				data = {
+					cast_shadows = true
+					color = [
+						1
+						0.94999999999999996
+						0.84999999999999998
+					]
+					cookie = null
+					cookie_scale = 1
+					cookie_x = 0
+					cookie_y = 0
+					intensity = 3
+					range = 200
+					shadow_bias = 0.00040000000000000002
+					shadow_bias_normal = 1
+					spot_angle = 0.5
+					type = "directional"
+				}
+			}
+			{
+				_guid = "2be745ed-f72d-5841-b09d-18d83179e7b7"
+				_type = "transform"
+				data = {
+					name = ""
+					position = [
+						0
+						0
+						20
+					]
+					rotation = [
+						0.28000000000000003
+						0.17999999999999999
+						-0.080000000000000002
+						0.93999999999999995
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "sun"
+		}
+		prefab = null
+	}
+	{
+		_guid = "ae986276-0b98-5f50-b292-49470581f073"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_10"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/ground"
+					materials = [
+						{
+							_guid = "e85ab3b7-8390-4b84-ad52-59302f6aa66e"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/ground"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						78
+						-8
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						12
+						12
+						12
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "b3cd6b5e-43f6-503a-bf61-09d9b567b9f0"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_3"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-80
+						-28
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "bb8a8807-8941-541f-805a-2b95d9958a82"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_15"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "dd675049-52a0-4c74-8884-1856d4372708"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						102
+						30
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						12
+						12
+						12
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "c2816707-061a-50ae-9506-d5f3a130a0ae"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_6"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						-69
+						55
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.70710678118654746
+						0.70710678118654757
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "c2992c17-421c-54d2-be0c-68d3346c2f47"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_4"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						95
+						78
+						0
+					]
+					rotation = [
+						0
+						0
+						0.087155742747658166
+						0.99619469809174555
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "c31064f6-25d4-5401-b39e-d44f1980b05c"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_6"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						86
+						2
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "cee2645e-9df9-5ef5-b1a0-ad341c608130"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrel_group_7"
+		}
+		modified_components = {
+			#1d5687c9-5839-5696-96a3-9ebe080d26f7 = {
+				data = {
+					position = [
+						-50
+						104
+						0
+					]
+					rotation = [
+						0
+						0
+						0.087155742747658166
+						0.99619469809174555
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/barrel_group"
+	}
+	{
+		_guid = "d2f1b752-00a6-5f68-bb41-d36e0adf3f15"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrier_y125"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "cc25f01f-7be6-44f7-b020-39f5facc2f6e"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						0
+						124.5
+						0.59999999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						250
+						1
+						1.2
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "dce84656-d28a-5c0e-9e76-05c0c0f72eff"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "ramp_5"
+		}
+		modified_components = {
+			#5dbb81b1-a268-517f-b2bb-d4ec9a5adeee = {
+				data = {
+					position = [
+						-33
+						55
+						0
+					]
+					rotation = [
+						0
+						0
+						0.70710678118654746
+						0.70710678118654757
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/ramp"
+	}
+	{
+		_guid = "e33c7c49-6f1c-5564-ab66-1bff148f6771"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_4"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						80
+						-40
+						0
+					]
+					rotation = [
+						0
+						0
+						-0.13052619222005157
+						0.99144486137381038
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "e62098c5-48c8-556e-ba93-cccbfde45b68"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_7"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/ground"
+					materials = [
+						{
+							_guid = "3013e0e6-05bf-4384-bf4d-3c93e7329abd"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/ground"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-65
+						15
+						7
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						14
+						14
+						14
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "e8e48baf-887f-57d0-ad11-836c471c3d60"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_5"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-25
+						-10
+						0
+					]
+					rotation = [
+						0
+						0
+						0.17364817766693033
+						0.98480775301220802
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+	{
+		_guid = "f0c4a2c4-abc8-555f-bb54-b8bdfe3ec647"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "block_2"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "b2976d3a-ff8c-4b2c-94e8-dadc7603df53"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						-16
+						-30
+						6
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						12
+						12
+						12
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "f3f78913-78a0-512d-8ed2-590412a4f76b"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrier_x125"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "1ac33a20-3ebc-406f-87b5-a86548ba94d7"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						124.5
+						0
+						0.59999999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						250
+						1.2
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "f565156d-d270-592f-96ca-a2d2042993e1"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "barrier_y-125"
+		}
+		modified_components = {
+			#a3d512ca-9ad2-5dee-80d5-d2b082fb48a3 = {
+				data = {
+					material = "materials/obstacle"
+					materials = [
+						{
+							_guid = "63b281d3-978f-4499-87ab-64662e454ac8"
+							_prefab = "23d512ca-9ad2-5dee-80d5-d2b082fb48a3"
+							_type = "mesh_material"
+							data = {
+								material = "materials/obstacle"
+							}
+						}
+					]
+				}
+				type = "mesh_renderer"
+			}
+			#f90b2d0a-f94a-5103-9143-2ea3ff80dcd7 = {
+				data = {
+					position = [
+						0
+						-124.5
+						0.59999999999999998
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						250
+						1
+						1.2
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/box"
+	}
+	{
+		_guid = "f683d6e6-0ff6-526c-9e64-dc3c5ecd4b4b"
+		_type = "unit"
+		children = [
+			{
+				_guid = "18144bc6-b3c6-5562-9d9d-a5bbc53b6318"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_12"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "190fc4c3-05b7-50ed-a9c4-66de42c77e0d"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_4"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "19cc797e-4597-59e8-925d-a52f9f3c4f51"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_1"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "1b4bca55-cfc9-54b6-9f21-19c1df551958"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_2"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								0
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "526d3298-2cdd-5f28-a14f-65eb57e00a86"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_8"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "8760ecb2-1509-570a-a238-48acd093c80b"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_9"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "8e70b063-5e47-582f-8329-17342afd2e93"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_10"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								4.8799999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "a4fc6815-63f6-538d-954b-418e07fc43a8"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_11"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								6.0999999999999996
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "b38f6834-d0e3-55b8-b177-895e86a35829"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_14"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "b6dc78b6-8710-5096-8234-85dee8091ff7"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_5"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "c0a458cb-0628-51f5-8ce0-2979c379e02a"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_7"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								3.6600000000000001
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "c6c1c650-4239-5982-a4db-bb3eb998dbd4"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_6"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								0.60999999999999999
+								2.4399999999999999
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "d2427f05-41b9-5d84-ad16-9f61e6da97b0"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_3"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								1.22
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+			{
+				_guid = "f3e355bd-9432-5219-8b2f-e1e55c403573"
+				_type = "unit"
+				children = [
+				]
+				editor = {
+					hidden = false
+					locked = false
+					name = "jump_pile_1_row_13"
+				}
+				modified_components = {
+					#8a910a1b-3cba-5933-aff4-92ae05581790 = {
+						data = {
+							position = [
+								0
+								-0.60999999999999999
+								7.3200000000000003
+							]
+						}
+						type = "transform"
+					}
+				}
+				prefab = "units/environment/crate_row"
+			}
+		]
+		components = [
+			{
+				_guid = "a639f630-9f02-510d-b4cc-c5da409a821a"
+				_type = "transform"
+				data = {
+					name = ""
+					position = [
+						-55
+						-52
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+					scale = [
+						1
+						1
+						1
+					]
+				}
+			}
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "jump_pile_1"
+		}
+		prefab = null
+	}
+	{
+		_guid = "fa5dadb6-8f0b-54e4-825d-72b6a179bc9c"
+		_type = "unit"
+		children = [
+		]
+		editor = {
+			hidden = false
+			locked = false
+			name = "crate_stack_9"
+		}
+		modified_components = {
+			#ae7f7eea-bb5c-58f0-b185-329ea08da076 = {
+				data = {
+					position = [
+						-92
+						20
+						0
+					]
+					rotation = [
+						0
+						0
+						0
+						1
+					]
+				}
+				type = "transform"
+			}
+		}
+		prefab = "units/environment/crate_stack"
+	}
+]

@@ -1,0 +1,12 @@
+materials = {
+	default = { friction = 0.8 rolling_friction = 0 spinning_friction = 0 restitution = 0 }
+}
+collision_filters = {
+	no_collision = { collides_with = [] }
+	default = { collides_with_all_except = [ "no_collision" ] }
+}
+actors = {
+	static = { dynamic = false }
+	dynamic = { dynamic = true }
+	vehicle = { dynamic = true linear_damping = 0.02 angular_damping = 0.1 }
+}

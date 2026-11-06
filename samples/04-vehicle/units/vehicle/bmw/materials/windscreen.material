@@ -1,0 +1,157 @@
+_guid = "84700aba-501a-40e2-9065-a795fdb6b104"
+_type = "material"
+shader = "mesh+TRANSPARENT"
+shader_library = "core/shaders/default"
+textures = [
+	{
+		_guid = "243720a3-7d5a-4533-970c-e7832c6f3d5e"
+		_type = "texture_sampler"
+		name = "u_albedo_map"
+		texture = "units/vehicle/bmw/textures/image_08_df"
+	}
+]
+uniforms = [
+	{
+		_guid = "0f47388c-baaf-47e3-bf69-f0f5f735472b"
+		_type = "uniform_vector4"
+		name = "u_use_roughness_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "1e918184-1246-4fe7-97d0-2161d25bbdbf"
+		_type = "uniform_vector4"
+		name = "u_metallic"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "2b4fa0f4-9637-420c-8274-e7fe5652aac1"
+		_type = "uniform_vector4"
+		name = "u_albedo"
+		value = {
+			w = 0
+			x = 1
+			y = 1
+			z = 1
+		}
+	}
+	{
+		_guid = "6a709828-1a71-4360-81b8-af63965701b2"
+		_type = "uniform_vector4"
+		name = "u_roughness"
+		value = {
+			w = 0
+			x = 0.89999997615814209
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "7b86fa38-4530-4815-9720-9916ffa77611"
+		_type = "uniform_vector4"
+		name = "u_use_metallic_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "a25c9cf8-516d-4c2d-840b-4a991726ed83"
+		_type = "uniform_vector4"
+		name = "u_use_ao_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "a50b3313-c69d-4cc9-bb4c-3ada95ecdbd1"
+		_type = "uniform_vector4"
+		name = "u_use_normal_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "bcc1a7e1-f3da-474d-a2b6-0fcb78c8a824"
+		_type = "uniform_vector4"
+		name = "u_use_emission_map"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "d6702b70-a6cd-4da6-8cdd-f1a6bb8e0fb3"
+		_type = "uniform_vector4"
+		name = "u_opacity"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "dd771b0b-19b4-4c8e-b842-99169a1e92d2"
+		_type = "uniform_vector4"
+		name = "u_use_opacity_map"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "e1757d6b-3827-461b-9b1b-065047c03605"
+		_type = "uniform_vector4"
+		name = "u_emission_color"
+		value = {
+			w = 0
+			x = 0
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "e5bb5b58-bf8a-4471-8810-222e15e74c81"
+		_type = "uniform_vector4"
+		name = "u_emission_intensity"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+	{
+		_guid = "e668faa7-52c6-4e08-80c8-cc3e60f134ad"
+		_type = "uniform_vector4"
+		name = "u_use_albedo_map"
+		value = {
+			w = 0
+			x = 1
+			y = 0
+			z = 0
+		}
+	}
+]

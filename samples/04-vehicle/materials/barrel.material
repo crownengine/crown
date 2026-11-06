@@ -1,0 +1,69 @@
+_guid = "e8a7e0a5-c9bd-5f13-85f1-0b17d946a883"
+_type = "material"
+shader = "mesh+TRIPLANAR+TRIPLANAR_LOCAL"
+textures = [
+	{
+		_guid = "f5d3ffd7-7977-54f3-907e-83fccdb1f225"
+		_type = "texture_sampler"
+		name = "u_albedo_map"
+		texture = "materials/grid"
+	}
+]
+uniforms = {
+	u_uv_blend = {
+		type = "float"
+		value = 10
+	}
+	u_uv_scale = {
+		type = "vector3"
+		value = [ 1 1 1.4 ]
+	}
+	u_uv_offset = {
+		type = "vector3"
+		value = [ 0 0 0 ]
+	}
+	u_albedo = {
+		type = "vector3"
+		value = [ 0.15 0.45 0.8 ]
+	}
+	u_emission_color = {
+		type = "vector3"
+		value = [ 0 0 0 ]
+	}
+	u_emission_intensity = {
+		type = "float"
+		value = 1
+	}
+	u_metallic = {
+		type = "float"
+		value = 0
+	}
+	u_roughness = {
+		type = "float"
+		value = 0.8
+	}
+	u_use_albedo_map = {
+		type = "float"
+		value = 1
+	}
+	u_use_normal_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_metallic_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_roughness_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_ao_map = {
+		type = "float"
+		value = 0
+	}
+	u_use_emission_map = {
+		type = "float"
+		value = 0
+	}
+}
