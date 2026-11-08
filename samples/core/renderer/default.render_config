@@ -55,6 +55,10 @@ render_settings = {
 
 	// Whether selection rendering is enabled.
 	// selection = false
+
+	// Render the scene at a lower resolution and upscales it to fill the window.
+	// 0.5 means half the width and height.
+	// render_scale = 1
 }
 
 // Shader libraries to load at boot.

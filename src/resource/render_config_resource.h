@@ -45,6 +45,7 @@ struct RenderSettings
 	f32 lod_fade_duration;                    ///< Duration in seconds of LOD crossfades.
 	u32 msaa_quality;
 	Vector2 lights_cookie_atlas_size; ///< Fixed total size of the shared light cookie atlas.
+	f32 render_scale;
 };
 
 struct RenderConfigResource

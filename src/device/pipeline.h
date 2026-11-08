@@ -63,6 +63,7 @@ struct View
 		OUTLINE,
 		OUTLINE_BLIT,
 		DEBUG,
+		UPSCALE,
 		SCREEN_GUI,
 		GRAPH,
 		BLIT,
@@ -108,6 +109,9 @@ struct Pipeline
 
 	// Main output color/depth handles.
 	bgfx::FrameBufferHandle _color_sdr;
+	bgfx::FrameBufferHandle _scene_sdr;
+	u16 _render_width;
+	u16 _render_height;
 	bgfx::TextureHandle _color_textures[2];
 	bgfx::TextureHandle _depth_texture;
 	bgfx::FrameBufferHandle _colors[2];

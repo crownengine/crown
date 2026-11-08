@@ -168,6 +168,9 @@ Pipeline::Pipeline(ShaderManager &sm)
 	, _export_waiting_for_buffer(false)
 	, _screenshot_texture(BGFX_INVALID_HANDLE)
 	, _color_sdr(BGFX_INVALID_HANDLE)
+	, _scene_sdr(BGFX_INVALID_HANDLE)
+	, _render_width(0)
+	, _render_height(0)
 	, _depth_texture(BGFX_INVALID_HANDLE)
 	, _color_map(BGFX_INVALID_HANDLE)
 	, _depth_map(BGFX_INVALID_HANDLE)
@@ -481,6 +484,9 @@ void Pipeline::destroy()
 
 	bgfx::destroy(_color_sdr);
 	_color_sdr = BGFX_INVALID_HANDLE;
+	if (bgfx::isValid(_scene_sdr))
+		bgfx::destroy(_scene_sdr);
+	_scene_sdr = BGFX_INVALID_HANDLE;
 
 	bgfx::destroy(_depth_texture);
 	_depth_texture = BGFX_INVALID_HANDLE; // Destroyed by bgfx.
@@ -597,6 +603,11 @@ void Pipeline::bind_bones_data(u32 row)
 
 void Pipeline::reset(u16 width, u16 height)
 {
+	const f32 scale = selection_enabled() ? 1.0f : _render_settings.render_scale;
+	_render_width = max(u16(1), u16(width * scale));
+	_render_height = max(u16(1), u16(height * scale));
+	const bool scaled = _render_width != width || _render_height != height;
+
 	if (bgfx::isValid(_screenshot_texture))
 		bgfx::destroy(_screenshot_texture);
 	_screenshot_texture = BGFX_INVALID_HANDLE;
@@ -649,8 +660,8 @@ void Pipeline::reset(u16 width, u16 height)
 	}
 
 	// Create main frame buffers.
-	_depth_texture = bgfx::createTexture2D(width
-		, height
+	_depth_texture = bgfx::createTexture2D(_render_width
+		, _render_height
 		, false
 		, 1
 		, bgfx::TextureFormat::D24S8
@@ -660,8 +671,8 @@ void Pipeline::reset(u16 width, u16 height)
 	for (u32 i = 0; i < countof(_color_textures); ++i) {
 		if (bgfx::isValid(_color_textures[i]))
 			bgfx::destroy(_color_textures[i]);
-		_color_textures[i] = bgfx::createTexture2D(width
-			, height
+		_color_textures[i] = bgfx::createTexture2D(_render_width
+			, _render_height
 			, false
 			, 1
 			, bgfx::TextureFormat::RGBA16F
@@ -680,8 +691,8 @@ void Pipeline::reset(u16 width, u16 height)
 	// Create SDR frame buffer.
 	const bgfx::TextureHandle sdr_attach[] =
 	{
-		bgfx::createTexture2D(width
-			, height
+		bgfx::createTexture2D(_render_width
+			, _render_height
 			, false
 			, 1
 			, bgfx::TextureFormat::RGBA8
@@ -691,7 +702,16 @@ void Pipeline::reset(u16 width, u16 height)
 	};
 	if (bgfx::isValid(_color_sdr))
 		bgfx::destroy(_color_sdr);
-	_color_sdr = bgfx::createFrameBuffer(countof(sdr_attach), sdr_attach, true);
+	if (bgfx::isValid(_scene_sdr))
+		bgfx::destroy(_scene_sdr);
+
+	const bgfx::FrameBufferHandle scene_sdr = bgfx::createFrameBuffer(countof(sdr_attach), sdr_attach, true);
+	_color_sdr = scene_sdr;
+	_scene_sdr = BGFX_INVALID_HANDLE;
+	if (scaled) {
+		_scene_sdr = scene_sdr;
+		_color_sdr = bgfx::createFrameBuffer(width, height, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT);
+	}
 
 	if (selection_enabled()) {
 		// Create selection frame buffer.
@@ -748,8 +768,8 @@ void Pipeline::reset(u16 width, u16 height)
 			if (bgfx::isValid(_bloom_frame_buffers[i]))
 				bgfx::destroy(_bloom_frame_buffers[i]);
 
-			_bloom_frame_buffers[i] = bgfx::createFrameBuffer(width >> i
-				, height >> i
+			_bloom_frame_buffers[i] = bgfx::createFrameBuffer(max(u16(1), u16(_render_width >> i))
+				, max(u16(1), u16(_render_height >> i))
 				, bgfx::TextureFormat::RGBA16F
 				, BGFX_TEXTURE_RT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP
 				);
@@ -806,9 +826,9 @@ void Pipeline::reset(u16 width, u16 height)
 
 		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
 			view_name = "sprite";
-			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewFrameBuffer(id, scene_sdr);
 		} else if (id == View::CASCADE_CLEAR) {
 			view_name = "sm_cascade_clear";
 			bgfx::setViewFrameBuffer(id, _sun_shadow_map_frame_buffer);
@@ -851,21 +871,21 @@ void Pipeline::reset(u16 width, u16 height)
 		} else if (id == View::MESH) {
 			view_name = "mesh";
 			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			bgfx::setViewFrameBuffer(id, _colors[0]);
 		} else if (id == View::BLOOM_COPY) {
 			view_name = "bloom_copy";
 			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
 				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[0]);
 				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width, height);
+				bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			}
 		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
 			view_name = "bloom_downsample";
 			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
 				const u16 shift = u16(id - View::BLOOM_DOWNSAMPLE_0 + 1);
 				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
+				bgfx::setViewRect(id, 0, 0, max(u16(1), u16(_render_width >> shift)), max(u16(1), u16(_render_height >> shift)));
 				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
 			}
 		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
@@ -873,7 +893,7 @@ void Pipeline::reset(u16 width, u16 height)
 			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
 				const u16 shift = u16(countof(_bloom_frame_buffers) - 2 - (id - View::BLOOM_UPSAMPLE_0));
 				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width >> shift, height >> shift);
+				bgfx::setViewRect(id, 0, 0, max(u16(1), u16(_render_width >> shift)), max(u16(1), u16(_render_height >> shift)));
 				bgfx::setViewFrameBuffer(id, _bloom_frame_buffers[shift]);
 			}
 		} else if (id == View::BLOOM_COMBINE) {
@@ -881,22 +901,22 @@ void Pipeline::reset(u16 width, u16 height)
 			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
 				bgfx::setViewFrameBuffer(id, _colors[1]);
 				bgfx::setViewTransform(id, NULL, ortho);
-				bgfx::setViewRect(id, 0, 0, width, height);
+				bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			}
 		} else if (id == View::VIGNETTE) {
 			view_name = "vignette";
 			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 		} else if (id == View::TONEMAP) {
 			view_name = "tonemap";
-			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewFrameBuffer(id, scene_sdr);
 			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 		} else if (id == View::WORLD_GUI) {
 			view_name = "world_gui";
-			bgfx::setViewRect(id, 0, 0, width, height);
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
-			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewFrameBuffer(id, scene_sdr);
 		} else if (id == View::SELECTION) {
 			view_name = "selection";
 			if (selection_enabled()) {
@@ -921,8 +941,13 @@ void Pipeline::reset(u16 width, u16 height)
 			}
 		} else if (id == View::DEBUG) {
 			view_name = "debug";
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
+			bgfx::setViewFrameBuffer(id, scene_sdr);
+		} else if (id == View::UPSCALE) {
+			view_name = "upscale";
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewFrameBuffer(id, _color_sdr);
+			bgfx::setViewTransform(id, NULL, ortho);
 		} else if (id == View::SCREEN_GUI) {
 			view_name = "screen_gui";
 			bgfx::setViewTransform(id, to_float_ptr(MATRIX4X4_IDENTITY), to_float_ptr(screen_gui_proj));
@@ -1256,8 +1281,8 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		// Downsample.
 		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
 			const u16 shift = i + 1;
-			const u16 w = width >> shift;
-			const u16 h = height >> shift;
+			const u16 w = max(u16(1), u16(_render_width >> shift));
+			const u16 h = max(u16(1), u16(_render_height >> shift));
 			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
 
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[i]), bloom_sampler_flags);
@@ -1270,8 +1295,8 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		// Upsample.
 		for (u32 i = 0; i < countof(_bloom_frame_buffers) - 1; ++i) {
 			const u16 shift = u16(countof(_bloom_frame_buffers) - 2 - i);
-			const u16 w = width >> shift;
-			const u16 h = height >> shift;
+			const u16 w = max(u16(1), u16(_render_width >> shift));
+			const u16 h = max(u16(1), u16(_render_height >> shift));
 			Vector4 pixel_size = { 1.0f/w, 1.0f/h, 0.0f, 0.0f };
 
 			bgfx::setTexture(0, _color_map, bgfx::getTexture(_bloom_frame_buffers[shift + 1]), bloom_sampler_flags);
@@ -1334,6 +1359,13 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_blit_blend_shader.state);
 		bgfx::submit(View::OUTLINE_BLIT, _blit_blend_shader.program);
+	}
+
+	if (bgfx::isValid(_scene_sdr)) {
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_scene_sdr), BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+		screenSpaceQuad(_render_width, _render_height, 0.0f, caps->originBottomLeft);
+		bgfx::setState(_blit_shader.state);
+		bgfx::submit(View::UPSCALE, _blit_shader.program);
 	}
 
 	// Blit to backbuffer.
