@@ -804,17 +804,7 @@ void Pipeline::reset(u16 width, u16 height)
 	for (u32 id = 0; id < View::COUNT; ++id) {
 		const char *view_name;
 
-		if (id == View::COLOR_0) {
-			view_name = "color0";
-			bgfx::setViewFrameBuffer(id, _colors[0]);
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id == View::COLOR_1) {
-			view_name = "color1";
-			bgfx::setViewFrameBuffer(id, _colors[1]);
-			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
-			bgfx::setViewRect(id, 0, 0, width, height);
-		} else if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
+		if (id >= View::SPRITE_0 && id < View::SPRITE_LAST) {
 			view_name = "sprite";
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewMode(id, bgfx::ViewMode::DepthAscending);
@@ -860,6 +850,7 @@ void Pipeline::reset(u16 width, u16 height)
 				bgfx::setViewFrameBuffer(id, _colors[0]);
 		} else if (id == View::MESH) {
 			view_name = "mesh";
+			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
 			bgfx::setViewRect(id, 0, 0, width, height);
 			bgfx::setViewFrameBuffer(id, _colors[0]);
 		} else if (id == View::BLOOM_COPY) {
@@ -1254,10 +1245,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 				bgfx::touch(id);
 		}
 	}
-
-	// Clear main color frame buffers.
-	bgfx::touch(View::COLOR_0);
-	bgfx::touch(View::COLOR_1);
 
 	// Render bloom.
 	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
