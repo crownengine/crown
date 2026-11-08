@@ -883,14 +883,8 @@ void Pipeline::reset(u16 width, u16 height)
 				bgfx::setViewTransform(id, NULL, ortho);
 				bgfx::setViewRect(id, 0, 0, width, height);
 			}
-		} else if (id == View::DUMMY_BLIT) {
-			view_name = "dummy_blit";
-			bgfx::setViewFrameBuffer(id, _colors[1]);
-			bgfx::setViewTransform(id, NULL, ortho);
-			bgfx::setViewRect(id, 0, 0, width, height);
 		} else if (id == View::VIGNETTE) {
 			view_name = "vignette";
-			bgfx::setViewFrameBuffer(id, _colors[0]);
 			bgfx::setViewTransform(id, NULL, ortho);
 			bgfx::setViewRect(id, 0, 0, width, height);
 		} else if (id == View::TONEMAP) {
@@ -1207,18 +1201,6 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		} else if (id == View::MESH) {
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::touch(id);
-		} else if (id == View::BLOOM_COPY) {
-			bgfx::touch(id);
-		} else if (id >= View::BLOOM_DOWNSAMPLE_0 && id < View::BLOOM_DOWNSAMPLE_LAST) {
-			bgfx::touch(id);
-		} else if (id >= View::BLOOM_UPSAMPLE_0 && id < View::BLOOM_UPSAMPLE_LAST) {
-			bgfx::touch(id);
-		} else if (id == View::BLOOM_COMBINE) {
-			bgfx::touch(id);
-		} else if (id == View::VIGNETTE) {
-			bgfx::touch(id);
-		} else if (id == View::TONEMAP) {
-			bgfx::touch(id);
 		} else if (id == View::WORLD_GUI) {
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::touch(id);
@@ -1246,6 +1228,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		}
 	}
 
+	u32 color_index = 0;
 	// Render bloom.
 	if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0 && _bloom.enabled) {
 		// Calculate bloom's maximum amplification and use it to avoid FP16 overflow.
@@ -1307,29 +1290,21 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_bloom_combine_shader.state);
 		bgfx::submit(View::BLOOM_COMBINE, _bloom_combine_shader.program);
-	} else {
-		// Do a dummy copy to color1.
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_shader.state);
-		bgfx::submit(View::DUMMY_BLIT, _blit_shader.program);
+		color_index = 1;
 	}
 
 	if (_vignette.enabled) {
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
+		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[color_index]), samplerFlags);
+		color_index = 1 - color_index;
+		bgfx::setViewFrameBuffer(View::VIGNETTE, _colors[color_index]);
 		bgfx::setUniform(_vignette_desc_uniform, &_vignette, sizeof(_vignette)/sizeof(Vector4));
 		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
 		bgfx::setState(_vignette_shader.state);
 		bgfx::submit(View::VIGNETTE, _vignette_shader.program);
-	} else {
-		bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[1]), samplerFlags);
-		screenSpaceQuad(width, height, 0.0f, caps->originBottomLeft);
-		bgfx::setState(_blit_shader.state);
-		bgfx::submit(View::VIGNETTE, _blit_shader.program);
 	}
 
 	// Color grading and tonemapping.
-	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[0]), samplerFlags);
+	bgfx::setTexture(0, _color_map, bgfx::getTexture(_colors[color_index]), samplerFlags);
 	bgfx::setUniform(_color_grading_desc_uniform
 		, &_color_grading_desc
 		, sizeof(_color_grading_desc)/sizeof(Vector4)
