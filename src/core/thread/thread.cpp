@@ -31,7 +31,7 @@ namespace thread
 		SYSTEM_INFO system_info;
 		GetSystemInfo(&system_info);
 		return (u32)system_info.dwNumberOfProcessors;
-#elif CROWN_PLATFORM_LINUX
+#elif CROWN_PLATFORM_LINUX || CROWN_PLATFORM_ANDROID || CROWN_PLATFORM_EMSCRIPTEN
 		const long num_processors = sysconf(_SC_NPROCESSORS_ONLN);
 		CE_ASSERT(num_processors != -1, "sysconf: errno = %d", errno);
 		return (u32)num_processors;
