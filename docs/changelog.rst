@@ -13,6 +13,7 @@ Changelog
 * Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.
 * Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.
 * Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.
+* Runtime: Android: fixed ``Device.quit()`` not closing the application.
 
 * Tools: fixed Android APKs failing to install on newer Android versions.
 
