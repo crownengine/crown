@@ -534,6 +534,14 @@ struct AndroidDevice
 		return ok;
 	}
 
+	static s32 run_runtime(void *user_data)
+	{
+		AndroidDevice *android = (AndroidDevice *)user_data;
+		int ec = crown::main_runtime(*android->_opts);
+		ANativeActivity_finish(android->_app->activity);
+		return ec;
+	}
+
 	void run(struct android_app *app, DeviceOptions &opts)
 	{
 		_app = app;
@@ -576,13 +584,8 @@ struct AndroidDevice
 			const s32 height = ANativeWindow_getHeight(app->window);
 			_queue.push_resolution_event(width, height);
 
-			if (!_main_thread.is_running()) {
-				_main_thread.start([](void *user_data) {
-						return crown::main_runtime(*((DeviceOptions *)user_data));
-					}
-					, _opts
-					);
-			}
+			if (!_main_thread.is_running())
+				_main_thread.start(run_runtime, this);
 			break;
 		}
 
