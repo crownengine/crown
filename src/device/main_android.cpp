@@ -1153,16 +1153,33 @@ bool next_event(OsEvent &ev)
 	return s_android_device->_events.pop(ev);
 }
 
+struct InitGlobals
+{
+	InitGlobals()
+	{
+		memory_globals::init();
+		task_manager_globals::init();
+		profiler_globals::init();
+		guid_globals::init();
+	}
+
+	~InitGlobals()
+	{
+		guid_globals::shutdown();
+		profiler_globals::shutdown();
+		task_manager_globals::shutdown();
+		memory_globals::shutdown();
+	}
+};
+
 } // namespace crown
 
 void android_main(struct android_app *app)
 {
 	using namespace crown;
 
-	memory_globals::init();
-	task_manager_globals::init();
-	profiler_globals::init();
-	guid_globals::init();
+	InitGlobals m;
+	CE_UNUSED(m);
 
 	DeviceOptions opts(default_allocator(), 0, NULL);
 	g_platform_data._android_asset_manager = app->activity->assetManager;
@@ -1173,11 +1190,6 @@ void android_main(struct android_app *app)
 	s_android_device = CE_NEW(default_allocator(), AndroidDevice)(default_allocator());
 	s_android_device->run(app, opts);
 	CE_DELETE(default_allocator(), s_android_device);
-
-	guid_globals::shutdown();
-	profiler_globals::shutdown();
-	task_manager_globals::shutdown();
-	memory_globals::shutdown();
 }
 
 #endif // if CROWN_PLATFORM_ANDROID
