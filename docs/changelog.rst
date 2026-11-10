@@ -27,6 +27,7 @@ Changelog
 * Runtime: added an asynchronous HTTP(S) client.
 * Runtime: added ``--bundle-url`` to load bundles over HTTP(S).
 * Runtime: added a splashscreen while the runtime is starting.
+* Runtime: improved rendering performance with cascaded shadows.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

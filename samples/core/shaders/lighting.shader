@@ -287,25 +287,37 @@ bgfx_shaders = {
 						float shadow_bias = light_params.z;
 						float normal_bias = light_params.w;
 						vec3 shadow_world = world_pos;
-						vec4 shadow_pos0 = mul(u_cascaded_lights[0], vec4(shadow_world, 1.0));
-						vec4 shadow_pos1 = mul(u_cascaded_lights[1], vec4(shadow_world, 1.0));
-						vec4 shadow_pos2 = mul(u_cascaded_lights[2], vec4(shadow_world, 1.0));
-						vec4 shadow_pos3 = mul(u_cascaded_lights[3], vec4(shadow_world, 1.0));
 						vec3 atlas_offset0 = vec3(atlas_offset, atlas_size);
 						vec3 atlas_offset1 = vec3(atlas_offset + vec2(atlas_size, 0.0), atlas_size);
 						vec3 atlas_offset2 = vec3(atlas_offset + vec2(0.0, atlas_size), atlas_size);
 						vec3 atlas_offset3 = vec3(atlas_offset + vec2_splat(atlas_size), atlas_size);
-						vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset0);
-						vec4 atlas_shadow_pos1 = atlas_shadow_coord(shadow_pos1, atlas_offset1);
-						vec4 atlas_shadow_pos2 = atlas_shadow_coord(shadow_pos2, atlas_offset2);
-						vec4 atlas_shadow_pos3 = atlas_shadow_coord(shadow_pos3, atlas_offset3);
 
 						// All near planes have the same normal and all far planes have its opposite.
 						float shadow_depth = dot(shadow0_near.xyz, shadow_world);
-						bool atlas0 = shadow_depth >= shadow0_near.w && shadow_depth <= -shadow0_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
-						bool atlas1 = shadow_depth >= shadow1_near.w && shadow_depth <= -shadow1_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
-						bool atlas2 = shadow_depth >= shadow2_near.w && shadow_depth <= -shadow2_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
-						bool atlas3 = shadow_depth >= shadow3_near.w && shadow_depth <= -shadow3_far.w && shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
+						bool atlas0 = false;
+						if (shadow_depth >= shadow0_near.w && shadow_depth <= -shadow0_far.w) {
+							vec4 shadow_pos0 = mul(u_cascaded_lights[0], vec4(shadow_world, 1.0));
+							vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset0);
+							atlas0 = shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
+						}
+						bool atlas1 = false;
+						if (shadow_depth >= shadow1_near.w && shadow_depth <= -shadow1_far.w) {
+							vec4 shadow_pos1 = mul(u_cascaded_lights[1], vec4(shadow_world, 1.0));
+							vec4 atlas_shadow_pos1 = atlas_shadow_coord(shadow_pos1, atlas_offset1);
+							atlas1 = shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
+						}
+						bool atlas2 = false;
+						if (shadow_depth >= shadow2_near.w && shadow_depth <= -shadow2_far.w) {
+							vec4 shadow_pos2 = mul(u_cascaded_lights[2], vec4(shadow_world, 1.0));
+							vec4 atlas_shadow_pos2 = atlas_shadow_coord(shadow_pos2, atlas_offset2);
+							atlas2 = shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
+						}
+						bool atlas3 = false;
+						if (shadow_depth >= shadow3_near.w && shadow_depth <= -shadow3_far.w) {
+							vec4 shadow_pos3 = mul(u_cascaded_lights[3], vec4(shadow_world, 1.0));
+							vec4 atlas_shadow_pos3 = atlas_shadow_coord(shadow_pos3, atlas_offset3);
+							atlas3 = shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
+						}
 						vec3 shadow_light_dir = normalize(-direction);
 
 						if (atlas0) {
