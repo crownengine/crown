@@ -14,6 +14,7 @@ Changelog
 * Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.
 * Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.
 * Runtime: Android: fixed ``Device.quit()`` not closing the application.
+* Runtime: Android: restored default handling of unmapped keys, including volume and Back.
 
 * Tools: fixed Android APKs failing to install on newer Android versions.
 
