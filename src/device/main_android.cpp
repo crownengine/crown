@@ -917,26 +917,25 @@ struct AndroidDevice
 								, pressed
 								);
 						}
+
+						return 1;
 					}
 				}
 
-				return 1;
+				return 0;
 			}
 
-			const KeyboardButton::Enum kb = keycode == AKEYCODE_BACK
-				? KeyboardButton::ESCAPE
-				: android_translate_key(keycode)
-				;
+			const KeyboardButton::Enum kb = android_translate_key(keycode);
 
-			if (kb != KeyboardButton::COUNT) {
+			if (kb != KeyboardButton::COUNT && (keyaction == AKEY_EVENT_ACTION_DOWN || keyaction == AKEY_EVENT_ACTION_UP)) {
 				_queue.push_button_event(InputDeviceType::KEYBOARD
 					, 0
 					, kb
 					, keyaction == AKEY_EVENT_ACTION_DOWN
 					);
-			}
 
-			return 1;
+				return 1;
+			}
 		}
 
 		return 0;
