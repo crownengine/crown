@@ -18,6 +18,8 @@ Changelog
 
 * Tools: fixed Android APKs failing to install on newer Android versions.
 
+* Data Compiler: fixed intermittent ``Geometry redefined`` errors when compiling OBJ and FBX meshes.
+
 .. _v0.65.6:
 
 :ref:`0.65.6 --- 29 Oct 2026 <v0.65.6>`
