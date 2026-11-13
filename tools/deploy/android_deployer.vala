@@ -63,6 +63,8 @@ public class AndroidDeployer
 		android_manifest += "\n";
 		android_manifest += "\n  <application";
 		android_manifest += "\n    android:hasCode=\"true\"";
+		if (target_sdk_version >= 26)
+			android_manifest += "\n    android:appCategory=\"game\"";
 		android_manifest += "\n    android:label=\"%s\">".printf(app_title);
 		android_manifest += "\n    <activity";
 		android_manifest += "\n      android:name=\"%s.%s\"".printf(app_identifier, activity_name);
