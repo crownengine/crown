@@ -76,16 +76,20 @@ bgfx_shaders = {
 				return ggx1 * ggx2;
 			}
 
-			vec3 calc_radiance(vec3 n, vec3 l, vec3 v, vec3 h, vec3 albedo, vec3 radiance, float metallic, float roughness, vec3 f0)
+			vec3 calc_radiance(vec3 n, vec3 l, vec3 v, vec3 h, vec3 albedo, vec3 radiance, float metallic, float roughness, vec3 f0, vec4 brdf)
 			{
 				float ndotl = max(0.0, dot(n, l));
-				float ndotv = max(0.0, dot(n, v));
+				float ndotv = brdf.x;
 				float ndoth = clamp(dot(n, h), 0.0, 1.0);
 				float hdotv = clamp(dot(h, v), 0.0, 1.0);
 
 				vec3 f    = fresnel(hdotv, f0);
-				float ndf = dist_GGX(ndoth, roughness);
-				float g   = geom_smith(ndotv, ndotl, roughness);
+				float r = brdf.y;
+				float rr = r*r;
+				float d = 1.0 - ndoth*ndoth + ndoth*ndoth*rr;
+				float a = r/d;
+				float ndf = a*a * (1.0/M_PI);
+				float g = (ndotl / (ndotl * (1.0 - brdf.z) + brdf.z)) * brdf.w;
 
 				// Cook-Torrance BRDF.
 				vec3 num  = ndf * g * f;
@@ -93,20 +97,20 @@ bgfx_shaders = {
 				vec3 specular = num / den;
 
 				vec3 ks = f;
-				vec3 kd = (vec3_splat(1.0) - ks) * (1.0 - metallic);
+				vec3 kd = vec3_splat(1.0) - ks;
 
-				return (kd * albedo / M_PI + specular) * radiance * ndotl;
+				return (kd * albedo + specular) * radiance * ndotl;
 			}
 
-			vec3 calc_dir_light(vec3 n, vec3 v, vec3 color, float intensity, vec3 direction, vec3 albedo, float metallic, float roughness, vec3 f0)
+			vec3 calc_dir_light(vec3 n, vec3 v, vec3 color, float intensity, vec3 direction, vec3 albedo, float metallic, float roughness, vec3 f0, vec4 brdf)
 			{
 				vec3 l = normalize(-direction); // Direction to light.
 				vec3 h = normalize(v + l);      // Half-vector betwen v and l.
 				vec3 radiance = color * intensity;
-				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
+				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0, brdf);
 			}
 
-			vec3 calc_omni_light(vec3 n, vec3 v, vec3 frag_pos, vec3 color, float intensity, vec3 position, float range, vec3 albedo, float metallic, float roughness, vec3 f0)
+			vec3 calc_omni_light(vec3 n, vec3 v, vec3 frag_pos, vec3 color, float intensity, vec3 position, float range, vec3 albedo, float metallic, float roughness, vec3 f0, vec4 brdf)
 			{
 				highp vec3 dpos = position - frag_pos;
 				vec3 l = normalize(dpos);  // Direction to light.
@@ -116,7 +120,7 @@ bgfx_shaders = {
 				float range_fade = smooth_range_fade(dd, range*range, 0.15);
 				float attenuation = attenuation_std * range_fade;
 				vec3 radiance = color * intensity * attenuation;
-				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
+				return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0, brdf);
 			}
 
 			vec3 calc_spot_light(vec3 n
@@ -132,6 +136,7 @@ bgfx_shaders = {
 				, float metallic
 				, float roughness
 				, vec3 f0
+				, vec4 brdf
 				)
 			{
 				highp vec3 dpos = position - frag_pos;
@@ -151,7 +156,7 @@ bgfx_shaders = {
 					float attenuation = attenuation_std * t * range_fade;
 
 					vec3 radiance = color * intensity * attenuation;
-					return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0);
+					return calc_radiance(n, l, v, h, albedo, radiance, metallic, roughness, f0, brdf);
 				} else {
 					return vec3_splat(0.0);
 				}
@@ -243,7 +248,12 @@ bgfx_shaders = {
 				// Keep roughness^4, used in dist_GGX(), in the normalized FP16 range. FP16 smallest
 				// normalized value is 2^-14, requiring: roughness^4 >= 2^-14 ~= 0.089
 				roughness = max(roughness, 0.089);
+				float brdf_ndotv = max(0.0, dot(n, v));
+				float brdf_r = roughness + 1.0;
+				float brdf_k = brdf_r*brdf_r * (1.0/8.0);
+				vec4 brdf = vec4(brdf_ndotv, roughness*roughness, brdf_k, geom_schlick_GGX(brdf_ndotv, roughness));
 
+				vec3 diffuse = (1.0 - metallic) * albedo / M_PI;
 				vec3 radiance = ao * toLinearAccurate(ambient_color) * albedo;
 				float camera_distance = length(camera_frag_pos);
 				bool receive_shadow = camera_distance <= shadow_distance;
@@ -267,10 +277,11 @@ bgfx_shaders = {
 						, toLinearAccurate(light_color)
 						, intensity
 						, mul(direction, tbn)
-						, albedo
+						, diffuse
 						, metallic
 						, roughness
 						, f0
+						, brdf
 						);
 
 					if (receive_shadow && cast_shadow) {
@@ -391,10 +402,11 @@ bgfx_shaders = {
 						, toLinearAccurate(light_color)
 						, intensity
 						, mul(direction, tbn)
-						, albedo
+						, diffuse
 						, metallic
 						, roughness
 						, f0
+						, brdf
 						);
 				}
 
@@ -416,10 +428,11 @@ bgfx_shaders = {
 						, intensity
 						, light_pos
 						, range
-						, albedo
+						, diffuse
 						, metallic
 						, roughness
 						, f0
+						, brdf
 						);
 
 					if (receive_shadow && cast_shadow) {
@@ -546,10 +559,11 @@ bgfx_shaders = {
 						, spot_angle
 						, mul(position, tbn)
 						, range
-						, albedo
+						, diffuse
 						, metallic
 						, roughness
 						, f0
+						, brdf
 						);
 
 					bool receive_light_shadow = receive_shadow && cast_shadow;
