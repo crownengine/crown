@@ -13,6 +13,7 @@
 #include "core/math/vector3.inl"
 #include "core/memory/temp_allocator.inl"
 #include "core/strings/dynamic_string.inl"
+#include "core/strings/string_id.inl"
 #include "device/log.h"
 #include "resource/compile_options.inl"
 #include "resource/fbx_document.h"
@@ -336,7 +337,7 @@ namespace fbx
 			ENSURE_OR_RETURN(FBX_RESOURCE, err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
-			geometry_name.from_string_id(StringId32((const char *)&mesh, sizeof(mesh)));
+			geometry_name.from_string_id(StringId32(mesh->element_id));
 
 			RETURN_IF_FALSE(FBX_RESOURCE, !hash_map::has(m._geometries, geometry_name)
 				, opts
@@ -371,7 +372,7 @@ namespace fbx
 		set_scale(n._local_pose, scl);
 
 		if (node->mesh != NULL)
-			n._geometry.from_string_id(StringId32((const char *)&node->mesh, sizeof(node->mesh)));
+			n._geometry.from_string_id(StringId32(node->mesh->element_id));
 
 		return 0;
 	}

@@ -311,7 +311,7 @@ namespace obj
 			ENSURE_OR_RETURN(OBJ_RESOURCE, err == 0, opts);
 
 			DynamicString geometry_name(default_allocator());
-			geometry_name.from_string_id(StringId32((const char *)&mesh, sizeof(mesh)));
+			geometry_name.from_string_id(StringId32(mesh->element_id));
 
 			RETURN_IF_FALSE(OBJ_RESOURCE, !hash_map::has(m._geometries, geometry_name)
 				, opts
@@ -346,7 +346,7 @@ namespace obj
 		set_scale(n._local_pose, scl);
 
 		if (node->mesh != NULL)
-			n._geometry.from_string_id(StringId32((const char *)&node->mesh, sizeof(node->mesh)));
+			n._geometry.from_string_id(StringId32(node->mesh->element_id));
 
 		return 0;
 	}
