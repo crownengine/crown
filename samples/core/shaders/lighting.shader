@@ -182,6 +182,9 @@ bgfx_shaders = {
 				return mix(vec3_splat(0.0), radiance, fade_smoothstep(camera_dist, fade_dist, cutoff_dist));
 			}
 
+			// Sun cascade matrices are affine; their projected W is exactly one.
+		#	define SUN_SHADOW_POSITION(i, position) vec4(mul(u_cascaded_lights[i], vec4(position, 1.0)).xyz, 1.0)
+
 			vec4 atlas_shadow_coord(vec4 shadow_coord, vec3 atlas_offset)
 			{
 				vec4 coord = shadow_coord;
@@ -307,25 +310,25 @@ bgfx_shaders = {
 						float shadow_depth = dot(shadow0_near.xyz, shadow_world);
 						bool atlas0 = false;
 						if (shadow_depth >= shadow0_near.w && shadow_depth <= -shadow0_far.w) {
-							vec4 shadow_pos0 = mul(u_cascaded_lights[0], vec4(shadow_world, 1.0));
+							vec4 shadow_pos0 = SUN_SHADOW_POSITION(0, shadow_world);
 							vec4 atlas_shadow_pos0 = atlas_shadow_coord(shadow_pos0, atlas_offset0);
 							atlas0 = shadow_coord_inside_atlas_tile(atlas_shadow_pos0, atlas_offset0);
 						}
 						bool atlas1 = false;
 						if (shadow_depth >= shadow1_near.w && shadow_depth <= -shadow1_far.w) {
-							vec4 shadow_pos1 = mul(u_cascaded_lights[1], vec4(shadow_world, 1.0));
+							vec4 shadow_pos1 = SUN_SHADOW_POSITION(1, shadow_world);
 							vec4 atlas_shadow_pos1 = atlas_shadow_coord(shadow_pos1, atlas_offset1);
 							atlas1 = shadow_coord_inside_atlas_tile(atlas_shadow_pos1, atlas_offset1);
 						}
 						bool atlas2 = false;
 						if (shadow_depth >= shadow2_near.w && shadow_depth <= -shadow2_far.w) {
-							vec4 shadow_pos2 = mul(u_cascaded_lights[2], vec4(shadow_world, 1.0));
+							vec4 shadow_pos2 = SUN_SHADOW_POSITION(2, shadow_world);
 							vec4 atlas_shadow_pos2 = atlas_shadow_coord(shadow_pos2, atlas_offset2);
 							atlas2 = shadow_coord_inside_atlas_tile(atlas_shadow_pos2, atlas_offset2);
 						}
 						bool atlas3 = false;
 						if (shadow_depth >= shadow3_near.w && shadow_depth <= -shadow3_far.w) {
-							vec4 shadow_pos3 = mul(u_cascaded_lights[3], vec4(shadow_world, 1.0));
+							vec4 shadow_pos3 = SUN_SHADOW_POSITION(3, shadow_world);
 							vec4 atlas_shadow_pos3 = atlas_shadow_coord(shadow_pos3, atlas_offset3);
 							atlas3 = shadow_coord_inside_atlas_tile(atlas_shadow_pos3, atlas_offset3);
 						}
@@ -333,11 +336,11 @@ bgfx_shaders = {
 
 						if (atlas0) {
 							vec3 biased_world_pos0 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.x, normal_bias);
-							vec4 biased_shadow_pos0 = mul(u_cascaded_lights[0], vec4(biased_world_pos0, 1.0));
+							vec4 biased_shadow_pos0 = SUN_SHADOW_POSITION(0, biased_world_pos0);
 							float shadow0 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos0, atlas_offset0), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 							if (atlas1 && shadow_depth > shadow1_near.w) {
 								vec3 biased_world_pos1 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.y, normal_bias);
-								vec4 biased_shadow_pos1 = mul(u_cascaded_lights[1], vec4(biased_world_pos1, 1.0));
+								vec4 biased_shadow_pos1 = SUN_SHADOW_POSITION(1, biased_world_pos1);
 								float shadow1 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos1, atlas_offset1), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 								float blend = (shadow_depth - shadow1_near.w) * rcp(-shadow0_far.w - shadow1_near.w);
 								shadow0 = mix(shadow0, shadow1, blend);
@@ -345,11 +348,11 @@ bgfx_shaders = {
 							local_radiance *= shadow0;
 						} else if (atlas1) {
 							vec3 biased_world_pos1 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.y, normal_bias);
-							vec4 biased_shadow_pos1 = mul(u_cascaded_lights[1], vec4(biased_world_pos1, 1.0));
+							vec4 biased_shadow_pos1 = SUN_SHADOW_POSITION(1, biased_world_pos1);
 							float shadow1 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos1, atlas_offset1), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 							if (atlas2 && shadow_depth > shadow2_near.w) {
 								vec3 biased_world_pos2 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.z, normal_bias);
-								vec4 biased_shadow_pos2 = mul(u_cascaded_lights[2], vec4(biased_world_pos2, 1.0));
+								vec4 biased_shadow_pos2 = SUN_SHADOW_POSITION(2, biased_world_pos2);
 								float shadow2 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos2, atlas_offset2), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 								float blend = (shadow_depth - shadow2_near.w) * rcp(-shadow1_far.w - shadow2_near.w);
 								shadow1 = mix(shadow1, shadow2, blend);
@@ -357,11 +360,11 @@ bgfx_shaders = {
 							local_radiance *= shadow1;
 						} else if (atlas2) {
 							vec3 biased_world_pos2 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.z, normal_bias);
-							vec4 biased_shadow_pos2 = mul(u_cascaded_lights[2], vec4(biased_world_pos2, 1.0));
+							vec4 biased_shadow_pos2 = SUN_SHADOW_POSITION(2, biased_world_pos2);
 							float shadow2 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos2, atlas_offset2), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 							if (atlas3 && shadow_depth > shadow3_near.w) {
 								vec3 biased_world_pos3 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.w, normal_bias);
-								vec4 biased_shadow_pos3 = mul(u_cascaded_lights[3], vec4(biased_world_pos3, 1.0));
+								vec4 biased_shadow_pos3 = SUN_SHADOW_POSITION(3, biased_world_pos3);
 								float shadow3 = shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos3, atlas_offset3), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 								float blend = (shadow_depth - shadow3_near.w) * rcp(-shadow2_far.w - shadow3_near.w);
 								shadow2 = mix(shadow2, shadow3, blend);
@@ -369,7 +372,7 @@ bgfx_shaders = {
 							local_radiance *= shadow2;
 						} else if (atlas3) {
 							vec3 biased_world_pos3 = shadow_bias_position(shadow_world, geometric_n, shadow_light_dir, u_cascade_shadow_texel_size.w, normal_bias);
-							vec4 biased_shadow_pos3 = mul(u_cascaded_lights[3], vec4(biased_world_pos3, 1.0));
+							vec4 biased_shadow_pos3 = SUN_SHADOW_POSITION(3, biased_world_pos3);
 							local_radiance *= shadow(u_cascaded_shadow_map, atlas_shadow_coord(biased_shadow_pos3, atlas_offset3), shadow_bias, sun_sm_texel_size, sun_shadow_map_samples);
 						}
 					}
