@@ -1277,6 +1277,12 @@ public class GLTFImporter
 					return 1;
 			}
 
+			string? rma_map = null;
+			if (options.rma_materials && MeshResource.import_rma_texture(out rma_map
+				, db, project, destination_dir, options.create_textures_folder
+				, material_resource_name, roughness_map, metallic_map, ao_map, roughness, metallic) != 0)
+				return 1;
+
 			bool uses_skinning = false;
 			bool uses_static_mesh = false;
 			if (has_state_machine) {
@@ -1310,6 +1316,7 @@ public class GLTFImporter
 				, emission_intensity
 				, shader
 				, masking
+				, rma_map
 				);
 			if (resource.save(project, material_resource_name) != 0)
 				return 1;
@@ -1335,6 +1342,7 @@ public class GLTFImporter
 					, emission_intensity
 					, "mesh+SKINNING"
 					, masking
+					, rma_map
 					);
 				if (skinned_resource.save(project, skinned_material_resource_name) != 0)
 					return 1;

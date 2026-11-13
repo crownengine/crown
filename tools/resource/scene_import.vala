@@ -35,6 +35,7 @@ public class SceneImportOptions
 	public bool create_colliders;
 	public bool import_lods;
 	public string tangents;
+	public bool rma_materials;
 
 	public bool import_animation;
 	public bool new_skeleton;
@@ -56,6 +57,7 @@ public class SceneImportOptions
 		create_colliders = false;
 		import_lods = true;
 		tangents = "calculate";
+		rma_materials = false;
 
 		import_animation = has_feature(SceneImportFlags.ANIMATIONS);
 		new_skeleton = has_feature(SceneImportFlags.ANIMATIONS);
@@ -89,6 +91,8 @@ public class SceneImportOptions
 			import_lods = (bool)value;
 		else if (key == "tangents")
 			tangents = (string)value;
+		else if (key == "rma_materials")
+			rma_materials = (bool)value;
 		else if (key == "new_skeleton" && has_feature(SceneImportFlags.ANIMATIONS))
 			new_skeleton = (bool)value;
 		else if (key == "target_skeleton" && has_feature(SceneImportFlags.ANIMATIONS))
@@ -137,6 +141,7 @@ public class SceneImportOptions
 		obj.set("create_colliders", skip_units ? false : create_colliders);
 		obj.set("import_lods", skip_units ? false : import_lods);
 		obj.set("tangents", tangents);
+		obj.set("rma_materials", skip_units ? false : rma_materials);
 		if (has_feature(SceneImportFlags.ANIMATIONS)) {
 			obj.set("new_skeleton", skip_anims ? false : new_skeleton);
 			obj.set("target_skeleton", skip_anims ? "" : target_skeleton);
@@ -169,6 +174,7 @@ public class SceneImportDialog : Gtk.Window
 	public InputBool _create_colliders;
 	public InputBool _import_lods;
 	public InputEnum _tangents;
+	public InputBool _rma_materials;
 
 	public InputBool _import_animation;
 	public InputBool _new_skeleton;
@@ -228,6 +234,9 @@ public class SceneImportDialog : Gtk.Window
 			, new string[] { "calculate", "import" }
 			);
 
+		_rma_materials = new InputBool();
+		_rma_materials.value = _options.rma_materials;
+
 		_import_animation = new InputBool();
 		_import_animation.value = _options.import_animation;
 		_new_skeleton = new InputBool();
@@ -253,6 +262,7 @@ public class SceneImportDialog : Gtk.Window
 		cv.add_row(_("Create Colliders"), _create_colliders, _("Create colliders and actors for each imported unit."));
 		cv.add_row(_("Import LODs"), _import_lods, _("Create LOD Group component in the root unit if any LOD exists."));
 		cv.add_row(_("Tangents"), _tangents, _("Import tangents from source or calculate them with MikkTSpace."));
+		cv.add_row(_("RMA Materials"), _rma_materials, _("Pack roughness, metallic and ambient occlusion into a derived texture."));
 		if (_options.has_feature(SceneImportFlags.ANIMATIONS))
 			_general_set.add_property_grid_optional(cv, _("Units"), _import_units, _("Import nodes as units, materials and textures."));
 		else
@@ -359,6 +369,7 @@ public class SceneImportDialog : Gtk.Window
 		_options.create_colliders = skip_units ? false : _create_colliders.value;
 		_options.import_lods = skip_units ? false : _import_lods.value;
 		_options.tangents = _tangents.value;
+		_options.rma_materials = skip_units ? false : _rma_materials.value;
 
 		_options.import_animation = has_animations && _import_animation.value;
 		_options.new_skeleton = skip_anims ? false : _new_skeleton.value;
@@ -377,6 +388,7 @@ public class SceneImportDialog : Gtk.Window
 		_create_materials_folder.sensitive = _import_units.value;
 		_create_colliders.sensitive = _import_units.value;
 		_import_lods.sensitive = _import_units.value;
+		_rma_materials.sensitive = _import_units.value && _import_materials.value;
 	}
 
 	void on_import_textures_changed()
@@ -387,6 +399,7 @@ public class SceneImportDialog : Gtk.Window
 	void on_import_materials_changed()
 	{
 		_create_materials_folder.set_sensitive(_import_units.value && _import_materials.value);
+		_rma_materials.sensitive = _import_units.value && _import_materials.value;
 	}
 
 	void on_import_animations_changed()
