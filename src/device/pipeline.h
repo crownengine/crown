@@ -146,6 +146,7 @@ struct Pipeline
 	// Lighting.
 	bgfx::UniformHandle _lights_num;
 	bgfx::UniformHandle _lights_data;
+	bgfx::UniformHandle _ambient_color;
 	bgfx::TextureHandle _lights_data_texture;
 	Array<Vector4> _lights_data_buffer[2]; // bgfx::makeRef needs the source to survive two bgfx::frame() calls.
 	Array<Vector4> *_lights_cpu;
