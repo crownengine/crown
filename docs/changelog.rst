@@ -16,6 +16,7 @@ Changelog
 * Tools: added a new Material Editor.
 * Tools: release deployments now strip Lua debug symbols.
 * Tools: added an option to import materials with packed roughness, metallic and ambient occlusion textures.
+* Tools: Android deployments now declare the application as a game.
 * HTML5: added support to wasm64.
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.
