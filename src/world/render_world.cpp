@@ -1803,12 +1803,14 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, const FogDesc &fog_desc
 	, const Vector3 &sun_color
 	, GlobalLightingDesc &global_lighting_desc
+	, const Color4 &ambient_color
 	, SceneGraph *scene_graph
 	, Matrix4x4 *cascaded_lights
 	, const Vector4 &cascade_shadow_texel_size
 	)
 {
 	for (u32 i = object_id; i != UINT32_MAX; i = mesh._data.bindings[i].next) {
+		bgfx::setUniform(pipeline->_ambient_color, &ambient_color);
 		bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
 		bgfx::setUniform(pipeline->_u_cascaded_lights, &cascaded_lights[0], MAX_NUM_CASCADES);
@@ -1848,6 +1850,11 @@ void RenderWorld::render(f32 dt
 	)
 {
 	ScopedProfileScope scope("RenderWorld::render");
+	const Color4 ambient_color = to_linear({ _global_lighting_desc.ambient_color.x
+											 , _global_lighting_desc.ambient_color.y
+											 , _global_lighting_desc.ambient_color.z
+											 , 0.0f
+		});
 
 	LightManager &lm = _light_manager;
 	LightManager::LightInstanceData &lid = lm._data;
@@ -2531,6 +2538,7 @@ void RenderWorld::render(f32 dt
 				, _fog_desc
 				, sun_color
 				, _global_lighting_desc
+				, ambient_color
 				, _scene_graph
 				, cascaded_lights
 				, cascade_shadow_texel_size
@@ -2568,6 +2576,7 @@ void RenderWorld::render(f32 dt
 				, _fog_desc
 				, sun_color
 				, _global_lighting_desc
+				, ambient_color
 				, _scene_graph
 				, cascaded_lights
 				, cascade_shadow_texel_size

@@ -680,6 +680,30 @@ static void test_color4()
 		const u32 abgr = to_abgr(a);
 		ENSURE(abgr == 0x620ce73f);
 	}
+	{
+		const Color4 a = { 0.0f, 0.04045f, 1.0f, 0.6f };
+		const Color4 b = to_linear(a);
+		ENSURE(fequal(b.x, 0.0f));
+		ENSURE(fequal(b.y, 0.003130805f));
+		ENSURE(fequal(b.z, 1.0f));
+		ENSURE(b.w == a.w);
+	}
+	{
+		const Color4 a = { 0.25f, 0.5f, 0.75f, 12.0f };
+		const Color4 b = to_linear(a);
+		ENSURE(fequal(b.x, 0.05087609f));
+		ENSURE(fequal(b.y, 0.21404114f));
+		ENSURE(fequal(b.z, 0.52252155f));
+		ENSURE(b.w == a.w);
+	}
+	{
+		const Color4 a = { 0.04044f, 0.04046f, -0.1f, -2.0f };
+		const Color4 b = to_linear(a);
+		ENSURE(fequal(b.x, 0.003130031f));
+		ENSURE(fequal(b.y, 0.003131594f));
+		ENSURE(fequal(b.z, -0.007739938f));
+		ENSURE(b.w == a.w);
+	}
 }
 
 static void test_matrix3x3()

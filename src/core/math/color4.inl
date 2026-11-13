@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "core/math/math.inl"
 #include "core/math/types.h"
 
 namespace crown
@@ -98,6 +99,17 @@ inline u32 to_abgr(const Color4 &c)
 	abgr |= u32(255.0f * c.y) << 8;
 	abgr |= u32(255.0f * c.x);
 	return abgr;
+}
+
+/// Returns the sRGB color converted to linear RGB, preserving alpha.
+inline Color4 to_linear(const Color4 &c)
+{
+	Color4 linear;
+	linear.x = c.x <= 0.04045f ? c.x / 12.92f : fpow((c.x + 0.055f) / 1.055f, 2.4f);
+	linear.y = c.y <= 0.04045f ? c.y / 12.92f : fpow((c.y + 0.055f) / 1.055f, 2.4f);
+	linear.z = c.z <= 0.04045f ? c.z / 12.92f : fpow((c.z + 0.055f) / 1.055f, 2.4f);
+	linear.w = c.w;
+	return linear;
 }
 
 /// @}

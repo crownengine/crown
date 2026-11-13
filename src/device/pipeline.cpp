@@ -4,6 +4,7 @@
  */
 
 #include "core/containers/array.inl"
+#include "core/math/color4.inl"
 #include "core/math/matrix4x4.inl"
 #include "core/memory/allocator.h"
 #include "core/memory/globals.h"
@@ -281,6 +282,7 @@ void Pipeline::create(u16 width
 
 	_lights_num = bgfx::createUniform("u_lights_num", bgfx::UniformType::Vec4, 1);
 	_lights_data = bgfx::createUniform("u_lights_data", bgfx::UniformType::Sampler);
+	_ambient_color = bgfx::createUniform("u_ambient_color", bgfx::UniformType::Vec4);
 	_lights_data_texture = bgfx::createTexture2D(MAX_NUM_LIGHTS * LIGHT_SIZE
 		, 1
 		, false
@@ -373,6 +375,8 @@ void Pipeline::destroy()
 	_lights_data_texture = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_lights_data);
 	_lights_data = BGFX_INVALID_HANDLE;
+	bgfx::destroy(_ambient_color);
+	_ambient_color = BGFX_INVALID_HANDLE;
 	bgfx::destroy(_lights_num);
 	_lights_num = BGFX_INVALID_HANDLE;
 
@@ -562,8 +566,12 @@ void Pipeline::end_frame()
 void Pipeline::add_lights_data(const Vector4 *data, u32 num)
 {
 	CE_ASSERT(num > 0, "Light data must not be empty");
+	CE_ASSERT(num % LIGHT_SIZE == 0, "Light data must contain complete lights");
 	CE_ASSERT(array::size(*_lights_cpu) + num <= MAX_NUM_LIGHTS * LIGHT_SIZE, "Lights data texture capacity exceeded");
+	const u32 offset = array::size(*_lights_cpu);
 	array::push(*_lights_cpu, data, num);
+	for (u32 i = offset; i < offset + num; i += LIGHT_SIZE)
+		(*_lights_cpu)[i] = to_linear((*_lights_cpu)[i]);
 }
 
 void Pipeline::add_bones_data(u32 &row, const Matrix4x4 *bones, u32 num_bones)

@@ -32,6 +32,7 @@ bgfx_shaders = {
 		#	define local_lights_distance_culling u_local_lights_params.x
 		#	define local_lights_distance_culling_fade u_local_lights_params.y
 		#	define local_lights_distance_culling_cutoff u_local_lights_params.z
+			uniform vec4 u_ambient_color;
 			uniform vec4 u_lighting_params;
 		#	define ambient_color u_lighting_params.xyz
 		#	define shadow_distance u_lighting_params.w
@@ -257,7 +258,7 @@ bgfx_shaders = {
 				vec4 brdf = vec4(brdf_ndotv, roughness*roughness, brdf_k, geom_schlick_GGX(brdf_ndotv, roughness));
 
 				vec3 diffuse = (1.0 - metallic) * albedo / M_PI;
-				vec3 radiance = ao * toLinearAccurate(ambient_color) * albedo;
+				vec3 radiance = ao * u_ambient_color.rgb * albedo;
 				float camera_distance = length(camera_frag_pos);
 				bool receive_shadow = camera_distance <= shadow_distance;
 
@@ -277,7 +278,7 @@ bgfx_shaders = {
 
 					vec3 local_radiance = calc_dir_light(n
 						, v
-						, toLinearAccurate(light_color)
+						, light_color
 						, intensity
 						, mul(direction, tbn)
 						, diffuse
@@ -402,7 +403,7 @@ bgfx_shaders = {
 
 					radiance += calc_dir_light(n
 						, v
-						, toLinearAccurate(light_color)
+						, light_color
 						, intensity
 						, mul(direction, tbn)
 						, diffuse
@@ -427,7 +428,7 @@ bgfx_shaders = {
 					vec3 local_radiance = calc_omni_light(n
 						, v
 						, frag_pos
-						, toLinearAccurate(light_color)
+						, light_color
 						, intensity
 						, light_pos
 						, range
@@ -556,7 +557,7 @@ bgfx_shaders = {
 					vec3 local_radiance = calc_spot_light(n
 						, v
 						, frag_pos
-						, toLinearAccurate(light_color)
+						, light_color
 						, intensity
 						, mul(direction, tbn)
 						, spot_angle
