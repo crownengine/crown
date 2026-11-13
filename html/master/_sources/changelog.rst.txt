@@ -72,6 +72,7 @@ Changelog
 * Data Compiler: fixed shader compilation continuing after shader library parsing errors.
 * Data Compiler: fixed crashes when compiling glTF resources.
 * Data Compiler: fixed importing meshes and triangle colliders with indices exceeding the 16-bit range.
+* Data Compiler: fixed intermittent ``Geometry redefined`` errors when compiling OBJ and FBX meshes.
 
 .. _v0.65.0:
 
