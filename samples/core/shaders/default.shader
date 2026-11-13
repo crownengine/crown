@@ -224,6 +224,7 @@ bgfx_shaders = {
 		samplers = {
 			u_albedo_map = { sampler_state = "repeat_anisotropic" }
 			u_normal_map = { sampler_state = "repeat_anisotropic" }
+			u_rma_map = { sampler_state = "repeat_anisotropic" }
 			u_metallic_map = { sampler_state = "repeat_anisotropic" }
 			u_roughness_map = { sampler_state = "repeat_anisotropic" }
 			u_ao_map = { sampler_state = "repeat_anisotropic" }
@@ -354,21 +355,29 @@ bgfx_shaders = {
 		fs_code = """
 			SAMPLER2D(u_albedo_map, 0); // { label="Albedo Map" tooltip="Texture supplying the surface base color." }
 			SAMPLER2D(u_normal_map, 1); // { label="Normal Map" tooltip="Texture supplying tangent-space surface normals." }
+		#if defined(RMA)
+			SAMPLER2D(u_rma_map, 2); // { label="RMA Map" tooltip="Texture supplying roughness, metallic and ambient occlusion in RGB." }
+		#else
 			SAMPLER2D(u_metallic_map, 2); // { label="Metallic Map" tooltip="Texture supplying the surface metallic factor." }
 			SAMPLER2D(u_roughness_map, 3); // { label="Roughness Map" tooltip="Texture supplying the surface roughness." }
 			SAMPLER2D(u_ao_map, 4); // { label="Ambient Occlusion Map" tooltip="Texture supplying ambient occlusion." }
+		#endif
 			SAMPLER2D(u_emission_map, 5); // { label="Emission Map" tooltip="Texture supplying the emitted surface color." }
 
 			uniform vec4 u_albedo; // { val=[1 1 1] label="Albedo" tooltip="Surface base color multiplied with the albedo texture." editor="color" }
+		#if !defined(RMA)
 			uniform vec4 u_metallic; // { val=0 min=0 max=1 label="Metallic" tooltip="Metallic factor from zero for dielectrics to one for metals." }
 			uniform vec4 u_roughness; // { val=1 min=0 max=1 label="Roughness" tooltip="Surface roughness from zero for smooth to one for rough." }
+		#endif
 			uniform vec4 u_emission_color; // { val=[0 0 0] label="Emission Color" tooltip="Color emitted by the surface." editor="color" }
 			uniform vec4 u_emission_intensity; // { val=1 min=0 label="Emission Intensity" tooltip="Multiplier applied to the emitted color." }
 			uniform vec4 u_use_albedo_map; // { val=0 label="Use Albedo Map" tooltip="Enable the albedo texture." editor="bool" }
 			uniform vec4 u_use_normal_map; // { val=0 label="Use Normal Map" tooltip="Enable the normal texture." editor="bool" }
+		#if !defined(RMA)
 			uniform vec4 u_use_metallic_map; // { val=0 label="Use Metallic Map" tooltip="Enable the metallic texture." editor="bool" }
 			uniform vec4 u_use_roughness_map; // { val=0 label="Use Roughness Map" tooltip="Enable the roughness texture." editor="bool" }
 			uniform vec4 u_use_ao_map; // { val=0 label="Use Ambient Occlusion Map" tooltip="Enable the ambient occlusion texture." editor="bool" }
+		#endif
 			uniform vec4 u_use_emission_map; // { val=0 label="Use Emission Map" tooltip="Enable the emission texture." editor="bool" }
 			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 label="Use Opacity Map" tooltip="Use the albedo texture alpha as surface opacity." editor="bool" }
 		#if defined(TRIPLANAR)
@@ -440,9 +449,16 @@ bgfx_shaders = {
 				} else {
 					normal = v_normal;
 				}
+		#if defined(RMA)
+				vec3 rma = SAMPLE_MAP(u_rma_map).rgb;
+				float roughness = rma.r;
+				float metallic = rma.g;
+				float ao = rma.b;
+		#else
 				float metallic = u_use_metallic_map.r == 1.0 ? SAMPLE_MAP(u_metallic_map).r : u_metallic.r;
 				float roughness = u_use_roughness_map.r == 1.0 ? SAMPLE_MAP(u_roughness_map).r : u_roughness.r;
 				float ao = u_use_ao_map.r == 1.0 ? SAMPLE_MAP(u_ao_map).r : 1.0;
+		#endif
 				vec3 emission = u_emission_intensity.r * (u_use_emission_map.r == 1.0 ? SAMPLE_MAP(u_emission_map).rgb : u_emission_color.rgb);
 
 				mat3 tbn;
@@ -638,6 +654,7 @@ shaders = {
 			NO_FOG = { label="Disable Fog" tooltip="Render without scene fog." }
 			TRIPLANAR = { label="Triplanar" tooltip="Project textures along three axes instead of using mesh UVs." }
 			TRIPLANAR_LOCAL = { label="Local Triplanar" tooltip="Use local coordinates for triplanar projection when Triplanar is enabled." }
+			RMA = { label="RMA" tooltip="Read roughness, metallic and ambient occlusion from the RMA texture." }
 		}
 		bgfx_shader = "mesh"
 		render_state = "mesh"

@@ -15,6 +15,7 @@ Changelog
 * Tools: removed delays when connecting to runtime and data compiler.
 * Tools: added a new Material Editor.
 * Tools: release deployments now strip Lua debug symbols.
+* Tools: added an option to import materials with packed roughness, metallic and ambient occlusion textures.
 * HTML5: added support to wasm64.
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.

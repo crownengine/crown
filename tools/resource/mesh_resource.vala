@@ -79,6 +79,103 @@ namespace MeshResource
 		return null;
 	}
 
+	public static Gdk.Pixbuf pack_rma(Gdk.Pixbuf? roughness_map, Gdk.Pixbuf? metallic_map, Gdk.Pixbuf? ao_map, double roughness, double metallic)
+	{
+		Gdk.Pixbuf?[] channels = { roughness_map, metallic_map, ao_map };
+		double[] values = { roughness, metallic, 1.0 };
+		int width = 1;
+		int height = 1;
+		foreach (unowned Gdk.Pixbuf? image in channels) {
+			if (image != null) {
+				width = int.max(width, image.width);
+				height = int.max(height, image.height);
+			}
+		}
+		Gdk.Pixbuf output = new Gdk.Pixbuf(Gdk.Colorspace.RGB, false, 8, width, height);
+		unowned uint8[] pixels = output.get_pixels();
+		for (int channel = 0; channel < channels.length; ++channel) {
+			Gdk.Pixbuf? image = channels[channel];
+			uint8 fallback = (uint8)(values[channel].clamp(0.0, 1.0)*255.0 + 0.5);
+			for (int y = 0; y < height; ++y) {
+				for (int x = 0; x < width; ++x) {
+					uint8 value = fallback;
+					if (image != null) {
+						unowned uint8[] input = image.get_pixels();
+						int sx = (int)((int64)x*image.width/width);
+						int sy = (int)((int64)y*image.height/height);
+						value = input[sy*image.get_rowstride() + sx*image.get_n_channels()];
+					}
+					pixels[y*output.get_rowstride() + x*3 + channel] = value;
+				}
+			}
+		}
+		return output;
+	}
+
+	private static Gdk.Pixbuf? rma_input(Database db, Project project, string? resource_name, GLib.File destination) throws GLib.Error
+	{
+		if (resource_name == null)
+			return null;
+		Guid id;
+		if (db.add_from_resource_path(out id, resource_name + ".texture") != LoadError.SUCCESS)
+			throw new GLib.IOError.FAILED("Failed to load RMA input '%s'".printf(resource_name));
+		string source = db.get_string(id, db.property_index(id, STRING_ID_64("source", 0x921f1370045bad6e)));
+		GLib.File file = GLib.File.new_for_path(project.absolute_path(source));
+		if (file.equal(destination))
+			throw new GLib.IOError.FAILED("RMA output would overwrite input '%s'".printf(source));
+		return new Gdk.Pixbuf.from_file(file.get_path());
+	}
+
+	public static int import_rma_texture(out string? resource_name
+		, Database db
+		, Project project
+		, string destination_dir
+		, bool create_textures_folder
+		, string material_name
+		, string? roughness_map
+		, string? metallic_map
+		, string? ao_map
+		, double roughness
+		, double metallic
+		)
+	{
+		resource_name = null;
+		string textures_dir = create_textures_folder ? Path.build_filename(destination_dir, "textures") : destination_dir;
+		string directory = Path.build_filename(textures_dir, "_derived");
+		string filename = Path.build_filename(directory, Path.get_basename(material_name) + "_rma.png");
+		GLib.File destination = GLib.File.new_for_path(filename);
+		string source = ResourceId.normalize(project.resource_filename(filename));
+		string name = ResourceId.name(source);
+		Guid id;
+		LoadError load_error = db.add_from_resource_path(out id, name + ".texture");
+		if (load_error != LoadError.SUCCESS && load_error != LoadError.NOT_FOUND) {
+			loge("Failed to load derived RMA texture '%s'".printf(name));
+			return 1;
+		}
+		try {
+			Gdk.Pixbuf? r = rma_input(db, project, roughness_map, destination);
+			Gdk.Pixbuf? m = rma_input(db, project, metallic_map, destination);
+			Gdk.Pixbuf? a = rma_input(db, project, ao_map, destination);
+			if (GLib.DirUtils.create_with_parents(directory, 0755) != 0)
+				throw new GLib.IOError.FAILED("Failed to create '%s'".printf(directory));
+			pack_rma(r, m, a, roughness, metallic).save(filename, "png");
+		} catch (GLib.Error e) {
+			loge(e.message);
+			return 1;
+		}
+		if (load_error == LoadError.NOT_FOUND) {
+			TextureResource texture = TextureResource(db, Guid.new_guid(), source, TextureFormat.RGB8, true, false, true);
+			if (texture.save(project, name) != 0)
+				return 1;
+		} else {
+			db.set_string(id, db.property_index(id, STRING_ID_64("source", 0x921f1370045bad6e)), source);
+			if (db.save(project.absolute_path(name) + ".texture", id) != 0)
+				return 1;
+		}
+		resource_name = name;
+		return 0;
+	}
+
 	public enum TextureUsage
 	{
 		NONE   = 0,

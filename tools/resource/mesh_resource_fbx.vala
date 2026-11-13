@@ -1156,6 +1156,12 @@ public class FBXImporter
 					if (uses_skinning && !uses_static_mesh)
 						shader += "+SKINNING";
 
+					string? rma_map = null;
+					if (options.rma_materials && MeshResource.import_rma_texture(out rma_map
+						, db, project, destination_dir, options.create_textures_folder
+						, material_resource_name, roughness_map, metallic_map, ao_map, roughness, metallic) != 0)
+						return ImportResult.ERROR;
+
 					masking = masking && albedo_map != null;
 
 					// Create .material resource.
@@ -1174,6 +1180,7 @@ public class FBXImporter
 						, emission_intensity
 						, shader
 						, masking
+						, rma_map
 						);
 					if (material_resource.save(project, material_resource_name) != 0)
 						return ImportResult.ERROR;
@@ -1187,7 +1194,7 @@ public class FBXImporter
 						MaterialResource skinned = MaterialResource.mesh(db, Guid.new_guid()
 							, albedo_map, normal_map, metallic_map, roughness_map, ao_map, emission_map
 							, albedo, metallic, roughness, emission_color, emission_intensity
-							, "mesh+SKINNING", masking);
+							, "mesh+SKINNING", masking, rma_map);
 						if (skinned.save(project, skinned_name) != 0)
 							return ImportResult.ERROR;
 						imported_skinned_materials[material] = skinned_name;

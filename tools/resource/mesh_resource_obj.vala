@@ -680,6 +680,12 @@ public class OBJImporter
 						}
 					}
 
+					string? rma_map = null;
+					if (options.rma_materials && MeshResource.import_rma_texture(out rma_map
+						, db, project, destination_dir, options.create_textures_folder
+						, material_resource_name, roughness_map, metallic_map, ao_map, roughness, metallic) != 0)
+						return ImportResult.ERROR;
+
 					masking = masking && albedo_map != null;
 
 					// Create .material resource.
@@ -698,6 +704,7 @@ public class OBJImporter
 						, emission_intensity
 						, shader
 						, masking
+						, rma_map
 						);
 					if (material_resource.save(project, material_resource_name) != 0)
 						return ImportResult.ERROR;

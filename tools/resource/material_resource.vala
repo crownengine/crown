@@ -34,32 +34,39 @@ public struct MaterialResource
 		, double emission_intensity = 1.0
 		, string? shader = null
 		, bool masking = false
+		, string? rma_map = null
 		)
 	{
 		string mesh_shader = shader != null ? shader : "mesh";
+		if (rma_map != null)
+			mesh_shader += "+RMA";
 		if (masking)
 			mesh_shader += "+MASKED";
 
 		this(db, material_id, mesh_shader);
 
 		set_vector3("u_albedo", albedo);
-		set_float("u_metallic", metallic);
-		set_float("u_roughness", roughness);
 		set_vector3("u_emission_color", emission_color);
 		set_float("u_emission_intensity", emission_intensity);
 
 		if (albedo_map != null) set_texture("u_albedo_map", albedo_map);
 		if (normal_map != null) set_texture("u_normal_map", normal_map);
-		if (metallic_map != null) set_texture("u_metallic_map", metallic_map);
-		if (roughness_map != null) set_texture("u_roughness_map", roughness_map);
-		if (ao_map != null) set_texture("u_ao_map", ao_map);
+		if (rma_map != null) {
+			set_texture("u_rma_map", rma_map);
+		} else {
+			set_float("u_metallic", metallic);
+			set_float("u_roughness", roughness);
+			if (metallic_map != null) set_texture("u_metallic_map", metallic_map);
+			if (roughness_map != null) set_texture("u_roughness_map", roughness_map);
+			if (ao_map != null) set_texture("u_ao_map", ao_map);
+			set_float("u_use_metallic_map", (double)(metallic_map != null));
+			set_float("u_use_roughness_map", (double)(roughness_map != null));
+			set_float("u_use_ao_map", (double)(ao_map != null));
+		}
 		if (emission_map != null) set_texture("u_emission_map", emission_map);
 
 		set_float("u_use_albedo_map", (double)(albedo_map != null));
 		set_float("u_use_normal_map", (double)(normal_map != null));
-		set_float("u_use_metallic_map", (double)(metallic_map != null));
-		set_float("u_use_roughness_map", (double)(roughness_map != null));
-		set_float("u_use_ao_map", (double)(ao_map != null));
 		set_float("u_use_emission_map", (double)(emission_map != null));
 		set_float("u_use_opacity_map", (double)masking);
 	}
