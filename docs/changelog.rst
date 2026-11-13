@@ -44,6 +44,7 @@ Changelog
 * Tools: fixed Escape closing the color picker when cancelling a numeric edit.
 * Tools: fixed angle inputs returning unclamped values.
 * Tools: fixed Android APKs failing to install on newer Android versions.
+* Tools: hide glTF buffer files in the project browser.
 * Runtime: HTML5: fixed ``Window.show_cursor()`` having no effect.
 * Runtime: fixed ``Gui`` drawing depth not being honored in some cases.
 * Runtime: Linux: fix a Window-related race at shutdown.

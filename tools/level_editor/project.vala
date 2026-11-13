@@ -846,6 +846,8 @@ public class Project
 	{
 		return type == "mtl"
 			|| type == "MTL"
+			|| type == "bin"
+			|| type == "BIN"
 			;
 	}
 
