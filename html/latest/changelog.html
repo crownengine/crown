@@ -5,19 +5,19 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-10-29T10:57:45+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-11-14T18:33:53+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
-<meta property="og:site_name" content="Crown 0.65.6 Manual" />
-<meta property="og:description" content="0.65.6 — 29 Oct 2026: Fixes Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally., Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping., Data Compiler: fixed crashes when compiling glTF reso..." />
+<meta property="og:site_name" content="Crown 0.65.7 Manual" />
+<meta property="og:description" content="0.65.7 — 14 Nov 2026: Fixes Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable., Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers., Runtime: fixed valid touchscreen contact..." />
 <meta property="og:image" content="https://docs.crownengine.org/html/latest/_static/ogp_default_card.png" />
-<meta property="og:image:alt" content="Crown 0.65.6 Manual" />
-<meta name="description" content="0.65.6 — 29 Oct 2026: Fixes Runtime: rolling and spinning friction now default to zero to allow objects to tip naturally., Runtime: lowered the default sleeping threshold to let slowly moving bodies settle before sleeping., Data Compiler: fixed crashes when compiling glTF reso..." />
+<meta property="og:image:alt" content="Crown 0.65.7 Manual" />
+<meta name="description" content="0.65.7 — 14 Nov 2026: Fixes Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable., Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers., Runtime: fixed valid touchscreen contact..." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@crown_engine" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Crown 0.65.6 Manual</title>
+  <title>Changelog &mdash; Crown 0.65.7 Manual</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -35,7 +35,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
-    <link rel="prev" title="Crown 0.65.6 Manual" href="index.html" /> 
+    <link rel="prev" title="Crown 0.65.7 Manual" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -60,6 +60,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#nov-2026"><span class="xref std std-ref">0.65.7 — 14 Nov 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oct-2026"><span class="xref std std-ref">0.65.6 — 29 Oct 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-65-5"><span class="xref std std-ref">0.65.5 — 23 Oct 2026</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-65-4"><span class="xref std std-ref">0.65.4 — 18 Oct 2026</span></a></li>
@@ -189,7 +190,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Crown 0.65.6 Manual</a>
+          <a href="index.html">Crown 0.65.7 Manual</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -209,6 +210,21 @@
              
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<section id="nov-2026">
+<span id="v0-65-7"></span><h2><a class="reference internal" href="#v0-65-7"><span class="std std-ref">0.65.7 — 14 Nov 2026</span></a><a class="headerlink" href="#nov-2026" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fixes</strong></p>
+<ul class="simple">
+<li><p>Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable.</p></li>
+<li><p>Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers.</p></li>
+<li><p>Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.</p></li>
+<li><p>Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.</p></li>
+<li><p>Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.</p></li>
+<li><p>Runtime: Android: fixed <code class="docutils literal notranslate"><span class="pre">Device.quit()</span></code> not closing the application.</p></li>
+<li><p>Runtime: Android: restored default handling of unmapped keys, including volume and Back.</p></li>
+<li><p>Tools: fixed Android APKs failing to install on newer Android versions.</p></li>
+<li><p>Data Compiler: fixed intermittent <code class="docutils literal notranslate"><span class="pre">Geometry</span> <span class="pre">redefined</span></code> errors when compiling OBJ and FBX meshes.</p></li>
+</ul>
+</section>
 <section id="oct-2026">
 <span id="v0-65-6"></span><h2><a class="reference internal" href="#v0-65-6"><span class="std std-ref">0.65.6 — 29 Oct 2026</span></a><a class="headerlink" href="#oct-2026" title="Permalink to this headline">¶</a></h2>
 <p><strong>Fixes</strong></p>
@@ -1407,7 +1423,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.65.6 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Crown 0.65.7 Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -1415,7 +1431,7 @@
 
   <div role="contentinfo">
     <p>&#169; <a href="copyright.html">Copyright</a> Except where otherwise noted, content on this page is licensed under a CC-BY-SA 4.0 Int. License.
-      <span class="lastupdated">Last updated on Oct 29, 2026.
+      <span class="lastupdated">Last updated on Nov 14, 2026.
       </span></p>
   </div>
 

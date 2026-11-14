@@ -1,6 +1,25 @@
 Changelog
 =========
 
+.. _v0.65.7:
+
+:ref:`0.65.7 --- 14 Nov 2026 <v0.65.7>`
+---------------------------------------
+
+**Fixes**
+
+* Runtime: HTML5: fixed unhandled pointer-lock errors and repeated retries when raw mouse input is unavailable.
+* Runtime: HTML5: fixed touching or releasing one finger incorrectly affecting other held fingers.
+* Runtime: fixed valid touchscreen contacts being ignored on Android and HTML5.
+* Runtime: Android: fixed touch inputs remaining pressed after a gesture is cancelled.
+* Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.
+* Runtime: Android: fixed ``Device.quit()`` not closing the application.
+* Runtime: Android: restored default handling of unmapped keys, including volume and Back.
+
+* Tools: fixed Android APKs failing to install on newer Android versions.
+
+* Data Compiler: fixed intermittent ``Geometry redefined`` errors when compiling OBJ and FBX meshes.
+
 .. _v0.65.6:
 
 :ref:`0.65.6 --- 29 Oct 2026 <v0.65.6>`
