@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <meta property="article:modified_time" content="2026-11-13T17:27:45+00:00" /><meta property="og:title" content="Changelog" />
+    <meta property="article:modified_time" content="2026-11-13T22:27:41+00:00" /><meta property="og:title" content="Changelog" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://docs.crownengine.org/html/latest/changelog.html" />
 <meta property="og:site_name" content="Crown 0.66.0 Manual" />
@@ -215,6 +215,8 @@
 <li><p>Tools: removed delays when connecting to runtime and data compiler.</p></li>
 <li><p>Tools: added a new Material Editor.</p></li>
 <li><p>Tools: release deployments now strip Lua debug symbols.</p></li>
+<li><p>Tools: added an option to import materials with packed roughness, metallic and ambient occlusion textures.</p></li>
+<li><p>Tools: Android deployments now declare the application as a game.</p></li>
 <li><p>HTML5: added support to wasm64.</p></li>
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">--render-config</span></code> to override the boot config’s render configuration.</p></li>
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">--headless</span></code> mode.</p></li>
@@ -227,6 +229,10 @@
 <li><p>Runtime: added an asynchronous HTTP(S) client.</p></li>
 <li><p>Runtime: added <code class="docutils literal notranslate"><span class="pre">--bundle-url</span></code> to load bundles over HTTP(S).</p></li>
 <li><p>Runtime: added a splashscreen while the runtime is starting.</p></li>
+<li><p>Runtime: improved rendering performance with cascaded shadows.</p></li>
+<li><p>Runtime: improved rendering performance by reusing material lighting calculations.</p></li>
+<li><p>Runtime: reduced directional shadow projection overhead.</p></li>
+<li><p>Runtime: moved light and ambient color conversion to the CPU.</p></li>
 <li><p>Data Compiler: added <code class="docutils literal notranslate"><span class="pre">--strip</span></code> to remove Lua debug symbols.</p></li>
 <li><p>Lua: <code class="docutils literal notranslate"><span class="pre">Material.set_texture()</span></code> now accepts <code class="docutils literal notranslate"><span class="pre">nil</span></code> to bind the default texture.</p></li>
 <li><p>Lua: added <code class="docutils literal notranslate"><span class="pre">Window.has_focus()</span></code>.</p></li>
