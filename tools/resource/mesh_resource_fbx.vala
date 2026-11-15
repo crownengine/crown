@@ -949,7 +949,6 @@ public class FBXImporter
 					string material_resource_path     = ResourceId.normalize(material_resource_filename);
 					string material_resource_name     = ResourceId.name(material_resource_path);
 
-					string shader = "mesh";
 					Vector3 albedo = Vector3(1, 1, 1);
 					double metallic = 0.0;
 					double roughness = 1.0;
@@ -962,6 +961,17 @@ public class FBXImporter
 					string? ao_map = null;
 					string? emission_map = null;
 					bool masking = false;
+					double surface_transparency = (double)material.fbx.transparency_factor.value_real;
+					if (material.fbx.transparency_color.has_value) {
+						unowned ufbx.Vec3 color = material.fbx.transparency_color.value_vec3;
+						surface_transparency *= (color.x + color.y + color.z) / 3.0;
+					}
+					double surface_opacity = material.pbr.opacity.has_value
+						? (double)material.pbr.opacity.value_real
+						: 1.0 - surface_transparency
+						;
+					surface_opacity = surface_opacity.clamp(0.0, 1.0);
+					bool transparent = surface_opacity < 1.0;
 
 					for (int mm = 0; mm < ufbx.MaterialPbrMap.MAP_COUNT; ++mm) {
 						unowned ufbx.MaterialMap map = material.pbr.maps[mm];
@@ -1018,6 +1028,11 @@ public class FBXImporter
 										;
 								}
 							}
+
+							if (!masking && ((opacity.texture_enabled && opacity.texture != null)
+								|| (material.fbx.transparency_factor.texture_enabled && material.fbx.transparency_factor.texture != null)
+								|| (material.fbx.transparency_color.texture_enabled && material.fbx.transparency_color.texture != null)))
+								logw("Separate opacity textures are not supported; '%s' will use scalar opacity".printf((string)material.name.data));
 
 							if (options.import_textures
 								&& get_or_import_texture_resource_name(out albedo_map
@@ -1153,8 +1168,6 @@ public class FBXImporter
 
 					bool uses_skinning = smr != null && material_uses_skinning(scene, material);
 					bool uses_static_mesh = material_uses_static_mesh(scene, material);
-					if (uses_skinning && !uses_static_mesh)
-						shader += "+SKINNING";
 
 					string? rma_map = null;
 					if (options.rma_materials && MeshResource.import_rma_texture(out rma_map
@@ -1162,44 +1175,49 @@ public class FBXImporter
 						, material_resource_name, roughness_map, metallic_map, ao_map, roughness, metallic) != 0)
 						return ImportResult.ERROR;
 
-					masking = masking && albedo_map != null;
+					bool use_opacity_map = masking && albedo_map != null;
+					masking = use_opacity_map && !transparent;
 
-					// Create .material resource.
-					MaterialResource material_resource = MaterialResource.mesh(db
-						, Guid.new_guid()
-						, albedo_map
-						, normal_map
-						, metallic_map
-						, roughness_map
-						, ao_map
-						, emission_map
-						, albedo
-						, metallic
-						, roughness
-						, emission_color
-						, emission_intensity
-						, shader
-						, masking
-						, rma_map
-						);
-					if (material_resource.save(project, material_resource_name) != 0)
-						return ImportResult.ERROR;
-
-					imported_materials.set(material, material_resource_name);
-					if (uses_skinning && uses_static_mesh) {
-						string skinned_name = material_resource_name + "_skinned";
-						while (used_material_resources.contains(skinned_name))
-							skinned_name += "_skinned";
-						used_material_resources[skinned_name] = true;
-						MaterialResource skinned = MaterialResource.mesh(db, Guid.new_guid()
-							, albedo_map, normal_map, metallic_map, roughness_map, ao_map, emission_map
-							, albedo, metallic, roughness, emission_color, emission_intensity
-							, "mesh+SKINNING", masking, rma_map);
-						if (skinned.save(project, skinned_name) != 0)
+					int num_variants = uses_skinning && uses_static_mesh ? 2 : 1;
+					for (int variant = 0; variant < num_variants; ++variant) {
+						string variant_name = material_resource_name;
+						if (variant != 0) {
+							variant_name += "_skinned";
+							while (used_material_resources.contains(variant_name))
+								variant_name += "_skinned";
+							used_material_resources[variant_name] = true;
+						}
+						bool skinned = uses_skinning && (!uses_static_mesh || variant != 0);
+						string shader = skinned ? "mesh+SKINNING" : "mesh";
+						if (transparent)
+							shader += "+TRANSPARENT";
+						MaterialResource material_resource = MaterialResource.mesh(db
+							, Guid.new_guid()
+							, albedo_map
+							, normal_map
+							, metallic_map
+							, roughness_map
+							, ao_map
+							, emission_map
+							, albedo
+							, metallic
+							, roughness
+							, emission_color
+							, emission_intensity
+							, shader
+							, masking
+							, rma_map
+							);
+						if (transparent) {
+							material_resource.set_float("u_opacity", surface_opacity);
+							material_resource.set_float("u_use_opacity_map", (double)use_opacity_map);
+						}
+						if (material_resource.save(project, variant_name) != 0)
 							return ImportResult.ERROR;
-						imported_skinned_materials[material] = skinned_name;
-					} else if (uses_skinning) {
-						imported_skinned_materials[material] = material_resource_name;
+						if (variant == 0)
+							imported_materials[material] = variant_name;
+						if (skinned)
+							imported_skinned_materials[material] = variant_name;
 					}
 				}
 			}

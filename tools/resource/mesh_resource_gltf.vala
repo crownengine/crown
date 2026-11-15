@@ -1230,6 +1230,8 @@ public class GLTFImporter
 			string? ao_map = null;
 			string? emission_map = null;
 			bool masking = material.alpha_mode == cgltf.AlphaMode.MASK;
+			bool transparent = material.alpha_mode == cgltf.AlphaMode.BLEND;
+			double opacity = 1.0;
 
 			if (material.has_pbr_metallic_roughness) {
 				albedo = Vector3(material.pbr_metallic_roughness.base_color_factor[0]
@@ -1238,10 +1240,9 @@ public class GLTFImporter
 					);
 				metallic = material.pbr_metallic_roughness.metallic_factor;
 				roughness = material.pbr_metallic_roughness.roughness_factor;
+				opacity = ((double)material.pbr_metallic_roughness.base_color_factor[3]).clamp(0.0, 1.0);
 			}
 
-			if (material.alpha_mode == cgltf.AlphaMode.BLEND)
-				logw("glTF material blending is not supported; '%s' will be imported as opaque".printf(names.material(data, material)));
 			if (masking && !MathUtils.equal(material.alpha_cutoff, 0.5f))
 				logw("glTF alpha cutoffs other than 0.5 are not supported");
 
@@ -1250,7 +1251,7 @@ public class GLTFImporter
 					if (import_texture(out albedo_map, db, project, data, names
 						, material.pbr_metallic_roughness.base_color_texture
 						, source_file, destination_dir, options.create_textures_folder
-						, "_df", MeshResource.TextureUsage.COLOR, masking, -1, imported_textures) != 0)
+						, "_df", MeshResource.TextureUsage.COLOR, masking || transparent, -1, imported_textures) != 0)
 						return 1;
 					if (import_texture(out metallic_map, db, project, data, names
 						, material.pbr_metallic_roughness.metallic_roughness_texture
@@ -1299,35 +1300,21 @@ public class GLTFImporter
 					}
 				}
 			}
-			string shader = uses_skinning && !uses_static_mesh ? "mesh+SKINNING" : "mesh";
 			masking = masking && albedo_map != null;
-			MaterialResource resource = MaterialResource.mesh(db
-				, Guid.new_guid()
-				, albedo_map
-				, normal_map
-				, metallic_map
-				, roughness_map
-				, ao_map
-				, emission_map
-				, albedo
-				, metallic
-				, roughness
-				, emission_color
-				, emission_intensity
-				, shader
-				, masking
-				, rma_map
-				);
-			if (resource.save(project, material_resource_name) != 0)
-				return 1;
-			imported_materials[material] = material_resource_name;
-
-			if (uses_skinning && uses_static_mesh) {
-				string skinned_material_resource_name = material_resource_name + "_skinned";
-				while (used_material_resources.contains(skinned_material_resource_name))
-					skinned_material_resource_name += "_skinned";
-				used_material_resources[skinned_material_resource_name] = true;
-				MaterialResource skinned_resource = MaterialResource.mesh(db
+			int num_variants = uses_skinning && uses_static_mesh ? 2 : 1;
+			for (int variant = 0; variant < num_variants; ++variant) {
+				string variant_name = material_resource_name;
+				if (variant != 0) {
+					variant_name += "_skinned";
+					while (used_material_resources.contains(variant_name))
+						variant_name += "_skinned";
+					used_material_resources[variant_name] = true;
+				}
+				bool skinned = uses_skinning && (!uses_static_mesh || variant != 0);
+				string shader = skinned ? "mesh+SKINNING" : "mesh";
+				if (transparent)
+					shader += "+TRANSPARENT";
+				MaterialResource resource = MaterialResource.mesh(db
 					, Guid.new_guid()
 					, albedo_map
 					, normal_map
@@ -1340,15 +1327,20 @@ public class GLTFImporter
 					, roughness
 					, emission_color
 					, emission_intensity
-					, "mesh+SKINNING"
+					, shader
 					, masking
 					, rma_map
 					);
-				if (skinned_resource.save(project, skinned_material_resource_name) != 0)
+				if (transparent) {
+					resource.set_float("u_opacity", opacity);
+					resource.set_float("u_use_opacity_map", (double)(albedo_map != null));
+				}
+				if (resource.save(project, variant_name) != 0)
 					return 1;
-				imported_skinned_materials[material] = skinned_material_resource_name;
-			} else if (uses_skinning) {
-				imported_skinned_materials[material] = material_resource_name;
+				if (variant == 0)
+					imported_materials[material] = variant_name;
+				if (skinned)
+					imported_skinned_materials[material] = variant_name;
 			}
 		}
 		return 0;
