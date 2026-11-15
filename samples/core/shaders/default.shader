@@ -43,6 +43,12 @@ render_states = {
 
 	mesh = {
 		inherit = "default"
+		states = {
+			"defined(TRANSPARENT)" = {
+				blend_enable = true
+				depth_write_enable = false
+			}
+		}
 	}
 
 	skydome = {
@@ -380,6 +386,9 @@ bgfx_shaders = {
 		#endif
 			uniform vec4 u_use_emission_map; // { val=0 label="Use Emission Map" tooltip="Enable the emission texture." editor="bool" }
 			uniform vec4 u_use_opacity_map; // { val=0 min=0 max=1 label="Use Opacity Map" tooltip="Use the albedo texture alpha as surface opacity." editor="bool" }
+		#if defined(TRANSPARENT)
+			uniform vec4 u_opacity; // { val=1 min=0 max=1 label="Opacity" tooltip="Surface opacity multiplied with the optional albedo texture alpha." }
+		#endif
 		#if defined(TRIPLANAR)
 			uniform vec4 u_uv_blend; // { val=4 min=1 label="Triplanar Blend" tooltip="Controls the sharpness of triplanar projection transitions." }
 
@@ -428,11 +437,16 @@ bgfx_shaders = {
 					? vec4(u_albedo.rgb, 1.0) * SAMPLE_MAP(u_albedo_map)
 					: vec4(u_albedo.rgb, 1.0)
 					;
+		#if defined(MASKED) || defined(TRANSPARENT)
+				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
+		#endif
 		#if defined(MASKED)
 		#	define MASK_ALPHA_CUTOFF 0.5
-				float opacity = u_use_opacity_map.r == 1.0 ? albedo.a : 1.0;
 				if (opacity < MASK_ALPHA_CUTOFF)
 					discard;
+		#endif
+		#if defined(TRANSPARENT)
+				opacity *= clamp(u_opacity.r, 0.0, 1.0);
 		#endif
 		#if defined(NO_LIGHT)
 				vec3 radiance = albedo.rgb;
@@ -476,7 +490,11 @@ bgfx_shaders = {
 				radiance = apply_fog(radiance, length(v_camera));
 		#endif // NO_FOG
 
+		#if defined(TRANSPARENT)
+				gl_FragColor = vec4(clamp(radiance, -65504.0, 65504.0), opacity);
+		#else
 				gl_FragColor = vec4(clamp(radiance, -65504.0, 65504.0), 1.0);
+		#endif
 			}
 		"""
 	}
@@ -649,6 +667,7 @@ shaders = {
 	mesh = {
 		defines = {
 			MASKED = { label="Masked" tooltip="Discard fragments with low opacity." }
+			TRANSPARENT = { label="Transparent" tooltip="Blend the surface with objects behind it." }
 			SKINNING = { label="Skinning" tooltip="Apply skeletal animation to the mesh." }
 			NO_LIGHT = { label="Unlit" tooltip="Render without scene lighting." }
 			NO_FOG = { label="Disable Fog" tooltip="Render without scene fog." }

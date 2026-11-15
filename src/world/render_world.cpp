@@ -749,7 +749,9 @@ Material *RenderWorld::mesh_material(MeshId mesh, StringId32 slot)
 
 void RenderWorld::mesh_set_material(MeshId mesh, StringId32 slot, StringId64 material_resource)
 {
-	_mesh_manager.set_material(_mesh_manager.index(mesh), slot, material_resource);
+	const u32 mesh_i = _mesh_manager.index(mesh);
+	_mesh_manager.set_material(mesh_i, slot, material_resource);
+	_mesh_manager.update_draw_bindings(mesh_i);
 }
 
 bool RenderWorld::mesh_has_material(MeshId mesh, StringId32 slot)
@@ -1799,6 +1801,9 @@ void RenderWorld::sync_cullable_sets()
 
 static void draw_mesh(RenderWorld::MeshManager &mesh
 	, u32 object_id
+	, u32 binding_i
+	, u8 view_id
+	, u32 depth
 	, Pipeline *pipeline
 	, const FogDesc &fog_desc
 	, const Vector3 &sun_color
@@ -1809,7 +1814,7 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 	, const Vector4 &cascade_shadow_texel_size
 	)
 {
-	for (u32 i = object_id; i != UINT32_MAX; i = mesh._data.bindings[i].next) {
+	for (u32 i = binding_i; i != UINT32_MAX; i = mesh._data.bindings[i].next_draw) {
 		bgfx::setUniform(pipeline->_ambient_color, &ambient_color);
 		bgfx::setTexture(LIGHTS_DATA_SLOT, pipeline->_lights_data, pipeline->_lights_data_texture);
 		bgfx::setTexture(CASCADED_SHADOW_MAP_SLOT, pipeline->_u_cascaded_shadow_map, pipeline->_sun_shadow_map_texture);
@@ -1836,7 +1841,7 @@ static void draw_mesh(RenderWorld::MeshManager &mesh
 			);
 		const RenderWorld::MeshManager::MaterialBinding &binding = mesh._data.bindings[i];
 		mesh.set_instance_data(object_id, *scene_graph, binding.index_offset, binding.num_indices);
-		binding.material->bind(View::MESH);
+		binding.material->bind(view_id, depth);
 	}
 }
 
@@ -2531,9 +2536,13 @@ void RenderWorld::render(f32 dt
 		const u32 object_id = _cullable_objects.id[ci];
 
 		switch (_cullable_objects.type[ci]) {
-		case CullableType::MESH:
+		case CullableType::MESH: {
+			const MeshManager::MeshData &data = _mesh_manager._data.mesh[object_id];
 			draw_mesh(_mesh_manager
 				, object_id
+				, data.opaque_head
+				, View::MESH
+				, 0
 				, _pipeline
 				, _fog_desc
 				, sun_color
@@ -2543,6 +2552,24 @@ void RenderWorld::render(f32 dt
 				, cascaded_lights
 				, cascade_shadow_texel_size
 				);
+			if (data.transparent_head != UINT32_MAX) {
+				const Vector3 center = _mesh_manager._data.sphere[object_id].c * _mesh_manager._data.world[object_id] * view;
+				const u32 depth = bx::floatFlip(bx::floatToBits(-center.z));
+				draw_mesh(_mesh_manager
+					, object_id
+					, data.transparent_head
+					, View::TRANSPARENT
+					, depth
+					, _pipeline
+					, _fog_desc
+					, sun_color
+					, _global_lighting_desc
+					, ambient_color
+					, _scene_graph
+					, cascaded_lights
+					, cascade_shadow_texel_size
+					);
+			}
 
 			if (selection_enabled
 				&& (_mesh_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
@@ -2560,6 +2587,7 @@ void RenderWorld::render(f32 dt
 				bgfx::submit(View::SELECTION, selection_shader.program);
 			}
 			break;
+		}
 
 		case CullableType::LOD_GROUP: {
 			const MeshId mesh_to_draw = _lod_group_manager._data.selected_mesh[object_id];
@@ -2570,8 +2598,12 @@ void RenderWorld::render(f32 dt
 			if ((_mesh_manager._data.flags[mesh_i] & RenderableFlags::VISIBLE) == 0)
 				break;
 
+			const MeshManager::MeshData &data = _mesh_manager._data.mesh[mesh_i];
 			draw_mesh(_mesh_manager
 				, mesh_i
+				, data.opaque_head
+				, View::MESH
+				, 0
 				, _pipeline
 				, _fog_desc
 				, sun_color
@@ -2581,6 +2613,24 @@ void RenderWorld::render(f32 dt
 				, cascaded_lights
 				, cascade_shadow_texel_size
 				);
+			if (data.transparent_head != UINT32_MAX) {
+				const Vector3 center = _mesh_manager._data.sphere[mesh_i].c * _mesh_manager._data.world[mesh_i] * view;
+				const u32 depth = bx::floatFlip(bx::floatToBits(-center.z));
+				draw_mesh(_mesh_manager
+					, mesh_i
+					, data.transparent_head
+					, View::TRANSPARENT
+					, depth
+					, _pipeline
+					, _fog_desc
+					, sun_color
+					, _global_lighting_desc
+					, ambient_color
+					, _scene_graph
+					, cascaded_lights
+					, cascade_shadow_texel_size
+					);
+			}
 
 			if (selection_enabled
 				&& (_lod_group_manager._data.flags[object_id] & RenderableFlags::SELECTED) != 0) {
@@ -2738,12 +2788,18 @@ void RenderWorld::unit_destroyed_callback(UnitId unit)
 void RenderWorld::reload_materials(const MaterialResource *old_resource, const MaterialResource *new_resource)
 {
 #if CROWN_CAN_RELOAD
-	for (u32 i = 0; i < _mesh_manager._data.bindings_size; ++i) {
-		MeshManager::MaterialBinding &binding = _mesh_manager._data.bindings[i];
-		if (_mesh_manager._data.slots[i]._id != 0 && binding.resource == old_resource) {
-			binding.material = _material_manager->get(new_resource);
-			binding.resource = new_resource;
+	for (u32 mesh_i = 0; mesh_i < _mesh_manager._data.size; ++mesh_i) {
+		bool changed = false;
+		for (u32 i = mesh_i; i != UINT32_MAX; i = _mesh_manager._data.bindings[i].next) {
+			MeshManager::MaterialBinding &binding = _mesh_manager._data.bindings[i];
+			if (binding.resource == old_resource) {
+				binding.material = _material_manager->get(new_resource);
+				binding.resource = new_resource;
+				changed = true;
+			}
 		}
+		if (changed)
+			_mesh_manager.update_draw_bindings(mesh_i);
 	}
 
 	for (u32 i = 0; i < _sprite_manager._data.size; ++i) {
@@ -2907,15 +2963,18 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 				_data.bindings[moved_binding] = _data.bindings[last];
 				_data.slots[moved_binding] = _data.slots[last];
 
-				u32 previous = UINT32_MAX;
-				for (u32 j = 0; j < moved_binding; ++j) {
-					if (_data.slots[j]._id != 0 && _data.bindings[j].next == last) {
-						previous = j;
-						break;
-					}
+				u32 owner = 0;
+				for (; owner < _data.size; ++owner) {
+					u32 previous = owner;
+					while (previous != UINT32_MAX && _data.bindings[previous].next != last)
+						previous = _data.bindings[previous].next;
+					if (previous == UINT32_MAX)
+						continue;
+					_data.bindings[previous].next = moved_binding;
+					update_draw_bindings(owner);
+					break;
 				}
-				CE_ASSERT(previous != UINT32_MAX, "Material binding predecessor not found");
-				_data.bindings[previous].next = moved_binding;
+				CE_ASSERT(owner < _data.size, "Material binding owner not found");
 			} else {
 				u32 previous = UINT32_MAX;
 				u32 binding_i = _data.bindings_free_list;
@@ -2938,8 +2997,7 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 		_data.unit[last]     = unit;
 		_data.resource[last] = mr;
 		_data.geometry[last] = mg;
-		_data.mesh[last].vbh = mg->vertex_buffer;
-		_data.mesh[last].ibh = mg->index_buffer;
+		_data.mesh[last] = { mg->vertex_buffer, mg->index_buffer, UINT32_MAX, UINT32_MAX };
 		_data.world[last]    = _render_world->_scene_graph->world_pose(ti);
 		_data.obb[last]      = mg->obb;
 		_data.sphere[last]   = mg->sphere;
@@ -2995,6 +3053,7 @@ void RenderWorld::MeshManager::create_instances(const void *components_data
 			}
 			set_material(last, materials[j].slot, materials[j].material_resource);
 		}
+		update_draw_bindings(last);
 		meshes = (const MeshRendererDesc *)(materials + meshes->num_materials);
 	}
 }
@@ -3028,6 +3087,26 @@ void RenderWorld::MeshManager::set_material(u32 mesh_i, StringId32 slot, StringI
 	} while (binding_i != UINT32_MAX);
 }
 
+void RenderWorld::MeshManager::update_draw_bindings(u32 mesh_i)
+{
+	MeshData &data = _data.mesh[mesh_i];
+	data.opaque_head = UINT32_MAX;
+	data.transparent_head = UINT32_MAX;
+	u32 *opaque = &data.opaque_head;
+	u32 *transparent = &data.transparent_head;
+	for (u32 i = mesh_i; i != UINT32_MAX; i = _data.bindings[i].next) {
+		MaterialBinding &binding = _data.bindings[i];
+		binding.next_draw = UINT32_MAX;
+		if ((binding.material->_shader.state & BGFX_STATE_BLEND_MASK) != 0) {
+			*transparent = i;
+			transparent = &binding.next_draw;
+		} else {
+			*opaque = i;
+			opaque = &binding.next_draw;
+		}
+	}
+}
+
 void RenderWorld::MeshManager::free_materials(u32 binding_i)
 {
 	while (binding_i != UINT32_MAX) {
@@ -3053,12 +3132,12 @@ void RenderWorld::MeshManager::destroy(MeshId mesh)
 	_data.unit[mesh_i]     = _data.unit[last];
 	_data.resource[mesh_i] = _data.resource[last];
 	_data.geometry[mesh_i] = _data.geometry[last];
-	_data.mesh[mesh_i].vbh = _data.mesh[last].vbh;
-	_data.mesh[mesh_i].ibh = _data.mesh[last].ibh;
+	_data.mesh[mesh_i] = _data.mesh[last];
 	free_materials(_data.bindings[mesh_i].next);
 	if (mesh_i != last) {
 		_data.bindings[mesh_i] = _data.bindings[last];
 		_data.slots[mesh_i] = _data.slots[last];
+		update_draw_bindings(mesh_i);
 	}
 	_data.slots[last] = StringId32(0u);
 	_data.bindings[last].next = _data.bindings_free_list;
@@ -3115,6 +3194,8 @@ void RenderWorld::MeshManager::swap(u32 inst_a, u32 inst_b)
 
 	_indices[id_a.i & MESH_INDEX_MASK].index = inst_b;
 	_indices[id_b.i & MESH_INDEX_MASK].index = inst_a;
+	update_draw_bindings(inst_a);
+	update_draw_bindings(inst_b);
 }
 
 bool RenderWorld::MeshManager::has(UnitId unit)
@@ -3210,6 +3291,7 @@ void RenderWorld::MeshManager::set_geometry(u32 mesh_i, const MeshResource *mr, 
 		new_tail = binding_i;
 	}
 	free_materials(old_head);
+	update_draw_bindings(mesh_i);
 	mesh_update_bounds(*_render_world, mesh_i);
 }
 
@@ -3292,15 +3374,25 @@ void RenderWorld::MeshManager::draw_shadow_casters(u8 view_id, SceneGraph &scene
 	for (u32 ii = 0; ii < num; ++ii) {
 		u32 mesh_id = _render_world->_cullable_shadow_casters.id[_render_world->_cullable_shadow_casters.render[ii]];
 
-		set_instance_data(mesh_id, scene_graph);
-
 		ShaderData sd = _data.skeleton[mesh_id] != NULL
 			? _render_world->_pipeline->_shadow_skinning_shader
 			: _render_world->_pipeline->_shadow_shader
 			;
-		bgfx::setStencil(stencil);
-		bgfx::setState(sd.state);
-		bgfx::submit(view_id, sd.program);
+		const MeshData &data = _data.mesh[mesh_id];
+		if (data.transparent_head == UINT32_MAX) {
+			set_instance_data(mesh_id, scene_graph);
+			bgfx::setStencil(stencil);
+			bgfx::setState(sd.state);
+			bgfx::submit(view_id, sd.program);
+		} else {
+			for (u32 i = data.opaque_head; i != UINT32_MAX; i = _data.bindings[i].next_draw) {
+				const MaterialBinding &binding = _data.bindings[i];
+				set_instance_data(mesh_id, scene_graph, binding.index_offset, binding.num_indices);
+				bgfx::setStencil(stencil);
+				bgfx::setState(sd.state);
+				bgfx::submit(view_id, sd.program);
+			}
+		}
 	}
 }
 

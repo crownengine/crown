@@ -530,6 +530,14 @@ public class OBJImporter
 					string? ao_map = null;
 					string? emission_map = null;
 					bool masking = false;
+					double surface_opacity = material.pbr.opacity.has_value
+						? (double)material.pbr.opacity.value_real
+						: 1.0
+						;
+					surface_opacity = surface_opacity.clamp(0.0, 1.0);
+					bool transparent = surface_opacity < 1.0;
+					if (transparent)
+						shader += "+TRANSPARENT";
 
 					for (int mm = 0; mm < ufbx.MaterialPbrMap.MAP_COUNT; ++mm) {
 						unowned ufbx.MaterialMap map = material.pbr.maps[mm];
@@ -552,6 +560,9 @@ public class OBJImporter
 										|| (color_texture_filename.length > 0 && color_texture_filename == opacity_texture_filename)
 										;
 								}
+
+								if (!masking && opacity.texture_enabled && opacity.texture != null)
+									logw("Separate opacity textures are not supported; '%s' will use scalar opacity".printf((string)material.name.data));
 
 								if (options.import_textures
 									&& OBJImport.get_or_import_texture_resource_name(out albedo_map
@@ -686,7 +697,8 @@ public class OBJImporter
 						, material_resource_name, roughness_map, metallic_map, ao_map, roughness, metallic) != 0)
 						return ImportResult.ERROR;
 
-					masking = masking && albedo_map != null;
+					bool use_opacity_map = masking && albedo_map != null;
+					masking = use_opacity_map && !transparent;
 
 					// Create .material resource.
 					MaterialResource material_resource = MaterialResource.mesh(db
@@ -706,6 +718,10 @@ public class OBJImporter
 						, masking
 						, rma_map
 						);
+					if (transparent) {
+						material_resource.set_float("u_opacity", surface_opacity);
+						material_resource.set_float("u_use_opacity_map", (double)use_opacity_map);
+					}
 					if (material_resource.save(project, material_resource_name) != 0)
 						return ImportResult.ERROR;
 

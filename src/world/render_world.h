@@ -487,12 +487,15 @@ struct RenderWorld
 			u32 index_offset;
 			u32 num_indices;
 			u32 next; ///< Next binding, or UINT32_MAX.
+			u32 next_draw;
 		};
 
 		struct MeshData
 		{
 			bgfx::VertexBufferHandle vbh;
 			bgfx::IndexBufferHandle ibh;
+			u32 opaque_head;
+			u32 transparent_head;
 		};
 
 		struct MeshInstanceData
@@ -571,6 +574,8 @@ struct RenderWorld
 
 		///
 		void set_material(u32 mesh_i, StringId32 slot, StringId64 material_resource);
+
+		void update_draw_bindings(u32 mesh_i);
 
 		/// Returns the additional binding chain starting at binding_i to the free list.
 		void free_materials(u32 binding_i);

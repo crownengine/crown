@@ -881,6 +881,11 @@ void Pipeline::reset(u16 width, u16 height)
 			bgfx::setViewClear(id, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x080808ff, 1.0f, 0);
 			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
 			bgfx::setViewFrameBuffer(id, _colors[0]);
+		} else if (id == View::TRANSPARENT) {
+			view_name = "transparent";
+			bgfx::setViewRect(id, 0, 0, _render_width, _render_height);
+			bgfx::setViewMode(id, bgfx::ViewMode::DepthDescending);
+			bgfx::setViewFrameBuffer(id, _colors[0]);
 		} else if (id == View::BLOOM_COPY) {
 			view_name = "bloom_copy";
 			if ((_render_settings.flags & RenderSettingsFlags::BLOOM) != 0) {
@@ -1231,7 +1236,7 @@ void Pipeline::render(u16 width, u16 height, const Matrix4x4 &view, const Matrix
 		} else if (id == View::CASCADE_CLEAR) {
 			if (bgfx::isValid(_sun_shadow_map_frame_buffer))
 				bgfx::touch(id);
-		} else if (id == View::MESH) {
+		} else if (id == View::MESH || id == View::TRANSPARENT) {
 			bgfx::setViewTransform(id, to_float_ptr(view), to_float_ptr(proj));
 			bgfx::touch(id);
 		} else if (id == View::WORLD_GUI) {

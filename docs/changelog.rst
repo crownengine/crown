@@ -17,6 +17,7 @@ Changelog
 * Tools: release deployments now strip Lua debug symbols.
 * Tools: added an option to import materials with packed roughness, metallic and ambient occlusion textures.
 * Tools: Android deployments now declare the application as a game.
+* Tools: added support for importing transparent materials.
 * HTML5: added support to wasm64.
 * Runtime: added ``--render-config`` to override the boot config's render configuration.
 * Runtime: added ``--headless`` mode.
@@ -33,6 +34,7 @@ Changelog
 * Runtime: improved rendering performance by reusing material lighting calculations.
 * Runtime: reduced directional shadow projection overhead.
 * Runtime: moved light and ambient color conversion to the CPU.
+* Runtime: added support for transparent mesh materials.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

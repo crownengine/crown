@@ -1240,6 +1240,14 @@ void Device::refresh(const char *json)
 			} else if (resource_type == RESOURCE_TYPE_SHADER) {
 				_pipeline->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);
 				_material_manager->reload_shaders((ShaderResource *)old_resource, (ShaderResource *)new_resource);
+				ListNode *cur;
+				list_for_each(cur, &_worlds)
+				{
+					World *w = (World *)container_of(cur, World, _node);
+					RenderWorld::MeshManager &mesh = w->_render_world->_mesh_manager;
+					for (u32 i = 0; i < mesh._data.size; ++i)
+						mesh.update_draw_bindings(i);
+				}
 			} else if (resource_type == RESOURCE_TYPE_MATERIAL) {
 				ListNode *cur;
 				list_for_each(cur, &_worlds)
