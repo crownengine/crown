@@ -73,6 +73,7 @@ struct SoundWorld
 
 	/// Sets the @a volumes of @a num sound instances @a ids.
 	void set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes);
+	void set_sound_pitches(u32 num, const SoundInstanceId *ids, const f32 *pitches);
 
 	///
 	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr);

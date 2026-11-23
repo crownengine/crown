@@ -75,6 +75,7 @@ struct SoundInstance
 	StringId64 _name;
 	bool _loop;
 	f32 _volume;
+	f32 _pitch;
 	StringId32 _group;
 	f32 _range;
 	u32 _flags;
@@ -110,6 +111,7 @@ struct SoundInstance
 		_vorbis = NULL;
 		_mp3 = NULL;
 		_volume = 1.0f;
+		_pitch = 1.0f;
 		_group = group;
 		_flags = flags;
 
@@ -623,6 +625,15 @@ struct SoundWorldImpl
 		}
 	}
 
+	void set_sound_pitches(u32 num, const SoundInstanceId *ids, const f32 *pitches)
+	{
+		for (u32 i = 0; i < num; ++i) {
+			SoundInstance &inst = lookup(ids[i]);
+			AL_CHECK(alSourcef(inst._source, AL_PITCH, pitches[i]));
+			inst._pitch = pitches[i];
+		}
+	}
+
 	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 	{
 		for (u32 i = 0; i < _num_objects; ++i) {
@@ -633,6 +644,7 @@ struct SoundWorldImpl
 				const StringId64 name = inst._name;
 				const bool loop = inst._loop;
 				const f32 volume = inst._volume;
+				const f32 pitch = inst._pitch;
 				const StringId32 group = inst._group;
 				const f32 range = inst._range;
 				const u32 flags = inst._flags;
@@ -652,6 +664,7 @@ struct SoundWorldImpl
 				inst.create(new_sr, stream, loop, range, flags, pos, group);
 
 				set_sound_volumes(1, &id, &volume);
+				set_sound_pitches(1, &id, &pitch);
 
 				if (distance_squared(translation(_listener_pose), inst.position()) > range*range) {
 					AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
@@ -822,6 +835,12 @@ void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f3
 {
 	if (_impl != NULL)
 		_impl->set_sound_volumes(num, ids, volumes);
+}
+
+void SoundWorld::set_sound_pitches(u32 num, const SoundInstanceId *ids, const f32 *pitches)
+{
+	if (_impl != NULL)
+		_impl->set_sound_pitches(num, ids, pitches);
 }
 
 void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)

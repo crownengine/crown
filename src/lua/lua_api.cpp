@@ -2128,6 +2128,11 @@ void load_api(LuaEnvironment &env)
 			stack.get_world(1)->set_sound_volume(stack.get_sound_instance_id(2), stack.get_float(3));
 			return 0;
 		});
+	env.add_module_function("World", "set_sound_pitch", [](lua_State *L) {
+			LuaStack stack(L);
+			stack.get_world(1)->set_sound_pitch(stack.get_sound_instance_id(2), stack.get_float(3));
+			return 0;
+		});
 	env.add_module_function("World", "create_debug_line", [](lua_State *L) {
 			LuaStack stack(L, +1);
 			stack.push_pointer(stack.get_world(1)->create_debug_line(stack.get_bool(2)));

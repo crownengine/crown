@@ -951,6 +951,11 @@ void World::set_sound_volume(SoundInstanceId id, f32 vol)
 	_sound_world->set_sound_volumes(1, &id, &vol);
 }
 
+void World::set_sound_pitch(SoundInstanceId id, f32 pitch)
+{
+	_sound_world->set_sound_pitches(1, &id, &pitch);
+}
+
 DebugLine *World::create_debug_line(bool depth_test)
 {
 	return debug_line::create(*_allocator, *_pipeline, depth_test);
