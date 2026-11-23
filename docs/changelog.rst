@@ -73,6 +73,7 @@ Changelog
 * Runtime: fixed touch inputs remaining pressed after focus loss on Android and HTML5.
 * Runtime: Android: fixed ``Device.quit()`` not closing the application.
 * Runtime: Android: restored default handling of unmapped keys, including volume and Back.
+* Runtime: fixed a crash when streaming mono Ogg Vorbis sounds.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.
