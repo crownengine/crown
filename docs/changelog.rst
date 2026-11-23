@@ -40,6 +40,7 @@ Changelog
 * Lua: added ``Window.has_focus()``.
 * Lua: added the ``Http`` API.
 * Lua: added ``Window.cursor_mode()``.
+* Lua: added ``World.set_sound_pitch()`` to change the playback pitch of a sound.
 * Samples: added touchscreen controls to the physics and animation samples.
 
 **Fixes**

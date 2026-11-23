@@ -64,6 +64,11 @@ struct SoundWorldImpl
 		CE_UNUSED_3(num, ids, volumes);
 	}
 
+	void set_sound_pitches(u32 num, const SoundInstanceId *ids, const f32 *pitches)
+	{
+		CE_UNUSED_3(num, ids, pitches);
+	}
+
 	void reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)
 	{
 		CE_UNUSED_2(old_sr, new_sr);
@@ -152,6 +157,12 @@ void SoundWorld::set_sound_ranges(u32 num, const SoundInstanceId *ids, const f32
 void SoundWorld::set_sound_volumes(u32 num, const SoundInstanceId *ids, const f32 *volumes)
 {
 	_impl->set_sound_volumes(num, ids, volumes);
+}
+
+void SoundWorld::set_sound_pitches(u32 num, const SoundInstanceId *ids, const f32 *pitches)
+{
+	if (_impl != NULL)
+		_impl->set_sound_pitches(num, ids, pitches);
 }
 
 void SoundWorld::reload_sounds(const SoundResource *old_sr, const SoundResource *new_sr)

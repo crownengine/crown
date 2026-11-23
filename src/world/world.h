@@ -228,6 +228,7 @@ struct World
 
 	/// Sets the @a volume of the sound @a id.
 	void set_sound_volume(SoundInstanceId id, f32 volume);
+	void set_sound_pitch(SoundInstanceId id, f32 pitch);
 
 	/// Creates a new DebugLine. @a depth_test controls whether to
 	/// enable depth test when rendering the lines.

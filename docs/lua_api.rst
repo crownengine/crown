@@ -2061,6 +2061,9 @@ Sound
 **set_sound_volume** (world, id, volume)
 	Sets the *volume* of the sound *id*.
 
+**set_sound_pitch** (world, id, pitch)
+	Sets the playback pitch of the sound *id*. The *pitch* is a positive multiplier of the sound's original sample rate.
+
 Level
 -----
 
