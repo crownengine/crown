@@ -274,8 +274,8 @@ struct SoundInstance
 				}
 
 				for (int i = 0; i < n; ++i) {
-					*dec++ = output[0][i + skip_n];
-					*dec++ = output[1][i + skip_n];
+					for (u32 channel = 0; channel < _resource->channels; ++channel)
+						*dec++ = output[channel][i + skip_n];
 				}
 				skip_n = 0;
 				tot_n += n;

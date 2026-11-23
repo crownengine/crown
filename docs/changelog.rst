@@ -6,6 +6,10 @@ Changelog
 :ref:`0.65.8 --- DD MMM YYYY <v0.65.8>`
 ---------------------------------------
 
+**Fixes**
+
+* Runtime: fixed a crash when streaming mono Ogg Vorbis sounds.
+
 .. _v0.65.7:
 
 :ref:`0.65.7 --- 14 Nov 2026 <v0.65.7>`
