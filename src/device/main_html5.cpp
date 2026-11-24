@@ -25,7 +25,7 @@
 #include "device/window.h"
 #include <pthread.h>
 #include <stdlib.h> // EXIT_SUCCESS etc.
-#include <string.h> // memset, strcmp
+#include <string.h> // memset, strcmp, strstr
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
@@ -45,6 +45,8 @@
 
 namespace crown
 {
+extern PlatformData g_platform_data;
+
 static void crown_js_request_keyboard_lock()
 {
 	// code-format off
@@ -156,16 +158,6 @@ static bool crown_js_has_focus()
 	// code-format on
 }
 
-// code-format off
-EM_JS(int, crown_js_is_firefox, (void), {
-	if (typeof navigator === 'undefined' || !navigator.userAgent) {
-		return 0;
-	}
-	return navigator.userAgent.indexOf('Firefox/') !== -1 ? 1 : 0;
-});
-
-// code-format on
-
 static void remove_event_listeners(void *user_data)
 {
 	CE_UNUSED(user_data);
@@ -190,6 +182,25 @@ void open_uri(const char *uri)
 		}, uri);
 	// code-format on
 }
+
+extern "C" EMSCRIPTEN_KEEPALIVE char *crown_user_agent_allocate(u32 size)
+{
+	g_platform_data._user_agent = (char *)default_allocator().allocate(size);
+	return g_platform_data._user_agent;
+}
+
+// code-format off
+EM_JS(void, crown_js_user_agent, (void), {
+	const user_agent = typeof navigator !== 'undefined' && navigator.userAgent;
+	if (!user_agent)
+		return;
+
+	const size = lengthBytesUTF8(user_agent) + 1;
+	const destination = _crown_user_agent_allocate(size);
+	stringToUTF8(user_agent, Number(destination), size);
+});
+// code-format on
+EM_JS_DEPS(crown_js_user_agent, "$lengthBytesUTF8,$stringToUTF8");
 
 struct WindowEmscripten : public Window
 {
@@ -710,7 +721,7 @@ struct EmscriptenDevice
 		, _pointer_locked(false)
 		, _fullscreen(false)
 		, _focused(false)
-		, _is_firefox(crown_js_is_firefox() != 0)
+		, _is_firefox(g_platform_data._user_agent && strstr(g_platform_data._user_agent, "Firefox/"))
 		, _joypad_polled(false)
 		, _joypad(_queue, *this)
 	{
@@ -1112,9 +1123,14 @@ static int run(int argc, char **argv)
 		return ec;
 
 	if (ec == EXIT_SUCCESS) {
+		crown_js_user_agent();
+
 		s_emscripten_device = CE_NEW(default_allocator(), EmscriptenDevice)(default_allocator());
 		ec = s_emscripten_device->run(&opts);
 		CE_DELETE(default_allocator(), s_emscripten_device);
+
+		default_allocator().deallocate(g_platform_data._user_agent);
+		g_platform_data._user_agent = NULL;
 	}
 
 	return ec;

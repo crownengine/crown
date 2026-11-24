@@ -118,6 +118,9 @@ struct Device
 	/// Returns command line parameters.
 	const char **argv() const;
 
+	/// Returns the application's user agent or NULL if unavailable.
+	const char *user_agent() const;
+
 	/// Quits the application. On platforms that support it, @a exit_code is
 	/// returned to the system after the application exits.
 	void quit(int exit_code = EXIT_SUCCESS);

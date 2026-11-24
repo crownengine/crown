@@ -716,6 +716,8 @@ static void device_frame(void *user_data)
 	if (dev->frame()) {
 		emscripten_cancel_main_loop();
 		dev->shutdown();
+		default_allocator().deallocate(g_platform_data._user_agent);
+		g_platform_data._user_agent = NULL;
 		emscripten_force_exit(dev->_exit_code);
 	}
 }
@@ -1115,6 +1117,11 @@ int Device::argc() const
 const char **Device::argv() const
 {
 	return (const char **)_options._argv;
+}
+
+const char *Device::user_agent() const
+{
+	return g_platform_data._user_agent;
 }
 
 void Device::pause()

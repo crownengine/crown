@@ -20,6 +20,7 @@ struct PlatformData
 	void *_android_internal_data_path; ///< Android internal data path.
 	void *_android_obb_path;           ///< Android OBB path.
 	void *_android_java_vm;
+	char *_user_agent;                 ///< Application user agent.
 };
 
 struct OsEventType

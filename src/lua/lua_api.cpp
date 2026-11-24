@@ -4163,6 +4163,11 @@ void load_api(LuaEnvironment &env)
 			stack.push_string_id(StringId32(stack.get_string(1)));
 			return 1;
 		});
+	env.add_module_function("Device", "user_agent", [](lua_State *L) {
+			LuaStack stack(L, +1);
+			stack.push_string(device()->user_agent());
+			return 1;
+		});
 
 	env.add_module_function("Http", "get", [](lua_State *L) {
 			LuaStack stack(L, +1);
