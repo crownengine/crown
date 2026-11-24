@@ -162,7 +162,12 @@ struct SoundInstance
 		for (u32 i = 0, p = 0; i < _num_buffers && p != _resource->pcm_size; ++i) {
 			const u32 num = min(bs, _resource->pcm_size - p);
 			AL_CHECK(alBufferData(_buffer[i], _format, &pcm_data[p], num, _resource->sample_rate));
-			AL_CHECK(alSourceQueueBuffers(_source, 1, &_buffer[i]));
+			if (_num_buffers == 1) {
+				// Use native looping for static sounds.
+				AL_CHECK(alSourcei(_source, AL_BUFFER, _buffer[i]));
+			} else {
+				AL_CHECK(alSourceQueueBuffers(_source, 1, &_buffer[i]));
+			}
 			p += num;
 		}
 	}
@@ -338,6 +343,9 @@ struct SoundInstance
 	{
 		ScopedProfileScope sps("SoundInstance::update");
 
+		if (_resource->stream_format == StreamFormat::NONE)
+			return;
+
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));
 
@@ -398,6 +406,9 @@ struct SoundInstance
 	void stop()
 	{
 		AL_CHECK(alSourceStop(_source));
+		if (_resource->stream_format == StreamFormat::NONE)
+			return;
+
 		mp3::destroy(_mp3, default_allocator());
 		_mp3 = NULL;
 		AL_CHECK(alSourceRewind(_source)); // Workaround
