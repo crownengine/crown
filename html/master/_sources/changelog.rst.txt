@@ -41,6 +41,7 @@ Changelog
 * Lua: added the ``Http`` API.
 * Lua: added ``Window.cursor_mode()``.
 * Lua: added ``World.set_sound_pitch()`` to change the playback pitch of a sound.
+* Lua: added ``Device.user_agent()`` to query the browser's user agent on HTML5.
 * Samples: added touchscreen controls to the physics and animation samples.
 
 **Fixes**

@@ -177,6 +177,9 @@ Interface to access global application-level functionalities.
 **string_id** (str) : string
     Returns the 32-bits hash of *str*.
 
+**user_agent** () : string or nil
+	Returns the browser's user agent on HTML5, or ``nil`` when unavailable.
+
 Display
 =======
 
