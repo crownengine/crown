@@ -77,6 +77,7 @@ Changelog
 * Runtime: Android: restored default handling of unmapped keys, including volume and Back.
 * Runtime: fixed a crash when streaming mono Ogg Vorbis sounds.
 * Runtime: HTML5: fixed audio dropouts when changing the pitch of looping WAV sounds.
+* Runtime: HTML5: fixed startup audio staying silent after the player interacts with the page.
 * Data Compiler: texture ``mip_skip_largest`` now skips the largest mip levels; unused ``mip_skip_smallest`` settings produce a warning.
 * Data Compiler: fixed a crash when restoring projects with large dependency lists.
 * Data Compiler: fixed a buffer overflow when compiling shaders with overly long uniform names.

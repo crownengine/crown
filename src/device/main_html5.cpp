@@ -66,6 +66,35 @@ static void crown_js_request_keyboard_lock()
 	// code-format on
 }
 
+#if CROWN_SOUND_OPENAL
+// code-format off
+EM_JS(void, crown_js_resume_audio, (void), {
+	const context = AL.currentCtx?.audioCtx;
+	if (context?.state === 'suspended' && navigator.userActivation?.hasBeenActive)
+		context.resume();
+});
+EM_JS_DEPS(crown_js_resume_audio, "$AL");
+// code-format on
+#endif
+
+static void sample_gamepad_data(void *user_data)
+{
+	CE_UNUSED(user_data);
+	// Gamepad polling can grant browser user activation.
+	emscripten_sample_gamepad_data();
+#if CROWN_SOUND_OPENAL
+	crown_js_resume_audio();
+#endif
+}
+
+static void handle_user_activation()
+{
+#if CROWN_SOUND_OPENAL
+	crown_js_resume_audio();
+#endif
+	crown_js_request_keyboard_lock();
+}
+
 struct PointerLockRequest
 {
 	enum State
@@ -602,7 +631,11 @@ struct Joypad
 
 	void poll()
 	{
-		emscripten_sample_gamepad_data();
+		emscripten_proxy_sync(emscripten_proxy_get_system_queue()
+			, emscripten_main_runtime_thread_id()
+			, sample_gamepad_data
+			, NULL
+			);
 
 		for (s8 ii = 0; ii < CROWN_MAX_JOYPADS; ++ii) {
 			EmscriptenGamepadEvent event;
@@ -765,7 +798,7 @@ struct EmscriptenDevice
 	{
 		CE_UNUSED(user_data);
 		if (event_type == EMSCRIPTEN_EVENT_KEYDOWN)
-			crown_js_request_keyboard_lock();
+			handle_user_activation();
 
 		return keyboard_button_from_code(key_event->code) == KeyboardButton::COUNT
 			? EM_EVENT_PROPAGATE
@@ -777,7 +810,7 @@ struct EmscriptenDevice
 	{
 		CE_UNUSED_2(event, user_data);
 		if (event_type == EMSCRIPTEN_EVENT_MOUSEDOWN)
-			crown_js_request_keyboard_lock();
+			handle_user_activation();
 
 		return EM_EVENT_STOP;
 	}
@@ -792,7 +825,7 @@ struct EmscriptenDevice
 	{
 		CE_UNUSED_2(event, user_data);
 		if (event_type == EMSCRIPTEN_EVENT_TOUCHEND)
-			crown_js_request_keyboard_lock();
+			handle_user_activation();
 
 		return EM_EVENT_STOP;
 	}
