@@ -3,8 +3,8 @@ require "core/lua/class"
 VirtualJoypad = class(VirtualJoypad)
 
 local AXIS_IDS = { left = 0, right = 1, trigger_left = 2 }
-local BUTTON_IDS = { a = 0, b = 1 }
-local BUTTON_POSITIONS = { { 252, 156 }, { 156, 220 } }
+local BUTTON_IDS = { a = 0, b = 1, reset = 2 }
+local BUTTON_POSITIONS = { { 252, 156 }, { 156, 220 }, { 156, 316 } }
 local STICK_RADIUS = 64
 local OUTER_RADIUS = 96
 local STICK_CENTER = 180
@@ -94,7 +94,7 @@ function VirtualJoypad:update()
 				if left and (x - center)^2 + (y - center)^2 <= radius^2 then
 					control = left
 				else
-					for id = 0, 1 do
+					for id = 0, #BUTTON_POSITIONS - 1 do
 						local offset = BUTTON_POSITIONS[id + 1]
 						local bx, by = width - offset[1] * scale, offset[2] * scale
 						if self._buttons[id] and (x - bx)^2 + (y - by)^2 <= button_radius^2 then
@@ -214,8 +214,7 @@ function VirtualJoypad:draw(gui)
 			, 24 * scale, Color4(255, 255, 255, 120), -2)
 	end
 	local font = "core/game/hud/debug"
-	local size = math.max(1, math.floor(32 * scale))
-	for id = 0, 1 do
+	for id = 0, #BUTTON_POSITIONS - 1 do
 		local button = self._buttons[id]
 		if button then
 			local offset = BUTTON_POSITIONS[id + 1]
@@ -223,6 +222,7 @@ function VirtualJoypad:draw(gui)
 			local color = button.down and Color4(255, 255, 255, 160) or Color4(255, 255, 255, 70)
 			circle(gui, bx, by, 40 * scale, color, -1)
 			local label = string.upper(button.name)
+			local size = math.max(1, math.floor((button.name == "reset" and 20 or 32) * scale))
 			local extents = Gui.text_extents(gui, size, label, font)
 			Gui.text(gui, Vector3(bx - extents.x / 2, by - size / 2, -2)
 				, size, label, font, font, Color4.white())

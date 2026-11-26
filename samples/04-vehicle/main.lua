@@ -17,7 +17,7 @@ GameBase.game_level = "levels/vehicle"
 GameBase.show_build = true
 GameBase.touch_controls = {
 	axes = { "left" },
-	buttons = { "a", "b" },
+	buttons = { "a", "b", "reset" },
 }
 
 local function k(bind)
@@ -68,7 +68,10 @@ function Game.update(dt)
 		Game.debug_physics = not Game.debug_physics
 		PhysicsWorld.enable_debug_drawing(Game.physics_world, Game.debug_physics)
 	end
-	if Game.vehicle and (Keyboard.pressed(Keyboard.button_id("r")) or Pad1.pressed(Pad1.button_id("y"))) then
+	local touch_pad = GameBase.virtual_joypad
+	if Game.vehicle and (Keyboard.pressed(Keyboard.button_id("r"))
+		or Pad1.pressed(Pad1.button_id("y"))
+		or (touch_pad and touch_pad:pressed(touch_pad:button_id("reset")))) then
 		Game.vehicle:reset()
 	end
 	World.set_listener_pose(GameBase.world, Game.camera:world_pose())
@@ -86,7 +89,6 @@ function Game.update(dt)
 	Gui.text(GameBase.screen_gui, Vector2(win_w - timing_extents.x - 10, win_h - font_size - 10), font_size, timing, font, font)
 
 	local help_scale = math.min(1, win_w / 1000, win_h / 650)
-	local touch_pad = GameBase.virtual_joypad
 	GameBase.draw_help({
 		{ key = k("f1"), desc = "Toggle help" },
 		{ key = k("w/s"), desc = "Accelerate / brake and reverse" },
