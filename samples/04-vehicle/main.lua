@@ -77,9 +77,12 @@ function Game.update(dt)
 	World.set_listener_pose(GameBase.world, Game.camera:world_pose())
 
 	local font = "core/game/hud/debug"
-	local speed = Game.vehicle and Game.vehicle:speed() or 0
-	local status = string.format("%3.0f km/h", speed * 3.6)
-	Gui.text(GameBase.screen_gui, Vector2(24, 42), 22, status, font, font)
+	local vehicle = Game.vehicle
+	if vehicle then
+		local gear, rpm = vehicle:gear_and_rpm()
+		local status = string.format("%3.0f km/h   Gear %d   %4.0f RPM", vehicle:speed() * 3.6, gear, rpm)
+		Gui.text(GameBase.screen_gui, Vector2(24, 42), 22, status, font, font)
+	end
 
 	local win_w, win_h = Device.resolution()
 

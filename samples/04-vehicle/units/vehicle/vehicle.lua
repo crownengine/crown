@@ -47,6 +47,16 @@ function UnitsVehicleVehicle.update(world, dt)
 	end
 end
 
+function UnitsVehicleVehicle.collision_begin(world, unit, other_unit, actor, other_actor, position, normal)
+	local world_data = data[world]
+	local unit_data = world_data and world_data[unit]
+	if unit_data then
+		unit_data.vehicle:collision(actor, position, normal)
+	end
+end
+
+UnitsVehicleVehicle.collision_stay = UnitsVehicleVehicle.collision_begin
+
 function UnitsVehicleVehicle.unspawned(world, units)
 	local world_data = data[world]
 	if world_data == nil then

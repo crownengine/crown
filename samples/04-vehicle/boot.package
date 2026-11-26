@@ -13,4 +13,12 @@ sound = [
 	"sfx/engine_5232"
 	"sfx/engine_6222"
 	"sfx/engine_6984"
+	"sfx/tire_screech_1"
+	"sfx/tire_screech_2"
+	"sfx/tire_screech_3"
+	"sfx/tire_screech_4"
+	"sfx/crash_hard_1"
+	"sfx/crash_hard_2"
+	"sfx/crash_hard_3"
+	"sfx/crash_hard_4"
 ]

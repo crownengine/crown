@@ -8,6 +8,7 @@ require "core/lua/class"
 Vehicle = class(Vehicle)
 
 local LOOP_RPM = { 1746, 2616, 3492, 4400, 5232, 6222, 6984 }
+local TIRE_SCREECH_HANDOFF = { 1.39, 1.47, 1.79, 1.59 }
 local GEAR_RATIOS = { 3.66, 2.02, 1.40, 1.08, 0.87, 0.745, 0.675, 0.59 }
 local FINAL_DRIVE_RATIO = 5
 local MAX_ENGINE_TORQUE = 180
@@ -168,6 +169,10 @@ function Vehicle:init(world, unit, camera)
 	self._spawn_pose = Matrix4x4Box(pose)
 	self._camera_yaw = nil
 	self._steer_angle = 0
+	self._previous_velocity = Vector3Box(Vector3.zero())
+	self._previous_angular_velocity = Vector3Box(Vector3.zero())
+	self._crash_impact = 0
+	self._crash_timer = 0
 	self._grounded_wheels = 0
 	self._wheels = {}
 	self._left_wheel_rotation = QuaternionBox(Quaternion(Vector3.up(), math.pi))
@@ -188,13 +193,15 @@ function Vehicle:init(world, unit, camera)
 	self._max_steer_angle = math.rad(42)
 
 	-- Front and rear grip as sideways slip increases.
-	self._front_grip_curve = { 0.55, 0.55, 0.51, 0.46, 0.32, 0.15, 0.11, 0.09, 0.08, 0.07, 0.05 }
-	self._rear_grip_curve = { 0.8, 0.65, 0.37, 0.15, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 }
+	self._front_grip_curve = { 0.150, 0.070, 0.058, 0.051, 0.046, 0.042, 0.039, 0.036, 0.034, 0.032, 0.031 }
+	self._rear_grip_curve = { 0.120, 0.060, 0.053, 0.049, 0.046, 0.043, 0.041, 0.039, 0.037, 0.035, 0.034 }
 
 	self._engine_sounds = {}
 	self._wheel_rpm_per_speed = 60 / (2 * math.pi * self._tire_radius)
 	local position = Matrix4x4.translation(pose)
 	SoundWorld.set_group_volume(World.sound_world(world), "vehicle_engine", 1.6)
+	self._tire_squeal_volume = 0
+	self._tire_squeal_time = 0
 	for i, rpm in ipairs(LOOP_RPM) do
 		self._engine_sounds[i] = World.play_sound(world, "sfx/engine_" .. rpm, true, 0, 70, position, "vehicle_engine")
 	end
@@ -226,8 +233,37 @@ function Vehicle:speed()
 	return math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
 end
 
+function Vehicle:gear_and_rpm()
+	return self._gear, self._rpm
+end
+
 function Vehicle:grounded_wheels()
 	return self._grounded_wheels
+end
+
+function Vehicle:collision(actor, position, normal)
+	if self._crash_impact == 0 and self._crash_timer > 0 then
+		return
+	end
+
+	local pw = self._physics_world
+	local offset = position - PhysicsWorld.actor_center_of_mass(pw, actor)
+	if Vector3.dot(offset, normal) > 0 then
+		normal = -normal
+	end
+	local velocity_change = PhysicsWorld.actor_linear_velocity(pw, actor) - self._previous_velocity:unbox()
+	local angular_change = PhysicsWorld.actor_angular_velocity(pw, actor) - self._previous_angular_velocity:unbox()
+	local point_change = velocity_change + Vector3.cross(angular_change, offset)
+	local impact = math.max(Vector3.dot(velocity_change, normal), Vector3.dot(point_change, normal))
+	if impact < 0.25 then
+		return
+	end
+
+	-- Combine contacts from the same impact.
+	if self._crash_impact == 0 then
+		self._crash_timer = 0.025
+	end
+	self._crash_impact = math.max(self._crash_impact, impact)
 end
 
 function Vehicle:reset()
@@ -237,6 +273,10 @@ function Vehicle:reset()
 	PhysicsWorld.actor_teleport_world_pose(self._physics_world, actor, pose)
 	PhysicsWorld.actor_set_linear_velocity(self._physics_world, actor, Vector3.zero())
 	PhysicsWorld.actor_set_angular_velocity(self._physics_world, actor, Vector3.zero())
+	self._previous_velocity:store(Vector3.zero())
+	self._previous_angular_velocity:store(Vector3.zero())
+	self._crash_impact = 0
+	self._crash_timer = 0
 	local transform = SceneGraph.instance(self._scene_graph, self._unit)
 	SceneGraph.set_local_pose(self._scene_graph, transform, pose)
 	self._steer_angle = 0
@@ -259,13 +299,24 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 	local center = PhysicsWorld.actor_center_of_mass(pw, actor)
 	local velocity = PhysicsWorld.actor_linear_velocity(pw, actor)
 	local angular_velocity = PhysicsWorld.actor_angular_velocity(pw, actor)
+	self._previous_velocity:store(velocity)
+	self._previous_angular_velocity:store(angular_velocity)
+	self._crash_timer = math.max(0, self._crash_timer - dt)
+	if self._crash_impact > 0 and self._crash_timer == 0 then
+		local sound = "sfx/crash_hard_" .. math.random(4)
+		local volume = 0.5 * math.min(1, 0.15 + self._crash_impact / 8)
+		World.play_sound(self._world, sound, false, volume, 70, position)
+		self._crash_impact = 0
+		self._crash_timer = 0.1
+	end
 	local chassis_forward = Matrix4x4.y(pose)
 	local longitudinal_speed = Vector3.dot(velocity, chassis_forward)
 	local speed_magnitude = Vector3.length(velocity)
 
 	-- Reduce steering range at high speed.
 	local steer_speed = speed_magnitude / 15
-	local steer_limit = self._max_steer_angle / (1 + steer_speed * steer_speed)
+	local high_speed = math.max(0, speed_magnitude - 10)
+	local steer_limit = self._max_steer_angle / ((1 + steer_speed * steer_speed) * (1 + high_speed * 0.015))
 	local target_steer = math.max(-1, math.min(1, steering)) * steer_limit
 	self._steer_angle = self._steer_angle + (target_steer - self._steer_angle) * (1 - math.exp(-10 * dt))
 
@@ -277,6 +328,7 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 	local upright = up.z > 0.5
 	local rolling_speed = 0
 	local contact_weight = 0
+	local squeal = 0
 	local grounded_wheels = {}
 	local front_rotation = Quaternion.multiply(rotation, Quaternion(Vector3.up(), -self._steer_angle))
 	local ray_length = self._suspension_rest_distance
@@ -323,6 +375,19 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 				grip = grip * 0.1
 			end
 			local sideways_force = -sideways_speed * grip / dt * self._tire_mass
+
+			-- Measure tire slip on supporting contacts.
+			if upright and supports_wheel and spring_force > 0 then
+				local tire_squeal
+				if wheel_handbrake then
+					local slide_speed = math.sqrt(sideways_speed * sideways_speed + forward_speed * forward_speed)
+					tire_squeal = (slide_speed - 1.5) / 7
+				else
+					local speed_gain = math.min(1, math.max(0, (math.abs(sideways_speed) - 0.35) / 1.15))
+					tire_squeal = (slip - 0.08) / 0.22 * speed_gain
+				end
+				squeal = math.max(squeal, tire_squeal)
+			end
 
 			-- Use engine braking when coasting.
 			local brake_force = 0
@@ -374,6 +439,29 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 	end
 	update_engine_sound(self, position, shift_gain)
 
+	self._tire_squeal_volume = self._tire_squeal_volume
+		+ (math.min(1, squeal) - self._tire_squeal_volume) * (1 - math.exp(-36 * dt))
+	local volume = self._tire_squeal_volume * 0.3
+
+	local sound = self._tire_squeal
+	if sound and not SoundWorld.is_playing(World.sound_world(self._world), sound) then
+		sound = nil
+		self._tire_squeal = nil
+	end
+	self._tire_squeal_time = math.max(0, self._tire_squeal_time - dt)
+	if sound and self._tire_squeal_volume < 0.01 then
+		World.stop_sound(self._world, sound)
+		self._tire_squeal = nil
+	elseif self._tire_squeal_volume > 0.02 and (not sound or self._tire_squeal_time <= 0) then
+		-- Start the next clip over the fade-out.
+		local clip = math.random(#TIRE_SCREECH_HANDOFF)
+		self._tire_squeal = World.play_sound(self._world, "sfx/tire_screech_" .. clip, false, volume, 40, position)
+		self._tire_squeal_time = TIRE_SCREECH_HANDOFF[clip]
+	elseif sound then
+		World.set_sound_position(self._world, sound, position)
+		World.set_sound_volume(self._world, sound, volume)
+	end
+
 	-- Ease the chase camera into turns.
 	if self._camera then
 		chassis_forward.z = 0
@@ -403,6 +491,9 @@ end
 function Vehicle:destroy()
 	for _, sound in ipairs(self._engine_sounds) do
 		World.stop_sound(self._world, sound)
+	end
+	if self._tire_squeal and SoundWorld.is_playing(World.sound_world(self._world), self._tire_squeal) then
+		World.stop_sound(self._world, self._tire_squeal)
 	end
 	self._engine_sounds = {}
 	for _, wheel in ipairs(self._wheels) do
