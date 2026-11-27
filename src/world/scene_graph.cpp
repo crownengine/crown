@@ -345,6 +345,12 @@ void SceneGraph::set_world_pose_and_rescale(TransformId transform, const Matrix4
 	_data.world[transform.i] = pose;
 	set_scale(_data.world[transform.i], world_scale);
 	_data.changed[transform.i] = true;
+
+	TransformId child = _data.first_child[transform.i];
+	while (is_valid(child)) {
+		SceneGraph::transform(_data.world[transform.i], child);
+		child = _data.next_sibling[child.i];
+	}
 }
 
 u32 SceneGraph::num_nodes() const
