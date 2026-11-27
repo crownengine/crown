@@ -1,4 +1,4 @@
-lua = [ "boot" ]
+lua = [ "core/game/boot" ]
 shader = [ "core/shaders/default" ]
 physics_config = [ "global" ]
 unit = [ "core/units/camera" "units/vehicle/wheel" ]

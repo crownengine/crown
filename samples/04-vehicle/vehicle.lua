@@ -26,6 +26,7 @@ local SHIFT_SYNC_TIME = 0.15
 local SHIFT_ENGAGE_TIME = 0.17
 local SHIFT_GAIN_FADE_START = 25
 local SHIFT_GAIN_FADE_END = 50
+local TIRE_GRIP_REFERENCE_HZ = 120
 local MIN_PITCH = 0.45
 local MAX_PITCH = 2.5
 
@@ -214,10 +215,15 @@ function Vehicle:init(world, unit, camera)
 		Vector3(-0.7863, -1.3891, 0),
 		Vector3( 0.7911, -1.3891, 0),
 	}
+	local chassis_transform = SceneGraph.instance(self._scene_graph, unit)
 	for i, mount in ipairs(mounts) do
 		local front = mount.y > 0
+		local wheel_unit = World.spawn_unit(world, "units/vehicle/wheel")
+		local wheel_transform = SceneGraph.instance(self._scene_graph, wheel_unit)
+		local wheel_offset = mount - Vector3.up() * (self._suspension_rest_distance - self._tire_radius)
+		SceneGraph.link(self._scene_graph, chassis_transform, wheel_transform, wheel_offset)
 		self._wheels[i] = {
-			unit = World.spawn_unit(world, "units/vehicle/wheel"),
+			unit = wheel_unit,
 			mount = Vector3Box(mount),
 			front = front,
 			left = mount.x < 0,
@@ -292,7 +298,6 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 	local actor = PhysicsWorld.actor_instance(pw, self._unit)
 	local pose = PhysicsWorld.actor_world_pose(pw, actor)
 	local transform = SceneGraph.instance(self._scene_graph, self._unit)
-	SceneGraph.set_local_pose(self._scene_graph, transform, pose)
 	local position = Matrix4x4.translation(pose)
 	local rotation = Matrix4x4.rotation(pose)
 	local up = Matrix4x4.z(pose)
@@ -330,12 +335,14 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 	local contact_weight = 0
 	local squeal = 0
 	local grounded_wheels = {}
-	local front_rotation = Quaternion.multiply(rotation, Quaternion(Vector3.up(), -self._steer_angle))
+	local steer_rotation = Quaternion(Vector3.up(), -self._steer_angle)
+	local front_rotation = Quaternion.multiply(rotation, steer_rotation)
 	local ray_length = self._suspension_rest_distance
 
 	for _, wheel in ipairs(self._wheels) do
 		local wheel_handbrake = handbrake and not wheel.front
-		local mount = Matrix4x4.transform(pose, wheel.mount:unbox())
+		local mount_offset = wheel.mount:unbox()
+		local mount = Matrix4x4.transform(pose, mount_offset)
 		local tire_rotation = wheel.front and front_rotation or rotation
 		local right = Quaternion.right(tire_rotation)
 		local forward = Quaternion.forward(tire_rotation)
@@ -374,6 +381,7 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 			if wheel_handbrake then
 				grip = grip * 0.1
 			end
+			grip = 1 - (1 - grip) ^ (dt * TIRE_GRIP_REFERENCE_HZ)
 			local sideways_force = -sideways_speed * grip / dt * self._tire_mass
 
 			-- Measure tire slip on supporting contacts.
@@ -410,13 +418,13 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 			wheel.spin = (wheel.spin - forward_speed / self._tire_radius * dt) % (2 * math.pi)
 		end
 		local spin_rotation = Quaternion(Vector3(1, 0, 0), wheel.spin)
-		local wheel_rotation = Quaternion.multiply(tire_rotation, spin_rotation)
+		local wheel_rotation = wheel.front and Quaternion.multiply(steer_rotation, spin_rotation) or spin_rotation
 		if wheel.left then
 			wheel_rotation = Quaternion.multiply(wheel_rotation, self._left_wheel_rotation:unbox())
 		end
 		local wheel_transform = SceneGraph.instance(self._scene_graph, wheel.unit)
 		local wheel_distance = math.max(wheel.min_distance, distance) - self._tire_radius
-		SceneGraph.set_local_position(self._scene_graph, wheel_transform, mount - up * wheel_distance)
+		SceneGraph.set_local_position(self._scene_graph, wheel_transform, mount_offset - Vector3.up() * wheel_distance)
 		SceneGraph.set_local_rotation(self._scene_graph, wheel_transform, wheel_rotation)
 	end
 
@@ -464,6 +472,8 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 
 	-- Ease the chase camera into turns.
 	if self._camera then
+		local render_pose = SceneGraph.world_pose(self._scene_graph, transform)
+		local chassis_forward = Matrix4x4.y(render_pose)
 		chassis_forward.z = 0
 		if Vector3.length(chassis_forward) > 0.001 then
 			Vector3.normalize(chassis_forward)
@@ -475,7 +485,7 @@ function Vehicle:update(dt, throttle, steering, brake, handbrake)
 		local angle = (heading - yaw + math.pi) % (2 * math.pi) - math.pi
 		self._camera_yaw = yaw + angle * (1 - math.exp(-5 * dt))
 		local camera_forward = Vector3(math.cos(self._camera_yaw), math.sin(self._camera_yaw), 0)
-		local target = position + Vector3(0, 0, 0.2)
+		local target = Matrix4x4.translation(render_pose) + Vector3(0, 0, 0.2)
 		local desired_position = target - camera_forward * 5.5 + Vector3(0, 0, 1.6)
 		local camera_transform = SceneGraph.instance(self._scene_graph, self._camera:unit())
 		local view = Vector3.normalize(target - desired_position)
