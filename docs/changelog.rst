@@ -35,6 +35,7 @@ Changelog
 * Runtime: reduced directional shadow projection overhead.
 * Runtime: moved light and ambient color conversion to the CPU.
 * Runtime: added support for transparent mesh materials.
+* Runtime: reduced OpenAL overhead by caching some data.
 * Data Compiler: added ``--strip`` to remove Lua debug symbols.
 * Lua: ``Material.set_texture()`` now accepts ``nil`` to bind the default texture.
 * Lua: added ``Window.has_focus()``.

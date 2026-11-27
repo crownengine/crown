@@ -76,6 +76,8 @@ struct SoundInstance
 	bool _loop;
 	f32 _volume;
 	f32 _pitch;
+	f32 _gain;
+	Vector3 _position;
 	StringId32 _group;
 	f32 _range;
 	u32 _flags;
@@ -112,6 +114,8 @@ struct SoundInstance
 		_mp3 = NULL;
 		_volume = 1.0f;
 		_pitch = 1.0f;
+		_gain = 1.0f;
+		_position = VECTOR3_ZERO;
 		_group = group;
 		_flags = flags;
 
@@ -234,14 +238,15 @@ struct SoundInstance
 			// Decode _block_size samples or less.
 			f32 *dec = (f32 *)_stream_decoded;
 			u32 tot_n = 0;
+			const u32 stream_size = _stream->size();
 			while (tot_n < _block_samples) {
 				float **output;
 				int n;
 				int q = ogg->max_frame_size;
 
 			retry:
-				if (q > int(_stream->size() - _stream_pos))
-					q = _stream->size() - _stream_pos;
+				if (q > int(stream_size - _stream_pos))
+					q = stream_size - _stream_pos;
 				if ((int)_stream_pos < q)
 					_stream_pos += _stream->read(&_stream_encoded[_stream_pos], q - _stream_pos);
 
@@ -433,16 +438,20 @@ struct SoundInstance
 		return source_state() == AL_PLAYING;
 	}
 
-	Vector3 position()
+	void set_gain(f32 gain)
 	{
-		ALfloat pos[3];
-		AL_CHECK(alGetSourcefv(_source, AL_POSITION, pos));
-		return { pos[0], pos[1], pos[2] };
+		if (_gain != gain) {
+			AL_CHECK(alSourcef(_source, AL_GAIN, gain));
+			_gain = gain;
+		}
 	}
 
 	void set_position(const Vector3 &pos)
 	{
-		AL_CHECK(alSourcefv(_source, AL_POSITION, to_float_ptr(pos)));
+		if (_position.x != pos.x || _position.y != pos.y || _position.z != pos.z) {
+			AL_CHECK(alSourcefv(_source, AL_POSITION, to_float_ptr(pos)));
+			_position = pos;
+		}
 	}
 };
 
@@ -561,8 +570,8 @@ struct SoundWorldImpl
 		inst.create(_resource_manager, name, loop, range, flags, pos, group);
 		set_sound_volumes(1, &id, &volume);
 
-		if (distance_squared(translation(_listener_pose), inst.position()) > inst._range*inst._range) {
-			AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
+		if (distance_squared(translation(_listener_pose), inst._position) > inst._range*inst._range) {
+			inst.set_gain(0.0f);
 		}
 
 		AL_CHECK(alSourcePlay(inst._source));
@@ -631,7 +640,7 @@ struct SoundWorldImpl
 				}
 			}
 
-			AL_CHECK(alSourcef(inst._source, AL_GAIN, volume * group_volume));
+			inst.set_gain(volume * group_volume);
 			inst._volume = volume;
 		}
 	}
@@ -640,8 +649,10 @@ struct SoundWorldImpl
 	{
 		for (u32 i = 0; i < num; ++i) {
 			SoundInstance &inst = lookup(ids[i]);
-			AL_CHECK(alSourcef(inst._source, AL_PITCH, pitches[i]));
-			inst._pitch = pitches[i];
+			if (inst._pitch != pitches[i]) {
+				AL_CHECK(alSourcef(inst._source, AL_PITCH, pitches[i]));
+				inst._pitch = pitches[i];
+			}
 		}
 	}
 
@@ -659,7 +670,7 @@ struct SoundWorldImpl
 				const StringId32 group = inst._group;
 				const f32 range = inst._range;
 				const u32 flags = inst._flags;
-				const Vector3 pos = inst.position();
+				const Vector3 pos = inst._position;
 
 				ALint state;
 				AL_CHECK(alGetSourcei(inst._source, AL_SOURCE_STATE, &state));
@@ -677,8 +688,8 @@ struct SoundWorldImpl
 				set_sound_volumes(1, &id, &volume);
 				set_sound_pitches(1, &id, &pitch);
 
-				if (distance_squared(translation(_listener_pose), inst.position()) > range*range) {
-					AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
+				if (distance_squared(translation(_listener_pose), inst._position) > range*range) {
+					inst.set_gain(0.0f);
 				}
 
 				if (state == AL_PLAYING || state == AL_PAUSED) {
@@ -751,8 +762,8 @@ struct SoundWorldImpl
 				sound_buffers += inst._num_buffers;
 				streaming_sounds += inst._resource->stream_format != StreamFormat::NONE;
 
-				if (distance_squared(listener_pos, inst.position()) > inst._range*inst._range) {
-					AL_CHECK(alSourcef(inst._source, AL_GAIN, 0.0f));
+				if (distance_squared(listener_pos, inst._position) > inst._range*inst._range) {
+					inst.set_gain(0.0f);
 				} else {
 					set_sound_volumes(1, &inst._id, &inst._volume);
 				}
