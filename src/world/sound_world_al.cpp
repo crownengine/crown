@@ -344,12 +344,9 @@ struct SoundInstance
 		}
 	}
 
-	void update()
+	ALint update_stream()
 	{
-		ScopedProfileScope sps("SoundInstance::update");
-
-		if (_resource->stream_format == StreamFormat::NONE)
-			return;
+		ScopedProfileScope sps("SoundInstance::update_stream");
 
 		ALint processed;
 		AL_CHECK(alGetSourcei(_source, AL_BUFFERS_PROCESSED, &processed));
@@ -368,19 +365,19 @@ struct SoundInstance
 			}
 		}
 
-		ALint state;
-		AL_CHECK(alGetSourcei(_source, AL_SOURCE_STATE, &state));
-
+		const ALint state = source_state();
 		if (state != AL_PLAYING && state != AL_PAUSED) {
 			// Either the source underrun or no buffers were enqueued.
 			ALint queued;
 			AL_CHECK(alGetSourcei(_source, AL_BUFFERS_QUEUED, &queued));
 			if (queued == 0)
-				return; // Finished.
+				return state; // Finished.
 
 			// Underrun, restart playback.
 			AL_CHECK(alSourcePlay(_source));
+			return source_state();
 		}
+		return state;
 	}
 
 	void destroy(ResourceManager *rm)
@@ -752,15 +749,19 @@ struct SoundWorldImpl
 		for (u32 i = 0; i < _num_objects; ++i) {
 			SoundInstance &inst = _playing_sounds[i];
 
-			inst.update();
-			const ALint state = inst.source_state();
+			const bool streaming = inst._resource->stream_format != StreamFormat::NONE;
+			ALint state;
+			if (streaming)
+				state = inst.update_stream();
+			else
+				state = inst.source_state();
 			if (state != AL_PLAYING && state != AL_PAUSED) {
 				array::push_back(to_delete, inst._id);
 			} else {
 				playing_sounds += state == AL_PLAYING;
 				paused_sounds += state == AL_PAUSED;
 				sound_buffers += inst._num_buffers;
-				streaming_sounds += inst._resource->stream_format != StreamFormat::NONE;
+				streaming_sounds += streaming;
 
 				if (distance_squared(listener_pos, inst._position) > inst._range*inst._range) {
 					inst.set_gain(0.0f);
