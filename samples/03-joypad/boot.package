@@ -10,3 +10,9 @@ physics_config = [
 unit = [
 	"core/units/camera"
 ]
+font = [
+	"core/game/hud/debug"
+]
+material = [
+	"core/game/hud/debug"
+]

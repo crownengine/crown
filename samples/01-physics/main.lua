@@ -33,6 +33,7 @@ GameBase.game = Game
 GameBase.game_level = "levels/mover"
 GameBase.show_help = true
 GameBase.show_build = true
+GameBase.show_fps = true
 GameBase.touch_controls = {
 	axes = { "left", "trigger_left", "right" },
 	buttons = { "a", "b" },

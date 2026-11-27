@@ -16,6 +16,7 @@ Game = Game or {
 
 GameBase.game = Game
 GameBase.game_level = "levels/game"
+GameBase.show_fps = true
 GameBase.touch_controls = {
 	axes = { "left", "trigger_left" },
 }

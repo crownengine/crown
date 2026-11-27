@@ -12,6 +12,7 @@ GameBase = GameBase or {
 	screen_gui  = nil,
 	show_help   = true,
 	show_build  = false,
+	show_fps    = false,
 	touch_controls = nil,
 	virtual_joypad = nil,
 
@@ -85,6 +86,9 @@ function GameBase.render(dt)
 	if GameBase.show_build then
 		GameBase.draw_build()
 	end
+	if GameBase.show_fps then
+		GameBase.draw_fps(dt)
+	end
 	if GameBase.virtual_joypad then
 		GameBase.virtual_joypad:draw(GameBase.screen_gui)
 	end
@@ -152,4 +156,18 @@ function GameBase.draw_build()
 	local position = Vector2(window_w - extents.x - 12, 12)
 
 	Gui.text(GameBase.screen_gui, position, font_size, build, font, material, color)
+end
+
+function GameBase.draw_fps(dt, gui)
+	dt = dt or 0
+	gui = gui or GameBase.screen_gui
+	local window_w, window_h = Device.resolution()
+	local font_size = 16
+	local font = "core/game/hud/debug"
+	local material = "core/game/hud/debug"
+	local fps = string.format("dt: %.2f ms  FPS: %.1f", dt * 1000, dt > 0 and 1 / dt or 0)
+	local extents = Gui.text_extents(gui, font_size, fps, font)
+	local position = Vector2(window_w - extents.x - 10, window_h - font_size - 10)
+
+	Gui.text(gui, position, font_size, fps, font, material)
 end

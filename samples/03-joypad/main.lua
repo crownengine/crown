@@ -9,6 +9,7 @@ Game = Game or {
 
 GameBase.game = Game
 GameBase.game_level = nil
+GameBase.show_fps = true
 
 function Game.init()
 	-- Override default camera's settings

@@ -15,6 +15,7 @@ Game = Game or {
 GameBase.game = Game
 GameBase.game_level = "levels/vehicle"
 GameBase.show_build = true
+GameBase.show_fps = true
 GameBase.touch_controls = {
 	axes = { "left" },
 	buttons = { "a", "b", "reset" },
@@ -85,12 +86,6 @@ function Game.update(dt)
 	end
 
 	local win_w, win_h = Device.resolution()
-
-	local font_size = 16
-	local timing = string.format("dt: %.2f ms  FPS: %.1f", dt * 1000, dt > 0 and 1 / dt or 0)
-	local timing_extents = Gui.text_extents(GameBase.screen_gui, font_size, timing, font)
-	Gui.text(GameBase.screen_gui, Vector2(win_w - timing_extents.x - 10, win_h - font_size - 10), font_size, timing, font, font)
-
 	local help_scale = math.min(1, win_w / 1000, win_h / 650)
 	GameBase.draw_help({
 		{ key = k("f1"), desc = "Toggle help" },
